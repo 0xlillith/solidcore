@@ -18,5 +18,6 @@ pub mod geom;
 pub mod iges;
 pub mod knots;
 pub mod math;
+pub mod nurbs_crv;
 pub mod srf_basic;
 pub mod srf_tool;
