@@ -6,6 +6,7 @@
 //! `SmPseudoBox`, `SmTol`, `SmTransform`, `SmMatrix` and related `geom.*` units of
 //! `plan/modules.toml`.
 
+pub mod a_object;
 pub mod assert_array;
 pub mod attribute;
 pub mod axis2_placement;
@@ -22,6 +23,7 @@ pub mod local_solve_nd;
 pub mod matrix;
 pub mod object;
 pub mod periodic_extent1d;
+pub mod point_set;
 pub mod polar_box;
 pub mod polynomial;
 pub mod pseudo_box;

@@ -868,6 +868,48 @@ cases.
   (`SmVolume::ReadFromDB`) and always returns `SM_SUCCESS` once the 16 matrix values
   are read.
 
+## geom.a_object (partial; no disagreements)
+
+The difftest has 2040 default cases: 8 fixtures derived from upstream tests, 32 edge-case
+fixtures and 2000 generated cases (types, NLI helpers, notify/attribute/cache scripts).
+A 50,040-case run (`--seeds 50000`) was also clean. Every case that is not deferred
+matches upstream exactly. The deferred cases are on `topology.brep_cache` (a new
+`SmBrepCache`), `topology.shell` (`SmRegion::IsVoid` in region propagation) and
+`topology.topology` (`SmSAGObject::Notify` ends in `SmTopology::Notify`).
+
+Notes for later agents:
+
+- **Data model.** `geom::a_object::notify` drives the `AttributeStore` handlers of
+  `geom.attribute`. Pass it the notified object as an `ObjectRef`; region-ness is
+  `type_code == SmRegion_TYPE`. Caches live in `CacheStore<T>` and `AObject` holds
+  the slot. A class's `CacheMakeOrValidate` override is chosen by passing a
+  `CacheMaker`. The curve and surface makers are `UNPORTED(curve.curve_p5)` and
+  `UNPORTED(surface.surface_p1)`.
+- **Region propagation (`SM_NO_REG_PROPAGATION`) is quirky upstream. It is ported
+  as is but stays behind `UNPORTED(topology.shell)`:**
+  - The source loop runs twice. The second pass resets `sAttributes1` and keeps
+    `sAttributes2`.
+  - `lAttrib2Size` is taken *before* `GetAttributes(sAttributes2)` refills the
+    list. On the first pass the other region's attributes are therefore never
+    visited. With two or more other regions, upstream indexes the refilled list
+    with the previous region's count, which reads stale or out-of-range entries.
+    Rust returns `InvalidInput` where the index is out of range.
+  - `SET_FROM_OTHER` removes the target attribute while the snapshot still holds
+    it. With a duplicate list entry, that becomes a read after delete.
+  - The difftest skips (status -2) every region-propagation case with more than
+    one other region, the caller as its own other region, a duplicate list entry,
+    or a non-vector `SM_AI_COLOR` attribute. For merges, it skips sources that
+    carry `SM_AI_OTHER_REGION_ID`, because the merge-region handler casts and
+    dereferences without checks.
+- **`SmSAGObject::IsKindOf` chains to `SmAObject::IsKindOf`**, which skips
+  `SmOwningTopology` and `SmTopology`. `SmBrep::IsKindOf(SmTopology_TYPE)` is
+  therefore FALSE upstream. The port keeps this.
+- **`SmSAGObject::CacheMakeOrValidate` stores a newly built cache in `this`, not
+  in the target object.** The two are the same object when it is called from
+  `GetOrCreateObjectCache`.
+- No `UNPORTED(geom.a_object)` stubs existed to wire. The attribute-list methods
+  remain co-ported in `geom::attribute::AttributeStore`.
+
 ## geom.pseudo_box (green; no disagreements)
 
 3011 difftest cases (11 fixtures + 3000 generated) are bit-identical. Upstream
@@ -899,6 +941,25 @@ behaviour worth knowing:
   returns `Unported(surface.volume_p2)`. The 113 `geom.transform` cases deferred on
   `geom.pseudo_box` now pass. 256 cases are still deferred, on `surface.volume_p1`/`_p2`.
 
+## curve.hermite_curve (partial; no disagreements)
+
+2131 difftest cases (131 fixtures + 2000 generated): 2038 bit-identical, 93 deferred
+(`IsKindOf` of a type other than `SmHermiteCurve_TYPE` reaches `SmCurve::IsKindOf`,
+unit `curve.curve_p2`). Upstream behaviour worth knowing:
+
+- **`Evaluate` leaves its last entry unset for `lNumDerivatives >= 4`.** The zeroing
+  loop is `for (i = 4; i < lNumDerivatives; i++)`, so `aPointAndDerivatives[n]` keeps
+  whatever the caller had (an `SmVector3d` default is `SM_UNDEF_DOUBLE`). The port
+  returns zero there; the shim pre-fills the caller array with zeros so the two agree.
+- `ReadFromDB` reads into `new SmHermiteCurve()` whose vectors are `SM_UNDEF_DOUBLE`
+  (the `SmVector3d` member initialisers), so a skipped ASCII extraction (stream
+  already failed) leaves `1.23456e-61`, and a value that fails to parse becomes `0`.
+  Fixtures `db_ascii_truncated`, `db_ascii_garbage`, `db_ascii_empty` cover this. A
+  short *binary* read is undefined upstream (see `topology.database_io`) and not tested.
+- `CalculateBoundingBox` sets the basis of the caller's pseudo box without resetting
+  its intervals (unless the chord is zero, which resets the whole box), so a pseudo
+  box that already holds points keeps them; fixtures `*_preset` cover it.
+
 ## nlib.crv_tool_p1 (partial; no disagreements)
 
 2143 default cases (143 fixtures on the `.smc` test curves, 2000 generated): 2063 agree bit
@@ -921,3 +982,59 @@ the Rust methods return a new curve. Upstream behaviour worth knowing:
   1 ulp off, so knot-valued parameters in fixtures use `{"knot": i}`. Without it, the
   `curve0.smc` end knots fell outside the range.
 - No `UNPORTED(nlib.crv_tool_p1)` stubs existed to wire.
+
+## nlib.crv_fit_p1 (green; no disagreements)
+
+2084 difftest cases (84 fixtures from `FitCrvPoints.pts`, `Points.pts`, rectangle / hexagon
+corners of `TestSmCreateRectangle` / `TestSmCreateRegularPolygon`, and edge cases; 2000
+generated), all bit-identical (`max_rel_err = 0`).
+
+- **`N_FitCrvFirstDerivAndKnots` writes `M[2i+1][-1]`** whenever the span of `u[i]` gives
+  `l == 0` (not with the knots of its driver `N_FitCalcKnotsDerivs`, where `l == 1`). The
+  banded matrix is one row-major block, so that is the last entry of row `2i` (band column
+  `bw-1`, i.e. a wrong matrix entry). The port writes exactly there; fixture
+  `first_derivs_row_underflow_p2` matches C++ bit for bit through it.
+- **Unwritten outputs.** `N_FitCalcCrvParamValues` leaves the interior parameters unwritten
+  when the total chord length is `<= NL_PTOL`, and `N_FitCalcKnotVectorDeriv` leaves the
+  interior knots unwritten for `p == 0`; the port returns zeros there and the shim passes
+  zero-filled buffers.
+- **Out-of-bounds reads/writes refused by the FFI and `InvalidInput` in Rust:**
+  `N_FitCalcKnotVectorEndDerivs` / `N_FitCalcKnotVectorDeriv` with `p == 1` and one
+  parameter read `u[1]` / `u[-1]`; `N_FitCrvApproxKnots` copies `n+p+2` knots before checking
+  the knot count, writes `Pw[1]` for `n == 0`, and its band bookkeeping (`start` / `end` /
+  `index`) indexes `B` correctly only when the evaluated parameters `u[1..m-1]` are
+  non-decreasing; `N_FitCrvCPtsFromSrfData` with a matrix larger than the extracted row /
+  column reads uninitialised entries; `N_FitCrvInterpGivenParams` with `2 <= n < p` gives
+  `N_BasisEval` too few knots.
+- `N_FitCrvKnotsAndDeriv` uses band offset `l = 0` for every row when `p == 2` and
+  `l = j - i - 1` otherwise (not `sp - i + j` as its two-derivative sibling); ported as is.
+- No `UNPORTED(nlib.crv_fit_p1)` stubs existed to wire.
+
+## geom.point_set (green; no disagreements)
+
+2029 difftest cases (29 fixtures + 2000 generated) are bit-identical. Upstream
+behaviour worth knowing:
+
+- **`SetUpTightPseudoBox` never projects its points.** The "extra planar work" means to
+  project the boundary and neighbour points onto the box mid-plane before measuring
+  angles, but `SmPoint3d::ProjectPointToPlane` is `const` and returns the projection;
+  the results are discarded (`sBegPt0.ProjectPointToPlane(..) ;`). The angles are
+  measured between raw points. A port that projects differs in the last bits of the
+  rotation angle, which shows up as a ~1e-15 vs ~1e-16 basis component on slightly
+  non-planar sets. Ported as is.
+- **`SetUpCentroid` block sums.** The first block holds `size % 50` points and the loop
+  runs `size / 50 + (extras ? 1 : 0)` times. For a size that is a positive multiple of 50,
+  the first block is empty and the last 50 points are never added (50 points give a
+  centroid of `(0,0,0)`). `SetUpCentroid` also never sets `m_bCentroidSet`, so
+  `GetCentroid` recomputes every time. After `GetNormal` (or any box query), however,
+  the centroid is the best-fit plane's centroid (`smgu_BestFitPlaneToPoints`), which
+  is computed correctly. So `GetCentroid` depends on the call order. Kept (fixtures
+  `centroid_blocks_*`).
+- **Reads outside the array (shim rejects).** `GetArea` on an empty sequence calls
+  `smgu_PolygonArea`, which reads `m_pData[-1]`. `GetTightPBox` on an empty set built
+  with a normal (classified planar) reads `m_pData[0]`, which segfaulted in difftest.
+  The Rust port returns area `-1` and skips the extra work, using `(0,0,0)` for the
+  missing points.
+- `SetUpAxes` returns the point-set type as its `SmStatus`; every caller ignores it.
+  `SmPointSet3d::SetNormal` assigns to its own argument (`sNormal = m_sNormal`) and so
+  only clears the cache. It is not reached in scope and is not ported.

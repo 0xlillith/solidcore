@@ -1,6 +1,6 @@
 # solidcore status
 
-Last updated: 2026-10-12, Wave 1 in progress (after style review batch #5). Update a
+Last updated: 2026-10-12, Wave 1 in progress (after style review batch #6). Update a
 summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
 
 ## Progress
@@ -11,12 +11,12 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | | |
 |---|---|
 | Units planned | 260 (65 layers), 387,903 upstream lines |
-| Green | **30** (29,119 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1` |
-| Partial | **10** (10,742 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `nlib.crv_basic`, `geom.tools`, `geom.transform`, `geom.global_solver`, `nlib.crv_tool_p1` |
-| Ported (green + partial) | 40 units, 39,861 upstream lines (10.3%); about 37,700 Rust lines in `geom/`, `nurbs/` and `topology/` |
-| Claimed | 2 (2,642 lines): `nlib.crv_fit_p1`, `geom.a_object` |
+| Green | **32** (32,502 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_fit_p1`, `nlib.funcs_adv` |
+| Partial | **12** (12,060 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `nlib.crv_basic`, `geom.tools`, `geom.transform`, `geom.global_solver`, `nlib.crv_tool_p1`, `curve.hermite_curve`, `geom.a_object` |
+| Ported (green + partial) | 44 units, 44,562 upstream lines (11.5%); about 47,300 Rust lines in `geom/`, `nurbs/` and `topology/` |
+| Claimed | 2 (2,573 lines): `geom.point_set`, `nlib.crv_nurb` |
 | Blocked | 0 |
-| Todo | 218 (345,400 lines) |
+| Todo | 214 (340,768 lines) |
 
 ## What Wave 0 produced
 
@@ -81,6 +81,7 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | `geom.geom_utility_p2` | `geom::geom_utility::p2` | 3270 cases (70 fixture + 3200 generated), max_rel_err 0 | bit-identical; promoted from partial when its p1 back-edges were wired; `PointSetType` is p1's |
 | `geom.extent3d` | `geom::extent3d` | 3086 cases (86 fixture + 3000 generated), max_rel_err 0 | bit-identical; promoted from partial when `geom.pseudo_box` wired `Circumscribe` (axis-map quirk in findings.md) |
 | `geom.pseudo_box` | `geom::pseudo_box` | 3011 cases (11 fixture incl. my_test_pseudobox + 3000 generated programs on 4 box registers), max_rel_err 0 | bit-identical; wired extent3d Circumscribe, tol GetScaledZero(SmPseudoBox), transform EvaluateBoundingBoxSimple (aligned branch) |
+| `nlib.funcs_adv` | `nurbs::funcs_adv` | 2080 cases (80 fixture incl. 6 pt_TestFiles .smc curves + 2000 generated), max_rel_err 0 | bit-identical; the three upstream products share one generic body; inputs rescaled in place as upstream |
 
 ## Partial units
 
@@ -95,21 +96,30 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 | `geom.solution_array` | `geom::solution_array` | 810 cases (10 fixture + 800 generated), 754 bit-identical | 56 (object geometry: `curve.curve_p2` 16, `topology.face_p2` 14, `topology.edge` 12, `surface.surface_p2` 9, `topology.vertex` 5) |
 | `nlib.crv_basic` | `nurbs::crv_basic` | 3417 cases (417 fixture incl. the six pt_TestFiles .smc curves, .sms cross-boundary derivatives, SM_API_test rectangle/polygon segments, my_test_reversed_line_join lines + 3000 generated), 3139 bit-identical; a 30,000-case run was also clean | 278 (`nlib.crv_tool_p2`: every `N_CrvsAreCoincident` case, via `N_CrvsMakeCompatible`) |
 | `nlib.crv_tool_p1` | `nurbs::crv_tool::p1` | 2143 cases (143 fixture on the six pt_TestFiles .smc curves, in-place and out-of-place C++ forms + 2000 generated), 2063 bit-identical | 80 (`nlib.crv_nurb`: every rational `N_CrvRemoveKnot` case, via `N_CrvGetMinMaxWeightsAndPts`) |
+| `geom.a_object` | `geom::a_object` | 2040 cases (40 fixture + 2000 generated), 1871 bit-identical; a 50,040-case run was also clean | 169 (`topology.brep_cache` 131: new `SmBrepCache`; `topology.shell` 37: `SmRegion::IsVoid`; `topology.topology` 1: `SmSAGObject::Notify`) |
 
 ## Ready set
 
-Ready (todo, every dependency green/partial): `nlib.crv_fit_p1` (1707), `nlib.crv_tool_p1`
-(1371), `nlib.iges` (1055), `nlib.srf_tool_p1` (1678), all layer 5. Waiting on a claimed unit:
+Ready (todo, every dependency green/partial): `nlib.crv_fit_p2` (layer 6, 1586 lines), `nlib.srf_fit` (layer 6, 1359 lines), `topology.topology` (layer 7, 389 lines). Waiting on a claimed unit:
 
 | Layer | Unit | Upstream lines | Waiting on (claimed) |
 |---|---|---|---|
-| 6 | `geom.a_object` | 935 | `geom.transform` |
+| 7 | `nlib.crv_geom` | 729 | `nlib.crv_nurb` |
+| 7 | `nlib.crv_tool_p2` | 1748 | `nlib.crv_nurb` |
+| 7 | `nurbs.nurbs_crv` | 2200 | `nlib.crv_nurb` |
 
 
 ## Recent findings (details in `plan/findings.md`)
 
-- No Rust-vs-C++ disagreement so far: every non-deferred case of the 32 ported
+- No Rust-vs-C++ disagreement so far: every non-deferred case of the 40 ported
   units is bit-identical (`max_rel_err = 0`).
+- `nlib.crv_tool_p1`: rational `N_CrvRemoveKnot` waits on `nlib.crv_nurb`
+  (`N_CrvGetMinMaxWeightsAndPts` always returns `pmax = 0`); `N_CrvRemoveKnot` can
+  finish a removal and still return its error flag; the insert/split/refine routines
+  do no input checks (port returns `InvalidInput`). Knot-valued fixture parameters use
+  `{"knot": i}` because serde_json can parse decimals 1 ulp off.
+- `geom.transform`: `EvaluateBoundingBoxSimple` dereferences a null
+  `pOptParamPseudoBox` when an output is requested (port: `InvalidInput`).
 - `nlib.basis_adv`: `N_BasisDerivsArray` walks spans forward without a bound (reads past
   `U[m]` for an inner parameter at or past the domain end) and has no zero-denominator
   guard; `N_BasisInsertKnots` reads `X[mx+1]` (port skips the no-op comparison).
@@ -276,22 +286,54 @@ and the wasm32 check. No public API changed.
   too_many_lines)` (allowed workspace-wide); `CurveFunction::compact` truncates in
   place.
 
-## Resume note (2026-10-12, after style review batch #5)
+## Style review batch #6 (2026-10-12)
 
-- `main` is pushed to `origin` (github.com/bherbruck/solidcore). Five units are
-  claimed (`nlib.crv_basic`, `geom.pseudo_box`, `geom.global_solver`,
-  `geom.transform`, `geom.tools`); check `git worktree list` before you claim. Nothing
-  is ready until one of them lands (see Ready set).
-- Earlier API changes still apply to older worktrees: `Axis2Placement::from_to`,
-  `SurfaceIndices`, `nurbs::geom::Frame` (batches #2 and #3), the `geom_utility_p2`
-  options structs (batch #4).
+Reviewed `geom.solution_array`, `nlib.crv_basic`, `geom.tools`, `geom.transform`,
+`geom.global_solver` and `geom.pseudo_box` against AGENTS.md. Numerics and operation
+order were not changed; every unit (and `nlib.crv_tool_p1`, merged meanwhile) re-ran
+difftest with unchanged counts and `max_rel_err = 0` (`geom.solution_array`,
+`nlib.crv_basic`, `geom.global_solver`, `geom.tools` also at `--seeds 4000`), plus fmt,
+clippy (with and without `cpp`), tests, `cargo doc -D warnings` and the wasm32 check.
+
+- `geom.solution_array`: **API change** `Solution::classify_solution_end` returns a new
+  `EndClass` enum (`BelowStart`, `AtStart`, `Within`, `AtEnd`, `AboveEnd`,
+  `Inconsistent`; `code()` gives upstream's -2..3) instead of an `i64`.
+  `# Errors` sections on every fallible public fn; `remove_at` uses `saturating_sub`.
+- `geom.global_solver`: **API change** `GlobalSolve::solve_it(&SolveRequest { operation,
+  solution_requested, tolerance_3d, best_answer_so_far_sq, opt_vectors }, solutions)`
+  replaces five positional arguments (`SolveRequest::default()` is Intersect / All /
+  0 / `SM_BIG_DOUBLE` / no vectors). `sm_CombineMinMax` matches on `EndClass`;
+  `FindBestSubdivisionNode` returns its swap flag directly; the perspective radius
+  loop iterates the four offsets; `# Errors` sections.
+- `geom.transform`, `geom.pseudo_box`, `geom.global_solver`: the private `SM_ERR`
+  consts / `sm_err` fns are replaced by `error::SM_ERR` / `SolidError::sm_err`. Removed
+  `transform`'s unused `VOLUME_TYPE` const and its `let _` placeholders. Twelve files
+  still carry a private copy (`grep -rn "const SM_ERR\|fn sm_err" crates/solidcore/src`).
+- `geom.tools`: the `CurveMaxDistanceBetween` stub takes the sample count as a
+  parameter (no `let _ = COINCIDENCE_SAMPLES`); the edge range is one expression.
+- `nlib.crv_basic`: `OP_*` operation paths inlined; "Errors with" prose became
+  `# Errors` sections; `equals` is one short-circuiting chain; `is_planar` skips
+  non-normalisable corners with `let ... else` (same sums and comparisons).
+
+## Resume note (2026-10-12, after style review batch #6)
+
+- `main` is pushed to `origin` (github.com/bherbruck/solidcore). Six units are
+  claimed (`nlib.crv_fit_p1`, `geom.a_object`, `curve.hermite_curve`,
+  `geom.point_set`, `nlib.crv_nurb`, `nlib.funcs_adv`); check `git worktree list`
+  before you claim. Nothing is ready until one of them lands (see Ready set).
+- Batch #6 API changes for older worktrees: `classify_solution_end` returns
+  `EndClass`, `GlobalSolve::solve_it` takes a `SolveRequest`. Earlier ones still apply:
+  `Axis2Placement::from_to`, `SurfaceIndices`, `nurbs::geom::Frame`, the
+  `geom_utility_p2` options structs.
 - Use `SolidError::sm_err` / `error::SM_ERR` for upstream `SM_ERR` in new code.
-- Remaining partial waits: `geom.extent3d` on `geom.pseudo_box`, `geom.tree` on
-  `nurbs.b_spline_surface_p1`/`surface.surface_cache_p1`, `geom.attribute` on
-  `topology.shell`, `geom.object` on the topology units, `geom.grid` on the surface
-  caches, `geom.solution_array` on curve/surface/edge/face/vertex geometry.
-- Style review batch #6: `geom.solution_array`, `nlib.crv_basic` and the units that
-  merge next; optionally the `SM_ERR` migration of the remaining files.
+- Remaining partial waits: `geom.tree` on `nurbs.b_spline_surface_p1`/
+  `surface.surface_cache_p1`, `geom.attribute` on `topology.shell`, `geom.object` on the
+  topology units, `geom.grid` on the surface caches, `geom.solution_array` and
+  `geom.tools` on curve/surface/edge/face/vertex geometry, `geom.transform` on
+  `surface.volume_p1`/`_p2`, `geom.global_solver` on `curve.curve_p2`,
+  `nlib.crv_basic` on `nlib.crv_tool_p2`, `nlib.crv_tool_p1` on `nlib.crv_nurb`.
+- Style review batch #7: `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_tool_p1` and the
+  units that merge next; optionally the `SM_ERR` migration of the remaining twelve files.
 
 ## Known problems
 
