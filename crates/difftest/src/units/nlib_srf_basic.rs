@@ -252,7 +252,8 @@ fn count(x: f64) -> Result<usize, HarnessError> {
 /// `<pfx>v`.
 fn split_dump(flat: &[f64], at: &mut usize, pfx: &str, mut out: Output) -> Result<Output, HarnessError> {
     let dims = take(flat, at, 6)?;
-    let (n, m, r, s) = (count(dims[0])?, count(dims[1])?, count(dims[4])?, count(dims[5])?);
+    let dim = |k: usize| count(dims.get(k).copied().unwrap_or(f64::NAN));
+    let (n, m, r, s) = (dim(0)?, dim(1)?, dim(4)?, dim(5)?);
     out = out.values(&format!("{pfx}dims"), dims.to_vec());
     let net = take(flat, at, 4 * (n + 1) * (m + 1))?;
     out = out.values(&format!("{pfx}net"), net.to_vec());
@@ -546,13 +547,16 @@ fn knots(rng: &mut Rng, cnt: usize, p: usize) -> Vec<f64> {
     let hi = cnt.saturating_sub(p + 1).max(lo);
     if let Some(mid) = k.get_mut(lo..hi) {
         mid.sort_by(f64::total_cmp);
-        if rng.chance(0.2) && mid.len() >= 2 {
-            let x = mid[0];
-            mid[1] = x; // a double knot
+        if rng.chance(0.2) {
+            if let [x, y, ..] = mid {
+                *y = *x; // a double knot
+            }
         }
     }
     if rng.chance(0.05) && cnt > 1 {
-        k[0] = a - 1.0; // broken end multiplicity
+        if let Some(k0) = k.first_mut() {
+            *k0 = a - 1.0; // broken end multiplicity
+        }
     }
     k
 }
@@ -612,7 +616,9 @@ fn gen_srf(rng: &mut Rng) -> InlineSrf {
     if rng.chance(0.05) {
         let i = rng.below(n as u64 + 1) as usize;
         let j = rng.below(m as u64 + 1) as usize;
-        net[i][j][3] = if rational { NOW } else { 1.0 };
+        if let Some(c) = net.get_mut(i).and_then(|row| row.get_mut(j)) {
+            c[3] = if rational { NOW } else { 1.0 };
+        }
     }
     // Closed in u or v (exactly, within NL_MTOL, or just outside).
     let close = |rng: &mut Rng| -> f64 {
@@ -624,18 +630,22 @@ fn gen_srf(rng: &mut Rng) -> InlineSrf {
     };
     if rng.chance(0.2) {
         let e = close(rng);
-        for j in 0..=m {
-            let mut c = net[0][j];
+        let mut first = net.first().cloned().unwrap_or_default();
+        for c in &mut first {
             c[0] += e;
-            net[n][j] = c;
+        }
+        if let Some(last) = net.get_mut(n) {
+            *last = first;
         }
     }
     if rng.chance(0.2) {
         let e = close(rng);
         for row in &mut net {
-            let mut c = row[0];
-            c[1] += e;
-            row[m] = c;
+            if let Some(&c) = row.first() {
+                if let Some(last) = row.get_mut(m) {
+                    *last = [c[0], c[1] + e, c[2], c[3]];
+                }
+            }
         }
     }
     let mut u = knots(rng, r + 1, p);
@@ -690,19 +700,28 @@ fn near_copy(rng: &mut Rng, s: &InlineSrf) -> InlineSrf {
         0 => {}
         1 => {
             let i = rng.below(t.net.len() as u64) as usize;
-            let j = rng.below(t.net[0].len() as u64) as usize;
+            let j = rng.below(t.net.first().map_or(1, Vec::len) as u64) as usize;
             let k = rng.below(4) as usize;
-            if t.net[i][j][k] != NOW && t.net[i][j][k] != NOZ {
-                t.net[i][j][k] += rng.uniform(-1.0, 1.0) * 1e-5;
+            let d = rng.uniform(-1.0, 1.0) * 1e-5;
+            if let Some(x) = t.net.get_mut(i).and_then(|row| row.get_mut(j)).and_then(|c| c.get_mut(k)) {
+                if *x != NOW && *x != NOZ {
+                    *x += d;
+                }
             }
         }
         2 => {
             let i = rng.below(t.u.len() as u64) as usize;
-            t.u[i] += rng.uniform(-1.0, 1.0) * 1e-5;
+            let d = rng.uniform(-1.0, 1.0) * 1e-5;
+            if let Some(x) = t.u.get_mut(i) {
+                *x += d;
+            }
         }
         3 => {
             let i = rng.below(t.v.len() as u64) as usize;
-            t.v[i] += rng.uniform(-1.0, 1.0) * 1e-5;
+            let d = rng.uniform(-1.0, 1.0) * 1e-5;
+            if let Some(x) = t.v.get_mut(i) {
+                *x += d;
+            }
         }
         4 => t.p += 1,
         _ => return gen_srf(rng),
