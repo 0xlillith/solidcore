@@ -448,7 +448,7 @@ upstream surfaces `Surface.sms` (thinly closed in u), `offset_nurb.sms` and
 - No `UNPORTED(nlib.srf_basic)` stubs existed to wire. `nlib.math`'s power-basis
   routines still take the net directly; a `Surface` method may forward to them.
 
-## nlib.bezier
+## nlib.bezier (green; no disagreements)
 
 2223 difftest cases (223 fixture: SM_API_test rectangle/polygon segments, `FitCrvPoints.pts`,
 `Points.pts`, `Surface.sms`, edge cases; 2000 generated), all bit-identical
