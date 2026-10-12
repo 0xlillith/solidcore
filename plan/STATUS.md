@@ -11,12 +11,12 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | | |
 |---|---|
 | Units planned | 260 (65 layers), 387,903 upstream lines |
-| Green | **31** (30,826 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_fit_p1` |
-| Partial | **10** (10,742 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `nlib.crv_basic`, `geom.tools`, `geom.transform`, `geom.global_solver`, `nlib.crv_tool_p1` |
-| Ported (green + partial) | 41 units, 41,568 upstream lines (10.7%); about 47,300 Rust lines in `geom/`, `nurbs/` and `topology/` |
-| Claimed | 5 (5,567 lines): `geom.a_object`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_nurb`, `nlib.funcs_adv` |
+| Green | **34** (34,567 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_fit_p1`, `nlib.funcs_adv`, `nlib.crv_tool_p1`, `geom.point_set` |
+| Partial | **12** (12,568 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `nlib.crv_basic`, `geom.tools`, `geom.transform`, `geom.global_solver`, `curve.hermite_curve`, `geom.a_object`, `nlib.crv_nurb` |
+| Ported (green + partial) | 46 units, 47,135 upstream lines (12.2%); about 47,300 Rust lines in `geom/`, `nurbs/` and `topology/` |
+| Claimed | 3 (3,334 lines): `nlib.crv_fit_p2`, `nlib.srf_fit`, `topology.topology` |
 | Blocked | 0 |
-| Todo | 214 (340,768 lines) |
+| Todo | 211 (337,434 lines) |
 
 ## What Wave 0 produced
 
@@ -81,6 +81,8 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | `geom.geom_utility_p2` | `geom::geom_utility::p2` | 3270 cases (70 fixture + 3200 generated), max_rel_err 0 | bit-identical; promoted from partial when its p1 back-edges were wired; `PointSetType` is p1's |
 | `geom.extent3d` | `geom::extent3d` | 3086 cases (86 fixture + 3000 generated), max_rel_err 0 | bit-identical; promoted from partial when `geom.pseudo_box` wired `Circumscribe` (axis-map quirk in findings.md) |
 | `geom.pseudo_box` | `geom::pseudo_box` | 3011 cases (11 fixture incl. my_test_pseudobox + 3000 generated programs on 4 box registers), max_rel_err 0 | bit-identical; wired extent3d Circumscribe, tol GetScaledZero(SmPseudoBox), transform EvaluateBoundingBoxSimple (aligned branch) |
+| `nlib.funcs_adv` | `nurbs::funcs_adv` | 2080 cases (80 fixture incl. 6 pt_TestFiles .smc curves + 2000 generated), max_rel_err 0 | bit-identical; the three upstream products share one generic body; inputs rescaled in place as upstream |
+| `nlib.crv_tool_p1` | `nurbs::crv_tool::p1` | 2143 cases (143 fixture on the six pt_TestFiles .smc curves, in-place and out-of-place C++ forms + 2000 generated), max_rel_err 0 | bit-identical; promoted from partial when `nlib.crv_nurb` wired `N_CrvGetMinMaxWeightsAndPts` (rational `N_CrvRemoveKnot`) |
 
 ## Partial units
 
@@ -94,25 +96,25 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 | `geom.grid` | `geom::grid` | 615 cases (15 fixture + 600 generated), 613 bit-identical; a 30,015-case run was also clean | 2 (`surface.surface_cache_p1` 1: `SmSurfaceGridElement::Init`; `surface.surface_p2` 1: `ExpandHierarchy`) |
 | `geom.solution_array` | `geom::solution_array` | 810 cases (10 fixture + 800 generated), 754 bit-identical | 56 (object geometry: `curve.curve_p2` 16, `topology.face_p2` 14, `topology.edge` 12, `surface.surface_p2` 9, `topology.vertex` 5) |
 | `nlib.crv_basic` | `nurbs::crv_basic` | 3417 cases (417 fixture incl. the six pt_TestFiles .smc curves, .sms cross-boundary derivatives, SM_API_test rectangle/polygon segments, my_test_reversed_line_join lines + 3000 generated), 3139 bit-identical; a 30,000-case run was also clean | 278 (`nlib.crv_tool_p2`: every `N_CrvsAreCoincident` case, via `N_CrvsMakeCompatible`) |
-| `nlib.crv_tool_p1` | `nurbs::crv_tool::p1` | 2143 cases (143 fixture on the six pt_TestFiles .smc curves, in-place and out-of-place C++ forms + 2000 generated), 2063 bit-identical | 80 (`nlib.crv_nurb`: every rational `N_CrvRemoveKnot` case, via `N_CrvGetMinMaxWeightsAndPts`) |
+| `geom.a_object` | `geom::a_object` | 2040 cases (40 fixture + 2000 generated), 1871 bit-identical; a 50,040-case run was also clean | 169 (`topology.brep_cache` 131: new `SmBrepCache`; `topology.shell` 37: `SmRegion::IsVoid`; `topology.topology` 1: `SmSAGObject::Notify`) |
+| `nlib.crv_nurb` | `nurbs::crv_nurb` | 2871 cases (871 fixture on the six pt_TestFiles .smc curves, SM_API_test rectangle/polygon/circle and reversed-line curves, edge cases + 2000 generated incl. exact circles, lines, degenerate and closed curves), 2852 bit-identical | 19 (`nlib.crv_geom`: `N_CrvGetDegenSegs` cases that reach `N_CrvArcLength`) |
 
 ## Ready set
 
-Ready (todo, every dependency green/partial): `nlib.crv_fit_p2` (layer 6, 1586 lines), `nlib.srf_fit` (layer 6, 1359 lines). Waiting on a claimed unit:
+Ready (todo, every dependency green/partial): `nlib.crv_fit_p2` (layer 6, 1586 lines), `nlib.srf_fit` (layer 6, 1359 lines), `topology.topology` (layer 7, 389 lines). Waiting on a claimed unit:
 
 | Layer | Unit | Upstream lines | Waiting on (claimed) |
 |---|---|---|---|
 | 7 | `nlib.crv_geom` | 729 | `nlib.crv_nurb` |
 | 7 | `nlib.crv_tool_p2` | 1748 | `nlib.crv_nurb` |
 | 7 | `nurbs.nurbs_crv` | 2200 | `nlib.crv_nurb` |
-| 7 | `topology.topology` | 389 | `geom.a_object` |
 
 
 ## Recent findings (details in `plan/findings.md`)
 
 - No Rust-vs-C++ disagreement so far: every non-deferred case of the 40 ported
   units is bit-identical (`max_rel_err = 0`).
-- `nlib.crv_tool_p1`: rational `N_CrvRemoveKnot` waits on `nlib.crv_nurb`
+- `nlib.crv_tool_p1`: green since `nlib.crv_nurb` landed
   (`N_CrvGetMinMaxWeightsAndPts` always returns `pmax = 0`); `N_CrvRemoveKnot` can
   finish a removal and still return its error flag; the insert/split/refine routines
   do no input checks (port returns `InvalidInput`). Knot-valued fixture parameters use
