@@ -37,7 +37,7 @@
 //! | [`xsect_tol_3d`]                       | `SmTol::GetXSectTol3d(SmSmallTopoType)`        |
 //! | [`context_xsect_tol_3d`]               | `SmTol::GetXSectTol3d(const SmContext*, SmSmallTopoType)` |
 //! | [`scaled_zero`], [`scaled_zero_sq`], [`scaled_zero_sqrt`] | `SmTol::GetScaledZero()`, `GetScaledZeroSq()`, `GetScaledZeroSqrt()` |
-//! | [`ScaledZero`] (`f64`, [`Vec2`], [`Vec3`], [`Extent1d`], [`Extent3d`]) | `SmTol::GetScaledZero(const double)`, `(const SmVector2d&)`, `(const SmVector3d&)`, `(const SmExtent1d&)`, `(const SmExtent3d&)` |
+//! | [`ScaledZero`] (`f64`, [`Vec2`], [`Vec3`], [`Extent1d`], `Extent2d`, [`Extent3d`]) | `SmTol::GetScaledZero(const double)`, `(const SmVector2d&)`, `(const SmVector3d&)`, `(const SmExtent1d&)`, `(const SmExtent2d&)` (impl in `geom::extent2d`), `(const SmExtent3d&)` |
 //! | [`scaled_zero_of_equations`]           | `SmTol::GetScaledZero(const SmEvalNFunctionsObject&)` |
 //! | [`map_to_1d`]                          | `SmTol::MapTo1d(SmTol3d&, SmVector3d&, const SmExtent1d&)` |
 //! | [`scaled_zero_sq_of`], [`scaled_zero_sqrt_of`] | unary `GetScaledZeroSq<cA>`, `GetScaledZeroSqrt<cA>` |
@@ -66,7 +66,7 @@
 //!
 //! Not here yet (they need types of later units; see the `UNPORTED` markers below):
 //! every overload taking an `SmObject`, `SmCurve`, `SmSurface`, `SmVolume`,
-//! `SmPseudoBox`, `SmExtent2d`, `SmBrep`, `SmBrepData`, a topology
+//! `SmPseudoBox`, `SmBrep`, `SmBrepData`, a topology
 //! entity, a classification / interval object, or `SmEvalNFunctionsObject`.
 //!
 //! Deviations:
@@ -106,11 +106,14 @@ use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF
 // SmTol::CalcEdgeZoneTol3d(.., SmBrep*, ..), SmTol::CalcVertexZoneTol3d(.., SmBrep*, ..)
 // need SmBrep::GetTolerance / SmBrep::SetThisModelSizeEstimate; and
 // SmTol::GetScaledZero(const SmBrep&) needs SmBrep::CalculateBoundingBox.
-// UNPORTED(geom.object): SmTol::GetZoneTol3d(const SmObject*), SmTol::GetZoneTol3d(const
+// UNPORTED(topology.topology): SmTol::GetZoneTol3d(const SmObject*), SmTol::GetZoneTol3d(const
 // SmBrepData*), SmTol::GetApproxTol3d(const SmObject*), SmTol::GetXSectTol3d(const
 // SmObject*, const SmObject*, ..), SmTol::GetZoneTol3d_ForXSectResult(const SmObject*,
 // const SmObject*), SmTol::IsDegenerate(const SmObject*), SmTol::IsClosed(const
-// SmObject*), SmTol::GetScaledZero(const SmObject&) dispatch on SmObject::IsKindOf.
+// SmObject*), SmTol::GetScaledZero(const SmObject&) dispatch on IsKindOf over
+// SmTopology (GetTolerance), SmSurface/SmCurve (GetFace/GetEdge), SmBrep, SmBrepData
+// and SmCurveClassification; geom.object (SmObject::IsKindOf) is ported, but those
+// classes have no Rust object type yet.
 // UNPORTED(curve.curve_p2): SmTol::IsDegenerate(const SmCurve*, SmExtent1d, ..),
 // SmTol::MapTo1d(SmTol3d&, double, const SmCurve&), SmTol::MapTo2d(.., double, const
 // SmCurve&, const SmSurface&) and SmTol::GetScaledZero(const SmCurve&) need
@@ -118,7 +121,6 @@ use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF
 // UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&, [const
 // SmVector2d&,] const SmSurface&) and SmTol::GetScaledZero(const SmSurface&) need
 // SmSurface::Evaluate1stDerivatives / GetNaturalUVDomain / ApproximateSize.
-// UNPORTED(geom.extent2d): SmTol::GetScaledZero(const SmExtent2d&) needs SmExtent2d.
 // UNPORTED(geom.pseudo_box): SmTol::GetScaledZero(const SmPseudoBox&) needs SmPseudoBox.
 // UNPORTED(surface.volume_p1): SmTol::GetScaledZero(const SmVolume&) needs SmVolume.
 // UNPORTED(intersect.curve_class_p1): SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of

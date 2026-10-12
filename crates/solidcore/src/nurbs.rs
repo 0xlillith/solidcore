@@ -5,6 +5,8 @@
 //! `NL_BasisAdv`, `NL_CrvBasic`, `NL_SrfBasic`, `NL_CrvFit`, ...) and the
 //! `SmNurbs*` / `SmBSpline*` wrappers. Units are listed in `plan/modules.toml`.
 
+pub mod basis_basic;
 pub mod geom;
 pub mod knots;
 pub mod math;
+pub mod srf_basic;
