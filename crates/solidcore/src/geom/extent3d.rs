@@ -51,14 +51,13 @@
 //! | [`Extent3d::is_init`]                  | `IsInit`                                       |
 //! | [`Extent3d::boundary_types`], [`Extent3d::is_bounded`] | `IsBounded`                    |
 //! | [`Extent3d::any_bounds`]               | `AnyBounds`                                    |
+//! | [`Extent3d::u_interval`], [`Extent3d::v_interval`], [`Extent3d::w_interval`] | `GetUInterval`, `GetVInterval`, `GetWInterval` |
+//! | [`Extent3d::set_u_interval`], [`Extent3d::set_v_interval`] | `SetUInterval`, `SetVInterval` |
 //! | [`Extent3d::approximate_unbounded`], [`Extent3d::approximate_unbounded_expanded`] | `ApproximateUnbounded` |
 //! | [`BoundaryType`]                       | `SmBoundaryType` (`SmTypes.h`)                 |
-//! | `max_dimension3`, `component`, `sqrt` (private) | `SmVector3d::GetMaxDimension`, `SmVector3d::operator[]`, `sm_sqrt` (co-ports, unit `geom.vector3d`) |
-//! | `asin` (private)                       | `sm_asin` / `smos_ArcSine` (co-port, unit `geom.vector3d`) |
 //!
 //! Not here yet (they need types of later units; see the `UNPORTED` markers below):
-//! `GetUInterval`/`GetVInterval`/`GetWInterval`, `SetUInterval`/`SetVInterval`
-//! (`SmExtent1d`, unit `geom.extent1d`), and `Circumscribe` /
+//! `Circumscribe` /
 //! `SmExtent3d(const SmPseudoBox&)` (`SmPseudoBox`, unit `geom.pseudo_box`).
 //!
 //! Deviations:
@@ -72,6 +71,9 @@
 //!   untouched.
 //! - Status codes: `SM_ERR_INVALID_INPUT` is [`SolidError::InvalidInput`]; the
 //!   `SM_ERR` of `ComputeConeBoundTo` is [`SolidError::Upstream`] with code 1001.
+//! - `SetUInterval`/`SetVInterval` only validate their argument under
+//!   `SM_DEBUG_CODE`; in the release build they always succeed, so the Rust methods
+//!   return nothing.
 //! - The destructor's "undefined" sentinel values have no Rust counterpart (a dropped
 //!   value cannot be used); [`Extent3d::is_defined`] still checks for them.
 //! - `SM_ASSERT*` debug checks are not ported (they do not change results).
@@ -79,14 +81,13 @@
 //!   inside (it ORs the two tests). See `plan/findings.md`.
 
 use crate::error::{Result, SolidError};
+use crate::geom::extent1d::Extent1d;
+use crate::geom::vector3d::{asin, sqrt};
 use crate::math::{
     is_infinite_param, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, INFINITE_PARAMETER, PI,
     UNDEF_DOUBLE,
 };
 
-// UNPORTED(geom.extent1d): SmExtent3d::GetUInterval, SmExtent3d::GetVInterval,
-// SmExtent3d::GetWInterval, SmExtent3d::SetUInterval, SmExtent3d::SetVInterval need
-// `SmExtent1d`; add them as `Extent3d` methods when `geom::extent1d` lands.
 // UNPORTED(geom.pseudo_box): SmExtent3d::Circumscribe and SmExtent3d(const SmPseudoBox&)
 // need `SmPseudoBox`; add them as `Extent3d` methods when `geom::pseudo_box` lands.
 
@@ -245,57 +246,6 @@ fn smin3(a: f64, b: f64, c: f64) -> f64 {
     }
 }
 
-/// `smos_Sqrt` (`sm_sqrt`): `0` for `x <= 0`, else `sqrt(x)`. (Upstream also flags
-/// an error for `x < -EFF_ZERO_SQ`; every caller here passes a sum of squares.)
-// CO-PORT(geom.vector3d): sm_sqrt
-fn sqrt(x: f64) -> f64 {
-    if x <= 0.0 {
-        0.0
-    } else {
-        x.sqrt()
-    }
-}
-
-/// `sm_asin` (`smos_ArcSine`): `asin` clamped to `±PI/2` outside `[-1, 1]`.
-/// Co-port of unit `geom.vector3d` (`SmMath.cpp`); the error flag it raises beyond
-/// `1 + EFF_ZERO` has no effect on the result.
-// CO-PORT(geom.vector3d): sm_asin
-fn asin(x: f64) -> f64 {
-    if x >= 1.0 {
-        return PI / 2.0;
-    }
-    if x <= -1.0 {
-        return -PI / 2.0;
-    }
-    x.asin()
-}
-
-/// `SmVector3d::GetMaxDimension`: the largest absolute coordinate.
-/// Co-port of unit `geom.vector3d`.
-// CO-PORT(geom.vector3d): SmVector3d::GetMaxDimension
-fn max_dimension3(v: Vec3) -> f64 {
-    let mut d = if v.x.abs() > v.y.abs() {
-        v.x.abs()
-    } else {
-        v.y.abs()
-    };
-    if v.z.abs() > d {
-        d = v.z.abs();
-    }
-    d
-}
-
-/// `SmVector3d::operator[] const`: component `i`, or `0.0` for `i > 2`.
-// CO-PORT(geom.vector3d): SmVector3d::operator[] const
-fn component(v: Vec3, i: usize) -> f64 {
-    match i {
-        0 => v.x,
-        1 => v.y,
-        2 => v.z,
-        _ => 0.0,
-    }
-}
-
 /// One coordinate of `Evaluate`: exact end values at 0 and 1.
 fn lerp_exact(min: f64, max: f64, t: f64) -> f64 {
     if t == 0.0 {
@@ -361,30 +311,23 @@ fn approx_axis(
 ) -> (f64, f64) {
     // Upstream: `(pUnboundedCenter == NULL || <cmp>) ? <near> : <centred>`; the same
     // comparisons are used so NaN inputs take the same branch.
-    let near_max = center.is_none_or(|pc| max < pc + h);
-    let new_min = match ty {
-        BoundaryType::UnboundedMin => match center {
-            Some(pc) if !near_max => pc - h,
-            _ => max - 2.0 * h,
-        },
-        BoundaryType::UnboundedMax => match center {
-            Some(pc) if !center.is_none_or(|pc| min > pc - h) => pc - h,
-            _ => min,
-        },
-        BoundaryType::Unbounded => c - h,
-        BoundaryType::Bounded | BoundaryType::Unknown => min,
+    let max_near_center = center.is_none_or(|pc| max < pc + h);
+    let min_near_center = center.is_none_or(|pc| min > pc - h);
+    let new_min = match (ty, center) {
+        (BoundaryType::UnboundedMin, Some(pc)) if !max_near_center => pc - h,
+        (BoundaryType::UnboundedMin, _) => max - 2.0 * h,
+        (BoundaryType::UnboundedMax, Some(pc)) if !min_near_center => pc - h,
+        (BoundaryType::Unbounded, _) => c - h,
+        (BoundaryType::UnboundedMax | BoundaryType::Bounded | BoundaryType::Unknown, _) => min,
     };
-    let new_max = match ty {
-        BoundaryType::UnboundedMin => match center {
-            Some(pc) if !near_max => pc + h,
-            _ => max,
-        },
-        BoundaryType::UnboundedMax => match center {
-            Some(pc) if !center.is_none_or(|pc| new_min > pc - h) => pc + h,
-            _ => new_min + 2.0 * h,
-        },
-        BoundaryType::Unbounded => c + h,
-        BoundaryType::Bounded | BoundaryType::Unknown => max,
+    // the max of an interval unbounded above is computed from the replaced min
+    let new_min_near_center = center.is_none_or(|pc| new_min > pc - h);
+    let new_max = match (ty, center) {
+        (BoundaryType::UnboundedMin, Some(pc)) if !max_near_center => pc + h,
+        (BoundaryType::UnboundedMax, Some(pc)) if !new_min_near_center => pc + h,
+        (BoundaryType::UnboundedMax, _) => new_min + 2.0 * h,
+        (BoundaryType::Unbounded, _) => c + h,
+        (BoundaryType::UnboundedMin | BoundaryType::Bounded | BoundaryType::Unknown, _) => max,
     };
     (new_min, new_max)
 }
@@ -525,13 +468,13 @@ impl Extent3d {
     /// upstream's `SmVector3d::operator[]` (`GetMin(ULONG)`).
     #[must_use]
     pub fn min_at(&self, i: usize) -> f64 {
-        component(self.min, i)
+        self.min.component(i)
     }
 
     /// Maximum along axis `i`; `0.0` for `i > 2` (`GetMax(ULONG)`).
     #[must_use]
     pub fn max_at(&self, i: usize) -> f64 {
-        component(self.max, i)
+        self.max.component(i)
     }
 
     /// Largest side length (`GetMaxLength`).
@@ -540,10 +483,40 @@ impl Extent3d {
         smax3(self.x_length(), self.y_length(), self.z_length())
     }
 
+    /// The x interval, ends swapped if inverted (`GetUInterval`).
+    #[must_use]
+    pub fn u_interval(&self) -> Extent1d {
+        Extent1d::from_min_max(self.min.x, self.max.x)
+    }
+
+    /// The y interval, ends swapped if inverted (`GetVInterval`).
+    #[must_use]
+    pub fn v_interval(&self) -> Extent1d {
+        Extent1d::from_min_max(self.min.y, self.max.y)
+    }
+
+    /// The z interval, ends swapped if inverted (`GetWInterval`).
+    #[must_use]
+    pub fn w_interval(&self) -> Extent1d {
+        Extent1d::from_min_max(self.min.z, self.max.z)
+    }
+
+    /// Sets the x bounds from `ivl` (`SetUInterval`).
+    pub fn set_u_interval(&mut self, ivl: &Extent1d) {
+        self.min.x = ivl.min();
+        self.max.x = ivl.max();
+    }
+
+    /// Sets the y bounds from `ivl` (`SetVInterval`).
+    pub fn set_v_interval(&mut self, ivl: &Extent1d) {
+        self.min.y = ivl.min();
+        self.max.y = ivl.max();
+    }
+
     /// Largest absolute coordinate of either corner (`GetMaxDimension`).
     #[must_use]
     pub fn max_dimension(&self) -> f64 {
-        smax(max_dimension3(self.min), max_dimension3(self.max))
+        smax(self.min.max_dimension(), self.max.max_dimension())
     }
 
     /// Grows the box to contain `p` (`AddPoint3d`).
@@ -901,7 +874,7 @@ impl Extent3d {
         let this_cent = self.evaluate(0.5, 0.5, 0.5);
         let vec = sph_cent - this_cent;
         let dist = vec.length();
-        let scale = 1.0 + max_dimension3(sph_cent);
+        let scale = 1.0 + sph_cent.max_dimension();
         if dist < sph_rad + EFF_ZERO * scale {
             let axis = if vec.length_squared() > EFF_ZERO * scale {
                 // `Unitize` fails only below EFF_ZERO_SQ, which the test above
@@ -1018,7 +991,7 @@ impl Extent3d {
         // from the box although the line passes within tolerance, so the ends are
         // checked too when the midpoint is outside.
         let mid = point + ((d_min + d_max) / 2.0) * dir;
-        let tol = EFF_ZERO * (1.0 + max_dimension3(mid));
+        let tol = EFF_ZERO * (1.0 + mid.max_dimension());
 
         if self.contains_point(mid, tol) {
             if (d_min - d_max).abs() < EFF_ZERO {

@@ -139,6 +139,202 @@ must know:
   `ByteSwap32(unsigned short)` always returns 0, but nothing reaches it when
   `sizeof(short) == 2`.
 
+## nlib.math (green; no disagreements)
+
+3076 default cases (76 fixture + 3000 generated) and a 100,076-case run (`--seeds
+100000`) agree bit for bit with upstream (`max_rel_err = 0`), across all 79 functions
+(point/control-point arithmetic, `N_SolveQuadraticEq`, `N_FloatOpIsBad`, the real-matrix
+routines, power-basis surfaces, reallocation). Upstream behaviour worth knowing:
+
+- **No back-edge left.** `N_SrfPowerBasisEvalPt` calls `N_SrfGetCPts` and
+  `N_SrfGetKnotVectors` (unit `nlib.srf_basic`) only to read the control net; the knot
+  vectors are unused. `N_SrfPowerBasisEvalDerivs` reads `spl->p`, `spl->q` and the net
+  directly. The Rust functions take the net (and degrees) instead of an `NL_SURFACE`, so
+  nothing is stubbed; the difftest drives the C++ through a real `NL_SURFACE`. When
+  `nlib.srf_basic` lands, a `Surface` method can forward to these.
+- **Banded matrices with an even bandwidth** index one column past the row
+  (`j - i + bw/2` reaches `bw`), and an in-place banded transpose writes past its new
+  `(n+1)`-column rows when `bw > n + 1`. Triangular operands that are not square read
+  outside their rows in `N_RealMatrixMultiply`/`Transpose`/`MultiplyPtArray`. Rust
+  returns `InvalidInput` for all of these; the ffi wrappers only pass odd bandwidths and
+  square triangular/banded matrices.
+- **`N_SrfPowerBasisEvalDerivs` overflows `up[NL_MAXDEG+1]`.** It stores the v-power rows
+  after the `p+1` u-powers in the same 18-entry stack array, so e.g. bicubic with `vdr = 3`
+  (`p + 1 + min(vdr,q)*(q+1) + q > 17`) writes past it. Rust returns `InvalidInput`.
+- **`N_SrfPowerBasisEvalDerivs` rational upper-half quirk.** The final loop tests
+  `k1 == vdr` (a leftover loop variable, `(k2+1)*(q+1)`) instead of `udr == vdr`. The port
+  keeps it. With `udr > vdr` it can read past `SD`/`CwDers` (Rust: `InvalidInput`; the
+  ffi wrapper rejects rational `mfl` cases with `udr > vdr`).
+- **Uninitialised storage.** NLib allocates with `malloc`; triangular results only fill
+  their triangle and `N_Realloc*` leaves new entries unset. Rust zero-fills. difftest
+  compares the *defined region* of each result (the entries upstream writes).
+- **`N_RealMatrixIsNULL` treats `bw <= 0` as null**, so a full result of a 1x1 product
+  (`bw = na = 0`) is reallocated when reused as an output. Ported as is.
+- **`N_RealMatrixTranspose` in place, full type**, leaks the old storage (the free is after
+  `NL_OUT`). No effect on results.
+- **Globals.** `NLIBCHKBYPASS` (only `M_NoErrChk` sets it; nothing calls that) is treated
+  as 0. `NL_MTOL` is a parameter of `CPoint::approx_eq` because `N_SrfIsClosedSmooth`
+  temporarily overrides it around `N_SrfIsClosed`.
+
+## geom.tol (partial; no disagreements)
+
+3430 default cases (430 fixture + 3000 generated) and a 60,430-case run (`--seeds 60000`):
+every non-deferred case agrees bit for bit with upstream (`max_rel_err = 0`). The 221
+deferred cases are `AreParallel` / `ArePerpendicular`, which call
+`SmVector3d::IsParallelTo` / `IsPerpendicularTo` (unit `geom.vector3d`). Notes for later
+agents:
+
+- **Build mode is `SM_USE_OLDTOL`** (`SmConfig.h`); `SM_NEWTOL_LINE` / `SM_OLDTOL_LINE` are
+  empty markers, so lines tagged with either one are compiled. Only `#ifdef SM_USE_NEWTOL`
+  blocks are dead.
+- **Tolerance classes are `f64`.** `SmZoneTol3d(double)` etc. substitute the system value
+  for `SM_USE_DEFAULT` (9876543.21) and take `fabs`; the Rust port applies
+  `tol::zone_tol3d` / `xsect_tol3d` / `approx_tol3d` / `tol3d` exactly where upstream
+  converts a `double` (returns, casts, initialisations). `operator=(double)` only takes
+  `fabs` (no `SM_USE_DEFAULT` check); `operator*=` takes neither.
+- **Small topology scales tolerances *up*.** `GetZoneTol3d(SM_ST_SMALL_SIZE)` returns
+  `s_LargeSmallSizeRatio * s_ZoneTol3d` (default 1000x), despite the "tighter tolerances"
+  comments. The `const SmContext*` overloads ignore the small flag entirely.
+- **System statics live in the `Kernel`.** `s_ZoneTol3d`, `s_TolGapGain`,
+  `s_ModelSizeEstimate`, `s_LargeSmallSizeRatio` are `kernel.tolerances.{zone_tol_3d,
+  tol_gap_gain, model_size_estimate, large_small_size_ratio}`. The kernel also stands in
+  for `SmContext`; since `geom.context` the `context_*` / `calc_*_zone_tol_3d`
+  functions take `Option<&Context>` (`None` = null pointer, `Some(&k.context)` usual). The difftest shim sets the
+  statics with `SmTol::SetModelSizeEstimate` / `SetLargeSmallSizeRatio` per case and
+  restores the defaults afterwards (the C++ statics are thread-local globals).
+- **Overloads needing later types are not in Rust yet** (markers at the top of
+  `geom/tol.rs`): every `SmObject` / `SmCurve` / `SmSurface` / topology /
+  classification / `SmExtent1d` / `SmExtent2d` / `SmPseudoBox` / `SmVolume` overload,
+  `MapTo1d`, `MapTo2d`, `IsDegenerate(SmObject*)`, `IsClosed`, `UpdateObjectTolerance`.
+  Their porters should add them to `geom::tol` and extend the runner.
+- **`SmRelation` iteration order is unspecified upstream.** `SmMapPtrToPtrs` is a
+  `std::unordered_map<T*, std::unordered_set<U*>>`, so `GetSeconds`, `GetAllFirsts`,
+  `GetAllSeconds` come out in pointer-hash order. `geom::tol::Relation` uses
+  `BTreeMap`/`BTreeSet` and returns keys sorted; the shim sorts the upstream results
+  before comparing. `GetSecond` returns `NULL` (the `SE(SM_ERR)` is a no-op in release)
+  for 0 or >1 partners; Rust returns `None`. `RelatePair` returns `SM_SUCCESS` (1000) or
+  `SM_ERR` (1001) on a cardinality violation; `RelateToMany` stops at the first error and
+  keeps the pairs related before it.
+- **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
+  private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
+  `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
+## geom.context
+
+- **Two-context `SmNewMarkAndLock` constructor bug (ported as is).** In
+  `SmNewMarkAndLock(SmContext* p1, SmContext* p2)` with `p1 != p2`, upstream picks
+  `m_eMarkType2 = GetUnlockedMark(*p2)` but then calls `m_pContext1->NewMark(m_eMarkType1)`
+  (advancing context 1's mark a second time, not context 2's) and
+  `LockMark(m_pContext2, m_eMarkType1)` (locking mark type 1 in context 2, not type 2).
+  The destructor then unlocks `m_eMarkType2` in context 2, so when the types differ a
+  stray lock of type 1 stays on context 2. `geom::context::MarkLock::new_pair` reproduces
+  this exactly (difftest case `boolean_pair_two_contexts`). `SetContext(p1, p2)` is
+  correct (locks type 2 in context 2) and does not advance marks.
+- **Release build ignores locks.** `NewMark`'s lock checks and `LockMark` /
+  `UnlockMark`'s state checks are `SM_ASSERT*` (messages only), so locked marks can still
+  be advanced and double locks are silent; the port drops the assertions.
+- **`SmNewMarkAndLock` binds contexts by index.** Rust `MarkLock` stores indices into a
+  caller-owned `&mut [Context]` instead of pointers and its destructor is the explicit
+  `release`; `with_mark_lock(&mut Kernel, ..)` is the scoped form for the kernel's own
+  context (`Kernel::context`). Topology porters: use `k.context` for
+  `GetContext()->GetCurrentMark(..)` and `with_mark_lock` for `SmNewMarkAndLock`.
+- **Build flags.** The reference build has neither `SM_USE_GLOBAL_CACHE` nor
+  `SM_USE_NEWTOL`, so the constructor is the two-double one and
+  `SetThisModelSizeEstimate` is the inline header version
+  (`m_sThisZoneTol3d = SizeEstimateToZoneTol3d(estimate)`, which maps `SM_USE_DEFAULT` to
+  `SM_MODEL_SIZE_ESTIMATE`, not to the system statics).
+- **`SmApiGetOrCreateContext` global.** The SM_API keeps one process-global context;
+  the port takes the `Option<Context>` slot from the caller.
+
+## geom.tree (partial; no disagreements)
+
+618 default cases (18 fixture + 600 generated): every non-deferred case agrees exactly
+(`max_rel_err = 0`); 7 are deferred (`GetFirstBezierPatch` paths). Notes for later agents:
+
+- **Arenas mirror `SmMemBlockMgr`.** Nodes and object-list items live in `Tree::nodes` /
+  `Tree::lists` in allocation order, which is the order `GetAllTreeNodes` and
+  `SmTree::GetObjectList` report (and therefore the order a forced rebuild in
+  `AddToSpatialTree` re-inserts objects). Fresh nodes are zero-filled like `smos_Calloc`
+  memory (all-zero box, `SM_NG_NONE`); a failed child `SetMinMax` leaves that zero box.
+- **Objects are a generic handle `O`.** `SmObject*` becomes `Option<O>`; the shim uses fake,
+  never dereferenced pointers into a char array.
+- **Subdivision data.** `SurfaceAux` holds only the `SmBezierAux2d` fields this unit reads
+  (`m_eSplitDir`, `m_bIsMarked`, `m_eNodeClass`, `m_pFace`, `mBA_pSurface`); the surface
+  cache units own the rest and should extend it. Upstream casts parent/sibling `m_pData`
+  without checking the aux type; Rust returns `InvalidInput` where that cast would be invalid.
+- **Back-edges.** `GetOwnerObject` (curve/surface cache owners), `GetFirstBezierPatch`
+  (`SmBezierPatch::GetBezierPtr`, `SmBSplineSurface::GetGwNurbPointer`) are `UNPORTED` stubs;
+  the shim skips exactly those paths (owner is always NULL there).
+- **Upstream quirks kept.** `SmObjectList::FindObject` returns the last item (not NULL) as
+  "previous" when the object is not found. A point tree (`SmTree(point, size, ...)`) never
+  initialises its object-list memory manager, so `AddToSpatialTree` on it divides by zero
+  upstream; the ffi wrapper refuses that op. `1 << lSplitCount` in the neighbour searches is
+  a C `int` shift (sign-extended into `ULONG`); Rust mirrors it.
+
+## geom.periodic_extent1d (green; no disagreements)
+
+Green, 4054 difftest cases, all bit-identical. Upstream quirks ported as is (not bugs in
+the port):
+- **`AddInterval` on an empty extent gives the full period.** The empty branch computes
+  `m_bFullPeriod = (m_dPeriod - |m_dMax - m_dMin|) < ScaledZero` on the empty sentinels
+  `[1e20, -1e20]`, which is true for any period below `2e20`, so the extent becomes
+  `[0, period]` full instead of `[from, to]`. Case `add_empty_quirk`.
+- **`SetMinMax` updates the extent even when it returns `SM_ERR_INVALID_INPUT`** (min or
+  max outside `[0, period]`). `PeriodicExtent1d::set_min_max` does the same and documents it.
+  When the bounds differ but span the period, `m_bFullPeriod` is set without snapping
+  `min`/`max` to `[0, period]`.
+- **`IsInit` compares the `int` `m_bFullPeriod` with `-SM_BIG_DOUBLE`**, so it is always
+  true; it only feeds a compiled-out assert (and is unused), not ported.
+- Only the 17 functions owned by the unit are ported; `Invert`, `AddValue`, `Union`,
+  `Intersect`, `Subtract`, `Evaluate`, `GetLength`, `IsPoint`, the 3-argument constructor
+  etc. are unreachable from the upstream entry points (`harness/callgraph/unused_functions.txt`).
+
+## geom.matrix (green; no disagreements)
+
+4044 default cases (44 fixture + 4000 generated) and a 100,044-case run (`--seeds 100000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **`SM_SUCCESS` is 1000, not 0.** Shims that pass an `SmStatus` back must map it to 0
+  (`geom_matrix.cpp` does) or the runner sees `status_1000` as a failure.
+- **`LUDecompose` never fails on a singular pivot.** A pivot below `SM_EFF_ZERO` is
+  replaced by `+SM_EFF_ZERO` (or `-SM_EFF_ZERO` when it is `<= 0`, including exactly 0)
+  and the status is `SM_ERR_WARNING`; `SolveLinearSystem` passes the warning through
+  with a (meaningless) solution, which `my_test_matrix` relies on. Only a row whose
+  largest magnitude is below `SM_EFF_ZERO` gives `SM_ERR`. The port reports the warning
+  as `near_singular` on success. With NaN entries the pivot search keeps `lMax = 0`
+  (NaN never compares `>=`), so row 0 can be swapped back in; ported as is.
+- **`Compute3x3EigenVectors` is `const` but mutates `this`** (it casts away const and runs
+  `EigenSystemJacobiSolver`, which restores the upper triangle from the lower one on
+  success and leaves it rotated on non-convergence). It ignores the solver status: for a
+  non-symmetric matrix it returns `SM_SUCCESS` with eigenvectors read from an
+  uninitialized `SmMatrix`. The shim and the port report `SM_ERR` there instead; when
+  the solver runs out of sweeps both return the unconverged, unsorted state with success.
+- **Fixed-size buffers.** `LUDecompose` scales with a stack `double[MAX_MATRIX_SIZE]`
+  (1000) and only `SolveLinearSystem` checks the size; the shim limits matrices to 64x64.
+- `sm_sqrt` (geom.vector3d) and `SmVector3d::Set` are co-ported in `geom/matrix.rs`
+  (`// CO-PORT(geom.vector3d)`), so no case is deferred.
+
+## nlib.geom (green; no disagreements)
+
+3173 default cases (173 fixture + 3000 generated) agree bit for bit with upstream
+(`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **Unwritten outputs.** `N_IsectLineLine` leaves `P`, `t1`, `t2` unset when the lines
+  are parallel or miss a bounded segment; `N_IsectLinePlane` leaves `P` (and, when
+  parallel, `t`) unset. The port returns `None` / `LinePlaneIsect::{Parallel,
+  OutOfBounds { t }}` instead; the shim pre-sets NaN.
+- **Uninitialised reads.** `N_DistPtLineSeg` writes no distance when its position tests
+  are all false (NaN coordinates); the port returns NaN. `N_CPtsAreColinear` (3D)
+  ignores `N_DistPtLineSeg`'s error and compares that unwritten distance (e.g. a zero
+  weight makes the Euclidean image NaN); the port answers `false`. Generated
+  collinearity cases therefore use positive weights. `N_ProjectPtPlane` and
+  `N_DistPtInfLine` read an unset point when their unbounded line misses the plane,
+  which cannot happen for finite input; the port returns `InvalidInput` there.
+- **`NL_MTOL` is a global** that `N_SrfIsClosedSmooth` overrides temporarily; the
+  `*_tol` variants of `dist_pt_line_seg`, `dist_perp_pt_line_seg` and
+  `cpts_are_colinear` take it explicitly.
+- `N_IsectLineLine` tests parallelism with `NL_ZCTL` (1e-12) on `1 - cos^2`, while
+  `N_IsectLinePlane` uses `NL_LTOL` (1e-9) on the cosine; both ported as is.
 ## geom.attribute (partial; no disagreements)
 
 2029 default cases (6 upstream-derived fixtures, 23 edge-case fixtures, 2000 generated

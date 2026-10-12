@@ -62,10 +62,9 @@
 //!   `ClearAttributes`, `GetAttributes` and `FindAttribute` (unit `geom.a_object`)
 //!   are the attribute-list half of the attribute/user relation and are ported here
 //!   as [`AttributeStore`] methods (`// CO-PORT(geom.a_object)`); `SmObject::IsKindOf`
-//!   (unit `geom.object`) is the last entry of [`Attribute::is_kind_of`]'s chain;
-//!   `SmVector3d` `operator+` / `operator/` (unit `geom.vector3d`) are written out
-//!   component-wise in the colour average. `SmObject::GetContext` / `SetContext` have
-//!   no counterpart (no per-object contexts).
+//!   (unit `geom.object`) is the last entry of [`Attribute::is_kind_of`]'s chain.
+//!   `SmObject::GetContext` / `SetContext` have no counterpart (no per-object
+//!   contexts).
 //! - **Unported.** `SmMergeRegionAttribute::Merge` first asks both regions for their
 //!   B-rep (`SmRegion::GetBrep`, unit `topology.shell`) and returns
 //!   [`SolidError::Unported`] until that unit is wired.
@@ -1156,9 +1155,7 @@ impl AttributeStore {
                     operation: OP,
                     reason: "merged object has no colour attribute",
                 })?;
-                // CO-PORT(geom.vector3d): (a + b) / 2.0, operator+ then operator/.
-                let avg = Vec3::new((a.x + b.x) / 2.0, (a.y + b.y) / 2.0, (a.z + b.z) / 2.0);
-                self.attr_mut(cm, OP)?.set_vector3d_value(avg)
+                self.attr_mut(cm, OP)?.set_vector3d_value((a + b) / 2.0)
             }
         }
     }
