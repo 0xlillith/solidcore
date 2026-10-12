@@ -1351,6 +1351,120 @@ deferred on `curve.curve_p2` (`SmCurve::EvaluateContinuity` for curves with inte
   `m_bNurbIsBorrowed = TRUE`, and its temporary frees the borrowed curve; the port keeps the
   flag as upstream (ownership is moot in Rust).
 
+## nurbs.b_spline_surface_p1 (SmBSplineSurface part 1)
+
+No Rust-vs-C++ disagreement: 1985 of 1985 non-deferred difftest cases bit-identical (120
+fixtures on the three `pt_TestFiles` `.sms` surfaces (also read back through `ReadFromDB`,
+whose ASCII layout the `.sms` files share), the `smAdvancedTest.cpp` / `smTopoTest.cpp`
+cone patches and bilinear patches, canonical, sweep and edge cases, plus 2000 generated).
+135 cases are deferred: `surface.surface_p2` (`SmSurface::IsKindOf` for other types, which
+`CalculateBoundingBox` and `IsParallelToVector` reach before anything else) and
+`surface.surface_p1` (`CreateOffsetSurface`, `IsDegenerateCurve`, `STEPInversion`'s point
+solves). Upstream behaviour worth knowing:
+
+- The data constructor `SmBSplineSurface(n, m, p, q, r, s, Pw, U, V)` copies `V` with
+  `smos_MemCpy(knv->U, V, (s+1) doubles, (r+1) doubles)`: the destination size is the *u*
+  knot count, so when `s > r` the copy is refused (status only `SE`'d) and the v knots stay
+  0 from `sm_AllocateNurbSurface`'s calloc, then `sm_FixupKnotVector` runs on zeros. The
+  port reproduces this (caught by every generated `data` case with more v than u knots).
+- `IsParallelToVector` returns `SER(sTestVec.Unitize())`'s `SM_ERR_INVALID_INPUT` as its
+  `SmBoolean`, so a zero vector reads as TRUE; its line test calls
+  `smgu_LinePointDistance(LinePnt, LineEnd, Pnt, d)`, which binds the (point, *direction*)
+  overload, so the second net point is used as the line direction. Both kept.
+- `CreateLinearSweep` passes the curve's own NURB to `N_CreateSrfExtrudeCrv`, which makes
+  a 2D curve 3D in place (the `const` is cast away); difftest compares the curve after.
+- `CalculateBoundingBox` only `SE`s (does not return) when the domain is outside the
+  natural domain, and ignores `N_SrfIsFlatCheap`'s and `MakeUnitOrthoVectors`' status.
+
+## Header-declared sizes (all file readers)
+
+Upstream readers (`SmBSplineSurface::ReadFromDB` and friends) `malloc` whatever counts
+a file header declares and fail later at end of data; ASCII readers even keep going
+with stale values after a missing field. In Rust a huge allocation aborts the process
+(and `n + p + 1` can overflow), so readers bound counts against the bytes left via
+`DatabaseReader::ensure_available` (binary: 8 bytes per double; ASCII: 1 byte per
+item) after the same validation checks upstream makes first (e.g. the rational flag).
+Deviation: an ASCII file whose header declares more items than it has bytes left is
+an error in Rust, while upstream reads it with garbage values. No fixture exercises
+this; found by the commit security review of `nurbs.b_spline_surface_p1`.
+
+## nurbs.b_spline_curve_n_lib (`SmBSplineCurveNLib.cpp`)
+
+No Rust-vs-C++ disagreement: 2132 of 2132 non-deferred difftest cases bit-identical (282
+fixtures on the six `pt_TestFiles` `.smc` curves, `FitCrvPoints.pts` / `Points.pts`,
+`my_test_curve_interface`, the `smSurfaceTest.cpp:1975` helix, `TestSmMakeCurvesCompatible`,
+the `TestSmCreateRectangle` / `TestSmCreateRegularPolygon` edges and edge cases, plus 2000
+generated); a 100,282-case run was also clean. 150 cases are deferred on
+`nurbs.b_spline_curve_p2`: every `SetIntersectionCurveThroughPoint` (it starts with
+`IsIntersectorApprox` = `GetDegree() == 3 && IsPiecewiseC0()`) and `DeformToEndPointTargets`
+of curves of degree below 3 or of even degree (`DegreeElevate`). No
+`UNPORTED(nurbs.b_spline_curve_n_lib)` stubs existed to wire. Upstream behaviour worth knowing:
+
+- **`DampenKnotSpacing` can loop forever.** Each pass halves every span more than
+  `dMaximumDeltaFactor` times longer than a neighbour; for factors below about 2 the halving
+  cascades without end on many knot vectors (e.g. unique knots `0 .3 .6 1` with factor 1.2),
+  and a factor at most 1 never finishes. The port stops after `DAMPEN_SPLIT_LIMIT` splits with
+  `NotConverged`; the ffi wrapper simulates the splitting and rejects inputs that do not
+  finish within 4000 splits.
+- **`CreateHelixSegment` passes inputs that crash `N_CrvApproxSpiral`.** Its checks allow a
+  height in `[-SM_EFF_ZERO, NL_MTOL)`, radii (both) below `NL_MTOL` and turns in
+  `[SM_EFF_ZERO, NL_MTOL)`, which hit the spiral's early input errors (the uninitialised
+  `N_EndNurbs(&SL)` crash of `nlib.spiral`); the ffi rejects them, the port returns `SM_ERR`.
+- **`Trim` and `sm_CrvTrim`.** `sm_CrvTrim` returns `NL_INP_ERR` (not `NL_YES`) for
+  `ur <= ul`, so `Trim` would go on with a `NULL` curve; the snapping and degenerate-interval
+  checks before it make that unreachable for a proper interval. The port returns
+  `InvalidInput`. `SmTol::GetZoneTol3d(this)` / `SmTol::MapTo1d(tol, t, *this)` (owned by
+  `geom.tol`, stubbed there for `SmCurve`) are computed locally: a curve without edge has the
+  system zone tolerance, and `MapTo1d` evaluates through `SmCurve`'s static type, i.e.
+  `Evaluate(t, 1, TRUE, .., bNonZeroTangents = TRUE)`.
+- `CreateInterpolatingCurve` reinterprets its `const` vector array as the in/out `D` of
+  `N_FitCrvFirstDeriv`, so with `bIgnoreVectorMagnitude` the caller's vectors come back
+  normalised and rescaled. The port works on a copy.
+- `InterpolatePoints` copies `cpOptParams->GetSize()` parameters into an array of `m + 1`
+  (reading unset memory or writing past it when the sizes differ); the port requires one
+  parameter per point.
+- `SetIntersectionCurveThroughPoint` appends the UV control point spacings once per
+  through point (2 or 3 per UV curve) but reads them by UV curve index, so UV curve `i > 0`
+  uses curve 0's spacing; ported as is (deferred until `IsPiecewiseC0` lands).
+- `DeformToEndPointTargets` ignores the status of its in-place knot insertions and of the
+  Reg2 refinement (an empty Reg2 knot vector fails `N_CrvRefine`, which is harmless: the
+  displacement curve is then already as large as the curve); the port keeps the unchanged
+  curve on such a failure.
+
+## nlib.srf_adv_p2 (`NL_SrfAdv.cpp`, part 2)
+
+No Rust-vs-C++ disagreement: 1695 of 1695 default difftest cases bit-identical (195
+fixtures: extensions of the three `pt_TestFiles` `.sms` surfaces and the
+`TestSmCreateRectangle` patch in every direction / end / continuity, small and large
+distances, in place and not, plus normal derivatives; 1500 generated), and a 30,195-case
+run (`--seeds 30000`) also clean. The file-private `ST_surxsdr` is ported as
+`srf_adv::p2::extend_by_dist_at_depth`; its one-line public wrapper `N_SrfExtendByDist`
+belongs to `nlib.srf_adv_p1` (call it with `depth = 0`). The shim calls `ST_surxsdr`
+directly (it has external linkage). No `UNPORTED(nlib.srf_adv_p2)` stubs existed to wire.
+Upstream behaviour worth knowing:
+
+- **Stale error number past the recursion limit.** `ST_surxsdr` returns `1` without
+  `N_ErrSet` at `depth > 10`. `NL_ERROR` then holds whatever was recorded last: errors of
+  the sampled iso-curve extensions (which it ignores), `N_VectorNormalize`'s `NL_GEO_ERR`
+  for a degenerate reflection plane, or `0` after a callee's `N_ErrClear` (e.g. in
+  `NL_CrvNurb.cpp`). `DropCurveSurface.sms` extended 900 units in v hits the limit with
+  `eno = 17` at one end and `0` at the other. The port returns `NotConverged`; the runner
+  compares an upstream failure as the bare flag (status 1000) only when the port reports
+  the recursion limit (a C++ success there still fails the case).
+- **Zero distance hangs for G1/G2.** `NL_G1`/`NL_G2` extend the sampled iso-curves with
+  `ST_curxcdr` `NL_G2`, whose parameter search never ends for `dist = 0` (see
+  `nlib.crv_adv_p1`). The difftest uses `dist = 0` only with `NL_CMAX` / `NL_G1R`.
+- **Degree-1 reflection fallback reads past `Rw`.** When the first reflection-plane
+  normal is degenerate, `ST_surxsdr` retries with `Rw[ii][kby + 2]` (start) /
+  `Rw[ii][kby - 2]` (end); for a span of a degree-1 direction that is outside the
+  `2 * kby + 1` row. The port returns `InvalidInput` there.
+- `NL_G1` maps to the same reflection algorithm as `NL_G2` (only the number of boundary
+  knots removed afterwards differs: 1 vs 2); `NL_G1R` extends the iso-curves with `NL_G1`
+  but builds a ruled extension. A direction flag other than `NL_UDIR` extends in v; an
+  `end` other than `NL_START` extends the end. The `static int cbi = 0` branch
+  (`N_SrfExtendByParamDist`) is dead.
+- `N_SrfEvalPtNormalDeriv` fails with `NL_NUM_ERR` where `|S_u x S_v|` is zero (a pole).
+
 ## nlib.srf_adv_p4 (NL_SrfAdv.cpp part 4: Coons surfaces, cross-boundary derivatives)
 
 No Rust-vs-C++ disagreement: 3155 of 3155 difftest cases bit-identical (155 fixtures on the
