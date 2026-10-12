@@ -283,10 +283,10 @@ depends_on = ["geom.extent1d", "geom.tol"]
 est_lines = 1294
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.local_solve1d-a1"
 claimed_at = "2026-10-12T20:02:32Z"
-notes = "12 fns; largest: SmLocalSolve1d::SolveIt, SmLocalSolve1d::SolveOscillating, SmLocalSolve1d::SolveByBrent, SmLocalSolve1d::SolveByBisection; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "12 fns; largest: SmLocalSolve1d::SolveIt, SmLocalSolve1d::SolveOscillating, SmLocalSolve1d::SolveByBrent, SmLocalSolve1d::SolveByBisection; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; difftest: 3316 cases (316 fixture + 3000 generated), bit-identical, 0 deferred"
 
 [[unit]]
 id = "geom.local_solve_nd"
@@ -296,10 +296,10 @@ depends_on = ["geom.matrix"]
 est_lines = 860
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.local_solve_nd-a1"
 claimed_at = "2026-10-12T19:58:04Z"
-notes = "15 fns; largest: SmLocalSolveNd::SolveIt, SmEvalNFunctionsObject::ComputeJacobian, SmLocalSolveNd::SmLocalSolveNd, SmEvalNFunctionsObject::Evaluate; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "15 fns; largest: SmLocalSolveNd::SolveIt, SmEvalNFunctionsObject::ComputeJacobian, SmLocalSolveNd::SmLocalSolveNd, SmEvalNFunctionsObject::Evaluate; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; GREEN: difftest 3043 cases (43 fixture + 3000 generated), 0 deferred, max_rel_err 0 (bit-identical, full Evaluate trace compared); 30k-seed run clean; back-edges into geom.extent1d resolved by its merge; wired SmTol::GetScaledZero(SmEvalNFunctionsObject) in geom.tol"
 
 [[unit]]
 id = "geom.object"
@@ -335,10 +335,10 @@ depends_on = ["nlib.basis_basic", "nlib.geom", "nlib.knots", "nlib.math"]
 est_lines = 361
 layer = 3
 tests = ["SM_API_test:TestSmCreateSurfaceFromRandomPoints", "SM_API_test:TestSmCreateSkinSurface", "SM_API_test:TestSmCreateExtrude", "SM_API_test:TestSmCreateSkinFromFaces", "prog_test:my_test_ss_nurb", "prog_test:my_test_surface_point_intersect"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.basis_adv-a1"
 claimed_at = "2026-10-12T20:17:12Z"
-notes = "4 fns; largest: N_BasisDerivsArray, N_GetCompatibleKnotArrayMult, N_BasisInsertKnots, N_BasisIncreaseKnotMult; 211 upstream test entry points reach this unit"
+notes = "4 fns; green: 1744 difftest cases (244 fixture + 1500 generated), 0 deferred, bit-identical (max_rel_err 0); 100,244-case run also clean. See plan/findings.md"
 
 [[unit]]
 id = "nlib.bezier"
@@ -348,10 +348,10 @@ depends_on = ["nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1154
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.bezier-a1"
 claimed_at = "2026-10-12T20:13:10Z"
-notes = "16 fns; largest: N_BezCrvExtend, N_BezSrfExtend4D, N_BezReduceDegree, N_BezGetDegreeElevationMatrix; 317 upstream test entry points reach this unit"
+notes = "16 fns; difftest 2223 cases (223 fixture: SM_API_test rectangle/polygon segments, FitCrvPoints.pts, Points.pts, Surface.sms, edge cases + 2000 generated), 0 deferred, max_rel_err 0 (bit-identical; a 50,223-case run was also clean); upstream quirks in findings.md"
 
 [[unit]]
 id = "nlib.funcs_basic"
@@ -361,10 +361,10 @@ depends_on = ["nlib.basis_basic", "nlib.knots"]
 est_lines = 538
 layer = 3
 tests = ["SM_API_test:TestSmCreateSurfaceFromPoints", "SM_API_test:TestSmCreateSkinSurface", "SM_API_test:TestSmCreateExtrude", "SM_API_test:TestSmCreateSkinFromFaces", "SM_API_test:TestSmCreateSkinPrimitive", "prog_test:my_test_parallel_projection"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.funcs_basic-a1"
 claimed_at = "2026-10-12T20:17:09Z"
-notes = "32 fns; largest: N_SrfFuncEvalPt, N_CFuncDerivs, N_CFuncEval, N_CrvFuncCompact; 160 upstream test entry points reach this unit"
+notes = "32 fns; largest: N_SrfFuncEvalPt, N_CFuncDerivs, N_CFuncEval, N_CrvFuncCompact; 160 upstream test entry points reach this unit; GREEN: difftest 3130 cases (130 fixture + 3000 generated), 0 deferred, bit-identical (max_rel_err 0); 50k-seed run clean; no UNPORTED stubs to wire"
 
 [[unit]]
 id = "geom.geom_utility_p1"
@@ -400,10 +400,10 @@ depends_on = ["geom.extent2d", "geom.tol", "geom.vector2d", "geom.vector3d"]
 est_lines = 979
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.polar_box-a1"
 claimed_at = "2026-10-12T20:15:15Z"
-notes = "19 fns; largest: SmPolarBox::AddVector3d, SmPolarBox::AreDisjoint, SmPolarBox::ComputePolarCoord, SmPolarBox::EvaluateNormalized; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "green: 3030 difftest cases (30 fixture programs + 3000 generated), bit-identical, 0 deferred; 19 fns; largest: SmPolarBox::AddVector3d, SmPolarBox::AreDisjoint, SmPolarBox::ComputePolarCoord, SmPolarBox::EvaluateNormalized; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.solution_array"
@@ -413,9 +413,9 @@ depends_on = ["geom.extent3d", "geom.object", "geom.tol", "geom.vector2d"]
 est_lines = 1319
 layer = 4
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.solution_array-a1"
+claimed_at = "2026-10-12T20:24:32Z"
 notes = "42 fns; largest: SmSolution::ClassifySolutionEnd, SmSolutionArray::AddSortedSolution, SmSolution::GetPoint, SmSolution::Dump; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4), geom.vector3d(4), curve.curve_p2(2), geom.extent2d(2), surface.surface_p2(2), topology.edge(2), topology.face_p2(2), query.poly(1), surface.volume_p1(1), topology.vertex(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
@@ -426,9 +426,9 @@ depends_on = ["nlib.funcs_basic", "nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1542
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_basic-a1"
+claimed_at = "2026-10-12T20:31:32Z"
 notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
