@@ -218,3 +218,46 @@ agents:
 - **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
   private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
   `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
+## geom.tree (partial; no disagreements)
+
+618 default cases (18 fixture + 600 generated): every non-deferred case agrees exactly
+(`max_rel_err = 0`); 7 are deferred (`GetFirstBezierPatch` paths). Notes for later agents:
+
+- **Arenas mirror `SmMemBlockMgr`.** Nodes and object-list items live in `Tree::nodes` /
+  `Tree::lists` in allocation order, which is the order `GetAllTreeNodes` and
+  `SmTree::GetObjectList` report (and therefore the order a forced rebuild in
+  `AddToSpatialTree` re-inserts objects). Fresh nodes are zero-filled like `smos_Calloc`
+  memory (all-zero box, `SM_NG_NONE`); a failed child `SetMinMax` leaves that zero box.
+- **Objects are a generic handle `O`.** `SmObject*` becomes `Option<O>`; the shim uses fake,
+  never dereferenced pointers into a char array.
+- **Subdivision data.** `SurfaceAux` holds only the `SmBezierAux2d` fields this unit reads
+  (`m_eSplitDir`, `m_bIsMarked`, `m_eNodeClass`, `m_pFace`, `mBA_pSurface`); the surface
+  cache units own the rest and should extend it. Upstream casts parent/sibling `m_pData`
+  without checking the aux type; Rust returns `InvalidInput` where that cast would be invalid.
+- **Back-edges.** `GetOwnerObject` (curve/surface cache owners), `GetFirstBezierPatch`
+  (`SmBezierPatch::GetBezierPtr`, `SmBSplineSurface::GetGwNurbPointer`) are `UNPORTED` stubs;
+  the shim skips exactly those paths (owner is always NULL there).
+- **Upstream quirks kept.** `SmObjectList::FindObject` returns the last item (not NULL) as
+  "previous" when the object is not found. A point tree (`SmTree(point, size, ...)`) never
+  initialises its object-list memory manager, so `AddToSpatialTree` on it divides by zero
+  upstream; the ffi wrapper refuses that op. `1 << lSplitCount` in the neighbour searches is
+  a C `int` shift (sign-extended into `ULONG`); Rust mirrors it.
+
+## geom.periodic_extent1d (green; no disagreements)
+
+Green, 4054 difftest cases, all bit-identical. Upstream quirks ported as is (not bugs in
+the port):
+- **`AddInterval` on an empty extent gives the full period.** The empty branch computes
+  `m_bFullPeriod = (m_dPeriod - |m_dMax - m_dMin|) < ScaledZero` on the empty sentinels
+  `[1e20, -1e20]`, which is true for any period below `2e20`, so the extent becomes
+  `[0, period]` full instead of `[from, to]`. Case `add_empty_quirk`.
+- **`SetMinMax` updates the extent even when it returns `SM_ERR_INVALID_INPUT`** (min or
+  max outside `[0, period]`). `PeriodicExtent1d::set_min_max` does the same and documents it.
+  When the bounds differ but span the period, `m_bFullPeriod` is set without snapping
+  `min`/`max` to `[0, period]`.
+- **`IsInit` compares the `int` `m_bFullPeriod` with `-SM_BIG_DOUBLE`**, so it is always
+  true; it only feeds a compiled-out assert (and is unused), not ported.
+- Only the 17 functions owned by the unit are ported; `Invert`, `AddValue`, `Union`,
+  `Intersect`, `Subtract`, `Evaluate`, `GetLength`, `IsPoint`, the 3-argument constructor
+  etc. are unreachable from the upstream entry points (`harness/callgraph/unused_functions.txt`).
