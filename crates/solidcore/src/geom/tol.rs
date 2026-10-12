@@ -23,6 +23,8 @@
 //! | [`xsect_tol_3d_from_zones`]            | `SmTol::GetXSectTol3d(const SmZoneTol3d&, const SmZoneTol3d&)` |
 //! | [`ang_tol_rad`]                        | `SmTol::GetAngTolRad()`                        |
 //! | [`model_size_estimate`]                | `SmTol::GetModelSizeEstimate()`                |
+//! | [`context_model_size_estimate`]        | `SmTol::GetModelSizeEstimate(const SmContext&)` |
+//! | [`set_context_model_size_estimate`]    | `SmTol::SetModelSizeEstimate(SmContext&, double)` |
 //! | [`are_parallel`]                       | `SmTol::AreParallel`                           |
 //! | [`are_perpendicular`]                  | `SmTol::ArePerpendicular`                      |
 //! | [`is_zero_speed`]                      | `SmTol::IsZeroSpeed`                           |
@@ -35,7 +37,8 @@
 //! | [`xsect_tol_3d`]                       | `SmTol::GetXSectTol3d(SmSmallTopoType)`        |
 //! | [`context_xsect_tol_3d`]               | `SmTol::GetXSectTol3d(const SmContext*, SmSmallTopoType)` |
 //! | [`scaled_zero`], [`scaled_zero_sq`], [`scaled_zero_sqrt`] | `SmTol::GetScaledZero()`, `GetScaledZeroSq()`, `GetScaledZeroSqrt()` |
-//! | [`ScaledZero`] (`f64`, [`Vec2`], [`Vec3`], [`Extent3d`]) | `SmTol::GetScaledZero(const double)`, `(const SmVector2d&)`, `(const SmVector3d&)`, `(const SmExtent3d&)` |
+//! | [`ScaledZero`] (`f64`, [`Vec2`], [`Vec3`], [`Extent1d`], `Extent2d`, [`Extent3d`]) | `SmTol::GetScaledZero(const double)`, `(const SmVector2d&)`, `(const SmVector3d&)`, `(const SmExtent1d&)`, `(const SmExtent2d&)` (impl in `geom::extent2d`), `(const SmExtent3d&)` |
+//! | [`map_to_1d`]                          | `SmTol::MapTo1d(SmTol3d&, SmVector3d&, const SmExtent1d&)` |
 //! | [`scaled_zero_sq_of`], [`scaled_zero_sqrt_of`] | unary `GetScaledZeroSq<cA>`, `GetScaledZeroSqrt<cA>` |
 //! | [`scaled_zero2`], [`scaled_zero_sq2`], [`scaled_zero_sqrt2`] | binary `GetScaledZero<cA,cB>`, `...Sq`, `...Sqrt` |
 //! | [`scaled_zero3`], [`scaled_zero_sq3`], [`scaled_zero_sqrt3`] | tertiary templates     |
@@ -51,22 +54,19 @@
 //! | [`Relation::all_firsts`]               | `GetAllFirsts`                                 |
 //! | [`Relation::all_seconds`]              | `GetAllSeconds`                                |
 //! | [`Cardinality`]                        | `SmRelationCardinalityType`                    |
-//! | `sm_sqrt`, `max_dimension3` (private)  | `sm_sqrt`, `SmVector3d::GetMaxDimension` (co-ports, unit `geom.vector3d`) |
 //!
 //! System state: upstream keeps the system tolerances in thread-local statics
 //! (`s_ZoneTol3d`, `s_TolGapGain`, `s_ModelSizeEstimate`, `s_LargeSmallSizeRatio`);
 //! here they are the [`Tolerances`] of the [`Kernel`] (`zone_tol_3d`, `tol_gap_gain`,
-//! `model_size_estimate`, `large_small_size_ratio`). The kernel also plays the
-//! `SmContext`, so the `const SmContext*` overloads are the `context_*` functions
-//! with a null context (the context's own `m_sThisZoneTol3d` is the kernel's
-//! `zone_tol_3d` as well). Note that the context overloads ignore the small-topology
+//! `model_size_estimate`, `large_small_size_ratio`). The `const SmContext*` overloads
+//! take an `Option<&`[`Context`]`>` (`None` = null pointer: the system value; usually
+//! `Some(&k.context)`). Note that the context overloads ignore the small-topology
 //! flag, as upstream does.
 //!
 //! Not here yet (they need types of later units; see the `UNPORTED` markers below):
 //! every overload taking an `SmObject`, `SmCurve`, `SmSurface`, `SmVolume`,
-//! `SmPseudoBox`, `SmExtent1d`, `SmExtent2d`, `SmBrep`, `SmBrepData`, a topology
-//! entity, a classification / interval object, `SmEvalNFunctionsObject`, or a
-//! non-null `SmContext` with its own tolerances.
+//! `SmPseudoBox`, `SmBrep`, `SmBrepData`, a topology
+//! entity, a classification / interval object, or `SmEvalNFunctionsObject`.
 //!
 //! Deviations:
 //! - The tolerance classes (`SmTol3d`, `SmZoneTol3d`, ...) are plain `f64` values; their
@@ -75,9 +75,6 @@
 //!   `double` into a tolerance class (a return statement, a cast, an initialisation),
 //!   so that `fabs` and the `SM_USE_DEFAULT` substitution happen at the same places.
 //! - Optional pointer arguments become `Option<f64>` holding the pointee's value.
-//! - `AreParallel` / `ArePerpendicular` need `SmVector3d::IsParallelTo` /
-//!   `IsPerpendicularTo` (unit `geom.vector3d`) and return
-//!   [`SolidError::Unported`] until it lands.
 //! - `SmRelation`: upstream stores pairs in `std::unordered_map` / `std::unordered_set`
 //!   keyed by pointer, so `GetSeconds`, `GetAllFirsts` and `GetAllSeconds` come out in
 //!   an unspecified, address-dependent order. [`Relation`] keeps keys in `BTreeMap`s /
@@ -93,15 +90,14 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::error::{Result, SolidError};
+use crate::geom::context::Context;
+use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::vector2d::Vec2;
+use crate::geom::vector3d::sqrt as sm_sqrt;
 use crate::kernel::{Kernel, Tolerances};
 use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 
-// UNPORTED(geom.context): SmTol::GetModelSizeEstimate(const SmContext&),
-// SmTol::SetModelSizeEstimate(SmContext&, double) and the non-null-context branch of
-// SmTol::GetZoneTol3d(const SmContext*, ...) need a context with its own
-// m_dThisModelSizeEstimate / m_sThisZoneTol3d (SmContext::SetThisModelSizeEstimate).
 // UNPORTED(topology.brep_p1): SmTol::GetModelSizeEstimate(const SmBrep&),
 // SmTol::SetModelSizeEstimate(SmBrep&, double), SmTol::GetZoneTol3d(const SmBrep*),
 // SmTol::GetApproxTol3d(const SmBrep*), SmTol::CalcFaceZoneTol3d(SmBrep*),
@@ -120,9 +116,6 @@ use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF
 // UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&, [const
 // SmVector2d&,] const SmSurface&) and SmTol::GetScaledZero(const SmSurface&) need
 // SmSurface::Evaluate1stDerivatives / GetNaturalUVDomain / ApproximateSize.
-// UNPORTED(geom.extent1d): SmTol::MapTo1d(SmTol3d&, SmVector3d&, const SmExtent1d&) and
-// SmTol::GetScaledZero(const SmExtent1d&) need SmExtent1d.
-// UNPORTED(geom.extent2d): SmTol::GetScaledZero(const SmExtent2d&) needs SmExtent2d.
 // UNPORTED(geom.pseudo_box): SmTol::GetScaledZero(const SmPseudoBox&) needs SmPseudoBox.
 // UNPORTED(surface.volume_p1): SmTol::GetScaledZero(const SmVolume&) needs SmVolume.
 // UNPORTED(geom.local_solve_nd): SmTol::GetScaledZero(const SmEvalNFunctionsObject&).
@@ -295,31 +288,6 @@ fn smax4(a: f64, b: f64, c: f64, d: f64) -> f64 {
     smax(smax(a, b), smax(c, d))
 }
 
-// CO-PORT(geom.vector3d): sm_sqrt
-/// `smos_Sqrt` (`sm_sqrt`): `0` for `x <= 0` (upstream also logs an error below
-/// `-SM_EFF_ZERO_SQ`), else `sqrt(x)`.
-fn sm_sqrt(x: f64) -> f64 {
-    if x <= 0.0 {
-        0.0
-    } else {
-        x.sqrt()
-    }
-}
-
-// CO-PORT(geom.vector3d): SmVector3d::GetMaxDimension
-/// `SmVector3d::GetMaxDimension`: the largest absolute coordinate.
-fn max_dimension3(v: Vec3) -> f64 {
-    let mut d = if v.x.abs() > v.y.abs() {
-        v.x.abs()
-    } else {
-        v.y.abs()
-    };
-    if v.z.abs() > d {
-        d = v.z.abs();
-    }
-    d
-}
-
 // ---- model size and system tolerances ----------------------------------------------
 
 /// Maps a model size estimate to a default zone tolerance
@@ -361,6 +329,19 @@ pub fn model_size_estimate(k: &Kernel) -> f64 {
     k.tolerances.model_size_estimate
 }
 
+/// A context's model size estimate, the system one if it has none
+/// (`SmTol::GetModelSizeEstimate(const SmContext&)`).
+#[must_use]
+pub fn context_model_size_estimate(k: &Kernel, ctx: &Context) -> f64 {
+    ctx.this_model_size_estimate(k)
+}
+
+/// Sets a context's model size estimate and returns its new zone tolerance
+/// (`SmTol::SetModelSizeEstimate(SmContext&, double)`).
+pub fn set_context_model_size_estimate(ctx: &mut Context, model_size_estimate: f64) -> f64 {
+    ctx.set_this_model_size_estimate(model_size_estimate)
+}
+
 /// The gap gain: the over-size factor that keeps an object's zone tolerance a little
 /// larger than half its largest gap (`SmTol::GetGapGain`).
 #[must_use]
@@ -384,15 +365,15 @@ pub fn zone_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
 }
 
 /// The context zone tolerance (`SmTol::GetZoneTol3d(const SmContext*,
-/// SmSmallTopoType)` with a null context); `small` is ignored, as upstream.
+/// SmSmallTopoType)`): the context's own zone tolerance, or the system one for `None`
+/// (a null context); `small` is ignored, as upstream.
 #[must_use]
-pub fn context_zone_tol_3d(k: &Kernel, _small: SmallTopoType) -> f64 {
+pub fn context_zone_tol_3d(k: &Kernel, ctx: Option<&Context>, _small: SmallTopoType) -> f64 {
     let z = k.tolerances.zone_tol_3d;
     if z == UNINIT_TOL {
         zone_tol3d(k, UNINIT_TOL)
     } else {
-        // UNPORTED(geom.context): cpContext->m_sThisZoneTol3d for a non-null context.
-        z
+        ctx.map_or(z, Context::this_zone_tol_3d)
     }
 }
 
@@ -404,10 +385,10 @@ pub fn approx_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
 }
 
 /// The context approximation tolerance (`SmTol::GetApproxTol3d(const SmContext*,
-/// SmSmallTopoType)` with a null context).
+/// SmSmallTopoType)`; `None` = null context).
 #[must_use]
-pub fn context_approx_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
-    approx_tol3d(k, 0.5 * context_zone_tol_3d(k, small))
+pub fn context_approx_tol_3d(k: &Kernel, ctx: Option<&Context>, small: SmallTopoType) -> f64 {
+    approx_tol3d(k, 0.5 * context_zone_tol_3d(k, ctx, small))
 }
 
 /// The system intersection tolerance, twice the zone tolerance
@@ -418,10 +399,10 @@ pub fn xsect_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
 }
 
 /// The context intersection tolerance (`SmTol::GetXSectTol3d(const SmContext*,
-/// SmSmallTopoType)` with a null context).
+/// SmSmallTopoType)`; `None` = null context).
 #[must_use]
-pub fn context_xsect_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
-    xsect_tol3d(k, 2.0 * context_zone_tol_3d(k, small))
+pub fn context_xsect_tol_3d(k: &Kernel, ctx: Option<&Context>, small: SmallTopoType) -> f64 {
+    xsect_tol3d(k, 2.0 * context_zone_tol_3d(k, ctx, small))
 }
 
 /// The intersection tolerance of two objects with zone tolerances `zone1`, `zone2`:
@@ -465,14 +446,15 @@ pub fn eff_zero_ang_rad() -> f64 {
 // ---- topology zone tolerances from gaps --------------------------------------------
 
 /// A face's zone tolerance: the context zone tolerance
-/// (`SmTol::CalcFaceZoneTol3d(const SmContext*)` with a null context).
+/// (`SmTol::CalcFaceZoneTol3d(const SmContext*)`; `None` = null context).
 #[must_use]
-pub fn calc_face_zone_tol_3d(k: &Kernel) -> f64 {
-    context_zone_tol_3d(k, SmallTopoType::NormalSize)
+pub fn calc_face_zone_tol_3d(k: &Kernel, ctx: Option<&Context>) -> f64 {
+    context_zone_tol_3d(k, ctx, SmallTopoType::NormalSize)
 }
 
 /// An edge's zone tolerance from its largest edge/edge and edge/face gaps
-/// (`SmTol::CalcEdgeZoneTol3d` with a null context):
+/// (`SmTol::CalcEdgeZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)`;
+/// `None` = null context):
 /// `max(def, max_face_zone_tol?, gain * edge_edge_gap / 2, gain * edge_face_gap - def)`
 /// where `def` is the context zone tolerance and `gain` the [`gap_gain`].
 #[must_use]
@@ -481,12 +463,20 @@ pub fn calc_edge_zone_tol_3d(
     edge_edge_max_gap: f64,
     edge_face_max_gap: f64,
     max_face_zone_tol: Option<f64>,
+    ctx: Option<&Context>,
 ) -> f64 {
-    calc_gap_zone_tol(k, edge_edge_max_gap, edge_face_max_gap, max_face_zone_tol)
+    calc_gap_zone_tol(
+        k,
+        edge_edge_max_gap,
+        edge_face_max_gap,
+        max_face_zone_tol,
+        ctx,
+    )
 }
 
 /// A vertex's zone tolerance from its largest vertex/edge and vertex/face gaps
-/// (`SmTol::CalcVertexZoneTol3d` with a null context); same formula as
+/// (`SmTol::CalcVertexZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)`;
+/// `None` = null context); same formula as
 /// [`calc_edge_zone_tol_3d`].
 #[must_use]
 pub fn calc_vertex_zone_tol_3d(
@@ -494,18 +484,26 @@ pub fn calc_vertex_zone_tol_3d(
     vertex_edge_max_gap: f64,
     vertex_face_max_gap: f64,
     max_edge_zone_tol: Option<f64>,
+    ctx: Option<&Context>,
 ) -> f64 {
     calc_gap_zone_tol(
         k,
         vertex_edge_max_gap,
         vertex_face_max_gap,
         max_edge_zone_tol,
+        ctx,
     )
 }
 
 /// Shared body of `CalcEdgeZoneTol3d` / `CalcVertexZoneTol3d`.
-fn calc_gap_zone_tol(k: &Kernel, gap_1d: f64, gap_2d: f64, max_up: Option<f64>) -> f64 {
-    let def = context_zone_tol_3d(k, SmallTopoType::NormalSize);
+fn calc_gap_zone_tol(
+    k: &Kernel,
+    gap_1d: f64,
+    gap_2d: f64,
+    max_up: Option<f64>,
+    ctx: Option<&Context>,
+) -> f64 {
+    let def = context_zone_tol_3d(k, ctx, SmallTopoType::NormalSize);
     let gain = gap_gain(k);
     let r = match max_up {
         Some(up) => smax4(def, up, gain * gap_1d / 2.0, gain * gap_2d - def),
@@ -551,41 +549,40 @@ pub fn is_degenerate_vec3(k: &Kernel, v: Vec3, override_xsect_tol: Option<f64>) 
 
 /// True when `v1` and `v2` are parallel within the angle tolerance (the override in
 /// radians, else [`ang_tol_rad`]) (`SmTol::AreParallel`).
-///
-/// # Errors
-///
-/// [`SolidError::Unported`] until `SmVector3d::IsParallelTo` (unit `geom.vector3d`)
-/// is ported.
-pub fn are_parallel(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> Result<bool> {
+#[must_use]
+pub fn are_parallel(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> bool {
     let ang = override_ang_tol_rad.unwrap_or_else(ang_tol_rad);
-    let _ = (v1, v2, rad_to_deg(ang));
-    // UNPORTED(geom.vector3d): SmVector3d::IsParallelTo
-    Err(SolidError::Unported {
-        upstream: "SmVector3d::IsParallelTo",
-        unit: "geom.vector3d",
-    })
+    v1.is_parallel_to(v2, rad_to_deg(ang))
 }
 
 /// True when `v1` and `v2` are perpendicular within the angle tolerance (the override
 /// in radians, else [`ang_tol_rad`]) (`SmTol::ArePerpendicular`).
-///
-/// # Errors
-///
-/// [`SolidError::Unported`] until `SmVector3d::IsPerpendicularTo` (unit
-/// `geom.vector3d`) is ported.
-pub fn are_perpendicular(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> Result<bool> {
+#[must_use]
+pub fn are_perpendicular(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> bool {
     let ang = override_ang_tol_rad.unwrap_or_else(ang_tol_rad);
-    let _ = (v1, v2, rad_to_deg(ang));
-    // UNPORTED(geom.vector3d): SmVector3d::IsPerpendicularTo
-    Err(SolidError::Unported {
-        upstream: "SmVector3d::IsPerpendicularTo",
-        unit: "geom.vector3d",
-    })
+    v1.is_perpendicular_to(v2, rad_to_deg(ang))
 }
 
 /// `SM_RAD2DEG(a)` = `a * (180.0 / SM_PI)`.
 fn rad_to_deg(a: f64) -> f64 {
     a * (180.0 / PI)
+}
+
+// ---- parameter-space mapping ------------------------------------------------------
+
+/// Maps the 3D tolerance `tol` to a curve's parameter space at a point with first
+/// derivative `deriv`: `tol / |deriv|`, or `natural_interval.length() / 100` where the
+/// derivative is (near) zero (`SmTol::MapTo1d(SmTol3d&, SmVector3d&, const
+/// SmExtent1d&)`). `tol` is the value of an `SmTol3d` (already `fabs`).
+#[must_use]
+pub fn map_to_1d(tol: f64, deriv: Vec3, natural_interval: &Extent1d) -> f64 {
+    let scaled_zero = scaled_zero();
+    let deriv_size = deriv.length();
+    tol3d(if deriv_size < scaled_zero {
+        natural_interval.length() / 100.0
+    } else {
+        tol / deriv_size
+    })
 }
 
 // ---- scaled zeros ------------------------------------------------------------------
@@ -632,7 +629,14 @@ impl ScaledZero for Vec2 {
 impl ScaledZero for Vec3 {
     /// `SmTol::GetScaledZero(const SmVector3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + max_dimension3(*self)))
+        tol3d(EFF_ZERO * (1.0 + self.max_dimension()))
+    }
+}
+
+impl ScaledZero for Extent1d {
+    /// `SmTol::GetScaledZero(const SmExtent1d&)`: `SM_EFF_ZERO * (1 + max |end|)`.
+    fn scaled_zero(&self) -> f64 {
+        tol3d(EFF_ZERO * (1.0 + self.max_dimension()))
     }
 }
 
@@ -640,7 +644,7 @@ impl ScaledZero for Extent3d {
     /// `SmTol::GetScaledZero(const SmExtent3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`
     /// over both corners.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + smax(max_dimension3(self.min()), max_dimension3(self.max()))))
+        tol3d(EFF_ZERO * (1.0 + smax(self.min().max_dimension(), self.max().max_dimension())))
     }
 }
 
@@ -955,7 +959,7 @@ mod tests {
         assert_eq!(approx_tol_3d(&k, SmallTopoType::NormalSize), 5.0e-6);
         assert_eq!(zone_tol_3d(&k, SmallTopoType::SmallSize), 1000.0 * 1.0e-5);
         assert_eq!(
-            context_zone_tol_3d(&k, SmallTopoType::ForceSmallSize),
+            context_zone_tol_3d(&k, None, SmallTopoType::ForceSmallSize),
             1.0e-5
         );
         assert_eq!(gap_gain(&k), 1.1);
@@ -978,10 +982,13 @@ mod tests {
     #[test]
     fn gap_zone_tolerances() {
         let k = Kernel::default();
-        assert_eq!(calc_edge_zone_tol_3d(&k, 0.0, 0.0, None), 1.0e-5);
-        assert_eq!(calc_edge_zone_tol_3d(&k, 2.0, 0.0, None), 1.1);
-        assert_eq!(calc_vertex_zone_tol_3d(&k, 0.0, 0.0, Some(0.25)), 0.25);
-        assert_eq!(calc_face_zone_tol_3d(&k), 1.0e-5);
+        assert_eq!(calc_edge_zone_tol_3d(&k, 0.0, 0.0, None, None), 1.0e-5);
+        assert_eq!(calc_edge_zone_tol_3d(&k, 2.0, 0.0, None, None), 1.1);
+        assert_eq!(
+            calc_vertex_zone_tol_3d(&k, 0.0, 0.0, Some(0.25), None),
+            0.25
+        );
+        assert_eq!(calc_face_zone_tol_3d(&k, None), 1.0e-5);
     }
 
     #[test]
@@ -996,14 +1003,10 @@ mod tests {
         let k = Kernel::default();
         assert!(is_degenerate_vec3(&k, Vec3::new(1e-6, 0.0, 0.0), None));
         assert!(!is_degenerate_vec3(&k, Vec3::new(1e-4, 0.0, 0.0), None));
-        assert!(matches!(
-            are_parallel(Vec3::X, Vec3::X, None),
-            Err(SolidError::Unported { .. })
-        ));
-        assert!(matches!(
-            are_perpendicular(Vec3::X, Vec3::Y, Some(0.1)),
-            Err(SolidError::Unported { .. })
-        ));
+        assert!(are_parallel(Vec3::X, -Vec3::X, None));
+        assert!(!are_parallel(Vec3::X, Vec3::Y, None));
+        assert!(are_perpendicular(Vec3::X, Vec3::Y, Some(0.1)));
+        assert!(!are_perpendicular(Vec3::X, Vec3::ZERO, Some(0.1)));
     }
 
     #[test]
