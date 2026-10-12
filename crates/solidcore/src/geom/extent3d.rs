@@ -53,7 +53,7 @@
 //! | [`Extent3d::any_bounds`]               | `AnyBounds`                                    |
 //! | [`Extent3d::approximate_unbounded`], [`Extent3d::approximate_unbounded_expanded`] | `ApproximateUnbounded` |
 //! | [`BoundaryType`]                       | `SmBoundaryType` (`SmTypes.h`)                 |
-//! | `max_dimension3` (private)             | `SmVector3d::GetMaxDimension` (co-port, unit `geom.vector3d`) |
+//! | `max_dimension3`, `component`, `sqrt` (private) | `SmVector3d::GetMaxDimension`, `SmVector3d::operator[]`, `sm_sqrt` (co-ports, unit `geom.vector3d`) |
 //! | `asin` (private)                       | `sm_asin` / `smos_ArcSine` (co-port, unit `geom.vector3d`) |
 //!
 //! Not here yet (they need types of later units; see the `UNPORTED` markers below):
@@ -247,6 +247,7 @@ fn smin3(a: f64, b: f64, c: f64) -> f64 {
 
 /// `smos_Sqrt` (`sm_sqrt`): `0` for `x <= 0`, else `sqrt(x)`. (Upstream also flags
 /// an error for `x < -EFF_ZERO_SQ`; every caller here passes a sum of squares.)
+// CO-PORT(geom.vector3d): sm_sqrt
 fn sqrt(x: f64) -> f64 {
     if x <= 0.0 {
         0.0
@@ -258,6 +259,7 @@ fn sqrt(x: f64) -> f64 {
 /// `sm_asin` (`smos_ArcSine`): `asin` clamped to `±PI/2` outside `[-1, 1]`.
 /// Co-port of unit `geom.vector3d` (`SmMath.cpp`); the error flag it raises beyond
 /// `1 + EFF_ZERO` has no effect on the result.
+// CO-PORT(geom.vector3d): sm_asin
 fn asin(x: f64) -> f64 {
     if x >= 1.0 {
         return PI / 2.0;
@@ -270,6 +272,7 @@ fn asin(x: f64) -> f64 {
 
 /// `SmVector3d::GetMaxDimension`: the largest absolute coordinate.
 /// Co-port of unit `geom.vector3d`.
+// CO-PORT(geom.vector3d): SmVector3d::GetMaxDimension
 fn max_dimension3(v: Vec3) -> f64 {
     let mut d = if v.x.abs() > v.y.abs() {
         v.x.abs()
@@ -283,6 +286,7 @@ fn max_dimension3(v: Vec3) -> f64 {
 }
 
 /// `SmVector3d::operator[] const`: component `i`, or `0.0` for `i > 2`.
+// CO-PORT(geom.vector3d): SmVector3d::operator[] const
 fn component(v: Vec3, i: usize) -> f64 {
     match i {
         0 => v.x,
