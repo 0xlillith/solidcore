@@ -28,4 +28,5 @@ pub mod spiral;
 pub mod srf_basic;
 pub mod srf_common;
 pub mod srf_fit;
+pub mod srf_nurb;
 pub mod srf_tool;
