@@ -893,3 +893,8 @@ behaviour worth knowing:
   `project_to_plane_into`.
 - The `SM_IS_BETWEEN_TO_TOL(s, 0, 1, tol)` test in the rotation branch has an
   always-false reversed-interval half; the port keeps only the live half.
+- **Wired `SmTransform::EvaluateBoundingBoxSimple`** (unit `geom.transform`). A requested
+  output without `pOptParamPseudoBox` (an upstream null dereference) is `InvalidInput` in
+  the port. The unaligned-and-bounded branch still needs `SmVolume::EvaluatePoint` and
+  returns `Unported(surface.volume_p2)`. The 113 `geom.transform` cases deferred on
+  `geom.pseudo_box` now pass. 256 cases are still deferred, on `surface.volume_p1`/`_p2`.
