@@ -236,7 +236,6 @@ pub fn interp(a: &[Vec3], p: usize, par: ParamMethod) -> Result<Curve> {
 /// [`KnotVector::basis_eval`], of the LU decomposition and of the solve;
 /// `InvalidInput` for empty `a` or `p == 0` where upstream would index outside its
 /// arrays.
-#[allow(clippy::too_many_lines)] // one upstream routine, kept in its original shape
 pub fn approx_lst_sq(a: &[Vec3], n: usize, p: usize, par: ParamMethod) -> Result<Curve> {
     const OP: &str = "nurbs::crv_fit::p2::approx_lst_sq";
     let m = hi(a, OP, "no data points")?;
@@ -390,7 +389,6 @@ pub struct WeightedData<'a, P> {
 /// [`basis_derivs`], of the LU decompositions, inverses, products and solves;
 /// `InvalidInput` for empty points, too few weights, derivatives, indices or
 /// parameters, or other accesses outside upstream's arrays.
-#[allow(clippy::too_many_lines)] // one upstream routine, kept in its original shape
 pub fn weighted_lst_sq_knots<P: LstSqPoint>(
     data: &WeightedData<'_, P>,
     u: &[f64],
