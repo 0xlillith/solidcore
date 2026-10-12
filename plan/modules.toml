@@ -426,10 +426,10 @@ depends_on = ["nlib.funcs_basic", "nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1542
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "partial"
+status = "green"
 claimed_by = "swarm-nlib.crv_basic-a1"
 claimed_at = "2026-10-12T20:31:32Z"
-notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; PARTIAL: difftest 3417 cases (417 fixture + 3000 generated), 3139 pass bit-identical (max_rel_err 0), 278 deferred (all N_CrvsAreCoincident -> N_CrvsMakeCompatible, nlib.crv_tool_p2); no UNPORTED(nlib.crv_basic) stubs to wire"
+notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; difftest 3417 cases (417 fixture + 3000 generated), 3417 pass bit-identical, 0 deferred (promoted when nlib.crv_tool_p2 wired N_CrvsMakeCompatible); no UNPORTED(nlib.crv_basic) stubs to wire"
 
 [[unit]]
 id = "geom.global_solver"
@@ -634,10 +634,10 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_fit_p1", "nlib.crv
 est_lines = 1234
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_fit_p3-a1"
 claimed_at = "2026-10-12T12:00:00Z"
-notes = "6 fns; largest: N_FitCrvKnotsAndTangents, N_FitCubicSplineInterp, N_FitCrvDerivs, N_FitCrvHighDerivs; 317 upstream test entry points reach this unit"
+notes = "6 fns; largest: N_FitCrvKnotsAndTangents, N_FitCubicSplineInterp, N_FitCrvDerivs, N_FitCrvHighDerivs; 317 upstream test entry points reach this unit; difftest green: 2242 cases (242 fixtures + 2000 generated), 0 deferred, max_rel_err 0"
 
 [[unit]]
 id = "nlib.crv_geom"
@@ -660,10 +660,10 @@ depends_on = ["nlib.basis_basic", "nlib.bezier", "nlib.crv_basic", "nlib.crv_nur
 est_lines = 1748
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_tool_p2-a1"
 claimed_at = "2026-10-12T21:27:39Z"
-notes = "7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 2124 cases (124 fixtures + 2000 generated), 2124 pass bit-for-bit, 0 deferred; wired UNPORTED(nlib.crv_tool_p2) in nlib.crv_basic (N_CrvsAreCoincident, now green); 7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nurbs.nurbs_crv"
@@ -673,10 +673,10 @@ depends_on = ["geom.axis2_placement", "geom.extent1d", "geom.extent3d", "geom.to
 est_lines = 2200
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nurbs.nurbs_crv-a1"
 claimed_at = "2026-10-12T21:27:44Z"
-notes = "27 fns; largest: sm_CrvRemoveKnots, sm_BasisIDerivs, sm_BasisFindGlobalMax, sm_BasisDerivs; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "27 fns; largest: sm_CrvRemoveKnots, sm_BasisIDerivs, sm_BasisFindGlobalMax, sm_BasisDerivs; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; GREEN: difftest 4089 cases (1089 fixture from the six upstream .smc curves, SM_API_test rectangle/polygon edges and edge cases + 3000 generated), all bit-identical (max_rel_err 0), 0 deferred; 51,089-case run clean; --perturb SENSITIVE. No UNPORTED(nurbs.nurbs_crv) stubs existed to wire. Upstream quirks (sm_BasisEval flags domain ends, sm_CrvTrim returns NL_INP_ERR) in plan/findings.md"
 
 [[unit]]
 id = "topology.topology"
@@ -699,9 +699,9 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_geom", "nlib.crv_n
 est_lines = 2031
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_adv_p1-a1"
+claimed_at = "2026-10-12T21:44:23Z"
 notes = "7 fns; largest: ST_curxcdr, ST_curxcrr, N_CrvEvalEvenSpacedPts, N_CrvGetMax2ndDeriv; 317 upstream test entry points reach this unit"
 
 [[unit]]
