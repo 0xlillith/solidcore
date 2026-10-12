@@ -140,10 +140,10 @@ depends_on = ["geom.tol"]
 est_lines = 355
 layer = 2
 tests = ["prog_test:my_test_crv_projected_max", "prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.context-a1"
 claimed_at = "2026-10-12T19:48:04Z"
-notes = "30 fns; largest: SmNewMarkAndLock::LockMark, SmNewMarkAndLock::UnlockMark, SmContext::NewMark, SmContext::SmContext; entry points: SmApiCreateContext, SmApiGetOrCreateContext; unit-SCC #22 (220 units); 320 upstream test entry points reach this unit"
+notes = "green: 2013 difftest cases (13 fixtures + 2000 generated scripts), 0 deferred, all bit-identical; wired UNPORTED(geom.context) in geom.tol (Option<&Context> overloads; geom.tol stays green). 30 fns; largest: SmNewMarkAndLock::LockMark, SmNewMarkAndLock::UnlockMark, SmContext::NewMark, SmContext::SmContext; entry points: SmApiCreateContext, SmApiGetOrCreateContext; unit-SCC #22 (220 units); 320 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.extent1d"
@@ -231,9 +231,9 @@ depends_on = ["geom.tol", "geom.vector3d"]
 est_lines = 479
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.axis2_placement-a1"
+claimed_at = "2026-10-12T20:00:41Z"
 notes = "30 fns; largest: SmAxis2Placement::RotateAboutAxis, SmAxis2Placement::AreCoaxial, SmAxis2Placement::GetMatrix, SmAxis2Placement::GetMirrorMatrix; cycle back-edges (call into later units; stub or co-port): geom.geom_utility_p1(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -257,9 +257,9 @@ depends_on = ["geom.matrix", "geom.tol", "geom.vector2d", "geom.vector3d"]
 est_lines = 1617
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.geom_utility_p2-a1"
+claimed_at = "2026-10-12T20:00:30Z"
 notes = "16 fns; largest: smgu_SphereCircleSphereCircleIntersect, smgu_EvaluateCurveContinuity, smgu_SegmentSegmentIntersect, smgu_SegmentSegmentPerpspectiveIntersect; cycle back-edges (call into later units; stub or co-port): geom.geom_utility_p1(28); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -270,9 +270,9 @@ depends_on = ["geom.extent3d", "geom.tol", "geom.vector3d"]
 est_lines = 593
 layer = 3
 tests = ["prog_test:my_test_closed_sphere_properties", "prog_test:my_test_squeeze_edge_tracks_removal", "prog_test:my_test_missing_poles_refreshes_all_faces", "SM_API_test:TestSmHealBrep", "SM_API_test:TestSmHeal", "prog_test:my_test_MakeFace", "pt_TestFiles/MakeFace/ApproximateSphere.smp"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.hash_table-a1"
+claimed_at = "2026-10-12T20:00:27Z"
 notes = "12 fns; largest: SmObjsInVoxels::Add, SmObjsInVoxels::FindCoincidentPairs, SmObjsInVoxels::IncMaxItemCount, SmObjsInVoxels::MapPointToVoxel; unit-SCC #22 (220 units); 59 upstream test entry points reach this unit"
 
 [[unit]]
@@ -322,9 +322,9 @@ depends_on = ["geom.vector3d"]
 est_lines = 386
 layer = 3
 tests = ["prog_test:my_test_polynomial", "SM_API_test:TestSmPrincipalDirectionPairing", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.polynomial-a1"
+claimed_at = "2026-10-12T20:00:26Z"
 notes = "4 fns; largest: SmPolynomial::SolveQuarticEqn, SmPolynomial::SolveQuadraticEqn, SmPolynomial::SolveCubicEqn, sm_AddSolution; unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
