@@ -16,6 +16,7 @@ pub mod extent3d;
 pub mod geom_utility;
 pub mod matrix;
 pub mod periodic_extent1d;
+pub mod polar_box;
 pub mod polynomial;
 pub mod tol;
 pub mod tree;
