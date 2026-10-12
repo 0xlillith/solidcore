@@ -795,6 +795,29 @@ re-export of `p1::PointSetType`. Upstream behaviour worth knowing:
 - **`SmAxis2Placement::AreCoaxial`** takes `SmApproxTol3d`. The port uses `|tol3d|` but
   does not apply the `SM_USE_DEFAULT` substitution, because `are_coaxial` has no kernel.
 
+## geom.tools (partial; no disagreements)
+
+- **913 cases, 721 pass, 192 deferred** (`topology.vertex` 60, `topology.brep_p1` 64,
+  `curve.curve_p2` 68). `FindFirstPointWithinTolToPnt` is fully compared; the vertex,
+  coincident-edge, edge and face searches are deferred until vertex/edge tolerances, edge
+  geometry, curve evaluation/drops, `SmBrep::GetEdges`/`GetTolerance` and
+  `SmTopologySolver::BrepPointSolve` land. Their C++ side already runs on real B-reps
+  (`cone`, `sphere`, `disk`, `plane_square`, `torus`, `box_with_large_fillet`, `Mouse`,
+  `plane_circ` `.smb`); the Rust runner searches placeholder edges because it cannot read
+  `.smb` yet. Whoever ports `.smb` reading should switch the `coincident`/`edge`/`face`
+  cases of `crates/difftest/src/units/geom_tools.rs` to the real B-rep.
+- **`FindFirstPointWithinTolToPnt` never reports a double hit.** Both branches of the
+  `closest < 0.5 * second` test set `rbIsFoundArg = TRUE` (comment: two loops may touch at
+  a vertex), so `found` is just `closest < tol`. Ported as is.
+- **`FindCoincidentEdge` leaks a rejected candidate's orientation**: `rbSameOrient` is
+  written before the max-distance check, and with no edge found `rbSameOrient` /
+  `rlFoundIndex` keep whatever they held. The port returns `None`; the shim reports them
+  only on a hit.
+- **`SmBrep::ReadFromFile` crashes on old (`DB version 30`) ASCII files**: `SmallBox.smb`
+  and `Platform.smb` (pt_TestFiles) dereference a NULL `SmShellData` in
+  `SmTopologyData::ReadFromDB` (`SmBrepData.cpp:4307`), or fail with a non-success status,
+  depending on heap state. They are not used as fixtures.
+
 ## nlib.crv_basic (partial; no disagreements)
 
 Difftest: 3417 cases (417 fixture + 3000 generated), 3139 bit-identical (max_rel_err 0),
@@ -826,6 +849,78 @@ cases.
 - **`N_CrossBoundDerivCrvNonRatSrf`** reads `Pw[1]` / `Pw[n-1]` and `U[p+1]` / `U[n+p]` (v
   likewise) without checks; too-small surfaces are `InvalidInput` and refused by the FFI.
 - No `UNPORTED(nlib.crv_basic)` stubs existed to wire.
+
+## geom.transform (partial; no disagreements)
+
+- **`SmTransform::EvaluateBoundingBoxSimple` dereferences a null `pOptParamPseudoBox`.**
+  When an output is requested, it calls
+  `sThisParamPseudoBox.AreAligned(*pOptParamPseudoBox, alAxisMap)` before checking
+  `pOptParamPseudoBox == NULL`, and `AreAligned` reads the other box's basis. So the
+  default call (`pOptParamPseudoBox = NULL` plus an output box) crashes. The difftest
+  passes a default `SmPseudoBox` for every case that requests an output. Those cases
+  are deferred until `geom.pseudo_box` lands. Whoever wires the
+  `UNPORTED(geom.pseudo_box)` stub there has to choose what the null case does.
+- **The aligned branch of `EvaluateBoundingBoxSimple` scales the parameter intervals
+  by `1/|axis|` and shifts them by `origin·axis`.** That is not the image of the box
+  under the transform, for example under a pure translation. It is still behind the
+  `geom.pseudo_box` stub; whoever ports it should keep it as is.
+- **`SmTransform::ReadFromDB` ignores the status of the base-class read**
+  (`SmVolume::ReadFromDB`) and always returns `SM_SUCCESS` once the 16 matrix values
+  are read.
+
+## geom.pseudo_box (green; no disagreements)
+
+3011 difftest cases (11 fixtures + 3000 generated) are bit-identical. Upstream
+behaviour worth knowing:
+
+- **`SmExtent3d::Circumscribe` of an axis-aligned pseudo box mixes up the axis map.**
+  `IsAxisAligned` fills `alAxisMap[i]` with the axis that *basis* `i` is parallel to,
+  but `Circumscribe` reads `alAxisMap[i]` as the basis parallel to *axis* `i`. Swaps and
+  sign flips come out right, but a 3-cycle does not: basis `(y, z, x)` with intervals
+  `[1,2], [3,5], [-7,-6]` gives `min (3, -7, 1)` instead of `(-7, 1, 3)`. Ported as is
+  (fixture `circumscribe_axis_cycle_quirk`). `geom.extent3d` is green now that this is
+  wired.
+- **`DistanceToPoint`** returns `SM_ERR` (1001.0) as a distance when the point is outside
+  more than three planes. That only happens for inside-out boxes (`Init()` state). When
+  `smgu_IntersectTwoPlanes`/`ThreePlanes` fail it ignores the status and uses the
+  uninitialised (`SM_UNDEF_DOUBLE`) line or vertex.
+- **`ProjectToPlane`** projects the corners *parallel* onto the plane for every projection
+  type (the perspective type only changes the basis vectors). It writes into a
+  caller-provided box and keeps that box's basis on the rare `SetBasis` failure. The
+  `MakeUnitOrthoVectors` branch writes `m_aBasis` directly without updating
+  `m_bOrthogonalBasis`. When that branch fails (seen only for an uninitialised basis with
+  huge intervals), basis vector 0 is left as `(0,0,1)`. All three are kept in
+  `project_to_plane_into`.
+- The `SM_IS_BETWEEN_TO_TOL(s, 0, 1, tol)` test in the rotation branch has an
+  always-false reversed-interval half; the port keeps only the live half.
+- **Wired `SmTransform::EvaluateBoundingBoxSimple`** (unit `geom.transform`). A requested
+  output without `pOptParamPseudoBox` (an upstream null dereference) is `InvalidInput` in
+  the port. The unaligned-and-bounded branch still needs `SmVolume::EvaluatePoint` and
+  returns `Unported(surface.volume_p2)`. The 113 `geom.transform` cases deferred on
+  `geom.pseudo_box` now pass. 256 cases are still deferred, on `surface.volume_p1`/`_p2`.
+
+## nlib.crv_tool_p1 (partial; no disagreements)
+
+2143 default cases (143 fixtures on the `.smc` test curves, 2000 generated): 2063 agree bit
+for bit (`max_rel_err = 0`), 80 deferred. C++ runs both the in-place and out-of-place forms;
+the Rust methods return a new curve. Upstream behaviour worth knowing:
+- **Deferred:** `N_CrvRemoveKnot` on a rational curve calls `N_CrvGetMinMaxWeightsAndPts`
+  (`nlib.crv_nurb`). That routine always returns `pmax = 0`, so the scaled tolerance is
+  `tol * wmin`. Wire `UNPORTED(nlib.crv_nurb)` in `nurbs/crv_tool/p1.rs`; the rational
+  weight check after it is already ported.
+- **`N_CrvRemoveKnot` error flag:** a failing `N_BasisFindGlobalMax` gives an assumed maximum
+  of 1, but the flag stays in `error`. If the last such call failed, the routine finishes the
+  removal and still returns 1. The port returns only the error then; the shim dumps nothing
+  on a nonzero status.
+- **No input checks:** `N_CrvInsertKnot`, `N_CrvSplit`, `N_CrvDecomposeBez`, `N_CrvRefine`,
+  `N_CrvExtractCrvSeg` and `N_CrvRemoveKnotMaxErr` don't validate the curve. For unclamped
+  knots, multiplicity above `p`, out-of-range `ul`/`ur` or wrong `(r, s)` they index outside
+  their arrays. The port returns `InvalidInput`, and the FFI refuses such inputs.
+  `N_CrvDecomposeBez` past `nsp` segments does `NL_QUIT` with no error number.
+- **Fixture parameters:** serde_json (without `float_roundtrip`) can parse decimal text
+  1 ulp off, so knot-valued parameters in fixtures use `{"knot": i}`. Without it, the
+  `curve0.smc` end knots fell outside the range.
+- No `UNPORTED(nlib.crv_tool_p1)` stubs existed to wire.
 
 ## nlib.crv_fit_p1 (green; no disagreements)
 
