@@ -794,3 +794,76 @@ re-export of `p1::PointSetType`. Upstream behaviour worth knowing:
   `InvalidInput`, and the ffi wrapper only passes at least one point.
 - **`SmAxis2Placement::AreCoaxial`** takes `SmApproxTol3d`. The port uses `|tol3d|` but
   does not apply the `SM_USE_DEFAULT` substitution, because `are_coaxial` has no kernel.
+
+## geom.tools (partial; no disagreements)
+
+- **913 cases, 721 pass, 192 deferred** (`topology.vertex` 60, `topology.brep_p1` 64,
+  `curve.curve_p2` 68). `FindFirstPointWithinTolToPnt` is fully compared; the vertex,
+  coincident-edge, edge and face searches are deferred until vertex/edge tolerances, edge
+  geometry, curve evaluation/drops, `SmBrep::GetEdges`/`GetTolerance` and
+  `SmTopologySolver::BrepPointSolve` land. Their C++ side already runs on real B-reps
+  (`cone`, `sphere`, `disk`, `plane_square`, `torus`, `box_with_large_fillet`, `Mouse`,
+  `plane_circ` `.smb`); the Rust runner searches placeholder edges because it cannot read
+  `.smb` yet. Whoever ports `.smb` reading should switch the `coincident`/`edge`/`face`
+  cases of `crates/difftest/src/units/geom_tools.rs` to the real B-rep.
+- **`FindFirstPointWithinTolToPnt` never reports a double hit.** Both branches of the
+  `closest < 0.5 * second` test set `rbIsFoundArg = TRUE` (comment: two loops may touch at
+  a vertex), so `found` is just `closest < tol`. Ported as is.
+- **`FindCoincidentEdge` leaks a rejected candidate's orientation**: `rbSameOrient` is
+  written before the max-distance check, and with no edge found `rbSameOrient` /
+  `rlFoundIndex` keep whatever they held. The port returns `None`; the shim reports them
+  only on a hit.
+- **`SmBrep::ReadFromFile` crashes on old (`DB version 30`) ASCII files**: `SmallBox.smb`
+  and `Platform.smb` (pt_TestFiles) dereference a NULL `SmShellData` in
+  `SmTopologyData::ReadFromDB` (`SmBrepData.cpp:4307`), or fail with a non-success status,
+  depending on heap state. They are not used as fixtures.
+
+## nlib.crv_basic (partial; no disagreements)
+
+Difftest: 3417 cases (417 fixture + 3000 generated), 3139 bit-identical (max_rel_err 0),
+278 deferred; a 30,000-generated-case run is also clean. Fixtures use the six upstream
+`.smc` curves, the `.sms` surfaces (cross-boundary derivatives), the rectangle / polygon
+segments of `TestSmCreateRectangle` / `TestSmCreateRegularPolygon` (including the far-centre
+degenerate ones), the 16 line pairs of `my_test_reversed_line_join`, conic data and edge
+cases.
+
+- **Deferred: `N_CrvsAreCoincident`** calls `N_CrvsMakeCompatible` (unit
+  `nlib.crv_tool_p2`, back-edge). The Rust side returns `Unported` (stub
+  `UNPORTED(nlib.crv_tool_p2)` in `nurbs/crv_basic.rs`); every `coincident` case is
+  deferred until that unit lands. Upstream turns that call's failure into `false`; the port
+  propagates the error. The FFI only passes well-formed clamped B-splines to it.
+- **Uninitialised output in `N_CrvGetNumAndDenom`.** With a rational curve, a NULL numerator
+  and a too-small denominator, upstream allocates the numerator (`malloc`), then fails
+  (`NL_STO_ERR`) before writing it: the numerator holds garbage (Rust: zeros). The generator
+  always passes an existing numerator in that situation.
+- **`N_CrvGetConicData` loops forever** for non-finite angles or angles where `ae + 360 == ae`;
+  the port returns `InvalidInput` for non-finite angles and after 2^20 turns. An unknown
+  conic flag leaves `n`, `p` unwritten upstream (not expressible with `ConicType`).
+- **`N_CrvIsPlanar`** reads `ang` from `N_VectorsAngle` even when that call failed (stale or
+  uninitialised value) if the cross product still normalises; the port keeps the previous
+  vertex's angle (NaN at the first). It also writes `PP`/`NN` (zeroed `NN`) on its error
+  path; the port returns only the error and the difftest does not compare them then.
+- **`N_CrvReparamToInterval`** writes `U[m-p..]` for `m < p` (negative index): `InvalidInput`.
+- **`N_CrvSizeArrays` compares with the indices in use**, not the storage (as
+  `N_CFuncSizeArrays`); the port is faithful (unlike `nlib.srf_basic`'s `size_arrays`).
+- **`N_CrossBoundDerivCrvNonRatSrf`** reads `Pw[1]` / `Pw[n-1]` and `U[p+1]` / `U[n+p]` (v
+  likewise) without checks; too-small surfaces are `InvalidInput` and refused by the FFI.
+- No `UNPORTED(nlib.crv_basic)` stubs existed to wire.
+
+## geom.transform (partial; no disagreements)
+
+- **`SmTransform::EvaluateBoundingBoxSimple` dereferences a null `pOptParamPseudoBox`.**
+  When an output is requested, it calls
+  `sThisParamPseudoBox.AreAligned(*pOptParamPseudoBox, alAxisMap)` before checking
+  `pOptParamPseudoBox == NULL`, and `AreAligned` reads the other box's basis. So the
+  default call (`pOptParamPseudoBox = NULL` plus an output box) crashes. The difftest
+  passes a default `SmPseudoBox` for every case that requests an output. Those cases
+  are deferred until `geom.pseudo_box` lands. Whoever wires the
+  `UNPORTED(geom.pseudo_box)` stub there has to choose what the null case does.
+- **The aligned branch of `EvaluateBoundingBoxSimple` scales the parameter intervals
+  by `1/|axis|` and shifts them by `origin·axis`.** That is not the image of the box
+  under the transform, for example under a pure translation. It is still behind the
+  `geom.pseudo_box` stub; whoever ports it should keep it as is.
+- **`SmTransform::ReadFromDB` ignores the status of the base-class read**
+  (`SmVolume::ReadFromDB`) and always returns `SM_SUCCESS` once the 16 matrix values
+  are read.
