@@ -1146,6 +1146,52 @@ green (2871/2871, 0 deferred). Upstream behaviour worth knowing:
   status 1000 on both sides. A tolerance flag other than `NL_ABSOLUTE`/`NL_RELATIVE`
   fails with `NL_CAL_ERR`, but only after the line/circle shortcut.
 
+## nlib.crv_adv_p1 (`NL_CrvAdv.cpp`, part 1)
+
+No Rust-vs-C++ disagreement: 2670 of 2670 default difftest cases bit-identical (670
+fixtures: the six upstream `.smc` curves, the `TestSmCreateRectangle` /
+`TestSmCreateRegularPolygon` edges as degree-1 curves, and edge cases; 2000 generated),
+and a 100,670-case run (`--seeds 100000`) also clean. The file-private `ST_curxcdr` /
+`ST_curxcrr` are ported as `Curve::extend_by_dist_at_depth` /
+`Curve::extend_by_param_dist_at_depth`; their one-line public wrappers
+`N_CrvExtendByDist` / `N_CrvExtendByParamDist` belong to `nlib.crv_adv_p2` (call them
+with `depth = 0`). The shim reaches the `ST_` routines through those wrappers. No
+`UNPORTED(nlib.crv_adv_p1)` stubs existed to wire. Upstream behaviour worth knowing:
+
+- **`ST_curxcrr` in place frees an uninitialised curve.** Its `EXIT` label runs
+  `if( curP EQ curQ ) N_FreeCrv( &curA, SP )`, but `curA = *curP` is assigned only after
+  the `NL_G2` two-step recursion (`par` more than `0.9213` parameter ranges outside) and
+  the `N_BasisFindSpanAndMult` calls. An in-place `NL_G2` call that recurses (or fails
+  before that point) frees stack garbage: the difftest crashed with SIGSEGV on such a
+  case. The ffi rejects in-place `NL_G2` extensions that would recurse; out of place
+  (and every nested recursive call: the second step is in place but never recurses) is
+  fine. `ST_curxcdr` frees `curA` before its `EXIT` label and has no such problem.
+- **Bare error flags.** The recursion limits (`ST_curxcdr` depth > 50, `ST_curxcrr`
+  depth > 10) `return (1)` without an `NL_ERROR` number, as does `ST_curxcrr`'s
+  `NL_QUIT` when the knot-inserted curve has an unexpected size (unreachable for clamped
+  curves). The port returns `NotConverged` / `InvalidInput` (`BARE_FLAG_REASON`); the
+  difftest maps both to status 1000. A relative `NL_G2` distance above ~24.8 curve
+  lengths hits the `ST_curxcdr` limit, a `NL_G2` parameter more than ~6 ranges out hits
+  the `ST_curxcrr` limit.
+- **`ST_curxcdr` `NL_G2` parameter search never ends** when the step
+  `du = range * ldst / d1` no longer changes the parameter (or is zero: `dist = 0`), and
+  reads outside the knot range for a negative distance. The port fails with
+  `NotConverged` when a step changes nothing; the ffi only passes positive distances of
+  at least `1e-3` curve sizes for `NL_G2`.
+- **Tangent fallbacks read past short curves.** When the end pair of control points
+  cannot be normalised, `NL_G1`/`NL_G2` (of `ST_curxcdr`, `NL_G1` of `ST_curxcrr`) retry
+  with the third point from the end, which does not exist for `n < 2`; the ffi rejects
+  that. `ST_curxcrr`'s `NL_G2` has no fallback (`NL_GEO_ERR` at once).
+- **`N_CptReflect`'s flag is ignored** by both extension routines; it cannot fail for
+  their (normalised) plane normals. The port propagates it.
+- **Extensions that do not extend.** `ST_curxcrr` with `par` on or inside the extended
+  end, and `ST_curxcdr` with a non-positive distance, build knot vectors with too many
+  equal or decreasing knots that later calls index with; the ffi requires a strict
+  extension. `NL_CMAX` secant steps of `ST_curxcdr` can in principle leave the span
+  length non-positive; never seen in the runs.
+- `N_CrvEvalEvenSpacedPts` reads the global `NL_ITLIM` (default 50, lowered temporarily
+  by some approximation routines); the port uses `crv_geom::ITER_LIMIT`.
+
 ## nlib.crv_common (green; no disagreements)
 
 - Rust and C++ agree bit for bit on all 2137 cases (no disagreements).
@@ -1191,3 +1237,50 @@ generated). No `UNPORTED(nlib.crv_fit_p3)` stubs existed. Upstream behaviour wor
   (`EndTangents::Same`). The merged knot vector would have unset tail entries if a new
   knot were not below `UT[mt]` (cannot happen for increasing parameters); the port
   returns `InvalidInput` there.
+
+## nlib.spiral (`NL_Spiral.cpp`, `SmNurbsVol.cpp`)
+
+No Rust-vs-C++ disagreement: 2032 of 2032 difftest cases bit-identical (32 fixtures from
+`TestSmCreateHelixInvalidInputs`, `smSurfaceTest.cpp:1975` and edge cases, plus 2000
+generated; a 20k-seed run is clean). No `UNPORTED(nlib.spiral)` stubs existed.
+Upstream behaviour worth knowing:
+
+- `N_CrvApproxSpiral` crashes on its own input errors: the checks `height < NL_MTOL`,
+  a radius `< -NL_MTOL`, `rad0 + rad1 < NL_MTOL` (after zeroing radii below `NL_MTOL`)
+  and `NumTurns < NL_MTOL` run `NL_ERROR` (goto `EXIT`) *before*
+  `N_InitNurbs(&SL)`, and `EXIT` calls `N_EndNurbs(&SL)` on the uninitialised local
+  stacks (`free(): invalid pointer`, e.g. height 0 with r0 = r1 = 2, turns 5). The
+  public callers (`SmApiCreateHelix`, `SmBSplineCurve::CreateHelixSegment`) validate
+  first, so they never reach it. The port returns `NlibCode::Input`; the ffi rejects
+  these inputs (`hits_early_input_error`) and the Rust unit tests cover them.
+- Fewer than 1/8 turn when fitting (`NumPoints <= 1`): the initial span count
+  `(int)(8 * NumTurns + 0.99)` is 0, `dTheta` divides by zero, and the cubic spline
+  fit with one point fails with `NL_INP_ERR` (after `N_InitNurbs`, so no crash).
+- When the span count reaches `NL_CCPLIM - 6` (994) without meeting `tol`, the loop
+  adds the next increment and stops, so `*NumPoints` comes back as
+  `994 + delta + 1` while the curve was fitted with 995 points. Ported as is.
+- The span count conversions are C `(int)` casts of doubles (undefined beyond the `int`
+  range; Rust saturates); the ffi caps turns at 1000 and `NumPoints` at 100000.
+
+## nlib.srf_common (`NL_SrfCommon.cpp`)
+
+No Rust-vs-C++ disagreement: 1550 of 1550 difftest cases bit-identical (50 fixtures from
+`TestSmCreateSurfaceFromCornerPoints`, `TestSmCreateExtrude`, `TestSmCreateRuledSurface`,
+`TestSmCreateSurfaceRevolution`, `my_test_surf_methods` and the `.smc` curves in
+`pt_TestFiles`, plus 1500 generated). No `UNPORTED(nlib.srf_common)` stubs existed.
+Upstream behaviour worth knowing:
+
+- `N_CreateRevolvedSrf` stores the circle weights from `N_CalcCircWeights` in a local
+  `NL_REAL wi[9]`. A quartic (`NL_QUARTIC`) revolution of 241 degrees or more has 13
+  weights and overflows the stack buffer (undefined behaviour). Upstream callers only pass
+  `NL_QUADRATIC` or a caller-chosen `rtp` (`NL_SrfFit.cpp:13242`, `:13828`). The port keeps
+  all the weights; the ffi wrapper rejects those inputs so difftest never runs the overflow.
+- The routines change their input curves in place: `N_CreateSrfExtrudeCrv` makes a 2D
+  curve 3D (after the `dir` check, before the direction is normalised, so a zero direction
+  still converts the curve), `N_CreateRuledSrf` makes both curves compatible (and keeps the
+  changes made before a failure), `N_CreateRevolvedSrf` makes the profile rational and 3D.
+  The port takes `&mut Curve`; difftest compares the curves after the call.
+- `N_CreateCylCone` reads the indices and knots of the top circle when there is one, else
+  of the bottom circle; a collapsed circle (radius at most `NL_MTOL`) becomes its centre
+  weighted by the other circle's weights. `N_CreateRuledSrf` takes `n` from curve B and
+  `p`, `m`, `U` from curve A (equal after `N_CrvsMakeCompatible`).
