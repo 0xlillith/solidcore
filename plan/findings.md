@@ -1039,6 +1039,40 @@ behaviour worth knowing:
   `SmPointSet3d::SetNormal` assigns to its own argument (`sNormal = m_sNormal`) and so
   only clears the cache. It is not reached in scope and is not ported.
 
+## topology.topology (green; no disagreements)
+
+657 difftest cases (57 fixtures + 600 generated) agree exactly. Upstream behaviour
+worth knowing:
+
+- **`SmTopologyChangeCallback::Execute` belongs to no unit.** The call graph never
+  reaches it (it is in `harness/callgraph/unused_functions.txt` with `AddUnique`,
+  `Remove` and both `Dump`s), so the tracker's lists are only ever reset. The Rust
+  callback that `TrackTopologyChanges` installs returns `SolidError::Unsupported`
+  from `execute`, which `SmObject::Notify` ignores. Upstream `Execute` only records
+  faces, edges and vertices, so with the bare `SmTopology` objects in the difftest
+  the C++ lists stay empty too. A future unit that needs real change tracking has to
+  port `Execute` (it walks surface/curve owners and edgeuse edges).
+- **Starting a tracker twice leaves its callback installed after it dies.** The
+  second `StartTracking` sees the tracker's own callback in the slot and stores it in
+  `m_pLastNotifyCallback`; `StopTracking` (and so the destructor) then does nothing,
+  and the context keeps a dangling `SmNotifyCallback*`. The next `Notify` calls
+  `Execute` on a destroyed object; a later tracker allocated at the same address is
+  even reported as tracking. The shim skips (`ST_SKIP`) destroying a tracker in that
+  state, and the Rust runner applies the same rule. Rust's tracker recognises its
+  callback by a caller-chosen key, so address reuse cannot fake `IsTracking`.
+- **`StopTracking` clears whatever callback is installed** when this tracker found
+  the slot empty at start, including a foreign one installed since (fixture
+  `track_stop_clears_foreign`). Ported as is.
+- **Notify asymmetries** (ported as is): a merge ORs the two targets' flags into both
+  but copies no flags from the source; a copy (`SM_NO_COPY`, or `SM_NO_CONSTRUCTION`
+  with a source) zeroes the target's three general marks while a split copies them;
+  `m_lMarkIO` and `m_lMarkAssert` are never propagated; `SM_NO_MERGE_IN_BREP` takes the
+  *deleted* object (`pData2`) as the source (the upstream "GWC:TODO try typo bug fix").
+- `SmTol::GetZoneTol3d(const SmObject*)` and friends dispatch to the *derived*
+  `GetTolerance` overrides; their `UNPORTED` markers now name `topology.vertex`,
+  `topology.edge`, `topology.face_p2`, `topology.edgeuse_p1` and `topology.brep_p1`
+  instead of this unit.
+
 ## nlib.crv_nurb (`NL_CrvNurb.cpp`)
 
 No Rust-vs-C++ disagreement: 2852 of 2871 difftest cases are bit-identical, 19 deferred
@@ -1085,3 +1119,29 @@ worth knowing:
   for knot vectors with trailing over-multiplicity.
 - The `sm_Basis*` index/convergence errors go through `smos_ErrorMessage`, which does
   not set `NL_ERROR.eno`; the difftest compares returned flags only.
+
+## nlib.crv_geom (`NL_CrvGeom.cpp`)
+
+No Rust-vs-C++ disagreement: 1723 of 1723 difftest cases bit-identical (223 fixtures from
+the six upstream `.smc` curves plus edge cases, 1500 generated). Wiring
+`UNPORTED(nlib.crv_geom)` (`N_CrvArcLength` in `N_CrvGetDegenSegs`) made `nlib.crv_nurb`
+green (2871/2871, 0 deferred). Upstream behaviour worth knowing:
+
+- `N_CrvClosestPt` writes its best `u`/`Q` even when it returns `NL_CON_ERR`, and
+  callers use them (`NL_CrvApprox.cpp` reads `Q` after a failure; in-place calls such as
+  `&u[k]` keep the best value). The port exposes this as `Curve::closest_pt_search`
+  (best values plus error, explicit `NL_ITLIM`); `closest_pt` is the strict form. When
+  `N_CrvDerivs` fails on the first step (`u0` outside the knots: `NL_PAR_ERR`) the
+  outputs stay unwritten (`best = None`).
+- `N_ApproxCrvWithPolyline` subdivides forever when the tolerance is below the
+  floating-point resolution of the curve (e.g. `tol = 0`, or a relative tolerance on a
+  zero-length curve): a closed/degenerate segment test `dd < tolsq` never succeeds and
+  coincident control points keep splitting. The port stops after
+  `POLYLINE_MAX_SPLITS` splits with `NotConverged`; the ffi rejects such tolerances.
+  With `tol <= 0` the last vertex is never appended (`dd > 0.01*tol` fails).
+  For `p = 1` the tolerance (and its flag) is ignored and the knots `U[1..=n+1]` are
+  returned as parameters.
+- `N_CrvArcLength` returns its bare error flag (no `NL_ERROR` number) when the Bezier
+  length recursion exceeds `NL_RECURSELIM` (e.g. `tol = 0`); the difftest maps it to
+  status 1000 on both sides. A tolerance flag other than `NL_ABSOLUTE`/`NL_RELATIVE`
+  fails with `NL_CAL_ERR`, but only after the line/circle shortcut.
