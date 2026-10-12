@@ -73,7 +73,7 @@ fn transpose(w: &Net) -> Net {
 }
 
 /// `NL_MAX(a, b)`: `a > b ? a : b`.
-fn nl_max(a: f64, b: f64) -> f64 {
+pub(super) fn nl_max(a: f64, b: f64) -> f64 {
     if a > b {
         a
     } else {
@@ -117,6 +117,23 @@ pub fn remove_knot_conditional(
     tol: f64,
     dir: Direction,
 ) -> Result<KnotRemoval> {
+    match remove_knot_conditional_with_status(sur, t, nt, tol, dir)? {
+        (_, Some(e)) => Err(e),
+        (out, None) => Ok(out),
+    }
+}
+
+/// [`remove_knot_conditional`] that also returns the surface when upstream finishes
+/// with its error flag set by the last failed basis-maximum search: `Ok((removal,
+/// Some(error)))` then (upstream's output surface plus the error it returns). `Err`
+/// is returned where upstream exits before writing its output.
+pub(crate) fn remove_knot_conditional_with_status(
+    sur: &Surface,
+    t: f64,
+    nt: usize,
+    tol: f64,
+    dir: Direction,
+) -> Result<(KnotRemoval, Option<SolidError>)> {
     const OP: &str = "nurbs::srf_tool::p2::remove_knot_conditional";
     let Local {
         n,
@@ -163,7 +180,7 @@ pub fn remove_knot_conditional(
         _ => (pw, m, q, vp.to_vec(), s),
     };
     let a = p.max(q);
-    let removed = remove_conditional_rows(
+    let (removed, error) = remove_conditional_rows(
         &mut lines,
         RemovalArgs {
             hi,
@@ -198,10 +215,13 @@ pub fn remove_knot_conditional(
         }
         _ => surface(cut(lines, n, hi_new, OP)?, p, q, up.to_vec(), kq, OP)?,
     };
-    Ok(KnotRemoval {
-        surface: out,
-        removed: ix(removed, OP)?,
-    })
+    Ok((
+        KnotRemoval {
+            surface: out,
+            removed: ix(removed, OP)?,
+        },
+        error,
+    ))
 }
 
 /// Scalars of one conditional removal along the rows of a net.
@@ -230,14 +250,14 @@ struct RemovalArgs {
 
 /// The removal loop of `N_SrfRemoveKnotConditional` for one direction, on
 /// `lines[row][i]` and the knots `kq` (both edited in place, keeping their storage
-/// size). Returns the number of removals `k`, or the error of the last failed
-/// basis-maximum search.
+/// size). Returns the number of removals `k` and the error of the last
+/// basis-maximum search if it failed.
 fn remove_conditional_rows(
     lines: &mut Net,
     args: RemovalArgs,
     kq: &mut [f64],
     op: &'static str,
-) -> Result<isize> {
+) -> Result<(isize, Option<SolidError>)> {
     let RemovalArgs {
         hi,
         deg,
@@ -454,10 +474,7 @@ fn remove_conditional_rows(
         }
     }
 
-    match error {
-        Some(e) => Err(e),
-        None => Ok(k),
-    }
+    Ok((k, error))
 }
 
 /// Updates the knot-removal error bound `mr` for removing the knot `T[r]` (of
