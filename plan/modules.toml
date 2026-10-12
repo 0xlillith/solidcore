@@ -790,10 +790,10 @@ depends_on = ["nlib.crv_adv_p2", "nlib.crv_basic", "nlib.crv_common", "nlib.crv_
 est_lines = 346
 layer = 10
 tests = ["prog_test:my_test_ss_nurb", "prog_test:my_test_surface_point_intersect", "prog_test:my_test_GlobalCC_intersect", "prog_test:my_test_GlobalCSI", "prog_test:my_test_surface_curve_intersect", "prog_test:my_test_cci_nurb"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_offset-a1"
 claimed_at = "2026-10-12T22:47:21Z"
-notes = "1 fns; largest: N_CrvOffsetPtSampling; 181 upstream test entry points reach this unit"
+notes = "difftest green: 1555 cases (55 fixture + 1500 generated), 0 deferred, max_rel_err 0; 1 fns; largest: N_CrvOffsetPtSampling; 181 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.srf_nurb"
@@ -816,10 +816,10 @@ depends_on = ["nlib.basis_basic", "nlib.bezier", "nlib.geom", "nlib.knots", "nli
 est_lines = 1455
 layer = 11
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.srf_tool_p2-a1"
 claimed_at = "2026-10-12T22:44:17Z"
-notes = "3 fns; largest: N_SrfElevateDegree, N_SrfRemoveKnotConditional, N_SrfRemoveOneKnot; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "difftest green: 3102 cases (102 fixture + 3000 generated), 0 deferred, max_rel_err 0; 3 fns; largest: N_SrfElevateDegree, N_SrfRemoveKnotConditional, N_SrfRemoveOneKnot; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nurbs.b_spline_curve_n_lib"
@@ -842,10 +842,10 @@ depends_on = ["geom.extent1d", "geom.extent2d", "geom.extent3d", "geom.geom_util
 est_lines = 1188
 layer = 11
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nurbs.nurbs_srf-a1"
 claimed_at = "2026-10-12T22:44:10Z"
-notes = "9 fns; largest: sm_ComputeNetConstants, sm_ComputeSurfConstants, sm_DecomposeSrf, sm_SplitSrf; cycle back-edges (call into later units; stub or co-port): surface.surface_p2(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "9 fns; largest: sm_ComputeNetConstants, sm_ComputeSurfConstants, sm_DecomposeSrf, sm_SplitSrf; cycle back-edges (call into later units; stub or co-port): surface.surface_p2(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; GREEN: difftest 3092 cases (92 fixture from Surface.sms / offset_nurb.sms / DropCurveSurface.sms, SM_API_test rectangle/polygon planes and edge cases + 3000 generated), all bit-identical (max_rel_err 0), 0 deferred; 30,092-case run clean; --perturb SENSITIVE. The surface_p2 back-edge (SmSurface::EvaluatePoint) is an evaluator closure, so nothing is deferred; no UNPORTED(nurbs.nurbs_srf) stubs existed to wire"
 
 [[unit]]
 id = "nlib.srf_adv_p2"
@@ -855,9 +855,9 @@ depends_on = ["nlib.crv_adv_p2", "nlib.crv_basic", "nlib.geom", "nlib.knots", "n
 est_lines = 2097
 layer = 12
 tests = ["prog_test:my_test_ss_nurb", "prog_test:my_test_surface_point_intersect", "prog_test:my_test_GlobalCC_intersect", "prog_test:my_test_GlobalCSI", "prog_test:my_test_surface_curve_intersect", "prog_test:my_test_cci_nurb"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.srf_adv_p2-a1"
+claimed_at = "2026-10-12T23:00:10Z"
 notes = "2 fns; largest: ST_surxsdr, N_SrfEvalPtNormalDeriv; unit-SCC #22 (220 units); 182 upstream test entry points reach this unit"
 
 [[unit]]
@@ -868,9 +868,9 @@ depends_on = ["nlib.basis_adv", "nlib.crv_adv_p1", "nlib.crv_basic", "nlib.crv_f
 est_lines = 2233
 layer = 12
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.srf_adv_p3-a1"
+claimed_at = "2026-10-12T23:00:07Z"
 notes = "5 fns; largest: N_SrfExtendByParamDist, N_CreateSkinSrf, N_SrfGetGridPtsNormals, N_CreateSwungSrf; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -881,9 +881,9 @@ depends_on = ["nlib.basis_basic", "nlib.knots", "nlib.math", "nlib.srf_basic", "
 est_lines = 1380
 layer = 12
 tests = ["SM_API_test:TestSmCreateSurfaceFromRandomPoints", "SM_API_test:TestSmCreateExtrude", "prog_test:my_test_ss_nurb", "prog_test:my_test_surface_point_intersect", "prog_test:my_test_GlobalCC_intersect", "prog_test:my_test_GlobalCSI"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.srf_tool_p3-a1"
+claimed_at = "2026-10-12T23:00:00Z"
 notes = "3 fns; largest: N_SrfRemoveAllKnots, N_SrfJoin, N_MakeSrfsCompatible; unit-SCC #22 (220 units); 199 upstream test entry points reach this unit"
 
 [[unit]]
@@ -907,9 +907,9 @@ depends_on = ["geom.axis2_placement", "geom.extent1d", "geom.extent2d", "geom.ex
 est_lines = 1790
 layer = 12
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nurbs.b_spline_surface_p1-a1"
+claimed_at = "2026-10-12T23:03:31Z"
 notes = "41 fns; largest: SmBSplineSurface::CalculateBoundingBox, SmBSplineSurface::CreateCanonical, SmBSplineSurface::ReadFromDB, SmBSplineSurface::IsDegenerateCurve; cycle back-edges (call into later units; stub or co-port): surface.cone_p1(8), surface.plane_p1(5), surface.surface_p1(5), surface.sphere(4), surface.surf_of_extrusion_p1(4), surface.surf_of_revolution_p1(4), surface.torus(4), surface.surface_p2(3), surface.surface_p7(3), surface.surface_p5(2), surface.surface_p4(1), topology.brep_p1(1), topology.face_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
