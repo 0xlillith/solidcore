@@ -9,4 +9,5 @@
 pub mod extent3d;
 pub mod periodic_extent1d;
 pub mod tol;
+pub mod tree;
 pub mod vector2d;

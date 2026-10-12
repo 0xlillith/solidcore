@@ -101,10 +101,10 @@ depends_on = ["geom.extent3d"]
 est_lines = 1259
 layer = 1
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-geom.tree-a1"
 claimed_at = "2026-10-12T19:33:41Z"
-notes = "34 fns; largest: SmTree::AddToSpatialTree, SmTree::RmFromSpatialTree, SmTreeNode::PropagateToParents, SmTreeNode::GetBotSide; cycle back-edges (call into later units; stub or co-port): geom.vector3d(5), geom.object(2), surface.surface_cache_p1(2), curve.curve_cache(1), nurbs.b_spline_surface_p1(1), surface.surface_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "difftest: 618 cases (18 fixture + 600 generated), 611 pass bit-identical, 7 deferred (nurbs.b_spline_surface_p1 6, surface.surface_cache_p1 1); 34 fns; largest: SmTree::AddToSpatialTree, SmTree::RmFromSpatialTree, SmTreeNode::PropagateToParents, SmTreeNode::GetBotSide; cycle back-edges (call into later units; stub or co-port): geom.vector3d(5), geom.object(2), surface.surface_cache_p1(2), curve.curve_cache(1), nurbs.b_spline_surface_p1(1), surface.surface_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.geom"
@@ -140,9 +140,9 @@ depends_on = ["geom.tol"]
 est_lines = 355
 layer = 2
 tests = ["prog_test:my_test_crv_projected_max", "prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.context-a1"
+claimed_at = "2026-10-12T19:48:04Z"
 notes = "30 fns; largest: SmNewMarkAndLock::LockMark, SmNewMarkAndLock::UnlockMark, SmContext::NewMark, SmContext::SmContext; entry points: SmApiCreateContext, SmApiGetOrCreateContext; unit-SCC #22 (220 units); 320 upstream test entry points reach this unit"
 
 [[unit]]
@@ -153,9 +153,9 @@ depends_on = ["geom.tol"]
 est_lines = 974
 layer = 2
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.extent1d-a1"
+claimed_at = "2026-10-12T19:48:21Z"
 notes = "56 fns; largest: SmExtent1d::IntersectPeriodic, SmExtent1d::ContainsPeriodicValue, SmExtentNd::ClampVector, SmExtent1d::ApproximateUnbounded; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -192,9 +192,9 @@ depends_on = ["geom.tol"]
 est_lines = 1145
 layer = 2
 tests = ["prog_test:my_test_polynomial", "SM_API_test:TestSmPrincipalDirectionPairing", "prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.vector3d-a1"
+claimed_at = "2026-10-12T19:48:09Z"
 notes = "65 fns; largest: SmVector3d::CCWAngleBetween, SmVector3d::AngleBetween, SmVector3d::MakeUnitOrthoVectors, SmVector3d::UnitizedDerivative3; unit-SCC #22 (220 units); 321 upstream test entry points reach this unit"
 
 [[unit]]
