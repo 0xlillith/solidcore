@@ -426,10 +426,10 @@ depends_on = ["nlib.funcs_basic", "nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1542
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "partial"
+status = "green"
 claimed_by = "swarm-nlib.crv_basic-a1"
 claimed_at = "2026-10-12T20:31:32Z"
-notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; PARTIAL: difftest 3417 cases (417 fixture + 3000 generated), 3139 pass bit-identical (max_rel_err 0), 278 deferred (all N_CrvsAreCoincident -> N_CrvsMakeCompatible, nlib.crv_tool_p2); no UNPORTED(nlib.crv_basic) stubs to wire"
+notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; difftest 3417 cases (417 fixture + 3000 generated), 3417 pass bit-identical, 0 deferred (promoted when nlib.crv_tool_p2 wired N_CrvsMakeCompatible); no UNPORTED(nlib.crv_basic) stubs to wire"
 
 [[unit]]
 id = "geom.global_solver"
@@ -595,10 +595,10 @@ depends_on = ["nlib.crv_basic", "nlib.crv_tool_p1", "nlib.geom", "nlib.knots", "
 est_lines = 1879
 layer = 6
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "partial"
+status = "green"
 claimed_by = "swarm-nlib.crv_nurb-a1"
 claimed_at = "2026-10-12T21:07:25Z"
-notes = "difftest: 2871 cases (871 fixtures + 2000 generated), 2852 pass bit-for-bit, 19 deferred (nlib.crv_geom: N_CrvArcLength in N_CrvGetDegenSegs); wired UNPORTED(nlib.crv_nurb) in nlib.crv_tool_p1 (now green); 23 fns; largest: N_CrvGetType, N_CrvDerivs, N_CrvGetLinearSegs, N_CrvProjectOntoPlane; cycle back-edges (call into later units; stub or co-port): nlib.crv_geom(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 2871 cases (871 fixtures + 2000 generated), 2871 pass bit-for-bit, 0 deferred (promoted when nlib.crv_geom wired N_CrvArcLength in N_CrvGetDegenSegs); wired UNPORTED(nlib.crv_nurb) in nlib.crv_tool_p1 (now green); 23 fns; largest: N_CrvGetType, N_CrvDerivs, N_CrvGetLinearSegs, N_CrvProjectOntoPlane; cycle back-edges (call into later units; stub or co-port): nlib.crv_geom(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.funcs_adv"
@@ -647,10 +647,10 @@ depends_on = ["nlib.bezier", "nlib.crv_basic", "nlib.crv_nurb", "nlib.crv_tool_p
 est_lines = 729
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_geom-a1"
 claimed_at = "2026-10-12T00:00:00Z"
-notes = "3 fns; largest: N_ApproxCrvWithPolyline, N_CrvArcLength, N_CrvClosestPt; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 1723 cases (223 fixtures on the six pt_TestFiles .smc curves + edge cases, 1500 generated), 1723 pass bit-for-bit, 0 deferred; wired UNPORTED(nlib.crv_geom) in nlib.crv_nurb (now green); 3 fns; largest: N_ApproxCrvWithPolyline, N_CrvArcLength, N_CrvClosestPt; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.crv_tool_p2"
@@ -660,10 +660,10 @@ depends_on = ["nlib.basis_basic", "nlib.bezier", "nlib.crv_basic", "nlib.crv_nur
 est_lines = 1748
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_tool_p2-a1"
 claimed_at = "2026-10-12T21:27:39Z"
-notes = "7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 2124 cases (124 fixtures + 2000 generated), 2124 pass bit-for-bit, 0 deferred; wired UNPORTED(nlib.crv_tool_p2) in nlib.crv_basic (N_CrvsAreCoincident, now green); 7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nurbs.nurbs_crv"
@@ -699,9 +699,9 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_geom", "nlib.crv_n
 est_lines = 2031
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_adv_p1-a1"
+claimed_at = "2026-10-12T21:44:23Z"
 notes = "7 fns; largest: ST_curxcdr, ST_curxcrr, N_CrvEvalEvenSpacedPts, N_CrvGetMax2ndDeriv; 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -712,9 +712,9 @@ depends_on = ["nlib.crv_basic", "nlib.crv_geom", "nlib.crv_tool_p1", "nlib.geom"
 est_lines = 803
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_common-a1"
+claimed_at = "2026-10-12T21:44:13Z"
 notes = "8 fns; largest: N_CreateQuarticArcTol, N_CreateQuadraticArcTol, N_CreateQuinticArcTol, N_CreateEllipticalArcAngTypeTol; 317 upstream test entry points reach this unit"
 
 [[unit]]
