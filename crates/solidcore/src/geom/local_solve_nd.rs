@@ -161,7 +161,9 @@ pub trait EvalNFunctions {
         _intervals: Option<&ExtentNd>,
         _periodicities: Option<&[bool]>,
     ) -> Result<()> {
-        Err(sm_err("geom::local_solve_nd::EvalNFunctions::set_intervals"))
+        Err(sm_err(
+            "geom::local_solve_nd::EvalNFunctions::set_intervals",
+        ))
     }
 
     /// Evaluates the equations at `x` into `f` (same length as `x`) and, when
@@ -206,7 +208,6 @@ pub fn compute_jacobian<E: EvalNFunctions + ?Sized>(
         // Clamp to the domain if present.
         if let Some(ivls) = intervals {
             let ivl = ivls.get(jj).ok_or_else(short)?;
-            // UNPORTED(geom.extent1d): SmExtent1d::ClampValue
             lo_t = ivl.clamp_value(lo_t);
             hi_t = ivl.clamp_value(hi_t);
         }
@@ -367,15 +368,14 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
 
     fn clamp(&self, values: &[f64], out: &mut Vec<f64>, counts: &mut Vec<u64>) -> Result<bool> {
         match self.intervals {
-            // UNPORTED(geom.extent1d): SmExtentNd::ClampVector
             Some(ivls) => ivls.clamp_vector(values, self.periodicities, out, Some(counts)),
             None => Ok(false),
         }
     }
 
-    fn done(&mut self, found: bool, reason: TerminationReason, x: Vec<f64>) -> Result<NdSolution> {
+    fn done(&mut self, found: bool, reason: TerminationReason, x: Vec<f64>) -> NdSolution {
         self.termination_reason = reason;
-        Ok(NdSolution { found, x })
+        NdSolution { found, x }
     }
 
     /// Solves the equations starting at `guess` (its length is the problem size),
@@ -434,12 +434,12 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
         ))?
         else {
             // exit case - the evaluation failed
-            return self.done(true, TerminationReason::UnableToConverge, solution);
+            return Ok(self.done(true, TerminationReason::UnableToConverge, solution));
         };
 
         // exit case - the evaluator signalled a converged answer
         if found_answer {
-            return self.done(true, TerminationReason::FoundAnswerConverged, solution);
+            return Ok(self.done(true, TerminationReason::FoundAnswerConverged, solution));
         }
 
         // accumulate the errors
@@ -447,7 +447,7 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
 
         // exit case - the initial guess was good enough
         if sum_f < self.desired_accuracy && self.evaluator.is_converged() {
-            return self.done(true, TerminationReason::FoundAnswerConverged, solution);
+            return Ok(self.done(true, TerminationReason::FoundAnswerConverged, solution));
         }
 
         // remember the best solution (upstream initialises it to SM_BIG_DOUBLE above)
@@ -497,7 +497,7 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
                 if step_size < self.desired_accuracy * self.desired_accuracy {
                     if sum_f < self.acceptable_accuracy {
                         // success - steps and function values are small
-                        return self.done(true, TerminationReason::FoundAnswerClose, solution);
+                        return Ok(self.done(true, TerminationReason::FoundAnswerClose, solution));
                     }
                     // failure - function values are not small
                     let reason = if clamped {
@@ -505,31 +505,33 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
                     } else {
                         TerminationReason::UnableToConverge
                     };
-                    return self.done(false, reason, solution);
+                    return Ok(self.done(false, reason, solution));
                 }
 
                 // clamp the next guess to the parameter bounds
                 next_guess_clamped.clone_from(&next_guess);
                 if self.intervals.is_some() {
-                    clamped =
-                        self.clamp(&next_guess, &mut next_guess_clamped, &mut out_of_bounds_counts)?;
+                    clamped = self.clamp(
+                        &next_guess,
+                        &mut next_guess_clamped,
+                        &mut out_of_bounds_counts,
+                    )?;
                 }
 
                 // evaluate the equations at the next guess
                 let mut first_failed = false;
-                match eval_outcome(self.evaluator.evaluate(
+                if let Some(found) = eval_outcome(self.evaluator.evaluate(
                     &next_guess_clamped,
                     &mut equation_values,
                     Some(&mut jacobian),
                 ))? {
-                    Some(found) => found_answer = found,
-                    None => {
-                        // exit case - the evaluation failed
-                        self.termination_reason = TerminationReason::UnableToConverge;
-                        first_failed = true;
-                        if !clamped {
-                            break; // leave the line search; if clamped, try again
-                        }
+                    found_answer = found;
+                } else {
+                    // exit case - the evaluation failed
+                    self.termination_reason = TerminationReason::UnableToConverge;
+                    first_failed = true;
+                    if !clamped {
+                        break; // leave the line search; if clamped, try again
                     }
                 }
 
@@ -607,7 +609,7 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
                 if found_answer {
                     // the next guess is the solution
                     solution.clone_from(&next_guess);
-                    return self.done(true, TerminationReason::FoundAnswerConverged, solution);
+                    return Ok(self.done(true, TerminationReason::FoundAnswerConverged, solution));
                 }
 
                 // the error grew: try smaller steps, then the opposite direction
@@ -691,7 +693,6 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
                             .and_then(|iv| iv.get(ii))
                             .ok_or(invalid("out-of-bounds count without an interval"))?;
                         let step = step_unclamped.get(ii).copied().unwrap_or(0.0);
-                        // UNPORTED(geom.extent1d): SmExtent1d::GetLength
                         if step.abs() > 1.0e-3 * ext.length() {
                             boundary_hits += 1;
                         }
@@ -737,12 +738,12 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
 
         // converged
         if sum_f < self.desired_accuracy {
-            return self.done(true, TerminationReason::FoundAnswerConverged, solution);
+            return Ok(self.done(true, TerminationReason::FoundAnswerConverged, solution));
         }
 
         // nearly converged
         if sum_f < self.acceptable_accuracy {
-            return self.done(true, TerminationReason::FoundAnswerClose, solution);
+            return Ok(self.done(true, TerminationReason::FoundAnswerClose, solution));
         }
 
         // failed to converge; the termination reason was already set
@@ -754,6 +755,7 @@ impl<'a, E: EvalNFunctions + ?Sized> LocalSolveNd<'a, E> {
 }
 
 #[cfg(test)]
+#[allow(clippy::needless_range_loop)]
 mod tests {
     use super::*;
 
@@ -821,7 +823,10 @@ mod tests {
             let mut s = LocalSolveNd::new(&mut e, None, None);
             let r = s.solve_it(&[0.0, 0.0], EFF_ZERO_SQRT).unwrap();
             assert!(r.found);
-            assert_eq!(s.termination_reason(), TerminationReason::FoundAnswerConverged);
+            assert_eq!(
+                s.termination_reason(),
+                TerminationReason::FoundAnswerConverged
+            );
             let mut f = [0.0; 2];
             cubic(false).evaluate(&r.x, &mut f, None).unwrap();
             assert!(f[0].abs() + f[1].abs() < 1e-9);
@@ -829,9 +834,17 @@ mod tests {
     }
 
     #[test]
+    fn tol_scaled_zero_of_equations() {
+        assert_eq!(
+            crate::geom::tol::scaled_zero_of_equations(&cubic(false)),
+            1.0
+        );
+    }
+
+    #[test]
     fn singular_jacobian_is_bad_jacobian() {
         let mut e = Cubic {
-            a: vec![1.0, 1.0, 1.0, 1.0],
+            a: vec![1.0, 1.0, 0.0, 0.0],
             c: vec![0.0, 0.0],
             b: vec![1.0, 2.0],
             calls: 0,
@@ -857,7 +870,10 @@ mod tests {
         let mut s = LocalSolveNd::new(&mut e, None, None);
         let r = s.solve_it(&[0.0], EFF_ZERO).unwrap();
         assert!(r.found);
-        assert_eq!(s.termination_reason(), TerminationReason::FoundAnswerConverged);
+        assert_eq!(
+            s.termination_reason(),
+            TerminationReason::FoundAnswerConverged
+        );
         assert_eq!(s.current_iteration(), 0);
     }
 
@@ -906,7 +922,12 @@ mod tests {
             fn has_intervals(&self) -> bool {
                 true
             }
-            fn evaluate(&mut self, _: &[f64], f: &mut [f64], _: Option<&mut Matrix>) -> Result<bool> {
+            fn evaluate(
+                &mut self,
+                _: &[f64],
+                f: &mut [f64],
+                _: Option<&mut Matrix>,
+            ) -> Result<bool> {
                 f.fill(0.0);
                 Ok(true)
             }

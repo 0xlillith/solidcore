@@ -123,7 +123,6 @@ public:
             dSum += fabs(v);
         }
         m_dSolutionSize = size_scale * dSum;
-        rbFoundAnswer = (found_tol > 0.0 && dSum < found_tol) ? TRUE : FALSE;
 
         if (pOptJacobian)
         {
@@ -158,6 +157,8 @@ public:
                     return st;
             }
         }
+        // set only on success: the Rust trait reports "found" through Ok(found)
+        rbFoundAnswer = (found_tol > 0.0 && dSum < found_tol) ? TRUE : FALSE;
         return SM_SUCCESS;
     }
 };
@@ -244,6 +245,7 @@ SC_EXPORT int32_t sc_geom_local_solve_nd_run(int32_t op, int64_t n, const double
     {
         SmLocalSolveNd sLS(sF, icfg[ICFG_USE_INTERVALS] ? &sIntervals : NULL,
                            icfg[ICFG_USE_PERIODIC] ? &sPeriodic : NULL);
+        sLS.m_lCurrentIteration = 0; // not initialised by the constructor
         if (icfg[ICFG_SET_DESIRED])
             sLS.SetDesiredAccuracy(cfg[CFG_DESIRED]);
         if (icfg[ICFG_MAX_ITER] >= 0)
