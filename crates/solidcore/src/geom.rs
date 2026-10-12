@@ -7,4 +7,5 @@
 //! `plan/modules.toml`.
 
 pub mod extent3d;
+pub mod tree;
 pub mod vector2d;
