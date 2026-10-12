@@ -218,6 +218,7 @@ agents:
 - **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
   private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
   `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
 ## geom.tree (partial; no disagreements)
 
 618 default cases (18 fixture + 600 generated): every non-deferred case agrees exactly
