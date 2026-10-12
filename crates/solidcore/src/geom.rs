@@ -14,3 +14,4 @@ pub mod periodic_extent1d;
 pub mod tol;
 pub mod tree;
 pub mod vector2d;
+pub mod vector3d;
