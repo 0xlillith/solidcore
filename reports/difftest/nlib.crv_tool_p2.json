@@ -930,100 +930,68 @@
       "values_compared": 65
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_all",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#116 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_all_inplace",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#117 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_start",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#118 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_start_inplace",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#119 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_end",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#120 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_end_inplace",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#121 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_mid",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#122 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "degen_mid_inplace",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nlib.crv_tool_p2/cases.json#123 (upstream edge case (degenerate / boundary input))",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -1114,16 +1082,12 @@
       "values_compared": 47
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0011",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057896",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1158,16 +1122,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0016",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057901",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
       "max_rel_err": 0.0,
@@ -1322,16 +1282,12 @@
       "values_compared": 657
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0036",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057921",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -1486,52 +1442,36 @@
       "values_compared": 679
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0056",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057941",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0057",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057942",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0058",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057943",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0059",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057944",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -1590,16 +1530,12 @@
       "values_compared": 119
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0067",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057952",
-      "values_compared": 0
+      "values_compared": 81
     },
     {
       "max_rel_err": 0.0,
@@ -1706,16 +1642,12 @@
       "values_compared": 347
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0081",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057966",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -1838,16 +1770,12 @@
       "values_compared": 520
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0097",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057982",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "max_rel_err": 0.0,
@@ -1866,16 +1794,12 @@
       "values_compared": 78
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0100",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057985",
-      "values_compared": 0
+      "values_compared": 77
     },
     {
       "max_rel_err": 0.0,
@@ -1966,16 +1890,12 @@
       "values_compared": 42
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0112",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572057997",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -2058,16 +1978,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058008",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -2206,16 +2122,12 @@
       "values_compared": 277
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058026",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -2482,16 +2394,12 @@
       "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0175",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058060",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -2558,16 +2466,12 @@
       "values_compared": 309
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0184",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058069",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -2706,16 +2610,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0202",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058087",
-      "values_compared": 0
+      "values_compared": 109
     },
     {
       "max_rel_err": 0.0,
@@ -2902,16 +2802,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0226",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058111",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -2938,16 +2834,12 @@
       "values_compared": 957
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0230",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058115",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -2998,16 +2890,12 @@
       "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0237",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058122",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -3042,16 +2930,12 @@
       "values_compared": 28
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0242",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058127",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -3182,16 +3066,12 @@
       "values_compared": 78
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0259",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058144",
-      "values_compared": 0
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -3298,16 +3178,12 @@
       "values_compared": 461
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0273",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058158",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -3414,16 +3290,12 @@
       "values_compared": 39
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0287",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058172",
-      "values_compared": 0
+      "values_compared": 44
     },
     {
       "max_rel_err": 0.0,
@@ -3434,16 +3306,12 @@
       "values_compared": 837
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0289",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058174",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -3502,16 +3370,12 @@
       "values_compared": 195
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0297",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058182",
-      "values_compared": 0
+      "values_compared": 80
     },
     {
       "max_rel_err": 0.0,
@@ -3554,28 +3418,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0303",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058188",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0304",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058189",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -3618,16 +3474,12 @@
       "values_compared": 103
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0310",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058195",
-      "values_compared": 0
+      "values_compared": 39
     },
     {
       "max_rel_err": 0.0,
@@ -3766,16 +3618,12 @@
       "values_compared": 340
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0328",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058213",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "max_rel_err": 0.0,
@@ -3858,28 +3706,20 @@
       "values_compared": 601
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0339",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058224",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0340",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058225",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3930,16 +3770,12 @@
       "values_compared": 60
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0347",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058232",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -4006,16 +3842,12 @@
       "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0356",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058241",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4026,28 +3858,20 @@
       "values_compared": 347
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0358",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058243",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0359",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058244",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -4074,16 +3898,12 @@
       "values_compared": 51
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0363",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058248",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -4294,16 +4114,12 @@
       "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0390",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058275",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -4506,16 +4322,12 @@
       "values_compared": 937
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058301",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -4582,16 +4394,12 @@
       "values_compared": 28
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0425",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058310",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -4602,16 +4410,12 @@
       "values_compared": 801
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0427",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058312",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -4646,16 +4450,12 @@
       "values_compared": 58
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058317",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -5026,16 +4826,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0479",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058364",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -5054,16 +4850,12 @@
       "values_compared": 76
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0482",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058367",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -5154,16 +4946,12 @@
       "values_compared": 377
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0494",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058379",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -5398,16 +5186,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0524",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058409",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -5498,16 +5282,12 @@
       "values_compared": 118
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0536",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058421",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -5518,16 +5298,12 @@
       "values_compared": 493
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0538",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058423",
-      "values_compared": 0
+      "values_compared": 28
     },
     {
       "max_rel_err": 0.0,
@@ -5586,40 +5362,28 @@
       "values_compared": 385
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058431",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0547",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058432",
-      "values_compared": 0
+      "values_compared": 28
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0548",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058433",
-      "values_compared": 0
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -5822,16 +5586,12 @@
       "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0574",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058459",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -5898,16 +5658,12 @@
       "values_compared": 80
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0583",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058468",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -5926,16 +5682,12 @@
       "values_compared": 277
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0586",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058471",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -5986,16 +5738,12 @@
       "values_compared": 31
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0593",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058478",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -6062,16 +5810,12 @@
       "values_compared": 103
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0602",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058487",
-      "values_compared": 0
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -6170,16 +5914,12 @@
       "values_compared": 1381
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0615",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058500",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -6262,16 +6002,12 @@
       "values_compared": 279
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0626",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058511",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -6434,16 +6170,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0647",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058532",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -6510,16 +6242,12 @@
       "values_compared": 38
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0656",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058541",
-      "values_compared": 0
+      "values_compared": 81
     },
     {
       "max_rel_err": 0.0,
@@ -6530,16 +6258,12 @@
       "values_compared": 40
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0658",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058543",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -6566,16 +6290,12 @@
       "values_compared": 1489
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0662",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058547",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -6946,28 +6666,20 @@
       "values_compared": 59
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0709",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058594",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0710",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058595",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -6978,16 +6690,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0712",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058597",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7054,16 +6762,12 @@
       "values_compared": 329
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0721",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058606",
-      "values_compared": 0
+      "values_compared": 44
     },
     {
       "max_rel_err": 0.0,
@@ -7082,16 +6786,12 @@
       "values_compared": 439
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0724",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058609",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7110,16 +6810,12 @@
       "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0727",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058612",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -7210,16 +6906,12 @@
       "values_compared": 46
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0739",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058624",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
       "max_rel_err": 0.0,
@@ -7446,16 +7138,12 @@
       "values_compared": 917
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0768",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058653",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -7842,16 +7530,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0817",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058702",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -8030,16 +7714,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0840",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058725",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -8122,16 +7802,12 @@
       "values_compared": 163
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0851",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058736",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -8158,16 +7834,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0855",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058740",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -8394,16 +8066,12 @@
       "values_compared": 769
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0884",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058769",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -8574,16 +8242,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0906",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058791",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -8706,16 +8370,12 @@
       "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0922",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058807",
-      "values_compared": 0
+      "values_compared": 74
     },
     {
       "max_rel_err": 0.0,
@@ -8846,16 +8506,12 @@
       "values_compared": 1209
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0939",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058824",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -9034,16 +8690,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0962",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058847",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -9078,16 +8730,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen0967",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058852",
-      "values_compared": 0
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -9450,16 +9098,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1013",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058898",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -9550,16 +9194,12 @@
       "values_compared": 77
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1025",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058910",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -9674,16 +9314,12 @@
       "values_compared": 26
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1040",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058925",
-      "values_compared": 0
+      "values_compared": 81
     },
     {
       "max_rel_err": 0.0,
@@ -9758,16 +9394,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1050",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058935",
-      "values_compared": 0
+      "values_compared": 28
     },
     {
       "max_rel_err": 0.0,
@@ -9834,28 +9466,20 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1059",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058944",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1060",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058945",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -9946,28 +9570,20 @@
       "values_compared": 44
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1072",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058957",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058958",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
       "max_rel_err": 0.0,
@@ -10250,16 +9866,12 @@
       "values_compared": 299
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1109",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572058994",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -10366,16 +9978,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059008",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -10418,16 +10026,12 @@
       "values_compared": 857
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1129",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059014",
-      "values_compared": 0
+      "values_compared": 86
     },
     {
       "max_rel_err": 0.0,
@@ -10694,16 +10298,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1163",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059048",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -10842,16 +10442,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1181",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059066",
-      "values_compared": 0
+      "values_compared": 44
     },
     {
       "max_rel_err": 0.0,
@@ -10966,16 +10562,12 @@
       "values_compared": 367
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059081",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -10994,28 +10586,20 @@
       "values_compared": 28
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1199",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059084",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1200",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059085",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
       "max_rel_err": 0.0,
@@ -11274,16 +10858,12 @@
       "values_compared": 88
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1233",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059118",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -11518,16 +11098,12 @@
       "values_compared": 28
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1263",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059148",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -11602,16 +11178,12 @@
       "values_compared": 2049
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1273",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059158",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -11726,16 +11298,12 @@
       "values_compared": 279
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1288",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059173",
-      "values_compared": 0
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -11746,16 +11314,12 @@
       "values_compared": 114
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1290",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059175",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -12022,16 +11586,12 @@
       "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1324",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059209",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -12210,16 +11770,12 @@
       "values_compared": 38
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1347",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059232",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -12326,16 +11882,12 @@
       "values_compared": 63
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1361",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059246",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -12434,16 +11986,12 @@
       "values_compared": 72
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1374",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059259",
-      "values_compared": 0
+      "values_compared": 39
     },
     {
       "max_rel_err": 0.0,
@@ -12454,16 +12002,12 @@
       "values_compared": 46
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059261",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -12882,16 +12426,12 @@
       "values_compared": 125
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1429",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059314",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -12942,16 +12482,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1436",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059321",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -13034,16 +12570,12 @@
       "values_compared": 2949
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1447",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059332",
-      "values_compared": 0
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -13358,16 +12890,12 @@
       "values_compared": 175
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1487",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059372",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -13634,16 +13162,12 @@
       "values_compared": 51
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1521",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059406",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -13902,16 +13426,12 @@
       "values_compared": 153
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1554",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059439",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -14010,16 +13530,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1567",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059452",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -14102,16 +13618,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1578",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059463",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "max_rel_err": 0.0,
@@ -14466,16 +13978,12 @@
       "values_compared": 857
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1623",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059508",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -14638,16 +14146,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1644",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059529",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -14834,16 +14338,12 @@
       "values_compared": 718
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1668",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059553",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -15006,16 +14506,12 @@
       "values_compared": 74
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1689",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059574",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -15082,16 +14578,12 @@
       "values_compared": 187
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1698",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059583",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -15206,16 +14698,12 @@
       "values_compared": 38
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1713",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059598",
-      "values_compared": 0
+      "values_compared": 91
     },
     {
       "max_rel_err": 0.0,
@@ -15322,16 +14810,12 @@
       "values_compared": 285
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1727",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059612",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -15390,16 +14874,12 @@
       "values_compared": 343
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1735",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059620",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -15522,16 +15002,12 @@
       "values_compared": 199
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1751",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059636",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -15590,16 +15066,12 @@
       "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1759",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059644",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -15610,16 +15082,12 @@
       "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1761",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059646",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
       "max_rel_err": 0.0,
@@ -15814,16 +15282,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1786",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059671",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -15874,28 +15338,20 @@
       "values_compared": 47
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1793",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059678",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1794",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059679",
-      "values_compared": 0
+      "values_compared": 88
     },
     {
       "max_rel_err": 0.0,
@@ -16074,16 +15530,12 @@
       "values_compared": 64
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1817",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059702",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -16110,40 +15562,28 @@
       "values_compared": 44
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1821",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059706",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1822",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059707",
-      "values_compared": 0
+      "values_compared": 78
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1823",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059708",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -16154,16 +15594,12 @@
       "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1825",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059710",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -16190,28 +15626,20 @@
       "values_compared": 157
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1829",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059714",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1830",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059715",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -16286,16 +15714,12 @@
       "values_compared": 149
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1840",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059725",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "max_rel_err": 0.0,
@@ -16458,16 +15882,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1861",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059746",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -16550,16 +15970,12 @@
       "values_compared": 625
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1872",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059757",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "max_rel_err": 0.0,
@@ -16658,16 +16074,12 @@
       "values_compared": 76
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1885",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059770",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -16742,16 +16154,12 @@
       "values_compared": 63
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1895",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059780",
-      "values_compared": 0
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -16866,16 +16274,12 @@
       "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1910",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059795",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -16982,16 +16386,12 @@
       "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1924",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059809",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -17042,16 +16442,12 @@
       "values_compared": 439
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1931",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059816",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -17062,16 +16458,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1933",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059818",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -17194,16 +16586,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1949",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059834",
-      "values_compared": 0
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -17342,16 +16730,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1967",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059852",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -17466,16 +16850,12 @@
       "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "N_CrvArcLength",
-        "unit": "nlib.crv_geom"
-      },
       "max_rel_err": 0.0,
       "name": "gen1982",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10546635805572059867",
-      "values_compared": 0
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -17615,17 +16995,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 155,
+  "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 1969,
+  "cases_passed": 2124,
   "cases_total": 2124,
-  "deferred_by_unit": {
-    "nlib.crv_geom": 155
-  },
+  "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "green",
   "unit": "nlib.crv_tool_p2"
 }

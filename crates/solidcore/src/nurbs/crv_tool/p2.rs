@@ -41,9 +41,7 @@
 //!   same, bit for bit.
 //! - `N_CrvRemoveDegenSegs` ignores the error flags of its `N_BasisFindSpan*` calls
 //!   (they fail only where upstream would index outside the knots); the port
-//!   propagates them. It calls `N_CrvGetDegenSegs`, which needs `N_CrvArcLength`
-//!   (unit `nlib.crv_geom`); while that is unported, [`Curve::remove_degen_segs`]
-//!   returns [`SolidError::Unported`] whenever a span is short enough to need it.
+//!   propagates them.
 
 // Index arithmetic follows upstream's signed `NL_INDEX` (`isize` here); every access
 // goes through `get`/`set`, which reject negative or too-large indices.
@@ -892,8 +890,7 @@ impl Curve {
     /// Returns `None` (upstream `nr = 0`) for a single-segment curve, a curve without
     /// degenerate segments, or one that is a single degenerate segment.
     ///
-    /// Errors with the errors of [`Curve::degen_segs`] (including
-    /// [`SolidError::Unported`], see the module deviations), knot insertion and knot
+    /// Errors with the errors of [`Curve::degen_segs`], knot insertion and knot
     /// removal.
     pub fn remove_degen_segs(&self, tol: f64) -> Result<Option<DegenSegRemoval>> {
         const OP: &str = OP_DEGEN;
