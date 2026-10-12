@@ -1351,6 +1351,43 @@ deferred on `curve.curve_p2` (`SmCurve::EvaluateContinuity` for curves with inte
   `m_bNurbIsBorrowed = TRUE`, and its temporary frees the borrowed curve; the port keeps the
   flag as upstream (ownership is moot in Rust).
 
+## nurbs.b_spline_surface_p1 (SmBSplineSurface part 1)
+
+No Rust-vs-C++ disagreement: 1985 of 1985 non-deferred difftest cases bit-identical (120
+fixtures on the three `pt_TestFiles` `.sms` surfaces (also read back through `ReadFromDB`,
+whose ASCII layout the `.sms` files share), the `smAdvancedTest.cpp` / `smTopoTest.cpp`
+cone patches and bilinear patches, canonical, sweep and edge cases, plus 2000 generated).
+135 cases are deferred: `surface.surface_p2` (`SmSurface::IsKindOf` for other types, which
+`CalculateBoundingBox` and `IsParallelToVector` reach before anything else) and
+`surface.surface_p1` (`CreateOffsetSurface`, `IsDegenerateCurve`, `STEPInversion`'s point
+solves). Upstream behaviour worth knowing:
+
+- The data constructor `SmBSplineSurface(n, m, p, q, r, s, Pw, U, V)` copies `V` with
+  `smos_MemCpy(knv->U, V, (s+1) doubles, (r+1) doubles)`: the destination size is the *u*
+  knot count, so when `s > r` the copy is refused (status only `SE`'d) and the v knots stay
+  0 from `sm_AllocateNurbSurface`'s calloc, then `sm_FixupKnotVector` runs on zeros. The
+  port reproduces this (caught by every generated `data` case with more v than u knots).
+- `IsParallelToVector` returns `SER(sTestVec.Unitize())`'s `SM_ERR_INVALID_INPUT` as its
+  `SmBoolean`, so a zero vector reads as TRUE; its line test calls
+  `smgu_LinePointDistance(LinePnt, LineEnd, Pnt, d)`, which binds the (point, *direction*)
+  overload, so the second net point is used as the line direction. Both kept.
+- `CreateLinearSweep` passes the curve's own NURB to `N_CreateSrfExtrudeCrv`, which makes
+  a 2D curve 3D in place (the `const` is cast away); difftest compares the curve after.
+- `CalculateBoundingBox` only `SE`s (does not return) when the domain is outside the
+  natural domain, and ignores `N_SrfIsFlatCheap`'s and `MakeUnitOrthoVectors`' status.
+
+## Header-declared sizes (all file readers)
+
+Upstream readers (`SmBSplineSurface::ReadFromDB` and friends) `malloc` whatever counts
+a file header declares and fail later at end of data; ASCII readers even keep going
+with stale values after a missing field. In Rust a huge allocation aborts the process
+(and `n + p + 1` can overflow), so readers bound counts against the bytes left via
+`DatabaseReader::ensure_available` (binary: 8 bytes per double; ASCII: 1 byte per
+item) after the same validation checks upstream makes first (e.g. the rational flag).
+Deviation: an ASCII file whose header declares more items than it has bytes left is
+an error in Rust, while upstream reads it with garbage values. No fixture exercises
+this; found by the commit security review of `nurbs.b_spline_surface_p1`.
+
 ## nurbs.b_spline_curve_n_lib (`SmBSplineCurveNLib.cpp`)
 
 No Rust-vs-C++ disagreement: 2132 of 2132 non-deferred difftest cases bit-identical (282
