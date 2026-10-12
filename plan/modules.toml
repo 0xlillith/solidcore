@@ -75,10 +75,10 @@ depends_on = ["topology.database_io"]
 est_lines = 920
 layer = 1
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-geom.attribute-a1"
 claimed_at = "2026-10-12T19:38:43Z"
-notes = "90 fns; largest: SmMergeRegionAttribute::Merge, SmAttribute::Split, SmColorAttribute::PropagateRegionsThroughBooleans, SmAttributeData::ReadIndexedAttributesFromDB; cycle back-edges (call into later units; stub or co-port): geom.a_object(14), geom.object(11), query.brep(6), geom.vector3d(4), query.tess(4), topology.shell(3), curve.composite_curve_p1(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "90 fns; largest: SmMergeRegionAttribute::Merge, SmAttribute::Split, SmColorAttribute::PropagateRegionsThroughBooleans, SmAttributeData::ReadIndexedAttributesFromDB; cycle back-edges (call into later units; stub or co-port): geom.a_object(14), geom.object(11), query.brep(6), geom.vector3d(4), query.tess(4), topology.shell(3), curve.composite_curve_p1(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; PARTIAL: difftest 2029 cases (29 fixture + 2000 generated), 1991 pass bit-identical, 38 deferred (topology.shell 38: SmRegion::GetBrep in SmMergeRegionAttribute::Merge); 200k-seed run clean; SmAObject attribute-list methods co-ported into AttributeStore (CO-PORT(geom.a_object)), SmObject::IsKindOf co-ported (geom.object)"
 
 [[unit]]
 id = "geom.tol"
@@ -244,9 +244,9 @@ depends_on = ["geom.extent1d", "geom.extent3d", "geom.tol", "geom.vector2d", "ge
 est_lines = 766
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.extent2d-a1"
+claimed_at = "2026-10-12T20:02:32Z"
 notes = "55 fns; largest: SmExtent2d::IntersectWithInfiniteLine, SmExtent2d::ClipLine2d, SmExtent2d::Inversion, SmExtent2d::ClassifyPoint2d; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -283,9 +283,9 @@ depends_on = ["geom.extent1d", "geom.tol"]
 est_lines = 1294
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.local_solve1d-a1"
+claimed_at = "2026-10-12T20:02:32Z"
 notes = "12 fns; largest: SmLocalSolve1d::SolveIt, SmLocalSolve1d::SolveOscillating, SmLocalSolve1d::SolveByBrent, SmLocalSolve1d::SolveByBisection; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -322,10 +322,10 @@ depends_on = ["geom.vector3d"]
 est_lines = 386
 layer = 3
 tests = ["prog_test:my_test_polynomial", "SM_API_test:TestSmPrincipalDirectionPairing", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.polynomial-a1"
 claimed_at = "2026-10-12T20:00:26Z"
-notes = "4 fns; largest: SmPolynomial::SolveQuarticEqn, SmPolynomial::SolveQuadraticEqn, SmPolynomial::SolveCubicEqn, sm_AddSolution; unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "4 fns; largest: SmPolynomial::SolveQuarticEqn, SmPolynomial::SolveQuadraticEqn, SmPolynomial::SolveCubicEqn, sm_AddSolution; unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; GREEN: difftest 6038 cases (38 fixture from my_test_polynomial + edge cases, 6000 generated), all bit-identical, 0 deferred, perturb SENSITIVE; no UNPORTED(geom.polynomial) stubs to wire"
 
 [[unit]]
 id = "nlib.basis_adv"
