@@ -52,7 +52,6 @@
 //! | [`Relation::all_firsts`]               | `GetAllFirsts`                                 |
 //! | [`Relation::all_seconds`]              | `GetAllSeconds`                                |
 //! | [`Cardinality`]                        | `SmRelationCardinalityType`                    |
-//! | `sm_sqrt`, `max_dimension3` (private)  | `sm_sqrt`, `SmVector3d::GetMaxDimension` (co-ports, unit `geom.vector3d`) |
 //!
 //! System state: upstream keeps the system tolerances in thread-local statics
 //! (`s_ZoneTol3d`, `s_TolGapGain`, `s_ModelSizeEstimate`, `s_LargeSmallSizeRatio`);
@@ -76,9 +75,6 @@
 //!   `double` into a tolerance class (a return statement, a cast, an initialisation),
 //!   so that `fabs` and the `SM_USE_DEFAULT` substitution happen at the same places.
 //! - Optional pointer arguments become `Option<f64>` holding the pointee's value.
-//! - `AreParallel` / `ArePerpendicular` need `SmVector3d::IsParallelTo` /
-//!   `IsPerpendicularTo` (unit `geom.vector3d`) and return
-//!   [`SolidError::Unported`] until it lands.
 //! - `SmRelation`: upstream stores pairs in `std::unordered_map` / `std::unordered_set`
 //!   keyed by pointer, so `GetSeconds`, `GetAllFirsts` and `GetAllSeconds` come out in
 //!   an unspecified, address-dependent order. [`Relation`] keeps keys in `BTreeMap`s /
@@ -97,6 +93,7 @@ use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::vector2d::Vec2;
+use crate::geom::vector3d::sqrt as sm_sqrt;
 use crate::kernel::{Kernel, Tolerances};
 use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 
@@ -295,31 +292,6 @@ fn smax4(a: f64, b: f64, c: f64, d: f64) -> f64 {
     smax(smax(a, b), smax(c, d))
 }
 
-// CO-PORT(geom.vector3d): sm_sqrt
-/// `smos_Sqrt` (`sm_sqrt`): `0` for `x <= 0` (upstream also logs an error below
-/// `-SM_EFF_ZERO_SQ`), else `sqrt(x)`.
-fn sm_sqrt(x: f64) -> f64 {
-    if x <= 0.0 {
-        0.0
-    } else {
-        x.sqrt()
-    }
-}
-
-// CO-PORT(geom.vector3d): SmVector3d::GetMaxDimension
-/// `SmVector3d::GetMaxDimension`: the largest absolute coordinate.
-fn max_dimension3(v: Vec3) -> f64 {
-    let mut d = if v.x.abs() > v.y.abs() {
-        v.x.abs()
-    } else {
-        v.y.abs()
-    };
-    if v.z.abs() > d {
-        d = v.z.abs();
-    }
-    d
-}
-
 // ---- model size and system tolerances ----------------------------------------------
 
 /// Maps a model size estimate to a default zone tolerance
@@ -386,8 +358,7 @@ pub fn zone_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
 /// The context zone tolerance (`SmTol::GetZoneTol3d(const SmContext*,
 /// SmSmallTopoType)` with a null context); `small` is ignored, as upstream.
 #[must_use]
-pub fn context_zone_tol_3d(k: &Kernel, small: SmallTopoType) -> f64 {
-    let _ = small;
+pub fn context_zone_tol_3d(k: &Kernel, _small: SmallTopoType) -> f64 {
     let z = k.tolerances.zone_tol_3d;
     if z == UNINIT_TOL {
         zone_tol3d(k, UNINIT_TOL)
@@ -552,36 +523,18 @@ pub fn is_degenerate_vec3(k: &Kernel, v: Vec3, override_xsect_tol: Option<f64>) 
 
 /// True when `v1` and `v2` are parallel within the angle tolerance (the override in
 /// radians, else [`ang_tol_rad`]) (`SmTol::AreParallel`).
-///
-/// # Errors
-///
-/// [`SolidError::Unported`] until `SmVector3d::IsParallelTo` (unit `geom.vector3d`)
-/// is ported.
-pub fn are_parallel(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> Result<bool> {
+#[must_use]
+pub fn are_parallel(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> bool {
     let ang = override_ang_tol_rad.unwrap_or_else(ang_tol_rad);
-    let _ = (v1, v2, rad_to_deg(ang));
-    // UNPORTED(geom.vector3d): SmVector3d::IsParallelTo
-    Err(SolidError::Unported {
-        upstream: "SmVector3d::IsParallelTo",
-        unit: "geom.vector3d",
-    })
+    v1.is_parallel_to(v2, rad_to_deg(ang))
 }
 
 /// True when `v1` and `v2` are perpendicular within the angle tolerance (the override
 /// in radians, else [`ang_tol_rad`]) (`SmTol::ArePerpendicular`).
-///
-/// # Errors
-///
-/// [`SolidError::Unported`] until `SmVector3d::IsPerpendicularTo` (unit
-/// `geom.vector3d`) is ported.
-pub fn are_perpendicular(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> Result<bool> {
+#[must_use]
+pub fn are_perpendicular(v1: Vec3, v2: Vec3, override_ang_tol_rad: Option<f64>) -> bool {
     let ang = override_ang_tol_rad.unwrap_or_else(ang_tol_rad);
-    let _ = (v1, v2, rad_to_deg(ang));
-    // UNPORTED(geom.vector3d): SmVector3d::IsPerpendicularTo
-    Err(SolidError::Unported {
-        upstream: "SmVector3d::IsPerpendicularTo",
-        unit: "geom.vector3d",
-    })
+    v1.is_perpendicular_to(v2, rad_to_deg(ang))
 }
 
 /// `SM_RAD2DEG(a)` = `a * (180.0 / SM_PI)`.
@@ -598,8 +551,7 @@ fn rad_to_deg(a: f64) -> f64 {
 #[must_use]
 pub fn map_to_1d(tol: f64, deriv: Vec3, natural_interval: &Extent1d) -> f64 {
     let scaled_zero = scaled_zero();
-    // SmVector3d::Length: smos_Sqrt of the sum of squares.
-    let deriv_size = sm_sqrt((deriv.x * deriv.x) + (deriv.y * deriv.y) + (deriv.z * deriv.z));
+    let deriv_size = deriv.length();
     tol3d(if deriv_size < scaled_zero {
         natural_interval.length() / 100.0
     } else {
@@ -651,7 +603,7 @@ impl ScaledZero for Vec2 {
 impl ScaledZero for Vec3 {
     /// `SmTol::GetScaledZero(const SmVector3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + max_dimension3(*self)))
+        tol3d(EFF_ZERO * (1.0 + self.max_dimension()))
     }
 }
 
@@ -666,7 +618,7 @@ impl ScaledZero for Extent3d {
     /// `SmTol::GetScaledZero(const SmExtent3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`
     /// over both corners.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + smax(max_dimension3(self.min()), max_dimension3(self.max()))))
+        tol3d(EFF_ZERO * (1.0 + smax(self.min().max_dimension(), self.max().max_dimension())))
     }
 }
 
@@ -1022,14 +974,10 @@ mod tests {
         let k = Kernel::default();
         assert!(is_degenerate_vec3(&k, Vec3::new(1e-6, 0.0, 0.0), None));
         assert!(!is_degenerate_vec3(&k, Vec3::new(1e-4, 0.0, 0.0), None));
-        assert!(matches!(
-            are_parallel(Vec3::X, Vec3::X, None),
-            Err(SolidError::Unported { .. })
-        ));
-        assert!(matches!(
-            are_perpendicular(Vec3::X, Vec3::Y, Some(0.1)),
-            Err(SolidError::Unported { .. })
-        ));
+        assert!(are_parallel(Vec3::X, -Vec3::X, None));
+        assert!(!are_parallel(Vec3::X, Vec3::Y, None));
+        assert!(are_perpendicular(Vec3::X, Vec3::Y, Some(0.1)));
+        assert!(!are_perpendicular(Vec3::X, Vec3::ZERO, Some(0.1)));
     }
 
     #[test]

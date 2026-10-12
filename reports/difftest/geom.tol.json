@@ -2858,100 +2858,68 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_parallel_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#357 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_parallel_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#358 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_parallel_1_0.001_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#359 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_parallel_-1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#360 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_perpendicular_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#361 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_perpendicular_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#362 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_perpendicular_1_0.001_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#363 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "are_perpendicular_-1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/geom.tol/cases.json#364 (upstream source/SMLib/src/SmTol.cpp:126)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3610,16 +3578,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325832",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3734,16 +3698,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0027",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325847",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3802,16 +3762,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0035",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325855",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3950,16 +3906,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0053",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325873",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4034,16 +3986,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0063",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325883",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4198,16 +4146,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0083",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325903",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4242,16 +4186,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0088",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325908",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4294,16 +4234,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0094",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325914",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4402,16 +4338,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0107",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325927",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4462,16 +4394,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0114",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325934",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4602,16 +4530,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0131",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325951",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4886,16 +4810,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0166",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325986",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4978,16 +4898,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0177",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033325997",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5294,16 +5210,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0216",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326036",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5330,16 +5242,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0220",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326040",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5502,16 +5410,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0241",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326061",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5674,16 +5578,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326082",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5710,16 +5610,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0266",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326086",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5730,16 +5626,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0268",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326088",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5814,16 +5706,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0278",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326098",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6178,16 +6066,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0323",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326143",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6446,28 +6330,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0356",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326176",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326177",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6606,16 +6482,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0375",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326195",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6730,16 +6602,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0390",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326210",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6814,16 +6682,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0400",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326220",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7090,16 +6954,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0434",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326254",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7278,28 +7138,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0457",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326277",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0458",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326278",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7574,16 +7426,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0493",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326313",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7602,16 +7450,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0496",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326316",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7710,16 +7554,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0509",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326329",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7762,16 +7602,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0515",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326335",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7918,16 +7754,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0534",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326354",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8010,16 +7842,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0545",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326365",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8190,16 +8018,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0567",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326387",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8306,16 +8130,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0581",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326401",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8734,16 +8554,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0634",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326454",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8754,16 +8570,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0636",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326456",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8862,16 +8674,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0649",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326469",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9130,16 +8938,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0682",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326502",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9318,16 +9122,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0705",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326525",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9426,16 +9226,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0718",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326538",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9454,16 +9250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0721",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326541",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9514,16 +9306,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0728",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326548",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9574,16 +9362,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0735",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326555",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9642,16 +9426,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0743",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326563",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9806,16 +9586,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0763",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326583",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10178,16 +9954,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0809",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326629",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10246,16 +10018,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0817",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326637",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10394,16 +10162,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0835",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326655",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10590,16 +10354,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0859",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326679",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10610,16 +10370,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0861",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326681",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10654,16 +10410,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0866",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326686",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10690,16 +10442,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0870",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326690",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11006,16 +10754,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0909",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326729",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11146,16 +10890,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0926",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326746",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11526,16 +11266,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0973",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326793",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11546,16 +11282,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen0975",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326795",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11838,16 +11570,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1011",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326831",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11866,16 +11594,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1014",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326834",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11958,16 +11682,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1025",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326845",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12154,16 +11874,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1049",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326869",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12310,16 +12026,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1068",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326888",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12442,16 +12154,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1084",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326904",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12550,16 +12258,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1097",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326917",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12874,16 +12578,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326957",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12894,16 +12594,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1139",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326959",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12914,16 +12610,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326961",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13118,16 +12810,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1166",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326986",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13226,16 +12914,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1179",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033326999",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13462,16 +13146,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1208",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327028",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13570,16 +13250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1221",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327041",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13718,16 +13394,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1239",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327059",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13738,16 +13410,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1241",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327061",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13918,16 +13586,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1263",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327083",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14042,16 +13706,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1278",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327098",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14102,16 +13762,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1285",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327105",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14330,16 +13986,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1313",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327133",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14774,16 +14426,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1368",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327188",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14858,16 +14506,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1378",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327198",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15334,16 +14978,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1437",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327257",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15538,16 +15178,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1462",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327282",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15614,16 +15250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1471",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327291",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15642,16 +15274,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1474",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327294",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15878,16 +15506,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1503",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327323",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15978,16 +15602,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1515",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327335",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15998,16 +15618,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1517",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327337",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16026,16 +15642,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1520",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327340",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16046,16 +15658,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1522",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327342",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16210,16 +15818,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1542",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327362",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16374,16 +15978,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1562",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327382",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16434,16 +16034,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1569",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327389",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16486,16 +16082,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1575",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327395",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16834,16 +16426,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1618",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327438",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17030,16 +16618,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1642",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327462",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17250,16 +16834,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1669",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327489",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17438,16 +17018,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1692",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327512",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17666,16 +17242,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1720",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327540",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18190,16 +17762,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1785",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327605",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18234,16 +17802,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1790",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327610",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18270,16 +17834,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1794",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327614",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18418,16 +17978,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1812",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327632",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18646,16 +18202,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1840",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327660",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18722,16 +18274,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1849",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327669",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -18910,28 +18458,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1872",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327692",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1873",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327693",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19030,16 +18570,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1886",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327706",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19554,16 +19090,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1951",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327771",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19574,16 +19106,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1953",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327773",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19626,16 +19154,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1959",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327779",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19646,16 +19170,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1961",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327781",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19706,16 +19226,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1968",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327788",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19758,16 +19274,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1974",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327794",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19906,16 +19418,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen1992",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327812",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20110,16 +19618,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2017",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327837",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20146,16 +19650,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2021",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327841",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20478,16 +19978,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2062",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327882",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20650,16 +20146,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2083",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327903",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20902,16 +20394,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2114",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327934",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20994,16 +20482,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2125",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327945",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21022,16 +20506,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2128",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327948",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21050,16 +20530,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2131",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327951",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21102,16 +20578,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327957",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21194,16 +20666,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2148",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327968",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21238,16 +20706,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2153",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327973",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21410,16 +20874,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2174",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033327994",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21590,16 +21050,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328016",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21810,16 +21266,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2223",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328043",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -21854,16 +21306,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2228",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328048",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22074,16 +21522,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2255",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328075",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22102,16 +21546,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2258",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328078",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22130,16 +21570,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2261",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328081",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22206,16 +21642,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2270",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328090",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22298,40 +21730,28 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2281",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328101",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2282",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328102",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2283",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328103",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22494,16 +21914,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2304",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328124",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22554,16 +21970,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2311",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328131",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22582,16 +21994,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2314",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328134",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22602,16 +22010,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2316",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328136",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22630,16 +22034,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2319",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328139",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22666,16 +22066,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2323",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328143",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22734,16 +22130,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2331",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328151",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22754,16 +22146,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2333",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328153",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22790,16 +22178,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2337",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328157",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22826,16 +22210,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2341",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328161",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22870,16 +22250,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2346",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328166",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22946,16 +22322,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2355",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328175",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23342,16 +22714,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2404",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328224",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23466,16 +22834,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2419",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328239",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23646,16 +23010,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2441",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328261",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23682,16 +23042,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2445",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328265",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23918,16 +23274,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2474",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328294",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24074,16 +23426,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2493",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328313",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24126,16 +23474,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2499",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328319",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24258,16 +23602,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2515",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328335",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24406,16 +23746,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2533",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328353",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24658,16 +23994,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2564",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328384",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24854,16 +24186,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2588",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328408",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24922,16 +24250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2596",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328416",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25014,16 +24338,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2607",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328427",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25090,16 +24410,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2616",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328436",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25238,16 +24554,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2634",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328454",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25258,16 +24570,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2636",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328456",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25406,16 +24714,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2654",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328474",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25458,16 +24762,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2660",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328480",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25606,16 +24906,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2678",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328498",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25842,16 +25138,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2707",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328527",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25918,16 +25210,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2716",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328536",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -25962,16 +25250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2721",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328541",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26070,16 +25354,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2734",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328554",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26122,16 +25402,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2740",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328560",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26190,16 +25466,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2748",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328568",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26362,28 +25634,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2769",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328589",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2770",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328590",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26442,16 +25706,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2778",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328598",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26910,16 +26170,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2836",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328656",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -26994,16 +26250,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2846",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328666",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -27070,16 +26322,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2855",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328675",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -27714,16 +26962,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2935",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328755",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -27734,16 +26978,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2937",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328757",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -28146,16 +27386,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsPerpendicularTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2988",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328808",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -28214,16 +27450,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmVector3d::IsParallelTo",
-        "unit": "geom.vector3d"
-      },
       "max_rel_err": 0.0,
       "name": "gen2996",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11010872811033328816",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -28251,17 +27483,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 192,
+  "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 3243,
+  "cases_passed": 3435,
   "cases_total": 3435,
-  "deferred_by_unit": {
-    "geom.vector3d": 192
-  },
+  "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "green",
   "unit": "geom.tol"
 }
