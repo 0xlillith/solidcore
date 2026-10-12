@@ -26,7 +26,7 @@ use solidcore::nurbs::bezier::{
     srf_extend_4d, ExtendAt,
 };
 use solidcore::nurbs::math::{CPoint, RealMatrix, NOW, NOZ};
-use solidcore::nurbs::srf_basic::{Direction, Surface};
+use solidcore::nurbs::srf_basic::{Direction, Surface, SurfaceIndices};
 use solidcore::{Result as SolidResult, SolidError};
 use solidcore_ffi::units::nlib_bezier::{self as ffi, Op};
 use solidcore_ffi::FfiError;
@@ -312,17 +312,15 @@ fn encode_srf(s: &InlineSrf, o: &mut Vec<f64>) -> Result<(), HarnessError> {
 
 fn build_srf(s: &InlineSrf) -> Result<Surface, HarnessError> {
     let (_, used) = shape(s)?;
-    Surface::with_indices(
-        to_net(&s.net),
-        used[0],
-        used[1],
-        s.p,
-        s.q,
-        s.u.clone(),
-        used[2],
-        s.v.clone(),
-        used[3],
-    )
+    let idx = SurfaceIndices {
+        n: used[0],
+        m: used[1],
+        p: s.p,
+        q: s.q,
+        r: used[2],
+        s: used[3],
+    };
+    Surface::with_indices(to_net(&s.net), s.u.clone(), s.v.clone(), idx)
     .map_err(|e| harness(format!("rust surface: {e}")))
 }
 

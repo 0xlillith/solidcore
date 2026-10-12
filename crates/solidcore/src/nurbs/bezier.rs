@@ -61,7 +61,7 @@
 use crate::error::{NlibCode, Result, SolidError};
 use crate::nurbs::geom::{dist_cpolygon, dist_cpt_cpt, dist_cpt_cpt_homo};
 use crate::nurbs::math::{CPoint, MatrixType, RealMatrix};
-use crate::nurbs::srf_basic::{Direction, Surface};
+use crate::nurbs::srf_basic::{Direction, Surface, SurfaceIndices};
 
 /// `NL_PascalTri`: binomial coefficients `C(i, j)` for `i <= 17` (zero for `j > i`).
 #[rustfmt::skip]
@@ -912,14 +912,9 @@ pub fn srf_extend_4d(sur: &Surface, dir: Direction, whr: ExtendAt, rev: bool) ->
 
     Surface::with_indices(
         net,
-        n,
-        m,
-        p,
-        q,
         sur.u_knots().to_vec(),
-        r,
         sur.v_knots().to_vec(),
-        s,
+        SurfaceIndices { n, m, p, q, r, s },
     )
 }
 
