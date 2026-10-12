@@ -39,15 +39,16 @@
 //!   arrays (invalid surfaces) the functions return [`SolidError::InvalidInput`].
 
 use crate::error::{NlibCode, Result, SolidError};
+use crate::math::max2;
 use crate::nurbs::basis_basic::{compatible_knot_array, find_all_span_maxima};
 use crate::nurbs::geom::Rectangle;
 use crate::nurbs::knots::KnotVector;
 use crate::nurbs::math::{CPoint, NOW};
 use crate::nurbs::srf_basic::{make_rat_compatible, Direction, Surface, WEIGHT_MAX, WEIGHT_MIN};
 
-use super::p1::{at, at2, insert_knots, ix, nlib, oob, put, put2, sx, zeros1, zeros2, Local};
+use super::p1::{at, at2, insert_knots, ix, oob, put, put2, sx, zeros1, zeros2, Local};
 use super::p2::{
-    elevate_degree, nl_max, remove_knot_conditional_with_status, remove_one_knot, REMOVAL_PARAM_TOL,
+    elevate_degree, remove_knot_conditional_with_status, remove_one_knot, REMOVAL_PARAM_TOL,
 };
 
 /// Upstream `NOREM`: the error bound marking a knot that cannot be removed.
@@ -446,7 +447,7 @@ impl RemoveAll {
                 put(&mut maxl, i, x, op)?;
                 let x = at(&maxr, i - 1, op)? * (oml * ob);
                 put(&mut maxr, i - 1, x, op)?;
-                let x = nl_max(
+                let x = max2(
                     (at(&maxl, i, op)? - at(&minr, i - 1, op)?).abs(),
                     (at(&maxr, i - 1, op)? - at(&minl, i, op)?).abs(),
                 );
@@ -631,7 +632,7 @@ impl RemoveAll {
             let kno = knots(&self.sq, o);
             for j in odeg..(ork - odeg) {
                 if at(kno, j, op)? != at(kno, j + 1, op)? {
-                    let x = nl_max(
+                    let x = max2(
                         eget(&self.er, d, rd - 1, j, op)?,
                         eget(&self.er, d, rd, j, op)?,
                     );
@@ -898,7 +899,7 @@ pub fn join(sur1: &Surface, sur2: &Surface, dir: Direction, tol: f64) -> Result<
     let (n1, n2) = (a.n(), b.n());
     let (p1, p2) = (a.p(), b.p());
     if n1 != n2 || p1 != p2 {
-        return Err(nlib(OP, NlibCode::Input));
+        return Err(SolidError::nlib(OP, NlibCode::Input));
     }
     let (a, b) = match a.q().cmp(&b.q()) {
         core::cmp::Ordering::Equal => (a, b),
