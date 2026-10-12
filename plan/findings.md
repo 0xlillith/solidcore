@@ -909,3 +909,84 @@ Notes for later agents:
   `GetOrCreateObjectCache`.
 - No `UNPORTED(geom.a_object)` stubs existed to wire. The attribute-list methods
   remain co-ported in `geom::attribute::AttributeStore`.
+
+## geom.pseudo_box (green; no disagreements)
+
+3011 difftest cases (11 fixtures + 3000 generated) are bit-identical. Upstream
+behaviour worth knowing:
+
+- **`SmExtent3d::Circumscribe` of an axis-aligned pseudo box mixes up the axis map.**
+  `IsAxisAligned` fills `alAxisMap[i]` with the axis that *basis* `i` is parallel to,
+  but `Circumscribe` reads `alAxisMap[i]` as the basis parallel to *axis* `i`. Swaps and
+  sign flips come out right, but a 3-cycle does not: basis `(y, z, x)` with intervals
+  `[1,2], [3,5], [-7,-6]` gives `min (3, -7, 1)` instead of `(-7, 1, 3)`. Ported as is
+  (fixture `circumscribe_axis_cycle_quirk`). `geom.extent3d` is green now that this is
+  wired.
+- **`DistanceToPoint`** returns `SM_ERR` (1001.0) as a distance when the point is outside
+  more than three planes. That only happens for inside-out boxes (`Init()` state). When
+  `smgu_IntersectTwoPlanes`/`ThreePlanes` fail it ignores the status and uses the
+  uninitialised (`SM_UNDEF_DOUBLE`) line or vertex.
+- **`ProjectToPlane`** projects the corners *parallel* onto the plane for every projection
+  type (the perspective type only changes the basis vectors). It writes into a
+  caller-provided box and keeps that box's basis on the rare `SetBasis` failure. The
+  `MakeUnitOrthoVectors` branch writes `m_aBasis` directly without updating
+  `m_bOrthogonalBasis`. When that branch fails (seen only for an uninitialised basis with
+  huge intervals), basis vector 0 is left as `(0,0,1)`. All three are kept in
+  `project_to_plane_into`.
+- The `SM_IS_BETWEEN_TO_TOL(s, 0, 1, tol)` test in the rotation branch has an
+  always-false reversed-interval half; the port keeps only the live half.
+- **Wired `SmTransform::EvaluateBoundingBoxSimple`** (unit `geom.transform`). A requested
+  output without `pOptParamPseudoBox` (an upstream null dereference) is `InvalidInput` in
+  the port. The unaligned-and-bounded branch still needs `SmVolume::EvaluatePoint` and
+  returns `Unported(surface.volume_p2)`. The 113 `geom.transform` cases deferred on
+  `geom.pseudo_box` now pass. 256 cases are still deferred, on `surface.volume_p1`/`_p2`.
+
+## nlib.crv_tool_p1 (partial; no disagreements)
+
+2143 default cases (143 fixtures on the `.smc` test curves, 2000 generated): 2063 agree bit
+for bit (`max_rel_err = 0`), 80 deferred. C++ runs both the in-place and out-of-place forms;
+the Rust methods return a new curve. Upstream behaviour worth knowing:
+- **Deferred:** `N_CrvRemoveKnot` on a rational curve calls `N_CrvGetMinMaxWeightsAndPts`
+  (`nlib.crv_nurb`). That routine always returns `pmax = 0`, so the scaled tolerance is
+  `tol * wmin`. Wire `UNPORTED(nlib.crv_nurb)` in `nurbs/crv_tool/p1.rs`; the rational
+  weight check after it is already ported.
+- **`N_CrvRemoveKnot` error flag:** a failing `N_BasisFindGlobalMax` gives an assumed maximum
+  of 1, but the flag stays in `error`. If the last such call failed, the routine finishes the
+  removal and still returns 1. The port returns only the error then; the shim dumps nothing
+  on a nonzero status.
+- **No input checks:** `N_CrvInsertKnot`, `N_CrvSplit`, `N_CrvDecomposeBez`, `N_CrvRefine`,
+  `N_CrvExtractCrvSeg` and `N_CrvRemoveKnotMaxErr` don't validate the curve. For unclamped
+  knots, multiplicity above `p`, out-of-range `ul`/`ur` or wrong `(r, s)` they index outside
+  their arrays. The port returns `InvalidInput`, and the FFI refuses such inputs.
+  `N_CrvDecomposeBez` past `nsp` segments does `NL_QUIT` with no error number.
+- **Fixture parameters:** serde_json (without `float_roundtrip`) can parse decimal text
+  1 ulp off, so knot-valued parameters in fixtures use `{"knot": i}`. Without it, the
+  `curve0.smc` end knots fell outside the range.
+- No `UNPORTED(nlib.crv_tool_p1)` stubs existed to wire.
+
+## nlib.crv_fit_p1 (green; no disagreements)
+
+2084 difftest cases (84 fixtures from `FitCrvPoints.pts`, `Points.pts`, rectangle / hexagon
+corners of `TestSmCreateRectangle` / `TestSmCreateRegularPolygon`, and edge cases; 2000
+generated), all bit-identical (`max_rel_err = 0`).
+
+- **`N_FitCrvFirstDerivAndKnots` writes `M[2i+1][-1]`** whenever the span of `u[i]` gives
+  `l == 0` (not with the knots of its driver `N_FitCalcKnotsDerivs`, where `l == 1`). The
+  banded matrix is one row-major block, so that is the last entry of row `2i` (band column
+  `bw-1`, i.e. a wrong matrix entry). The port writes exactly there; fixture
+  `first_derivs_row_underflow_p2` matches C++ bit for bit through it.
+- **Unwritten outputs.** `N_FitCalcCrvParamValues` leaves the interior parameters unwritten
+  when the total chord length is `<= NL_PTOL`, and `N_FitCalcKnotVectorDeriv` leaves the
+  interior knots unwritten for `p == 0`; the port returns zeros there and the shim passes
+  zero-filled buffers.
+- **Out-of-bounds reads/writes refused by the FFI and `InvalidInput` in Rust:**
+  `N_FitCalcKnotVectorEndDerivs` / `N_FitCalcKnotVectorDeriv` with `p == 1` and one
+  parameter read `u[1]` / `u[-1]`; `N_FitCrvApproxKnots` copies `n+p+2` knots before checking
+  the knot count, writes `Pw[1]` for `n == 0`, and its band bookkeeping (`start` / `end` /
+  `index`) indexes `B` correctly only when the evaluated parameters `u[1..m-1]` are
+  non-decreasing; `N_FitCrvCPtsFromSrfData` with a matrix larger than the extracted row /
+  column reads uninitialised entries; `N_FitCrvInterpGivenParams` with `2 <= n < p` gives
+  `N_BasisEval` too few knots.
+- `N_FitCrvKnotsAndDeriv` uses band offset `l = 0` for every row when `p == 2` and
+  `l = j - i - 1` otherwise (not `sp - i + j` as its two-derivative sibling); ported as is.
+- No `UNPORTED(nlib.crv_fit_p1)` stubs existed to wire.

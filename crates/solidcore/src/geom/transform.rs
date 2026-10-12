@@ -51,11 +51,12 @@
 //!   maps) has passed. Calls the transform makes into the unported volume base
 //!   (`SmVolume::IsKindOf`, `SmVolume::ReadFromDB`, `SmVolume::EvaluatePoint`,
 //!   `SmDiscontinuities3d::Init`) return [`SolidError::Unported`].
-//! - **Pseudo boxes.** `EvaluateBoundingBoxSimple` builds `SmPseudoBox`es
-//!   (unit `geom.pseudo_box`, not ported yet). Only its "no output requested"
-//!   early return is ported; any requested output returns
-//!   [`SolidError::Unported`]. Upstream dereferences a null `pOptParamPseudoBox`
-//!   when an output is requested without one (`plan/findings.md`).
+//! - **Pseudo boxes.** `EvaluateBoundingBoxSimple` keeps upstream's in/out pointers
+//!   as `Option<&mut _>` outputs (the unbounded branch only resets intervals, so the
+//!   outputs' previous state matters). A requested output without a parameter
+//!   pseudo box is [`SolidError::InvalidInput`] (upstream dereferences the null
+//!   pointer, `plan/findings.md`); the unaligned bounded branch needs
+//!   `SmVolume::EvaluatePoint` and returns [`SolidError::Unported`].
 //! - Out-params become return values. `InvTransformPoint`, `InvTransformVector`
 //!   and `InvEvaluateGuessPointSimple` return `Err` (upstream `SM_ERR`, code 1001)
 //!   for a singular axes sub-matrix, where upstream leaves the output unset.
@@ -75,28 +76,19 @@
 
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
+use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p1::inverse_3x3;
 use crate::geom::geom_utility::p2::{inverse_4x4, mult_4x4};
+use crate::geom::pseudo_box::PseudoBox;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType};
 use crate::geom::tol::is_zero;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::math::INFINITE_PARAMETER;
 use crate::topology::database_io::{DatabaseReader, FileType};
 
-/// Upstream `SM_ERR`.
-const SM_ERR: i32 = 1001;
-
 /// `GW_MAX_DERIV`: the highest derivative `EvaluateSimple` accepts.
 pub const MAX_DERIV: usize = 5;
-
-fn sm_err(operation: &'static str) -> SolidError {
-    SolidError::Upstream {
-        operation,
-        code: SM_ERR,
-        entity: None,
-    }
-}
 
 /// A general linear transform, the 4x4 matrix `T` of `SmTransform`, mapping a
 /// parameter-space point `[u v w 1]` to the projection-space point `[u v w 1] * T`.
@@ -116,16 +108,9 @@ impl Default for Transform {
     }
 }
 
-fn row(v: Vec3) -> [f64; 3] {
-    v.to_array()
-}
-
 impl Transform {
     /// `SmTransform_TYPE` (`VOL_BASE_TYPE + 8`).
     pub const TYPE: i64 = 22008;
-
-    /// `SmVolume_TYPE` (`VOL_BASE_TYPE + 1`).
-    const VOLUME_TYPE: i64 = 22001;
 
     /// The identity transform (`SmTransform()` / `Init`).
     pub const IDENTITY: Self = Self {
@@ -260,7 +245,7 @@ impl Transform {
         self.set_to_x_axis(Vec3::new(1.0, 0.0, 0.0));
         self.set_to_y_axis(Vec3::new(0.0, 1.0, 0.0));
         self.set_to_z_axis(Vec3::new(0.0, 0.0, 1.0));
-        self.set_to_disp(Vec3::new(0.0, 0.0, 0.0));
+        self.set_to_disp(Vec3::ZERO);
         self.init_ext();
     }
 
@@ -303,7 +288,7 @@ impl Transform {
     pub fn inv_transform_point(&self, p: Point3) -> Result<Point3> {
         let mid = p - self.to_disp();
         self.inv_transform_vector(mid)
-            .map_err(|_| sm_err("geom::transform::Transform::inv_transform_point"))
+            .map_err(|_| SolidError::sm_err("geom::transform::Transform::inv_transform_point"))
     }
 
     /// Maps a projection-space vector back to parameter space through the inverse
@@ -314,13 +299,13 @@ impl Transform {
     /// `SM_ERR` when the axes sub-matrix is singular (`smgu_3x3Inverse` fails).
     pub fn inv_transform_vector(&self, v: Vec3) -> Result<Vec3> {
         let inv = inverse_3x3(
-            &row(self.to_x_axis()),
-            &row(self.to_y_axis()),
-            &row(self.to_z_axis()),
+            &self.to_x_axis().to_array(),
+            &self.to_y_axis().to_array(),
+            &self.to_z_axis().to_array(),
         )
-        .map_err(|_| sm_err("geom::transform::Transform::inv_transform_vector"))?;
+        .map_err(|_| SolidError::sm_err("geom::transform::Transform::inv_transform_vector"))?;
         let [i0, i1, i2] = inv.map(Vec3::from_array);
-        let t_inv = Self::new(Vec3::new(0.0, 0.0, 0.0), i0, i1, Some(i2));
+        let t_inv = Self::new(Vec3::ZERO, i0, i1, Some(i2));
         Ok(t_inv.transform_vector(v))
     }
 
@@ -380,7 +365,7 @@ impl Transform {
     /// `SM_ERR` when the matrix is singular; the transform is then unchanged.
     pub fn invert_simple(&mut self) -> Result<()> {
         self.m = inverse_4x4(&self.m)
-            .map_err(|_| sm_err("geom::transform::Transform::invert_simple"))?;
+            .map_err(|_| SolidError::sm_err("geom::transform::Transform::invert_simple"))?;
         Ok(())
     }
 
@@ -410,7 +395,7 @@ impl Transform {
             });
         }
         let n1 = highest_deriv + 1;
-        let mut ders = vec![Vec3::new(0.0, 0.0, 0.0); n1 * n1 * n1];
+        let mut ders = vec![Vec3::ZERO; n1 * n1 * n1];
         let sv = |u: usize, v: usize, w: usize| (u * n1 + v) * n1 + w;
 
         let x = self.to_x_axis();
@@ -432,31 +417,127 @@ impl Transform {
     }
 
     /// Projection-space bounding boxes of the parameter-space box `param_box`
-    /// (`EvaluateBoundingBoxSimple`). With neither output requested it does nothing
-    /// and returns `Ok(None)`, as upstream.
+    /// (`EvaluateBoundingBoxSimple`), written into the requested outputs.
+    ///
+    /// The output pseudo box takes the basis of `param_pseudo_box` mapped through the
+    /// transform (kept as is when that basis is rejected). When `param_pseudo_box` is
+    /// aligned with the parameter axes the intervals are the parameter intervals
+    /// scaled by `1/|axis|` and shifted by `origin·axis` (upstream's formula, see
+    /// `plan/findings.md`), permuted/negated to the pseudo box's basis order, and
+    /// `proj_box` circumscribes the result. For an unaligned pseudo box and an
+    /// unbounded `param_box` both outputs are made unbounded (the pseudo box keeps
+    /// its previous basis, as upstream). With neither output requested nothing
+    /// happens.
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] when an output is requested: every such path builds
-    /// `SmPseudoBox`es (unit `geom.pseudo_box`).
+    /// [`SolidError::InvalidInput`] when an output is requested without
+    /// `param_pseudo_box` (upstream dereferences the null pointer);
+    /// [`SolidError::Unported`] for an unaligned pseudo box with a bounded
+    /// `param_box` (it needs `SmVolume::EvaluatePoint`).
     pub fn evaluate_bounding_box_simple(
         &self,
         param_box: &Extent3d,
-        want_box: bool,
-        want_pseudo_box: bool,
-    ) -> Result<Option<Extent3d>> {
-        let _ = param_box;
-        if !want_box && !want_pseudo_box {
-            return Ok(None);
+        param_pseudo_box: Option<&PseudoBox>,
+        mut proj_box: Option<&mut Extent3d>,
+        proj_pseudo_box: Option<&mut PseudoBox>,
+    ) -> Result<()> {
+        // no work - no output
+        if proj_box.is_none() && proj_pseudo_box.is_none() {
+            return Ok(());
         }
-        // UNPORTED(geom.pseudo_box): SmPseudoBox::GetBasis, SetBasis, Init, AreAligned,
-        // SetIntervals, SetUnbounded, AddPoint3d, SmExtent3d::Circumscribe(SmPseudoBox);
-        // the unaligned bounded branch also needs
-        // UNPORTED(surface.volume_p2): SmVolume::EvaluatePoint
-        Err(SolidError::Unported {
-            upstream: "SmPseudoBox::GetBasis",
-            unit: "geom.pseudo_box",
-        })
+        let Some(param_pb) = param_pseudo_box else {
+            return Err(SolidError::InvalidInput {
+                operation: "geom::transform::Transform::evaluate_bounding_box_simple",
+                reason: "an output needs a parameter-space pseudo box",
+            });
+        };
+
+        // init output
+        if let Some(b) = proj_box.as_deref_mut() {
+            b.init();
+        }
+        // init the ProjSpace pseudo box with the param pseudo box basis vectors
+        // projected to ProjSpace and uninitialized intervals
+        let mut this_proj_pb = *param_pb;
+        let [b0, b1, b2] = *this_proj_pb.basis();
+        let (sx, sy, sz) = (
+            self.transform_vector(b0),
+            self.transform_vector(b1),
+            self.transform_vector(b2),
+        );
+        // upstream ignores the status
+        let _ = this_proj_pb.set_basis(sx, sy, sz);
+        this_proj_pb.init();
+
+        let axis_map = PseudoBox::new().are_aligned(param_pb);
+        if let Some(axis_map) = axis_map {
+            // get Ivls of mapping ParamBox directly to ProjSpace
+            let o = self.to_origin();
+            let x = self.to_x_axis();
+            let x_length = x.length();
+            let y = self.to_y_axis();
+            let y_length = y.length();
+            let z = self.to_z_axis();
+            let z_length = z.length();
+
+            let mut ivls = [
+                *param_box
+                    .u_interval()
+                    .scale(1. / x_length)
+                    .translate(o.dot(x)),
+                *param_box
+                    .v_interval()
+                    .scale(1. / y_length)
+                    .translate(o.dot(y)),
+                *param_box
+                    .w_interval()
+                    .scale(1. / z_length)
+                    .translate(o.dot(z)),
+            ];
+
+            // when the bases need to be swapped and/or negated to match the param
+            // pseudo box basis orientations
+            if axis_map != [1, 2, 3] {
+                let mut tmps = [Extent1d::new(); 3];
+                for (tmp, m) in tmps.iter_mut().zip(axis_map) {
+                    let i = (m.unsigned_abs() as usize).wrapping_sub(1);
+                    if let Some(ivl) = ivls.get_mut(i) {
+                        // upstream's Negate() also negates ivls[i] in place
+                        *tmp = if m > 0 { *ivl } else { *ivl.negate() };
+                    }
+                }
+                ivls = tmps;
+            }
+
+            let [i0, i1, i2] = ivls;
+            this_proj_pb.set_intervals(i0, i1, i2);
+
+            if let Some(pb) = proj_pseudo_box {
+                *pb = this_proj_pb;
+            }
+            if let Some(b) = proj_box {
+                b.circumscribe(&this_proj_pb);
+            }
+        } else if !param_box.is_bounded() {
+            // return unbounded BBoxes
+            if let Some(b) = proj_box {
+                b.set_unbounded();
+            }
+            if let Some(pb) = proj_pseudo_box {
+                pb.set_unbounded();
+            }
+        } else {
+            if let Some(pb) = proj_pseudo_box {
+                *pb = this_proj_pb;
+            }
+            // UNPORTED(surface.volume_p2): SmVolume::EvaluatePoint
+            return Err(SolidError::Unported {
+                upstream: "SmVolume::EvaluatePoint",
+                unit: "surface.volume_p2",
+            });
+        }
+        Ok(())
     }
 
     /// The parameter point mapping to `proj_point`, as the single guess of the
@@ -488,7 +569,7 @@ impl Transform {
         solutions.set_size(1);
         let res = self.inv_transform_point(proj_point);
         let Some(sol) = solutions.get_mut(0) else {
-            return Err(sm_err(
+            return Err(SolidError::sm_err(
                 "geom::transform::Transform::global_point_solve_simple",
             ));
         };
@@ -524,10 +605,9 @@ impl Transform {
     ) -> Result<Solution<O>> {
         let mut solutions = SolutionArray::new();
         self.global_point_solve_simple(proj_point, &mut solutions, this)?;
-        solutions
-            .get(0)
-            .copied()
-            .ok_or_else(|| sm_err("geom::transform::Transform::local_point_solve_simple"))
+        solutions.get(0).copied().ok_or_else(|| {
+            SolidError::sm_err("geom::transform::Transform::local_point_solve_simple")
+        })
     }
 
     /// A transform is never bounded (`IsBoundedSimple`).
@@ -593,8 +673,8 @@ impl Transform {
                 }
             }
         }
+        // The matrix is read; the base-class read that follows is not ported yet.
         // UNPORTED(surface.volume_p2): SmVolume::ReadFromDB
-        let _ = t;
         Err(SolidError::Unported {
             upstream: "SmVolume::ReadFromDB",
             unit: "surface.volume_p2",
@@ -629,7 +709,6 @@ impl Transform {
         if t == Self::TYPE {
             return Ok(true);
         }
-        let _ = Self::VOLUME_TYPE;
         // UNPORTED(surface.volume_p1): SmVolume::IsKindOf
         Err(SolidError::Unported {
             upstream: "SmVolume::IsKindOf",
@@ -735,7 +814,21 @@ mod tests {
         assert_eq!(t.class_string(), "SmTransform");
         let d = t.natural_param_domain();
         assert_eq!(d.u_min(), -INFINITE_PARAMETER);
-        assert_eq!(t.evaluate_bounding_box_simple(&d, false, false), Ok(None));
-        assert!(t.evaluate_bounding_box_simple(&d, true, false).is_err());
+        assert_eq!(t.evaluate_bounding_box_simple(&d, None, None, None), Ok(()));
+        let mut b = Extent3d::new();
+        assert!(t
+            .evaluate_bounding_box_simple(&d, None, Some(&mut b), None)
+            .is_err());
+        let pb = PseudoBox::new();
+        let mut proj_pb = PseudoBox::new();
+        assert_eq!(
+            t.evaluate_bounding_box_simple(&d, Some(&pb), Some(&mut b), Some(&mut proj_pb)),
+            Ok(())
+        );
+        assert_eq!(b.u_min(), -INFINITE_PARAMETER);
+        assert_eq!(
+            proj_pb.interval(0).map(|i| i.max()),
+            Some(INFINITE_PARAMETER)
+        );
     }
 }
