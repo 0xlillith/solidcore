@@ -49,10 +49,10 @@ depends_on = []
 est_lines = 2971
 layer = 0
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.math-a1"
 claimed_at = "2026-10-12T19:21:27Z"
-notes = "79 fns; largest: N_SrfPowerBasisEvalDerivs, N_RealMatrixForBack, N_RealMatrixMultiply, N_SolveQuadraticEq; cycle back-edges (call into later units; stub or co-port): nlib.srf_basic(2); unit-SCC #2 (3 units); 317 upstream test entry points reach this unit"
+notes = "green: 3076 difftest cases (76 fixture + 3000 generated), 0 deferred, max_rel_err 0 (bit-identical; a 100,076-case run was also clean). N_SrfPowerBasisEvalPt back-edge into nlib.srf_basic removed (Rust takes the control net; see plan/findings.md). 79 fns; largest: N_SrfPowerBasisEvalDerivs, N_RealMatrixForBack, N_RealMatrixMultiply, N_SolveQuadraticEq; unit-SCC #2 (3 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "topology.database_io"
@@ -62,10 +62,10 @@ depends_on = []
 est_lines = 363
 layer = 0
 tests = ["prog_test:my_test_poly_solver_2", "prog_test:my_test_poly_solver_1", "prog_test:my_test_sp_nurb", "SM_API_test:TestSmTessellateMaxEdgeCap", "SM_API_test:TestSmPolyBrepMassPropertiesWinding", "prog_test:my_test_MakeFace", "pt_TestFiles/Tess/BoxFillet.stl", "pt_TestFiles/Tess/Extrusion.pbp", "pt_TestFiles/Surface.sms", "pt_TestFiles/MakeFace/ApproximateSphere.smp"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-topology.database_io-a1"
 claimed_at = "2026-10-12T19:21:50Z"
-notes = "28 fns; largest: SmDatabaseIO::ReadLongs, SmDatabaseIOFile::OpenFileForRead, SmDatabaseIO::ReadLong, SmDatabaseIO::ReadType; 82 upstream test entry points reach this unit"
+notes = "28 fns; largest: SmDatabaseIO::ReadLongs, SmDatabaseIOFile::OpenFileForRead, SmDatabaseIO::ReadLong, SmDatabaseIO::ReadType; 82 upstream test entry points reach this unit; difftest green: 2059 cases (59 fixtures + 2000 generated), 0 deferred; 200k-seed run green"
 
 [[unit]]
 id = "geom.attribute"
@@ -75,9 +75,9 @@ depends_on = ["topology.database_io"]
 est_lines = 920
 layer = 1
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.attribute-a1"
+claimed_at = "2026-10-12T19:38:43Z"
 notes = "90 fns; largest: SmMergeRegionAttribute::Merge, SmAttribute::Split, SmColorAttribute::PropagateRegionsThroughBooleans, SmAttributeData::ReadIndexedAttributesFromDB; cycle back-edges (call into later units; stub or co-port): geom.a_object(14), geom.object(11), query.brep(6), geom.vector3d(4), query.tess(4), topology.shell(3), curve.composite_curve_p1(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
