@@ -335,6 +335,27 @@ agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth kn
   `cpts_are_colinear` take it explicitly.
 - `N_IsectLineLine` tests parallelism with `NL_ZCTL` (1e-12) on `1 - cos^2`, while
   `N_IsectLinePlane` uses `NL_LTOL` (1e-9) on the cosine; both ported as is.
+
+## geom.extent2d (green; no disagreements)
+
+3069 default cases (69 fixture from `my_test_extent2d` + edge cases, 3000 generated)
+agree bit for bit with upstream (`max_rel_err = 0`); a 30000-seed run is clean.
+Upstream behaviour worth knowing:
+
+- **`ContainsPeriodicPoint2d` can hang.** It calls `SmExtent1d::ContainsPeriodicValue`,
+  whose `PeriodicWrap` steps one period per iteration; a period that is tiny relative
+  to the point's distance from the interval (e.g. period `1e-9`, value `1e15`) runs
+  for ~1e24 iterations in both C++ and the port. The generator only uses periods with
+  `|p - min| / period < 1e4`.
+- `Inversion` may write a partial normalised point (`-1` components) before returning
+  `SM_ERR`; the port returns only the error. `IntersectWithInfiniteLine` always
+  returns `SM_SUCCESS` and leaves the interval untouched when nothing is found (port:
+  `None`).
+- `GetU/VLeftEval` return TRUE unless `value > mid` (TRUE for NaN), kept as is.
+- `SmTol::GetScaledZero(const SmExtent2d&)` is implemented in `geom/extent2d.rs`
+  (wired from the `UNPORTED(geom.extent2d)` marker in `geom/tol.rs`) and covered by
+  the `geom.tol` fixtures `fixtures/geom.tol/extent2d.json` (object kind 5).
+
 ## geom.attribute (partial; no disagreements)
 
 2029 default cases (6 upstream-derived fixtures, 23 edge-case fixtures, 2000 generated
@@ -415,11 +436,311 @@ agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth kn
   `smos_Sqrt` (clamping) for `sqrt(-p)`, and `smos_ArcCosine` clamps to `[0, PI]`; ported
   as is. Every solver always returns `SM_SUCCESS`, so the port is infallible.
 
+## nlib.srf_basic (green; no disagreements)
+
+3220 default cases (220 fixture + 3000 generated) and a 100,220-case run (`--seeds
+100000`) agree bit for bit with upstream (`max_rel_err = 0`). Fixtures include the
+upstream surfaces `Surface.sms` (thinly closed in u), `offset_nurb.sms` and
+`DropCurveSurface.sms`, read by the runner. Notes for later agents:
+
+- **`nurbs::srf_basic::Surface` is the `NL_SURFACE`.** It owns its net and knots but, as
+  upstream, keeps the indices in use (`n`, `m`, `r`, `s`) apart from the storage, which may
+  be larger (`Surface::with_indices`, `set_size_indices`). The NULL surface of
+  `N_SrfInitArrays` is `None` in an `Option<Surface>`; `size_arrays` / `copy_into` take
+  that `Option` (`N_SrfSizeArrays` / `N_SrfCopy`). Storage upstream `malloc`s is
+  zero-filled. `KnotVector`s are borrowed from the surface with `knot_vectors()`.
+- **`N_SrfIsSized` compares the indices in use, not the capacity.** So `N_SrfSizeArrays`
+  reallocates whenever a request exceeds the current `n`/`m`/`r`/`s`, even if the storage
+  is big enough; spare capacity is only reachable through `N_SrfSetSizeIndices`. When it
+  reallocates, `N_SrfSizeArrays` returns 0 but leaves `NL_STO_ERR` in `NL_ERROR` (set by
+  `N_SrfIsSized`); the Rust port records nothing.
+- **Weight checks.** `N_SrfWeightsAreValid` lets NaN weights through (`<`/`>` tests); a
+  non-rational point (`w = NL_NOW`) in a rational surface fails it as a weight error.
+  Rationality is decided by `Pw[0][0]` alone (`N_IsSrfRat`).
+- **Undefined upstream paths, made errors in Rust.** `N_SrfReparamToInterval` writes
+  `U[r-p..]` outside the array when `r < p` (`InvalidInput`, nothing changed);
+  `N_SrfSetSizeIndices` / `N_SrfSetCPtsAndKnots` accept indices past the storage
+  (`InvalidInput`). The ffi wrapper never passes those inputs.
+- **Unwritten outputs.** `N_SrfIsFlatCheap` leaves `flt`/`dir` unset when
+  `N_PlanePtNormalToImplicit` fails (the normal's `1/|N|` overflows); the port returns only
+  the error. Its closed and degenerate exits use the global `NL_MTOL`
+  (`Surface::is_closed_tol` takes it explicitly for `N_SrfIsClosedSmooth`).
+- **`N_SrfIsClosed` with `NL_UVDIR`** (or any flag but `NL_UDIR`/`NL_VDIR`) is `false`.
+- No `UNPORTED(nlib.srf_basic)` stubs existed to wire. `nlib.math`'s power-basis
+  routines still take the net directly; a `Surface` method may forward to them.
+
+## nlib.bezier (green; no disagreements)
+
+2223 difftest cases (223 fixture: SM_API_test rectangle/polygon segments, `FitCrvPoints.pts`,
+`Points.pts`, `Surface.sms`, edge cases; 2000 generated), all bit-identical
+(`max_rel_err = 0`), 0 deferred. Notes for later agents:
+
+- **Matrices built on a freed stack.** `N_BezElevateDegree`, `N_BezSrfElevateDegree` and
+  the `N_BezFuncMultiplyBez*` routines compute a NULL elevation / product matrix into the
+  caller's `NL_RMATRIX` on a local `NL_STACKS` that `N_EndNurbs` frees before returning, so
+  the caller is left with dangling storage. The Rust routines take `&RealMatrix` and build
+  a local matrix when it `is_null()`; callers that want reuse should call
+  `elevation_matrix` / `product_matrix` first. With degree `p = 0` the matrix has
+  bandwidth 0 and is "NULL" again (recomputed every call), harmless.
+- **`NL_PascalTri` is `[18][18]`.** Every routine using it (elevation/product matrices,
+  `N_BezCrvExtend`, hence `N_BezSrfExtend4D`) reads past it for degree sums above 17;
+  Rust returns `InvalidInput`. `bezier::PASCAL_TRI` / `binomial` are the table.
+- **`ST_BezCalcArcLength` gives up past `NL_RECURSELIM` (20)** by returning 1 without
+  setting `NL_ERROR.eno` (shim status 1000; Rust `NotConverged`). With `tol = 0` any curved
+  segment hits it; collinear control points finish (`del == 0`). NaN coordinates also end
+  there.
+- **`N_BezReduceDegree` needs `p >= 2`**: for `p = 1` it reads the never-written
+  `alf[0]` and `Qw[-1]` (Rust `InvalidInput`). `N_BezDegreeReduceCoefs` writes `alf/oma`
+  only at `1..=r` and `bet/omb` at `r..=p-2` (`r = (p-1)/2`).
+- **Flags.** `N_BezCrvExtend`'s `whr`/`rev` became `ExtendAt` / `bool` (its `NL_CAL_ERR` for
+  other values is unreachable); `N_BezSrfExtend4D` with a direction other than U/V returns
+  a surface whose net was never written (Rust `InvalidInput`); `N_BezSrfElevateDegree`
+  with `NL_UVDIR` fails with `NL_CAL_ERR` after building the matrix (kept).
+- **NaN parameters** pass the `[0, 1]` checks of `N_BezEvalOneBasis` / `N_BezSplit`
+  (`<`/`>` tests) and propagate, as in Rust.
+- No `UNPORTED(nlib.bezier)` stubs existed to wire.
+
+## nlib.basis_basic (green; no disagreements)
+
+2596 default cases (1096 fixture + 1500 generated) and a 201,096-case run
+(`--seeds 200000`) agree bit for bit with upstream (`max_rel_err = 0`). Fixtures use the
+knot vectors of every `.smc`/`.sms` file in `pt_TestFiles`, the `smTopoTest.cpp` and
+SM_API_test rectangle/polygon layouts, and the examples in the upstream doc comments.
+Upstream behaviour worth knowing:
+
+- **Endless loops upstream.** `N_BasisFindGlobalMax` loops forever when its bracketing step
+  `(U[i+p+1]-U[i])/(10p)` is below half an ulp of the knots (huge knot values, tiny span).
+  `N_GetCompatibleKnotVectorToTol` loops forever when an iteration matches no knot
+  (`tol <= 0`, NaN knots). `N_MakeKnotsCompatible` loops forever on NaN knots. Rust returns
+  `SolidError::InvalidInput` in exactly these states (the loop state is unchanged, so
+  upstream would repeat it forever). The ffi wrappers reject these inputs.
+- **`N_GetCompatibleKnotVectorToTol` reads `U[-1]`** when a vector's first knot is above
+  the current smallest knot (the "move to average" test runs for vectors with no match).
+  The read never changes the result. Rust skips the test for those vectors. The shim
+  gives each vector a leading pad slot. It also writes into a buffer of `sum(m)+1` slots
+  per vector, which a vector with fewer than `k-1` knots can overflow. Rust returns
+  `InvalidInput` there, and the ffi wrapper requires at least `n_vec - 1` knots per vector.
+- **`N_GetCompatibleKnotVectorToTol` needs a common parameter range.** Vectors with
+  different end knots run out at different times. Upstream then fails with `NL_INP_ERR`
+  (14), and Rust does the same. Multiplicities *are* carried over between vectors (each
+  distinct knot gets the highest multiplicity it has anywhere), unlike the
+  `N_GetCompatibleKnotVector` doc comment says.
+- **`N_MakeKnotsCompatible` reads past `U[m]`** on degree-0 vectors whose ends differ by
+  less than `NL_PTOL` (so no rescale happens). It can also read past `U[m]` with inner
+  knots within `NL_PTOL` of an end, or with unclamped vectors. Its output buffers are
+  caller-allocated and unbounded. Rust returns `InvalidInput` for out-of-range reads. The
+  shim pads both vectors with `+inf` entries so upstream stays in bounds and terminates.
+  The generator keeps to degree >= 1 for the "ends within `NL_PTOL`" mode. It also
+  pushes the end knot `U[m]` of the shorter-ended vector into the other's insert list
+  when the ends differ by less than `NL_PTOL`. Rust does the same, faithfully.
+- **`N_BasisDerivs` int factor.** The factor `r *= (p-k)` is an `int`, and it is computed
+  one step past the last row it scales. It overflows (UB) for `p >= 13` once
+  `der >= 10`, for example. Rust returns `InvalidInput`, and the ffi wrapper rejects these inputs.
+- **`N_BasisFindAllSpanMaxima` with degree 1 or a `p`-fold inner knot** returns fixed
+  values (`max = 1` at `U[i+1]`) without searching. Degree 0 goes through the Newton
+  path with `du = span/0 = inf`. Rust does the same, faithfully.
+## geom.hash_table (green; no disagreements)
+
+619 default cases (19 fixture + 600 generated) and a 10,019-case run (`--seeds 10000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Fixtures replay the
+`SmHealData::Cache_CoinVertices` pattern (12x12x12 voxels over the vertex box, `7 * n`
+estimate, all-pairs search with histogram, then an incremental batch with tracked buckets
+and the old vertex count as limit) on `Points.pts`, `FitCrvPoints.pts` and
+`PointSet/Section*.pts`, plus edge cases. Upstream behaviour later agents must know:
+
+- **Use-after-free in `SmObjsInVoxels::IncMaxItemCount`.** It re-points every bucket item's
+  `m_sItem` at `&m_sPointItems.GetAt(id)` *before* `SetArray` swaps in the new array and
+  frees the old one, so once a model that still has items in buckets grows (`Add` with
+  `size + 7 > GetDataSize()`), every bucket item dangles (`FindCoincidentPairs` then reads
+  freed memory). `SmHealData` only avoids it while incremental adds stay within the
+  `max(1.5 * 7n, 7n + 64)` slots reserved by the first `SetSize`. The Rust port stores
+  indices (the intended contents); the shim refuses such programs (`SC_ERR_ARG`) and the
+  generator skips them, so that path is not difftested.
+- **`FindCoincidentPairs` only compares against the bucket's first item.** `pBegPointItem`
+  / `rBegPoint` are bound once per bucket and never advanced, so two coincident items that
+  are both behind the bucket head are never paired (only head-vs-other pairs are found).
+  Also `rEndPoint` is a `SmPoint3d&`: `rEndPoint = pEndPointItem->m_sTgtPoint3d` copies each
+  end item's point into the item after the current begin item, so the stored points of the
+  model change during the search. Both kept faithfully (`geom::hash_table` module docs).
+- **Points below the voxel box snap to the top voxel.** `(ULONG)((x - min) / len)` is UB for
+  negative values; x86-64 g++ truncates signed (`-3.2` -> `2^64 - 3`), which the clamp then
+  maps to `cnt - 1` (the comment says the low end). NaN maps high, `+inf` / `>= 2^64` map to
+  `0`. The port emulates this conversion (`ulong_from_f64`).
+- **Growth after every item was removed zeroes the bucket items.** `SmHashTable::
+  IncMaxItemCount` copies the records only while `GetUsedBucketItemCount() > 0`; otherwise
+  they come back calloc-zeroed (bucket `0`, NULL item, id `0`), and a later `Remove` of such
+  an item "removes" it from bucket 0 (no-op walk, counters still incremented). Reproduced.
+- `SetSize` does not reset `m_lRemovedPointItemCount`; `SmHealData` passes the old *vertex*
+  count as `pOptLimitIndx`, which `FindCoincidentPairs` compares with point-item indices
+  (one vertex can own up to 7 point items). An empty `pOptBucketIndices` reads `GetAt(0)` of
+  an empty array (UB; Rust checks no bucket, the shim refuses it).
+- No `UNPORTED(geom.hash_table)` stubs existed to wire.
+
+## geom.object (partial; no disagreements)
+
+624 default cases (24 fixture, 600 generated) — 593 pass bit for bit, 31 deferred (every
+non-empty `SmShape`: topology.brep_p1, topology.face_p2, topology.edge, topology.vertex).
+Upstream behaviour worth knowing:
+
+- **`SmApiReadBrepFromFile` crashes on `pt_TestFiles/SmallBox.smb` read as ASCII**
+  (null `SmShellData` in `SmTopologyData::ReadFromDB`, `SmBrepData.cpp:4307`; depends on
+  heap layout, so it crashes in some runs only). The shape fixtures therefore build their
+  B-reps with `SmApiCreateBox`; the shim still supports file sources.
+- **Empty `SmShape`.** With no topology objects the constructor reports `SE_MSG` and runs
+  `new (*cpContext) SmTree(...)` through a NULL context reference (works in practice);
+  all three trees cover `(0,0,0)-(1,1,1)`. The port builds the same shape without the
+  message.
+- **"Been through new" handshake.** `SmObject()` leaves `m_cpContext` uninitialised when
+  the thread-local `s_sBeenThroughNew` flag is set by an `operator new(SmContext&)` whose
+  constructor never ran; the port has no per-object context, so nothing to reproduce.
+- `SmTemporaryChangeValue::UseOrigValue` / `UseTempValue` on a default-constructed,
+  never-`Set` guard dereference NULL; the port does nothing.
+
+## geom.local_solve_nd (green; no disagreements)
+
+3043 default cases (43 fixture, 3000 generated), bit-identical, 0 deferred; a 30,043-case
+run was also clean. Both sides solve the same test equation set (shim `ScTestENFO`, runner
+`TestEquations`) and the whole `Evaluate` trace (points, Jacobian requests, failures) is
+compared. Upstream behaviour worth knowing:
+
+- **A failed first `Evaluate` is reported as found**: `SolveIt` returns `SM_SUCCESS` with
+  `rbFoundSolution = TRUE` and `SM_TR_UNABLE_TO_CONVERGE`, the solution being the guess.
+  Kept as is.
+- **Uninitialised state.** `bFoundAnswer` is read after `Evaluate` even when an evaluator
+  never writes it (the header notes many do not), and `m_lCurrentIteration` is not set by
+  the constructor (early returns leave it untouched). The port returns "found" from
+  `evaluate` (`Ok(bool)`; a failed call leaves the flag unchanged) and starts the counter
+  at 0; the shim sets `m_lCurrentIteration = 0` and its evaluator writes `rbFoundAnswer`
+  only on success.
+- **Line-search break on a failed unclamped evaluation** keeps the previous `dNextSumF`
+  and makes the *unclamped* next guess the current point; when the scaled clamped step
+  wins, `sJacobian2` is discarded (the next iteration uses the unscaled point's Jacobian).
+  Ported faithfully.
+- **`SolveLinearSystem` statuses other than `SM_ERR`** (e.g. `SM_ERR_INVALID_INPUT` if an
+  evaluator resized the Jacobian) do not stop the iteration upstream and leave the step
+  stale; the port returns them as errors (unreachable with an `N x N` Jacobian).
+- **Periodic clamping cost.** `SmExtent1d::PeriodicWrap` steps one period at a time, so a
+  diverging Newton step (e.g. 1e8 with a period of 0.01) loops ~1e10 times in both
+  languages. The generator only uses periodic intervals of width >= 0.5 on well-posed
+  problems.
+- `m_dFoundAccuracy` is never written by `SolveIt` and `m_eLocalSolverType` is never read;
+  neither is ported. Wired `SmTol::GetScaledZero(const SmEvalNFunctionsObject&)` in
+  `geom::tol` (`scaled_zero_of_equations`).
+
+## geom.local_solve1d (green; no disagreements)
+
+3316 default cases (316 fixture + 3000 generated) agree bit for bit with upstream
+(`max_rel_err = 0`), comparing the full evaluation trace, outputs and solver state.
+Upstream behaviour worth knowing:
+
+- **Interval-less constructor is broken.** `SmLocalSolve1d(rFunctionEvaluator)` leaves
+  `m_vInterval` as `SmExtent1d()` (min `1e20`, max `-1e20`), yet `SolveIt` still limits
+  each Newton step to `GetLength() * 0.08 + SM_EFF_ZERO`, which is negative: every step
+  becomes `+-1.584e19` *against* the Newton direction. Ported as is (fixtures
+  `no_interval_*`); callers should always pass an interval.
+- **Uninitialised `bFoundAnswer`.** When the first evaluation in `SolveIt` fails and
+  there is no interval (no retry), the serendipity check reads `bFoundAnswer` as the
+  evaluator left it (uninitialised if it did not write it). The shim's test evaluators
+  always write it on failure; the port starts it `false`.
+- **Partial evaluator writes are observable.** `SolveOscillating` keeps scanning after a
+  failed evaluation and then reads `sTempIter.m_dFOfT`, i.e. whatever the failed
+  evaluation wrote (or the previous value). The Rust `EvalFunction::evaluate` therefore
+  keeps upstream's out-parameter shape and the solver keeps partial writes.
+- `SolveIt` ignores the `SolveByBisection` status after the Newton loop and leaves
+  `m_dLowerBracketT`/`m_dUpperBracketT` (and `m_dFoundAccuracy` on the Brent paths)
+  from the previous solve; the port keeps that state.
+- Not reached by any case (no difftest coverage, ported by inspection): the
+  bracket choices in `SolveOscillating` that pick the *current* iterate (the cycle phase
+  always puts the guess on the previous iterate's side in the constructed cycles), a
+  failing final evaluation in `SolveOscillating`, a failing `SolveByBrent` called
+  directly from the Newton loop, and `SolveByBrent`'s `u == x` early return.
+
+## geom.polar_box (green; no disagreements)
+
+All 3030 default cases (30 fixture programs plus 3000 generated programs of 4 to ~30
+commands on four box registers) agree bit for bit with upstream (`max_rel_err = 0`).
+Upstream behaviour worth knowing:
+
+- **`Union` reads an unset count.** When neither box is unbounded and the axis tests pass
+  (`|b0 + b0'|^2 >= SM_EFF_ZERO_SQ`, `b0 . b0' >= SM_EFF_ZERO`) but one box is
+  `SM_PS_UNINITIALIZED` (possible after `ReSet`, which keeps the stale basis),
+  `GetBoundaryVectors` returns `SM_ERR_INVALID_INPUT` without setting its count and
+  `Union` loops over that unset count (undefined behaviour). The Rust `union` /
+  `union_assign` return `InvalidInput` there; the shim detects the case and skips the call.
+- **`Union` aliasing.** `SmCompositeCurve.cpp:446` calls `p->Union(t, *p)`. The result
+  is `ReSet` and seeded with the mid vector before `this`'s corners are read, so the
+  original extent of `p` is dropped (only `t`'s corners and the mid vector remain).
+  Ported as `PolarBox::union_assign`.
+- **Region-to-arc relabel does not transpose.** In `AddVector3d`'s `SM_PS_REGION` case,
+  when the x range collapses below `SM_EFF_ZERO_SQRT` the basis is rotated
+  (`b1 <- b2`, `b2 <- -b1`) and the state becomes `SM_PS_ARC`, but the domain is re-set
+  to its own bounds (`SetMinMax(UMin, VMin, UMax, VMax)`), so the arc's span stays in y
+  while arc code reads x. Kept as is.
+- **`Cross`/`Union` keep stale fields.** On their early `SM_PS_UNBOUNDED` exits (and when
+  `Cross` adds nothing) the result box keeps its previous basis and domain. The port
+  returns a fresh box; the difftest compares upstream through a fresh temporary plus
+  `operator=`, which is what `PolarBox::assign` reproduces.
+
+## nlib.funcs_basic (green; no disagreements)
+
+Difftest: 3130 cases (130 fixture + 3000 generated), bit-identical (max_rel_err 0); a
+50,130-case run is also clean. Fixtures evaluate the control-point coordinates of the
+upstream `.smc` / `.sms` test files as scalar curve / surface functions, plus edge cases.
+
+- **Unchecked indices.** `N_CFuncSetSizeIndices` / `N_SFuncSetSizeIndices` and
+  `N_CrvFuncSetPtrs` trust the caller; indices past the storage make later reads go out of
+  bounds. The evaluators (`N_CFuncEval`, `N_CFuncDerivs`, `N_SrfFuncEvalPt`) read the value
+  *storage* at `spn-p..=spn` with `spn <= m-p-1` and never compare with `n` (so a value array
+  shorter than `m - p` entries is read past its end, while a larger storage is read beyond
+  the indices in use). The Rust port reads the storage as well (same results) and returns
+  `InvalidInput` instead of reading past it; the FFI wrapper refuses such inputs.
+- **`N_CFuncSizeArrays` / `N_SFuncSizeArrays` compare with the indices in use**, not the
+  storage: an existing function whose indices were shrunk cannot be regrown within its own
+  storage (`NL_STO_ERR`). Kept (note `nlib.srf_basic`'s `size_arrays` reallocates instead,
+  following `N_SrfSizeArrays`).
+- A function is "NULL" (`N_CrvAreFuncArraysNULL`) when any pointer is NULL **or** the degree
+  is `-1`; Rust uses `Option<CurveFunction>` / `Option<SurfaceFunction>`, so partly NULL
+  functions cannot be expressed. Storage upstream allocates with `malloc` is zero-filled.
+- No `UNPORTED(nlib.funcs_basic)` stubs existed to wire.
+
+## nlib.basis_adv (green; no disagreements)
+
+1744 default cases (244 fixture + 1500 generated) and a 100,244-case run (`--seeds 100000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Fixtures use the 33 knot vectors of
+the `nlib.basis_basic` fixtures (every `.smc`/`.sms` in `pt_TestFiles`, `smTopoTest.cpp`,
+SM_API_test rectangle/polygon layouts, doc examples) plus edge cases. Upstream behaviour
+worth knowing:
+
+- **`N_BasisDerivsArray` span walk.** Only `u[0]` and `u[n]` go through `N_BasisFindSpan`;
+  the spans of `u[1..n]` are found by walking forward from the span of `u[0]` (the
+  `NL_LEFT` case falls through into the `NL_RIGHT` loop, which is then a no-op). The walk
+  has no bound: with `NL_LEFT` an inner parameter equal to the domain end `U[m-p]` of a
+  clamped vector walks past `U[m]` (out-of-bounds read), and any inner parameter past the
+  end does the same with either flag. Unsorted parameters are not rejected (spans only
+  move forward). Rust returns `InvalidInput` for out-of-range reads; the ffi wrapper
+  requires inner parameters `< U[m-p]` (left) / `<= U[m-p]` (right). Unlike
+  `N_BasisDerivs`, there is no `1e-24` zero-denominator guard: zero knot differences give
+  inf/NaN, as upstream. The `int` factor `p!/(p-k)!` overflows as in `N_BasisDerivs`
+  (Rust `InvalidInput`, ffi rejects).
+- **`N_BasisInsertKnots` reads `X[mx+1]`** after inserting the last new knot (the second
+  comparison in the merge step). The value never changes the output, so Rust skips the
+  comparison; the shim pads `X` by one slot. An empty `X` reads `X[-1]` (Rust
+  `InvalidInput`). NaN knots make the merge loop forever (Rust `InvalidInput`).
+- **`N_BasisIncreaseKnotMult`** fails with `NL_KNT_ERR` (4) when any inner knot would
+  exceed multiplicity `p`; new knots of earlier spans are dropped (index not set).
+- **`N_GetCompatibleKnotArrayMult`** has the same structure as `N_MakeKnotsCompatible`
+  (same degree for both vectors, multiplicities merged to the maximum) and the same
+  out-of-bounds reads past `U[m]` on unusual inputs and endless loop on NaN knots. The
+  shim pads with `+inf`; the generator keeps to clamped vectors of degree >= 1.
+- No `UNPORTED(nlib.basis_adv)` stubs existed to wire.
+
 ## geom.geom_utility_p1 (green; no disagreements)
 
 4185 default cases (185 fixture + 4000 generated) agree bit for bit with upstream
-(`max_rel_err = 0`); `--perturb` catches all of them. Wiring `AreCoaxial` to the port made
-`geom.axis2_placement` green (4048 cases, 0 deferred). Upstream behaviour worth knowing:
+(`max_rel_err = 0`); `--perturb` catches all of them. Wiring the back-edges made
+`geom.axis2_placement` (`AreCoaxial`; 4048 cases) and `geom.geom_utility_p2` (its private
+stubs became calls into `p1`; 3270 cases) green with 0 deferred. `p2::PointSetType` is now a
+re-export of `p1::PointSetType`. Upstream behaviour worth knowing:
 
 - **Testing file-static helpers.** `sm_AddPoint` and `sm_AddClosestPoint` are `static` in
   `SmGeomUtility.cpp`. `harness/cpp/shim/geom_geom_utility_p1_static.cpp` compiles the

@@ -1247,21 +1247,22 @@ pub fn vec_lin_comb_two_vectors(basis1: Vec3, basis2: Vec3, vector: Vec3) -> Res
 
 // ---- best fit ------------------------------------------------------------------------
 
-/// Classification of a point set (`SmPointSetType`).
+/// Classification of a point set (`SmPointSetType`); discriminants are the upstream
+/// values.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PointSetType {
     /// `SM_PST_UNKNOWN`.
-    Unknown,
+    Unknown = 0,
     /// `SM_PST_VOID`: empty point set.
-    Void,
+    Void = 1,
     /// `SM_PST_POINTSIZED`: all points within tolerance of the centroid.
-    PointSized,
+    PointSized = 2,
     /// `SM_PST_LINEAR`: all points within tolerance of a line through the centroid.
-    Linear,
+    Linear = 3,
     /// `SM_PST_PLANAR`: all points within tolerance of a plane through the centroid.
-    Planar,
+    Planar = 4,
     /// `SM_PST_SCATTERED`: none of the above.
-    Scattered,
+    Scattered = 5,
 }
 
 impl PointSetType {
