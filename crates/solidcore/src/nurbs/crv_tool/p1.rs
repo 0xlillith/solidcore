@@ -42,9 +42,6 @@
 //! - `N_CrvRemoveKnot` returns its error flag after finishing the removal when the last
 //!   `N_BasisFindGlobalMax` it called failed (it then assumes a maximum of `1`); the
 //!   Rust method returns only that error then, not the curve.
-//! - `N_CrvRemoveKnot` on a rational curve calls `N_CrvGetMinMaxWeightsAndPts` (unit
-//!   `nlib.crv_nurb`), which is not ported yet: [`Curve::remove_knot`] returns
-//!   [`SolidError::Unported`] for rational curves until it is.
 
 // Index arithmetic follows upstream's signed `NL_INDEX` (`isize` here); every access
 // goes through `get`/`set`, which reject negative or too-large indices.
@@ -61,15 +58,6 @@ use crate::nurbs::srf_basic::{WEIGHT_MAX, WEIGHT_MIN};
 /// Upstream `cto`: relative parameter tolerance of the basis maxima searched by
 /// [`Curve::remove_knot`] (scaled by the parameter range).
 pub const REMOVAL_PARAM_TOL: f64 = 1.0e-05;
-
-const OP_INSERT: &str = "nurbs::crv_tool::p1::Curve::insert_knot";
-const OP_SPLIT: &str = "nurbs::crv_tool::p1::Curve::split";
-const OP_DECOMPOSE: &str = "nurbs::crv_tool::p1::Curve::decompose_bez";
-const OP_REFINE: &str = "nurbs::crv_tool::p1::Curve::refine";
-const OP_EXTRACT: &str = "nurbs::crv_tool::p1::Curve::extract_seg";
-const OP_REMOVE: &str = "nurbs::crv_tool::p1::Curve::remove_knot";
-const OP_REMOVE_ERR: &str = "nurbs::crv_tool::p1::Curve::remove_knot_max_err";
-const OP_ELEVATE: &str = "nurbs::crv_tool::p1::Curve::elevate_degree";
 
 fn nlib(operation: &'static str, code: NlibCode) -> SolidError {
     SolidError::Nlib { operation, code }
@@ -143,7 +131,7 @@ impl Curve {
     /// Errors with [`NlibCode::Parameter`] when `u` is on or outside the ends of the
     /// knot vector or when the multiplicity of `u` plus `r` exceeds the degree.
     pub fn insert_knot(&self, u: f64, r: usize) -> Result<Curve> {
-        const OP: &str = OP_INSERT;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::insert_knot";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -220,7 +208,7 @@ impl Curve {
     /// Errors with [`NlibCode::Parameter`] when (the adjusted) `u` is on or outside the
     /// ends of the knot vector.
     pub fn split(&self, u: f64) -> Result<(Curve, Curve)> {
-        const OP: &str = OP_SPLIT;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::split";
         let pw = self.cpts();
         let uk = self.knots();
         let pu = self.degree();
@@ -310,7 +298,7 @@ impl Curve {
     /// Errors with `InvalidInput` for a curve without a non-zero-length span or with
     /// a malformed (e.g. unclamped) knot vector.
     pub fn decompose_bez(&self) -> Result<Vec<Curve>> {
-        const OP: &str = OP_DECOMPOSE;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::decompose_bez";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -445,7 +433,7 @@ impl Curve {
     /// [`NlibCode::Parameter`] when `x[0]` or its last knot is on or outside the ends
     /// of the knot vector.
     pub fn refine(&self, x: &[f64]) -> Result<Curve> {
-        const OP: &str = OP_REFINE;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::refine";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -532,7 +520,7 @@ impl Curve {
     /// Errors with [`NlibCode::Input`] when `ur <= ul`; `InvalidInput` for parameters
     /// outside the knot range where upstream would index outside its arrays.
     pub fn extract_seg(&self, ul: f64, ur: f64) -> Result<Curve> {
-        const OP: &str = OP_EXTRACT;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::extract_seg";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -627,10 +615,9 @@ impl Curve {
     ///
     /// Errors with [`NlibCode::Parameter`] when `u` is on or outside the ends of the
     /// knot vector, with the error of `N_BasisFindGlobalMax` when its last call failed
-    /// (see the module deviations), and with [`SolidError::Unported`] for a rational
-    /// curve (until unit `nlib.crv_nurb` is ported).
+    /// (see the module deviations).
     pub fn remove_knot(&self, u: f64, nu: usize, tol: f64) -> Result<KnotRemoval> {
-        const OP: &str = OP_REMOVE;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::remove_knot";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -641,13 +628,12 @@ impl Curve {
         let rational = self.is_rational();
 
         // Adjust removal tolerance in case of rational curves.
-        if rational {
-            // UNPORTED(nlib.crv_nurb): N_CrvGetMinMaxWeightsAndPts
-            return Err(SolidError::Unported {
-                upstream: "N_CrvGetMinMaxWeightsAndPts",
-                unit: "nlib.crv_nurb",
-            });
-        }
+        let tol = if rational {
+            let mm = self.min_max_weights_and_pts();
+            (tol * mm.wmin) / (1.0 + mm.pmax)
+        } else {
+            tol
+        };
 
         let lto = REMOVAL_PARAM_TOL * (get(up, m, OP)? - get(up, 0, OP)?).abs();
 
@@ -824,7 +810,7 @@ impl Curve {
     /// once (`N_CrvRemoveKnotMaxErr`). The index and multiplicity are not checked, as
     /// upstream, except that indices outside the arrays are `InvalidInput`.
     pub fn remove_knot_max_err(&self, r: usize, s: usize) -> Result<f64> {
-        const OP: &str = OP_REMOVE_ERR;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::remove_knot_max_err";
         let pw = self.cpts();
         let uk = self.knots();
         let p = sx(self.degree(), OP)?;
@@ -880,7 +866,7 @@ impl Curve {
     /// [`NlibCode::Knot`] for an invalid knot vector ([`KnotVector::validate`]), and
     /// with the errors of the Bezier elevation.
     pub fn elevate_degree(&self, t: usize) -> Result<Curve> {
-        const OP: &str = OP_ELEVATE;
+        const OP: &str = "nurbs::crv_tool::p1::Curve::elevate_degree";
         let pw = self.cpts();
         let up = self.knots();
         let pu = self.degree();
@@ -1152,15 +1138,15 @@ mod tests {
     }
 
     #[test]
-    fn remove_knot_rational_is_unported() {
+    fn remove_knot_rational_unit_weights() {
+        let plain = cubic();
         let mut c = cubic();
         for p in c.cpts_mut() {
             p.w = 1.0;
         }
-        assert!(matches!(
-            c.remove_knot(0.5, 1, 1.0),
-            Err(SolidError::Unported { .. })
-        ));
+        // Unit weights: the tolerance is unchanged (wmin = 1, pmax = 0).
+        let r = c.remove_knot(0.5, 1, 1.0).unwrap();
+        assert_eq!(r.removed, plain.remove_knot(0.5, 1, 1.0).unwrap().removed);
     }
 
     #[test]
