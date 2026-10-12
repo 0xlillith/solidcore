@@ -23,6 +23,7 @@ pub mod object;
 pub mod periodic_extent1d;
 pub mod polar_box;
 pub mod polynomial;
+pub mod pseudo_box;
 pub mod solution_array;
 pub mod tol;
 pub mod tree;
