@@ -16,6 +16,7 @@ pub mod funcs_adv;
 pub mod funcs_basic;
 pub mod geom;
 pub mod iges;
+pub(crate) mod index;
 pub mod knots;
 pub mod math;
 pub mod srf_basic;
