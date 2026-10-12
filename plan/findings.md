@@ -219,7 +219,7 @@ agents:
   private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
   `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
 
-## geom.periodic_extent1d
+## geom.periodic_extent1d (green; no disagreements)
 
 Green, 4054 difftest cases, all bit-identical. Upstream quirks ported as is (not bugs in
 the port):
