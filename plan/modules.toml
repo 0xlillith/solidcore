@@ -270,10 +270,10 @@ depends_on = ["geom.extent3d", "geom.tol", "geom.vector3d"]
 est_lines = 593
 layer = 3
 tests = ["prog_test:my_test_closed_sphere_properties", "prog_test:my_test_squeeze_edge_tracks_removal", "prog_test:my_test_missing_poles_refreshes_all_faces", "SM_API_test:TestSmHealBrep", "SM_API_test:TestSmHeal", "prog_test:my_test_MakeFace", "pt_TestFiles/MakeFace/ApproximateSphere.smp"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.hash_table-a1"
 claimed_at = "2026-10-12T20:00:27Z"
-notes = "12 fns; largest: SmObjsInVoxels::Add, SmObjsInVoxels::FindCoincidentPairs, SmObjsInVoxels::IncMaxItemCount, SmObjsInVoxels::MapPointToVoxel; unit-SCC #22 (220 units); 59 upstream test entry points reach this unit"
+notes = "GREEN: difftest 619 cases (19 fixture incl. SmHealData::Cache_CoinVertices replays on Points.pts/FitCrvPoints.pts/PointSet + 600 generated), 0 deferred, bit-identical; a 10,019-case run was also clean; upstream IncMaxItemCount use-after-free and FindCoincidentPairs head-only/aliasing quirks in findings.md. 12 fns; largest: SmObjsInVoxels::Add, SmObjsInVoxels::FindCoincidentPairs, SmObjsInVoxels::IncMaxItemCount, SmObjsInVoxels::MapPointToVoxel; unit-SCC #22 (220 units); 59 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.local_solve1d"
@@ -283,10 +283,10 @@ depends_on = ["geom.extent1d", "geom.tol"]
 est_lines = 1294
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.local_solve1d-a1"
 claimed_at = "2026-10-12T20:02:32Z"
-notes = "12 fns; largest: SmLocalSolve1d::SolveIt, SmLocalSolve1d::SolveOscillating, SmLocalSolve1d::SolveByBrent, SmLocalSolve1d::SolveByBisection; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "12 fns; largest: SmLocalSolve1d::SolveIt, SmLocalSolve1d::SolveOscillating, SmLocalSolve1d::SolveByBrent, SmLocalSolve1d::SolveByBisection; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; difftest: 3316 cases (316 fixture + 3000 generated), bit-identical, 0 deferred"
 
 [[unit]]
 id = "geom.local_solve_nd"
@@ -296,10 +296,10 @@ depends_on = ["geom.matrix"]
 est_lines = 860
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.local_solve_nd-a1"
 claimed_at = "2026-10-12T19:58:04Z"
-notes = "15 fns; largest: SmLocalSolveNd::SolveIt, SmEvalNFunctionsObject::ComputeJacobian, SmLocalSolveNd::SmLocalSolveNd, SmEvalNFunctionsObject::Evaluate; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "15 fns; largest: SmLocalSolveNd::SolveIt, SmEvalNFunctionsObject::ComputeJacobian, SmLocalSolveNd::SmLocalSolveNd, SmEvalNFunctionsObject::Evaluate; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; GREEN: difftest 3043 cases (43 fixture + 3000 generated), 0 deferred, max_rel_err 0 (bit-identical, full Evaluate trace compared); 30k-seed run clean; back-edges into geom.extent1d resolved by its merge; wired SmTol::GetScaledZero(SmEvalNFunctionsObject) in geom.tol"
 
 [[unit]]
 id = "geom.object"
@@ -309,10 +309,10 @@ depends_on = ["geom.attribute", "geom.context", "geom.extent3d", "geom.tree"]
 est_lines = 673
 layer = 3
 tests = ["prog_test:my_test_polynomial", "SM_API_test:TestSmPrincipalDirectionPairing", "prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-geom.object-a1"
 claimed_at = "2026-10-12T20:05:41Z"
-notes = "38 fns; largest: SmShape::SmShape, SmObject::Notify, SmThreadLocalStorage::SetBeenThroughNew, SmThreadLocalStorage::GetBeenThroughNew; cycle back-edges (call into later units; stub or co-port): query.poly(24), topology.proto_topology_p1(20), blend.fillet_solver_p1(16), blend.fillet_standard_solver_p1(12), blend.fillet_geom_p1(10), query.brep(7), blend.fillet_custom_solver(6), blend.fillet_executive_p1(6), geom.a_object(6), geom.grid(6), intersect.point_class(6), intersect.ray_tracer(6), query.tess(6), topology.edge(5), topology.topology(5), curve.composite_curve_p1(4), surface.cone_p1(4), topology.brep_p1(4), topology.loopuse(4), topology.shell(4), curve.curve_p2(3), surface.surface_p1(3), surface.surface_p2(3), topology.vertex(3), blend.fillet_corner_p1(2), boolean.merge_p1(2), boolean.topology_intersector_p1(2), curve.conic(2), curve.crv_in_volume(2), curve.crv_on_surf(2), curve.curve_cache(2), curve.ellipse_p1(2), curve.ellipse_p2(2), curve.hermite_curve(2), curve.hyperbola(2), curve.iso_curve(2), curve.line(2), curve.offset_curve(2), curve.parabola(2), curve.projected_curve(2), curve.tangent_field(2), geom.solution_array(2), geom.transform(2), intersect.curve_class_p1(2), nurbs.b_spline_curve_p1(2), nurbs.b_spline_surface_p1(2), surface.b_spline_volume(2), surface.bend_volume(2), surface.curve_bounded_surface(2), surface.offset_surface(2), surface.plane_p1(2), surface.sphere(2), surface.srf_in_volume(2), surface.surf_of_extrusion_p1(2), surface.surf_of_revolution_p1(2), surface.surface_cache_p1(2), surface.surface_cache_p2(2), surface.torus(2), surface.trim_srf_cache(2), surface.twist_volume(2), surface.unbend_volume(2), surface.volume_p1(2), sweep.topology_sweep(2), topology.brep_cache(2), topology.brep_data(2), topology.brep_p4(2), topology.edgeuse_p1(2), topology.edgeuse_p2(2), topology.face_p1(2), topology.face_p4(2), topology.vertexuse(2), curve.curve_p6(1), query.edge(1), query.face_p1(1), topology.face_p2(1); unit-SCC #22 (220 units); hazards: thread_local; 321 upstream test entry points reach this unit"
+notes = "difftest: 624 cases (24 fixture + 600 generated), 593 pass bit-identical, 31 deferred (topology.face_p2 11, topology.brep_p1 10, topology.vertex 6, topology.edge 4: every non-empty SmShape); NotifyCallback::execute added to geom.context (stays green); UNPORTED(geom.object) note in geom.tol retagged to topology.topology (SmTol object overloads need topology/curve/surface object types). 38 fns; largest: SmShape::SmShape, SmObject::Notify, SmThreadLocalStorage::SetBeenThroughNew, SmThreadLocalStorage::GetBeenThroughNew; cycle back-edges (call into later units; stub or co-port): query.poly(24), topology.proto_topology_p1(20), blend.fillet_solver_p1(16), blend.fillet_standard_solver_p1(12), blend.fillet_geom_p1(10), query.brep(7), blend.fillet_custom_solver(6), blend.fillet_executive_p1(6), geom.a_object(6), geom.grid(6), intersect.point_class(6), intersect.ray_tracer(6), query.tess(6), topology.edge(5), topology.topology(5), curve.composite_curve_p1(4), surface.cone_p1(4), topology.brep_p1(4), topology.loopuse(4), topology.shell(4), curve.curve_p2(3), surface.surface_p1(3), surface.surface_p2(3), topology.vertex(3), blend.fillet_corner_p1(2), boolean.merge_p1(2), boolean.topology_intersector_p1(2), curve.conic(2), curve.crv_in_volume(2), curve.crv_on_surf(2), curve.curve_cache(2), curve.ellipse_p1(2), curve.ellipse_p2(2), curve.hermite_curve(2), curve.hyperbola(2), curve.iso_curve(2), curve.line(2), curve.offset_curve(2), curve.parabola(2), curve.projected_curve(2), curve.tangent_field(2), geom.solution_array(2), geom.transform(2), intersect.curve_class_p1(2), nurbs.b_spline_curve_p1(2), nurbs.b_spline_surface_p1(2), surface.b_spline_volume(2), surface.bend_volume(2), surface.curve_bounded_surface(2), surface.offset_surface(2), surface.plane_p1(2), surface.sphere(2), surface.srf_in_volume(2), surface.surf_of_extrusion_p1(2), surface.surf_of_revolution_p1(2), surface.surface_cache_p1(2), surface.surface_cache_p2(2), surface.torus(2), surface.trim_srf_cache(2), surface.twist_volume(2), surface.unbend_volume(2), surface.volume_p1(2), sweep.topology_sweep(2), topology.brep_cache(2), topology.brep_data(2), topology.brep_p4(2), topology.edgeuse_p1(2), topology.edgeuse_p2(2), topology.face_p1(2), topology.face_p4(2), topology.vertexuse(2), curve.curve_p6(1), query.edge(1), query.face_p1(1), topology.face_p2(1); unit-SCC #22 (220 units); hazards: thread_local; 321 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.polynomial"
@@ -348,10 +348,10 @@ depends_on = ["nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1154
 layer = 3
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.bezier-a1"
 claimed_at = "2026-10-12T20:13:10Z"
-notes = "16 fns; largest: N_BezCrvExtend, N_BezSrfExtend4D, N_BezReduceDegree, N_BezGetDegreeElevationMatrix; 317 upstream test entry points reach this unit"
+notes = "16 fns; difftest 2223 cases (223 fixture: SM_API_test rectangle/polygon segments, FitCrvPoints.pts, Points.pts, Surface.sms, edge cases + 2000 generated), 0 deferred, max_rel_err 0 (bit-identical; a 50,223-case run was also clean); upstream quirks in findings.md"
 
 [[unit]]
 id = "nlib.funcs_basic"
@@ -387,9 +387,9 @@ depends_on = ["geom.extent3d", "geom.object", "geom.tree", "geom.vector3d"]
 est_lines = 876
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.grid-a1"
+claimed_at = "2026-10-12T20:21:29Z"
 notes = "23 fns; largest: SmGrid::Setup3DDDA, SmGrid::Step3DDDA, SmSurfaceHierarchyElement::ExpandHierarchy, SmGrid::AddElement; cycle back-edges (call into later units; stub or co-port): geom.extent2d(2), surface.surface_cache_p1(2), surface.surface_p2(2), geom.polar_box(1), geom.pseudo_box(1), surface.surface_cache_p3(1), surface.surface_p7(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -400,10 +400,10 @@ depends_on = ["geom.extent2d", "geom.tol", "geom.vector2d", "geom.vector3d"]
 est_lines = 979
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-geom.polar_box-a1"
 claimed_at = "2026-10-12T20:15:15Z"
-notes = "19 fns; largest: SmPolarBox::AddVector3d, SmPolarBox::AreDisjoint, SmPolarBox::ComputePolarCoord, SmPolarBox::EvaluateNormalized; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "green: 3030 difftest cases (30 fixture programs + 3000 generated), bit-identical, 0 deferred; 19 fns; largest: SmPolarBox::AddVector3d, SmPolarBox::AreDisjoint, SmPolarBox::ComputePolarCoord, SmPolarBox::EvaluateNormalized; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.solution_array"
@@ -413,9 +413,9 @@ depends_on = ["geom.extent3d", "geom.object", "geom.tol", "geom.vector2d"]
 est_lines = 1319
 layer = 4
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-geom.solution_array-a1"
+claimed_at = "2026-10-12T20:24:32Z"
 notes = "42 fns; largest: SmSolution::ClassifySolutionEnd, SmSolutionArray::AddSortedSolution, SmSolution::GetPoint, SmSolution::Dump; cycle back-edges (call into later units; stub or co-port): geom.extent1d(4), geom.vector3d(4), curve.curve_p2(2), geom.extent2d(2), surface.surface_p2(2), topology.edge(2), topology.face_p2(2), query.poly(1), surface.volume_p1(1), topology.vertex(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]

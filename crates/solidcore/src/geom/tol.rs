@@ -16,6 +16,8 @@
 //! | [`SmallTopoType`]                      | `SmSmallTopoType`                              |
 //! | [`size_estimate_to_zone_tol_3d`]       | `SmTol::SizeEstimateToZoneTol3d`               |
 //! | [`in_tol`]                             | `SmTol::InTol(double, const SmTol3d&)`         |
+//! | [`is_zero`], [`is_zero_squared`], [`is_zero_to_tol`] | `SM_IS_ZERO`, `SM_IS_ZERO_SQUARED`, `SM_IS_ZERO_TO_TOL` (`SmMath.h`) |
+//! | [`are_same`], [`are_same_to_tol`]      | `SM_ARE_SAME`, `SM_ARE_SAME_TO_TOL` (`SmMath.h`) |
 //! | [`calc_face_zone_tol_3d`]              | `SmTol::CalcFaceZoneTol3d(const SmContext*)`   |
 //! | [`calc_edge_zone_tol_3d`]              | `SmTol::CalcEdgeZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)` |
 //! | [`calc_vertex_zone_tol_3d`]            | `SmTol::CalcVertexZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)` |
@@ -38,6 +40,7 @@
 //! | [`context_xsect_tol_3d`]               | `SmTol::GetXSectTol3d(const SmContext*, SmSmallTopoType)` |
 //! | [`scaled_zero`], [`scaled_zero_sq`], [`scaled_zero_sqrt`] | `SmTol::GetScaledZero()`, `GetScaledZeroSq()`, `GetScaledZeroSqrt()` |
 //! | [`ScaledZero`] (`f64`, [`Vec2`], [`Vec3`], [`Extent1d`], `Extent2d`, [`Extent3d`]) | `SmTol::GetScaledZero(const double)`, `(const SmVector2d&)`, `(const SmVector3d&)`, `(const SmExtent1d&)`, `(const SmExtent2d&)` (impl in `geom::extent2d`), `(const SmExtent3d&)` |
+//! | [`scaled_zero_of_equations`]           | `SmTol::GetScaledZero(const SmEvalNFunctionsObject&)` |
 //! | [`map_to_1d`]                          | `SmTol::MapTo1d(SmTol3d&, SmVector3d&, const SmExtent1d&)` |
 //! | [`scaled_zero_sq_of`], [`scaled_zero_sqrt_of`] | unary `GetScaledZeroSq<cA>`, `GetScaledZeroSqrt<cA>` |
 //! | [`scaled_zero2`], [`scaled_zero_sq2`], [`scaled_zero_sqrt2`] | binary `GetScaledZero<cA,cB>`, `...Sq`, `...Sqrt` |
@@ -93,10 +96,13 @@ use crate::error::{Result, SolidError};
 use crate::geom::context::Context;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
+use crate::geom::local_solve_nd::EvalNFunctions;
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt as sm_sqrt;
 use crate::kernel::{Kernel, Tolerances};
-use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::math::{
+    max2, max3, max4, Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI,
+};
 
 // UNPORTED(topology.brep_p1): SmTol::GetModelSizeEstimate(const SmBrep&),
 // SmTol::SetModelSizeEstimate(SmBrep&, double), SmTol::GetZoneTol3d(const SmBrep*),
@@ -104,11 +110,14 @@ use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF
 // SmTol::CalcEdgeZoneTol3d(.., SmBrep*, ..), SmTol::CalcVertexZoneTol3d(.., SmBrep*, ..)
 // need SmBrep::GetTolerance / SmBrep::SetThisModelSizeEstimate; and
 // SmTol::GetScaledZero(const SmBrep&) needs SmBrep::CalculateBoundingBox.
-// UNPORTED(geom.object): SmTol::GetZoneTol3d(const SmObject*), SmTol::GetZoneTol3d(const
+// UNPORTED(topology.topology): SmTol::GetZoneTol3d(const SmObject*), SmTol::GetZoneTol3d(const
 // SmBrepData*), SmTol::GetApproxTol3d(const SmObject*), SmTol::GetXSectTol3d(const
 // SmObject*, const SmObject*, ..), SmTol::GetZoneTol3d_ForXSectResult(const SmObject*,
 // const SmObject*), SmTol::IsDegenerate(const SmObject*), SmTol::IsClosed(const
-// SmObject*), SmTol::GetScaledZero(const SmObject&) dispatch on SmObject::IsKindOf.
+// SmObject*), SmTol::GetScaledZero(const SmObject&) dispatch on IsKindOf over
+// SmTopology (GetTolerance), SmSurface/SmCurve (GetFace/GetEdge), SmBrep, SmBrepData
+// and SmCurveClassification; geom.object (SmObject::IsKindOf) is ported, but those
+// classes have no Rust object type yet.
 // UNPORTED(curve.curve_p2): SmTol::IsDegenerate(const SmCurve*, SmExtent1d, ..),
 // SmTol::MapTo1d(SmTol3d&, double, const SmCurve&), SmTol::MapTo2d(.., double, const
 // SmCurve&, const SmSurface&) and SmTol::GetScaledZero(const SmCurve&) need
@@ -118,7 +127,6 @@ use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF
 // SmSurface::Evaluate1stDerivatives / GetNaturalUVDomain / ApproximateSize.
 // UNPORTED(geom.pseudo_box): SmTol::GetScaledZero(const SmPseudoBox&) needs SmPseudoBox.
 // UNPORTED(surface.volume_p1): SmTol::GetScaledZero(const SmVolume&) needs SmVolume.
-// UNPORTED(geom.local_solve_nd): SmTol::GetScaledZero(const SmEvalNFunctionsObject&).
 // UNPORTED(intersect.curve_class_p1): SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of
 // SmCurveClassification / SmCurveInterval and SmTol::GetScaledZero(const
 // SmCurveInterval&) need the classification classes.
@@ -255,37 +263,6 @@ impl SmallTopoType {
     const fn is_small(self) -> bool {
         matches!(self, Self::SmallSize | Self::ForceSmallSize)
     }
-}
-
-// ---- co-ported helpers -----------------------------------------------------------
-
-/// `smos_Max(a, b)`: `a > b ? a : b`.
-fn smax(a: f64, b: f64) -> f64 {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
-/// `smos_3Max(a, b, c)`.
-fn smax3(a: f64, b: f64, c: f64) -> f64 {
-    if a > b {
-        if a > c {
-            a
-        } else {
-            c
-        }
-    } else if b > c {
-        b
-    } else {
-        c
-    }
-}
-
-/// `smos_4Max(a, b, c, d)` = `smos_Max(smos_Max(a, b), smos_Max(c, d))`.
-fn smax4(a: f64, b: f64, c: f64, d: f64) -> f64 {
-    smax(smax(a, b), smax(c, d))
 }
 
 // ---- model size and system tolerances ----------------------------------------------
@@ -506,8 +483,8 @@ fn calc_gap_zone_tol(
     let def = context_zone_tol_3d(k, ctx, SmallTopoType::NormalSize);
     let gain = gap_gain(k);
     let r = match max_up {
-        Some(up) => smax4(def, up, gain * gap_1d / 2.0, gain * gap_2d - def),
-        None => smax3(def, gain * gap_1d / 2.0, gain * gap_2d - def),
+        Some(up) => max4(def, up, gain * gap_1d / 2.0, gain * gap_2d - def),
+        None => max3(def, gain * gap_1d / 2.0, gain * gap_2d - def),
     };
     zone_tol3d(k, r)
 }
@@ -518,6 +495,37 @@ fn calc_gap_zone_tol(
 #[must_use]
 pub fn in_tol(val: f64, tol: f64) -> bool {
     val.abs() <= tol
+}
+
+/// `SM_IS_ZERO(a)`: `|a| <=` [`scaled_zero`] (`SmMath.h`).
+#[must_use]
+pub fn is_zero(a: f64) -> bool {
+    in_tol(a, scaled_zero())
+}
+
+/// `SM_IS_ZERO_SQUARED(a)`: `|a| <=` [`scaled_zero_sq`] (`SmMath.h`).
+#[must_use]
+pub fn is_zero_squared(a: f64) -> bool {
+    in_tol(a, scaled_zero_sq())
+}
+
+/// `SM_IS_ZERO_TO_TOL(a, tol)`: `|a| <= |tol|` (`SmMath.h`).
+#[must_use]
+pub fn is_zero_to_tol(a: f64, tol: f64) -> bool {
+    in_tol(a, tol3d(tol))
+}
+
+/// `SM_ARE_SAME(a, b)`: `|a - b| <=` the larger scaled zero of `a` and `b`
+/// (`SmMath.h`).
+#[must_use]
+pub fn are_same(a: f64, b: f64) -> bool {
+    in_tol(a - b, scaled_zero2(&a, &b))
+}
+
+/// `SM_ARE_SAME_TO_TOL(a, b, tol)`: `|a - b| <= |tol|` (`SmMath.h`).
+#[must_use]
+pub fn are_same_to_tol(a: f64, b: f64, tol: f64) -> bool {
+    in_tol(a - b, tol3d(tol))
 }
 
 /// True when `speed` is zero relative to the size `max_pos_dimension`:
@@ -644,8 +652,15 @@ impl ScaledZero for Extent3d {
     /// `SmTol::GetScaledZero(const SmExtent3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`
     /// over both corners.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + smax(self.min().max_dimension(), self.max().max_dimension())))
+        tol3d(EFF_ZERO * (1.0 + max2(self.min().max_dimension(), self.max().max_dimension())))
     }
+}
+
+/// `SmTol::GetScaledZero(const SmEvalNFunctionsObject&)`: the equation set's own
+/// scaled zero ([`EvalNFunctions::scaled_zero`]) as a tolerance (`fabs`).
+#[must_use]
+pub fn scaled_zero_of_equations<E: EvalNFunctions + ?Sized>(equations: &E) -> f64 {
+    tol3d(equations.scaled_zero())
 }
 
 /// Square of the scaled zero of `a` (unary `SmTol::GetScaledZeroSq<cA>`).
@@ -664,7 +679,7 @@ pub fn scaled_zero_sqrt_of<A: ScaledZero + ?Sized>(a: &A) -> f64 {
 /// Largest scaled zero of two values (binary `SmTol::GetScaledZero<cA, cB>`).
 #[must_use]
 pub fn scaled_zero2<A: ScaledZero + ?Sized, B: ScaledZero + ?Sized>(a: &A, b: &B) -> f64 {
-    smax(a.scaled_zero(), b.scaled_zero())
+    max2(a.scaled_zero(), b.scaled_zero())
 }
 
 /// Square of [`scaled_zero2`] (binary `SmTol::GetScaledZeroSq<cA, cB>`).
@@ -688,7 +703,7 @@ where
     B: ScaledZero + ?Sized,
     C: ScaledZero + ?Sized,
 {
-    smax3(a.scaled_zero(), b.scaled_zero(), c.scaled_zero())
+    max3(a.scaled_zero(), b.scaled_zero(), c.scaled_zero())
 }
 
 /// Square of [`scaled_zero3`] (tertiary `SmTol::GetScaledZeroSq`).
@@ -723,7 +738,7 @@ where
     C: ScaledZero + ?Sized,
     D: ScaledZero + ?Sized,
 {
-    smax4(
+    max4(
         a.scaled_zero(),
         b.scaled_zero(),
         c.scaled_zero(),
