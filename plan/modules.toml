@@ -426,10 +426,10 @@ depends_on = ["nlib.funcs_basic", "nlib.geom", "nlib.math", "nlib.srf_basic"]
 est_lines = 1542
 layer = 4
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "partial"
+status = "green"
 claimed_by = "swarm-nlib.crv_basic-a1"
 claimed_at = "2026-10-12T20:31:32Z"
-notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; PARTIAL: difftest 3417 cases (417 fixture + 3000 generated), 3139 pass bit-identical (max_rel_err 0), 278 deferred (all N_CrvsAreCoincident -> N_CrvsMakeCompatible, nlib.crv_tool_p2); no UNPORTED(nlib.crv_basic) stubs to wire"
+notes = "46 fns; largest: N_CrvIsPlanar, N_CrossBoundDerivCrvNonRatSrf, N_CrvsAreCombatible, N_CrvIsLine; cycle back-edges (call into later units; stub or co-port): nlib.crv_tool_p2(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit; difftest 3417 cases (417 fixture + 3000 generated), 3417 pass bit-identical, 0 deferred (promoted when nlib.crv_tool_p2 wired N_CrvsMakeCompatible); no UNPORTED(nlib.crv_basic) stubs to wire"
 
 [[unit]]
 id = "geom.global_solver"
@@ -559,7 +559,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "partial"
 claimed_by = "swarm-geom.a_object-a1"
 claimed_at = "2026-10-12T20:54:39Z"
-notes = "PARTIAL: difftest 2040 cases (8 upstream-derived + 32 edge-case fixtures + 2000 generated: types, NLI helpers, notify/attribute/cache scripts), 1871 pass bit-identical, 169 deferred (topology.brep_cache 131: new SmBrepCache; topology.shell 37: SmRegion::IsVoid in SM_NO_REG_PROPAGATION; topology.topology 1: SmSAGObject::Notify); 50k-seed run clean; no UNPORTED(geom.a_object) stubs to wire (attribute-list methods stay co-ported in geom.attribute); 36 fns; largest: SmAObject::Notify, SmAObject::AssertValid, SmSAGObject::CacheMakeOrValidate, SmSAGObject::Notify; cycle back-edges (call into later units; stub or co-port): query.poly(13), topology.proto_topology_p1(9), blend.fillet_geom_p1(5), topology.brep_cache(3), topology.shell(3), surface.cone_p1(2), topology.loopuse(2), topology.topology(2), curve.composite_curve_p1(1), curve.conic(1), curve.crv_in_volume(1), curve.crv_on_surf(1), curve.curve_cache(1), curve.curve_p2(1), curve.ellipse_p1(1), curve.ellipse_p2(1), curve.hermite_curve(1), curve.hyperbola(1), curve.iso_curve(1), curve.line(1), curve.offset_curve(1), curve.parabola(1), curve.projected_curve(1), curve.tangent_field(1), nurbs.b_spline_curve_p1(1), nurbs.b_spline_surface_p1(1), query.tess(1), surface.b_spline_volume(1), surface.bend_volume(1), surface.curve_bounded_surface(1), surface.offset_surface(1), surface.plane_p1(1), surface.sphere(1), surface.srf_in_volume(1), surface.surf_of_extrusion_p1(1), surface.surf_of_revolution_p1(1), surface.surface_cache_p2(1), surface.surface_p1(1), surface.surface_p2(1), surface.torus(1), surface.trim_srf_cache(1), surface.twist_volume(1), surface.unbend_volume(1), surface.volume_p1(1), topology.brep_p4(1), topology.edge(1), topology.edgeuse_p1(1), topology.edgeuse_p2(1), topology.face_p1(1), topology.vertex(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 2040 cases (8 upstream-derived + 32 edge-case fixtures + 2000 generated: types, NLI helpers, notify/attribute/cache scripts), 1872 pass bit-identical, 168 deferred (topology.brep_cache 131: new SmBrepCache; topology.shell 37: SmRegion::IsVoid in SM_NO_REG_PROPAGATION; SmSAGObject::Notify wired by topology.topology); 50k-seed run clean; no UNPORTED(geom.a_object) stubs to wire (attribute-list methods stay co-ported in geom.attribute); 36 fns; largest: SmAObject::Notify, SmAObject::AssertValid, SmSAGObject::CacheMakeOrValidate, SmSAGObject::Notify; cycle back-edges (call into later units; stub or co-port): query.poly(13), topology.proto_topology_p1(9), blend.fillet_geom_p1(5), topology.brep_cache(3), topology.shell(3), surface.cone_p1(2), topology.loopuse(2), topology.topology(2), curve.composite_curve_p1(1), curve.conic(1), curve.crv_in_volume(1), curve.crv_on_surf(1), curve.curve_cache(1), curve.curve_p2(1), curve.ellipse_p1(1), curve.ellipse_p2(1), curve.hermite_curve(1), curve.hyperbola(1), curve.iso_curve(1), curve.line(1), curve.offset_curve(1), curve.parabola(1), curve.projected_curve(1), curve.tangent_field(1), nurbs.b_spline_curve_p1(1), nurbs.b_spline_surface_p1(1), query.tess(1), surface.b_spline_volume(1), surface.bend_volume(1), surface.curve_bounded_surface(1), surface.offset_surface(1), surface.plane_p1(1), surface.sphere(1), surface.srf_in_volume(1), surface.surf_of_extrusion_p1(1), surface.surf_of_revolution_p1(1), surface.surface_cache_p2(1), surface.surface_p1(1), surface.surface_p2(1), surface.torus(1), surface.trim_srf_cache(1), surface.twist_volume(1), surface.unbend_volume(1), surface.volume_p1(1), topology.brep_p4(1), topology.edge(1), topology.edgeuse_p1(1), topology.edgeuse_p2(1), topology.face_p1(1), topology.vertex(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.point_set"
@@ -595,10 +595,10 @@ depends_on = ["nlib.crv_basic", "nlib.crv_tool_p1", "nlib.geom", "nlib.knots", "
 est_lines = 1879
 layer = 6
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "partial"
+status = "green"
 claimed_by = "swarm-nlib.crv_nurb-a1"
 claimed_at = "2026-10-12T21:07:25Z"
-notes = "difftest: 2871 cases (871 fixtures + 2000 generated), 2852 pass bit-for-bit, 19 deferred (nlib.crv_geom: N_CrvArcLength in N_CrvGetDegenSegs); wired UNPORTED(nlib.crv_nurb) in nlib.crv_tool_p1 (now green); 23 fns; largest: N_CrvGetType, N_CrvDerivs, N_CrvGetLinearSegs, N_CrvProjectOntoPlane; cycle back-edges (call into later units; stub or co-port): nlib.crv_geom(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 2871 cases (871 fixtures + 2000 generated), 2871 pass bit-for-bit, 0 deferred (promoted when nlib.crv_geom wired N_CrvArcLength in N_CrvGetDegenSegs); wired UNPORTED(nlib.crv_nurb) in nlib.crv_tool_p1 (now green); 23 fns; largest: N_CrvGetType, N_CrvDerivs, N_CrvGetLinearSegs, N_CrvProjectOntoPlane; cycle back-edges (call into later units; stub or co-port): nlib.crv_geom(1); unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.funcs_adv"
@@ -647,10 +647,10 @@ depends_on = ["nlib.bezier", "nlib.crv_basic", "nlib.crv_nurb", "nlib.crv_tool_p
 est_lines = 729
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_geom-a1"
 claimed_at = "2026-10-12T00:00:00Z"
-notes = "3 fns; largest: N_ApproxCrvWithPolyline, N_CrvArcLength, N_CrvClosestPt; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 1723 cases (223 fixtures on the six pt_TestFiles .smc curves + edge cases, 1500 generated), 1723 pass bit-for-bit, 0 deferred; wired UNPORTED(nlib.crv_geom) in nlib.crv_nurb (now green); 3 fns; largest: N_ApproxCrvWithPolyline, N_CrvArcLength, N_CrvClosestPt; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.crv_tool_p2"
@@ -660,10 +660,10 @@ depends_on = ["nlib.basis_basic", "nlib.bezier", "nlib.crv_basic", "nlib.crv_nur
 est_lines = 1748
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_tool_p2-a1"
 claimed_at = "2026-10-12T21:27:39Z"
-notes = "7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
+notes = "difftest: 2124 cases (124 fixtures + 2000 generated), 2124 pass bit-for-bit, 0 deferred; wired UNPORTED(nlib.crv_tool_p2) in nlib.crv_basic (N_CrvsAreCoincident, now green); 7 fns; largest: N_CrvReduceDegreeOnce, N_CrvRemoveDegenSegs, N_CrvRemoveKnots, N_CrvsMakeCompatibleAdjKnots; unit-SCC #6 (5 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nurbs.nurbs_crv"
@@ -686,10 +686,10 @@ depends_on = ["geom.a_object", "geom.context", "geom.object", "geom.tol"]
 est_lines = 389
 layer = 7
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-topology.topology-a1"
 claimed_at = "2026-10-12T21:22:31Z"
-notes = "30 fns; largest: SmTopology::Notify, SmTrackTopologyChanges::StartTracking, SmTrackTopologyChanges::StopTracking, SmTrackTopologyChanges::SmTrackTopologyChanges; cycle back-edges (call into later units; stub or co-port): topology.proto_topology_p1(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "GREEN: difftest 657 cases (57 upstream-derived/edge-case fixtures + 600 generated scripts: marks under SmNewMarkAndLock, flags/user values, Notify propagation for every operation incl. the callback pass-through, tolerance, IsConnectedTo, destruction, SmTrackTopologyChanges start/stop/nesting/foreign callback), 0 deferred, bit-identical; wired SmSAGObject::Notify (geom.a_object 169 -> 168 deferred) and retargeted the SmTol::GetZoneTol3d(SmObject*) markers to the derived-kind units; SmTopologyChangeCallback::Execute is unused upstream and not ported (findings.md); 30 fns; largest: SmTopology::Notify, SmTrackTopologyChanges::StartTracking, SmTrackTopologyChanges::StopTracking, SmTrackTopologyChanges::SmTrackTopologyChanges; cycle back-edges (call into later units; stub or co-port): topology.proto_topology_p1(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.crv_adv_p1"
@@ -699,9 +699,9 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_geom", "nlib.crv_n
 est_lines = 2031
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_adv_p1-a1"
+claimed_at = "2026-10-12T21:44:23Z"
 notes = "7 fns; largest: ST_curxcdr, ST_curxcrr, N_CrvEvalEvenSpacedPts, N_CrvGetMax2ndDeriv; 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -712,9 +712,9 @@ depends_on = ["nlib.crv_basic", "nlib.crv_geom", "nlib.crv_tool_p1", "nlib.geom"
 est_lines = 803
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.crv_common-a1"
+claimed_at = "2026-10-12T21:44:13Z"
 notes = "8 fns; largest: N_CreateQuarticArcTol, N_CreateQuadraticArcTol, N_CreateQuinticArcTol, N_CreateEllipticalArcAngTypeTol; 317 upstream test entry points reach this unit"
 
 [[unit]]
