@@ -12,6 +12,8 @@ pub mod crv_basic;
 pub mod crv_tool;
 pub mod funcs_basic;
 pub mod geom;
+pub mod iges;
 pub mod knots;
 pub mod math;
 pub mod srf_basic;
+pub mod srf_tool;
