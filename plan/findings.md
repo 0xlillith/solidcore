@@ -218,3 +218,93 @@ agents:
 - **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
   private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
   `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
+## geom.tree (partial; no disagreements)
+
+618 default cases (18 fixture + 600 generated): every non-deferred case agrees exactly
+(`max_rel_err = 0`); 7 are deferred (`GetFirstBezierPatch` paths). Notes for later agents:
+
+- **Arenas mirror `SmMemBlockMgr`.** Nodes and object-list items live in `Tree::nodes` /
+  `Tree::lists` in allocation order, which is the order `GetAllTreeNodes` and
+  `SmTree::GetObjectList` report (and therefore the order a forced rebuild in
+  `AddToSpatialTree` re-inserts objects). Fresh nodes are zero-filled like `smos_Calloc`
+  memory (all-zero box, `SM_NG_NONE`); a failed child `SetMinMax` leaves that zero box.
+- **Objects are a generic handle `O`.** `SmObject*` becomes `Option<O>`; the shim uses fake,
+  never dereferenced pointers into a char array.
+- **Subdivision data.** `SurfaceAux` holds only the `SmBezierAux2d` fields this unit reads
+  (`m_eSplitDir`, `m_bIsMarked`, `m_eNodeClass`, `m_pFace`, `mBA_pSurface`); the surface
+  cache units own the rest and should extend it. Upstream casts parent/sibling `m_pData`
+  without checking the aux type; Rust returns `InvalidInput` where that cast would be invalid.
+- **Back-edges.** `GetOwnerObject` (curve/surface cache owners), `GetFirstBezierPatch`
+  (`SmBezierPatch::GetBezierPtr`, `SmBSplineSurface::GetGwNurbPointer`) are `UNPORTED` stubs;
+  the shim skips exactly those paths (owner is always NULL there).
+- **Upstream quirks kept.** `SmObjectList::FindObject` returns the last item (not NULL) as
+  "previous" when the object is not found. A point tree (`SmTree(point, size, ...)`) never
+  initialises its object-list memory manager, so `AddToSpatialTree` on it divides by zero
+  upstream; the ffi wrapper refuses that op. `1 << lSplitCount` in the neighbour searches is
+  a C `int` shift (sign-extended into `ULONG`); Rust mirrors it.
+
+## geom.periodic_extent1d (green; no disagreements)
+
+Green, 4054 difftest cases, all bit-identical. Upstream quirks ported as is (not bugs in
+the port):
+- **`AddInterval` on an empty extent gives the full period.** The empty branch computes
+  `m_bFullPeriod = (m_dPeriod - |m_dMax - m_dMin|) < ScaledZero` on the empty sentinels
+  `[1e20, -1e20]`, which is true for any period below `2e20`, so the extent becomes
+  `[0, period]` full instead of `[from, to]`. Case `add_empty_quirk`.
+- **`SetMinMax` updates the extent even when it returns `SM_ERR_INVALID_INPUT`** (min or
+  max outside `[0, period]`). `PeriodicExtent1d::set_min_max` does the same and documents it.
+  When the bounds differ but span the period, `m_bFullPeriod` is set without snapping
+  `min`/`max` to `[0, period]`.
+- **`IsInit` compares the `int` `m_bFullPeriod` with `-SM_BIG_DOUBLE`**, so it is always
+  true; it only feeds a compiled-out assert (and is unused), not ported.
+- Only the 17 functions owned by the unit are ported; `Invert`, `AddValue`, `Union`,
+  `Intersect`, `Subtract`, `Evaluate`, `GetLength`, `IsPoint`, the 3-argument constructor
+  etc. are unreachable from the upstream entry points (`harness/callgraph/unused_functions.txt`).
+
+## geom.matrix (green; no disagreements)
+
+4044 default cases (44 fixture + 4000 generated) and a 100,044-case run (`--seeds 100000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **`SM_SUCCESS` is 1000, not 0.** Shims that pass an `SmStatus` back must map it to 0
+  (`geom_matrix.cpp` does) or the runner sees `status_1000` as a failure.
+- **`LUDecompose` never fails on a singular pivot.** A pivot below `SM_EFF_ZERO` is
+  replaced by `+SM_EFF_ZERO` (or `-SM_EFF_ZERO` when it is `<= 0`, including exactly 0)
+  and the status is `SM_ERR_WARNING`; `SolveLinearSystem` passes the warning through
+  with a (meaningless) solution, which `my_test_matrix` relies on. Only a row whose
+  largest magnitude is below `SM_EFF_ZERO` gives `SM_ERR`. The port reports the warning
+  as `near_singular` on success. With NaN entries the pivot search keeps `lMax = 0`
+  (NaN never compares `>=`), so row 0 can be swapped back in; ported as is.
+- **`Compute3x3EigenVectors` is `const` but mutates `this`** (it casts away const and runs
+  `EigenSystemJacobiSolver`, which restores the upper triangle from the lower one on
+  success and leaves it rotated on non-convergence). It ignores the solver status: for a
+  non-symmetric matrix it returns `SM_SUCCESS` with eigenvectors read from an
+  uninitialized `SmMatrix`. The shim and the port report `SM_ERR` there instead; when
+  the solver runs out of sweeps both return the unconverged, unsorted state with success.
+- **Fixed-size buffers.** `LUDecompose` scales with a stack `double[MAX_MATRIX_SIZE]`
+  (1000) and only `SolveLinearSystem` checks the size; the shim limits matrices to 64x64.
+- `sm_sqrt` (geom.vector3d) and `SmVector3d::Set` are co-ported in `geom/matrix.rs`
+  (`// CO-PORT(geom.vector3d)`), so no case is deferred.
+
+## nlib.geom (green; no disagreements)
+
+3173 default cases (173 fixture + 3000 generated) agree bit for bit with upstream
+(`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **Unwritten outputs.** `N_IsectLineLine` leaves `P`, `t1`, `t2` unset when the lines
+  are parallel or miss a bounded segment; `N_IsectLinePlane` leaves `P` (and, when
+  parallel, `t`) unset. The port returns `None` / `LinePlaneIsect::{Parallel,
+  OutOfBounds { t }}` instead; the shim pre-sets NaN.
+- **Uninitialised reads.** `N_DistPtLineSeg` writes no distance when its position tests
+  are all false (NaN coordinates); the port returns NaN. `N_CPtsAreColinear` (3D)
+  ignores `N_DistPtLineSeg`'s error and compares that unwritten distance (e.g. a zero
+  weight makes the Euclidean image NaN); the port answers `false`. Generated
+  collinearity cases therefore use positive weights. `N_ProjectPtPlane` and
+  `N_DistPtInfLine` read an unset point when their unbounded line misses the plane,
+  which cannot happen for finite input; the port returns `InvalidInput` there.
+- **`NL_MTOL` is a global** that `N_SrfIsClosedSmooth` overrides temporarily; the
+  `*_tol` variants of `dist_pt_line_seg`, `dist_perp_pt_line_seg` and
+  `cpts_are_colinear` take it explicitly.
+- `N_IsectLineLine` tests parallelism with `NL_ZCTL` (1e-12) on `1 - cos^2`, while
+  `N_IsectLinePlane` uses `NL_LTOL` (1e-9) on the cosine; both ported as is.
