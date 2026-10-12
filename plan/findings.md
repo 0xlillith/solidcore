@@ -198,8 +198,8 @@ agents:
 - **System statics live in the `Kernel`.** `s_ZoneTol3d`, `s_TolGapGain`,
   `s_ModelSizeEstimate`, `s_LargeSmallSizeRatio` are `kernel.tolerances.{zone_tol_3d,
   tol_gap_gain, model_size_estimate, large_small_size_ratio}`. The kernel also stands in
-  for `SmContext`, so the `context_*` functions are the null-context overloads; a context
-  with its own `m_sThisZoneTol3d` is `UNPORTED(geom.context)`. The difftest shim sets the
+  for `SmContext`; since `geom.context` the `context_*` / `calc_*_zone_tol_3d`
+  functions take `Option<&Context>` (`None` = null pointer, `Some(&k.context)` usual). The difftest shim sets the
   statics with `SmTol::SetModelSizeEstimate` / `SetLargeSmallSizeRatio` per case and
   restores the defaults afterwards (the C++ statics are thread-local globals).
 - **Overloads needing later types are not in Rust yet** (markers at the top of
@@ -218,6 +218,33 @@ agents:
 - **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
   private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
   `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
+## geom.context
+
+- **Two-context `SmNewMarkAndLock` constructor bug (ported as is).** In
+  `SmNewMarkAndLock(SmContext* p1, SmContext* p2)` with `p1 != p2`, upstream picks
+  `m_eMarkType2 = GetUnlockedMark(*p2)` but then calls `m_pContext1->NewMark(m_eMarkType1)`
+  (advancing context 1's mark a second time, not context 2's) and
+  `LockMark(m_pContext2, m_eMarkType1)` (locking mark type 1 in context 2, not type 2).
+  The destructor then unlocks `m_eMarkType2` in context 2, so when the types differ a
+  stray lock of type 1 stays on context 2. `geom::context::MarkLock::new_pair` reproduces
+  this exactly (difftest case `boolean_pair_two_contexts`). `SetContext(p1, p2)` is
+  correct (locks type 2 in context 2) and does not advance marks.
+- **Release build ignores locks.** `NewMark`'s lock checks and `LockMark` /
+  `UnlockMark`'s state checks are `SM_ASSERT*` (messages only), so locked marks can still
+  be advanced and double locks are silent; the port drops the assertions.
+- **`SmNewMarkAndLock` binds contexts by index.** Rust `MarkLock` stores indices into a
+  caller-owned `&mut [Context]` instead of pointers and its destructor is the explicit
+  `release`; `with_mark_lock(&mut Kernel, ..)` is the scoped form for the kernel's own
+  context (`Kernel::context`). Topology porters: use `k.context` for
+  `GetContext()->GetCurrentMark(..)` and `with_mark_lock` for `SmNewMarkAndLock`.
+- **Build flags.** The reference build has neither `SM_USE_GLOBAL_CACHE` nor
+  `SM_USE_NEWTOL`, so the constructor is the two-double one and
+  `SetThisModelSizeEstimate` is the inline header version
+  (`m_sThisZoneTol3d = SizeEstimateToZoneTol3d(estimate)`, which maps `SM_USE_DEFAULT` to
+  `SM_MODEL_SIZE_ESTIMATE`, not to the system statics).
+- **`SmApiGetOrCreateContext` global.** The SM_API keeps one process-global context;
+  the port takes the `Option<Context>` slot from the caller.
 
 ## geom.tree (partial; no disagreements)
 
@@ -308,3 +335,136 @@ agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth kn
   `cpts_are_colinear` take it explicitly.
 - `N_IsectLineLine` tests parallelism with `NL_ZCTL` (1e-12) on `1 - cos^2`, while
   `N_IsectLinePlane` uses `NL_LTOL` (1e-9) on the cosine; both ported as is.
+
+## geom.extent2d (green; no disagreements)
+
+3069 default cases (69 fixture from `my_test_extent2d` + edge cases, 3000 generated)
+agree bit for bit with upstream (`max_rel_err = 0`); a 30000-seed run is clean.
+Upstream behaviour worth knowing:
+
+- **`ContainsPeriodicPoint2d` can hang.** It calls `SmExtent1d::ContainsPeriodicValue`,
+  whose `PeriodicWrap` steps one period per iteration; a period that is tiny relative
+  to the point's distance from the interval (e.g. period `1e-9`, value `1e15`) runs
+  for ~1e24 iterations in both C++ and the port. The generator only uses periods with
+  `|p - min| / period < 1e4`.
+- `Inversion` may write a partial normalised point (`-1` components) before returning
+  `SM_ERR`; the port returns only the error. `IntersectWithInfiniteLine` always
+  returns `SM_SUCCESS` and leaves the interval untouched when nothing is found (port:
+  `None`).
+- `GetU/VLeftEval` return TRUE unless `value > mid` (TRUE for NaN), kept as is.
+- `SmTol::GetScaledZero(const SmExtent2d&)` is implemented in `geom/extent2d.rs`
+  (wired from the `UNPORTED(geom.extent2d)` marker in `geom/tol.rs`) and covered by
+  the `geom.tol` fixtures `fixtures/geom.tol/extent2d.json` (object kind 5).
+
+## geom.attribute (partial; no disagreements)
+
+2029 default cases (6 upstream-derived fixtures, 23 edge-case fixtures, 2000 generated
+scripts) and a 200,029-case run (`--seeds 200000`): every non-deferred case agrees
+exactly with upstream (ints/topology identical, doubles bit for bit). Cases whose script
+runs `Merge` on an `SmMergeRegionAttribute` are deferred on `topology.shell`
+(`SmRegion::GetBrep` / `IsInfiniteRegion` / `IsVoid`; 38 of the default cases). Notes for
+later agents:
+
+- **Data model.** `geom::attribute::AttributeStore` owns every attribute (append-only
+  slots, `AttributeHandle`) *and* every object's attribute list, keyed by an opaque
+  `ObjectKey(u64)`. Whoever ports `SmAObject` (unit `geom.a_object`) and the topology
+  owners should map their ids to `ObjectKey`s (or replace the key type) and hold one
+  store per B-rep or kernel. The `SmAObject` attribute-list methods
+  (`AddAttribute`, `RemoveAttribute`, `ClearAttributes`, `GetAttributes`,
+  `FindAttribute`) are co-ported as store methods (`// CO-PORT(geom.a_object)`);
+  `SmObject::IsKindOf` (`geom.object`) closes `Attribute::is_kind_of`.
+- **Wiring `topology.shell`.** `AttributeStore::merge` on a merge-region attribute calls
+  the private stubs `region_brep` / `region_is_infinite` / `region_is_void`
+  (`// UNPORTED(topology.shell)`). They need region data the store does not have, so the
+  porter will have to pass the B-rep (or a region lookup) into `merge`. In the difftest
+  the regions are bare `SmRegion`s outside any B-rep: `GetBrep()` is NULL for both,
+  `IsInfiniteRegion()` FALSE, `IsVoid()` FALSE, so the added region type is always 0.
+- **Upstream behaviour kept (all compared):**
+  - `SmLongAttribute`, `SmVector3dAttribute` and `SmColorAttribute::MakeCopy` drop the
+    behaviour (copies are `SM_AB_COPY` even from `SM_AB_STANDALONE_COPY`); the other
+    classes keep it.
+  - `AddAttribute` only skips the attribute when `FindAttribute(id)` returns *that*
+    attribute, so a second attribute with the same id is added, and adding it again adds
+    a duplicate entry and a duplicate user (`AddUser` only signals `SM_ERR`).
+  - `fromClearAttributes` with exactly one user empties the user list and deletes a
+    dependent attribute whoever that user is.
+  - `SmMergeRegionAttribute::GetType()` is `SmPointerAttribute_TYPE`, but `IsKindOf`
+    answers for `SmMergeRegionAttribute_TYPE` and not the pointer type.
+    `SmColorAttribute::GetType()` is `SmVector3dAttribute_TYPE`.
+  - Only `SmColorAttribute` is propagated through Booleans; an `SM_AI_COLOR`
+    `SmVector3dAttribute` (what persistence and the upstream tests create) is not.
+    `SmColorAttribute::PropagateRegionsThroughBooleans` copies *itself* (not the colour
+    it found) onto the result when only one input has a colour; any other class's
+    `PropagateRegionsThroughBooleans` runs the base `Merge`, even for merge-region
+    attributes.
+  - `GOTO_NEXT_ATTLINE` treats a `0xFF` byte as `EOF` (`(signed char)get()`), and fails
+    with `SM_ERR` after more than 1000 bytes before the newline.
+- **Upstream undefined behaviour (Rust returns `SolidError::InvalidInput`; the difftest
+  skips these with status -2 on both sides):** `~SmAttribute` on a dependent attribute
+  with users deletes it twice (its `RemoveAttribute` -> `RemoveUser` deletes when the last
+  user goes); `~SmAttribute` with a user that does not list it leaves other lists
+  dangling; `RemoveUser`/`fromClearAttributes` called directly on a listed attribute can
+  leave a dangling list entry; `SmMergeRegionAttribute::Merge` dereferences NULL when
+  both inputs have a merge-region attribute and the result does not, and casts any
+  `SM_AI_OTHER_REGION_ID` attribute to the merge-region class; the colour average casts
+  whatever `SM_AI_COLOR` attribute it finds and dereferences a NULL result colour;
+  `SetRegions` writes past the "other" lists when they are shorter than the "this" list;
+  `ReadIndexedAttributesFromDB` reads an uninitialised count when the ASCII stream is
+  already failed or at its end, and a short binary read gives garbage; counts/indices
+  near `ULONG_MAX` wrap `SetSize`. Rust caps counts and indices at 2^20.
+- **Shim liveness is predicted.** Upstream gives no way to see that `RemoveUser` /
+  `fromClearAttributes` / `ClearAttributes` deleted an attribute, so the shim predicts
+  which script handles die from the state before the op (rule documented in
+  `harness/cpp/shim/geom_attribute.cpp`); the Rust side reports its store's real
+  liveness. Everything else in the dump (lists, users, values) is read back from the
+  C++ objects.
+
+## geom.polynomial (green; no disagreements)
+
+6038 default cases (38 fixture from `my_test_polynomial` + edge cases, 6000 generated)
+agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **Uninitialised read in `SolveQuarticEqn`.** In the `r != 0` branch it takes
+  `z = adCSol[0]` from the resolvent cubic (leading coefficient `1.0`) without checking
+  the root count. With `dZeroTolerance > 1` that cubic degrades to a quadratic that may
+  return no roots, leaving `adCSol[0]` uninitialised (UB). The port uses `z = 0.0`; the
+  FFI wrapper rejects quartics with `tol > 1`, so generated quartic tolerances stay <= 1.
+- **Unused output slots.** `SolveQuadraticEqn` zeroes both slots; `SolveCubicEqn` /
+  `SolveQuarticEqn` leave slots past `rlNumSolutions` untouched. Callers must read only
+  the first `rlNumSolutions`; the port's `Roots` exposes exactly those.
+- `SolveCubicEqn`'s three-root branch uses the plain `sqrt` for `sqrt(-cb_p)` but
+  `smos_Sqrt` (clamping) for `sqrt(-p)`, and `smos_ArcCosine` clamps to `[0, PI]`; ported
+  as is. Every solver always returns `SM_SUCCESS`, so the port is infallible.
+
+## nlib.srf_basic (green; no disagreements)
+
+3220 default cases (220 fixture + 3000 generated) and a 100,220-case run (`--seeds
+100000`) agree bit for bit with upstream (`max_rel_err = 0`). Fixtures include the
+upstream surfaces `Surface.sms` (thinly closed in u), `offset_nurb.sms` and
+`DropCurveSurface.sms`, read by the runner. Notes for later agents:
+
+- **`nurbs::srf_basic::Surface` is the `NL_SURFACE`.** It owns its net and knots but, as
+  upstream, keeps the indices in use (`n`, `m`, `r`, `s`) apart from the storage, which may
+  be larger (`Surface::with_indices`, `set_size_indices`). The NULL surface of
+  `N_SrfInitArrays` is `None` in an `Option<Surface>`; `size_arrays` / `copy_into` take
+  that `Option` (`N_SrfSizeArrays` / `N_SrfCopy`). Storage upstream `malloc`s is
+  zero-filled. `KnotVector`s are borrowed from the surface with `knot_vectors()`.
+- **`N_SrfIsSized` compares the indices in use, not the capacity.** So `N_SrfSizeArrays`
+  reallocates whenever a request exceeds the current `n`/`m`/`r`/`s`, even if the storage
+  is big enough; spare capacity is only reachable through `N_SrfSetSizeIndices`. When it
+  reallocates, `N_SrfSizeArrays` returns 0 but leaves `NL_STO_ERR` in `NL_ERROR` (set by
+  `N_SrfIsSized`); the Rust port records nothing.
+- **Weight checks.** `N_SrfWeightsAreValid` lets NaN weights through (`<`/`>` tests); a
+  non-rational point (`w = NL_NOW`) in a rational surface fails it as a weight error.
+  Rationality is decided by `Pw[0][0]` alone (`N_IsSrfRat`).
+- **Undefined upstream paths, made errors in Rust.** `N_SrfReparamToInterval` writes
+  `U[r-p..]` outside the array when `r < p` (`InvalidInput`, nothing changed);
+  `N_SrfSetSizeIndices` / `N_SrfSetCPtsAndKnots` accept indices past the storage
+  (`InvalidInput`). The ffi wrapper never passes those inputs.
+- **Unwritten outputs.** `N_SrfIsFlatCheap` leaves `flt`/`dir` unset when
+  `N_PlanePtNormalToImplicit` fails (the normal's `1/|N|` overflows); the port returns only
+  the error. Its closed and degenerate exits use the global `NL_MTOL`
+  (`Surface::is_closed_tol` takes it explicitly for `N_SrfIsClosedSmooth`).
+- **`N_SrfIsClosed` with `NL_UVDIR`** (or any flag but `NL_UDIR`/`NL_VDIR`) is `false`.
+- No `UNPORTED(nlib.srf_basic)` stubs existed to wire. `nlib.math`'s power-basis
+  routines still take the net directly; a `Surface` method may forward to them.

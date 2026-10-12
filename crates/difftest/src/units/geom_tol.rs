@@ -22,6 +22,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use solidcore::geom::extent1d::Extent1d;
+use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::tol::{self, Cardinality, Relation, ScaledZero, SmallTopoType};
 use solidcore::geom::vector2d::Vec2;
@@ -41,7 +43,7 @@ pub const MIN_GENERATED: usize = 3000;
 pub struct Runner;
 
 /// Operation names used in `inputs.op` (plus `"relation"`).
-const OPS: [(&str, Op); 24] = [
+const OPS: [(&str, Op); 25] = [
     ("size_estimate", Op::SizeEstimate),
     ("in_tol", Op::InTol),
     ("calc_face_zone", Op::CalcFaceZone),
@@ -66,6 +68,7 @@ const OPS: [(&str, Op); 24] = [
     ("scaled_zero_n", Op::ScaledZeroN),
     ("tol_ctors", Op::TolCtors),
     ("tol_mul", Op::TolMul),
+    ("map_to_1d", Op::MapTo1d),
 ];
 
 /// Name of the relation pseudo-op.
@@ -76,7 +79,7 @@ fn use_default() -> f64 {
 }
 
 /// An object of `scaled_zero_n`: `kind` 0 = double, 1 = `SmVector2d`,
-/// 2 = `SmVector3d`, 3 = `SmExtent3d`; `d` holds its coordinates.
+/// 2 = `SmVector3d`, 3 = `SmExtent3d`, 4 = `SmExtent1d`, 5 = `SmExtent2d`; `d` holds its coordinates.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Obj {
     kind: i32,
@@ -228,6 +231,8 @@ fn object(o: &Obj) -> Box<dyn ScaledZero> {
         1 => Box::new(Vec2::new(c(0), c(1))),
         2 => Box::new(Vec3::new(c(0), c(1), c(2))),
         3 => Box::new(Extent3d::from_bounds(c(0), c(1), c(2), c(3), c(4), c(5))),
+        4 => Box::new(Extent1d::from_min_max(c(0), c(1))),
+        5 => Box::new(Extent2d::from_bounds(c(0), c(1), c(2), c(3))),
         _ => Box::new(c(0)),
     }
 }
@@ -269,18 +274,20 @@ fn rust_values(op: Op, i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, Harnes
     Ok(match op {
         Op::SizeEstimate => v1(tol::size_estimate_to_zone_tol_3d(a(0))),
         Op::InTol => v1(flag(tol::in_tol(a(0), tol::tol3d(a(1))))),
-        Op::CalcFaceZone => v1(tol::calc_face_zone_tol_3d(&k)),
+        Op::CalcFaceZone => v1(tol::calc_face_zone_tol_3d(&k, None)),
         Op::CalcEdgeZone => v1(tol::calc_edge_zone_tol_3d(
             &k,
             a(0),
             a(1),
             i.flag.then(|| tol::zone_tol3d(&k, a(2))),
+            None,
         )),
         Op::CalcVertexZone => v1(tol::calc_vertex_zone_tol_3d(
             &k,
             a(0),
             a(1),
             i.flag.then(|| tol::zone_tol3d(&k, a(2))),
+            None,
         )),
         Op::EffZeros => Ok(vec![
             tol::eff_zero(),
@@ -317,11 +324,11 @@ fn rust_values(op: Op, i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, Harnes
         ))),
         Op::GapGain => v1(tol::gap_gain(&k)),
         Op::ZoneSys => v1(tol::zone_tol_3d(&k, small)),
-        Op::ZoneCtx => v1(tol::context_zone_tol_3d(&k, small)),
+        Op::ZoneCtx => v1(tol::context_zone_tol_3d(&k, None, small)),
         Op::ApproxSys => v1(tol::approx_tol_3d(&k, small)),
-        Op::ApproxCtx => v1(tol::context_approx_tol_3d(&k, small)),
+        Op::ApproxCtx => v1(tol::context_approx_tol_3d(&k, None, small)),
         Op::XSectSys => v1(tol::xsect_tol_3d(&k, small)),
-        Op::XSectCtx => v1(tol::context_xsect_tol_3d(&k, small)),
+        Op::XSectCtx => v1(tol::context_xsect_tol_3d(&k, None, small)),
         Op::ScaledZeroSys => Ok(vec![
             tol::scaled_zero(),
             tol::scaled_zero_sq(),
@@ -351,6 +358,11 @@ fn rust_values(op: Op, i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, Harnes
             ])
         }
         Op::TolMul => v1(tol::tol_mul(tol::tol3d(a(0)), a(1))),
+        Op::MapTo1d => v1(tol::map_to_1d(
+            tol::tol3d(a(0)),
+            vec3(1),
+            &Extent1d::from_min_max(a(4), a(5)),
+        )),
     })
 }
 
@@ -475,10 +487,10 @@ fn vector(rng: &mut Rng, len_scale: f64) -> [f64; 3] {
 }
 
 fn obj(rng: &mut Rng) -> Obj {
-    let kind = rng.below(4) as i32;
+    let kind = rng.below(5) as i32;
     let n = match kind {
         0 => 1,
-        1 => 2,
+        1 | 4 => 2,
         2 => 3,
         _ => 6,
     };
@@ -603,6 +615,20 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             for (j, x) in v.iter().enumerate() {
                 if let Some(dst) = a.get_mut(j) {
                     *dst = *x;
+                }
+            }
+        }
+        Op::MapTo1d => {
+            // First derivative around the scaled zero (EFF_ZERO), or ordinary.
+            let sv = if rng.chance(0.5) {
+                EFF_ZERO * rng.uniform(0.3, 3.0)
+            } else {
+                10f64.powf(rng.uniform(-4.0, 3.0))
+            };
+            let v = vector(rng, sv);
+            for (j, x) in v.iter().enumerate() {
+                if let Some(dst) = a.get_mut(1 + j) {
+                    *dst = if rng.chance(0.1) { 0.0 } else { *x };
                 }
             }
         }
