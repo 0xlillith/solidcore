@@ -12,6 +12,7 @@ pub mod crv_basic;
 pub mod crv_fit;
 pub mod crv_nurb;
 pub mod crv_tool;
+pub(crate) mod fit_arrays;
 pub mod funcs_adv;
 pub mod funcs_basic;
 pub mod geom;
