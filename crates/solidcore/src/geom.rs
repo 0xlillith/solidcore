@@ -1,7 +1,10 @@
-//! Basic geometric value types: vectors, extents (bounding boxes and intervals),
-//! pseudo boxes and the small geometry utilities built on them.
+//! Core geometric value types and tolerance helpers: 2D/3D vectors, extents
+//! (bounding boxes and intervals), pseudo boxes, transforms and the `SmTol`
+//! tolerance policy.
 //!
-//! Upstream: `source/SMLib` `SmVector*`, `SmExtent*`, `SmPseudoBox`, `SmGeomUtility*`.
-//! Units are listed in `plan/modules.toml` (`geom.*`).
+//! Upstream: `source/SMLib/{inc,src}/SmVector2d`, `SmVector3d`, `SmExtent*`,
+//! `SmPseudoBox`, `SmTol`, `SmTransform`, `SmMatrix` and related `geom.*` units of
+//! `plan/modules.toml`.
 
 pub mod extent3d;
+pub mod vector2d;

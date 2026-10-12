@@ -23,8 +23,8 @@
 //!
 //! ## Modules
 //!
-//! Foundation: [`math`], [`error`], [`kernel`], [`topology`]. Algorithm layers (filled
-//! in as units are ported, see `plan/modules.toml`): [`geom`], [`nurbs`], [`curve`],
+//! Foundation: [`math`], [`error`], [`kernel`], [`topology`], [`geom`]. Algorithm layers (filled
+//! in as units are ported, see `plan/modules.toml`): [`nurbs`], [`curve`],
 //! [`surface`], [`intersect`], [`boolean`], [`blend`], [`offset`], [`heal`], [`mass`],
 //! [`query`], [`sweep`], [`primitive`].
 #![forbid(unsafe_code)]
