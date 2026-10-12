@@ -634,10 +634,10 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_fit_p1", "nlib.crv
 est_lines = 1234
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_fit_p3-a1"
 claimed_at = "2026-10-12T12:00:00Z"
-notes = "6 fns; largest: N_FitCrvKnotsAndTangents, N_FitCubicSplineInterp, N_FitCrvDerivs, N_FitCrvHighDerivs; 317 upstream test entry points reach this unit"
+notes = "6 fns; largest: N_FitCrvKnotsAndTangents, N_FitCubicSplineInterp, N_FitCrvDerivs, N_FitCrvHighDerivs; 317 upstream test entry points reach this unit; difftest green: 2242 cases (242 fixtures + 2000 generated), 0 deferred, max_rel_err 0"
 
 [[unit]]
 id = "nlib.crv_geom"
@@ -673,10 +673,10 @@ depends_on = ["geom.axis2_placement", "geom.extent1d", "geom.extent3d", "geom.to
 est_lines = 2200
 layer = 7
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nurbs.nurbs_crv-a1"
 claimed_at = "2026-10-12T21:27:44Z"
-notes = "27 fns; largest: sm_CrvRemoveKnots, sm_BasisIDerivs, sm_BasisFindGlobalMax, sm_BasisDerivs; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "27 fns; largest: sm_CrvRemoveKnots, sm_BasisIDerivs, sm_BasisFindGlobalMax, sm_BasisDerivs; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; GREEN: difftest 4089 cases (1089 fixture from the six upstream .smc curves, SM_API_test rectangle/polygon edges and edge cases + 3000 generated), all bit-identical (max_rel_err 0), 0 deferred; 51,089-case run clean; --perturb SENSITIVE. No UNPORTED(nurbs.nurbs_crv) stubs existed to wire. Upstream quirks (sm_BasisEval flags domain ends, sm_CrvTrim returns NL_INP_ERR) in plan/findings.md"
 
 [[unit]]
 id = "topology.topology"
@@ -712,10 +712,10 @@ depends_on = ["nlib.crv_basic", "nlib.crv_geom", "nlib.crv_tool_p1", "nlib.geom"
 est_lines = 803
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.crv_common-a1"
 claimed_at = "2026-10-12T21:44:13Z"
-notes = "8 fns; largest: N_CreateQuarticArcTol, N_CreateQuadraticArcTol, N_CreateQuinticArcTol, N_CreateEllipticalArcAngTypeTol; 317 upstream test entry points reach this unit"
+notes = "8 fns; largest: N_CreateQuarticArcTol, N_CreateQuadraticArcTol, N_CreateQuinticArcTol, N_CreateEllipticalArcAngTypeTol; 317 upstream test entry points reach this unit; difftest: 2137 cases (137 fixture + 2000 generated), 0 deferred, bit-exact"
 
 [[unit]]
 id = "nlib.spiral"
@@ -725,9 +725,9 @@ depends_on = ["nlib.crv_basic", "nlib.crv_fit_p3", "nlib.crv_nurb"]
 est_lines = 392
 layer = 8
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.spiral-a1"
+claimed_at = "2026-10-12T21:55:30Z"
 notes = "8 fns; largest: N_CrvApproxSpiral, sm_InitNurbVolumeMemory, sm_AllocateAndCopyNurbVolume, sm_ComputeNurbVolumeSize; 317 upstream test entry points reach this unit"
 
 [[unit]]
@@ -751,9 +751,9 @@ depends_on = ["nlib.crv_basic", "nlib.crv_common", "nlib.crv_tool_p2", "nlib.geo
 est_lines = 661
 layer = 9
 tests = ["SM_API_test:TestSmCreateSurfaceFromCornerPoints", "SM_API_test:TestSmIntersectCurveSurface", "SM_API_test:TestSmLiftUVCurve", "SM_API_test:TestSmProjectCurveToSurface", "SM_API_test:TestSmCreateRuledSurface", "prog_test:my_test_surf_methods"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nlib.srf_common-a1"
+claimed_at = "2026-10-12T21:56:24Z"
 notes = "5 fns; largest: N_CreateCylCone, N_CreateRuledSrf, N_CreateRevolvedSrf, N_CreateSrfExtrudeCrv; 228 upstream test entry points reach this unit"
 
 [[unit]]
@@ -764,9 +764,9 @@ depends_on = ["geom.axis2_placement", "geom.extent1d", "geom.geom_utility_p1", "
 est_lines = 1894
 layer = 9
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nurbs.b_spline_curve_p1-a1"
+claimed_at = "2026-10-12T21:56:25Z"
 notes = "56 fns; largest: SmBSplineCurve::Evaluate, SmBSplineCurve::EditEndPoint, SmBSplineCurve::FairBlendCurveDerivatives, SmBSplineCurve::CreateCanonical; cycle back-edges (call into later units; stub or co-port): curve.curve_p2(11), curve.curve_p5(5), curve.ellipse_p1(5), curve.ellipse_p2(5), curve.hyperbola(5), curve.line(5), curve.parabola(5), curve.curve_p1(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]

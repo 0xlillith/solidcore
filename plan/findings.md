@@ -1096,6 +1096,30 @@ on `nlib.crv_geom` (`N_CrvArcLength`). Upstream behaviour worth knowing:
 - `N_CrvDerivs` aliases `left`, `right` and the denominator derivatives `dd` with the rows
   of its scratch array `a`; the port uses the same aliasing.
 
+## nurbs.nurbs_crv (`SmNurbsCrv.cpp`)
+
+No Rust-vs-C++ disagreement: all 4089 difftest cases (1089 fixture + 3000 generated)
+are bit-identical, 0 deferred; a 51,089-case run was also clean. Upstream behaviour
+worth knowing:
+
+- `sm_BasisEval` starts its flag at `NL_YES` for early exits, so at `u == U[p]` and
+  `u == U[m-p]` it fills `N` but returns the error flag; `sm_CrvEval` therefore fails
+  at both domain ends. Its only caller (`SmBSplineCurve::EvaluatePoint`) evaluates the
+  end control points itself there. The port returns `Unsupported` at the ends.
+- `sm_CrvTrim` returns the flag value `NL_INP_ERR` (14), not `NL_YES`, for `ur <= ul`,
+  without `N_ErrSet`; callers comparing with `NL_YES` treat it as success.
+- `sm_CrvDerivs` rejects `der > GW_MAX_DERIV` (5) but `der == 5` writes past its
+  `[GW_MAX_DERIV]` row arrays; the port rejects `der >= 5`.
+- `sm_CrvRemoveKnots` can return a stale `NL_YES` from a failed (and recovered)
+  `sm_BasisFindAllSpanMaxima` when no knot is removed; the port returns that flag as
+  `Ok(bool)`. Its rational weight check `continue`s after already updating the error
+  vector `er`.
+- `sm_CreateBezSegments` keeps the "next segment" pointer from the previous iteration
+  for the last segment (and NULL for a single span); writes through it happen only
+  for knot vectors with trailing over-multiplicity.
+- The `sm_Basis*` index/convergence errors go through `smos_ErrorMessage`, which does
+  not set `NL_ERROR.eno`; the difftest compares returned flags only.
+
 ## nlib.crv_geom (`NL_CrvGeom.cpp`)
 
 No Rust-vs-C++ disagreement: 1723 of 1723 difftest cases bit-identical (223 fixtures from
@@ -1167,3 +1191,49 @@ with `depth = 0`). The shim reaches the `ST_` routines through those wrappers. N
   length non-positive; never seen in the runs.
 - `N_CrvEvalEvenSpacedPts` reads the global `NL_ITLIM` (default 50, lowered temporarily
   by some approximation routines); the port uses `crv_geom::ITER_LIMIT`.
+
+## nlib.crv_common (green; no disagreements)
+
+- Rust and C++ agree bit for bit on all 2137 cases (no disagreements).
+- The thin wrappers `N_CreateQuadraticArc`, `N_CreateQuarticArc`, `N_CreateQuinticArc`,
+  `N_CreateEllipticalArc`, `N_CreateEllipticalArcAngType` (all `at = 0.01`, `atp = 0`
+  for the first ellipse form) are not owned by any unit in `harness/callgraph/units.json`.
+  Callers (e.g. `NL_CrvApprox.cpp`, `NL_SrfCommon.cpp`, `NL_Iges.cpp`,
+  `SmBSplineSurfaceNLib.cpp`) should call the `*_tol` functions of
+  `nurbs::crv_common` with `DEFAULT_ANGLE_TOL` (and `AngleType::Circle`).
+- `N_CreateQuadraticArcTol` reads `N_IsectLineLine`'s uninitialised `ints` flag when
+  that call fails (zero tangent / bad division); the port fails with `NL_INP_ERR`.
+- `N_CreateEllipticalArcAngTypeTol` loops forever on a non-finite end angle (and
+  `N_CrvGetConicData` on huge angles); the port returns `InvalidInput` and the ffi
+  rejects non-finite inputs, angles above 1e6 degrees and zero ellipse radii (0/0 in
+  the polar angle).
+
+## nlib.crv_fit_p3 (`NL_CrvFit.cpp`, part 3)
+
+No Rust-vs-C++ disagreement: 2242 of 2242 difftest cases bit-identical (242 fixtures on
+`FitCrvPoints.pts` / `Points.pts` and the call shapes of the upstream drivers, plus 2000
+generated). No `UNPORTED(nlib.crv_fit_p3)` stubs existed. Upstream behaviour worth knowing:
+
+- `N_FitCrvDerivs` / `N_FitCubicSplineInterp` estimate a zero `Ds` / `De` from a cubic
+  Bezier through `P[0..=3]` / `P[k-3..=k]` whatever `k` is (out of bounds below four
+  points, e.g. the `kk = 1` / `kk = 2` calls in `NL_CrvApprox.cpp` only work because they
+  pass nonzero derivatives) and ignore the errors of that fit, of `N_CrvDerivs` and of the
+  normalisation (a failed normalisation leaves the vector unnormalised and scales it by
+  the polygon length). The port returns the fit / derivative errors (`InvalidInput`
+  below four points); the ffi rejects those inputs.
+- `N_FitCrvDerivs` and `N_FitCrvFirstDeriv` scale the end derivatives by `U[p+1]/p` and
+  `(1 - U[n])/p`, i.e. assume the knots start at 0 and end at 1 (the comment in the
+  source says "this may be where the routine gives poor results"). Ported as is.
+- `N_FitCrvDerivs` with `par = NL_INHERITED` reads `u[i] = U[i+p]` from the knots
+  already in the caller's curve and keeps them; with a NULL curve it reads freshly
+  allocated, unset memory. The port takes the curve slot (`&mut Option<Curve>`, sized
+  with `size_arrays`); a NULL slot gives zero knots.
+- `N_FitCrvFirstDeriv` with `p = 2` copies only `ND[0..1][0..=1]` into each row (`hp =
+  p - 1`), dropping the third basis function; ported as is.
+- `N_FitCrvKnotsAndTangents` ignores the error of `N_FitCalcKnotVectorDeriv` (`p > k + 1`
+  with one tangent); `N_FitCrvKnotsAndDeriv` then fails with `NL_INP_ERR` before reading
+  the unset knots, which the port returns directly. Callers pass the same vector as `Ts`
+  and `Te` (`NL_SrfAdv.cpp:22688`); it is then normalised and scaled twice
+  (`EndTangents::Same`). The merged knot vector would have unset tail entries if a new
+  knot were not below `UT[mt]` (cannot happen for increasing parameters); the port
+  returns `InvalidInput` there.
