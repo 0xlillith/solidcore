@@ -175,3 +175,114 @@ routines, power-basis surfaces, reallocation). Upstream behaviour worth knowing:
 - **Globals.** `NLIBCHKBYPASS` (only `M_NoErrChk` sets it; nothing calls that) is treated
   as 0. `NL_MTOL` is a parameter of `CPoint::approx_eq` because `N_SrfIsClosedSmooth`
   temporarily overrides it around `N_SrfIsClosed`.
+
+## geom.tol (partial; no disagreements)
+
+3430 default cases (430 fixture + 3000 generated) and a 60,430-case run (`--seeds 60000`):
+every non-deferred case agrees bit for bit with upstream (`max_rel_err = 0`). The 221
+deferred cases are `AreParallel` / `ArePerpendicular`, which call
+`SmVector3d::IsParallelTo` / `IsPerpendicularTo` (unit `geom.vector3d`). Notes for later
+agents:
+
+- **Build mode is `SM_USE_OLDTOL`** (`SmConfig.h`); `SM_NEWTOL_LINE` / `SM_OLDTOL_LINE` are
+  empty markers, so lines tagged with either one are compiled. Only `#ifdef SM_USE_NEWTOL`
+  blocks are dead.
+- **Tolerance classes are `f64`.** `SmZoneTol3d(double)` etc. substitute the system value
+  for `SM_USE_DEFAULT` (9876543.21) and take `fabs`; the Rust port applies
+  `tol::zone_tol3d` / `xsect_tol3d` / `approx_tol3d` / `tol3d` exactly where upstream
+  converts a `double` (returns, casts, initialisations). `operator=(double)` only takes
+  `fabs` (no `SM_USE_DEFAULT` check); `operator*=` takes neither.
+- **Small topology scales tolerances *up*.** `GetZoneTol3d(SM_ST_SMALL_SIZE)` returns
+  `s_LargeSmallSizeRatio * s_ZoneTol3d` (default 1000x), despite the "tighter tolerances"
+  comments. The `const SmContext*` overloads ignore the small flag entirely.
+- **System statics live in the `Kernel`.** `s_ZoneTol3d`, `s_TolGapGain`,
+  `s_ModelSizeEstimate`, `s_LargeSmallSizeRatio` are `kernel.tolerances.{zone_tol_3d,
+  tol_gap_gain, model_size_estimate, large_small_size_ratio}`. The kernel also stands in
+  for `SmContext`, so the `context_*` functions are the null-context overloads; a context
+  with its own `m_sThisZoneTol3d` is `UNPORTED(geom.context)`. The difftest shim sets the
+  statics with `SmTol::SetModelSizeEstimate` / `SetLargeSmallSizeRatio` per case and
+  restores the defaults afterwards (the C++ statics are thread-local globals).
+- **Overloads needing later types are not in Rust yet** (markers at the top of
+  `geom/tol.rs`): every `SmObject` / `SmCurve` / `SmSurface` / topology /
+  classification / `SmExtent1d` / `SmExtent2d` / `SmPseudoBox` / `SmVolume` overload,
+  `MapTo1d`, `MapTo2d`, `IsDegenerate(SmObject*)`, `IsClosed`, `UpdateObjectTolerance`.
+  Their porters should add them to `geom::tol` and extend the runner.
+- **`SmRelation` iteration order is unspecified upstream.** `SmMapPtrToPtrs` is a
+  `std::unordered_map<T*, std::unordered_set<U*>>`, so `GetSeconds`, `GetAllFirsts`,
+  `GetAllSeconds` come out in pointer-hash order. `geom::tol::Relation` uses
+  `BTreeMap`/`BTreeSet` and returns keys sorted; the shim sorts the upstream results
+  before comparing. `GetSecond` returns `NULL` (the `SE(SM_ERR)` is a no-op in release)
+  for 0 or >1 partners; Rust returns `None`. `RelatePair` returns `SM_SUCCESS` (1000) or
+  `SM_ERR` (1001) on a cardinality violation; `RelateToMany` stops at the first error and
+  keeps the pairs related before it.
+- **Co-ports.** `sm_sqrt` and `SmVector3d::GetMaxDimension` (unit `geom.vector3d`) are
+  private helpers marked `// CO-PORT(geom.vector3d)`. The `SM_IS_ZERO_SQUARED` co-port in
+  `geom/vector2d.rs` now calls `geom::tol` (vector2d difftest re-run: green, 4060 cases).
+
+## geom.tree (partial; no disagreements)
+
+618 default cases (18 fixture + 600 generated): every non-deferred case agrees exactly
+(`max_rel_err = 0`); 7 are deferred (`GetFirstBezierPatch` paths). Notes for later agents:
+
+- **Arenas mirror `SmMemBlockMgr`.** Nodes and object-list items live in `Tree::nodes` /
+  `Tree::lists` in allocation order, which is the order `GetAllTreeNodes` and
+  `SmTree::GetObjectList` report (and therefore the order a forced rebuild in
+  `AddToSpatialTree` re-inserts objects). Fresh nodes are zero-filled like `smos_Calloc`
+  memory (all-zero box, `SM_NG_NONE`); a failed child `SetMinMax` leaves that zero box.
+- **Objects are a generic handle `O`.** `SmObject*` becomes `Option<O>`; the shim uses fake,
+  never dereferenced pointers into a char array.
+- **Subdivision data.** `SurfaceAux` holds only the `SmBezierAux2d` fields this unit reads
+  (`m_eSplitDir`, `m_bIsMarked`, `m_eNodeClass`, `m_pFace`, `mBA_pSurface`); the surface
+  cache units own the rest and should extend it. Upstream casts parent/sibling `m_pData`
+  without checking the aux type; Rust returns `InvalidInput` where that cast would be invalid.
+- **Back-edges.** `GetOwnerObject` (curve/surface cache owners), `GetFirstBezierPatch`
+  (`SmBezierPatch::GetBezierPtr`, `SmBSplineSurface::GetGwNurbPointer`) are `UNPORTED` stubs;
+  the shim skips exactly those paths (owner is always NULL there).
+- **Upstream quirks kept.** `SmObjectList::FindObject` returns the last item (not NULL) as
+  "previous" when the object is not found. A point tree (`SmTree(point, size, ...)`) never
+  initialises its object-list memory manager, so `AddToSpatialTree` on it divides by zero
+  upstream; the ffi wrapper refuses that op. `1 << lSplitCount` in the neighbour searches is
+  a C `int` shift (sign-extended into `ULONG`); Rust mirrors it.
+
+## geom.periodic_extent1d (green; no disagreements)
+
+Green, 4054 difftest cases, all bit-identical. Upstream quirks ported as is (not bugs in
+the port):
+- **`AddInterval` on an empty extent gives the full period.** The empty branch computes
+  `m_bFullPeriod = (m_dPeriod - |m_dMax - m_dMin|) < ScaledZero` on the empty sentinels
+  `[1e20, -1e20]`, which is true for any period below `2e20`, so the extent becomes
+  `[0, period]` full instead of `[from, to]`. Case `add_empty_quirk`.
+- **`SetMinMax` updates the extent even when it returns `SM_ERR_INVALID_INPUT`** (min or
+  max outside `[0, period]`). `PeriodicExtent1d::set_min_max` does the same and documents it.
+  When the bounds differ but span the period, `m_bFullPeriod` is set without snapping
+  `min`/`max` to `[0, period]`.
+- **`IsInit` compares the `int` `m_bFullPeriod` with `-SM_BIG_DOUBLE`**, so it is always
+  true; it only feeds a compiled-out assert (and is unused), not ported.
+- Only the 17 functions owned by the unit are ported; `Invert`, `AddValue`, `Union`,
+  `Intersect`, `Subtract`, `Evaluate`, `GetLength`, `IsPoint`, the 3-argument constructor
+  etc. are unreachable from the upstream entry points (`harness/callgraph/unused_functions.txt`).
+
+## geom.matrix (green; no disagreements)
+
+4044 default cases (44 fixture + 4000 generated) and a 100,044-case run (`--seeds 100000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Upstream behaviour worth knowing:
+
+- **`SM_SUCCESS` is 1000, not 0.** Shims that pass an `SmStatus` back must map it to 0
+  (`geom_matrix.cpp` does) or the runner sees `status_1000` as a failure.
+- **`LUDecompose` never fails on a singular pivot.** A pivot below `SM_EFF_ZERO` is
+  replaced by `+SM_EFF_ZERO` (or `-SM_EFF_ZERO` when it is `<= 0`, including exactly 0)
+  and the status is `SM_ERR_WARNING`; `SolveLinearSystem` passes the warning through
+  with a (meaningless) solution, which `my_test_matrix` relies on. Only a row whose
+  largest magnitude is below `SM_EFF_ZERO` gives `SM_ERR`. The port reports the warning
+  as `near_singular` on success. With NaN entries the pivot search keeps `lMax = 0`
+  (NaN never compares `>=`), so row 0 can be swapped back in; ported as is.
+- **`Compute3x3EigenVectors` is `const` but mutates `this`** (it casts away const and runs
+  `EigenSystemJacobiSolver`, which restores the upper triangle from the lower one on
+  success and leaves it rotated on non-convergence). It ignores the solver status: for a
+  non-symmetric matrix it returns `SM_SUCCESS` with eigenvectors read from an
+  uninitialized `SmMatrix`. The shim and the port report `SM_ERR` there instead; when
+  the solver runs out of sweeps both return the unconverged, unsorted state with success.
+- **Fixed-size buffers.** `LUDecompose` scales with a stack `double[MAX_MATRIX_SIZE]`
+  (1000) and only `SolveLinearSystem` checks the size; the shim limits matrices to 64x64.
+- `sm_sqrt` (geom.vector3d) and `SmVector3d::Set` are co-ported in `geom/matrix.rs`
+  (`// CO-PORT(geom.vector3d)`), so no case is deferred.

@@ -1,16 +1,22 @@
 # solidcore status
 
-Last updated: end of Wave 0 (2026-10-12). Update a summary line here when your unit
-changes it; per-unit state lives in `plan/modules.toml`.
+Last updated: 2026-10-12, Wave 1 in progress (after style review batch #1). Update a
+summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
 
 ## Progress
 
+Counts are from `plan/modules.toml`. Line counts are the upstream function-body lines
+(`est_lines`) assigned to each unit.
+
 | | |
 |---|---|
-| Units planned | 260 (65 layers), 387,903 upstream function-body lines assigned |
-| Green | **1**: `nlib.knots` (768 lines) |
-| Claimed / blocked | 0 / 0 |
-| Todo | 259 |
+| Units planned | 260 (65 layers), 387,903 upstream lines |
+| Green | **7** (6,036 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array` |
+| Partial | **3** (3,304 lines): `geom.extent3d`, `geom.tol`, `geom.tree` |
+| Ported (green + partial) | 10 units, 9,340 upstream lines (2.4%); about 9,750 Rust lines in `geom/`, `nurbs/` and `topology/` |
+| Claimed | 5 (4,638 lines): `geom.attribute`, `geom.context`, `geom.extent1d`, `geom.vector3d`, `nlib.geom` |
+| Blocked | 0 |
+| Todo | 245 |
 
 ## What Wave 0 produced
 
@@ -55,24 +61,94 @@ changes it; per-unit state lives in `plan/modules.toml`.
 | `geom.vector2d` | `geom::vector2d` | 4060 cases (60 fixture + 4000 generated), max_rel_err 0 | bit-identical; a 200,060-case run was also clean |
 | `topology.database_io` | `topology::database_io` | 2059 cases (59 fixture + 2000 generated), max_rel_err 0 | stream state and position match per step; a 200,059-case run was also clean |
 | `nlib.math` | `nurbs::math` | 3076 cases (76 fixture + 3000 generated), max_rel_err 0 | bit-identical; a 100,076-case run was also clean |
+| `geom.periodic_extent1d` | `geom::periodic_extent1d` | 4054 cases (54 fixture + 4000 generated), max_rel_err 0 | bit-identical; upstream quirks in findings.md |
+| `geom.assert_array` | `geom::assert_array` | 3734 cases (14 fixture + 720 label-table + 3000 generated), max_rel_err 0 | bit-identical; all 86 label tables ported here, lengths checked against libSMLib.a symbol sizes |
+| `geom.matrix` | `geom::matrix` | 4044 cases (44 fixture + 4000 generated), max_rel_err 0 | bit-identical; a 100,044-case run was also clean; upstream quirks in findings.md |
 
-## Ready set for Wave 1 (todo units whose `depends_on` are all green)
+## Partial units
 
-| Layer | Unit | Upstream lines | Rust module |
+Every non-deferred difftest case passes; deferred cases wait on the listed unit (never reported as green).
+
+| Unit | Rust module | difftest | Deferred on |
 |---|---|---|---|
-| 0 | `nlib.math` | 2971 | `nurbs::math` (NL_Math, NL_SrfPoly, NL_Util) |
-| 0 | `geom.extent3d` | 1122 | `geom::extent3d` |
-| 0 | `topology.database_io` | 363 | `topology::database_io` |
-| 0 | `geom.vector2d` | 339 | `geom::vector2d` |
+| `geom.extent3d` | `geom::extent3d` | 3086 cases, 3080 bit-identical | 6 (`geom.extent1d`, `geom.pseudo_box`) |
+| `geom.tol` | `geom::tol` | 3430 cases (430 fixture + 3000 generated), 3209 bit-identical; a 60,430-case run was also clean | 221 (`geom.vector3d`) |
+| `geom.tree` | `geom::tree` | 618 cases (18 fixture + 600 generated), 611 bit-identical; a 20,018-case run was also clean | 7 (`nurbs.b_spline_surface_p1` 6, `surface.surface_cache_p1` 1) |
 
-These four units unlock the next set of layer-1 units: `nlib.geom` (needs `nlib.math`),
-`geom.tol` (needs `geom.extent3d` and `geom.vector2d`), `geom.tree` (needs
-`geom.extent3d`) and `geom.attribute` (needs `topology.database_io`). `nlib.math` is on
-the critical path (`nlib.math` -> `nlib.geom` -> ... -> blend). Start it first.
+## Ready set
 
-Note: `geom.extent3d` and `geom.vector2d` sit in the 220-unit dependency cycle. Their
-back-edges call into `geom.vector3d`, `geom.tol` and others (listed in each unit's
-`notes`). Port the parts that don't need those first, or co-port them.
+No `todo` unit is ready: every unit whose `depends_on` are all green or partial has been
+claimed. These units become ready as soon as the listed claimed units land:
+
+| Layer | Unit | Upstream lines | Waiting on (claimed) |
+|---|---|---|---|
+| 2 | `nlib.basis_basic` | 786 | `nlib.geom` |
+| 2 | `nlib.srf_basic` | 1088 | `nlib.geom` |
+| 3 | `geom.axis2_placement` | 479 | `geom.vector3d` |
+| 3 | `geom.extent2d` | 766 | `geom.extent1d`, `geom.vector3d` |
+| 3 | `geom.geom_utility_p2` | 1617 | `geom.matrix`, `geom.vector3d` |
+| 3 | `geom.hash_table` | 593 | `geom.vector3d` |
+| 3 | `geom.local_solve1d` | 1294 | `geom.extent1d` |
+| 3 | `geom.local_solve_nd` | 860 | `geom.matrix` |
+| 3 | `geom.object` | 673 | `geom.attribute`, `geom.context` |
+| 3 | `geom.polynomial` | 386 | `geom.vector3d` |
+
+`nlib.geom` is on the critical path (`nlib.geom` -> `nlib.basis_basic`/`nlib.srf_basic`
+-> ... -> blend). `geom.vector3d` unblocks five units.
+
+## Recent findings (details in `plan/findings.md`)
+
+- No Rust-vs-C++ disagreement so far: every non-deferred case of the seven ported
+  units is bit-identical (`max_rel_err = 0`).
+- `geom.tol`: `SmRelation` returns pointer-hash order upstream; the port sorts, and the
+  shim sorts the C++ results before comparing. The small-topology zone tolerance is
+  1000x *larger*, not smaller.
+- `geom.extent3d`: upstream `ContainsLineSeg3d` ORs its two end-point tests (kept).
+- `geom.tree`: a point tree (`SmTree(point, ...)`) divides by zero in
+  `AddToSpatialTree` upstream (the ffi wrapper refuses it); `SmObjectList::FindObject`
+  returns the last item as "previous" when not found (kept).
+- `topology.database_io`: short binary reads are undefined behaviour upstream; the port
+  returns `InvalidInput` with the same stream state.
+- `nlib.math`: the `N_SrfPowerBasisEvalPt` back-edge into `nlib.srf_basic` was removed;
+  the Rust function takes the control net directly.
+
+## Style review batch #1 (2026-10-12)
+
+Reviewed `geom.vector2d`, `geom.extent3d`, `topology.database_io`, `nlib.math`,
+`geom.tol` and `geom.tree` against AGENTS.md. Numerics and operation order were not
+changed, and every unit re-ran difftest with unchanged reports.
+
+- `geom.tree`: the neighbour searches (`left/right/bot/top_neighbors`, `neighbors`) now
+  return `Result<Vec<NodeId>>` instead of filling a caller out-param. The four
+  `GetXNeighbors` recursions and the four `GetXSide` bodies are one direction-generic
+  loop and one recursion. Cyclic parent/child links now return `InvalidInput` instead
+  of looping forever or overflowing the stack. This applies to `find_node`,
+  `propagate_to_parents`, `rm_from_spatial_tree`, `first_bezier_patch` and the
+  neighbour searches.
+- `geom.extent3d`: `approx_axis` names its near-centre tests (same comparisons).
+- `geom.tol`: removed a `let _ = small;`.
+- `topology.database_io`: error `operation` paths now include `DatabaseReader::`.
+- No change was needed in `geom.vector2d` or `nlib.math`. `nlib.math` keeps a justified
+  module-level `allow(clippy::if_not_else)` (a pedantic lint, not a denied one).
+- Left for `geom.vector3d` (claimed): `sm_sqrt`, `sm_asin`, `sm_acos`,
+  `SmVector3d::GetMaxDimension`/`DistanceBetween` and the `smos_Max`/`Min` family
+  (`SmMath.h`) are duplicated as private `CO-PORT(geom.vector3d)` helpers in
+  `geom/vector2d.rs`, `geom/extent3d.rs`, `geom/tol.rs` and `geom/tree.rs`. When that
+  unit lands, replace them with the shared versions. `grep -rn "CO-PORT(geom.vector3d)"`
+  finds every site.
+
+## Resume note (2026-10-12)
+
+- `main` is pushed to `origin` (github.com/bherbruck/solidcore). The eight claimed units
+  above have worktrees under `../solidcore-wt/`; check `git worktree list` before you
+  claim anything.
+- Next: merge the claimed units as they go green, then wire their back-edges
+  (`grep -rn "UNPORTED(<unit>)"`). `geom.vector3d` should also fold in the co-port
+  duplicates listed above. Re-run difftest for `geom.tol`: its 221 deferred cases wait
+  only on `geom.vector3d` and should turn it green. `geom.extent3d` waits on
+  `geom.extent1d` and `geom.pseudo_box`, and `geom.tree` on the surface cache /
+  B-spline surface units.
+- Run style review batch #2 once the current claims merge.
 
 ## Known problems
 
