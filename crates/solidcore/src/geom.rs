@@ -20,6 +20,7 @@ pub mod matrix;
 pub mod object;
 pub mod periodic_extent1d;
 pub mod polynomial;
+pub mod solution_array;
 pub mod tol;
 pub mod tree;
 pub mod vector2d;
