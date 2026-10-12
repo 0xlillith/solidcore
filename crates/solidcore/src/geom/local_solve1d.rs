@@ -7,7 +7,7 @@
 //! | Rust                                         | Upstream                                       |
 //! |----------------------------------------------|------------------------------------------------|
 //! | [`SolverAlgorithm`]                          | `SmLocalSolverAlgorithmType`                   |
-//! | [`TerminationReason`]                        | `SmTerminationReasonType`                      |
+//! | [`TerminationReason`] (re-export)            | `SmTerminationReasonType` (defined in `geom::local_solve_nd`) |
 //! | [`EvalFunction`], [`FunctionValue`]          | `SmEvalFunctionObject`                         |
 //! | [`EvalFunction::evaluate`] (default)         | `SmEvalFunctionObject::Evaluate`               |
 //! | [`IterationValue`]                           | `SmIterationValue`                             |
@@ -51,6 +51,7 @@
 
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+pub use crate::geom::local_solve_nd::TerminationReason;
 use crate::geom::tol::{in_tol, scaled_zero};
 use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, UNDEF_DOUBLE};
 
@@ -136,42 +137,6 @@ impl SolverAlgorithm {
             2 => Some(Self::BrentMaximize),
             3 => Some(Self::BrentMinimize),
             _ => None,
-        }
-    }
-}
-
-/// Why the solver stopped (`SmTerminationReasonType`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum TerminationReason {
-    /// `SM_TR_UNDEFINED` (before any solve).
-    #[default]
-    Undefined,
-    /// `SM_TR_FOUND_ANSWER_CONVERGED`.
-    FoundAnswerConverged,
-    /// `SM_TR_FOUND_ANSWER_CLOSE`.
-    FoundAnswerClose,
-    /// `SM_TR_OUT_OF_BOUNDS`.
-    OutOfBounds,
-    /// `SM_TR_BAD_JACOBIAN`.
-    BadJacobian,
-    /// `SM_TR_UNABLE_TO_CONVERGE`.
-    UnableToConverge,
-    /// `SM_TR_STILL_ITERATING`.
-    StillIterating,
-}
-
-impl TerminationReason {
-    /// Upstream enum value (`SM_TR_UNDEFINED` = 0 .. `SM_TR_STILL_ITERATING` = 6).
-    #[must_use]
-    pub const fn code(self) -> i32 {
-        match self {
-            Self::Undefined => 0,
-            Self::FoundAnswerConverged => 1,
-            Self::FoundAnswerClose => 2,
-            Self::OutOfBounds => 3,
-            Self::BadJacobian => 4,
-            Self::UnableToConverge => 5,
-            Self::StillIterating => 6,
         }
     }
 }
@@ -1350,6 +1315,5 @@ mod tests {
             Some(SolverAlgorithm::BrentMaximize)
         );
         assert_eq!(SolverAlgorithm::BrentMinimize.code(), 3);
-        assert_eq!(TerminationReason::StillIterating.code(), 6);
     }
 }
