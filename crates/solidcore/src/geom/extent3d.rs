@@ -84,8 +84,8 @@ use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::vector3d::{asin, sqrt};
 use crate::math::{
-    is_infinite_param, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, INFINITE_PARAMETER, PI,
-    UNDEF_DOUBLE,
+    is_infinite_param, max2, max3, min2, min3, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ,
+    INFINITE_PARAMETER, PI, UNDEF_DOUBLE,
 };
 
 // UNPORTED(geom.pseudo_box): SmExtent3d::Circumscribe and SmExtent3d(const SmPseudoBox&)
@@ -195,54 +195,6 @@ pub struct Extent3d {
 impl Default for Extent3d {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-/// `smos_Max(a, b)`: `a > b ? a : b`.
-fn smax(a: f64, b: f64) -> f64 {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
-/// `smos_Min(a, b)`: `a < b ? a : b`.
-fn smin(a: f64, b: f64) -> f64 {
-    if a < b {
-        a
-    } else {
-        b
-    }
-}
-
-/// `smos_3Max(a, b, c)`.
-fn smax3(a: f64, b: f64, c: f64) -> f64 {
-    if a > b {
-        if a > c {
-            a
-        } else {
-            c
-        }
-    } else if b > c {
-        b
-    } else {
-        c
-    }
-}
-
-/// `smos_3Min(a, b, c)`.
-fn smin3(a: f64, b: f64, c: f64) -> f64 {
-    if a < b {
-        if a < c {
-            a
-        } else {
-            c
-        }
-    } else if b < c {
-        b
-    } else {
-        c
     }
 }
 
@@ -480,7 +432,7 @@ impl Extent3d {
     /// Largest side length (`GetMaxLength`).
     #[must_use]
     pub fn max_length(&self) -> f64 {
-        smax3(self.x_length(), self.y_length(), self.z_length())
+        max3(self.x_length(), self.y_length(), self.z_length())
     }
 
     /// The x interval, ends swapped if inverted (`GetUInterval`).
@@ -516,7 +468,7 @@ impl Extent3d {
     /// Largest absolute coordinate of either corner (`GetMaxDimension`).
     #[must_use]
     pub fn max_dimension(&self) -> f64 {
-        smax(self.min.max_dimension(), self.max.max_dimension())
+        max2(self.min.max_dimension(), self.max.max_dimension())
     }
 
     /// Grows the box to contain `p` (`AddPoint3d`).
@@ -635,14 +587,14 @@ impl Extent3d {
     pub fn union(&self, other: &Self) -> Self {
         Self {
             min: Vec3::new(
-                smin(self.min.x, other.min.x),
-                smin(self.min.y, other.min.y),
-                smin(self.min.z, other.min.z),
+                min2(self.min.x, other.min.x),
+                min2(self.min.y, other.min.y),
+                min2(self.min.z, other.min.z),
             ),
             max: Vec3::new(
-                smax(self.max.x, other.max.x),
-                smax(self.max.y, other.max.y),
-                smax(self.max.z, other.max.z),
+                max2(self.max.x, other.max.x),
+                max2(self.max.y, other.max.y),
+                max2(self.max.z, other.max.z),
             ),
         }
     }
@@ -657,14 +609,14 @@ impl Extent3d {
         }
         Ok(Self {
             min: Vec3::new(
-                smax(self.min.x, other.min.x),
-                smax(self.min.y, other.min.y),
-                smax(self.min.z, other.min.z),
+                max2(self.min.x, other.min.x),
+                max2(self.min.y, other.min.y),
+                max2(self.min.z, other.min.z),
             ),
             max: Vec3::new(
-                smin(self.max.x, other.max.x),
-                smin(self.max.y, other.max.y),
-                smin(self.max.z, other.max.z),
+                min2(self.max.x, other.max.x),
+                min2(self.max.y, other.max.y),
+                min2(self.max.z, other.max.z),
             ),
         })
     }
@@ -847,11 +799,11 @@ impl Extent3d {
         let dx = (center.x - corner.x).abs();
         let dy = (center.y - corner.y).abs();
         let dz = (center.z - corner.z).abs();
-        let d = smin(dx, dy);
+        let d = min2(dx, dy);
         SphereBound {
             center,
             radius,
-            min_radius: smin(d, dz),
+            min_radius: min2(d, dz),
         }
     }
 
@@ -984,8 +936,8 @@ impl Extent3d {
         let (tmin_x, tmax_x) = slab(self.min.x, self.max.x, point.x, dir.x);
         let (tmin_y, tmax_y) = slab(self.min.y, self.max.y, point.y, dir.y);
         let (tmin_z, tmax_z) = slab(self.min.z, self.max.z, point.z, dir.z);
-        let d_min = smax3(tmin_z, tmin_x, tmin_y);
-        let d_max = smin3(tmax_z, tmax_x, tmax_y);
+        let d_min = max3(tmin_z, tmin_x, tmin_y);
+        let d_max = min3(tmax_z, tmax_x, tmax_y);
 
         // Upstream note [B70]: in an extreme grazing case the midpoint can be far
         // from the box although the line passes within tolerance, so the ends are

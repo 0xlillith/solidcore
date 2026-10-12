@@ -85,7 +85,7 @@ use crate::geom::extent3d::{BoundaryType, Extent3d};
 use crate::geom::tol::{in_tol, scaled_zero2, tol3d, ScaledZero};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::sqrt;
-use crate::math::{is_infinite_param, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
+use crate::math::{is_infinite_param, max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
 
 /// Upstream status `SM_ERR`.
 const SM_ERR: i32 = 1001;
@@ -100,24 +100,6 @@ pub const SS_VMIN: u32 = 2;
 pub const SS_UMAX: u32 = 4;
 /// `SM_SS_VMAX`: the point is on the `v = VMax` boundary.
 pub const SS_VMAX: u32 = 8;
-
-/// `smos_Max(a, b)`: `a > b ? a : b`.
-fn smax(a: f64, b: f64) -> f64 {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
-/// `smos_Min(a, b)`: `a < b ? a : b`.
-fn smin(a: f64, b: f64) -> f64 {
-    if a < b {
-        a
-    } else {
-        b
-    }
-}
 
 /// `SM_ARE_SAME(a, b)`: `|a - b| <= max(scaled zero of a, scaled zero of b)`.
 fn are_same(a: f64, b: f64) -> bool {
@@ -213,7 +195,7 @@ impl ScaledZero for Extent2d {
     /// `SmTol::GetScaledZero(const SmExtent2d&)`: `SM_EFF_ZERO * (1 + max |coord|)`
     /// over both corners.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + smax(self.min.max_dimension(), self.max.max_dimension())))
+        tol3d(EFF_ZERO * (1.0 + max2(self.min.max_dimension(), self.max.max_dimension())))
     }
 }
 
@@ -429,7 +411,7 @@ impl Extent2d {
     /// Largest absolute coordinate of either corner (`GetMaxDimension`).
     #[must_use]
     pub fn max_dimension(&self) -> f64 {
-        smax(self.min.max_dimension(), self.max.max_dimension())
+        max2(self.min.max_dimension(), self.max.max_dimension())
     }
 
     /// The diagonal `max - min` (`GetSize`).
@@ -454,8 +436,8 @@ impl Extent2d {
     #[must_use]
     pub fn union(&self, other: &Self) -> Self {
         Self {
-            min: Vec2::new(smin(self.min.x, other.min.x), smin(self.min.y, other.min.y)),
-            max: Vec2::new(smax(self.max.x, other.max.x), smax(self.max.y, other.max.y)),
+            min: Vec2::new(min2(self.min.x, other.min.x), min2(self.min.y, other.min.y)),
+            max: Vec2::new(max2(self.max.x, other.max.x), max2(self.max.y, other.max.y)),
         }
     }
 
@@ -469,8 +451,8 @@ impl Extent2d {
             });
         }
         Ok(Self {
-            min: Vec2::new(smax(self.min.x, other.min.x), smax(self.min.y, other.min.y)),
-            max: Vec2::new(smin(self.max.x, other.max.x), smin(self.max.y, other.max.y)),
+            min: Vec2::new(max2(self.min.x, other.min.x), max2(self.min.y, other.min.y)),
+            max: Vec2::new(min2(self.max.x, other.max.x), min2(self.max.y, other.max.y)),
         })
     }
 
@@ -822,7 +804,7 @@ impl Extent2d {
             }
         }
 
-        (ivl.max() > ivl.min() - smax(tol_u, tol_v)).then_some(ivl)
+        (ivl.max() > ivl.min() - max2(tol_u, tol_v)).then_some(ivl)
     }
 
     /// True when `u` is in the lower half of the u interval (`GetULeftEval`).

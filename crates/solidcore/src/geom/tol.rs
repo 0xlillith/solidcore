@@ -96,7 +96,9 @@ use crate::geom::extent3d::Extent3d;
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt as sm_sqrt;
 use crate::kernel::{Kernel, Tolerances};
-use crate::math::{Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::math::{
+    max2, max3, max4, Vec3, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI,
+};
 
 // UNPORTED(topology.brep_p1): SmTol::GetModelSizeEstimate(const SmBrep&),
 // SmTol::SetModelSizeEstimate(SmBrep&, double), SmTol::GetZoneTol3d(const SmBrep*),
@@ -255,37 +257,6 @@ impl SmallTopoType {
     const fn is_small(self) -> bool {
         matches!(self, Self::SmallSize | Self::ForceSmallSize)
     }
-}
-
-// ---- co-ported helpers -----------------------------------------------------------
-
-/// `smos_Max(a, b)`: `a > b ? a : b`.
-fn smax(a: f64, b: f64) -> f64 {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
-/// `smos_3Max(a, b, c)`.
-fn smax3(a: f64, b: f64, c: f64) -> f64 {
-    if a > b {
-        if a > c {
-            a
-        } else {
-            c
-        }
-    } else if b > c {
-        b
-    } else {
-        c
-    }
-}
-
-/// `smos_4Max(a, b, c, d)` = `smos_Max(smos_Max(a, b), smos_Max(c, d))`.
-fn smax4(a: f64, b: f64, c: f64, d: f64) -> f64 {
-    smax(smax(a, b), smax(c, d))
 }
 
 // ---- model size and system tolerances ----------------------------------------------
@@ -506,8 +477,8 @@ fn calc_gap_zone_tol(
     let def = context_zone_tol_3d(k, ctx, SmallTopoType::NormalSize);
     let gain = gap_gain(k);
     let r = match max_up {
-        Some(up) => smax4(def, up, gain * gap_1d / 2.0, gain * gap_2d - def),
-        None => smax3(def, gain * gap_1d / 2.0, gain * gap_2d - def),
+        Some(up) => max4(def, up, gain * gap_1d / 2.0, gain * gap_2d - def),
+        None => max3(def, gain * gap_1d / 2.0, gain * gap_2d - def),
     };
     zone_tol3d(k, r)
 }
@@ -644,7 +615,7 @@ impl ScaledZero for Extent3d {
     /// `SmTol::GetScaledZero(const SmExtent3d&)`: `SM_EFF_ZERO * (1 + max |coord|)`
     /// over both corners.
     fn scaled_zero(&self) -> f64 {
-        tol3d(EFF_ZERO * (1.0 + smax(self.min().max_dimension(), self.max().max_dimension())))
+        tol3d(EFF_ZERO * (1.0 + max2(self.min().max_dimension(), self.max().max_dimension())))
     }
 }
 
@@ -664,7 +635,7 @@ pub fn scaled_zero_sqrt_of<A: ScaledZero + ?Sized>(a: &A) -> f64 {
 /// Largest scaled zero of two values (binary `SmTol::GetScaledZero<cA, cB>`).
 #[must_use]
 pub fn scaled_zero2<A: ScaledZero + ?Sized, B: ScaledZero + ?Sized>(a: &A, b: &B) -> f64 {
-    smax(a.scaled_zero(), b.scaled_zero())
+    max2(a.scaled_zero(), b.scaled_zero())
 }
 
 /// Square of [`scaled_zero2`] (binary `SmTol::GetScaledZeroSq<cA, cB>`).
@@ -688,7 +659,7 @@ where
     B: ScaledZero + ?Sized,
     C: ScaledZero + ?Sized,
 {
-    smax3(a.scaled_zero(), b.scaled_zero(), c.scaled_zero())
+    max3(a.scaled_zero(), b.scaled_zero(), c.scaled_zero())
 }
 
 /// Square of [`scaled_zero3`] (tertiary `SmTol::GetScaledZeroSq`).
@@ -723,7 +694,7 @@ where
     C: ScaledZero + ?Sized,
     D: ScaledZero + ?Sized,
 {
-    smax4(
+    max4(
         a.scaled_zero(),
         b.scaled_zero(),
         c.scaled_zero(),
