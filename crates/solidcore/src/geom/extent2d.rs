@@ -111,32 +111,6 @@ fn grow_unless_infinite(x: f64, d: f64) -> f64 {
     x + if is_infinite_param(x) { 0.0 } else { d }
 }
 
-/// One coordinate of `Evaluate`: exact end values at 0 and 1.
-fn lerp_exact(min: f64, max: f64, t: f64) -> f64 {
-    if t == 0.0 {
-        min
-    } else if t == 1.0 {
-        max
-    } else {
-        min + t * (max - min)
-    }
-}
-
-/// One coordinate of `ClassifyPoint2d`.
-fn classify_coord(p: f64, min: f64, max: f64, tol: f64) -> ExtentPointType {
-    if (p - min).abs() <= tol && (p - max).abs() <= tol {
-        ExtentPointType::Both
-    } else if (p - min).abs() <= tol {
-        ExtentPointType::Start
-    } else if (p - max).abs() <= tol {
-        ExtentPointType::End
-    } else if p - min >= 0.0 && max - p >= 0.0 {
-        ExtentPointType::Inside
-    } else {
-        ExtentPointType::Outside
-    }
-}
-
 /// One coordinate of `Inversion`: `num / den`, or `1` / `-1` for a (near) zero
 /// denominator.
 fn normalise(num: f64, den: f64) -> f64 {
@@ -269,7 +243,7 @@ impl Extent2d {
     pub fn set_min_max(&mut self, min: Point2, max: Point2) -> Result<()> {
         if min.x > max.x || min.y > max.y {
             return Err(SolidError::InvalidInput {
-                operation: "geom::extent2d::set_min_max",
+                operation: "geom::extent2d::Extent2d::set_min_max",
                 reason: "min > max",
             });
         }
@@ -289,7 +263,7 @@ impl Extent2d {
     ) -> Result<()> {
         if min_x > max_x || min_y > max_y {
             return Err(SolidError::InvalidInput {
-                operation: "geom::extent2d::set_min_max_coords",
+                operation: "geom::extent2d::Extent2d::set_min_max_coords",
                 reason: "min > max",
             });
         }
@@ -431,7 +405,7 @@ impl Extent2d {
     pub fn intersect(&self, other: &Self) -> Result<Self> {
         if self.are_disjoint(other, 0.0) {
             return Err(SolidError::InvalidInput {
-                operation: "geom::extent2d::intersect",
+                operation: "geom::extent2d::Extent2d::intersect",
                 reason: "disjoint extents",
             });
         }
@@ -570,8 +544,8 @@ impl Extent2d {
     ) -> (ExtentPointType, ExtentPointType) {
         let tol_v = tol_v.unwrap_or(tol_u);
         (
-            classify_coord(p.x, self.min.x, self.max.x, tol_u),
-            classify_coord(p.y, self.min.y, self.max.y, tol_v),
+            Extent1d::from_raw(self.min.x, self.max.x).classify_point(p.x, tol_u),
+            Extent1d::from_raw(self.min.y, self.max.y).classify_point(p.y, tol_v),
         )
     }
 
@@ -649,8 +623,8 @@ impl Extent2d {
     #[must_use]
     pub fn evaluate(&self, nx: f64, ny: f64) -> Point2 {
         self.clamp_point(Vec2::new(
-            lerp_exact(self.min.x, self.max.x, nx),
-            lerp_exact(self.min.y, self.max.y, ny),
+            Extent1d::from_raw(self.min.x, self.max.x).evaluate(nx),
+            Extent1d::from_raw(self.min.y, self.max.y).evaluate(ny),
         ))
     }
 
@@ -660,7 +634,7 @@ impl Extent2d {
     /// default `tol = SM_EFF_ZERO`).
     pub fn inversion(&self, p: Point2, tol: f64) -> Result<Point2> {
         let err = || SolidError::Upstream {
-            operation: "geom::extent2d::inversion",
+            operation: "geom::extent2d::Extent2d::inversion",
             code: SM_ERR,
             entity: None,
         };
@@ -819,7 +793,7 @@ impl Extent2d {
         let n = self
             .inversion(p, EFF_ZERO)
             .map_err(|_| SolidError::Upstream {
-                operation: "geom::extent2d::point_map_to_domain",
+                operation: "geom::extent2d::Extent2d::point_map_to_domain",
                 code: SM_ERR,
                 entity: None,
             })?;

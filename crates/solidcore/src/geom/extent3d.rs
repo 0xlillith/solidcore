@@ -198,17 +198,6 @@ impl Default for Extent3d {
     }
 }
 
-/// One coordinate of `Evaluate`: exact end values at 0 and 1.
-fn lerp_exact(min: f64, max: f64, t: f64) -> f64 {
-    if t == 0.0 {
-        min
-    } else if t == 1.0 {
-        max
-    } else {
-        min + t * (max - min)
-    }
-}
-
 /// `x - d` unless `x` is an unbounded marker (`ExpandAbsolute`/`ExpandRelative`).
 fn shrink_unless_infinite(x: f64, d: f64) -> f64 {
     x - if is_infinite_param(x) { 0.0 } else { d }
@@ -576,9 +565,9 @@ impl Extent3d {
     #[must_use]
     pub fn evaluate(&self, nx: f64, ny: f64, nz: f64) -> Point3 {
         Vec3::new(
-            lerp_exact(self.min.x, self.max.x, nx),
-            lerp_exact(self.min.y, self.max.y, ny),
-            lerp_exact(self.min.z, self.max.z, nz),
+            Extent1d::from_raw(self.min.x, self.max.x).evaluate(nx),
+            Extent1d::from_raw(self.min.y, self.max.y).evaluate(ny),
+            Extent1d::from_raw(self.min.z, self.max.z).evaluate(nz),
         )
     }
 
