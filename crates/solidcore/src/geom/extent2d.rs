@@ -82,7 +82,7 @@
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent3d::{BoundaryType, Extent3d};
-use crate::geom::tol::{in_tol, scaled_zero2, tol3d, ScaledZero};
+use crate::geom::tol::{are_same, are_same_to_tol, is_zero_to_tol, tol3d, ScaledZero};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::sqrt;
 use crate::math::{is_infinite_param, max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
@@ -100,21 +100,6 @@ pub const SS_VMIN: u32 = 2;
 pub const SS_UMAX: u32 = 4;
 /// `SM_SS_VMAX`: the point is on the `v = VMax` boundary.
 pub const SS_VMAX: u32 = 8;
-
-/// `SM_ARE_SAME(a, b)`: `|a - b| <= max(scaled zero of a, scaled zero of b)`.
-fn are_same(a: f64, b: f64) -> bool {
-    in_tol(a - b, scaled_zero2(&a, &b))
-}
-
-/// `SM_ARE_SAME_TO_TOL(a, b, tol)`: `|a - b| <= |tol|`.
-fn are_same_to_tol(a: f64, b: f64, tol: f64) -> bool {
-    in_tol(a - b, tol3d(tol))
-}
-
-/// `SM_IS_ZERO_TO_TOL(a, tol)`: `|a| <= |tol|`.
-fn is_zero_to_tol(a: f64, tol: f64) -> bool {
-    in_tol(a, tol3d(tol))
-}
 
 /// `x - d` unless `x` is an unbounded marker (`ExpandAbsolute`/`ExpandRelative`).
 fn shrink_unless_infinite(x: f64, d: f64) -> f64 {

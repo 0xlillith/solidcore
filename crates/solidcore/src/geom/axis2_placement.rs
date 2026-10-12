@@ -55,7 +55,7 @@
 //!   part of this unit.
 
 use crate::error::{Result, SolidError};
-use crate::geom::tol::{in_tol, scaled_zero2};
+use crate::geom::tol::are_same;
 use crate::geom::vector3d::{Point3, Vec3};
 
 /// A right-handed coordinate system: an origin and unit, perpendicular X and Y axes
@@ -411,9 +411,7 @@ impl Axis2Placement {
             (self.y_axis.y, other.y_axis.y),
             (self.y_axis.z, other.y_axis.z),
         ];
-        pairs
-            .iter()
-            .all(|&(a, b)| in_tol(a - b, scaled_zero2(&a, &b)))
+        pairs.iter().all(|&(a, b)| are_same(a, b))
     }
 
     /// True when every origin and axis component is within `tol` of the identity

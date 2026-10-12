@@ -78,7 +78,7 @@
 
 use crate::error::{Result, SolidError};
 use crate::geom::extent3d::BoundaryType;
-use crate::geom::tol::{in_tol, scaled_zero2, tol3d};
+use crate::geom::tol::{are_same, are_same_to_tol};
 use crate::math::{
     is_infinite_param, max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_DEG, INFINITE_PARAMETER,
     UNDEF_DOUBLE,
@@ -86,16 +86,6 @@ use crate::math::{
 
 /// Upstream status `SM_ERR`.
 const SM_ERR: i32 = 1001;
-
-/// `SM_ARE_SAME(a, b)`: `|a - b| <= max(scaled zero of a, scaled zero of b)`.
-fn are_same(a: f64, b: f64) -> bool {
-    in_tol(a - b, scaled_zero2(&a, &b))
-}
-
-/// `SM_ARE_SAME_TO_TOL(a, b, tol)`: `|a - b| <= |tol|`.
-fn are_same_to_tol(a: f64, b: f64, tol: f64) -> bool {
-    in_tol(a - b, tol3d(tol))
-}
 
 /// Classification of a value against an interval (`SmExtentPointType`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

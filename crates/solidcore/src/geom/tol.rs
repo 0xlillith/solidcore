@@ -16,6 +16,8 @@
 //! | [`SmallTopoType`]                      | `SmSmallTopoType`                              |
 //! | [`size_estimate_to_zone_tol_3d`]       | `SmTol::SizeEstimateToZoneTol3d`               |
 //! | [`in_tol`]                             | `SmTol::InTol(double, const SmTol3d&)`         |
+//! | [`is_zero`], [`is_zero_squared`], [`is_zero_to_tol`] | `SM_IS_ZERO`, `SM_IS_ZERO_SQUARED`, `SM_IS_ZERO_TO_TOL` (`SmMath.h`) |
+//! | [`are_same`], [`are_same_to_tol`]      | `SM_ARE_SAME`, `SM_ARE_SAME_TO_TOL` (`SmMath.h`) |
 //! | [`calc_face_zone_tol_3d`]              | `SmTol::CalcFaceZoneTol3d(const SmContext*)`   |
 //! | [`calc_edge_zone_tol_3d`]              | `SmTol::CalcEdgeZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)` |
 //! | [`calc_vertex_zone_tol_3d`]            | `SmTol::CalcVertexZoneTol3d(double, double, SmZoneTol3d*, const SmContext*)` |
@@ -489,6 +491,37 @@ fn calc_gap_zone_tol(
 #[must_use]
 pub fn in_tol(val: f64, tol: f64) -> bool {
     val.abs() <= tol
+}
+
+/// `SM_IS_ZERO(a)`: `|a| <=` [`scaled_zero`] (`SmMath.h`).
+#[must_use]
+pub fn is_zero(a: f64) -> bool {
+    in_tol(a, scaled_zero())
+}
+
+/// `SM_IS_ZERO_SQUARED(a)`: `|a| <=` [`scaled_zero_sq`] (`SmMath.h`).
+#[must_use]
+pub fn is_zero_squared(a: f64) -> bool {
+    in_tol(a, scaled_zero_sq())
+}
+
+/// `SM_IS_ZERO_TO_TOL(a, tol)`: `|a| <= |tol|` (`SmMath.h`).
+#[must_use]
+pub fn is_zero_to_tol(a: f64, tol: f64) -> bool {
+    in_tol(a, tol3d(tol))
+}
+
+/// `SM_ARE_SAME(a, b)`: `|a - b| <=` the larger scaled zero of `a` and `b`
+/// (`SmMath.h`).
+#[must_use]
+pub fn are_same(a: f64, b: f64) -> bool {
+    in_tol(a - b, scaled_zero2(&a, &b))
+}
+
+/// `SM_ARE_SAME_TO_TOL(a, b, tol)`: `|a - b| <= |tol|` (`SmMath.h`).
+#[must_use]
+pub fn are_same_to_tol(a: f64, b: f64, tol: f64) -> bool {
+    in_tol(a - b, tol3d(tol))
 }
 
 /// True when `speed` is zero relative to the size `max_pos_dimension`:

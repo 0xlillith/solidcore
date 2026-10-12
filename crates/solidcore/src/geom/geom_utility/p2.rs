@@ -50,7 +50,7 @@
 
 use crate::error::{Result, SolidError};
 use crate::geom::matrix::Matrix;
-use crate::geom::tol::{in_tol, scaled_zero, tol3d, ZONE_TOL_3D};
+use crate::geom::tol::{in_tol, is_zero, tol3d, ZONE_TOL_3D};
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
 use crate::math::{max2, max3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
@@ -65,11 +65,6 @@ fn sm_err(operation: &'static str) -> SolidError {
         code: SM_ERR,
         entity: None,
     }
-}
-
-/// `SM_IS_ZERO(a)`: `|a| <= SM_EFF_ZERO`.
-fn is_zero(a: f64) -> bool {
-    in_tol(a, scaled_zero())
 }
 
 /// `SM_RAD2DEG(a)` = `a * (180.0 / SM_PI)`.
