@@ -6,15 +6,18 @@
 //! `SmNurbs*` / `SmBSpline*` wrappers. Units are listed in `plan/modules.toml`.
 
 pub mod b_spline_curve;
+pub mod b_spline_surface;
 pub mod basis_adv;
 pub mod basis_basic;
 pub mod bezier;
 pub mod crv_adv;
+pub mod crv_approx;
 pub mod crv_basic;
 pub mod crv_common;
 pub mod crv_fit;
 pub mod crv_geom;
 pub mod crv_nurb;
+pub mod crv_offset;
 pub mod crv_tool;
 pub(crate) mod fit_arrays;
 pub mod funcs_adv;
@@ -25,6 +28,7 @@ pub(crate) mod index;
 pub mod knots;
 pub mod math;
 pub mod nurbs_crv;
+pub mod nurbs_srf;
 pub mod spiral;
 pub mod srf_adv;
 pub mod srf_basic;
