@@ -9,3 +9,4 @@
 pub mod extent3d;
 pub mod tol;
 pub mod vector2d;
+pub mod vector3d;
