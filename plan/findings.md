@@ -703,6 +703,98 @@ upstream `.smc` / `.sms` test files as scalar curve / surface functions, plus ed
   functions cannot be expressed. Storage upstream allocates with `malloc` is zero-filled.
 - No `UNPORTED(nlib.funcs_basic)` stubs existed to wire.
 
+## nlib.basis_adv (green; no disagreements)
+
+1744 default cases (244 fixture + 1500 generated) and a 100,244-case run (`--seeds 100000`)
+agree bit for bit with upstream (`max_rel_err = 0`). Fixtures use the 33 knot vectors of
+the `nlib.basis_basic` fixtures (every `.smc`/`.sms` in `pt_TestFiles`, `smTopoTest.cpp`,
+SM_API_test rectangle/polygon layouts, doc examples) plus edge cases. Upstream behaviour
+worth knowing:
+
+- **`N_BasisDerivsArray` span walk.** Only `u[0]` and `u[n]` go through `N_BasisFindSpan`;
+  the spans of `u[1..n]` are found by walking forward from the span of `u[0]` (the
+  `NL_LEFT` case falls through into the `NL_RIGHT` loop, which is then a no-op). The walk
+  has no bound: with `NL_LEFT` an inner parameter equal to the domain end `U[m-p]` of a
+  clamped vector walks past `U[m]` (out-of-bounds read), and any inner parameter past the
+  end does the same with either flag. Unsorted parameters are not rejected (spans only
+  move forward). Rust returns `InvalidInput` for out-of-range reads; the ffi wrapper
+  requires inner parameters `< U[m-p]` (left) / `<= U[m-p]` (right). Unlike
+  `N_BasisDerivs`, there is no `1e-24` zero-denominator guard: zero knot differences give
+  inf/NaN, as upstream. The `int` factor `p!/(p-k)!` overflows as in `N_BasisDerivs`
+  (Rust `InvalidInput`, ffi rejects).
+- **`N_BasisInsertKnots` reads `X[mx+1]`** after inserting the last new knot (the second
+  comparison in the merge step). The value never changes the output, so Rust skips the
+  comparison; the shim pads `X` by one slot. An empty `X` reads `X[-1]` (Rust
+  `InvalidInput`). NaN knots make the merge loop forever (Rust `InvalidInput`).
+- **`N_BasisIncreaseKnotMult`** fails with `NL_KNT_ERR` (4) when any inner knot would
+  exceed multiplicity `p`; new knots of earlier spans are dropped (index not set).
+- **`N_GetCompatibleKnotArrayMult`** has the same structure as `N_MakeKnotsCompatible`
+  (same degree for both vectors, multiplicities merged to the maximum) and the same
+  out-of-bounds reads past `U[m]` on unusual inputs and endless loop on NaN knots. The
+  shim pads with `+inf`; the generator keeps to clamped vectors of degree >= 1.
+- No `UNPORTED(nlib.basis_adv)` stubs existed to wire.
+
+## geom.grid (partial; no disagreements)
+
+615 default cases (15 fixture, 600 generated) — 613 pass bit for bit, 2 deferred
+(`SmSurfaceGridElement::Init` -> surface.surface_cache_p1, `SmSurfaceHierarchyElement::
+ExpandHierarchy` -> surface.surface_p2); 30k-seed run clean. Upstream behaviour worth knowing:
+
+- **`Step3DDDA` returns the last voxel's hits together with `rbExitedGrid = TRUE`.** The
+  exit test runs before the "found something" break, so callers must use the element lists
+  even when the ray left the grid. Stepping again after an exit indexes voxel `m_lOut*`
+  (out of bounds); the port returns `InvalidInput`, the shim never does it.
+- **`FindVoxelsInBox` builds a tolerance-expanded copy of the box and never uses it**: the
+  voxel range comes from the unexpanded box (so `AddElement` / `AddHierarchyElement` do
+  not pad by `m_dVoxelTolerance`). Kept.
+- `GetVoxelAddress` on a grid with a zero-size axis converts NaN to `ULONG` (UB); the port's
+  saturating cast gives 0 and the shim only accepts grids with positive sizes. A zero voxel
+  count makes `~SmGrid` read `m_aVoxels[0][0]` out of bounds; `Grid::new` rejects it.
+- `Setup3DDDA` writes `m_lAddress` before its "test point outside the grid" early return,
+  and leaves `m_lStep*`/`m_lOut*` unset for axes the ray does not move along (never read).
+- `AddElement(..., SM_GE_HIERARCHY, ...)` dereferences a NULL element; not expressible in
+  the port (`ElementSource` has no such variant).
+- No `UNPORTED(geom.grid)` stubs existed to wire.
+
+## geom.geom_utility_p1 (green; no disagreements)
+
+4185 default cases (185 fixture + 4000 generated) agree bit for bit with upstream
+(`max_rel_err = 0`); `--perturb` catches all of them. Wiring the back-edges made
+`geom.axis2_placement` (`AreCoaxial`; 4048 cases) and `geom.geom_utility_p2` (its private
+stubs became calls into `p1`; 3270 cases) green with 0 deferred. `p2::PointSetType` is now a
+re-export of `p1::PointSetType`. Upstream behaviour worth knowing:
+
+- **Testing file-static helpers.** `sm_AddPoint` and `sm_AddClosestPoint` are `static` in
+  `SmGeomUtility.cpp`. `harness/cpp/shim/geom_geom_utility_p1_static.cpp` compiles the
+  upstream `.cpp` inside a namespace, so the shim can call them. It includes every header
+  the file uses at global scope first, but not `SmGeomUtility.h`, which then lands in the
+  namespace together with the definitions. That avoids clashes with the library's global
+  `smgu_*` (ADL would make a global declaration ambiguous). A `using ::SmMatrix;` makes
+  the header's `class SmMatrix;` forward declaration refer to the real class. Other units
+  with static helpers can reuse the trick.
+- **`smgu_BestFitLineToPoints` takes `aEigenVectors[2]` of `C = del*I - M`.** The code
+  comment calls this the eigenvector of the largest eigenvalue, but the least-squares line
+  direction minimises `v^T C v`. In practice the vector it returns depends on the Jacobi
+  solver and the sort: for axis-aligned collinear points it is perpendicular to the points
+  (so they classify as `SM_PST_SCATTERED`), while for points along `(1,1,1)` it is along
+  the line (`SM_PST_LINEAR`). Ported as is. `smgu_BestFitPlaneToPoints` (p2) uses the
+  same vector as a plane normal.
+- **`smgu_CircleCenterFrom3Points` returns `FALSE` (0)** for (nearly) coincident points.
+  0 is not a valid `SmStatus` and is not `SM_SUCCESS`, and the centre is left unset. The
+  port returns `SolidError::Upstream { code: 0 }`.
+- **`smgu_CircleFindSilhouettePoints`, perspective case**, returns the rotated unit
+  directions times the radius, without adding the circle centre (the parallel case does
+  add it). This looks like an upstream bug; ported as is.
+- **`smgu_CircleFrom3Points`** returns `SM_ERR_WARNING` (1023) from
+  `SmMatrix::SolveLinearSystem` when a pivot is near zero (`SER_MSG` passes any status that
+  is not `SM_SUCCESS`), leaving every output unset.
+- **`smgu_PlanePointDistance`** rejects a normal only when `|n|^2 - 1 > SM_EFF_ZERO`, so
+  too-short normals are accepted.
+- **`smgu_PolygonArea` with no points** reads `sPoints[-1]`. The port returns
+  `InvalidInput`, and the ffi wrapper only passes at least one point.
+- **`SmAxis2Placement::AreCoaxial`** takes `SmApproxTol3d`. The port uses `|tol3d|` but
+  does not apply the `SM_USE_DEFAULT` substitution, because `are_coaxial` has no kernel.
+
 ## nlib.crv_basic (partial; no disagreements)
 
 Difftest: 3417 cases (417 fixture + 3000 generated), 3139 bit-identical (max_rel_err 0),

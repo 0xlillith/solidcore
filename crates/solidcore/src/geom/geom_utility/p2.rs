@@ -11,6 +11,8 @@
 //! | [`PointSetType`]                         | `SmPointSetType`                           |
 //! | [`ContinuityType`]                       | `SmContinuityType`                         |
 //! | [`CurveEval`]                            | (inputs of `smgu_EvaluateCurveContinuity`) |
+//! | [`PerspectivePlane`]                     | (inputs of `smgu_SegmentSegmentPerpspectiveIntersect`) |
+//! | [`CoplanarEllipse`]                      | (inputs of `smgu_LineCoPlanarEllipseIntersect`) |
 //! | [`triangle_point_distance`]              | `smgu_TrianglePointDistance`               |
 //! | [`line_line_at_distance`]                | `smgu_LineLineAtDistance`                  |
 //! | [`is_point_on_segment`]                  | `smgu_IsPointOnSegment`                    |
@@ -34,7 +36,13 @@
 //!   [`SolidError::InvalidInput`]. Output slots upstream leaves unset are `0.0` here
 //!   (and outside `count` in [`SegmentHits`]).
 //! - `smgu_4x4Copy` (the copy into the caller's matrix) disappears: the 4x4 functions
-//!   return their result by value.
+//!   return their result by value. [`inverse_4x4`] builds each cofactor's 3x3 minor in
+//!   a loop instead of spelling out the 16 `smgu_3x3Determinate` calls (same
+//!   coefficients, same `-det / det` arithmetic).
+//! - The projection plane and eye of `smgu_SegmentSegmentPerpspectiveIntersect` and
+//!   the ellipse of `smgu_LineCoPlanarEllipseIntersect` are passed as
+//!   [`PerspectivePlane`] / [`CoplanarEllipse`] structs instead of positional
+//!   arguments.
 //! - [`intersect_two_planes`] reports parallel planes as
 //!   [`PlanesIntersection::Parallel`] (upstream: `SM_ERR` plus the optional
 //!   coincidence flag, which is always computed here).
@@ -45,13 +53,20 @@
 //! - [`evaluate_curve_continuity`] skips the two `smgu_FrenetFromDerivatives` calls
 //!   whose outputs and statuses upstream never reads, and the debug-only (and unused)
 //!   `sDist` / projected-line computations of other functions are omitted.
-//! - Calls into `geom.geom_utility_p1` (not ported yet) go through private stubs that
-//!   return [`SolidError::Unported`]; each carries an `UNPORTED` marker.
+//! - Calls into `geom.geom_utility_p1` use [`p1`] directly, through small private
+//!   adapters where the output shapes differ (`sm_AddClosestPoint` on a
+//!   [`SegmentHits`], `smgu_LineIntersectSphere` as a count and array,
+//!   `smgu_BestFitLineToPoints` with its matrix, `smgu_3x3Determinate` on a 3x3 array).
 
 use crate::error::{Result, SolidError};
+use crate::geom::geom_utility::p1::{
+    self, add_point, determinant_3_vectors, determinate_4x4, intersect_three_planes,
+    line_closest_point, line_coplanar_circle_intersect, line_line_closest_point,
+    line_point_distance, point_perspective_to_plane, point_project_to_plane,
+    segment_point_distance, vec_lin_comb_two_vectors,
+};
 use crate::geom::matrix::Matrix;
 use crate::geom::tol::{in_tol, is_zero, tol3d, ZONE_TOL_3D};
-use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
 use crate::math::{max2, max3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 
@@ -84,23 +99,9 @@ fn ignore_status<T>(r: Result<T>) -> Result<Option<T>> {
 
 // ---- types ---------------------------------------------------------------------------
 
-/// Shape classification of a point set (`SmPointSetType`); discriminants are the
-/// upstream values.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum PointSetType {
-    /// `SM_PST_UNKNOWN`.
-    Unknown = 0,
-    /// `SM_PST_VOID`: empty point set.
-    Void = 1,
-    /// `SM_PST_POINTSIZED`: all points within tolerance of the centroid.
-    PointSized = 2,
-    /// `SM_PST_LINEAR`: all points within tolerance of a line through the centroid.
-    Linear = 3,
-    /// `SM_PST_PLANAR`: all points within tolerance of a plane through the centroid.
-    Planar = 4,
-    /// `SM_PST_SCATTERED`: not within tolerance of a point, line or plane.
-    Scattered = 5,
-}
+/// Shape classification of a point set (`SmPointSetType`), defined with
+/// `smgu_BestFitPointToPoints` in [`p1`].
+pub use p1::PointSetType;
 
 /// Continuity between two curve evaluations (`SmContinuityType`); discriminants are
 /// the upstream values.
@@ -229,6 +230,34 @@ pub struct CurveEval {
     pub third: Option<Vec3>,
 }
 
+/// Plane and eye point of a perspective projection
+/// ([`segment_segment_perspective_intersect`]).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PerspectivePlane {
+    /// A point on the projection plane.
+    pub point: Point3,
+    /// Unit normal of the projection plane.
+    pub unit_normal: Vec3,
+    /// The eye point the segments are projected from.
+    pub eye: Point3,
+}
+
+/// An ellipse `center + x_radius cos(s) x_axis + y_radius sin(s) y_axis` with unit,
+/// orthogonal axes ([`line_coplanar_ellipse_intersect`]).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CoplanarEllipse {
+    /// Center.
+    pub center: Point3,
+    /// Unit major-parameter axis.
+    pub x_axis: Vec3,
+    /// Radius along `x_axis`.
+    pub x_radius: f64,
+    /// Unit axis orthogonal to `x_axis`.
+    pub y_axis: Vec3,
+    /// Radius along `y_axis`.
+    pub y_radius: f64,
+}
+
 /// Result of [`best_fit_plane_to_points`].
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BestFitPlane {
@@ -245,17 +274,10 @@ pub struct BestFitPlane {
     pub max_centroid_gap: f64,
 }
 
-// ---- back-edges into geom.geom_utility_p1 ---------------------------------------------
+// ---- calls into geom.geom_utility_p1 ---------------------------------------------
 
-/// [`SolidError::Unported`] for a `geom.geom_utility_p1` routine.
-fn unported_p1(upstream: &'static str) -> SolidError {
-    SolidError::Unported {
-        upstream,
-        unit: "geom.geom_utility_p1",
-    }
-}
-
-/// Outputs of `smgu_BestFitLineToPoints` (with its optional `M` matrix).
+/// Outputs of `smgu_BestFitLineToPoints` with its `M` matrix (written by upstream only
+/// for scattered points, the only case [`best_fit_plane_to_points`] reads it).
 struct BestFitLine {
     set_type: PointSetType,
     point: Point3,
@@ -265,131 +287,57 @@ struct BestFitLine {
     m: Matrix,
 }
 
-// UNPORTED(geom.geom_utility_p1): smgu_VecLinCombTwoVectors
-fn vec_lin_comb_two_vectors(_b1: Vec3, _b2: Vec3, _v: Vec3) -> Result<Point2> {
-    Err(unported_p1("smgu_VecLinCombTwoVectors"))
+/// `smgu_BestFitLineToPoints` with `pOptM`.
+fn best_fit_line_to_points(points: &[Point3], tol: f64) -> Result<BestFitLine> {
+    let r = p1::best_fit_line_to_points(points, tol)?;
+    Ok(BestFitLine {
+        set_type: r.set_type,
+        point: r.line_pt,
+        direction: r.line_vec,
+        max_line_gap: r.max_line_gap,
+        max_centroid_gap: r.max_centroid_gap,
+        m: r.m.unwrap_or_else(|| Matrix::new(3, 3)),
+    })
 }
 
-// UNPORTED(geom.geom_utility_p1): smgu_SegmentPointDistance -> (distance, parameter)
-fn segment_point_distance(_start: Point3, _end: Point3, _test: Point3) -> Result<(f64, f64)> {
-    Err(unported_p1("smgu_SegmentPointDistance"))
+/// `sm_AddClosestPoint` on the arrays of a [`SegmentHits`].
+fn add_closest_point(dist: f64, param1: f64, param2: f64, tol: f64, hits: &mut SegmentHits) {
+    let mut cp = p1::ClosestPoints {
+        count: hits.count,
+        params1: hits.params1,
+        params2: hits.params2,
+        distances: hits.distances,
+    };
+    cp.add(dist, param1, param2, tol);
+    hits.count = cp.count;
+    hits.params1 = cp.params1;
+    hits.params2 = cp.params2;
+    hits.distances = cp.distances;
 }
 
-// UNPORTED(geom.geom_utility_p1): smgu_LineLineClosestPoint -> (param1, param2)
-fn line_line_closest_point(_p1: Point3, _v1: Vec3, _p2: Point3, _v2: Vec3) -> Result<(f64, f64)> {
-    Err(unported_p1("smgu_LineLineClosestPoint"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_LineClosestPoint -> parameter
-fn line_closest_point(_p: Point3, _v: Vec3, _test: Point3) -> Result<f64> {
-    Err(unported_p1("smgu_LineClosestPoint"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_LinePointDistance -> (distance, parameter)
-fn line_point_distance(_p: Point3, _v: Vec3, _test: Point3) -> Result<(f64, f64)> {
-    Err(unported_p1("smgu_LinePointDistance"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_PointProjectToPlane
-fn point_project_to_plane(_pt: Point3, _plane_pt: Point3, _normal: Vec3) -> Result<Point3> {
-    Err(unported_p1("smgu_PointProjectToPlane"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_VectorProjectToPlane
-fn vector_project_to_plane(_v: Vec3, _normal: Vec3) -> Result<Vec3> {
-    Err(unported_p1("smgu_VectorProjectToPlane"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_PointPerspectiveToPlane
-fn point_perspective_to_plane(
-    _pt: Point3,
-    _plane_pt: Point3,
-    _unit_normal: Vec3,
-    _eye: Point3,
-) -> Result<Point3> {
-    Err(unported_p1("smgu_PointPerspectiveToPlane"))
-}
-
-// UNPORTED(geom.geom_utility_p1): sm_AddPoint (static helper of smgu_SegmentSegmentIntersect)
-fn add_point(_points: &mut Vec<Point3>, _tol: f64, _pnt: Point3) -> Result<()> {
-    Err(unported_p1("sm_AddPoint"))
-}
-
-// UNPORTED(geom.geom_utility_p1): sm_AddClosestPoint (static helper of smgu_SegmentSegmentClosestPoint)
-fn add_closest_point(
-    _dist: f64,
-    _param1: f64,
-    _param2: f64,
-    _tol: f64,
-    _hits: &mut SegmentHits,
-) -> Result<()> {
-    Err(unported_p1("sm_AddClosestPoint"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_LineCoPlanarCircleIntersect -> line parameters
-fn line_coplanar_circle_intersect(
-    _line_pnt: Point3,
-    _line_vec: Vec3,
-    _center: Point3,
-    _normal: Vec3,
-    _radius: f64,
-    _tol: f64,
-) -> Result<Vec<f64>> {
-    Err(unported_p1("smgu_LineCoPlanarCircleIntersect"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_LineIntersectSphere -> (count 0..=3, adResults[3])
+/// `smgu_LineIntersectSphere` as upstream's `(rlNumberResults, adResults[3])`.
 fn line_intersect_sphere(
-    _line_pnt: Point3,
-    _line_vec: Vec3,
-    _center: Point3,
-    _radius: f64,
-    _tol: f64,
+    line_pnt: Point3,
+    line_vec: Vec3,
+    center: Point3,
+    radius: f64,
+    tol: f64,
 ) -> Result<(usize, [f64; 3])> {
-    Err(unported_p1("smgu_LineIntersectSphere"))
+    Ok(
+        match p1::line_intersect_sphere(line_pnt, line_vec, center, radius, tol)? {
+            p1::LineSphere::Miss => (0, [0.0; 3]),
+            p1::LineSphere::Touch(t) => (1, [t, 0.0, 0.0]),
+            p1::LineSphere::Through(t0, t1) => (2, [t0, t1, 0.0]),
+            p1::LineSphere::Grazing(t0, t1, t2) => (3, [t0, t1, t2]),
+        },
+    )
 }
 
-// UNPORTED(geom.geom_utility_p1): smgu_IntersectThreePlanes
-fn intersect_three_planes(
-    _p1: Point3,
-    _v1: Vec3,
-    _p2: Point3,
-    _v2: Vec3,
-    _p3: Point3,
-    _v3: Vec3,
-) -> Result<Point3> {
-    Err(unported_p1("smgu_IntersectThreePlanes"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_BestFitLineToPoints (with pOptM)
-fn best_fit_line_to_points(_points: &[Point3], _tol: f64) -> Result<BestFitLine> {
-    Err(unported_p1("smgu_BestFitLineToPoints"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_3x3Determinate (coefficient overload)
-#[allow(clippy::too_many_arguments)]
-fn determinant_3x3(
-    _a00: f64,
-    _a01: f64,
-    _a02: f64,
-    _a10: f64,
-    _a11: f64,
-    _a12: f64,
-    _a20: f64,
-    _a21: f64,
-    _a22: f64,
-) -> Result<f64> {
-    Err(unported_p1("smgu_3x3Determinate"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_Determinant3Vectors
-fn determinant_3_vectors(_v1: Vec3, _v2: Vec3, _v3: Vec3) -> Result<f64> {
-    Err(unported_p1("smgu_Determinant3Vectors"))
-}
-
-// UNPORTED(geom.geom_utility_p1): smgu_4x4Determinate
-fn determinant_4x4(_a: &[[f64; 4]; 4]) -> Result<f64> {
-    Err(unported_p1("smgu_4x4Determinate"))
+/// `smgu_3x3Determinate` (coefficient overload) called with the nine entries of `m`
+/// row by row.
+fn determinant_3x3(m: &[[f64; 3]; 3]) -> f64 {
+    let [[a00, a01, a02], [a10, a11, a12], [a20, a21, a22]] = *m;
+    p1::determinate_3x3(a00, a01, a02, a10, a11, a12, a20, a21, a22)
 }
 
 // ---- distances -----------------------------------------------------------------------
@@ -417,8 +365,8 @@ pub fn triangle_point_distance(
         Err(e @ SolidError::Unported { .. }) => return Err(e),
         Err(_) => {
             // collinear points: nearest of the two edges from p0
-            let (dist1, u) = segment_point_distance(p0, p1, test)?;
-            let (dist2, v) = segment_point_distance(p0, p2, test)?;
+            let (dist1, u) = segment_point_distance(p0, p1, test);
+            let (dist2, v) = segment_point_distance(p0, p2, test);
             let (distance, closest) = if dist1 <= dist2 {
                 (dist1, p0 + u * vec_x)
             } else {
@@ -440,7 +388,7 @@ pub fn triangle_point_distance(
         v = v.clamp(0.0, 1.0);
     } else if u + v > 1.0 {
         // the distance is recomputed below
-        let (_, t) = segment_point_distance(p1, p2, test)?;
+        let (_, t) = segment_point_distance(p1, p2, test);
         v = t;
         u = 1.0 - v;
     }
@@ -511,7 +459,7 @@ pub fn is_point_on_segment(
     test: Point3,
     tolerance: f64,
 ) -> Result<PointOnSegment> {
-    let (distance, parameter) = segment_point_distance(start, end, test)?;
+    let (distance, parameter) = segment_point_distance(start, end, test);
     Ok(PointOnSegment {
         on: distance <= tolerance,
         distance,
@@ -546,7 +494,7 @@ fn intersect_mapped_segments(
             hits.set(1, 1.0, 1.0, d);
             return Ok(hits);
         }
-        let (dist, param) = segment_point_distance(start2, end2, start1)?;
+        let (dist, param) = segment_point_distance(start2, end2, start1);
         if dist > tol {
             return Ok(hits);
         }
@@ -557,7 +505,7 @@ fn intersect_mapped_segments(
 
     if start2.distance_squared(end2) < tol2 {
         // curve 2 degenerates to a point
-        let (dist, param) = segment_point_distance(start1, end1, start2)?;
+        let (dist, param) = segment_point_distance(start1, end1, start2);
         if dist > tol {
             return Ok(hits);
         }
@@ -571,16 +519,16 @@ fn intersect_mapped_segments(
     let Some(&first) = points.first() else {
         return Ok(hits);
     };
-    let (_, param1) = segment_point_distance(start1, end1, first)?;
-    let (dist, param2) = segment_point_distance(start2, end2, first)?;
+    let (_, param1) = segment_point_distance(start1, end1, first);
+    let (dist, param2) = segment_point_distance(start2, end2, first);
     hits.count = 1;
     hits.set(0, param1, param2, dist);
 
     if let Some(&second) = points.get(1) {
         // coincident segments
         hits.count = 2;
-        let (_, param1) = segment_point_distance(start1, end1, second)?;
-        let (dist, param2) = segment_point_distance(start2, end2, second)?;
+        let (_, param1) = segment_point_distance(start1, end1, second);
+        let (dist, param2) = segment_point_distance(start2, end2, second);
         hits.set(1, param1, param2, dist);
     }
     Ok(hits)
@@ -602,35 +550,33 @@ pub fn segment_segment_projected_intersect(
     tolerance: f64,
 ) -> Result<SegmentHits> {
     let s1 = start1;
-    let e1 = point_project_to_plane(end1, s1, plane_normal)?;
-    let s2 = point_project_to_plane(start2, s1, plane_normal)?;
-    let e2 = point_project_to_plane(end2, s1, plane_normal)?;
+    let e1 = point_project_to_plane(end1, s1, plane_normal);
+    let s2 = point_project_to_plane(start2, s1, plane_normal);
+    let e2 = point_project_to_plane(end2, s1, plane_normal);
     intersect_mapped_segments(s1, e1, s2, e2, tolerance)
 }
 
-/// Intersects two segments after perspective-projecting them from `eye` onto the
-/// plane `(plane_point, plane_unit_normal)`
+/// Intersects two segments after perspective-projecting them from `view.eye` onto
+/// the plane `(view.point, view.unit_normal)`
 /// (`smgu_SegmentSegmentPerpspectiveIntersect`). `count` 2 means coincident
 /// segments.
 ///
 /// # Errors
 ///
 /// Only propagates errors of its callees.
-#[allow(clippy::too_many_arguments)]
 pub fn segment_segment_perspective_intersect(
     start1: Point3,
     end1: Point3,
     start2: Point3,
     end2: Point3,
-    plane_point: Point3,
-    plane_unit_normal: Vec3,
-    eye: Point3,
+    view: &PerspectivePlane,
     tolerance: f64,
 ) -> Result<SegmentHits> {
-    let s1 = point_perspective_to_plane(start1, plane_point, plane_unit_normal, eye)?;
-    let e1 = point_perspective_to_plane(end1, plane_point, plane_unit_normal, eye)?;
-    let s2 = point_perspective_to_plane(start2, plane_point, plane_unit_normal, eye)?;
-    let e2 = point_perspective_to_plane(end2, plane_point, plane_unit_normal, eye)?;
+    let project = |p| point_perspective_to_plane(p, view.point, view.unit_normal, view.eye);
+    let s1 = project(start1);
+    let e1 = project(end1);
+    let s2 = project(start2);
+    let e2 = project(end2);
     intersect_mapped_segments(s1, e1, s2, e2, tolerance)
 }
 
@@ -697,7 +643,7 @@ pub fn segment_segment_intersect(
     }
     let mut pnt = line_start + param1 * line_vec;
     if trunc1 {
-        param2 = line_closest_point(other_start, other_vec, pnt)?;
+        param2 = line_closest_point(other_start, other_vec, pnt);
     }
 
     let mut trunc2 = false;
@@ -711,7 +657,7 @@ pub fn segment_segment_intersect(
     }
     let pnt2 = other_start + param2 * other_vec;
     if trunc2 {
-        param1 = line_closest_point(line_start, line_vec, pnt2)?;
+        param1 = line_closest_point(line_start, line_vec, pnt2);
         param1 = param1.clamp(0.0, 1.0);
         pnt = line_start + param1 * line_vec;
     }
@@ -759,27 +705,27 @@ pub fn segment_segment_closest_point(
     // degenerate segments: use their start
     let line_vec = line_end - line_start;
     if line_vec.length_squared() < EFF_ZERO_SQ {
-        let (dist, param) = segment_point_distance(other_start, other_end, line_start)?;
+        let (dist, param) = segment_point_distance(other_start, other_end, line_start);
         hits.count = 1;
         hits.set(0, 0.0, param, dist);
         return Ok(hits);
     }
     let other_vec = other_end - other_start;
     if other_vec.length_squared() < EFF_ZERO_SQ {
-        let (dist, param) = segment_point_distance(line_start, line_end, other_start)?;
+        let (dist, param) = segment_point_distance(line_start, line_end, other_start);
         hits.count = 1;
         hits.set(0, param, 0.0, dist);
         return Ok(hits);
     }
 
-    let (dist, param) = segment_point_distance(line_start, line_end, other_start)?;
-    add_closest_point(dist, param, 0.0, tolerance, &mut hits)?;
-    let (dist, param) = segment_point_distance(line_start, line_end, other_end)?;
-    add_closest_point(dist, param, 1.0, tolerance, &mut hits)?;
-    let (dist, param) = segment_point_distance(other_start, other_end, line_start)?;
-    add_closest_point(dist, 0.0, param, tolerance, &mut hits)?;
-    let (dist, param) = segment_point_distance(other_start, other_end, line_end)?;
-    add_closest_point(dist, 1.0, param, tolerance, &mut hits)?;
+    let (dist, param) = segment_point_distance(line_start, line_end, other_start);
+    add_closest_point(dist, param, 0.0, tolerance, &mut hits);
+    let (dist, param) = segment_point_distance(line_start, line_end, other_end);
+    add_closest_point(dist, param, 1.0, tolerance, &mut hits);
+    let (dist, param) = segment_point_distance(other_start, other_end, line_start);
+    add_closest_point(dist, 0.0, param, tolerance, &mut hits);
+    let (dist, param) = segment_point_distance(other_start, other_end, line_end);
+    add_closest_point(dist, 1.0, param, tolerance, &mut hits);
 
     // interior closest point
     let (mut param1, mut param2) =
@@ -794,7 +740,7 @@ pub fn segment_segment_closest_point(
     let pnt = line_start + param1 * line_vec;
     let pnt2 = other_start + param2 * other_vec;
     let dist = pnt.distance(pnt2);
-    add_closest_point(dist, param1, param2, tolerance, &mut hits)?;
+    add_closest_point(dist, param1, param2, tolerance, &mut hits);
     Ok(hits)
 }
 
@@ -819,7 +765,7 @@ pub fn circle_plane_intersect(
     const OP: &str = "geom::geom_utility::p2::circle_plane_intersect";
     let cross = circle_normal.cross(plane_normal);
     if cross.length_squared() < EFF_ZERO {
-        let on_pt = point_project_to_plane(circle_origin, plane_point, plane_normal)?;
+        let on_pt = point_project_to_plane(circle_origin, plane_point, plane_normal);
         return Ok(if on_pt.distance(circle_origin) < tolerance {
             CurveIntersection::Coincident
         } else {
@@ -846,31 +792,30 @@ pub fn circle_plane_intersect(
     ))
 }
 
-/// Intersects a line with a coplanar ellipse
-/// `center + rx cos(s) x_axis + ry sin(s) y_axis` (unit, orthogonal axes) as line
-/// parameters (`smgu_LineCoPlanarEllipseIntersect`): the problem is scaled along
-/// `x_axis` into a line/circle intersection of radius `ry`.
+/// Intersects a line with a coplanar ellipse as line parameters
+/// (`smgu_LineCoPlanarEllipseIntersect`): the problem is scaled along `x_axis` into
+/// a line/circle intersection of radius `y_radius`.
 ///
 /// # Errors
 ///
 /// Only propagates errors of its callees.
-#[allow(clippy::too_many_arguments)]
 pub fn line_coplanar_ellipse_intersect(
     line_pnt: Point3,
     line_vec: Vec3,
-    center: Point3,
-    x_axis: Vec3,
-    x_radius: f64,
-    y_axis: Vec3,
-    y_radius: f64,
+    ellipse: &CoplanarEllipse,
     tolerance: f64,
 ) -> Result<Vec<f64>> {
+    let CoplanarEllipse {
+        center,
+        x_axis,
+        x_radius,
+        y_axis,
+        y_radius,
+    } = *ellipse;
     let normal = x_axis.cross(y_axis).unitize_or_z();
 
-    // upstream projects the line to the ellipse plane (statuses checked, results
-    // only used by debug code)
-    point_project_to_plane(line_pnt, center, normal)?;
-    vector_project_to_plane(line_vec, normal)?;
+    // upstream also projects the line to the ellipse plane (always SM_SUCCESS; the
+    // results are only used by debug code), which is omitted here
 
     // z = w + x * ((w-ctr).x) * (ry-rx)/rx maps the ellipse to a circle of radius ry
     let scale = (y_radius - x_radius) / x_radius;
@@ -1093,40 +1038,39 @@ pub fn mult_4x4(a: &[[f64; 4]; 4], b: &[[f64; 4]; 4]) -> [[f64; 4]; 4] {
 ///
 /// `SM_ERR` when the determinant is within `SM_EFF_ZERO` of zero.
 pub fn inverse_4x4(a: &[[f64; 4]; 4]) -> Result<[[f64; 4]; 4]> {
-    let det = determinant_4x4(a)?;
+    let det = determinate_4x4(a);
     if is_zero(det) {
         return Err(sm_err("geom::geom_utility::p2::inverse_4x4"));
     }
-    let [[a00, a01, a02, a03], [a10, a11, a12, a13], [a20, a21, a22, a23], [a30, a31, a32, a33]] =
-        *a;
 
     // inv[r][c] = (-1)^(r+c) * det(minor without row c, column r) / det
-    let i00 = determinant_3x3(a11, a12, a13, a21, a22, a23, a31, a32, a33)? / det;
-    let i10 = -determinant_3x3(a10, a12, a13, a20, a22, a23, a30, a32, a33)? / det;
-    let i20 = determinant_3x3(a10, a11, a13, a20, a21, a23, a30, a31, a33)? / det;
-    let i30 = -determinant_3x3(a10, a11, a12, a20, a21, a22, a30, a31, a32)? / det;
+    let mut inv = [[0.0; 4]; 4];
+    for (r, inv_row) in inv.iter_mut().enumerate() {
+        for (c, cell) in inv_row.iter_mut().enumerate() {
+            let minor = minor_3x3(a, c, r);
+            let cofactor = determinant_3x3(&minor);
+            let signed = if (r + c) % 2 == 1 {
+                -cofactor
+            } else {
+                cofactor
+            };
+            *cell = signed / det;
+        }
+    }
+    Ok(inv)
+}
 
-    let i01 = -determinant_3x3(a01, a02, a03, a21, a22, a23, a31, a32, a33)? / det;
-    let i11 = determinant_3x3(a00, a02, a03, a20, a22, a23, a30, a32, a33)? / det;
-    let i21 = -determinant_3x3(a00, a01, a03, a20, a21, a23, a30, a31, a33)? / det;
-    let i31 = determinant_3x3(a00, a01, a02, a20, a21, a22, a30, a31, a32)? / det;
-
-    let i02 = determinant_3x3(a01, a02, a03, a11, a12, a13, a31, a32, a33)? / det;
-    let i12 = -determinant_3x3(a00, a02, a03, a10, a12, a13, a30, a32, a33)? / det;
-    let i22 = determinant_3x3(a00, a01, a03, a10, a11, a13, a30, a31, a33)? / det;
-    let i32 = -determinant_3x3(a00, a01, a02, a10, a11, a12, a30, a31, a32)? / det;
-
-    let i03 = -determinant_3x3(a01, a02, a03, a11, a12, a13, a21, a22, a23)? / det;
-    let i13 = determinant_3x3(a00, a02, a03, a10, a12, a13, a20, a22, a23)? / det;
-    let i23 = -determinant_3x3(a00, a01, a03, a10, a11, a13, a20, a21, a23)? / det;
-    let i33 = determinant_3x3(a00, a01, a02, a10, a11, a12, a20, a21, a22)? / det;
-
-    Ok([
-        [i00, i01, i02, i03],
-        [i10, i11, i12, i13],
-        [i20, i21, i22, i23],
-        [i30, i31, i32, i33],
-    ])
+/// `a` without row `row` and column `col`, remaining entries in order.
+fn minor_3x3(a: &[[f64; 4]; 4], row: usize, col: usize) -> [[f64; 3]; 3] {
+    let mut m = [[0.0; 3]; 3];
+    let rows = a.iter().enumerate().filter(|&(i, _)| i != row);
+    for (m_row, (_, a_row)) in m.iter_mut().zip(rows) {
+        let cols = a_row.iter().enumerate().filter(|&(j, _)| j != col);
+        for (cell, (_, &v)) in m_row.iter_mut().zip(cols) {
+            *cell = v;
+        }
+    }
+    m
 }
 
 // ---- curve differential geometry -------------------------------------------------------
@@ -1181,7 +1125,7 @@ pub fn frenet_from_derivatives(vals: &[Vec3], n: usize) -> Result<Vec<Vec3>> {
     if is_zero(denominator) {
         return Err(sm_err(OP));
     }
-    let numerator = determinant_3_vectors(d1, d2, get(3))?;
+    let numerator = determinant_3_vectors(d1, d2, get(3));
     let torsion = numerator / denominator;
 
     let mut torsion_vec = d1.cross(curvature);
@@ -1300,13 +1244,13 @@ pub fn evaluate_curve_continuity(
     // G3 / C3: algebraic Taylor-series test with a tolerance from the G1/G2 gaps
     if let (Some(t1), Some(t2)) = (third1, third2) {
         let mut scaled_zero = ZONE_TOL_3D / 10.0 * (1.0 + vec12_max);
-        let (g1_gap, a1) = line_point_distance(Point3::ZERO, vec2, vec1)?;
+        let (g1_gap, a1) = line_point_distance(Point3::ZERO, vec2, vec1);
         if scaled_zero < g1_gap {
             scaled_zero = g1_gap;
         }
 
         let g2_target = second1 - a1 * a1 * second2;
-        let (g2_gap, a2) = line_point_distance(Point3::ZERO, vec2, g2_target)?;
+        let (g2_gap, a2) = line_point_distance(Point3::ZERO, vec2, g2_target);
         if scaled_zero < g2_gap {
             scaled_zero = g2_gap;
         }
@@ -1315,7 +1259,7 @@ pub fn evaluate_curve_continuity(
             ZONE_TOL_3D / 10.0 * (1.0 + max3(vec12_max, second12_max, third12_max));
         scaled_zero = max2(scaled_zero, this_scaled_zero);
         let g3_target = t1 - a1 * a1 * a1 * t2 - 3.0 * a1 * a2 * second2;
-        let (g3_gap, _) = line_point_distance(Point3::ZERO, vec2, g3_target)?;
+        let (g3_gap, _) = line_point_distance(Point3::ZERO, vec2, g3_target);
         if g3_gap > scaled_zero {
             return Ok(kind);
         }
@@ -1341,16 +1285,6 @@ mod tests {
         Vec3::new(x, y, z)
     }
 
-    fn is_unported(e: &SolidError) -> bool {
-        matches!(
-            e,
-            SolidError::Unported {
-                unit: "geom.geom_utility_p1",
-                ..
-            }
-        )
-    }
-
     #[test]
     fn mult_4x4_identity_and_product() {
         let id = [
@@ -1370,6 +1304,24 @@ mod tests {
         let sq = mult_4x4(&a, &a);
         assert_eq!(sq[0], [90.0, 100.0, 110.0, 120.0]);
         assert_eq!(sq[3], [426.0, 484.0, 542.0, 600.0]);
+    }
+
+    #[test]
+    fn minor_skips_row_and_column() {
+        let a = [
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0, 16.0],
+        ];
+        assert_eq!(
+            minor_3x3(&a, 1, 0),
+            [[2.0, 3.0, 4.0], [10.0, 11.0, 12.0], [14.0, 15.0, 16.0]]
+        );
+        assert_eq!(
+            minor_3x3(&a, 3, 2),
+            [[1.0, 2.0, 4.0], [5.0, 6.0, 8.0], [9.0, 10.0, 12.0]]
+        );
     }
 
     #[test]
@@ -1393,8 +1345,8 @@ mod tests {
     }
 
     #[test]
-    fn frenet_torsion_checks_precede_unported_call() {
-        // straight curve: zero second derivative -> SM_ERR, no p1 call
+    fn frenet_torsion() {
+        // straight curve: zero second derivative -> SM_ERR
         let vals = [Vec3::ZERO, v(1.0, 0.0, 0.0), Vec3::ZERO, v(0.0, 0.0, 1.0)];
         assert!(matches!(
             frenet_from_derivatives(&vals, 3),
@@ -1406,7 +1358,8 @@ mod tests {
             v(0.0, 1.0, 0.0),
             v(0.0, 0.0, 1.0),
         ];
-        assert!(is_unported(&frenet_from_derivatives(&vals, 3).unwrap_err()));
+        let f = frenet_from_derivatives(&vals, 3).unwrap();
+        assert_eq!(f.len(), 4);
     }
 
     #[test]
@@ -1433,9 +1386,7 @@ mod tests {
         assert_eq!(c(p, t, v(0.0, -2.0, 0.0)).unwrap(), ContinuityType::C1G2);
         assert_eq!(c(p, t, k).unwrap(), ContinuityType::C1C2);
         let third = Some(v(0.0, 0.0, 1.0));
-        assert!(is_unported(
-            &evaluate_curve_continuity(&ev(p, t, k, third), &ev(p, t, k, third), 1.0).unwrap_err()
-        ));
+        assert!(evaluate_curve_continuity(&ev(p, t, k, third), &ev(p, t, k, third), 1.0).is_ok());
     }
 
     #[test]
@@ -1453,8 +1404,9 @@ mod tests {
             intersect_two_planes(Point3::ZERO, z * 2.0, Point3::ZERO, z),
             Err(SolidError::InvalidInput { .. })
         ));
-        assert!(is_unported(
-            &intersect_two_planes(Point3::ZERO, z, Point3::ZERO, v(1.0, 0.0, 0.0)).unwrap_err()
+        assert!(matches!(
+            intersect_two_planes(Point3::ZERO, z, Point3::ZERO, v(1.0, 0.0, 0.0)).unwrap(),
+            PlanesIntersection::Line { .. }
         ));
     }
 
@@ -1484,20 +1436,18 @@ mod tests {
     }
 
     #[test]
-    fn back_edges_report_unported() {
+    fn calls_into_p1() {
         let p = Point3::ZERO;
         let x = v(1.0, 0.0, 0.0);
         let y = v(0.0, 1.0, 0.0);
-        assert!(is_unported(
-            &triangle_point_distance(p, x, y, p).unwrap_err()
-        ));
-        assert!(is_unported(
-            &segment_segment_intersect(p, x, p, y, 1e-6).unwrap_err()
-        ));
-        assert!(is_unported(
-            &best_fit_plane_to_points(&[p, x, y], 1e-6).unwrap_err()
-        ));
-        let id = mult_4x4(&[[1.0; 4]; 4], &[[0.0; 4]; 4]);
-        assert!(is_unported(&inverse_4x4(&id).unwrap_err()));
+        assert_eq!(triangle_point_distance(p, x, y, p).unwrap().distance, 0.0);
+        assert_eq!(
+            segment_segment_intersect(p, x, p, y, 1e-6).unwrap(),
+            vec![p]
+        );
+        let fit = best_fit_plane_to_points(&[p, x, y, v(1.0, 1.0, 0.0)], 1e-6).unwrap();
+        assert_eq!(fit.set_type, PointSetType::Planar);
+        let zero = mult_4x4(&[[1.0; 4]; 4], &[[0.0; 4]; 4]);
+        assert!(inverse_4x4(&zero).is_err());
     }
 }
