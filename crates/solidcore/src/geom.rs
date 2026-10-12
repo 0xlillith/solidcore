@@ -6,5 +6,6 @@
 //! `SmPseudoBox`, `SmTol`, `SmTransform`, `SmMatrix` and related `geom.*` units of
 //! `plan/modules.toml`.
 
+pub mod attribute;
 pub mod extent3d;
 pub mod vector2d;
