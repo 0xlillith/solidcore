@@ -8,6 +8,7 @@
 pub mod basis_adv;
 pub mod basis_basic;
 pub mod bezier;
+pub mod crv_adv;
 pub mod crv_basic;
 pub mod crv_common;
 pub mod crv_fit;
@@ -23,6 +24,7 @@ pub(crate) mod index;
 pub mod knots;
 pub mod math;
 pub mod nurbs_crv;
+pub mod spiral;
 pub mod srf_basic;
 pub mod srf_common;
 pub mod srf_fit;
