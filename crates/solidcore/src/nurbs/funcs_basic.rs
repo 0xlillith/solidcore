@@ -18,7 +18,7 @@
 //! | [`CurveFunction::array_sizes`], [`CurveFunction::n`], [`CurveFunction::m`] | `N_CFuncGetArraySizes` |
 //! | [`CurveFunction::degree`]                         | `N_CFuncGetDegree`               |
 //! | [`CurveFunction::knot_vector`]                    | `N_CFuncGetKnotVector`           |
-//! | [`CurveFunction::values`], [`CurveFunction::knots`] | `N_CrvFuncCntrlValKnots`       |
+//! | [`CurveFunction::values`], [`CurveFunction::knots`], [`CurveFunction::values_mut`], [`CurveFunction::knots_mut`] | `N_CrvFuncCntrlValKnots` |
 //! | the accessors above                               | `N_CFuncGetArrayAndKnotVector`, `N_CrvFuncCntrlValKnotVector`, `N_CFuncGetData` |
 //! | [`CurveFunction::eval`]                           | `N_CFuncEval`                    |
 //! | [`CurveFunction::derivs`]                         | `N_CFuncDerivs`                  |
@@ -195,6 +195,20 @@ impl CurveFunction {
         self.knots.get(..=self.m).unwrap_or(&self.knots)
     }
 
+    /// Mutable values in use, `fu[0..=n]` (written through `N_CrvFuncCntrlValKnots`
+    /// upstream).
+    pub fn values_mut(&mut self) -> &mut [f64] {
+        let k = self.fu.len().min(self.n.saturating_add(1));
+        self.fu.get_mut(..k).unwrap_or_default()
+    }
+
+    /// Mutable knots in use, `U[0..=m]` (written through `N_CrvFuncCntrlValKnots`
+    /// upstream).
+    pub fn knots_mut(&mut self) -> &mut [f64] {
+        let k = self.knots.len().min(self.m.saturating_add(1));
+        self.knots.get_mut(..k).unwrap_or_default()
+    }
+
     /// Size of the value and knot storage (highest storable indices plus one).
     #[must_use]
     pub fn storage(&self) -> (usize, usize) {
@@ -260,10 +274,10 @@ impl CurveFunction {
 
     /// Shrinks the storage to exactly the indices in use (`N_CrvFuncCompact`).
     pub fn compact(&mut self) {
-        let fv = self.values().to_vec();
-        let v = self.knots().to_vec();
-        self.fu = fv;
-        self.knots = v;
+        self.fu.truncate(self.n.saturating_add(1));
+        self.fu.shrink_to_fit();
+        self.knots.truncate(self.m.saturating_add(1));
+        self.knots.shrink_to_fit();
     }
 
     /// Replaces the value and knot storage, keeping the indices in use
@@ -406,7 +420,6 @@ impl SurfaceFunction {
     /// possibly larger storage.
     ///
     /// Errors with `InvalidInput` when the storage is smaller than the indices.
-    #[allow(clippy::too_many_arguments)] // the upstream object's fields, in order
     pub fn with_indices(
         fuv: Vec<Vec<f64>>,
         n: usize,
@@ -536,7 +549,6 @@ impl SurfaceFunction {
     ///
     /// Errors with [`NlibCode::Storage`] when the existing function is too small
     /// (the slot is left unchanged).
-    #[allow(clippy::too_many_arguments)] // upstream signature
     pub fn size_arrays(
         slot: &mut Option<Self>,
         n: usize,
