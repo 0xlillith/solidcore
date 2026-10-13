@@ -2674,3 +2674,46 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## surface.cone_p1 (`SmCone` / `SmCylinder`, part 1) (2026-10-13)
+
+- **Virtual calls back into the cone.** The inherited `SmSurfOfRevolution::MakeNurb`
+  rebuilds the polar converter through the virtual `CreateIsoParametricCurve`, i.e.
+  `SmCone::CreateIsoParametricCurve` (a circle averaged from three iso-curve points), not
+  the surface-of-revolution one. `SurfOfRevolution` now takes the iso curve as a hook
+  (`make_nurb_with_sweep_params_with`, `rebuild_polar_converter_with`); `Cone::make_nurb`
+  passes the cone's. Units porting the other derived classes (`SmSphere`, `SmTorus`) need
+  the same.
+- **Owner re-entrancy in the unbounded constructor.** `pNewLine->AdjustSTEPInterval(apex,
+  INF)` runs after `SetOwner(this)`: the line's `MakeNurb` asks the cone for
+  `GetGenDirParamExtent`, whose `GetNaturalUVDomain` makes the cone's NURB (virtual
+  `MakeNurb`, inside the constructor) and the line is reparameterised to it.
+  `Cone::new_unbounded` replays these steps explicitly; `CreateCanonical` then makes the
+  NURB again. Bit-identical in difftest.
+- **Faithful upstream quirks** (also in `plan/upstream-issues.md`): the
+  `CreateCanonical(semi-angle, pOptHeight)` bounded branch passes `FALSE` as
+  `bInsideOut` and the caller's `bInsideOut` as `bMakeNurbGenCurve`; the
+  `CreateCanonical(bot, top, height)` branch for `height <= 0` passes the top radius as
+  the semi-angle; `sm_TotalCoincidenceChecker` compares the wrong end points for reversed
+  lines and then returns `FALSE` (status `0`, not `SM_SUCCESS`); `GetApex` returns
+  `SM_ERR` for a cylinder (callers use its outputs).
+- **Harness guards.** `SmPolarConversion::ConvertToNURBSParameter` dereferences the polar
+  curve unchecked: a cone whose converter could not be set up (e.g. a negative radius)
+  would crash in `ConvertUVFromSTEPToNURBS` / `CreateIsoCircleFromPoint`; the shim answers
+  `SC_ERR_ARG` for those ops and leaves `GetHeight` out of the state (it reads
+  uninitialised points when `EvaluatePoint` fails). `CreateIsoCircleFromPoint` ignores
+  the `STEPInversion` status and reads its height uninitialised when the generator drop
+  fails; the shim replays that inversion first and answers `SC_ERR_ARG`, the runner does
+  the same test. `AdjustSTEPUVDomain` with a reversed sweep interval (`[90, 10]`) never
+  returns in the C++ reference (`SmSurfOfRevolution::AdjustSTEPUVDomain`, unported in
+  Rust): the FFI rejects a reversed sweep there. Everything else (parallel or zero
+  placement axes, zero or negative heights, semi-angles beyond 90 degrees, reversed or
+  over-long bounded sweeps) is accepted and compared: upstream returns statuses or builds
+  degenerate surfaces.
+- **Not compared yet.** `SmSurfOfRevolution::STEPInversion` is co-ported for the planar
+  generator every cone has (its non-planar branch is `Unported`, unit
+  `surface.surf_of_revolution_p2`). `AdjustSTEPUVDomain` past its apex checks, `Transform`
+  past its argument checks and `ReadFromDB` past the cone's own data wait on
+  `surface.surf_of_revolution_p2` / `_p3` (deferred). `ReadFromDB` is unit-tested only:
+  the `surface.surface_p2` shim dumps B-spline surfaces only. The `SmSurface::ReadFromDB`
+  dispatch now reads the cone data and defers on `surface.surf_of_revolution_p3`.

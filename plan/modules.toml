@@ -1649,10 +1649,10 @@ soft_depends_on = ["curve.curve_p6", "curve.ellipse_p1", "curve.ellipse_p2", "ge
 est_lines = 1835
 layer = 24
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "50 fns; largest: SmCone::CreateIsoParametricCurve, SmCone::CreateIsoCircleFromPoint, sm_TotalCoincidenceChecker, SmCone::ConvertUVFromSTEPToNURBS; cycle back-edges (call into later units; stub or co-port): surface.surf_of_revolution_p2(4), surface.surf_of_revolution_p3(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 1752 cases (252 fixture: TestSmConeSTEPCrossDerivative, TestSmGeneral cylinder/cone, smFilletTest/smTopoTest cylinders incl. every swap/inside-out, my_test_analytic_surfaces cones and cylinder, edge cases; + 1500 generated incl. degenerate placements/heights/semi-angles/sweeps, 1e-6..1e5 scales), 1625 pass bit-identical (max_rel_err 0), 0 failed, 127 deferred (surface.surf_of_revolution_p2 68: AdjustSTEPUVDomain within the apex; surface.surf_of_revolution_p3 59: non-identity Transform); perturbation 1625/1625 detected; 20k-seed run clean. SmSurfOfRevolution MakeNurb/RebuildPolarConverter take the virtual iso-curve hook (cone override). sm_TotalCoincidenceChecker compared through a verbatim shim copy. SmSurface::ReadFromDB now dispatches cone/cylinder to Cone::read_from_db (then defers on surface.surf_of_revolution_p3). Upstream issues UB-73, UB-74, HANG-11, WR-48, WR-49. 50 fns; largest: SmCone::CreateIsoParametricCurve, SmCone::CreateIsoCircleFromPoint, sm_TotalCoincidenceChecker, SmCone::ConvertUVFromSTEPToNURBS; cycle back-edges (call into later units; stub or co-port): surface.surf_of_revolution_p2(4), surface.surf_of_revolution_p3(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.surf_of_extrusion_p1"
@@ -1750,7 +1750,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "CO-PORTED in surface.surf_of_revolution_p1 (PR #15): SmSurfOfRevolution::CreateCanonical and ::MakeNurb live in surface::surf_of_revolution::p1 (SurfOfRevolution::create_canonical / make_nurb), covered by the p1 difftest runner. Do not re-port; move or extend them there. 8 fns; largest: SmSurfOfRevolution::CreateOffsetSurface, SmSurfOfRevolution::IsNurbSurfaceSurfOfRevolution, SmSurfOfRevolution::TrimWithDomain, SmSurfOfRevolution::STEPInversion; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "CO-PORTED in surface.cone_p1 (PR #31): SmSurfOfRevolution::STEPInversion (planar-generator branch; the non-planar branch is a stub) -> surface::cone::p1::Cone::rev_step_inversion (private). CO-PORTED in surface.surf_of_revolution_p1 (PR #15): SmSurfOfRevolution::CreateCanonical and ::MakeNurb live in surface::surf_of_revolution::p1 (SurfOfRevolution::create_canonical / make_nurb), covered by the p1 difftest runner. Do not re-port; move or extend them there. 8 fns; largest: SmSurfOfRevolution::CreateOffsetSurface, SmSurfOfRevolution::IsNurbSurfaceSurfOfRevolution, SmSurfOfRevolution::TrimWithDomain, SmSurfOfRevolution::STEPInversion; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.surface_cache_p3"

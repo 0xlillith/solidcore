@@ -1967,6 +1967,7 @@ pub fn total_coincidence_checker(
 mod tests {
     use super::*;
     use crate::curve::curve::p2::ELLIPSE_TYPE;
+    use crate::error::SM_ERR;
 
     fn k() -> Kernel {
         Kernel::default()
@@ -2131,6 +2132,35 @@ mod tests {
         );
         assert!(!cone.approx_eq(&cyl));
         assert!(cone.approx_eq(&cone.clone()));
+    }
+
+    #[test]
+    fn negative_radius_cylinder_has_no_polar_curve() {
+        // MakeNurb ignores the polar converter rebuild's failure (a negative radius)
+        let mut c = Cone::new_cylinder_bounded(
+            Vec3::ZERO,
+            Vec3::X,
+            Vec3::Y,
+            -1.8,
+            0.0,
+            360.0,
+            4.3,
+            false,
+            false,
+            false,
+        );
+        c.make_nurb(&k()).unwrap();
+        assert!(c.rev().polar_curve().is_none());
+        assert!(c
+            .convert_uv_from_step_to_nurbs(&k(), Point2::new(10.0, 1.0))
+            .is_err());
+        assert!(matches!(
+            c.convert_uv_from_nurbs_to_step(&k(), Point2::new(0.5, 0.5)),
+            Err(SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            })
+        ));
     }
 
     #[test]
