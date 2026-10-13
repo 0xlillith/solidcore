@@ -28,6 +28,18 @@ use solidcore::surface::surface_cache::{
 };
 use solidcore_ffi::units::surface_surface_p9 as ffi;
 
+use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Handle(u8);
+impl SolutionObject for Handle {
+    fn kind(&self) -> ObjectKind {
+        if self.0 == 0 { ObjectKind::Curve } else { ObjectKind::Surface }
+    }
+    fn natural_interval(&self) -> Option<Extent1d> {
+        (self.0 == 0).then(|| Extent1d::from_min_max(0.0, 1.0))
+    }
+}
 pub struct Runner;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
@@ -121,7 +133,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                 false,
             ));
             let interval = Extent1d::from_min_max(0.0, 1.0);
-            let mut cc = CurveCache::<i64>::new(
+            let mut cc = CurveCache::<Handle>::new(
                 curve.clone(),
                 interval,
                 CurveCacheOptions {
@@ -129,16 +141,16 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                     ..CurveCacheOptions::default()
                 },
             );
-            cc.set_curve_handle(Some(0));
+            cc.set_curve_handle(Some(Handle(0)));
             match cc.tessellate(&k) {
                 Err(e) => Err(e),
                 Ok(()) => {
-                    let mut cache = SurfaceCache::<i64>::new(
+                    let mut cache = SurfaceCache::<Handle>::new(
                         surface,
                         Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
                         SurfaceCacheOptions::default(),
                     );
-                    cache.set_surface_handle(Some(1));
+                    cache.set_surface_handle(Some(Handle(1)));
                     let uv = cache.uv_domain();
                     let mut bbox = Extent3d::new();
                     for p in i.net {
@@ -165,7 +177,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                             is_marked: false,
                             node_class: NodeClass::Unknown,
                             face: None,
-                            surface: Some(1),
+                            surface: Some(Handle(1)),
                             slot: Some(0),
                         }),
                         ..TreeNode::new()
@@ -216,7 +228,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                                         .objects
                                         .iter()
                                         .take(2)
-                                        .map(|v| v.map_or(-1.0, |n| n as f64)),
+                                        .map(|v| v.map_or(-1.0, |n| f64::from(n.0))),
                                 );
                             }
                             out
