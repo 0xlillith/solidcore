@@ -1778,7 +1778,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "18 fns; largest: SmVolume::EvaluateBoundingBoxSimple, SmVolume::EvaluateBoundingBox, SmVolume::EvaluatePseudoBoxSimple, SmVolume::InvMapPoint; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "CO-PORTED in surface.unbend_volume (PR #20): SmVolume::EvaluatePoint -> surface::volume::Volume::evaluate_point (defined in surface/unbend_volume.rs; SmCrvInVolume::EvaluatePoint calls it), SmVolume::IsPointInParamDomain -> surface::unbend_volume::is_point_in_param_domain (private); move both here when porting; 18 fns; largest: SmVolume::EvaluateBoundingBoxSimple, SmVolume::EvaluateBoundingBox, SmVolume::EvaluatePseudoBoxSimple, SmVolume::InvMapPoint; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.surface_p7"

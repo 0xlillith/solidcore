@@ -206,7 +206,7 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 ));
             }
         }
-        Op::Trim => {
+        Op::Trim | Op::CurveIn => {
             r.vecs(2)?;
         }
         Op::InvGuess => {
@@ -226,9 +226,6 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         }
         Op::Preds => {
             r.vecs(3)?;
-        }
-        Op::CurveIn => {
-            r.vecs(2)?;
         }
         Op::Copy => {
             r.flag()?;
