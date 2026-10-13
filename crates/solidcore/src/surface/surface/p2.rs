@@ -277,10 +277,12 @@ impl From<Plane> for Surface {
 pub struct SurfaceIntersection {
     /// `pOpt3DCurves`: the 3D intersection curves.
     pub curves_3d: Vec<Curve>,
-    /// `pOptSurface1UVCurves`: their UV curves on this surface.
-    pub surface1_uv_curves: Vec<Curve>,
-    /// `pOptSurface2UVCurves`: their UV curves on the other surface.
-    pub surface2_uv_curves: Vec<Curve>,
+    /// `pOptSurface1UVCurves`: their UV curves on this surface (`None` for a null
+    /// entry).
+    pub surface1_uv_curves: Vec<Option<Curve>>,
+    /// `pOptSurface2UVCurves`: their UV curves on the other surface (`None` for a
+    /// null entry).
+    pub surface2_uv_curves: Vec<Option<Curve>>,
     /// `pOptCurveTypes`: the kind of each intersection.
     pub curve_types: Vec<TsectCurveType>,
     /// `pOptDeviations`: the maximum distance of each curve from the surfaces.
