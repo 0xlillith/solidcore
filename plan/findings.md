@@ -2530,8 +2530,8 @@ execute past Evaluate1stDerivatives / MapTo2d (surface.surface_p1); Rust regress
 check that these explicit deferrals preserve state. They are not claimed as
 C++-verified. The base MarkFaceContainment dispatch remains unported before it
 could reach the trim-specific PointClassify; it must use that override when wired.
-The face-build path also needs the upstream temporary brep-editing guard when
-face topology is wired. These dependencies prevent end-to-end trimmed-face use.
+The face-build path preserves the temporary brep-editing guard through explicit
+unported topology accessors, restoring the flag on both success and failure. These dependencies prevent end-to-end trimmed-face use.
 
 Fixtures exercise prepend order, shared boundaries, degenerate and curved trim
 curves, existing face extents and the deferred subdivision/pole/face paths. File
