@@ -32,8 +32,8 @@ jobs:
         run: nice -n 10 harness/cpp/build.sh --jobs 6
       - name: Rust and C++ comparison
         run: |
-          nice -n 10 cargo run -p difftest --features cpp -- --unit surface.surface_p9
-          nice -n 10 cargo run -p difftest --features cpp -- --unit surface.surface_p9 --perturb
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9 --perturb
       - name: Required lint and test gates
         run: |
           nice -n 10 cargo fmt --all --check
