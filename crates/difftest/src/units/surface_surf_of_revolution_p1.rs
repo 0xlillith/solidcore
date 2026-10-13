@@ -860,6 +860,18 @@ fn gen_generator(rng: &mut Rng, f: &Frame, planar: bool) -> GenIn {
                 u,
             })
         }
+        6..=7 if rng.chance(0.35) => {
+            // a line parallel (or anti-parallel) to the axis: a cylinder, whose sweep
+            // circle CreateSurfOfRevolution reparametrises with arc length
+            let r = rng.uniform(0.2, 3.0);
+            let o = off(rng);
+            let (h0, h1) = (rng.uniform(-2.0, 0.0), rng.uniform(0.5, 3.0));
+            let (h0, h1) = if rng.chance(0.3) { (h1, h0) } else { (h0, h1) };
+            GenIn::Line {
+                a: in_frame(f, r, h0, o),
+                b: in_frame(f, r, h1, o),
+            }
+        }
         6..=7 => {
             let o1 = off(rng);
             let o2 = off(rng);

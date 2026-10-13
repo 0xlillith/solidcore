@@ -206,7 +206,7 @@ SmSurfOfRevolution* read_surface(Rd& rd, const SmContext& ctx, std::vector<doubl
             delete gen;
         return NULL;
     }
-    s->GetOutOfBoundsEnabled() = oob ? TRUE : FALSE;
+    s->SetOutOfBoundsEnabled(oob ? TRUE : FALSE); // the surface and its generator
     return s;
 }
 

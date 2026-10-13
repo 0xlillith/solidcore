@@ -671,6 +671,1006 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#82 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#83 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#84 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#85 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#86 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#87 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw0_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#88 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#89 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#90 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#91 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#92 (upstream review of PR #15: line parallel to the axis (cylinder))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#93 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#94 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_sw1_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#95 (upstream review of PR #15: line parallel to the axis (cylinder), partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#96 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#97 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#98 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#99 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#100 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#101 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw0_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#102 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#103 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#104 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#105 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#106 (upstream review of PR #15: line anti-parallel to the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#107 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#108 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_rev_sw1_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#109 (upstream review of PR #15: line anti-parallel to the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#110 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#111 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#112 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#113 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#114 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#115 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw0_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#116 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#117 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#118 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#119 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#120 (upstream review of PR #15: line within 0.001 deg of the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#121 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#122 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_near_cyl_sw1_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#123 (upstream review of PR #15: line within 0.001 deg of the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#124 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#125 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#126 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#127 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#128 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#129 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw0_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#130 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#131 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#132 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#133 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#134 (upstream review of PR #15: line just outside 0.001 deg of the axis)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_partial_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#135 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_partial_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#136 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tilt_cyl_sw1_partial_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#137 (upstream review of PR #15: line just outside 0.001 deg of the axis, partial sweep)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_tilted_ctor_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#138 (upstream review of PR #15: cylinder about a tilted axis (constructor))",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_tilted_ctor_to_step",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#139 (upstream review of PR #15: cylinder about a tilted axis (constructor))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cyl_tilted_canonical_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#140 (upstream review of PR #15: cylinder about a tilted axis)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_0_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#141 (upstream review of PR #15: rotation axis (0, 0, 0))",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_0_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#142 (upstream review of PR #15: rotation axis (0, 0, 0))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_0_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#143 (upstream review of PR #15: rotation axis (0, 0, 0), line generator)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-13_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#144 (upstream review of PR #15: rotation axis (0, 0, 1e-13))",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-13_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#145 (upstream review of PR #15: rotation axis (0, 0, 1e-13))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-13_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#146 (upstream review of PR #15: rotation axis (0, 0, 1e-13), line generator)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-9_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#147 (upstream review of PR #15: rotation axis (0, 0, 1e-09))",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-9_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#148 (upstream review of PR #15: rotation axis (0, 0, 1e-09))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-9_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#149 (upstream review of PR #15: rotation axis (0, 0, 1e-09), line generator)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-7_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#150 (upstream review of PR #15: rotation axis (0, 0, 1e-07))",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-7_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#151 (upstream review of PR #15: rotation axis (0, 0, 1e-07))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_1e-7_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#152 (upstream review of PR #15: rotation axis (0, 0, 1e-07), line generator)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_x_1e-13_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#153 (upstream review of PR #15: rotation axis (1e-13, 0, 0))",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_x_1e-13_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#154 (upstream review of PR #15: rotation axis (1e-13, 0, 0))",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_axis_x_1e-13_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#155 (upstream review of PR #15: rotation axis (1e-13, 0, 0), line generator)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_bspline_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#156 (upstream review of PR #15: bspline generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 248
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_bspline_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#157 (upstream review of PR #15: bspline generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_bspline_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#158 (upstream review of PR #15: bspline generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_bspline_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#159 (upstream review of PR #15: bspline generator, V domain trimmed vs its STEP interval, swapped)",
+      "values_compared": 248
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_bspline_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#160 (upstream review of PR #15: bspline generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 248
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_bspline_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#161 (upstream review of PR #15: bspline generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_bspline_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#162 (upstream review of PR #15: bspline generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_bspline_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#163 (upstream review of PR #15: bspline generator, V domain extendmed vs its STEP interval, swapped)",
+      "values_compared": 248
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_line_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#164 (upstream review of PR #15: line generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_line_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#165 (upstream review of PR #15: line generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_line_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#166 (upstream review of PR #15: line generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_line_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#167 (upstream review of PR #15: line generator, V domain trimmed vs its STEP interval, swapped)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_line_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#168 (upstream review of PR #15: line generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_line_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#169 (upstream review of PR #15: line generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_line_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#170 (upstream review of PR #15: line generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_line_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#171 (upstream review of PR #15: line generator, V domain extendmed vs its STEP interval, swapped)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#172 (upstream review of PR #15: cyl generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_cyl_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#173 (upstream review of PR #15: cyl generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_cyl_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#174 (upstream review of PR #15: cyl generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_cyl_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#175 (upstream review of PR #15: cyl generator, V domain trimmed vs its STEP interval, swapped)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_cyl_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#176 (upstream review of PR #15: cyl generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_cyl_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#177 (upstream review of PR #15: cyl generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_cyl_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#178 (upstream review of PR #15: cyl generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_cyl_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#179 (upstream review of PR #15: cyl generator, V domain extendmed vs its STEP interval, swapped)",
+      "values_compared": 176
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_circle_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#180 (upstream review of PR #15: circle generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 280
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_circle_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#181 (upstream review of PR #15: circle generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_circle_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#182 (upstream review of PR #15: circle generator, V domain trimmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_circle_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#183 (upstream review of PR #15: circle generator, V domain trimmed vs its STEP interval, swapped)",
+      "values_compared": 280
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_circle_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#184 (upstream review of PR #15: circle generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 348
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_circle_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#185 (upstream review of PR #15: circle generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_circle_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#186 (upstream review of PR #15: circle generator, V domain extendmed vs its STEP interval)",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_extend_circle_swap_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#187 (upstream review of PR #15: circle generator, V domain extendmed vs its STEP interval, swapped)",
+      "values_compared": 348
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_1e-06_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#188 (upstream review of PR #15: generator scaled by 1e-06)",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_1e-06_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#189 (upstream review of PR #15: generator scaled by 1e-06)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_1e-06_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#190 (upstream review of PR #15: generator scaled by 1e-06)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_10000_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#191 (upstream review of PR #15: generator scaled by 10000)",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_10000_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#192 (upstream review of PR #15: generator scaled by 10000)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scale_10000_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#193 (upstream review of PR #15: generator scaled by 10000)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_far_origin_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#194 (upstream review of PR #15: axis and generator 1e8 from the origin)",
+      "values_compared": 292
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_far_origin_eval",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#195 (upstream review of PR #15: axis and generator 1e8 from the origin)",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_par_1e-05_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#196 (upstream review of PR #15: line of length 1e-05)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_par_1e-05_ctor_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#197 (upstream review of PR #15: line of length 1e-05)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_rad_1e-05_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#198 (upstream review of PR #15: line of length 1e-05)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_rad_1e-05_ctor_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#199 (upstream review of PR #15: line of length 1e-05)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_par_2e-06_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#200 (upstream review of PR #15: line of length 2e-06)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_par_2e-06_ctor_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#201 (upstream review of PR #15: line of length 2e-06)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_rad_2e-06_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#202 (upstream review of PR #15: line of length 2e-06)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_short_line_rad_2e-06_ctor_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#203 (upstream review of PR #15: line of length 2e-06)",
+      "values_compared": 204
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_touch_axis_build",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#204 (upstream review of PR #15: full circle touching the axis (torus without hole))",
+      "values_compared": 500
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_touch_axis_iso_pole",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#205 (upstream review of PR #15: full circle touching the axis)",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_touch_axis_eval_pole",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/cases.json#206 (upstream review of PR #15: full circle touching the axis)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -811,7 +1811,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578435",
-      "values_compared": 120
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -827,7 +1827,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578437",
-      "values_compared": 22
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -883,7 +1883,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578444",
-      "values_compared": 50
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -926,16 +1926,12 @@
       "values_compared": 42
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0032",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578450",
-      "values_compared": 0
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -967,7 +1963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578454",
-      "values_compared": 14
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1079,7 +2075,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578468",
-      "values_compared": 4
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1155,7 +2151,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578477",
-      "values_compared": 2
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -1163,7 +2159,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578478",
-      "values_compared": 5
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -1278,12 +2274,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmPlane::GetPosition",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0075",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4440998236234578493",
-      "values_compared": 2
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1307,7 +2307,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578496",
-      "values_compared": 4
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -1326,16 +2326,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0081",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578499",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -1359,7 +2355,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578502",
-      "values_compared": 8
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -1643,7 +2639,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578536",
-      "values_compared": 4
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -1659,7 +2655,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578538",
-      "values_compared": 4
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -1747,7 +2743,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578548",
-      "values_compared": 50
+      "values_compared": 39
     },
     {
       "max_rel_err": 0.0,
@@ -1827,7 +2823,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578558",
-      "values_compared": 4
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -1875,7 +2871,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578564",
-      "values_compared": 42
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -1923,7 +2919,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578570",
-      "values_compared": 52
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -1931,7 +2927,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578571",
-      "values_compared": 9
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -2079,7 +3075,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578588",
-      "values_compared": 5
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -2111,7 +3107,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578592",
-      "values_compared": 23
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2159,7 +3155,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578598",
-      "values_compared": 29
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -2199,7 +3195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578603",
-      "values_compared": 22
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -2263,7 +3259,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578611",
-      "values_compared": 23
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -2306,16 +3302,12 @@
       "values_compared": 194
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0199",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578617",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -2374,12 +3366,16 @@
       "values_compared": 8
     },
     {
+      "deferred": {
+        "symbol": "SmPlane::GetPosition",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0207",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4440998236234578625",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2387,7 +3383,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578626",
-      "values_compared": 39
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2550,16 +3546,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0228",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578646",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2575,7 +3567,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578648",
-      "values_compared": 5
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -2631,7 +3623,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578655",
-      "values_compared": 23
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -2639,7 +3631,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578656",
-      "values_compared": 23
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -2899,7 +3891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578687",
-      "values_compared": 22
+      "values_compared": 204
     },
     {
       "deferred": {
@@ -2935,7 +3927,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578691",
-      "values_compared": 8
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -2974,12 +3966,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmPlane::GetPosition",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0278",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4440998236234578696",
-      "values_compared": 22
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3019,7 +4015,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578701",
-      "values_compared": 2
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -3115,7 +4111,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578713",
-      "values_compared": 14
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -3139,7 +4135,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578716",
-      "values_compared": 50
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -3347,15 +4343,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578742",
-      "values_compared": 2
+      "values_compared": 8
     },
     {
+      "deferred": {
+        "symbol": "SmPlane::GetPosition",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0325",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4440998236234578743",
-      "values_compared": 14
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3371,7 +4371,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578745",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3395,7 +4395,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578748",
-      "values_compared": 22
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -3411,7 +4411,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578750",
-      "values_compared": 62
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3446,16 +4446,12 @@
       "values_compared": 49
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0337",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578755",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -3503,7 +4499,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578761",
-      "values_compared": 5
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -3599,7 +4595,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578773",
-      "values_compared": 23
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -3715,7 +4711,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578787",
-      "values_compared": 39
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -3851,7 +4847,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578804",
-      "values_compared": 62
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -3903,7 +4899,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578810",
-      "values_compared": 2
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -4047,7 +5043,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578828",
-      "values_compared": 4
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -4087,7 +5083,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578833",
-      "values_compared": 9
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -4127,7 +5123,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578838",
-      "values_compared": 120
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -4159,7 +5155,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578842",
-      "values_compared": 5
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -4295,7 +5291,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578859",
-      "values_compared": 8
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -4327,7 +5323,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578863",
-      "values_compared": 59
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -4343,7 +5339,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578865",
-      "values_compared": 5
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -4399,19 +5395,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578872",
-      "values_compared": 5
+      "values_compared": 148
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::GetPosition",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0455",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440998236234578873",
-      "values_compared": 0
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -4459,7 +5451,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578879",
-      "values_compared": 14
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -4467,7 +5459,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578880",
-      "values_compared": 62
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -4531,7 +5523,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578888",
-      "values_compared": 9
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -4555,7 +5547,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578891",
-      "values_compared": 29
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -4643,7 +5635,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578902",
-      "values_compared": 5
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -4651,7 +5643,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578903",
-      "values_compared": 4
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -4659,7 +5651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578904",
-      "values_compared": 22
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -4743,7 +5735,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578914",
-      "values_compared": 2
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -4943,7 +5935,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578939",
-      "values_compared": 29
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -4951,7 +5943,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578940",
-      "values_compared": 23
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -5103,7 +6095,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578958",
-      "values_compared": 204
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -5435,7 +6427,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234578998",
-      "values_compared": 204
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -5547,7 +6539,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=4440998236234579012",
-      "values_compared": 29
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -5591,12 +6583,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 33,
+  "cases_deferred": 31,
   "cases_failed": 0,
-  "cases_passed": 649,
-  "cases_total": 682,
+  "cases_passed": 776,
+  "cases_total": 807,
   "deferred_by_unit": {
-    "surface.plane_p1": 33
+    "surface.plane_p1": 31
   },
   "max_rel_err": 0.0,
   "pass": true,

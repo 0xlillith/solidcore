@@ -28,8 +28,10 @@
 //! positive weights or all non-rational, non-decreasing knots with end multiplicity
 //! `p + 1` and interior multiplicity at most `p`), non-degenerate lines, circles with a
 //! positive radius, independent axes and an angular domain inside `[-360, 360]` at most
-//! 360 long, non-zero rotation axes, ordered domains, finite parameters and derivative
-//! orders up to 3.
+//! 360 long, finite rotation axes (`CreateCanonical` makes a zero one `(0, 0, 1)`),
+//! independent unit placement axes for the constructor (a longer Y axis leaves
+//! `IsOnPlane`'s output uninitialised), ordered domains, finite parameters and
+//! derivative orders up to 3.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -267,6 +269,18 @@ fn axes(x: [f64; 3], y: [f64; 3], what: &str) -> Result<(), FfiError> {
     Ok(())
 }
 
+/// `SM_EFF_ZERO`.
+const EFF_ZERO: f64 = 1e-12;
+
+/// Checks a vector is a unit vector within `SM_EFF_ZERO` on its squared length.
+fn unit(v: [f64; 3], what: &str) -> Result<(), FfiError> {
+    let [x, y, z] = v;
+    if ((x * x + y * y + z * z) - 1.0).abs() > EFF_ZERO {
+        return Err(bad(format!("{what}: not a unit vector")));
+    }
+    Ok(())
+}
+
 fn domain(d: [f64; 4], what: &str) -> Result<(), FfiError> {
     finite(&d, what)?;
     let [a, b, c, e] = d;
@@ -438,10 +452,9 @@ fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
     match &s.build {
         Build::Canonical { point, axis } => {
             finite(point, "axis point")?;
+            // any finite axis: `CreateCanonical` unitizes it ignoring the status, so a
+            // zero one becomes (0, 0, 1)
             finite(axis, "axis")?;
-            if len(*axis) < 1e-6 {
-                return Err(bad("axis: zero"));
-            }
             o.push(0.0);
             push_gen(o, &s.gen)?;
             o.extend([f64::from(u8::from(s.oob)), f64::from(u8::from(s.swap))]);
@@ -456,6 +469,12 @@ fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
         } => {
             finite(origin, "origin")?;
             axes(*x, *y, "placement")?;
+            // Unit axes only: the constructor passes the Y axis as is to
+            // `SmBSplineCurve::IsOnPlane`, whose `smgu_PlanePointDistance` fails for
+            // `|y|^2 - 1 > SM_EFF_ZERO` and leaves `bOnPlane` uninitialised (read by the
+            // constructor) for a planar generator that is not a line.
+            unit(*x, "placement X")?;
+            unit(*y, "placement Y")?;
             domain(*d, "surface domain")?;
             let [u0, _, u1, _] = *d;
             angular(u0, u1, "surface domain")?;
