@@ -2539,3 +2539,35 @@ fixtures use Surface.sms and offset_nurb.sms from the allowed upstream corpus.
 The C++ shim deliberately excludes classifying a surface without a face: upstream
 would dereference null. FFI regression tests reject this path, truncated/trailing
 records, invalid counts and non-finite coordinates before entering C++.
+
+
+## surface.surf_of_revolution_p1 (2026-10-13)
+
+Ported `SmSurfOfRevolution` part 1 (`crates/solidcore/src/surface/surf_of_revolution/p1.rs`)
+with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (units `_p2`,
+`_p3`). difftest: 682 cases (82 fixtures, 600 seeded), 649 bit-identical, 0 failed,
+33 deferred (`IntersectWithPlane` of a planar generator needs `SmPlane`,
+`surface.plane_p1`); `--perturb` detected 649/649.
+
+- **Generator owner stubs not wired.** `SmLine`, `SmEllipse`, `SmHyperbola` and
+  `SmParabola::MakeNurb` reparameterise a generator owned by a surface of revolution to
+  `((SmSurfOfRevolution*)m_pOwner)->GetGenDirParamExtent()`. The Rust curves only hold an
+  `ObjectRef` (type code + key) for their owner, which cannot reach the surface, so the
+  four `UNPORTED(surface.surf_of_revolution_p1)` stubs stay (they return `Unported` for
+  such an owner). `SurfOfRevolution::gen_dir_param_extent` is ported; wiring needs an owner
+  model that can hand a curve its owning surface's data. The Rust `SurfOfRevolution` leaves
+  its generator unowned, so it never reaches the stubs; upstream's owner-driven step only
+  differs when `MakeNurbWithSweepParams` adjusts a generator whose STEP interval differs
+  from the surface's V domain (never through `CreateCanonical`).
+- **Upstream re-entrancy hazard (avoided by the harness).** The constructor sets the
+  generator's owner, then evaluates it. An analytic generator without NURB (an `SmLine`
+  fresh from its two-point constructor) then runs `MakeNurb`, which asks the owner for
+  `GetGenDirParamExtent`, whose `GetNaturalUVDomain` makes the surface's NURB through the
+  virtual `MakeNurb` from inside the constructor. The difftest shim makes the line's NURB
+  first; the Rust port evaluates the generator without the owner detour.
+- `RebuildPolarConverter` dereferences a null iso curve when `CreateIsoParametricCurve`
+  fails (upstream only asserts); the port returns the error.
+- `sm_TestForIsoCircles` leaves outputs unwritten when no iso curve is non-degenerate or no
+  two iso planes intersect; with parallel planes after the first common line, it keeps
+  comparing the last line found (stale `smgu_IntersectTwoPlanes` outputs). The port returns
+  the unwritten outputs as `None` and keeps the stale-line behaviour.
