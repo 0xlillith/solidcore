@@ -1144,7 +1144,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "partial"
 claimed_by = "swarm-surface.volume_p1-a1"
 claimed_at = "2026-10-13T02:16:42Z"
-notes = "63 fns; largest: smvol_LiftThirdDerivative, SmFindPVIntersectENFO::Evaluate, SmVolume::Map, SmVolume::Evaluate; cycle back-edges (call into later units; stub or co-port): surface.b_spline_volume(2), surface.bend_volume(2), surface.twist_volume(2), surface.unbend_volume(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; difftest partial: 2886 cases (886 fixtures + 2000 generated), 2787 pass, 99 deferred (surface.twist_volume 60, surface.unbend_volume 39), max_rel_err 0; 20k-seed run clean; --perturb SENSITIVE; wired: curve.crv_in_volume (deferred 604 -> 208), geom.transform (256 -> 3), geom.tol GetScaledZero(SmVolume); geom.solution_array volume stub stays (opaque handle)"
+notes = "63 fns; largest: smvol_LiftThirdDerivative, SmFindPVIntersectENFO::Evaluate, SmVolume::Map, SmVolume::Evaluate; cycle back-edges (call into later units; stub or co-port): surface.b_spline_volume(2), surface.bend_volume(2), surface.twist_volume(2), surface.unbend_volume(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; difftest partial: 2886 cases (886 fixtures + 2000 generated), 2847 pass, 39 deferred (surface.unbend_volume 39; twist wired), max_rel_err 0; 20k-seed run clean; --perturb SENSITIVE; wired: curve.crv_in_volume (deferred 604 -> 208), geom.transform (256 -> 3), geom.tol GetScaledZero(SmVolume); geom.solution_array volume stub stays (opaque handle)"
 
 [[unit]]
 id = "curve.curve_p4"
@@ -1193,10 +1193,10 @@ depends_on = ["geom.extent3d", "geom.pseudo_box", "geom.tol", "geom.transform", 
 est_lines = 1226
 layer = 16
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-surface.b_spline_volume-a1"
 claimed_at = "2026-10-13T03:04:36Z"
-notes = "23 fns; largest: SmBSplineVolume::EvaluateSimple, SmBSplineVolume::ReadFromDB, SmBSplineVolume::EvaluateIsoParametricCurveSimple, SmBSplineVolume::EvaluateBoundingBoxSimple; unit-SCC #22 (220 units); only 201 of 1226 lines survive RTA (reached via virtual dispatch to classes no in-scope entry point constructs); low priority / likely deferrable; 319 upstream test entry points reach this unit"
+notes = "23 fns; largest: SmBSplineVolume::EvaluateSimple, SmBSplineVolume::ReadFromDB, SmBSplineVolume::EvaluateIsoParametricCurveSimple, SmBSplineVolume::EvaluateBoundingBoxSimple; unit-SCC #22 (220 units); only 201 of 1226 lines survive RTA (reached via virtual dispatch to classes no in-scope entry point constructs); low priority / likely deferrable; 319 upstream test entry points reach this unit; GREEN: difftest 2333 cases (333 fixture: unit cube, rational Bezier, knots needing fixup, coincident control points, degree 0, unclamped, closest-point ties, oriented + compounded volumes over info/copy/equal/eval/bbox/iso/guess/transform/predicate ops + 2000 generated), all bit-identical (max_rel_err 0), 0 deferred; 30,333-case run clean; --perturb SENSITIVE. Upstream builds without USE_VOLUMES: EvaluateSimple, EvaluateIsoParametricCurveSimple, ReadFromDB, sm_LoadNLibTransform (so TransformSimple) return SM_ERR and AreEqual_gw_VOLUME is FALSE (findings.md). The SmBSplineVolume UNPORTED stub in surface.volume_p1 now only covers the surface.b_spline_volume_n_lib overrides (HasDiscontinuitiesSimple, IsCurveInParamDomainSimple); no unit deferred on surface.b_spline_volume"
 
 [[unit]]
 id = "surface.twist_volume"
@@ -1206,10 +1206,10 @@ depends_on = ["geom.extent1d", "geom.extent3d", "geom.object", "geom.pseudo_box"
 est_lines = 649
 layer = 16
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-surface.twist_volume-a1"
 claimed_at = "2026-10-13T03:03:30Z"
-notes = "25 fns; largest: SmTwistVolume::Evaluate, SmTwistVolume::EvaluateSimple, SmTwistVolume::EvaluateBoundingBoxSimple, SmTwistVolume::ReadFromDB; cycle back-edges (call into later units; stub or co-port): surface.volume_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "difftest: 1572 cases (default seeds), 1569 pass, 3 deferred (ReadFromDB -> surface.volume_p2 SmVolume::ReadFromDB); max_rel_err 0; wiring dropped surface.volume_p1 deferred 99 -> 39. 25 fns; largest: SmTwistVolume::Evaluate, SmTwistVolume::EvaluateSimple, SmTwistVolume::EvaluateBoundingBoxSimple, SmTwistVolume::ReadFromDB; cycle back-edges (call into later units; stub or co-port): surface.volume_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "curve.curve_p3"
