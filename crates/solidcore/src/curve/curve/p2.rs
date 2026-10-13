@@ -157,8 +157,7 @@ use crate::geom::vector3d::{acos, Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_curve::{
-    BSplineCurve, BSplineCurveForm, CanonicalData, Ends, KnotType, NurbCircleParam,
-    ProjectionType,
+    BSplineCurve, BSplineCurveForm, CanonicalData, Ends, KnotType, NurbCircleParam, ProjectionType,
 };
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::topology::database_io::DatabaseReader;
@@ -3071,7 +3070,10 @@ mod tests {
         };
         let mut g = hermite();
         let _ = g.set_owner(Some(owner_curve), None);
-        assert_eq!(g.edge(|o| (o == owner_curve).then_some(edge)).unwrap(), Some(edge));
+        assert_eq!(
+            g.edge(|o| (o == owner_curve).then_some(edge)).unwrap(),
+            Some(edge)
+        );
         // a cycle is an error
         assert!(g.edge(|_| Some(owner_curve)).is_err());
     }
@@ -3099,7 +3101,11 @@ mod tests {
     #[test]
     fn stacks_and_bezier_assembly() {
         let mut stack = Vec::new();
-        push_point(1.0, [Vec3::new(1.0, 2.0, 3.0), Vec3::new(4.0, 5.0, 6.0)], &mut stack);
+        push_point(
+            1.0,
+            [Vec3::new(1.0, 2.0, 3.0), Vec3::new(4.0, 5.0, 6.0)],
+            &mut stack,
+        );
         push_point(2.0, [Vec3::ZERO, Vec3::ZERO], &mut stack);
         assert_eq!(stack_look(&stack).unwrap().0, 2.0);
         assert_eq!(pop_stack(&mut stack).unwrap().0, 2.0);
@@ -3116,7 +3122,9 @@ mod tests {
         add_to_curve(b, c, 1.0, 2.0, &mut poly, &mut knots).unwrap();
         assert!(add_to_curve(a, b, 5.0, 6.0, &mut poly, &mut knots).is_err());
         assert_eq!((poly.len(), knots.len()), (7, 3));
-        let crv = flush_crv(1e-6, &mut poly, &mut knots, true).unwrap().unwrap();
+        let crv = flush_crv(1e-6, &mut poly, &mut knots, true)
+            .unwrap()
+            .unwrap();
         assert!(poly.is_empty() && knots.is_empty());
         assert!((crv.evaluate_point(1.5).unwrap().x - 1.5).abs() < 1e-12);
     }

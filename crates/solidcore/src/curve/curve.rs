@@ -10,6 +10,6 @@
 pub mod p2;
 
 pub use p2::{
-    Curve, CurveEvaluate, CurveKind, CurvePropertyType, LineIntersection, OwnerChange,
-    StepOff, TessStepResult,
+    Curve, CurveEvaluate, CurveKind, CurvePropertyType, LineIntersection, OwnerChange, StepOff,
+    TessStepResult,
 };
