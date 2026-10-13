@@ -76,12 +76,16 @@
 //!   `m_lTotalBezSize`, `sm_ComputeNurbSurfaceSize`) has no counterpart.
 //!   `SmSurfaceCache::GetTree` (same unit) is only reproduced as far as returning an
 //!   existing tree: when it would build one, [`SolidError::Unported`] is returned.
-//! - **Virtual dispatch.** The surface calls go through the surface kind: the only
-//!   ported kind is [`BSplineSurface`], whose overrides (`CreateIsoParametricCurve`,
-//!   `CalculateBoundingBox`) are used; `SmSurface::IsSingularity`
-//!   (`surface.surface_p5`), `SmSurface::EvaluateNormal` (`surface.surface_p7`) and
-//!   `SmSurface::GetFace` (`surface.surface_p1`) are not overridden and return
-//!   [`SolidError::Unported`]. `PointClassify` is the base class body (`SM_ERR`); the
+//! - **Virtual dispatch.** The surface calls go through the surface kind: the
+//!   [`BSplineSurface`] overrides (`CreateIsoParametricCurve`, `CalculateBoundingBox`)
+//!   are used; the curve-bounded surface runs the base class bodies
+//!   (`SmSurface::CreateIsoParametricCurve`, `surface.surface_p5`;
+//!   `SmSurface::CalculateBoundingBox`, `surface.surface_p1`), and
+//!   `SmSurface::IsSingularity` (`surface.surface_p5`), `SmSurface::EvaluateNormal`
+//!   (`surface.surface_p7`) and `SmSurface::GetFace` (`surface.surface_p1`) are not
+//!   overridden by any kind: those return [`SolidError::Unported`]. Where upstream
+//!   casts with `SM_CAST_PTR(SmBSplineSurface, ...)` and `NER`s, a non-B-spline surface
+//!   gives `SM_ERR_NULL_POINTER`. `PointClassify` is the base class body (`SM_ERR`); the
 //!   trimmed surface cache overrides belong to `surface.trim_srf_cache`.
 //! - **Out-params** become return values; where upstream leaves an output untouched
 //!   on a failure the port returns `None` for it. `GetIsoBoundaryCurves` returns
@@ -117,7 +121,7 @@ use crate::kernel::Kernel;
 use crate::math::{Point2, Point3, Vec2, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::{
-    BSplineSurface, BoundingBoxRequest, IsoCurveOptions, SurfParamType,
+    BSplineSurface, BoundingBoxRequest, BoundingBoxes, IsoCurveOptions, SurfParamType,
 };
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::math::NOW;
@@ -140,6 +144,8 @@ pub const PB_SAMPLE_COUNT: usize = 5;
 /// `SM_MAX_ALT_CACHES`: alternate caches a surface cache can hold.
 pub const MAX_ALT_CACHES: usize = 5;
 
+const OP_BOUNDARY: &str =
+    "surface::surface_cache::p1::PatchBoundaryBoundingPlanes::create_boundary_curve_for_index";
 const OP_PLANES: &str =
     "surface::surface_cache::p1::PatchBoundaryBoundingPlanes::compute_bounding_planes";
 const OP_PLANE3: &str = "surface::surface_cache::p1::compute_plane_from_3_points";
@@ -168,10 +174,11 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
     SolidError::InvalidInput { operation, reason }
 }
 
-/// `SM_CAST_PTR(SmBSplineSurface, surface)`: every ported surface kind is a B-spline.
-const fn bspline_of(surface: &Surface) -> &BSplineSurface {
+/// `SM_CAST_PTR(SmBSplineSurface, surface)`.
+const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
-        SurfaceKind::BSpline(b) => b,
+        SurfaceKind::BSpline(b) => Some(b),
+        SurfaceKind::CurveBounded(_) => None,
     }
 }
 
@@ -195,10 +202,31 @@ const fn bspline_curve_of(curve: &Curve) -> Option<&BSplineCurve> {
 }
 
 /// `SmSurface::CreateIsoParametricCurve(ctx, param, iso, tol, curve, domain)`: the
-/// B-spline override (the 3D tolerance is not used by it).
+/// B-spline override (the 3D tolerance is not used by it); other kinds run the base
+/// class body.
 fn create_iso_parametric_curve(
     k: &Kernel,
     surface: &Surface,
+    param: SurfParamType,
+    iso: f64,
+    domain: Option<Extent2d>,
+) -> Result<BSplineCurve> {
+    match surface.kind() {
+        SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
+        SurfaceKind::CurveBounded(_) => {
+            // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
+            Err(SolidError::unported(
+                "SmSurface::CreateIsoParametricCurve",
+                "surface.surface_p5",
+            ))
+        }
+    }
+}
+
+/// `SmBSplineSurface::CreateIsoParametricCurve` without UV curve.
+fn bspline_iso_curve(
+    k: &Kernel,
+    bss: &BSplineSurface,
     param: SurfParamType,
     iso: f64,
     domain: Option<Extent2d>,
@@ -207,9 +235,26 @@ fn create_iso_parametric_curve(
         domain,
         uv_iso_curve: false,
     };
-    Ok(bspline_of(surface)
-        .create_iso_parametric_curve(k, param, iso, opts)?
-        .curve)
+    Ok(bss.create_iso_parametric_curve(k, param, iso, opts)?.curve)
+}
+
+/// `SmSurface::CalculateBoundingBox(domain, ...)`: the B-spline override; other kinds
+/// run the base class body.
+fn calculate_bounding_box(
+    surface: &Surface,
+    domain: &Extent2d,
+    req: &BoundingBoxRequest<'_>,
+) -> Result<BoundingBoxes> {
+    match surface.kind() {
+        SurfaceKind::BSpline(b) => b.calculate_bounding_box(domain, req),
+        SurfaceKind::CurveBounded(_) => {
+            // UNPORTED(surface.surface_p1): SmSurface::CalculateBoundingBox
+            Err(SolidError::unported(
+                "SmSurface::CalculateBoundingBox",
+                "surface.surface_p1",
+            ))
+        }
+    }
 }
 
 /// `SmSurface::IsSingularity(uv, eSingDir)`: not overridden by the ported kinds.
@@ -493,8 +538,9 @@ impl PatchBoundaryBoundingPlanes {
         index: usize,
     ) -> Result<BSplineCurve> {
         let (spt, param) = self.iso_of(index);
+        let bss = bspline_of(surface).ok_or(SolidError::null_pointer(OP_BOUNDARY))?;
         // make the curve (3D Tol SM_BIG_DOUBLE: not used)
-        create_iso_parametric_curve(k, surface, spt, param, None)
+        bspline_iso_curve(k, bss, spt, param, None)
     }
 
     /// The UV end points of boundary `index` (`GetBoundaryUVEndPoints`).
@@ -527,7 +573,7 @@ impl PatchBoundaryBoundingPlanes {
         let tolerance = 0.0001;
 
         // local
-        let bs = bspline_of(surface);
+        let bs = bspline_of(surface).ok_or(SolidError::null_pointer(OP_PLANES))?;
 
         // for every boundary
         for ii in 0..4 {
@@ -1727,7 +1773,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 .ok_or_else(|| invalid(OP, "node has no surface data"))?;
             // if the AuxData has a temporary Subdivision Surface pointer - use it
             if fields.surface.is_some() && (n.parent.is_none() || owner_surface != fields.surface) {
-                return Ok(bspline_of(self.node_surface(fields.surface)?).gw_nurb());
+                // (upstream casts to SmBSplineSurface* unchecked)
+                let bss = bspline_of(self.node_surface(fields.surface)?)
+                    .ok_or_else(|| invalid(OP, "subdivision surface is not a B-spline"))?;
+                return Ok(bss.gw_nurb());
             }
             // else try to get the parent's shape - skip the owner surface
             match n.parent {
@@ -1835,7 +1884,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             polar_guess: guess,
             expand_by_zone_tol: true,
         };
-        let boxes = ignored(bspline_of(surface).calculate_bounding_box(&domain, &req))?;
+        let boxes = ignored(calculate_bounding_box(surface, &domain, &req))?;
         Ok(boxes.and_then(|b| b.polar))
     }
 
