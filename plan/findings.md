@@ -2363,3 +2363,36 @@ Upstream behaviour worth knowing (all kept by the port unless noted):
 - **`sm_FlushCrv`** is listed as unused by the call graph (another file has a static
   function of the same name) but is reached from `BuildCompositesFromCurves`; it is ported
   in this unit.
+
+## curve.curve_p5 (`SmCurve`, part 5)
+
+No Rust-vs-C++ disagreement: 3067 of 3067 non-deferred difftest cases bit-identical (97
+upstream-derived and edge-case fixtures: `TestSmCreateRectangle` / `TestSmCreateRegularPolygon`
+edges through clean-up, duplicate removal, `IsLine` / `IsLinear` / `IsArc` / `Length` /
+`IsDomainBoundary`, the `my_test_reversed_line_join` lines, closest-point inversions, Newton
+Jacobians; plus 3000 generated; a 20000-seed run is clean; `--perturb` detects every case).
+30 cases are deferred: `Length` of spans of degree above 1 (`SmIntegrator::IntegrateIt`, unit
+`mass.integrator`; 28) and gap closing that reaches `SmCurve::GetNaturalInterval` through a
+solution handle (an `UNPORTED(curve.curve_p2)` stub in `geom::solution_array`; 2).
+Upstream behaviour worth knowing:
+
+- **`CrvsCleanup` crashes (SIGSEGV)** when the curve next to a removed tiny curve is closed:
+  `TrimGap` between the previous curve and a closed curve (end points equal) dies inside
+  upstream (reproduced with a cubic segment, a tiny segment and a closed quadratic loop).
+  The port completes the clean-up. Difftest never generates a closed curve next to a tiny
+  one. `CrvsCleanup` also casts every neighbour to `SmBSplineCurve` for `TrimGap`; the port
+  returns `InvalidInput` for any other kind there and the ffi only sends B-splines.
+- **`Length` casts its cache curve to `SmBSplineCurve`** and integrates any curve the cache
+  tessellates, Hermite curves included (the Rust cache tessellates them as upstream does),
+  so a Hermite `Length` is deferred like any curved span, not the end point distance the
+  comment promises.
+- **`SmFindCCNormalENFO::Evaluate`** reads `m_cpOptVectors[0..1]` without a `NULL` check for
+  `SM_SO_SIGNED_PIVOT_MINIMIZE` (the port returns `InvalidInput`), and the iteration count
+  that triggers the curvature "step back" only counts evaluations with a Jacobian.
+- **`sm_IsPointSolutionAcrossClosedSeamBoundary`** compares the solution's object pointers
+  with its curves; the port's caller (`GlobalCoincidenceChecker`) passes whether the first
+  object is `this` (the split solutions always name `[this, other]`).
+- **`SmCurve::CacheMakeOrValidate`** is reached in the port only through
+  `make_curve_cache` (building) and `validate_curve_cache` (type check, reuse);
+  `GetOrCreateObjectCache` on an object without the curve returns `InvalidInput` when a
+  new curve cache would be needed.

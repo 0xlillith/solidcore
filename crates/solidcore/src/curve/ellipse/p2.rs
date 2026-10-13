@@ -76,8 +76,8 @@
 //! - **Statuses.** Calls whose status upstream ignores keep upstream's values, except
 //!   that [`SolidError::Unported`] is always propagated. Upstream outputs written
 //!   before a failing status (partial solution arrays) are not returned.
-//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`) returns
-//!   [`SolidError::Unported`]. `SmCurve::GlobalPointSolve` and
+//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`) runs on the
+//!   ellipse's B-spline base (the ellipse evaluates through it). `SmCurve::GlobalPointSolve` and
 //!   `SmCurve::GlobalCoincidenceChecker` of the ellipse are
 //!   [`curve_base::Curve::global_point_solve`] and
 //!   [`curve_base::Curve::global_coincidence_checker`] on copies of the ellipses as
@@ -140,16 +140,23 @@ fn table(v: &[f64], i: usize, operation: &'static str) -> Result<f64> {
 /// &Point, bFoundAnswer, sSolution)` of `curve`: whether an answer was found and its
 /// parameter.
 fn local_point_inversion(
-    _curve: &Ellipse,
-    _interval: &Extent1d,
-    _guess: f64,
-    _point: Point3,
+    curve: &Ellipse,
+    interval: &Extent1d,
+    guess: f64,
+    point: Point3,
 ) -> Result<(bool, f64)> {
-    // UNPORTED(curve.curve_p5): SmCurve::LocalPropertyAnalysis
-    Err(SolidError::Unported {
-        upstream: "SmCurve::LocalPropertyAnalysis",
-        unit: "curve.curve_p5",
-    })
+    // (the ellipse evaluates through its NURB)
+    let mut solution: Solution<()> = Solution::new();
+    let found = crate::curve::curve::p5::local_property_analysis(
+        curve.base(),
+        interval,
+        curve_base::CurvePropertyType::PointInversion,
+        guess,
+        None,
+        &[point],
+        &mut solution,
+    )?;
+    Ok((found, solution.start.param(0)?))
 }
 
 /// `SmCurve::GlobalPointSolve(Interval, SM_SO_INTERSECT, Point, dTol, NULL, NULL,
@@ -540,8 +547,7 @@ impl PolarConversion {
     ///
     /// `InvalidInput` for a table without curve or knots (upstream dereferences
     /// them); the errors of [`Self::angle_param_to_nurb_param`] and of the
-    /// evaluations; [`SolidError::Unported`] from the point inversion
-    /// (`SmCurve::LocalPropertyAnalysis`).
+    /// evaluations and of the point inversion (`SmCurve::LocalPropertyAnalysis`).
     pub fn convert_to_nurbs_parameter(
         &self,
         curve: &Ellipse,

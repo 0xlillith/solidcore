@@ -79,7 +79,8 @@
 //!   naming the ellipse and its polar converter in reports and `level_given` for
 //!   `SM_LEVEL_GIVEN` (the other levels run every check used here).
 //! - **Back-edges.** `SmCurve::IsArc` of a non-circular ellipse (inside
-//!   `SmBSplineCurve::CreateSimpleOffset`) is unit `curve.curve_p5`.
+//!   `SmBSplineCurve::CreateSimpleOffset`) is the base class of unit `curve.curve_p5`
+//!   ([`crate::curve::curve::p5::is_arc_base`]) on the ellipse's NURB.
 
 use core::ops::Div;
 
@@ -807,22 +808,25 @@ impl Ellipse {
         )
     }
 
-    /// `IsArc`: a circle is its own arc (placement, radius, start and end angle in
-    /// degrees; `SmCircle::IsArc`, whose sample count and tolerance are unused).
+    /// `IsArc(lNumberOfSamplePoints, dTol, ..)`: a circle is its own arc
+    /// (placement, radius, start and end angle in degrees; `SmCircle::IsArc`, whose
+    /// sample count and tolerance are unused); an ellipse runs the base class
+    /// ([`crate::curve::curve::p5::is_arc_base`] on its NURB, with the ellipse's
+    /// `IsDegenerate`).
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for a non-circular ellipse (`SmCurve::IsArc`, unit
-    /// `curve.curve_p5`).
-    pub fn is_arc(&self) -> Result<Option<ArcData>> {
+    /// Those of [`crate::curve::curve::p5::is_arc_base`].
+    pub fn is_arc(&self, num_samples: u64, tol: f64) -> Result<Option<ArcData>> {
         if self.circle {
             return Ok(Some(self.arc_data()));
         }
-        // UNPORTED(curve.curve_p5): SmCurve::IsArc
-        Err(SolidError::Unported {
-            upstream: "SmCurve::IsArc",
-            unit: "curve.curve_p5",
-        })
+        crate::curve::curve::p5::is_arc_base(
+            &self.base,
+            |_, tol| Ok(self.is_degenerate(tol)),
+            num_samples,
+            tol,
+        )
     }
 
     /// The offset of the curve by `offset_distance` in the plane with normal
@@ -1865,7 +1869,7 @@ mod tests {
         assert_eq!(c.class_string(), "SmCircle");
         assert_eq!(c.base().form, BSplineCurveForm::CircularArc);
         assert_eq!(c.radius(), 2.0);
-        let (_, r, a, b) = c.is_arc().unwrap().unwrap();
+        let (_, r, a, b) = c.is_arc(5, 0.0).unwrap().unwrap();
         assert_eq!((r, a, b), (2.0, 0.0, 90.0));
     }
 

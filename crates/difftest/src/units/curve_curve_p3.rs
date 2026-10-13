@@ -654,7 +654,7 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
         }
         OpIn::ArcLength { curve, start, len } => {
             let c = build(curve)?;
-            let r = tri!(o, c.find_parameter_at_arc_length(*start, *len));
+            let r = tri!(o, c.find_parameter_at_arc_length(&k, *start, *len));
             o.extend([f64::from(r.status()), r.end_param, b(r.past_end)]);
         }
         OpIn::PcExtrema {
