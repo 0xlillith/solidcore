@@ -2570,7 +2570,24 @@ behaviour worth knowing:
   (`intersect.surface_drop_lib_p3`). `GlobalLineIntersect` of a line lying in the plane
   that meets the domain at a single line parameter needs the general
   `SmSurface::GlobalLineIntersect` through the surface cache (`surface.surface_p8`).
-- **`SmSurfaceCache` and planes.** The surface cache port treats its surface as a plain
-  B-spline. For an `SmPlane` it returns `SolidError::Unsupported`
-  (`CreateIsoParametricCurve`, which makes an `SmLine`, and the plane branch of
-  `CalculateBoundingBox`), or refuses the B-spline cast.
+- **`SmSurfaceCache` and planes.** Upstream the `SM_CAST_PTR(SmBSplineSurface, plane)`
+  in the cache succeeds and the virtual calls reach the plane. The port's cast gives the
+  plane's B-spline part, and the two virtual paths return `SolidError::Unported`
+  (marker `UNPORTED(surface.plane_p1)`): `SmPlane::CreateIsoParametricCurve` (ported, but
+  it makes an `SmLine` and the cache stores its iso curves as `BSplineCurve`, which
+  would drop the line's overrides; wiring needs `Curve` storage in the cache) and the
+  inherited `SmBSplineSurface::CalculateBoundingBox` (which dispatches back to the plane
+  through `IsKindOf` and `SmPlane::EvaluateNormal`; the plane does not re-dispatch it yet).
+- **Undefined behaviour the harness keeps away from upstream** (found in review):
+  `SmPlane(Origin, Normal)` with `|n|^2 < SM_EFF_ZERO_SQ`: `MakeUnitOrthoVectors` fails,
+  the status is ignored and the axes stay uninitialised (the ffi encoder rejects a normal
+  with `|n|^2 < 1e-24`). `Reverse` and `RebuildSTEPFromNURBParameters` on a plane whose
+  NURB cannot be made (degenerate or inverted domain) pass a `NULL` NURB to
+  `N_SrfReverse` / `SmBSplineSurface::EvaluatePoint` and segfault; the shim checks
+  `GetOrCreateGwNurbPointer()` first and reports `SM_ERR`, which is what the port
+  returns. `CreateExtendedSurface` with a zero distance loops forever (the halving never
+  falls below `dDist / 100`); the ffi encoder accepts only positive distances.
+- **`CreateExtendedSurface` on a plane** runs the `SmBSplineSurface` body with the
+  `SmPlane` overrides of `IsSingularity` (none) and `IsClosed` (never), so a plane
+  extends where a plain B-spline would still be waiting on `surface.surface_p5` /
+  `surface.surface_p7`.
