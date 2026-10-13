@@ -70,9 +70,6 @@ pub const MAX_LINE: usize = 256;
 /// Default database version of a new reader (`m_lVersion(30)`).
 pub const DEFAULT_VERSION: u64 = 30;
 
-/// `SM_ERR_NULL_POINTER`: a read on a reader without a stream (upstream `NER`).
-pub const SM_ERR_NULL_POINTER: i32 = 1006;
-
 /// Database encoding (upstream `SmFileType`); the discriminant is the upstream value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FileType {
@@ -626,7 +623,14 @@ pub struct DatabaseReader {
     stream: Option<InputStream>,
     byte_swap: bool,
     version: u64,
+    /// Current depth of nested polymorphic reads (not upstream; see `enter_nested`).
+    nesting: u32,
 }
+
+/// Deepest nesting of polymorphic reads (a curve holding a curve holding ...) a
+/// reader accepts. Not upstream: upstream recurses without bound, so a crafted file
+/// overflows the stack. Real models nest a handful of levels.
+pub const MAX_READ_NESTING: u32 = 64;
 
 impl Default for DatabaseReader {
     fn default() -> Self {
@@ -642,15 +646,6 @@ fn short_read(operation: &'static str) -> SolidError {
     }
 }
 
-/// Error for a read on a reader without a stream (upstream `NER` on `m_pStreamIn`).
-fn no_stream(operation: &'static str) -> SolidError {
-    SolidError::Upstream {
-        operation,
-        code: SM_ERR_NULL_POINTER,
-        entity: None,
-    }
-}
-
 impl DatabaseReader {
     /// A reader without a stream, file type [`FileType::Unknown`] (upstream default
     /// constructor).
@@ -661,6 +656,7 @@ impl DatabaseReader {
             stream: None,
             byte_swap: is_big_endian(),
             version: DEFAULT_VERSION,
+            nesting: 0,
         }
     }
 
@@ -672,6 +668,7 @@ impl DatabaseReader {
             stream: None,
             byte_swap: file_type.default_byte_swap(),
             version: DEFAULT_VERSION,
+            nesting: 0,
         }
     }
 
@@ -732,6 +729,31 @@ impl DatabaseReader {
         }
     }
 
+    /// Enters one level of nested polymorphic reading (`Curve::read_from_db` and the
+    /// like call this before dispatching, and [`Self::leave_nested`] after).
+    ///
+    /// Not an upstream function; bounds recursion on crafted input (see
+    /// [`MAX_READ_NESTING`] and `plan/findings.md`, "nested reads").
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] when the nesting limit is reached.
+    pub fn enter_nested(&mut self, operation: &'static str) -> Result<()> {
+        if self.nesting >= MAX_READ_NESTING {
+            return Err(SolidError::InvalidInput {
+                operation,
+                reason: "objects nested too deeply in the database stream",
+            });
+        }
+        self.nesting += 1;
+        Ok(())
+    }
+
+    /// Leaves one level entered with [`Self::enter_nested`].
+    pub fn leave_nested(&mut self) {
+        self.nesting = self.nesting.saturating_sub(1);
+    }
+
     /// The input stream for ASCII extraction (`*GetInStreamPtr() >> ...`).
     pub fn in_stream_mut(&mut self) -> Option<&mut InputStream> {
         self.stream.as_mut()
@@ -775,7 +797,10 @@ impl DatabaseReader {
 
     /// Reads exactly `N` raw bytes.
     fn read_raw<const N: usize>(&mut self, operation: &'static str) -> Result<[u8; N]> {
-        let s = self.stream.as_mut().ok_or_else(|| no_stream(operation))?;
+        let s = self
+            .stream
+            .as_mut()
+            .ok_or_else(|| SolidError::null_pointer(operation))?;
         let bytes = s.read_bytes(N);
         <[u8; N]>::try_from(bytes).map_err(|_| short_read(operation))
     }
@@ -786,7 +811,10 @@ impl DatabaseReader {
         n: usize,
         operation: &'static str,
     ) -> Result<Vec<[u8; N]>> {
-        let s = self.stream.as_mut().ok_or_else(|| no_stream(operation))?;
+        let s = self
+            .stream
+            .as_mut()
+            .ok_or_else(|| SolidError::null_pointer(operation))?;
         let total = n.checked_mul(N).ok_or_else(|| short_read(operation))?;
         let bytes = s.read_bytes(total);
         if bytes.len() != total {
@@ -924,7 +952,10 @@ impl DatabaseReader {
     pub fn read_type(&mut self, with_dim: bool) -> Result<TypeHeader> {
         const OP: &str = "topology::database_io::DatabaseReader::read_type";
         if self.file_type == FileType::Ascii {
-            let s = self.stream.as_mut().ok_or_else(|| no_stream(OP))?;
+            let s = self
+                .stream
+                .as_mut()
+                .ok_or_else(|| SolidError::null_pointer(OP))?;
             // `char sBuff[SM_MAXSIZE]`: words longer than 255 bytes are split.
             let _ = s.extract_word_limited(MAX_LINE);
             let _ = s.extract_word_limited(MAX_LINE);
@@ -955,6 +986,17 @@ impl DatabaseReader {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn nesting_is_bounded() {
+        let mut db = DatabaseReader::new();
+        for _ in 0..MAX_READ_NESTING {
+            assert!(db.enter_nested("test").is_ok());
+        }
+        assert!(db.enter_nested("test").is_err());
+        db.leave_nested();
+        assert!(db.enter_nested("test").is_ok());
+    }
     use super::*;
 
     fn ascii(s: &str) -> InputStream {

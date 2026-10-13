@@ -9,8 +9,11 @@
 //! | [`SolidError::InvalidInput`]| `SM_ERR_INVALID_INPUT`                           |
 //! | [`SolidError::Upstream`]    | any other `SM_ERR_*` code, carried numerically   |
 //! | [`SM_ERR`], [`SM_ERR_WARNING`], [`SolidError::sm_err`] | `SM_ERR`, `SM_ERR_WARNING`, `SE(SM_ERR)` |
+//! | [`SM_ERR_NULL_POINTER`], [`SolidError::null_pointer`] | `SM_ERR_NULL_POINTER`, `NER(...)` on `NULL` |
 //! | [`SolidError::Nlib`], [`SolidError::nlib`] | NLib error flag + `NL_ERROR.eno` (`N_ErrSet`) |
-//! | [`SolidError::Unported`]    | (none: call into a unit not ported yet)          |
+//! | [`SolidError::Unported`], [`SolidError::unported`], [`SolidError::is_unported`] | (none: call into a unit not ported yet) |
+//! | [`SolidError::invalid_input`] | (none: out-of-range reads / null dereferences upstream) |
+//! | `ignored`, `ignore_status` (crate) | a call whose `SmStatus` upstream ignores    |
 //! | [`NlibCode`]                | `NL_*_ERR` numbers (`source/SMLib/inc/NL_DataStruct.h`) |
 //! | `?` operator                | `SER(...)` / `NER(...)` (return on error)        |
 //!
@@ -26,6 +29,22 @@ use crate::topology::{BrepId, EdgeId, FaceId, LoopId, ShellId, VertexId};
 
 /// Shorthand for `core::result::Result<T, SolidError>`.
 pub type Result<T, E = SolidError> = core::result::Result<T, E>;
+
+/// The value of a call whose failing status upstream ignores: `Some` on success,
+/// `None` on failure; [`SolidError::Unported`] still propagates.
+pub(crate) fn ignored<T>(r: Result<T>) -> Result<Option<T>> {
+    match r {
+        Ok(v) => Ok(Some(v)),
+        Err(e) if e.is_unported() => Err(e),
+        Err(_) => Ok(None),
+    }
+}
+
+/// The status of a call upstream ignores: `Ok` for any result but
+/// [`SolidError::Unported`].
+pub(crate) fn ignore_status<T>(r: Result<T>) -> Result<()> {
+    ignored(r).map(|_| ())
+}
 
 /// A reference to one topological entity, used as error context.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -211,6 +230,10 @@ impl NlibCode {
 /// [`SolidError::Upstream`].
 pub const SM_ERR: i32 = 1001;
 
+/// Upstream `SmStatus` value `SM_ERR_NULL_POINTER`, as carried by
+/// [`SolidError::Upstream`].
+pub const SM_ERR_NULL_POINTER: i32 = 1006;
+
 /// Upstream `SmStatus` value `SM_ERR_WARNING`, as carried by [`SolidError::Upstream`].
 pub const SM_ERR_WARNING: i32 = 1023;
 
@@ -230,6 +253,17 @@ impl SolidError {
         }
     }
 
+    /// [`SolidError::Upstream`] with code [`SM_ERR_NULL_POINTER`] and no entity
+    /// (upstream `NER(ptr)` on a `NULL` pointer).
+    #[must_use]
+    pub const fn null_pointer(operation: &'static str) -> Self {
+        Self::Upstream {
+            operation,
+            code: SM_ERR_NULL_POINTER,
+            entity: None,
+        }
+    }
+
     /// Maps the error of a failed NLib call inside an `Sm*` method to `SM_ERR` (upstream
     /// `if (NL_YES == N_...) SER(SM_ERR)`), letting [`SolidError::Unported`] through.
     /// Use as `.map_err(SolidError::nl_ser(OP))`.
@@ -238,6 +272,27 @@ impl SolidError {
             Self::Unported { .. } => e,
             _ => Self::sm_err(operation),
         }
+    }
+
+    /// [`SolidError::InvalidInput`]: input upstream would not survive (out-of-range
+    /// reads, null dereferences, malformed data).
+    #[must_use]
+    pub const fn invalid_input(operation: &'static str, reason: &'static str) -> Self {
+        Self::InvalidInput { operation, reason }
+    }
+
+    /// [`SolidError::Unported`]: a call into `upstream` (a C++ symbol) of `unit`,
+    /// which is not ported yet. Every site carries `// UNPORTED(<unit>): <symbol>`.
+    #[must_use]
+    pub const fn unported(upstream: &'static str, unit: &'static str) -> Self {
+        Self::Unported { upstream, unit }
+    }
+
+    /// True for [`SolidError::Unported`], the one error a status upstream ignores
+    /// still propagates.
+    #[must_use]
+    pub const fn is_unported(&self) -> bool {
+        matches!(self, Self::Unported { .. })
     }
 
     /// [`SolidError::Nlib`] with the upstream error number `code` (NLib's

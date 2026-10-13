@@ -47,10 +47,9 @@
 //!   `CalculateBoundingBox`'s sampling fallback for derived types, whose `Evaluate`
 //!   calls have no NURB to evaluate either.
 //! - **Analytics.** `CreateAnalyticCurve` (with `USE_ANALYTICS`, defined in
-//!   `SmConfig.h`) builds an `SmLine` or `SmCircle`; those types are not ported, so
-//!   [`AnalyticCurve`] has no values yet and building one returns
-//!   [`SolidError::Unported`]. The end point check of the new curve is written when
-//!   they land.
+//!   `SmConfig.h`) builds an `SmLine` ([`crate::curve::line::Line`]) or an
+//!   `SmCircle`; `SmCircle` is not ported, so building one returns
+//!   [`SolidError::Unported`].
 //! - **Derived types.** `SetControlPoint`'s `IsKindOf(SmEllipse_TYPE)` only logs a
 //!   message and is false for a plain B-spline; it is omitted (as `EditEndPoint`'s in
 //!   `p1`). `IsDegenerate` asks `IsKindOf(SmCrvOnSurf_TYPE)` through
@@ -70,17 +69,24 @@
 //! - **`ReverseParameterization`** sets the new interval with `SetMinMax`, whose
 //!   failure (new min above new max, only for an inverted natural interval) upstream
 //!   ignores, leaving the caller's interval; the port then returns the old interval.
-//! - **Back-edges.** `IsLine` defers to `SmCurve::IsLine` (unit `curve.curve_p5`) for
-//!   rational curves and curves it cannot classify from the control points;
-//!   `IsDegenerate` calls `SmCurve::IsDegenerate` (`curve.curve_p4`) for other
-//!   intervals; `GetMaxAnalyticDomain` calls
-//!   `SmCurve::IsClosed` (`curve.curve_p4`); `CreateAnalyticCurve` builds `SmLine`
-//!   (`curve.line`) and `SmCircle` (`curve.ellipse_p1`) and calls `SmCurve::IsArc`
+//! - **Back-edges.** `IsLine` defers to `SmCurve::IsLine` (unit `curve.curve_p5`,
+//!   co-ported by `curve.curve_cache` as [`crate::curve::curve::p5::is_line_base`])
+//!   for rational curves and curves it cannot classify from the control points;
+//!   `IsDegenerate` calls `SmCurve::IsDegenerate`
+//!   ([`crate::curve::curve::p4::is_degenerate_base`]) for other intervals;
+//!   `GetMaxAnalyticDomain` calls `SmCurve::IsClosed`
+//!   ([`crate::curve::curve::p4::is_closed_base`]); `CreateAnalyticCurve` builds
+//!   `SmCircle` (`curve.ellipse_p1`) and calls `SmCurve::IsArc`
 //!   (`curve.curve_p5`); `CreateSimpleOffset` calls `SmCurve::IsArc`
-//!   (`curve.curve_p5`) and approximates an `SmOffsetCurve` (`curve.offset_curve`,
-//!   `SmCurve::ApproximateCurve` in `curve.curve_p1`). Those calls return
-//!   [`SolidError::Unported`] until the units are ported.
+//!   (`curve.curve_p5`); those calls return [`SolidError::Unported`] until the
+//!   units are ported. It approximates an [`OffsetCurve`] with
+//!   `SmCurve::ApproximateCurve` ([`Curve::approximate_curve`]), passing the
+//!   caller's `bOptMatchParameterization` as `bOptCreateAnalytics` and `FALSE` for
+//!   matching, as upstream.
 
+use crate::curve::curve::{Curve, CurveKind};
+use crate::curve::line::{BoundedLineOptions, Line};
+use crate::curve::offset_curve::OffsetCurve;
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
@@ -188,39 +194,28 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
 // ---- back-edges -------------------------------------------------------------------
 
 /// `SmCurve::IsLine` of `curve`: the line point and vector when the curve is a
-/// constant-speed line.
+/// constant-speed line (co-ported by unit `curve.curve_cache` into
+/// [`crate::curve::curve::p5`]).
 fn curve_is_line(
-    _curve: &BSplineCurve,
-    _num_samples: u64,
-    _tol: f64,
+    curve: &BSplineCurve,
+    num_samples: u64,
+    tol: f64,
 ) -> Result<Option<(Point3, Vec3)>> {
-    // UNPORTED(curve.curve_p5): SmCurve::IsLine
-    Err(SolidError::Unported {
-        upstream: "SmCurve::IsLine",
-        unit: "curve.curve_p5",
-    })
+    crate::curve::curve::p5::is_line_base(curve, num_samples, tol)
 }
 
 /// `SmCurve::IsDegenerate` of `curve` over `interval`.
 fn curve_is_degenerate(
-    _curve: &BSplineCurve,
-    _tol: f64,
-    _interval: Option<&Extent1d>,
+    curve: &BSplineCurve,
+    tol: f64,
+    interval: Option<&Extent1d>,
 ) -> Result<bool> {
-    // UNPORTED(curve.curve_p4): SmCurve::IsDegenerate
-    Err(SolidError::Unported {
-        upstream: "SmCurve::IsDegenerate",
-        unit: "curve.curve_p4",
-    })
+    crate::curve::curve::p4::is_degenerate_base(curve, tol, interval)
 }
 
 /// `SmCurve::IsClosed(crInterval, dTolerance = 0.0)` of `curve`.
-fn curve_is_closed(_curve: &BSplineCurve, _interval: &Extent1d) -> Result<bool> {
-    // UNPORTED(curve.curve_p4): SmCurve::IsClosed
-    Err(SolidError::Unported {
-        upstream: "SmCurve::IsClosed",
-        unit: "curve.curve_p4",
-    })
+fn curve_is_closed(curve: &BSplineCurve, interval: &Extent1d) -> Result<bool> {
+    crate::curve::curve::p4::is_closed_base(curve, interval, 0.0)
 }
 
 /// A circular arc found by `SmCurve::IsArc`: frame, radius, start and end angle
@@ -240,39 +235,97 @@ fn curve_is_arc(_curve: &BSplineCurve, _num_samples: u64, _tol: f64) -> Result<O
 /// `ApproximateCurve(ctx, {ivl.min, ivl.max}, tol, gap, approx, bMatch, FALSE)`: the
 /// approximation and its maximum gap.
 fn offset_curve_approximation(
-    _curve: &BSplineCurve,
-    _interval: &Extent1d,
-    _normal: Vec3,
-    _distance: f64,
-    _approx_tol_3d: f64,
-    _match_parameterization: bool,
+    curve: &BSplineCurve,
+    interval: &Extent1d,
+    normal: Vec3,
+    distance: f64,
+    approx_tol_3d: f64,
+    match_parameterization: bool,
 ) -> Result<(BSplineCurve, f64)> {
-    // UNPORTED(curve.offset_curve): SmOffsetCurve::ApproximateCurve
-    Err(SolidError::Unported {
-        upstream: "SmOffsetCurve::ApproximateCurve",
-        unit: "curve.offset_curve",
-    })
+    let off = OffsetCurve::new(
+        3,
+        Curve::from(curve.clone()),
+        *interval,
+        normal,
+        distance,
+        false,
+    );
+    let breaks = [interval.min(), interval.max()];
+    approximate_curve(
+        &Curve::from(off),
+        &breaks,
+        approx_tol_3d,
+        match_parameterization,
+    )
+}
+
+/// `SmCurve::ApproximateCurve(ctx, breaks, tol, gap, approx, bMatch, FALSE)` of
+/// `curve`: the approximation and its maximum gap. Upstream passes the caller's
+/// `bOptMatchParameterization` in the `bOptCreateAnalytics` slot and `FALSE` for
+/// matching the parameterization; kept.
+fn approximate_curve(
+    curve: &Curve,
+    breaks: &[f64],
+    approx_tol_3d: f64,
+    match_parameterization: bool,
+) -> Result<(BSplineCurve, f64)> {
+    const OP: &str = "nurbs::b_spline_curve::p2::approximate_curve";
+    let opts = crate::curve::curve::p1::ApproximateCurveOptions {
+        create_analytics: match_parameterization,
+        match_parameterization: false,
+        just_copy_bsplines: false,
+    };
+    let r = curve.approximate_curve(breaks, approx_tol_3d, &opts)?;
+    // (a degenerate offset leaves upstream's dMaxGap3d uninitialized)
+    let gap = r.achieved_tol.ok_or(SolidError::InvalidInput {
+        operation: OP,
+        reason: "maximum gap never written (degenerate offset curve)",
+    })?;
+    match r.curve.into_kind() {
+        CurveKind::BSpline(c) => Ok((c, gap)),
+        _ => Err(SolidError::InvalidInput {
+            operation: OP,
+            reason: "approximation is not a B-spline",
+        }),
+    }
 }
 
 /// An analytic curve [`BSplineCurve::create_analytic_curve`] makes (`SmLine`,
-/// `SmCircle`). The analytic curve types belong to units `curve.line` and
-/// `curve.ellipse_p1`, which are not ported yet, so no value of this type exists.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum AnalyticCurve {}
+/// `SmCircle`). `SmCircle` belongs to unit `curve.ellipse_p1`, which is not ported
+/// yet, so only lines are made.
+#[derive(Debug, Clone)]
+pub enum AnalyticCurve {
+    /// An `SmLine`.
+    Line(Line),
+}
+
+impl AnalyticCurve {
+    /// The point at NURB parameter `t` (`EvaluatePoint` of the analytic curve).
+    fn evaluate_point(&self, t: f64) -> Point3 {
+        match self {
+            Self::Line(l) => l.evaluate_point(t),
+        }
+    }
+}
 
 /// `new SmLine(origin, vector, interval, scale, dim)`.
 fn make_line(
-    _origin: Point3,
-    _vector: Vec3,
-    _interval: &Extent1d,
-    _scale: f64,
-    _dim: u64,
-) -> Result<AnalyticCurve> {
-    // UNPORTED(curve.line): SmLine::SmLine
-    Err(SolidError::Unported {
-        upstream: "SmLine::SmLine",
-        unit: "curve.line",
-    })
+    origin: Point3,
+    vector: Vec3,
+    interval: &Extent1d,
+    scale: f64,
+    dim: u64,
+) -> AnalyticCurve {
+    AnalyticCurve::Line(Line::bounded(
+        origin,
+        vector,
+        interval,
+        &BoundedLineOptions {
+            scale,
+            dim,
+            ..BoundedLineOptions::default()
+        },
+    ))
 }
 
 /// `new SmCircle(origin, x, y, angle_ivl, radius, dim, ctx, curve)`.
@@ -350,8 +403,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` without a NURB or when a span cannot be found; [`SolidError::Unported`]
-    /// when the Bezier line test reaches `SmCurve::IsLine`.
+    /// `SM_ERR` without a NURB or when a span cannot be found.
     pub fn calculate_bounding_box(
         &self,
         interval: &Extent1d,
@@ -583,9 +635,9 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` without a NURB; [`SolidError::Unported`] when a line or circle would be
-    /// built (`SmLine`, unit `curve.line`; `SmCircle`, `curve.ellipse_p1`) and for the
-    /// arc test of rational quadratics (`SmCurve::IsArc`, `curve.curve_p5`).
+    /// `SM_ERR` without a NURB; [`SolidError::Unported`] when a circle would be built
+    /// (`SmCircle`, `curve.ellipse_p1`) and for the arc test of rational quadratics
+    /// (`SmCurve::IsArc`, `curve.curve_p5`).
     pub fn create_analytic_curve(&self, interval: &Extent1d) -> Result<Option<AnalyticCurve>> {
         // use midPoint to set dScaledZero
         let mid_pnt = self.evaluate_point(interval.evaluate(0.456789))?;
@@ -607,7 +659,7 @@ impl BSplineCurve {
                     interval,
                     scale,
                     self.dim,
-                )?);
+                ));
             }
         } else if self.degree()? == 2 && self.is_rational()? {
             // check for circular arcs
@@ -680,12 +732,29 @@ impl BSplineCurve {
             }
         }
 
-        // when an analytic derived object was created its end points over the interval
-        // are compared with the curve's (within the scaled zero) before it is returned
-        match analytic {
-            Some(a) => match a {},
-            None => Ok(None),
+        // when an analytic derived object was created
+        let Some(a) = analytic else {
+            return Ok(None);
+        };
+
+        // if original and analytic given interval begin endpoints are too far apart
+        let or_pnt = self.evaluate_point(interval.min())?;
+        let an_pnt = a.evaluate_point(interval.min());
+        if or_pnt.distance(an_pnt) > scaled_zero {
+            // don't return the analytic object
+            return Ok(None);
         }
+
+        // if original and analytic end given interval endpoints are too far apart
+        let or_pnt = self.evaluate_point(interval.max())?;
+        let an_pnt = a.evaluate_point(interval.max());
+        if or_pnt.distance(an_pnt) > scaled_zero {
+            // don't return the analytic object
+            return Ok(None);
+        }
+
+        // get here when orig endpoints are close to analytic endpoints
+        Ok(Some(a))
     }
 
     /// Joins end-to-end connected `segments` into one curve (`CreateByJoining`). The
@@ -1103,8 +1172,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` without a NURB; [`SolidError::Unported`] where `SmCurve::IsLine`
-    /// (unit `curve.curve_p5`) is needed.
+    /// `SM_ERR` without a NURB.
     pub fn is_line(&self, num_samples: u64, tol: f64) -> Result<Option<(Point3, Vec3)>> {
         let num_samples = num_samples.max(3);
 
@@ -1211,8 +1279,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for another interval (`SmCurve::IsDegenerate`,
-    /// `curve.curve_p4`); `SM_ERR` without a NURB.
+    /// `SM_ERR` without a NURB (natural interval).
     pub fn is_degenerate(&self, tol3d: f64, interval: Option<&Extent1d>) -> Result<bool> {
         // low work - for nonNaturalInterval intervals pass the call along to the
         // general SmCurve::IsDegenerate
@@ -1322,8 +1389,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the closed test is `SmCurve::IsClosed` (unit
-    /// `curve.curve_p4`); `SM_ERR` without a NURB.
+    /// `SM_ERR` without a NURB.
     pub fn max_analytic_domain(&self) -> Result<Extent1d> {
         let mut dom = self.natural_interval();
 
@@ -1787,11 +1853,9 @@ mod tests {
     }
 
     #[test]
-    fn non_bezier_line_test_is_unported() {
-        assert!(matches!(
-            cubic().is_line(3, 1e-9),
-            Err(SolidError::Unported { .. })
-        ));
+    fn non_bezier_line_test_samples_the_curve() {
+        // a curved cubic: SmCurve::IsLine (co-ported) rejects it
+        assert!(cubic().is_line(3, 1e-9).unwrap().is_none());
     }
 
     #[test]
@@ -1906,9 +1970,10 @@ mod tests {
             .unwrap()
             .is_none());
         let l = line(Point3::new(0.0, 0.0, 0.0), Point3::new(2.0, 0.0, 0.0));
-        assert!(matches!(
-            l.create_analytic_curve(&l.natural_interval()),
-            Err(SolidError::Unported { .. })
-        ));
+        let Some(AnalyticCurve::Line(a)) = l.create_analytic_curve(&l.natural_interval()).unwrap()
+        else {
+            panic!("expected a line");
+        };
+        assert_eq!(a.evaluate_point(1.0), Point3::new(2.0, 0.0, 0.0));
     }
 }

@@ -146,9 +146,6 @@ const SPHERE_TYPE: i64 = SURF_BASE_TYPE + 14;
 /// `SmTorus_TYPE`.
 const TORUS_TYPE: i64 = SURF_BASE_TYPE + 15;
 
-/// `SM_ERR_NULL_POINTER` (upstream `NER`).
-const SM_ERR_NULL_POINTER: i32 = 1006;
-
 const OP_DATA: &str = "nurbs::b_spline_surface::p1::BSplineSurface::from_data";
 const OP_NURB: &str = "nurbs::b_spline_surface::p1::BSplineSurface::make_nurb";
 const OP_BBOX: &str = "nurbs::b_spline_surface::p1::BSplineSurface::calculate_bounding_box";
@@ -242,6 +239,27 @@ pub enum SurfParamType {
     VMax = 8,
     /// `SM_SP_OUT`.
     Out = 9,
+}
+
+impl SurfParamType {
+    /// The enumerator of a stored value (`(SmSurfParamType) lValue`), `None` outside
+    /// the enum.
+    #[must_use]
+    pub const fn from_code(code: u64) -> Option<Self> {
+        Some(match code {
+            0 => Self::U,
+            1 => Self::V,
+            2 => Self::Unknown,
+            3 => Self::Both,
+            4 => Self::Neither,
+            5 => Self::UMin,
+            6 => Self::VMin,
+            7 => Self::UMax,
+            8 => Self::VMax,
+            9 => Self::Out,
+            _ => return None,
+        })
+    }
 }
 
 /// `SmLocationType`: where a point lies on a surface; discriminants are the upstream
@@ -955,11 +973,9 @@ impl BSplineSurface {
     ///
     /// `SM_ERR_NULL_POINTER` without NURB.
     pub fn canonical(&self) -> Result<SurfaceCanonical> {
-        let sur = self.nurb_ref().ok_or(SolidError::Upstream {
-            operation: OP_GET_CANON,
-            code: SM_ERR_NULL_POINTER,
-            entity: None,
-        })?;
+        let sur = self
+            .nurb_ref()
+            .ok_or(SolidError::null_pointer(OP_GET_CANON))?;
         let (knu, knv) = sur.knot_vectors()?;
         let (u_knots, u_multiplicities) = get_knots(&knu, None);
         let (v_knots, v_multiplicities) = get_knots(&knv, None);

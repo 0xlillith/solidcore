@@ -12,8 +12,8 @@
 //! (`binary`: tokens `d<double>`, `l<long>`, `s<short>` written native-endian). The
 //! result `r` is the op status (`0` = success) and its values; a curve state is
 //! `type dim oob borrowed knot_type form O X Y F step_min step_max has_nurb [n p m
-//! cpts knots]`. `gps_step` reaches the unported `SmCurve::GlobalPointSolve`
-//! (`curve.curve_p1`) and is deferred unless the interval adjustment fails first.
+//! cpts knots]`. `gps_step` runs `SmCurve::GlobalPointSolve` (`curve.curve_p1`);
+//! a case still reaching an unported callee is deferred.
 //! Every run uses at least [`MIN_GENERATED`] generated inputs (more with `--seeds`).
 
 use serde::{Deserialize, Serialize};
@@ -331,7 +331,8 @@ fn rust_values(i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, HarnessError> 
             } else {
                 SolutionRequested::All
             };
-            match a.global_point_solve_step(None, &ivl, sop, p, tol, target, req) {
+            let k = solidcore::kernel::Kernel::default();
+            match a.global_point_solve_step(&k, None, &ivl, sop, p, tol, target, req) {
                 Ok(sols) => {
                     out.push(0.0);
                     out.push(sols.len() as f64);

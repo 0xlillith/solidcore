@@ -6,7 +6,16 @@
 //! `SmProjectedCurve`, `SmCurveClass` in `source/SMLib`, and `SM_API/SmApiCurves`.
 
 pub mod conic;
+pub mod crv_in_volume;
 #[allow(clippy::module_inception)]
 pub mod curve;
+pub mod curve_cache;
+pub mod ellipse;
 pub mod hermite_curve;
+pub mod hyperbola;
+pub mod iso_curve;
+pub mod line;
+pub mod offset_curve;
 pub mod parabola;
+pub mod projected_curve;
+pub mod tangent_field;

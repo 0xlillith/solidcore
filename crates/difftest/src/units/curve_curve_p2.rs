@@ -32,6 +32,7 @@ use solidcore::curve::curve::p2::{
     CurvePropertyGs, CurvePropertyType, LengthIntegrand,
 };
 use solidcore::curve::hermite_curve::HermiteCurve;
+use solidcore::curve::line::Line;
 use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent3d::Extent3d;
@@ -680,28 +681,31 @@ fn pv(o: &mut Vec<f64>, v: Vec3) {
     o.extend([v.x, v.y, v.z]);
 }
 
-fn state(o: &mut Vec<f64>, c: &Curve) {
-    let bspline = match c.kind() {
-        CurveKind::BSpline(b) => Some(b),
-        // an SmBSplineCurve (upstream IsKindOf)
-        CurveKind::Parabola(p) => Some(p.base()),
-        CurveKind::Hermite(_) | CurveKind::Conic(_) => None,
-    };
-    match (bspline, c.kind()) {
-        (Some(b), _) => {
-            o.extend([0.0, b.dim() as f64]);
-            match b.gw_nurb() {
-                None => o.push(-1.0),
-                Some(cur) => {
-                    o.extend([cur.n() as f64, cur.degree() as f64, cur.m() as f64]);
-                    for p in cur.cpts() {
-                        o.extend([p.x, p.y, p.z, p.w]);
-                    }
-                    o.extend_from_slice(cur.knots());
-                }
+/// The B-spline state (`0 dim n p m cpts knots`, `-1` without NURB).
+fn bspline_state(o: &mut Vec<f64>, b: &BSplineCurve) {
+    o.extend([0.0, b.dim() as f64]);
+    match b.gw_nurb() {
+        None => o.push(-1.0),
+        Some(cur) => {
+            o.extend([cur.n() as f64, cur.degree() as f64, cur.m() as f64]);
+            for p in cur.cpts() {
+                o.extend([p.x, p.y, p.z, p.w]);
             }
+            o.extend_from_slice(cur.knots());
         }
-        (None, CurveKind::Hermite(h)) => {
+    }
+}
+
+fn state(o: &mut Vec<f64>, c: &Curve) {
+    match c.kind() {
+        CurveKind::BSpline(b) => bspline_state(o, b),
+        // an SmBSplineCurve (the shim's IsKindOf(SmBSplineCurve_TYPE))
+        CurveKind::Parabola(p) => bspline_state(o, p.base()),
+        CurveKind::Hyperbola(h) => {
+            // not produced by this unit's cases (see curve.hyperbola's runner)
+            o.extend([2.0, h.base().dim() as f64]);
+        }
+        CurveKind::Hermite(h) => {
             o.extend([1.0, h.dim() as f64]);
             let a = h.evaluate(0.0, 1, false);
             let e = h.evaluate(1.0, 1, false);
@@ -709,7 +713,10 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
-        (None, CurveKind::Conic(k)) => {
+        CurveKind::Iso(c) => {
+            o.extend([3.0, c.dim() as f64, c.iso_parameter()]);
+        }
+        CurveKind::Conic(k) => {
             // the defining data evaluated back: position and tangent at 0 and 0.5
             o.extend([2.0, k.dim() as f64]);
             for t in [0.0, 0.5] {
@@ -723,7 +730,8 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
-        (None, _) => {}
+        // the shim reports another type as -1
+        CurveKind::Projected(_) | CurveKind::Offset(_) | CurveKind::CrvInVolume(_) | CurveKind::Line(_) => o.push(-1.0),
     }
 }
 
@@ -1017,8 +1025,8 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         OpIn::Equal { other } => {
             let c = c_ref()?;
             let eq = match other {
-                None => c.approx_eq(c),
-                Some(x) => c.approx_eq(&build(x)?),
+                None => tri!(o, c.approx_eq(c)),
+                Some(x) => tri!(o, c.approx_eq(&build(x)?)),
             };
             o.extend([0.0, b(eq)]);
         }
@@ -1121,7 +1129,12 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             o.push(0.0);
         }
         OpIn::IntersectLine => {
-            let r = c_ref()?.intersect_with_line();
+            let c = c_ref()?;
+            let ivl = c.natural_interval();
+            let r = tri!(
+                o,
+                c.intersect_with_line(&ivl, &Line::default(), &ivl, 1e-6)
+            );
             o.extend([0.0, b(r.needs_more_intersections), r.solutions.len() as f64]);
         }
         OpIn::Snap {

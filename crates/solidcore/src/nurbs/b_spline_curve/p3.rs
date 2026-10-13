@@ -53,20 +53,22 @@
 //!   a report that was added, and report equality ignores those fields). `WARN`
 //!   messages are not ported.
 //! - **Back-edges.** `HasInternalPole` calls `IsDegenerate` (`p2`); `IsSegmentLine`,
-//!   `IsOnPlane` and `JoinWith` test `IsKindOf(SmLine_TYPE)` and `JoinWith` adjusts an
-//!   `SmLine` (`curve.line`) and measures `SmCurve::ApproximateLength` without a gap
-//!   tolerance; `SubdivideAtDiscontinuity` calls `CalculateContinuities`
+//!   `IsOnPlane` and `JoinWith` test `IsKindOf(SmLine_TYPE)` (false for a
+//!   `BSplineCurve`; a line is a [`crate::curve::line::Line`], whose `JoinWith`
+//!   overrides this one) and `JoinWith` measures `SmCurve::ApproximateLength` without
+//!   a gap tolerance; `SubdivideAtDiscontinuity` calls `CalculateContinuities`
 //!   (`SmCurve::EvaluateContinuity`);
 //!   `TrimGap` intersects with `SmCurve::GlobalCurveIntersect` (`curve.curve_p8`);
-//!   `AssertValid` calls `SmCurve::AssertValid` (`curve.curve_p4`) and
-//!   `SmCurve::GlobalPropertyAnalysis` (`curve.curve_p7`). Those calls return
+//!   `AssertValid` calls `SmCurve::GlobalPropertyAnalysis` (`curve.curve_p7`); its
+//!   `SmCurve::AssertValid` is [`crate::curve::curve::p4::assert_valid_base`] for a
+//!   curve without owner. Those calls return
 //!   [`SolidError::Unported`] until the units are ported. `SmTol::IsDegenerate(this)`
 //!   (unit `geom.tol`, which does not port the object dispatch) is computed locally for
 //!   a curve without edge: `IsDegenerate` at twice the system zone tolerance, so
 //!   `AssertValid` takes the [`Kernel`]; `SmCurve::IsAnalytic` / `IsBounded` are the
 //!   base `FALSE` / `TRUE`.
 
-use crate::error::{Result, SolidError};
+use crate::error::{ignored, Result, SolidError};
 use crate::geom::assert_array::{labels, AssertArray, AssertReport, ObjectKey, ReportSpec};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
@@ -184,13 +186,21 @@ fn global_property_analysis(
     })
 }
 
-/// `SmCurve::AssertValid(pAList, eTestLevel, SM_NO_WALK, pTestRequests)` of `curve`.
-fn curve_assert_valid(_curve: &BSplineCurve, _list: Option<&mut AssertArray>) -> Result<bool> {
-    // UNPORTED(curve.curve_p4): SmCurve::AssertValid
-    Err(SolidError::Unported {
-        upstream: "SmCurve::AssertValid",
-        unit: "curve.curve_p4",
-    })
+/// `SmCurve::AssertValid(pAList, eTestLevel, SM_NO_WALK, pTestRequests)` of `curve`
+/// (reporting for `key`); a B-spline here has no owner.
+fn curve_assert_valid(
+    curve: &BSplineCurve,
+    list: Option<&mut AssertArray>,
+    key: ObjectKey,
+) -> Result<bool> {
+    crate::curve::curve::p4::assert_valid_base(
+        None,
+        curve.dim(),
+        "SmBSplineCurve",
+        list,
+        false,
+        key,
+    )
 }
 
 /// `SmTol::IsDegenerate(const SmObject*)` of `curve` (its `SmCurve_TYPE` branch,
@@ -219,16 +229,6 @@ const fn curve_is_bounded(_curve: &BSplineCurve) -> bool {
 
 fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
     SolidError::InvalidInput { operation, reason }
-}
-
-/// An ignored status: the value, or `None` on failure; an unported callee still
-/// fails.
-fn ignored<T>(r: Result<T>) -> Result<Option<T>> {
-    match r {
-        Ok(v) => Ok(Some(v)),
-        Err(e @ SolidError::Unported { .. }) => Err(e),
-        Err(_) => Ok(None),
-    }
 }
 
 /// An `EvaluatePoint` whose status is ignored: [`Vec3::UNDEF`] (the
@@ -678,13 +678,9 @@ impl BSplineCurve {
                 }
             }
             if can_join_lines {
-                if self.is_kind_of(LINE_TYPE)? {
-                    // UNPORTED(curve.line): SmLine::GetCanonical
-                    return Err(SolidError::Unported {
-                        upstream: "SmLine::GetCanonical",
-                        unit: "curve.line",
-                    });
-                }
+                // (upstream's `SM_CAST_NONNULL_PTR(SmLine, this)` branch extends an
+                // `SmLine`'s STEP interval; a `BSplineCurve` is never a line here, lines
+                // join through `crate::curve::line::Line::join_with`)
                 let new_line = if this_at_end {
                     Self::create_line_segment(self.dim, pnt1b, pnt2b)?
                 } else {
@@ -959,10 +955,8 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmCurve::AssertValid` (unit `curve.curve_p4`),
-    /// unless `level_given`; past the knot checks `SmCurve::IsDegenerate` for other
-    /// intervals (`curve.curve_p4`) and `SmCurve::GlobalPropertyAnalysis`
-    /// (`curve.curve_p7`). `k` gives the system zone tolerance of
+    /// Past the knot checks [`SolidError::Unported`] from
+    /// `SmCurve::GlobalPropertyAnalysis` (`curve.curve_p7`). `k` gives the system zone tolerance of
     /// `SmTol::IsDegenerate(this)`.
     pub fn assert_valid(
         &self,
@@ -978,7 +972,7 @@ impl BSplineCurve {
         rtn &= if level_given {
             true
         } else {
-            curve_assert_valid(self, list.as_deref_mut())?
+            curve_assert_valid(self, list.as_deref_mut(), key)?
         };
 
         // (MakeNurb cannot build a missing NURB for a plain B-spline)
@@ -1455,8 +1449,8 @@ mod tests {
             .assert_valid(&k, Some(&mut list), true, ObjectKey(1))
             .unwrap());
         assert_eq!(list.get(0).map(|r| r.test_index), Some(0));
-        // the base checks are not ported
-        assert!(e.assert_valid(&k, None, false, ObjectKey(1)).is_err());
+        // the base checks pass (no owner); test 0 still fails
+        assert!(!e.assert_valid(&k, None, false, ObjectKey(1)).unwrap());
     }
 
     #[test]

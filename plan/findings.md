@@ -1695,6 +1695,91 @@ Upstream behaviour worth knowing:
   `Copy`, so splitting one fails with `SM_ERR`; it also inherits the base `GetDegree` (3),
   `GetNumberControlPoints` (0), `GetNumberNaturalKnots` (2) and `IsRational` (`FALSE`).
 
+## curve.crv_in_volume (`SmCrvInVolume.cpp`)
+
+No Rust-vs-C++ disagreement: 1426 of 1426 non-deferred difftest cases bit-identical (30
+fixture cases built around the `SmSrfInVolume.cpp:1219` usage `SmCrvInVolume(*pBSC,
+bInParamSpace, vol, 0, 1)` and the `smCurveTest.cpp` line, plus 2000 generated);
+`--perturb` is SENSITIVE. 604 cases are deferred: everything that reaches the volume
+(`SmVolume`, `surface.volume_p1` 603, `surface.volume_p2` 1) — evaluation, uncached
+breaks (`GetKnots` starts with `GetNaturalParamDomain`), continuities at interior breaks,
+equality of equal curves, non-identity transforms, the volume part of `ReadFromDB`.
+
+The port adds `CurveKind::CrvInVolume` and a stand-in `curve::crv_in_volume::Volume`
+(type code only; every volume call is `Unported`). **Whoever ports `surface.volume_p1`
+should replace that struct with the real volume type** and wire the `UNPORTED(surface.volume_p1)`
+/ `(surface.volume_p2)` stubs in `curve/crv_in_volume.rs` (volume calls and the
+`smvol_Lift*Derivative` lifts); the `SmCurveClassification` stub there points at
+`intersect.curve_class_p4` / `_p8` / `_p1`. `Curve::approx_eq` now returns `Result<bool>`
+(the volume comparison can be unported). The C++ side uses an identity `SmTransform` as
+the volume and loads the protected break cache through a derived test class.
+
+Upstream behaviour worth knowing:
+
+- `GenerateMults` indexes `m_sConts` by the *knot* index `ii`, not the matched break index
+  `bi`; with an interval, `GetKnots`' cached path therefore reports multiplicities of the
+  wrong breaks. Its state check returns before sizing the output, so `GetKnots` (which
+  ignores the status) then returns no multiplicities; `GetNumberNaturalKnots` then reads
+  past the empty array (UB; the ffi rejects that shape).
+- `GetKnots`' cached path and computed path give different multiplicities for the same
+  break (the computed path keeps the curve's end multiplicity, e.g. 4; the cached path
+  derives 3 from `SM_CT_DISCONTINUOUS`). The `&self` dispatch through `Curve` does not
+  store the cache (no `const_cast`), so it always answers like upstream's first call.
+- `EvaluatePoint` maps the point with `MapPoint` unconditionally before choosing
+  `EvaluatePoint` / `MapPoint`; `EvaluateVolume` (not this unit) swaps the two branches
+  relative to `Evaluate`.
+- The copy constructor copies the volume when it owns the curve *or* the volume; with owner
+  flag 1 the copied volume is not owned and leaks. Copying an owned `SmHermiteCurve` base
+  fails silently, leaving both objects owning one curve (double delete).
+- `CalculateContinuities` with no breaks reads `SetAt(0)` of an empty array and loops on
+  `size - 1` underflow (UB); `ReadFromDB` of `SmVolume_TYPE` dereferences a null volume.
+
+## curve.curve_cache
+
+Partial (deferred: `GetAnalyticCurve` of lines and arcs needs `SmLine` / `SmCircle` /
+`SmCurve::IsArc`), no disagreement. Notes for later units:
+
+- **Co-ports.** Every tessellation reaches `SmFindCurveDistanceExtremaEFO::Evaluate`
+  (unit `curve.curve_p4`) and, through `SmBSplineCurve::CalculateBoundingBox` /
+  `IsLine`, `SmCurve::IsLine` (unit `curve.curve_p5`). Both are ported here:
+  `impl EvalFunction for FindCurveDistanceExtrema` in `curve::curve_cache`, and
+  `curve::curve::p5::is_line_base` (B-spline only; the `Curve` dispatch is left to
+  `curve.curve_p5`). The `UNPORTED(curve.curve_p5): SmCurve::IsLine` stub of
+  `nurbs::b_spline_curve::p2` now calls it; `nurbs.b_spline_curve_p2` (56 cases) and
+  `_p3` (188 cases, some now reaching `curve.curve_p7`) un-deferred and pass. Porters of
+  `curve.curve_p4` / `_p5`: do not port these twice.
+- **Tree data.** `geom::tree::NodeData` gained `Curve(CurveSpanRef)`; a curve tree owns
+  its cache's span/parent arrays (`Tree::set_curve_data`) and the end points `GetEnds`
+  evaluates (stored at build time, since the tree cannot reach the curve). The curve
+  solvers of `curve::curve::p2` read them through `Tree::curve_aux` / `curve_span`.
+- **Upstream quirks kept.** `sm_ComputeConstants` stops at the first non-zero polygon
+  angle when the angle tolerance is `0` (`dTotalAngle > 0`), so with only a chord
+  tolerance the chord height is often not computed; after a successful local solve it
+  measures the distance at the *step* parameter, not the solution. `BuildTree`'s parent
+  test omits the off-axis and approximation tests the leaf tests use. Tessellation with
+  a tiny chord tolerance and `dMinimumParametricRatio = 0` subdivides down to
+  `SM_EFF_ZERO_SQRT` intervals (up to ~10^6 spans); the ffi wrapper requires a ratio of
+  at least `1e-4`.
+
+## curve.tangent_field
+
+- **Base class not ported.** `SmTangentField` derives from `SmCrvOnSurf`
+  (`curve.crv_on_surf`). The port keeps the UV curve and surface as borrowed references
+  (upstream's owner flag `0`) and co-ports `SetAll` (given UV domain only),
+  `GetNaturalInterval`, `IsKindOf` and `operator==` (`// CO-PORT(curve.crv_on_surf)`).
+  Deferred: every constructor without a UV domain (`SmSurface::GetNaturalUVDomain`,
+  `surface.surface_p2`) - which includes every successful `Create`, since upstream always
+  passes `NULL`; every evaluation inside the end bands (`SmSurface::EvaluateNormal`,
+  `surface.surface_p7`); equality of fields on different surface objects
+  (`SmSurface::operator==`, `surface.surface_p1`); and every `ReadFromDB` that reads the
+  members (`SmCrvOnSurf::ReadFromDB`).
+- `EvaluatePoint` returns the stored start (end) tangent for `t < min + 1e-8 + EFF_ZERO`
+  (`t > max - 1e-8 - EFF_ZERO`), so `Evaluate(n = 1)` there is a zero derivative, and
+  `Evaluate` with `n >= 2` is `SM_ERR` before any evaluation.
+- `ReadFromDB` ignores the status of the `SmCrvOnSurf` base read and returns `SM_SUCCESS`;
+  binary short reads of the members are undefined upstream (see `database_io` above), so
+  difftest never truncates inside them.
+
 ## curve.conic
 
 Green, no disagreement. Upstream behaviour worth knowing:
@@ -1717,6 +1802,398 @@ Green, no disagreement. Upstream behaviour worth knowing:
 - `SmConic::ReadFromDB`: an ASCII type code whose extraction is skipped leaves
   `lConicType` uninitialised (port: `InvalidInput`); type codes outside `0..=3` behave as
   `SM_CT_UNKNOWN`.
+
+## Nested reads (all polymorphic readers)
+
+Upstream `SmCurve::ReadFromDB` dispatches to `SmProjectedCurve::ReadFromDB` (and offset,
+iso, ... curves), which reads its base curve through `SmCurve::ReadFromDB` again, with no
+depth limit: a crafted file of a few bytes per level overflows the stack. The Rust
+dispatcher bounds nesting with `DatabaseReader::enter_nested` (limit
+`MAX_READ_NESTING` = 64); deeper input is `InvalidInput`. Deviation from upstream only
+for inputs that would crash it. Found by the commit security review of
+`curve.projected_curve`.
+
+## curve.hyperbola
+
+- `SmHyperbola::MakeNurb` fails (`SM_ERR`, no NURB) for a degenerate analytic domain
+  (parallel end tangents in `smgu_LineLineClosestPoint`) or when the middle tangent
+  line cuts the chord outside `(SM_EFF_ZERO, 1 - SM_EFF_ZERO)`; the constructor ignores
+  the status. `GlobalPointSolveSTEP` on such a curve reaches `SmCurve::GlobalPointSolve`,
+  whose curve cache dereferences the missing NURB (`SmBSplineCurve::EvaluatePoint`):
+  upstream segfaults. The difftest shim refuses those inputs and the generator avoids
+  them; the Rust side returns `Unported` there anyway until `curve.curve_p1` lands,
+  whose porter must decide what a NURB-less curve does (`SM_ERR` is the natural port).
+- Upstream frees the NURB in `ReverseParameterization` and rebuilds it lazily through the
+  virtual `MakeNurb` in `GetOrCreateGwNurbPointer`. The Rust B-spline base cannot reach
+  the override, so `Hyperbola::reverse_parameterization` rebuilds it at once (same NURB);
+  the difftest shim calls `GetOrCreateGwNurbPointer` before reading the state.
+- `MakeNurb` of a generator curve of `SmSurfOfExtrusion` / `SmSurfOfRevolution` (owner
+  type) returns `Unported` (`surface.surf_of_extrusion_p1`, `surface.surf_of_revolution_p1`);
+  the hyperbola methods that make the NURB take the owner as an argument.
+## curve.projected_curve (`SmProjectedCurve`)
+
+Difftest: 2727 cases (227 fixtures re-expressing the two upstream constructions in
+`SmTransSweepGeometry.cpp:794` / `SmRotationalSweepGeometry.cpp:586`, perspective views,
+`MakeOrthoNormal` edge cases and `WriteToDB`-format streams, plus 2500 generated), all
+bit-identical. The shim reads the private members through the explicit-instantiation access
+rule (no upstream change). Upstream behaviour kept as is:
+
+- **`MakeOrthoNormal` is inverted.** It unitizes `m_sProjVec` only when it `IsZero()`
+  (giving `(0, 0, 1)`) and returns `SM_ERR` for every non-zero vector, which is left
+  un-normalised; for `SM_PT_ROTATION` the same holds for `m_sAuxData`, and the
+  `NormalInPlane` result is discarded. Callers (the sweep geometry above) pass vectors that
+  are already unit, so the projections still work; a non-unit view normal gives a skewed
+  "projection" (both sides agree). The constructor ignores the status; `SetCanonical`
+  returns it.
+- **`Transform` needs `m_bOwnsCurve == UNSURE`.** It tests `m_bOwnsCurve < 2`, so a curve
+  that owns its base (`TRUE`, e.g. every curve from `ReadFromDB`) or borrows it (`FALSE`)
+  fails with `SM_ERR` (after a pre-edit notify); only the member-initialiser value
+  `UNSURE` passes. `EditParameterization`, `ReverseParameterization` and `Trim` refuse only
+  `FALSE`.
+- **`Copy` of a curve owning a Hermite base** (`SmCurve::Copy` = `SM_ERR`, ignored by the
+  copy constructor) returns `SM_SUCCESS` and a projected curve with a null base curve that
+  crashes on use. The port returns the `SM_ERR`; the shim maps upstream's null-base result
+  to `SM_ERR`.
+- `EvaluatePoint` computes the parallel projection before the switch and again inside it;
+  `Evaluate` projects perspective derivatives about the already projected position.
+- `ReadFromDB` casts the stored ULONG to `SmProjectionType` (undefined beyond `0..=3`; the
+  port maps it to `Unknown`) and does not call `MakeOrthoNormal`.
+
+## curve.iso_curve
+
+- `SmIsoCurve::CreateUVIsoLine` tests `m_eSurfParam == SM_SP_U` in both branches, so a
+  constant-v iso curve (and every other `SmSurfParamType`) gets `SM_ERR_INVALID_INPUT`;
+  the constant-u branch builds the UV line over the domain's *u* interval although the
+  line runs along v. The port keeps both (difftest `*_uvline` cases).
+- The empty I/O constructor `SmIsoCurve()` leaves `m_cpSurface` uninitialised; only
+  `ReadFromDB` uses it, and the port always builds a new curve there.
+- The base surface is held by value as a `BSplineSurface` (the only ported `SmSurface`
+  class); `operator==`'s pointer-identity shortcut becomes a value comparison. When the
+  `SmSurface` enum lands (units `surface.surface_*`), `IsoCurve::surface` should become
+  that type.
+
+## curve.offset_curve
+
+Green, no disagreement (2808 cases bit-identical). Upstream behaviour worth knowing:
+- `SmOffsetCurve::Evaluate` with a zero offset distance evaluates the base curve with
+  `SER(...)` but does not return: the result is overwritten by the general path (same
+  values with `D = 0`); only the status of that first base evaluation matters. The port
+  keeps the extra call.
+- With `bNonZeroTangents` and `lNumDerivatives == 1`, the recursive `Evaluate(dParameter,
+  2, ...)` passes the already mirrored (and, for a zero base tangent, shifted) parameter,
+  so a reversed curve is mirrored twice there; its status is ignored. Kept.
+- `Trim` checks the *current* curve interval against the base curve domain, not the new
+  trim interval, and never snaps it. Kept.
+- `Copy` (copy constructor) of an offset that owns a base without `Copy` (a Hermite
+  curve: `SmCurve::Copy` = `SM_ERR`, ignored) shares the base pointer and both curves
+  delete it (double free). The port owns its base by value (a clone); the ffi wrapper
+  rejects such cases.
+- A zero-distance offset of a rational B-spline evaluated with more than `NL_MAXDER` (4)
+  derivatives overflows a fixed NLib stack array (`sm_CrvRationalBasisDerivs`, stack
+  smashing). The ffi wrapper limits `Evaluate` to 4 derivatives.
+- The base curve is held by value (`Box<Curve>`), so the pointer test of `operator==`
+  becomes the base curve `operator==`.
+- `SmBSplineCurve::CreateSimpleOffset` now builds the `OffsetCurve`; it defers on
+  `SmCurve::ApproximateCurve` (`curve.curve_p1`) instead of on this unit.
+
+
+## nurbs.b_spline_surface_n_lib_p2 (`Evaluate`, `TrimWithDomain`, `CreateSkinnedSurface`, `CreateCornerBlend`)
+
+Partial, no disagreement (654 cases, 26 deferred; 20k-seed run clean). Upstream behaviour
+worth knowing:
+
+- **`TrimWithDomain` v snapping uses `idxMin` for both boundaries.** In the v loop the upper
+  boundary branch writes `idxMin` (not `idxMax`), and `idxMax` stays `-1`, so
+  `sm_CheckTrimBoundaries` never widens `vr`; the lower-boundary "previous knot" branch also
+  leaves `idxMin` at `i`. The u loop's upper "slightly above the knot" branch does not set
+  `idxMax`. Ported as is. Only the u boundaries are checked for being too close
+  (`SM_ERR_INVALID_INPUT`); the v check is commented out upstream.
+- **`CreateSkinnedSurface`** treats a skinning call as failed only when NLib returns exactly
+  `NL_YES`; it retries without the knot vector, then (with derivative surfaces) without
+  them, on the cross sections / rails / derivative surfaces the failed calls already changed
+  in place. The knot vector is only used with derivative surfaces (it is reset to `NULL`
+  otherwise). It casts away the rails' constness: two rails are reparametrised by
+  `SyncronizeKnotsOfCurves` (the port takes them `&mut`). The spine branch evaluates
+  `pRail1` (not the degree-elevated NLib copy) through the `SmBSplineCurve.h` overload, so
+  `bNonZeroTangents = FALSE`.
+- **`CreateCornerBlend`**: the `NER` check of missing UV curves / surfaces fires only at the
+  entry where the null count first exceeds the limit (a four-sided G1 blend tolerates one
+  missing pair, used as a degenerate triangle side). A surface without UV curve, a rational
+  3D curve with a surface (`SmSurface::DropCurve` crashes on a standalone surface) and
+  n-sided bilinear blends with missing UV curves / surfaces dereference `NULL` upstream; the
+  shim rejects them, the port returns `InvalidInput`. `SM_OT_UNKNOWN` behaves as "not
+  `SM_OT_SAME`" for four curves and as "not `SM_OT_OPPOSITE`" for more. G1 blends run
+  `SmTangentField::Create` (its end-point checks are compared) and are then deferred on
+  `SmSurface::GetNaturalUVDomain` (`surface.surface_p2`), `SmCrvOnSurf::ApproximateCurve`
+  (`curve.crv_on_surf`) or, for n-sided blends, `SmSurface::EvaluateNormal`
+  (`surface.surface_p7`).
+- **`Evaluate`**'s `SmSurface::GetDerivativeLimit` (`10 * SM_EFF_ZERO * (1 + max|P|)`) is
+  co-ported (`CO-PORT(surface.surface_p2)`). With fewer than two derivatives in either
+  direction a zero tangent is fixed by recursing with `2, 2` upper-half (from the
+  unclamped parameter); otherwise from `Suv` / `Suu` / `Svv`, then by sampling up to five
+  nearby points for steps `1e-5 .. 0.1`; a surface collapsed to a point returns `SM_ERR`.
+
+## curve.line (`SmLine`)
+
+Difftest: one program per case (a line construction, then up to ~6 ops on it, then the
+line's full state: analytic data, B-spline part, natural interval), so state changes made
+by one op (lazy NURBs, trims, joins, reparameterisations) are checked by the next.
+Upstream behaviour worth knowing:
+
+- **Lazy NURB.** The two-point constructor makes no NURB; `GetNaturalInterval` then
+  returns the analytic domain and `Length` uses `interval * scale` instead of the end
+  point distance. Inherited `const` queries (`GetEnds`, `GetNumberControlPoints` inside
+  `CreateAnalyticCurve`, ...) make the NURB through `GetOrCreateGwNurbPointer` (a
+  `const_cast` + virtual `SmLine::MakeNurb`), so a later `Length` changes branch. The port's
+  `Line::ends` / `Line::create_analytic_curve` take `&mut self` and do the same; the
+  read-only variants make it on a copy.
+- **`SmBSplineCurve::DeformToEndPointTargets` ignores `DegreeElevate`'s status**
+  (`SmBSplineCurveNLib.cpp:3038`). The port of `nurbs.b_spline_curve_n_lib` propagated it;
+  fixed in this unit (its difftest stays green, 2282 cases). For a NURB over a zero-length
+  knot interval (a degenerate line: `[a, a, a, a]`) `N_CrvElevateDegree` fails
+  (`N_KnotVectorIsValid`), upstream then runs the degree-3 indexing scheme on the degree-1
+  curve and reads past its arrays (undefined behaviour; it happened to "succeed" in our
+  runs). The port returns `InvalidInput` ("knot index out of range"). The curve.line
+  generator only deforms regular lines into a new B-spline (first op only).
+- **Short database streams.** `SmLine::ReadFromDB` / `SmBSplineCurve::ReadFromDB` on a
+  truncated binary stream throw (`SmDatabaseIOStream`) or read uninitialised values, and a
+  short ASCII header leaves `n`, `p` uninitialised before the allocation: not difftested;
+  the ffi only builds complete streams.
+- `IsLine` always answers `TRUE`; `IsClosed` / `IsArc` `FALSE`; `IntersectWithLine`
+  sorts a coincident-range solution by this line's parameter, re-evaluating the start with
+  the second point's parameters. `DropPointFast` compares the clamped and raw NURB
+  parameters with `!=` (a NaN parameter recomputes the distance).
+
+## surface.volume_p1 (`SmVolume` base class, `smvol_Lift*Derivative`, `smvol_ConcatEvals`)
+
+All difftest cases agree bit for bit with upstream (`max_rel_err = 0`, 2886 default cases,
+a 20,886-case run clean); the deferred cases need the simple maps of the twist and unbend
+volumes. Upstream behaviour worth knowing:
+- **Lift typos (ported as written).** The surface and volume forms of
+  `smvol_LiftThirdDerivative` use `crDxxz` where the `Dxzz` term belongs in `rDuuv`,
+  `rDuvv`, `rDuuw`, `rDuww`, `rDvvw` and `rDvww` (`SmVolume.cpp:9851`, `:10126`),
+  `rDuww` is built from `Fuv`/`Fv` instead of `Fuw`/`Fw`, and `rDvww` from `Fvv`/`Fv`
+  instead of `Fvw`/`Fw`. Mixed third derivatives of compound volumes (and of `SmSrfInVolume`)
+  are therefore wrong upstream; the port keeps the formulas so results match.
+- **Unfilled evaluation slots.** `smvol_ConcatEvals` writes only the partials of total order
+  `<= n`; the other slots of the `(n+1)^3` array keep the caller's values (a fresh
+  `SmVector3d` array: `SM_UNDEF_DOUBLE`). `Evaluate` / `Map` with an orient or next map
+  therefore return `SM_UNDEF_DOUBLE` there, while a plain simple map returns zeros. The port
+  returns `Vec3::UNDEF` in those slots.
+- **Copies drop maps they cannot copy.** The copy constructor copies an owned next map with
+  its virtual `Copy` and ignores the status: a plain `SmVolume` (whose `Copy` fails with
+  `SM_ERR`) in the chain truncates the copy there. A shared next map (owner flag 0) is kept.
+  `AddNextMap(p, 1)` of a plain `SmVolume` fails and leaves no next map. Without a context
+  upstream also silently drops the next map (not modelled: the port always copies).
+- **Undefined behaviour.** `RefreshInvOrientMap` without an orient map calls
+  `MakeMapSimple` through a null pointer; `IsCurveInParamDomain` dereferences a null copy
+  when `Copy` fails (unreachable for the base class, whose curve check is `FALSE`);
+  `Evaluate` / `Map` only `SM_ASSERT` the inverse orient map. The port returns
+  `InvalidInput`; the ffi never sends `Refresh` without an orient map.
+- **`Orient` ignores the orient map's status** (`n > GW_MAX_DERIV` leaves the caller's array
+  untouched); without an orient map `n > 5` is `SM_ERR_INVALID_INPUT`.
+- **Default-constructed `SmUnbendVolume`.** `IsCurveInInSpaceDomain` of an oriented default
+  unbend volume crashes upstream (segfault in the unbend volume's curve check); the ffi
+  rejects line and curve domain checks on chains with an unbend map.
+- **`SmFindPVIntersectENFO`** is declared only in `SmVolume.cpp`; the shim redeclares it
+  identically and links the library's `Evaluate` and vtable.
+
+## curve.curve_p4 (`SmCurve`, part 4)
+
+Difftest: 3259 cases (259 fixture + 3000 generated), all non-deferred cases bit-identical
+(max_rel_err 0); 30,259-case run clean; `--perturb` SENSITIVE. Upstream behaviour worth
+knowing:
+
+- **`SmCurve::FixChainCurvesList` with `bDeleteDuplicates`** deletes a duplicate link
+  (`delete pBSp1; pBSp1 = NULL;`, `SmCurve.cpp:946`, 968, 989, 1010) but
+  leaves the dangling pointer in `r3DCurves[j]`: the next scan (`goto REDOLOOP`) and the
+  outer chain-start loop dereference the freed curve (use after free), a later branch of
+  the same scan can `delete` it again (double free: a reversed duplicate matches both the
+  "end at end" and "end at start" tests), and a later branch can pick the `NULL` local as
+  the next link (`pNextCrv = pBSp1`), which cases 2 / 4 dereference. Not difftestable: the
+  generator drops every case whose Rust run deletes a duplicate. The port removes the
+  duplicate from the list once, and a link choice that is the deleted curve is
+  `InvalidInput`. Without duplicates (or with `bDeleteDuplicates = FALSE`) both sides
+  agree.
+- **`sm_FilterSolution`** passes `SmVector3d sPV1[2]` / `sPV2[2]` to `sm_UnitizeTangent`,
+  which reads `rPVV[2]` when the (non-zero-replaced) first derivative is not longer than
+  `SM_EFF_ZERO`: an out-of-bounds stack read. The port reads `Vec3::UNDEF` there; only a
+  curve whose first and second derivatives both vanish reaches it.
+- **`sm_GetProjDist`** (a `double` function) returns the failing `SmStatus` of
+  `EvaluatePoint` through `SER` as the distance (e.g. `1001.0`). The port returns the
+  error; the difftest maps it back to the status value.
+- **`SmCurvePropertyEFO::Evaluate`**: `SM_CP_PROJECTED_POINT_*` read `m_cpOptVectors`
+  without a `NULL` check, `SM_CP_DISTANCE_TO_POINT` / `SM_CP_CYLINDER_INTERSECTION`
+  read `m_cpdPropertyValue` without one (port: `InvalidInput`; the ffi never sends
+  these); `SM_CP_MAXIMIZE_RADIUS_OF_CURVATURE` with a zero curvature sets
+  `rbFoundAnswer` and falls through into the division by the zero numerator (NaN `F'`,
+  kept); `SM_CP_PLANE_CLASSIFY` has no case (`SM_ERR`). Values written before a failing
+  `return SM_ERR` (e.g. `SM_CP_X_NORMAL`) are part of the comparison.
+- `SmFindCurveDistanceExtremaEFO::Evaluate` was co-ported by `curve.curve_cache`; this
+  unit only difftests it. `HasPlaneCrossings` with planes is deferred on
+  `surface.surface_p8` (`SmSurface::GlobalCurveIntersect`); ellipse operands of
+  `AnalyticCurveIntersect` defer on `curve.curve_p1` (`GlobalPointSolve`).
+
+## curve.curve_p3 (`SmCurve`, part 3)
+
+- **`SmCurve::FindParameterAtArcLength`** stepping backwards (`dArcLength < 0`) from a
+  start parameter within `dParamTol` *below* the first knot leaves `ik = -1` and reads
+  `sKnots[(ULONG)-1]` (out of bounds). The port returns `InvalidInput`; the ffi only
+  sends backwards steps from the first knot on. `lOffEndCount` is a `ULONG`: the first
+  Newton step that leaves the curve below its start wraps it to `ULONG_MAX`, so the
+  iteration stops at once with `*pbResultPastEnd = TRUE` (above the end it needs three
+  steps); the port keeps the unsigned wrap. A failed `SetMinMax` (start parameter
+  slightly past the last knot) leaves the span interval in its `Init()` state, as in
+  the port. On curves other than lines the base `SmCurve::Length` (unit
+  `curve.curve_p5`) defers every case.
+- **`SmCurvePropertyGS::LocalSolve`** returns `TRUE` (status `1`) from an `SmStatus`
+  function when a projected pseudo box corner of the angle properties lies on the
+  rotation origin; the port returns `SolidError::Upstream { code: 1 }`. Every guess
+  goes through `SmCurve::LocalPropertyAnalysis` (unit `curve.curve_p5`), so only the
+  early exits (angle box rejection, disjoint / zero-length intervals, a plane
+  intersection span lying in the plane) are difftested now.
+- **`SmCurve::CrvsFixGaps`** casts every curve to `SmBSplineCurve` and calls the
+  non-virtual `SetControlPoint`: for another kind that writes through a bad cast. The
+  port moves end points of `CurveKind::BSpline` curves only (`InvalidInput` otherwise);
+  the ffi sends B-splines only. Its `FixChainCurvesList` call deletes duplicates (see
+  `curve.curve_p4` above): such cases are not generated.
+- **`SmCurve::LocalCurveSolve` / `LocalCurveIntersect`** reach `SmFindCCNormalENFO::
+  Evaluate` / `SmCCIntersectENFO::Evaluate` (unit `curve.curve_p5`) on every path, so
+  all their cases are deferred; the C++ side runs them (no crash on the generated
+  inputs). `SmBestLineFitENFO` (marked "UNDER CONSTRUCTION" upstream, no caller) is
+  ported and difftested on its own.
+## curve.curve_p1 (`SmCurve`, part 1)
+
+Difftest: 3083 cases (83 fixture: smCurveTest.cpp `my_test_point_extrema` / `my_test_drop_point`
+on the unit line segment and the radius-1 circle, the circle centre (every point a normal
+foot), SM_API_test rectangle and hexagon edges through `Tessellate`, `TessellateByBisection`,
+`GlobalPointSolve` and `ApproximateCurve`, degenerate / closed / short-span edge cases + 3000
+generated), all non-deferred cases bit-identical (max_rel_err 0); a 12,083-case run was also
+clean; `--perturb` SENSITIVE. 590 deferred on `curve.curve_p5`: `LocalPropertyAnalysis` (the
+ray, directed and projected `GlobalPointSolve` operations, 310), `SmFindCCNormalENFO::Evaluate`
+(`ClassifyIntersectingRangeSolution` past its point-solution exit, 163),
+`SmCCIntersectENFO::Evaluate` (`sm_RefineCCSolutions` on range solutions, 73) and `IsArc`
+(minimise / intersect on curved B-splines reach the cache's analytic conversion, 44).
+
+Wiring its stubs made `nurbs.b_spline_curve_p1` green (4 -> 0: `TessellateByBisection`) and
+removed every `curve.curve_p1` deferral of `curve.hyperbola` (70 -> 0, all pass),
+`curve.curve_p4` (53 -> 0: 28 pass, 25 now wait on `curve.ellipse_p1`) and
+`curve.ellipse_p2` (233 -> 0: 68 pass, 164 now wait on `curve.ellipse_p1`, 1 on
+`curve.curve_p5`). Notes for later units:
+
+- **Solution objects must report their curve's interval.** `SmGlobalSolver::IdenticalSolutions`
+  treats parameters within `1e-4` of the object's parameter interval as equal
+  (`SmSolution::GetParameterInterval` reads the object, a curve). With opaque handles the Rust
+  port had no interval, kept near-duplicates apart and disagreed. `SolutionObject` gained a
+  default method `natural_interval()` (default `None`, which keeps the old
+  `UNPORTED(curve.curve_p2)` path); `GetParameterInterval` of a curve object uses it. Handles
+  passed to `Curve::global_point_solve` (and any solver that sorts curve solutions) should
+  answer it. `GetObjectTolerance` (Rayfire) still needs `SmTol::GetZoneTol3d(object)`
+  (`topology.brep_p1`); ray solves defer on `curve.curve_p5` before reaching it today.
+- **`IdenticalSolutions` prefers the smaller value even when maximising.** A
+  `SM_SO_MAXIMIZE` solve can replace an interior maximum by a span-boundary point `5e-5`
+  away with a smaller distance (seen on a closed Hermite curve: `0.42572...` replaced by
+  `0.42578125`). Kept.
+- **`SmBSplineCurve::CreateSimpleOffset`** calls `sOff.ApproximateCurve(ctx, breaks, tol, gap,
+  approx, bOptMatchParameterization, FALSE)`: the caller's match flag lands in the
+  `bOptCreateAnalytics` slot and matching is always off. Kept. `ApproximateCurve` of a
+  degenerate curve does not write `rdAchievedTol`, so `CreateSimpleOffset` would copy an
+  uninitialised `dMaxGap3d`; the port returns `InvalidInput` there.
+- **Co-ports from `curve.curve_p5`** (in `curve/curve/p5.rs`): the `Curve` dispatch of `IsLine`
+  (with the base body over `Curve`) and the new-cache branch of `CacheMakeOrValidate`
+  (`make_curve_cache`). Its porter should route `a_object::get_or_create_object_cache`'s
+  `CacheMaker::Curve` through `make_curve_cache`, not port it again.
+- `GlobalPointSolve` on an `SmEllipse` needs the ellipse as a `CurveKind` (its `DropPointFast`
+  override and cache); the ellipse stub now reads `UNPORTED(curve.ellipse_p1)`. The line's
+  `GlobalPointSolve(SM_SO_INTERSECT)` in `SmEllipse::IntersectWithLine` is the line's
+  `DropPointFast` and is wired.
+- `SmCPGlobalSolver::LocalSolve` reuses one `SmSolution` across guesses; `LocalPointSolve`
+  writes only type, value and first parameter on success, so stale fields of earlier guesses
+  feed the duplicate test. Ported as written. `sm_GetProjDist` returns a failing status as the
+  distance (see `curve.curve_p4`), kept.
+- Harness: `sm_TestSpanAccuracy` and `sm_RefineCCSolutions` are file-static, so
+  `harness/cpp/shim/curve_curve_p1.cpp` holds verbatim copies (line ranges noted);
+  `SmCPGlobalSolver::LocalSolve` is exercised through the public `GlobalPointSolve`.
+
+## surface.twist_volume (`SmTwistVolume`)
+
+All difftest cases agree bit for bit with upstream (`max_rel_err = 0`, 1572 default cases,
+a 20,072-case run clean); the 3 deferred cases are `ReadFromDB`, whose base-class read
+`SmVolume::ReadFromDB` belongs to `surface.volume_p2`. No upstream test builds a twist
+volume. Upstream behaviour worth knowing (all ported as written):
+- **Constructor repair.** The component constructor compares `Unitize`'s
+  `SM_ERR_INVALID_INPUT` with `SM_ERR`, so with a zero axis or mid direction only its last
+  branch runs (a frame about the repaired axis `(0, 0, 1)`). A too-small period becomes
+  `|dPeriodMinDist|` of the argument, not the clamped minimum (so it can stay below
+  `SM_ZONE_TOL_3D`). The component constructor is in no unit's function list; it is ported
+  as `TwistVolume::create` because nothing else builds a usable twist.
+- **Default construction.** `SmTwistVolume()` has period `0` and minimum `SM_UNDEF_DOUBLE`
+  (member initializer); every map then divides by zero (NaN / inf on both sides).
+- **`operator==`** overwrites the period comparison with the minimum comparison: twists
+  differing only in period compare equal.
+- **`EvaluateSimple`'s `Duw`** is `(-per sin a, -per cos a, 0)`; the header documents
+  `(-per sin a, per cos a, 0)` and `Evaluate` uses that. Mixed `uw` derivatives of a simple
+  twist map are therefore wrong upstream.
+- **`EvaluateBoundingBoxSimple`** writes `*pProjBox` unconditionally in the unbounded
+  branch (null dereference when only the pseudo box is requested: the port returns
+  `InvalidInput`, the ffi rejects it). Its `(long)(theta / 2 PI)` of a NaN quotient is UB;
+  the port emulates x86-64 (`LONG_MIN`).
+
+
+## surface.b_spline_volume (SmBSplineVolume)
+
+- **`USE_VOLUMES` is not defined in the SMLib build.** `SmBSplineVolume.cpp` compiles only
+  the `#else` branches of `AreEqual_gw_VOLUME` (`FALSE`), `sm_LoadNLibTransform`,
+  `EvaluateSimple`, `EvaluateIsoParametricCurveSimple`, `EvaluateIsoParametricSurfaceSimple`,
+  `CreateCanonical`, `WriteToDB`, `ReadFromDB` and `Dump` (all `SM_ERR` / no-ops). So a
+  B-spline volume cannot be evaluated (`Evaluate`, `Map`, `MapPoint` return `SM_ERR`), two
+  distinct B-spline volumes never compare equal (a volume equals only itself, not its own
+  copy), and `TransformSimple` builds its transform then returns `SM_ERR` with the control
+  points untouched (`Transform` of a volume with next maps still succeeds: it goes to the
+  last map). The port follows the build (difftest: identical statuses).
+- **Copies re-run the knot fixup.** Every constructor (including the copy constructor) runs
+  `sm_FixupKnotVector(.., SM_EFF_ZERO_PARAM)` on all three knot vectors, so knots closer
+  than `1.2e-8` are spread / merged on construction and again on every `Copy`.
+- **`InvEvaluateGuessPointSimple`** indexes knots by the closest control point's index
+  without a check (only `SM_ASSERT`); a record whose knot vectors are shorter than control
+  points plus degree reads out of bounds. The port returns `InvalidInput`; the ffi only
+  builds records with `cp + degree + 1` knots.
+
+
+## curve.curve_p6 (SmCurve part 6: boxes, planarity, drops, gaps, coincidence, deform)
+
+No Rust/C++ disagreements (3136 cases, 3048 bit-identical, 88 deferred on `curve.curve_p5`;
+30k-seed run clean; `--perturb` SENSITIVE). Notes for later porters:
+
+- **`CurveMaxDistanceBetween` with `lNumSamples == 1`** divides `0.0 / 0.0` (`ii /
+  (lNumSamples - 1)`) and evaluates both curves at NaN parameters. The port computes the
+  same NaN; the ffi rejects one sample.
+- **`CurveMaxDistanceBetween` early returns** (the gap limit `pdOptMaxDistanceNeeded` hit,
+  the same curve over the same interval) leave `pbOptIncorrectDir` unwritten; the port
+  returns `incorrect_dir: None` there.
+- **`DeformToEndPointTargets`** ignores the status of `ApproximateCurve` and then calls the
+  B-spline deform through `*ppOptNewCurve` (a null dereference when the approximation
+  fails); the port returns the error. The `SmCrvOnSurf` branch is unreachable until
+  `curve.crv_on_surf` adds the curve kind (no `CurveKind` is a curve on surface yet).
+- **`GlobalCoincidenceChecker`** recurses on closed and half closed curves without a
+  depth bound; the port stops at `MAX_COINCIDENCE_DEPTH` (200) nested splits with
+  `InvalidInput` (AGENTS.md recursion rule). Its recursive calls use the default
+  `bSnapToEnds = TRUE`, whatever the caller passed; the port keeps that.
+- **`IsPlanar`** ignores the status of `CalculateBoundingBox`; a failed box leaves the
+  default-constructed pseudo box, which the port reproduces.
+- **Stubs left.** `UNPORTED(curve.curve_p6)` in `geom/tools.rs` (`DropPoint`,
+  `CurveMaxDistanceBetween` on the opaque curve handle `C` and on edge curves) stay, as
+  the `curve.curve_p2` stubs there did: the handle cannot become a `Curve` until edges
+  carry real curves (`topology.edge`). They are behind `topology.*` stubs, so no
+  `geom.tools` case is deferred on `curve.curve_p6`. The ellipse's
+  `GlobalCoincidenceChecker` stub (`curve.ellipse_p2`) is retagged
+  `UNPORTED(curve.ellipse_p1)`: the checker is ported but needs `SmEllipse` as a curve
+  kind (its `IsDegenerate` / `GetDegree` overrides), as `curve.curve_p1` did for the
+  ellipse's `GlobalPointSolve` (`curve.ellipse_p2`: 1 case moved from `curve.curve_p6` to
+  `curve.ellipse_p1`).
+- **Wired at merge.** `curve.curve_p1` landed while this unit was in flight; its
+  `GlobalPointSolve`, `Tessellate` and `ApproximateCurve` are called directly (288
+  deferred cases became passes).
 
 ## curve.parabola (SmParabola)
 

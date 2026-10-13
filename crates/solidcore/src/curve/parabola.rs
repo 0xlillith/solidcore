@@ -60,21 +60,25 @@
 //! - **Statuses ignored upstream** (`SetCanonical`, `SetMinMax`, the constructor's
 //!   `MakeNurb`, `SetFromGwNurb` and `ConvertTo2D` inside `MakeNurb`) are ignored,
 //!   except [`SolidError::Unported`].
-//! - **Back-edges.** `GlobalPointSolveSTEP` calls `SmCurve::GlobalPointSolve`
-//!   (unit `curve.curve_p1`), which returns [`SolidError::Unported`]. The one-line
+//! - **Back-edges.** `GlobalPointSolveSTEP` runs `SmCurve::GlobalPointSolve`
+//!   ([`Curve::global_point_solve`], unit `curve.curve_p1`) on the parabola as a
+//!   [`Curve`]; its solutions name no object. The one-line
 //!   `SmCurve::EvaluateSTEPPoint` (unit `curve.curve_p5`) is co-ported as the private
 //!   `evaluate_step_point`: `EvaluateSTEP` with no derivatives.
 //! - `GetMemoryUsed`, `WriteToDB` and `Dump` are not part of this unit.
 
+use crate::curve::curve::p1::GlobalPointSolveOptions;
+use crate::curve::curve::Curve;
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::geom_utility::p1::{line_line_closest_point, point_project_to_plane};
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::ObjectRef;
-use crate::geom::solution_array::Solution;
+use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject};
 use crate::geom::tol::{are_same, is_zero};
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, INFINITE_PARAMETER_SQRT};
 use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData, KnotType};
 use crate::topology::database_io::{DatabaseReader, FileType};
@@ -157,21 +161,20 @@ fn ignore_status<T>(r: Result<T>) -> Result<()> {
     }
 }
 
-/// `SmCurve::GlobalPointSolve` (unit `curve.curve_p1`).
-fn curve_global_point_solve(
-    _curve: &BSplineCurve,
-    _interval: &Extent1d,
-    _operation: SolverOperation,
-    _test_point: Point3,
-    _tol: f64,
-    _target_distance: Option<f64>,
-    _requested: SolutionRequested,
-) -> Result<Vec<Solution<ObjectRef>>> {
-    // UNPORTED(curve.curve_p1): SmCurve::GlobalPointSolve
-    Err(SolidError::Unported {
-        upstream: "SmCurve::GlobalPointSolve",
-        unit: "curve.curve_p1",
-    })
+/// The handle of the parabola in its own global solve: a curve with the given
+/// natural interval (the solver's duplicate test reads it). The solutions returned
+/// name no object.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct SelfHandle(Extent1d);
+
+impl SolutionObject for SelfHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.0)
+    }
 }
 
 impl Parabola {
@@ -442,11 +445,12 @@ impl Parabola {
     ///
     /// # Errors
     ///
-    /// Those of [`Parabola::adjust_step_interval`]; [`SolidError::Unported`] from
-    /// `SmCurve::GlobalPointSolve`, which is not ported yet.
+    /// Those of [`Parabola::adjust_step_interval`], of `SmCurve::GlobalPointSolve`
+    /// ([`Curve::global_point_solve`]) and of the evaluations.
     #[allow(clippy::too_many_arguments)]
     pub fn global_point_solve_step(
         &mut self,
+        k: &Kernel,
         owner: Option<ObjectRef>,
         interval: &Extent1d,
         operation: SolverOperation,
@@ -463,26 +467,31 @@ impl Parabola {
         // Project the point onto the plane which Ellipse is on (unused upstream)
         let _proj_point = point_project_to_plane(test_point, center, z_axis);
 
-        let ivl = self.base.natural_interval();
-        let mut solutions = curve_global_point_solve(
-            &self.base,
-            &ivl,
-            operation,
-            test_point,
-            tol,
+        let curve = Curve::from(self.clone());
+        let ivl = curve.natural_interval();
+        let opts = GlobalPointSolveOptions {
             target_distance,
-            requested,
-        )?;
+            handle: Some(SelfHandle(ivl)),
+            ..GlobalPointSolveOptions::default()
+        };
+        let sols =
+            curve.global_point_solve(k, &ivl, operation, test_point, tol, requested, &opts)?;
 
-        for sol in &mut solutions {
-            let Some(start) = sol.start.parameters.first_mut() else {
-                continue;
-            };
-            let point_on_curve = self.base.evaluate_point(*start)?;
+        let mut out = Vec::with_capacity(sols.len());
+        for sol in sols.as_slice() {
+            let point_on_curve = curve.evaluate_point(sol.start.parameters[0])?;
             let (angle_param, _) = self.step_inversion(point_on_curve, false);
-            *start = angle_param;
+            let mut r: Solution<ObjectRef> = Solution::new();
+            r.solution_type = sol.solution_type;
+            r.num_variables = sol.num_variables;
+            r.start = sol.start;
+            r.end = sol.end;
+            r.num_objects = sol.num_objects; // (objects: this curve, not named here)
+            r.nodes = sol.nodes;
+            r.start.parameters[0] = angle_param;
+            out.push(r);
         }
-        Ok(solutions)
+        Ok(out)
     }
 
     // ---- editing ----------------------------------------------------------------------

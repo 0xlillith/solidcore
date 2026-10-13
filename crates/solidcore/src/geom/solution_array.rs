@@ -51,12 +51,15 @@
 //! - **Objects.** A solution's objects are a caller-chosen handle `O`
 //!   implementing [`SolutionObject`] (upstream `SmObject*`; a null pointer is
 //!   `None`, pointer equality is `O: PartialEq`). The handle reports its
-//!   [`ObjectKind`], which answers the `IsKindOf` tests made here. Tree nodes
-//!   (`m_apNodes`) are opaque [`NodeId`]s.
+//!   [`ObjectKind`], which answers the `IsKindOf` tests made here, and, when it
+//!   can reach its curve, the curve's natural interval
+//!   ([`SolutionObject::natural_interval`], `SmCurve::GetNaturalInterval`). Tree
+//!   nodes (`m_apNodes`) are opaque [`NodeId`]s.
 //! - **Unported geometry.** Evaluating a curve, surface, edge, face, vertex or
-//!   poly vertex, the parameter domains of curves, surfaces, edges, faces and
-//!   volumes, and `SmTol::GetZoneTol3d(const SmObject*)` belong to units not
-//!   ported yet; those paths return [`SolidError::Unported`] (see the
+//!   poly vertex, the parameter domains of surfaces, edges, faces and volumes
+//!   (and of curves whose handle does not report it), and
+//!   `SmTol::GetZoneTol3d(const SmObject*)` belong to units not ported yet or
+//!   need the object model; those paths return [`SolidError::Unported`] (see the
 //!   `UNPORTED` markers).
 //! - **Status out-params.** `GetIndex`, `GetPoint`,
 //!   `GetObjectIndexForParameterIndex` and `GetParameterInterval` return
@@ -268,6 +271,13 @@ impl ObjectKind {
 pub trait SolutionObject: Copy + PartialEq {
     /// The object's kind (answers upstream's `IsKindOf` tests).
     fn kind(&self) -> ObjectKind;
+
+    /// For a curve object, its natural parameter interval
+    /// (`SmCurve::GetNaturalInterval`) when the handle can reach the curve; `None`
+    /// (the default) when it cannot.
+    fn natural_interval(&self) -> Option<Extent1d> {
+        None
+    }
 }
 
 /// One point of a solution space (`SmSolutionEnd`): a solution value (typically
@@ -363,13 +373,13 @@ pub struct Solution<O> {
     pub nodes: [Option<NodeId>; MAX_TREES],
 }
 
-impl<O: SolutionObject> Default for Solution<O> {
+impl<O: Copy> Default for Solution<O> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<O: SolutionObject> Solution<O> {
+impl<O: Copy> Solution<O> {
     /// An empty solution of type [`SolutionType::Unknown`] (`SmSolution()`).
     #[must_use]
     pub const fn new() -> Self {
@@ -393,7 +403,9 @@ impl<O: SolutionObject> Solution<O> {
             ..Self::new()
         }
     }
+}
 
+impl<O: SolutionObject> Solution<O> {
     /// Clears the type, the counts, the objects and the nodes (`ReSet`). The
     /// solution ends keep their values, as upstream.
     pub fn reset(&mut self) {
@@ -1022,9 +1034,13 @@ fn evaluate_curve<O>(_curve: &O, _t: f64) -> Result<Point3> {
     })
 }
 
-/// `SmCurve::GetNaturalInterval`.
-fn curve_natural_interval<O>(_curve: &O) -> Result<Extent1d> {
-    // UNPORTED(curve.curve_p2): SmCurve::GetNaturalInterval
+/// `SmCurve::GetNaturalInterval`: the handle's [`SolutionObject::natural_interval`].
+fn curve_natural_interval<O: SolutionObject>(curve: &O) -> Result<Extent1d> {
+    if let Some(ivl) = curve.natural_interval() {
+        return Ok(ivl);
+    }
+    // UNPORTED(curve.curve_p2): SmCurve::GetNaturalInterval (a handle that cannot
+    // reach its curve)
     Err(SolidError::Unported {
         upstream: "SmCurve::GetNaturalInterval",
         unit: "curve.curve_p2",
@@ -1067,9 +1083,12 @@ fn surface_natural_uv_domain<O>(_surface: &O) -> Result<crate::geom::extent2d::E
     })
 }
 
-/// `SmVolume::GetNaturalParamDomain`.
+/// `SmVolume::GetNaturalParamDomain`. The volume itself is ported
+/// (`surface::volume::Volume::natural_param_domain`), but a solution object is an
+/// opaque handle `O` with no way to reach it yet.
 fn volume_natural_param_domain<O>(_volume: &O) -> Result<crate::geom::extent3d::Extent3d> {
-    // UNPORTED(surface.volume_p1): SmVolume::GetNaturalParamDomain
+    // UNPORTED(surface.volume_p1): SmVolume::GetNaturalParamDomain (needs a handle-to-volume
+    // lookup on SolutionObject)
     Err(SolidError::Unported {
         upstream: "SmVolume::GetNaturalParamDomain",
         unit: "surface.volume_p1",
