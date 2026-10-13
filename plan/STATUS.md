@@ -11,12 +11,12 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | | |
 |---|---|
 | Units planned | 260 (65 layers), 387,903 upstream lines |
-| Green | **58** (68,242 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_fit_p1`, `nlib.funcs_adv`, `nlib.crv_tool_p1`, `geom.point_set`, `nlib.srf_fit`, `nlib.crv_fit_p2`, `topology.topology`, `nlib.crv_nurb`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nlib.crv_basic`, `nurbs.nurbs_crv`, `nlib.crv_fit_p3`, `nlib.crv_common`, `nlib.crv_adv_p1`, `nlib.spiral`, `nlib.srf_common`, `nlib.srf_nurb`, `nlib.crv_adv_p2`, `nlib.srf_tool_p2`, `nlib.crv_offset`, `nurbs.nurbs_srf`, `nlib.crv_approx`, `nlib.srf_tool_p3`, `nlib.srf_adv_p3`, `nlib.srf_tool_p4`, `nlib.srf_adv_p2`, `nlib.srf_adv_p4` |
-| Partial | **13** (15,625 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.tools`, `geom.transform`, `geom.global_solver`, `curve.hermite_curve`, `geom.a_object`, `nurbs.b_spline_curve_p1`, `nurbs.b_spline_surface_p1`, `nurbs.b_spline_curve_n_lib` |
-| Ported (green + partial) | 71 units, 83,867 upstream lines (21.6%); about 86,100 Rust lines in `crates/solidcore/src` |
-| Claimed | 1 (1,872 lines): `nurbs.b_spline_curve_p2` |
+| Green | **59** (69,430 lines): `nlib.knots`, `geom.vector2d`, `topology.database_io`, `nlib.math`, `geom.periodic_extent1d`, `geom.matrix`, `geom.assert_array`, `nlib.geom`, `geom.vector3d`, `geom.tol`, `geom.context`, `geom.extent1d`, `geom.polynomial`, `nlib.srf_basic`, `geom.extent2d`, `nlib.basis_basic`, `geom.hash_table`, `geom.local_solve_nd`, `geom.local_solve1d`, `geom.polar_box`, `nlib.bezier`, `nlib.funcs_basic`, `nlib.basis_adv`, `geom.geom_utility_p1`, `geom.axis2_placement`, `geom.geom_utility_p2`, `geom.extent3d`, `geom.pseudo_box`, `nlib.iges`, `nlib.srf_tool_p1`, `nlib.crv_fit_p1`, `nlib.funcs_adv`, `nlib.crv_tool_p1`, `geom.point_set`, `nlib.srf_fit`, `nlib.crv_fit_p2`, `topology.topology`, `nlib.crv_nurb`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nlib.crv_basic`, `nurbs.nurbs_crv`, `nlib.crv_fit_p3`, `nlib.crv_common`, `nlib.crv_adv_p1`, `nlib.spiral`, `nlib.srf_common`, `nlib.srf_nurb`, `nlib.crv_adv_p2`, `nlib.srf_tool_p2`, `nlib.crv_offset`, `nurbs.nurbs_srf`, `nlib.crv_approx`, `nlib.srf_tool_p3`, `nlib.srf_adv_p3`, `nlib.srf_tool_p4`, `nlib.srf_adv_p2`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1` |
+| Partial | **14** (17,497 lines): `geom.tree`, `geom.attribute`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.tools`, `geom.transform`, `geom.global_solver`, `curve.hermite_curve`, `geom.a_object`, `nurbs.b_spline_curve_p1`, `nurbs.b_spline_surface_p1`, `nurbs.b_spline_curve_n_lib`, `nurbs.b_spline_curve_p2` |
+| Ported (green + partial) | 73 units, 86,927 upstream lines (22.4%); about 88,000 Rust lines in `crates/solidcore/src` |
+| Claimed | 1 (1,970 lines): `nlib.srf_adv_p5` |
 | Blocked | 0 |
-| Todo | 188 (302,164 lines) |
+| Todo | 186 (299,006 lines) |
 
 ## What Wave 0 produced
 
@@ -122,21 +122,21 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 | `curve.hermite_curve` | `curve::hermite_curve` | 2131 cases (131 fixture + 2000 generated), 2038 bit-identical | 93 (`curve.curve_p2`: `SmCurve::IsKindOf`) |
 | `nurbs.b_spline_curve_p1` | `nurbs::b_spline_curve::p1` | 2216 cases (216 fixture on the six pt_TestFiles .smc curves, smSweepTest lines/circles, edge cases + 2000 generated), 2156 bit-identical; a 30,216-case run was also clean | 60 (`curve.curve_p2` 59: `EvaluateContinuity` / `IsKindOf` / `ApproximateLength`; `curve.curve_p1` 1: `TessellateByBisection`) |
 | `nurbs.b_spline_surface_p1` | `nurbs::b_spline_surface::p1` | 2120 cases (120 fixture on the three pt_TestFiles .sms surfaces incl. ReadFromDB, prog_test cone/bilinear patches, canonical, sweep, edge cases + 2000 generated), 1985 bit-identical | 135 (`surface.surface_p2` 102: `SmSurface::IsKindOf` (bounding boxes, parallelism); `surface.surface_p1` 33: offset, degenerate-curve test, STEP inversion solves) |
-| `nurbs.b_spline_curve_n_lib` | `nurbs::b_spline_curve_n_lib` | 2282 cases (282 fixture on the six pt_TestFiles .smc curves, FitCrvPoints.pts / Points.pts, my_test_curve_interface, the smSurfaceTest helix, TestSmMakeCurvesCompatible, SM_API_test rectangle/polygon edges and edge cases + 2000 generated), 2132 bit-identical; a 100,282-case run was also clean | 150 (`nurbs.b_spline_curve_p2`: `IsIntersectorApprox` (every `SetIntersectionCurveThroughPoint`), `DegreeElevate` (`DeformToEndPointTargets` of degree < 3 or even)) |
+| `nurbs.b_spline_curve_n_lib` | `nurbs::b_spline_curve_n_lib` | 2282 cases (282 fixture on the six pt_TestFiles .smc curves, FitCrvPoints.pts / Points.pts, my_test_curve_interface, the smSurfaceTest helix, TestSmMakeCurvesCompatible, SM_API_test rectangle/polygon edges and edge cases + 2000 generated), 2132 bit-identical; a 100,282-case run was also clean | 57 (`curve.curve_p2`: `SmCurve::ApproximateLength` in `SetIntersectionCurveThroughPoint`; 150 before `nurbs.b_spline_curve_p2` wired `IsIntersectorApprox` / `DegreeElevate`) |
+| `nurbs.b_spline_curve_p2` | `nurbs::b_spline_curve::p2` | 2328 cases (328 fixture: the six pt_TestFiles .smc curves through every op and via ReadFromDB, my_test_reversed_line_join lines, SM_API_test rectangle/polygon joins, arc/line joins, Bezier box cases, edge cases + 2000 generated), 2011 bit-identical; a 20,328-case run was also clean | 317 (`curve.curve_p2` 167: `IsKindOf` / `EvaluateContinuity`; `curve.curve_p4` 79: `IsClosed` / `IsDegenerate`; `curve.curve_p5` 66: `SmCurve::IsLine` / `IsArc`; `curve.line` 5: `SmLine`) |
 
 ## Ready set
 
-Ready (todo, every dependency green/partial): `nlib.srf_adv_p1` (layer 15, 1188 lines),
-`nlib.srf_adv_p5` (layer 15, 1970 lines). Waiting only on a claimed unit:
+Ready (todo, every dependency green/partial):
 
-| Layer | Unit | Upstream lines | Waiting on (claimed) |
-|---|---|---|---|
-| 13 | `curve.curve_p2` | 2302 | `nurbs.b_spline_curve_p2` |
-| 13 | `nurbs.b_spline_curve_p3` | 1187 | `nurbs.b_spline_curve_p2` |
+| Layer | Unit | Upstream lines |
+|---|---|---|
+| 13 | `curve.curve_p2` | 2302 |
+| 13 | `nurbs.b_spline_curve_p3` | 1187 |
 
 ## Recent findings (details in `plan/findings.md`)
 
-- No Rust-vs-C++ disagreement so far: every non-deferred case of the 71 ported
+- No Rust-vs-C++ disagreement so far: every non-deferred case of the 72 ported
   units is bit-identical (`max_rel_err = 0`).
 - `nlib.srf_adv_p4`: `N_ApproxCrossBoundaryDerivs` ignores `N_VectorsAngle`'s status
   and can refine with an uninitialised knot; `N_MergeKnotVectors` loops forever on NaN
@@ -492,10 +492,10 @@ status, plus fmt, clippy, tests and the wasm32 check.
 
 ## Resume note (2026-10-12, after style review batch #10)
 
-- `main` is pushed to `origin` (github.com/bherbruck/solidcore). One unit is claimed
-  (`nurbs.b_spline_curve_p2`, worktree `../solidcore-wt/nurbs.b_spline_curve_p2`);
-  check `git worktree list` before you claim. Ready: `nlib.srf_adv_p1`,
-  `nlib.srf_adv_p5` (see Ready set).
+- `main` is pushed to `origin` (github.com/bherbruck/solidcore). Three units are claimed
+  (`nurbs.b_spline_curve_p2`, `nlib.srf_adv_p5`, `nlib.srf_adv_p1`); check
+  `git worktree list` before you claim. Nothing else is ready until one lands (see
+  Ready set).
 - For worktrees branched before batch #10: the private `nl_err` helpers are now
   `SolidError::nl_ser`, and `NL_BIGD` is `nurbs::math::BIGD`. Earlier API changes
   still apply: `BSplineCurve::edit_parameterization(&Extent1d)`,
