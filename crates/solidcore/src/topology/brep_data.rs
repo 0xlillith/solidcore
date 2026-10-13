@@ -152,6 +152,29 @@ impl DataSourceType {
     pub const fn code(self) -> i32 {
         self as i32
     }
+
+    /// The data source for an upstream `SmDataSourceType` value.
+    #[must_use]
+    pub const fn from_code(code: i32) -> Option<Self> {
+        Some(match code {
+            0 => Self::Unknown,
+            1 => Self::SmLib,
+            2 => Self::Iges,
+            3 => Self::Step,
+            4 => Self::Stl,
+            5 => Self::Sat,
+            6 => Self::Parasolid,
+            7 => Self::Vdafs,
+            8 => Self::OpenNurbs,
+            9 => Self::Datakit,
+            10 => Self::SolidWorks,
+            11 => Self::Usd,
+            12 => Self::Prc,
+            13 => Self::Dgn,
+            14 => Self::Alias,
+            _ => return None,
+        })
+    }
 }
 
 /// A geometry object read from a stream with the key its attributes are listed under
@@ -1560,7 +1583,7 @@ impl BrepData {
             next_line(&mut db);
         } else {
             let _header = db.read_char()?; // 'V'
-            // status ignored upstream; a short read is an error here
+                                           // status ignored upstream; a short read is an error here
             version = db.read_ulong()?;
             // version >= 40: ignore(sizeof(long long) - sizeof(long)) skips nothing on
             // LP64
