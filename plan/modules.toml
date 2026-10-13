@@ -959,10 +959,10 @@ depends_on = ["curve.curve_p2", "geom.extent1d", "geom.polynomial", "geom.soluti
 est_lines = 859
 layer = 14
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-curve.conic-a1"
 claimed_at = "2026-10-13T01:00:34Z"
-notes = "19 fns; largest: SmConic::Evaluate, SmConic::InvertPointOnConic, SmConic::IntersectConic, SmConic::IntersectImplicitConic; cycle back-edges (call into later units; stub or co-port): curve.curve_p5(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "difftest green: 3240 cases (240 fixture incl. all 15 smCurveTest.cpp IntersectConic asserts + 3000 generated), 0 deferred; wired SmCurve::ReadFromDB(SmConic_TYPE) and CurveKind::Conic into curve.curve_p2 (still partial: curve_p5, curve.line). 19 fns; largest: SmConic::Evaluate, SmConic::InvertPointOnConic, SmConic::IntersectConic, SmConic::IntersectImplicitConic; cycle back-edges (call into later units; stub or co-port): curve.curve_p5(2); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "curve.crv_in_volume"
@@ -1011,9 +1011,9 @@ depends_on = ["curve.curve_p2", "geom.extent1d", "geom.extent2d", "geom.object",
 est_lines = 310
 layer = 14
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-curve.iso_curve-a1"
+claimed_at = "2026-10-13T01:17:13Z"
 notes = "16 fns; largest: SmIsoCurve::Evaluate, SmIsoCurve::ReadFromDB, SmIsoCurve::SmIsoCurve, SmIsoCurve::CreateUVIsoLine; cycle back-edges (call into later units; stub or co-port): surface.surface_p2(8), curve.curve_p5(2), curve.line(1), surface.surface_p1(1), surface.surface_p6(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
