@@ -163,7 +163,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (draft)
-- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
 
 ## By module
 
@@ -325,7 +325,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [x] ✅ `topology.database_io` (363 lines) — green, 2059 cases
 - [x] ✅ `topology.topology` (389 lines) — green, 657 cases
-- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
 - [ ] ⏳ `topology.proto_topology_p1` (2746 lines) — waiting
 - [ ] ⏳ `topology.edgeuse_p1` (1157 lines) — waiting
 - [ ] ⏳ `topology.face_p2` (1827 lines) — waiting
