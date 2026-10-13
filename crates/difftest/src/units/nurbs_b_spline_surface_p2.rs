@@ -19,8 +19,8 @@
 //! Cases whose Rust side reaches an unported callee are deferred: every
 //! `CopyAndAddAnalytics` (`SmPlane::IsNurbSurfacePlane`, `surface.plane_p2`),
 //! `IsDegeneratePoint` (`SmSurface::IsKindOf`, `surface.surface_p2`) and
-//! `GetMaxAnalyticDomain` (`SmSurface::IsPlanar`, `surface.surface_p7`), constant-u
-//! iso curves with a UV line (`SmLine`, `curve.line`), spheres from three arcs
+//! `GetMaxAnalyticDomain` (`SmSurface::IsPlanar`, `surface.surface_p7`), spheres
+//! from three arcs
 //! (`SmCurve::IsArc`, `curve.curve_p5`) and trimmed planes of non-rectangular ruled
 //! surfaces (`SmSurface::Evaluate1stDerivatives`, `surface.surface_p1`). Every run has
 //! at least [`MIN_GENERATED`] generated cases.

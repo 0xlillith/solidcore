@@ -31,9 +31,9 @@
 //! - **Surface type.** Only the plain B-spline is ported, so `GetType()` is always
 //!   `SmBSplineSurface_TYPE` here: `SetControlPoint`'s refusal for analytic surfaces
 //!   and `CopyAndAddAnalytics`' "copy an analytic as is" branch are never taken. The
-//!   generator of `CreateSurfOfRevolution` is an [`BSplineCurve`], never an `SmLine`
-//!   (unit `curve.line`), so its arc length reparametrisation of cylinders is never
-//!   taken either.
+//!   generator of `CreateSurfOfRevolution` is a plain [`BSplineCurve`], never an
+//!   `SmLine` (a separate type here, `crate::curve::line`), so its arc length
+//!   reparametrisation of cylinders is never taken either.
 //! - **Missing NURB.** Where upstream dereferences the `NULL` NURB of a surface built
 //!   by `SmBSplineSurface()` (`GetControlPointsExpert`, `SetControlPoint`,
 //!   `CopySubPatch`, `SplitAt`) the port returns `SM_ERR`
@@ -58,9 +58,8 @@
 //!   the NURB is replaced: form and knot type stay those of the surface.
 //! - **Back-edges.** `CopyAndAddAnalytics` needs `SmPlane::IsNurbSurfacePlane`
 //!   (`surface.plane_p2`, then `surface.cone_p2`, `surface.sphere`,
-//!   `surface.surf_of_revolution_p2`, `surface.surf_of_extrusion_p2`); the UV iso
-//!   line of `CreateIsoParametricCurve` an `SmLine` (`curve.line`, through
-//!   [`IsoCurve::create_uv_iso_line`]); `CreateSphereFromArcs` `SmCurve::IsArc`
+//!   `surface.surf_of_revolution_p2`, `surface.surf_of_extrusion_p2`);
+//!   `CreateSphereFromArcs` `SmCurve::IsArc`
 //!   (`curve.curve_p5`); `CreateSurfOfRevolution`'s optional sweep circle an
 //!   `SmCircle` (`curve.ellipse_p1`); `CreateTrimmedPlaneFromRuled` (unless the ruled
 //!   surface is a rectangle) `SmSurface::Evaluate1stDerivatives`
@@ -358,8 +357,8 @@ impl BSplineSurface {
     /// # Errors
     ///
     /// `SM_ERR` for a parameter outside the domain or when the extraction fails;
-    /// `SM_ERR_NULL_POINTER` without NURB; [`SolidError::Unported`] for a constant-u
-    /// UV iso line (`SmLine`) or from the trim.
+    /// `SM_ERR_NULL_POINTER` without NURB; [`SolidError::Unported`] from the UV iso
+    /// line or the trim.
     pub fn create_iso_parametric_curve(
         &self,
         k: &Kernel,
@@ -1492,10 +1491,10 @@ mod tests {
             domain: None,
             uv_iso_curve: true,
         };
-        assert!(matches!(
-            s.create_iso_parametric_curve(&k, SurfParamType::U, 1.0, opts),
-            Err(SolidError::Unported { .. })
-        ));
+        let c = s
+            .create_iso_parametric_curve(&k, SurfParamType::U, 1.0, opts)
+            .expect("iso u");
+        assert!(c.uv_iso_curve.is_some());
         let c = s
             .create_iso_parametric_curve(&k, SurfParamType::V, 0.5, opts)
             .expect("iso v");
