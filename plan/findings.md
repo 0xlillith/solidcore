@@ -1617,8 +1617,13 @@ numerics written over `CurveEvaluate` work for them unchanged.
 
 Wiring its stubs made `curve.hermite_curve` (93 -> 0 deferred) and
 `nurbs.b_spline_curve_n_lib` (57 -> 0) green and dropped `nurbs.b_spline_curve_p1` from 60
-to 4 (`curve.curve_p1`) and `nurbs.b_spline_curve_p2` from 317 to 150 (`curve.curve_p4`,
-`curve.curve_p5`, `curve.line`). Stubs **not** wired: the `UNPORTED(curve.curve_p2)` sites
+to 4 (`curve.curve_p1`), `nurbs.b_spline_curve_p2` from 317 to 150 (`curve.curve_p4`,
+`curve.curve_p5`, `curve.line`) and `nurbs.b_spline_curve_p3` from 391 to 359 (no
+`curve.curve_p2` cases left; the rest now reach `curve.curve_p4`/`_p5`/`_p7`/`_p8`). For
+p3's `AssertValid`, `SmTol::IsDegenerate(this)` (the object dispatch `geom.tol` does not
+port) is computed in place for an edge-less curve — `IsDegenerate` at
+`GetXSectTol3d(zone, zone)` with the system zone tolerance — so
+`BSplineCurve::assert_valid` now takes the `Kernel`. Stubs **not** wired: the `UNPORTED(curve.curve_p2)` sites
 in `geom/tools.rs`, `geom/solution_array.rs` and the `geom/tol.rs` comment call `SmCurve`
 methods on opaque handles (`C: ?Sized`, `O: SolutionObject`) that cannot yet be turned into
 a `Curve` (in the difftests those objects are `SmLine`s / edges of B-rep files). They keep
