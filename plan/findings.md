@@ -2674,3 +2674,30 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## surface.surf_of_revolution_p3 (2026-10-13)
+
+- **`SurfaceKind::SurfOfRevolution`.** The surface of revolution joined the `SmSurface`
+  dispatch (`surface::surface::p2`) to wire `SmSurfOfRevolution::ReadFromDB` into
+  `SmSurface::ReadFromDB`. `Surface::reverse`, `swap_uv`, `reparameterize`, `transform`,
+  `drop_point_fast` and `convert_uv_from_*` now take the `Kernel` (the surface's
+  overrides, and the virtual `RebuildSTEPFromNURBParameters` that the inherited
+  `SmBSplineSurface::Reverse` / `SwapUV` reach, need it); `intersect_with_plane` takes a
+  `Plane`. `STEPInversion`, `AdjustSTEPUVDomain` and `TrimWithDomain` of the kind are
+  stubbed to `surface.surf_of_revolution_p2`.
+- **Surface cache iso curves.** `SmSurfaceCache` reaches the virtual
+  `CreateIsoParametricCurve`, which makes an `SmCircle` in the sweep direction of a
+  surface of revolution; the cache stores its iso curves as `BSplineCurve`, so that call
+  stays an `UNPORTED(surface.surf_of_revolution_p1)` stub (as the plane's `SmLine` iso
+  curves do) until the cache stores `Curve`s.
+- **Polar converter records.** A surface of revolution's `SmPolarConversion` owns its
+  sweep circle, so `WriteToDB` stores it (`bHasCurve`); it is read by
+  `PolarConversion::read_from_db_with_curve` (curve.ellipse_p1).
+- **Cones and spheres.** `IntersectWithCone` / `IntersectWithSphere` take the other
+  surface through the `Revolved` trait (its `SmSurfOfRevolution` part and its virtual
+  `ConvertDomainFromNURBSToSTEP`); `SmCone` / `SmSphere` should implement it when ported,
+  which turns the 44 deferred cases into compared ones.
+- **Inexact polar conversions.** `ConvertUVFromSTEPToNURBS` without polar conversion and
+  `DropPointFast` with an inexact angle need `SmSurface::LocalPointSolve`
+  (`surface.surface_p5`); no generated surface reaches them (the sweep circles always
+  convert exactly).
