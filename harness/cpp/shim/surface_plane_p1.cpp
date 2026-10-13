@@ -76,7 +76,8 @@ enum : int32_t
     OP_INHERITED = 23,
     OP_REVERSE = 24,
     OP_SWAP = 25,
-    OP_LAST = 25,
+    OP_EXTEND = 26,
+    OP_LAST = 26,
 };
 
 // Reads the protected STEP flags through pointers to members named in a derived class.
@@ -336,8 +337,8 @@ void put_surface_nurb(std::vector<double>& o, const gw_SURFACE* sur)
 }
 
 // A copy of `a` that leaves `a` alone: the copy constructor makes the source's missing NURB
-// (through a const_cast), so a plane without NURB is rebuilt from its analytic data instead
-// (SetCanonical keeps unit perpendicular axes as they are).
+// (through a const_cast), so a plane without NURB is rebuilt from its analytic data instead,
+// then given the source's exact placement.
 SmPlane* side_free_copy(const SmContext& ctx, const SmPlane* a)
 {
     if (a->GetGwNurbPointer() != NULL)
@@ -346,6 +347,8 @@ SmPlane* side_free_copy(const SmContext& ctx, const SmPlane* a)
     SmPlane* c = new (ctx) SmPlane(pos.GetOrigin(), pos.GetXAxis(), pos.GetYAxis(), a->GetUVScale(),
                                    a->GetSTEPUVDomain(), &ctx);
     c->GetOutOfBoundsEnabled() = a->IsOutOfBoundsEnabled();
+    // SetCanonical is not idempotent for a degenerate placement: copy it exactly
+    c->SetPosition(pos);
     return c;
 }
 
@@ -606,7 +609,15 @@ void run_op(int32_t op, Rd& rd, const SmContext& ctx, SmPlane* a, std::vector<do
         a->ToggleSwapUVBit();
         o.push_back(0.0);
         break;
-    case OP_REBUILD: o.push_back(st(a->RebuildSTEPFromNURBParameters())); break;
+    case OP_REBUILD:
+        // upstream dereferences a NULL NURB (SmBSplineSurface::EvaluatePoint) when none can be made
+        if (a->GetOrCreateGwNurbPointer() == NULL)
+        {
+            o.push_back(st(SM_ERR)); // the port returns SM_ERR (no NURB)
+            break;
+        }
+        o.push_back(st(a->RebuildSTEPFromNURBParameters()));
+        break;
     case OP_DROP:
     {
         SmExtent2d d = read_dom(rd, ctx, a);
@@ -791,10 +802,43 @@ void run_op(int32_t op, Rd& rd, const SmContext& ctx, SmPlane* a, std::vector<do
     case OP_REVERSE:
     {
         SmSurfParamType param = rd.idx(0, 1) == 0 ? SM_SP_U : SM_SP_V;
+        // upstream passes a NULL NURB to N_SrfReverse when none can be made
+        if (a->GetOrCreateGwNurbPointer() == NULL)
+        {
+            o.push_back(st(SM_ERR)); // the port returns SM_ERR (no NURB)
+            break;
+        }
         o.push_back(st(a->Reverse(param)));
         break;
     }
     case OP_SWAP: o.push_back(st(a->SwapUV())); break;
+    case OP_EXTEND:
+    {
+        bool has_dir = rd.flag();
+        SmSurfParamType dir = (SmSurfParamType)rd.idx(0, SM_SP_VMAX);
+        double dist = rd.num();
+        SmContinuityType cont = (SmContinuityType)rd.idx(0, SM_CT_CINFINITY);
+        SmPlane* tmp = side_free_copy(ctx, a);
+        // upstream copies a NULL NURB (N_SrfCopy) when none can be made
+        if (tmp->GetOrCreateGwNurbPointer() == NULL)
+        {
+            delete tmp;
+            o.push_back(st(SM_ERR)); // the port returns SM_ERR (no NURB)
+            break;
+        }
+        SmSurface* e = NULL;
+        SmStatus stt = has_dir ? tmp->CreateExtendedSurface(ctx, dir, dist, cont, e)
+                               : tmp->CreateExtendedSurface(ctx, dist, cont, e);
+        o.push_back(st(stt));
+        if (stt == SM_SUCCESS)
+        {
+            SmBSplineSurface* bs = e ? SM_CAST_PTR(SmBSplineSurface, e) : NULL;
+            put_surface_nurb(o, bs ? bs->GetGwNurbPointer() : NULL);
+        }
+        delete e;
+        delete tmp;
+        break;
+    }
     default: throw Bad();
     }
 }
