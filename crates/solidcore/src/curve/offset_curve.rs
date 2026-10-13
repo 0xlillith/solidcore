@@ -67,7 +67,7 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::tol::is_zero;
 use crate::geom::vector3d::{Point3, Vec3};
-use crate::math::{EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
+use crate::math::{EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, UNDEF_DOUBLE};
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 const OP_EVAL: &str = "curve::offset_curve::OffsetCurve::evaluate";
@@ -145,7 +145,7 @@ impl OffsetCurve {
             dim: 3,
             base: None,
             normal: Vec3::UNDEF,
-            distance: crate::math::UNDEF_DOUBLE,
+            distance: UNDEF_DOUBLE,
             interval: Extent1d::new(),
             reversed: UNSURE,
             owns_curve: UNSURE,
@@ -207,38 +207,39 @@ impl OffsetCurve {
     /// The base curve, or `SM_ERR_NULL_POINTER` for an empty curve (upstream
     /// dereferences a null pointer).
     fn base(&self) -> Result<&Curve> {
-        self.base.as_deref().ok_or(SolidError::Upstream {
-            operation: OP_BASE,
-            code: 1006,
-            entity: None,
-        })
+        self.base
+            .as_deref()
+            .ok_or(SolidError::null_pointer(OP_BASE))
     }
 
     /// `operator==`: same dimension, equal base curves, normals and intervals, offset
     /// distances within the scaled zero and the same reversal flag.
-    #[must_use]
-    pub fn approx_eq(&self, other: &Self) -> bool {
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Curve::approx_eq`] on the base curves.
+    pub fn approx_eq(&self, other: &Self) -> Result<bool> {
         // low work
         if core::ptr::eq(self, other) {
-            return true;
+            return Ok(true);
         }
 
         // first check the base (SmCurve::operator==: same type, same dimension)
         if self.dim != other.dim {
-            return false;
+            return Ok(false);
         }
 
         // check equivalence of these objects
         let bases = match (&self.base, &other.base) {
             (None, None) => true,
-            (Some(a), Some(b)) => a.approx_eq(b),
+            (Some(a), Some(b)) => a.approx_eq(b)?,
             _ => false,
         };
-        bases
+        Ok(bases
             && self.normal.approx_eq(other.normal)
             && is_zero(self.distance - other.distance)
             && self.interval.are_same(&other.interval)
-            && self.reversed == other.reversed
+            && self.reversed == other.reversed)
     }
 
     /// The natural interval (`GetNaturalInterval`): the curve interval.
@@ -541,12 +542,7 @@ impl OffsetCurve {
     #[must_use]
     pub fn reverse_parameterization(&mut self, old_interval: &Extent1d) -> Extent1d {
         // Calculate the return argument.
-        let inv = |v: f64| {
-            self.interval
-                .inversion(v)
-                .parameter
-                .unwrap_or(crate::math::UNDEF_DOUBLE)
-        };
+        let inv = |v: f64| self.interval.inversion(v).parameter.unwrap_or(UNDEF_DOUBLE);
         let old_t_min = inv(old_interval.min());
         let old_t_max = inv(old_interval.max());
 
@@ -746,8 +742,8 @@ mod tests {
     fn equality_copy_and_types() {
         let a = offset(0.5);
         let b = a.copy();
-        assert!(a.approx_eq(&b));
-        assert!(!a.approx_eq(&offset(0.6)));
+        assert!(a.approx_eq(&b).unwrap());
+        assert!(!a.approx_eq(&offset(0.6)).unwrap());
         assert!(a.is_kind_of(OffsetCurve::TYPE));
         assert!(a.is_kind_of(crate::curve::curve::p2::TYPE));
         assert!(!a.is_kind_of(HermiteCurve::TYPE));

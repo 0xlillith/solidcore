@@ -49,8 +49,11 @@
 //!   upstream (`SER`). The empty constructor (`SmTangentField()`, for I/O) has no
 //!   counterpart.
 
-use crate::curve::curve::p2::{self as curve_base, Curve, CRV_ON_SURF_TYPE, TANGENT_FIELD_TYPE};
+use crate::curve::curve::p2::{
+    self as curve_base, at, Curve, CRV_ON_SURF_TYPE, TANGENT_FIELD_TYPE,
+};
 use crate::error::{Result, SolidError};
+use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
@@ -296,7 +299,7 @@ impl<'a, S> TangentField<'a, S> {
 
     /// The natural parameter interval: the UV curve's (`GetNaturalInterval`).
     #[must_use]
-    pub fn natural_interval(&self) -> crate::geom::extent1d::Extent1d {
+    pub fn natural_interval(&self) -> Extent1d {
         // CO-PORT(curve.crv_on_surf): SmCrvOnSurf::GetNaturalInterval
         self.uv_curve.natural_interval()
     }
@@ -319,8 +322,8 @@ impl<'a, S> TangentField<'a, S> {
         // CO-PORT(curve.crv_on_surf): SmCrvOnSurf::operator==
         // (SmCurve::operator==: same type, both of dimension 3)
         let mut rtn = true;
-        rtn &=
-            core::ptr::eq(self.uv_curve, other.uv_curve) || self.uv_curve.approx_eq(other.uv_curve);
+        rtn &= core::ptr::eq(self.uv_curve, other.uv_curve)
+            || self.uv_curve.approx_eq(other.uv_curve)?;
         rtn &=
             core::ptr::eq(self.surface, other.surface) || surface_eq(self.surface, other.surface)?;
         rtn &= self.uv_domain.are_same(&other.uv_domain);
@@ -506,11 +509,6 @@ fn surface_evaluate_normal<S>(_surface: &S, _uv: Point2) -> Result<Vec3> {
         upstream: "SmSurface::EvaluateNormal",
         unit: "surface.surface_p7",
     })
-}
-
-/// Entry `i` of an evaluation, or `UNDEF` (an unwritten `SmVector3d`).
-fn at(v: &[Vec3], i: usize) -> Vec3 {
-    v.get(i).copied().unwrap_or(Vec3::UNDEF)
 }
 
 #[cfg(test)]

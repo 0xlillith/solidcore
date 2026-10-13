@@ -1695,6 +1695,45 @@ Upstream behaviour worth knowing:
   `Copy`, so splitting one fails with `SM_ERR`; it also inherits the base `GetDegree` (3),
   `GetNumberControlPoints` (0), `GetNumberNaturalKnots` (2) and `IsRational` (`FALSE`).
 
+## curve.crv_in_volume (`SmCrvInVolume.cpp`)
+
+No Rust-vs-C++ disagreement: 1426 of 1426 non-deferred difftest cases bit-identical (30
+fixture cases built around the `SmSrfInVolume.cpp:1219` usage `SmCrvInVolume(*pBSC,
+bInParamSpace, vol, 0, 1)` and the `smCurveTest.cpp` line, plus 2000 generated);
+`--perturb` is SENSITIVE. 604 cases are deferred: everything that reaches the volume
+(`SmVolume`, `surface.volume_p1` 603, `surface.volume_p2` 1) — evaluation, uncached
+breaks (`GetKnots` starts with `GetNaturalParamDomain`), continuities at interior breaks,
+equality of equal curves, non-identity transforms, the volume part of `ReadFromDB`.
+
+The port adds `CurveKind::CrvInVolume` and a stand-in `curve::crv_in_volume::Volume`
+(type code only; every volume call is `Unported`). **Whoever ports `surface.volume_p1`
+should replace that struct with the real volume type** and wire the `UNPORTED(surface.volume_p1)`
+/ `(surface.volume_p2)` stubs in `curve/crv_in_volume.rs` (volume calls and the
+`smvol_Lift*Derivative` lifts); the `SmCurveClassification` stub there points at
+`intersect.curve_class_p4` / `_p8` / `_p1`. `Curve::approx_eq` now returns `Result<bool>`
+(the volume comparison can be unported). The C++ side uses an identity `SmTransform` as
+the volume and loads the protected break cache through a derived test class.
+
+Upstream behaviour worth knowing:
+
+- `GenerateMults` indexes `m_sConts` by the *knot* index `ii`, not the matched break index
+  `bi`; with an interval, `GetKnots`' cached path therefore reports multiplicities of the
+  wrong breaks. Its state check returns before sizing the output, so `GetKnots` (which
+  ignores the status) then returns no multiplicities; `GetNumberNaturalKnots` then reads
+  past the empty array (UB; the ffi rejects that shape).
+- `GetKnots`' cached path and computed path give different multiplicities for the same
+  break (the computed path keeps the curve's end multiplicity, e.g. 4; the cached path
+  derives 3 from `SM_CT_DISCONTINUOUS`). The `&self` dispatch through `Curve` does not
+  store the cache (no `const_cast`), so it always answers like upstream's first call.
+- `EvaluatePoint` maps the point with `MapPoint` unconditionally before choosing
+  `EvaluatePoint` / `MapPoint`; `EvaluateVolume` (not this unit) swaps the two branches
+  relative to `Evaluate`.
+- The copy constructor copies the volume when it owns the curve *or* the volume; with owner
+  flag 1 the copied volume is not owned and leaks. Copying an owned `SmHermiteCurve` base
+  fails silently, leaving both objects owning one curve (double delete).
+- `CalculateContinuities` with no breaks reads `SetAt(0)` of an empty array and loops on
+  `size - 1` underflow (UB); `ReadFromDB` of `SmVolume_TYPE` dereferences a null volume.
+
 ## curve.curve_cache
 
 Partial (deferred: `GetAnalyticCurve` of lines and arcs needs `SmLine` / `SmCircle` /
@@ -1893,3 +1932,34 @@ worth knowing:
   direction a zero tangent is fixed by recursing with `2, 2` upper-half (from the
   unclamped parameter); otherwise from `Suv` / `Suu` / `Svv`, then by sampling up to five
   nearby points for steps `1e-5 .. 0.1`; a surface collapsed to a point returns `SM_ERR`.
+
+## curve.line (`SmLine`)
+
+Difftest: one program per case (a line construction, then up to ~6 ops on it, then the
+line's full state: analytic data, B-spline part, natural interval), so state changes made
+by one op (lazy NURBs, trims, joins, reparameterisations) are checked by the next.
+Upstream behaviour worth knowing:
+
+- **Lazy NURB.** The two-point constructor makes no NURB; `GetNaturalInterval` then
+  returns the analytic domain and `Length` uses `interval * scale` instead of the end
+  point distance. Inherited `const` queries (`GetEnds`, `GetNumberControlPoints` inside
+  `CreateAnalyticCurve`, ...) make the NURB through `GetOrCreateGwNurbPointer` (a
+  `const_cast` + virtual `SmLine::MakeNurb`), so a later `Length` changes branch. The port's
+  `Line::ends` / `Line::create_analytic_curve` take `&mut self` and do the same; the
+  read-only variants make it on a copy.
+- **`SmBSplineCurve::DeformToEndPointTargets` ignores `DegreeElevate`'s status**
+  (`SmBSplineCurveNLib.cpp:3038`). The port of `nurbs.b_spline_curve_n_lib` propagated it;
+  fixed in this unit (its difftest stays green, 2282 cases). For a NURB over a zero-length
+  knot interval (a degenerate line: `[a, a, a, a]`) `N_CrvElevateDegree` fails
+  (`N_KnotVectorIsValid`), upstream then runs the degree-3 indexing scheme on the degree-1
+  curve and reads past its arrays (undefined behaviour; it happened to "succeed" in our
+  runs). The port returns `InvalidInput` ("knot index out of range"). The curve.line
+  generator only deforms regular lines into a new B-spline (first op only).
+- **Short database streams.** `SmLine::ReadFromDB` / `SmBSplineCurve::ReadFromDB` on a
+  truncated binary stream throw (`SmDatabaseIOStream`) or read uninitialised values, and a
+  short ASCII header leaves `n`, `p` uninitialised before the allocation: not difftested;
+  the ffi only builds complete streams.
+- `IsLine` always answers `TRUE`; `IsClosed` / `IsArc` `FALSE`; `IntersectWithLine`
+  sorts a coincident-range solution by this line's parameter, re-evaluating the start with
+  the second point's parameters. `DropPointFast` compares the clamped and raw NURB
+  parameters with `!=` (a NaN parameter recomputes the distance).

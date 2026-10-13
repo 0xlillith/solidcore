@@ -111,6 +111,7 @@
 //!   (`curve.curve_p1`), which returns [`SolidError::Unported`] until that unit is
 //!   ported. `IsKindOf` adds `SmBSplineCurve_TYPE` to `SmCurve::IsKindOf`.
 
+use crate::curve::curve::p2::BSPLINE_CURVE_TYPE;
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
@@ -132,9 +133,6 @@ use crate::nurbs::nurbs_crv::{
     allocate_nurb_curve, copy_nurb_curve, crv_derivs, crv_eval, crv_remove_knots, extract_frame,
     fixup_knot_vector, get_knots, to_euclid,
 };
-
-/// `CURV_BASE_TYPE` (`SmCurveTypes.h`).
-const CURV_BASE_TYPE: i64 = 14000;
 
 const OP_DATA: &str = "nurbs::b_spline_curve::p1::BSplineCurve::from_data";
 const OP_NURB: &str = "nurbs::b_spline_curve::p1::BSplineCurve::make_nurb";
@@ -211,6 +209,21 @@ pub enum ProjectionType {
     Rotation = 2,
     /// `SM_PT_UNKNOWN` (not supported by [`BSplineCurve::create_plane_projection`]).
     Unknown = 3,
+}
+
+impl ProjectionType {
+    /// The enumerator of a stored value (`(SmProjectionType) lValue`), `None` outside
+    /// the enum.
+    #[must_use]
+    pub const fn from_code(code: u64) -> Option<Self> {
+        Some(match code {
+            0 => Self::Parallel,
+            1 => Self::Perspective,
+            2 => Self::Rotation,
+            3 => Self::Unknown,
+            _ => return None,
+        })
+    }
 }
 
 /// End points and end weights of a curve ([`BSplineCurve::ends`]).
@@ -391,7 +404,7 @@ fn tessellate_by_bisection(
 
 impl BSplineCurve {
     /// `SmBSplineCurve_TYPE` (`CURV_BASE_TYPE + 33`).
-    pub const TYPE: i64 = CURV_BASE_TYPE + 33;
+    pub const TYPE: i64 = BSPLINE_CURVE_TYPE;
 
     // ---- construction -----------------------------------------------------------------
 
