@@ -65,7 +65,7 @@
 //! Deviations:
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
 //!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
-//!   [`HermiteCurve`] and [`Conic`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
+//!   [`HermiteCurve`], [`Conic`] and [`IsoCurve`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
 //!   `SmOffsetCurve`, ...) join the enum in their own units. Each virtual method is
 //!   one `match`: a kind that overrides it calls its own method, the others run the
 //!   base-class body ported here (the `SmCurve.h` inline defaults: `SM_ERR`,
@@ -134,6 +134,7 @@
 
 use crate::curve::conic::Conic;
 use crate::curve::hermite_curve::HermiteCurve;
+use crate::curve::iso_curve::IsoCurve;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, AObject, CacheStore};
 use crate::geom::attribute::AttributeStore;
@@ -365,6 +366,30 @@ impl CurveEvaluate for Conic {
     }
 }
 
+impl CurveEvaluate for IsoCurve {
+    fn dim(&self) -> u64 {
+        Self::dim(self)
+    }
+
+    fn natural_interval(&self) -> Extent1d {
+        Self::natural_interval(self)
+    }
+
+    fn evaluate(
+        &self,
+        t: f64,
+        num_derivs: usize,
+        from_left: bool,
+        non_zero_tangents: bool,
+    ) -> Result<Vec<Vec3>> {
+        Self::evaluate(self, t, num_derivs, from_left, non_zero_tangents)
+    }
+
+    fn evaluate_point(&self, t: f64) -> Result<Point3> {
+        Self::evaluate_point(self, t)
+    }
+}
+
 impl CurveEvaluate for Curve {
     fn dim(&self) -> u64 {
         Self::dim(self)
@@ -405,6 +430,8 @@ pub enum CurveKind {
     Hermite(HermiteCurve),
     /// `SmConic`.
     Conic(Conic),
+    /// `SmIsoCurve`.
+    Iso(IsoCurve),
 }
 
 /// A curve (`SmCurve`): its concrete kind and the object owning it (`m_pOwner`:
@@ -440,6 +467,12 @@ impl From<HermiteCurve> for Curve {
 impl From<Conic> for Curve {
     fn from(c: Conic) -> Self {
         Self::new(CurveKind::Conic(c))
+    }
+}
+
+impl From<IsoCurve> for Curve {
+    fn from(c: IsoCurve) -> Self {
+        Self::new(CurveKind::Iso(c))
     }
 }
 
@@ -498,6 +531,7 @@ impl Curve {
             CurveKind::BSpline(_) => BSplineCurve::TYPE,
             CurveKind::Hermite(_) => HermiteCurve::TYPE,
             CurveKind::Conic(_) => Conic::TYPE,
+            CurveKind::Iso(_) => IsoCurve::TYPE,
         }
     }
 
@@ -508,6 +542,7 @@ impl Curve {
             CurveKind::BSpline(_) => "SmBSplineCurve_TYPE",
             CurveKind::Hermite(_) => "SmHermiteCurve_TYPE",
             CurveKind::Conic(_) => "SmConic_TYPE",
+            CurveKind::Iso(_) => "SmIsoCurve_TYPE",
         }
     }
 
@@ -518,6 +553,7 @@ impl Curve {
             CurveKind::BSpline(_) => "SmBSplineCurve",
             CurveKind::Hermite(_) => "SmHermiteCurve",
             CurveKind::Conic(_) => "SmConic",
+            CurveKind::Iso(_) => "SmIsoCurve",
         }
     }
 
@@ -539,6 +575,7 @@ impl Curve {
             (CurveKind::BSpline(a), CurveKind::BSpline(b)) => a.approx_eq(b),
             (CurveKind::Hermite(a), CurveKind::Hermite(b)) => a.approx_eq(b),
             (CurveKind::Conic(a), CurveKind::Conic(b)) => a.approx_eq(b),
+            (CurveKind::Iso(a), CurveKind::Iso(b)) => a.approx_eq(b),
             // GetType() differs
             _ => false,
         }
@@ -553,6 +590,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.dim(),
             CurveKind::Hermite(c) => c.dim(),
             CurveKind::Conic(c) => c.dim(),
+            CurveKind::Iso(c) => c.dim(),
         }
     }
 
@@ -564,7 +602,7 @@ impl Curve {
     pub fn degree(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.degree(),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(3),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(3),
         }
     }
 
@@ -576,7 +614,7 @@ impl Curve {
     pub fn number_natural_knots(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_natural_knots(),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(2),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(2),
         }
     }
 
@@ -588,7 +626,7 @@ impl Curve {
     pub fn number_control_points(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_control_points(),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(0),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(0),
         }
     }
 
@@ -599,6 +637,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.natural_interval(),
             CurveKind::Hermite(c) => c.natural_interval(),
             CurveKind::Conic(c) => c.natural_interval(),
+            CurveKind::Iso(c) => c.natural_interval(),
         }
     }
 
@@ -622,7 +661,7 @@ impl Curve {
     pub fn is_rational(&self) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.is_rational(),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(false),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(false),
         }
     }
 
@@ -634,7 +673,7 @@ impl Curve {
     pub fn has_repeated_end_control_points(&self, tol: f64) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.has_repeated_end_control_points(tol),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(false),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(false),
         }
     }
 
@@ -732,6 +771,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Hermite(c) => Ok(c.evaluate(t, num_derivs, non_zero_tangents)),
             CurveKind::Conic(c) => c.evaluate(t, num_derivs, non_zero_tangents),
+            CurveKind::Iso(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
         }
     }
 
@@ -745,6 +785,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.evaluate_point(t),
             CurveKind::Hermite(c) => Ok(c.evaluate_point(t)),
             CurveKind::Conic(c) => Ok(c.evaluate_point(t)),
+            CurveKind::Iso(c) => c.evaluate_point(t),
         }
     }
 
@@ -762,6 +803,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.calculate_continuities(angle_tol),
             CurveKind::Hermite(c) => Ok(c.calculate_continuities()),
             CurveKind::Conic(c) => Ok(c.calculate_continuities()),
+            CurveKind::Iso(c) => c.calculate_continuities(),
         }
     }
 
@@ -782,6 +824,7 @@ impl Curve {
                 let (k, m) = c.knots(interval);
                 Ok((k, m.into_iter().map(|v| v as usize).collect()))
             }
+            CurveKind::Iso(c) => c.knots(interval),
         }
     }
 
@@ -796,6 +839,7 @@ impl Curve {
             CurveKind::BSpline(c) => c.ends(),
             CurveKind::Hermite(c) => base_ends(c),
             CurveKind::Conic(c) => base_ends(c),
+            CurveKind::Iso(c) => base_ends(c),
         }
     }
 
@@ -881,7 +925,7 @@ impl Curve {
     pub fn convert_to_2d(&mut self) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.convert_to_2d(),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -894,7 +938,7 @@ impl Curve {
     pub fn edit_parameterization(&mut self, new_param: &Extent1d) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.edit_parameterization(new_param),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -907,7 +951,7 @@ impl Curve {
     pub fn reverse_parameterization(&mut self, old_interval: &Extent1d) -> Result<Extent1d> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.reverse_parameterization(old_interval),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -919,7 +963,7 @@ impl Curve {
     pub fn transform(&mut self, rotate_n_move: &Axis2Placement, scale: Option<Vec3>) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.transform(rotate_n_move, scale),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -931,7 +975,7 @@ impl Curve {
     pub fn trim(&mut self, k: &Kernel, trim_interval: &mut Extent1d, mode: TrimMode) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.trim(k, trim_interval, mode),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -943,7 +987,7 @@ impl Curve {
     pub fn copy(&self) -> Result<Self> {
         match &self.kind {
             CurveKind::BSpline(c) => Ok(Self::from(c.copy())),
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
 
@@ -959,7 +1003,7 @@ impl Curve {
                 None => Ok(None),
                 Some(a) => match a {},
             },
-            CurveKind::Hermite(_) | CurveKind::Conic(_) => Ok(None),
+            CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(None),
         }
     }
 
@@ -1158,8 +1202,7 @@ impl Curve {
             // UNPORTED(curve.tangent_field): SmTangentField::ReadFromDB
             TANGENT_FIELD_TYPE => unported("SmTangentField::ReadFromDB", "curve.tangent_field"),
             HERMITE_CURVE_TYPE => HermiteCurve::read_from_db(db).map(Self::from),
-            // UNPORTED(curve.iso_curve): SmIsoCurve::ReadFromDB
-            ISO_CURVE_TYPE => unported("SmIsoCurve::ReadFromDB", "curve.iso_curve"),
+            ISO_CURVE_TYPE => IsoCurve::read_from_db(db, version).map(Self::from),
             // UNPORTED(curve.offset_curve): SmOffsetCurve::ReadFromDB
             OFFSET_CURVE_TYPE => unported("SmOffsetCurve::ReadFromDB", "curve.offset_curve"),
             // UNPORTED(curve.projected_curve): SmProjectedCurve::ReadFromDB
