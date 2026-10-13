@@ -10,3 +10,4 @@ pub mod conic;
 pub mod curve;
 pub mod hermite_curve;
 pub mod projected_curve;
+pub mod tangent_field;
