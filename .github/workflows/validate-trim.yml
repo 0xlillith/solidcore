@@ -37,10 +37,11 @@ jobs:
       - name: FFI and runner lints and tests
         run: |
           nice -n 10 cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
-          nice -n 10 cargo test -p difftest --features cpp
+          nice -n 10 cargo test -p difftest -p solidcore-ffi --features difftest/cpp
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: trim-difftest-reports
           path: reports/difftest/
+
 
