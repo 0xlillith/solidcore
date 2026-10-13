@@ -17,5 +17,6 @@ pub mod hyperbola;
 pub mod iso_curve;
 pub mod line;
 pub mod offset_curve;
+pub mod parabola;
 pub mod projected_curve;
 pub mod tangent_field;

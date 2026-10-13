@@ -58,7 +58,7 @@
 //! | [`CcGlobalSolver`]                                | `SmCCGlobalSolver` (constructor, `BranchMayContainAnswers`) |
 //! | [`CpGlobalSolver`]                                | `SmCPGlobalSolver` (constructor, `BranchMayContainAnswers`; `LocalSolve` is unit `curve.curve_p1`) |
 //! | [`CurvePropertyGs`], [`CurvePropertyType`]        | `SmCurvePropertyGS` (constructor, `FindBestSubdivisionNode`, `BranchMayContainAnswers`), `SmCurvePropertyType` |
-//! | [`CciGlobalSolver`]                               | `SmCCIGlobalSolver` (constructor)                |
+//! | [`CciGlobalSolver`]                               | `SmCCIGlobalSolver` (constructor; `LocalSolve` is unit `curve.curve_p7`) |
 //! | [`LengthIntegrand`]                               | `SmLengthIFEO` (constructor, `Evaluate`)         |
 //! | [`FindCurveDistanceExtrema`]                      | `SmFindCurveDistanceExtremaEFO` (constructor, destructor) |
 //!
@@ -66,8 +66,9 @@
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
 //!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
 //!   [`HermiteCurve`], [`Conic`], [`IsoCurve`], [`ProjectedCurve`], [`OffsetCurve`],
-//!   [`CrvInVolume`], [`CrvOnSurf`], [`Hyperbola`] (whose variant runs the B-spline methods on its
-//!   base where it does not override them) and [`Line`] (`SmLine`, derived from
+//!   [`CrvInVolume`], [`CrvOnSurf`], [`Hyperbola`] and [`Parabola`] (each an
+//!   `SmBSplineCurve`: the variant runs the B-spline methods on its base where it does
+//!   not override them) and [`Line`] (`SmLine`, derived from
 //!   `SmBSplineCurve`: the inherited B-spline queries run on its B-spline part, made
 //!   with its NURB, see [`crate::curve::line`]); the other analytic and generated
 //!   curves (`SmEllipse`,
@@ -115,7 +116,9 @@
 //!   `curve.curve_p3` (`SmCurvePropertyGS`, ported there; the solver carries the
 //!   curve it evaluates, [`CurvePropertyGs::curve`], since a tree's owner object is
 //!   only the caller's handle) and `curve.curve_p7`
-//!   (`SmCCIGlobalSolver`); the unported ones return [`SolidError::Unported`]. Curve tree nodes
+//!   (`SmCCIGlobalSolver`, ported there; the solver carries its two curves and the
+//!   kernel, [`CciGlobalSolver::with_curves`]); the unported ones return
+//!   [`SolidError::Unported`]. Curve tree nodes
 //!   hold `SmBezierSpan` / `SmBezierAux1d` data built by the curve cache
 //!   ([`crate::curve::curve_cache`]), read from the tree
 //!   ([`Tree::curve_aux`], [`Tree::curve_span`]); the span end points are those the
@@ -151,6 +154,7 @@ use crate::curve::hyperbola::Hyperbola;
 use crate::curve::iso_curve::IsoCurve;
 use crate::curve::line::Line;
 use crate::curve::offset_curve::OffsetCurve;
+use crate::curve::parabola::Parabola;
 use crate::curve::projected_curve::ProjectedCurve;
 use crate::error::{ignore_status, ignored, Result, SolidError};
 use crate::geom::a_object::{self, AObject, CacheStore};
@@ -502,6 +506,8 @@ pub enum CurveKind {
     CrvOnSurf(Box<CrvOnSurf>),
     /// `SmLine`.
     Line(Line),
+    /// `SmParabola` (an `SmBSplineCurve`).
+    Parabola(Parabola),
 }
 
 /// A curve (`SmCurve`): its concrete kind and the object owning it (`m_pOwner`:
@@ -537,6 +543,12 @@ impl From<HermiteCurve> for Curve {
 impl From<Line> for Curve {
     fn from(c: Line) -> Self {
         Self::new(CurveKind::Line(c))
+    }
+}
+
+impl From<Parabola> for Curve {
+    fn from(c: Parabola) -> Self {
+        Self::new(CurveKind::Parabola(c))
     }
 }
 
@@ -638,6 +650,7 @@ impl Curve {
             CurveKind::CrvInVolume(_) => CrvInVolume::TYPE,
             CurveKind::CrvOnSurf(_) => CrvOnSurf::TYPE,
             CurveKind::Line(_) => Line::TYPE,
+            CurveKind::Parabola(_) => Parabola::TYPE,
         }
     }
 
@@ -655,6 +668,7 @@ impl Curve {
             CurveKind::CrvInVolume(_) => "SmCrvInVolume_TYPE",
             CurveKind::CrvOnSurf(_) => "SmCrvOnSurf_TYPE",
             CurveKind::Line(_) => "SmLine_TYPE",
+            CurveKind::Parabola(_) => "SmParabola_TYPE",
         }
     }
 
@@ -672,6 +686,7 @@ impl Curve {
             CurveKind::CrvInVolume(_) => "SmCrvInVolume",
             CurveKind::CrvOnSurf(_) => "SmCrvOnSurf",
             CurveKind::Line(_) => "SmLine",
+            CurveKind::Parabola(_) => "SmParabola",
         }
     }
 
@@ -681,6 +696,7 @@ impl Curve {
         match &self.kind {
             CurveKind::Hyperbola(_) => Hyperbola::is_kind_of(t),
             CurveKind::Line(c) => c.is_kind_of(t),
+            CurveKind::Parabola(c) => c.is_kind_of(t),
             _ => t == self.type_code() || is_kind_of(t),
         }
     }
@@ -708,6 +724,7 @@ impl Curve {
             (CurveKind::CrvInVolume(a), CurveKind::CrvInVolume(b)) => a.approx_eq(b),
             (CurveKind::CrvOnSurf(a), CurveKind::CrvOnSurf(b)) => a.approx_eq(b),
             (CurveKind::Line(a), CurveKind::Line(b)) => Ok(a.approx_eq(b)),
+            (CurveKind::Parabola(a), CurveKind::Parabola(b)) => Ok(a.approx_eq(b)),
             // GetType() differs
             _ => Ok(false),
         }
@@ -729,6 +746,7 @@ impl Curve {
             CurveKind::CrvInVolume(c) => c.dim(),
             CurveKind::CrvOnSurf(c) => c.dim(),
             CurveKind::Line(c) => c.dim(),
+            CurveKind::Parabola(c) => c.dim(),
         }
     }
 
@@ -741,6 +759,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.degree(),
             CurveKind::Hyperbola(c) => c.base().degree(),
+            CurveKind::Parabola(c) => c.base().degree(),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -761,6 +780,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_natural_knots(),
             CurveKind::Hyperbola(c) => c.base().number_natural_knots(),
+            CurveKind::Parabola(c) => c.base().number_natural_knots(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(2),
             CurveKind::Offset(c) => c.number_natural_knots(),
             CurveKind::Projected(c) => c.number_natural_knots(),
@@ -779,6 +799,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_control_points(),
             CurveKind::Hyperbola(c) => c.base().number_control_points(),
+            CurveKind::Parabola(c) => c.base().number_control_points(),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -804,15 +825,18 @@ impl Curve {
             CurveKind::CrvInVolume(c) => c.natural_interval(),
             CurveKind::CrvOnSurf(c) => c.natural_interval(),
             CurveKind::Line(c) => c.natural_interval(),
+            CurveKind::Parabola(c) => c.base().natural_interval(),
         }
     }
 
-    /// `IsAnalytic` (base default `FALSE`; `TRUE` for a hyperbola or a line).
+    /// `IsAnalytic` (base default `FALSE`; `TRUE` for a hyperbola, a parabola or a
+    /// line).
     #[must_use]
     pub const fn is_analytic(&self) -> bool {
         match &self.kind {
             CurveKind::Hyperbola(c) => c.is_analytic(),
             CurveKind::Line(c) => c.is_analytic(),
+            CurveKind::Parabola(c) => c.is_analytic(),
             CurveKind::BSpline(_)
             | CurveKind::Hermite(_)
             | CurveKind::Conic(_)
@@ -825,12 +849,13 @@ impl Curve {
     }
 
     /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves; a
-    /// hyperbola or a line asks its analytic domain).
+    /// hyperbola, a parabola or a line asks its analytic domain).
     #[must_use]
     pub fn is_bounded(&self) -> bool {
         match &self.kind {
             CurveKind::Hyperbola(c) => c.is_bounded(),
             CurveKind::Line(c) => c.is_bounded(),
+            CurveKind::Parabola(c) => c.is_bounded(),
             CurveKind::BSpline(_)
             | CurveKind::Hermite(_)
             | CurveKind::Conic(_)
@@ -851,6 +876,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.is_rational(),
             CurveKind::Hyperbola(c) => c.base().is_rational(),
+            CurveKind::Parabola(c) => c.base().is_rational(),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -871,6 +897,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.has_repeated_end_control_points(tol),
             CurveKind::Hyperbola(c) => c.base().has_repeated_end_control_points(tol),
+            CurveKind::Parabola(c) => c.base().has_repeated_end_control_points(tol),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -980,6 +1007,10 @@ impl Curve {
                     .evaluate(t, num_derivs, from_left, non_zero_tangents)
             }
             CurveKind::Conic(c) => c.evaluate(t, num_derivs, non_zero_tangents),
+            CurveKind::Parabola(c) => {
+                c.base()
+                    .evaluate(t, num_derivs, from_left, non_zero_tangents)
+            }
             CurveKind::Projected(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Iso(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Offset(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
@@ -1000,6 +1031,7 @@ impl Curve {
             CurveKind::Hermite(c) => Ok(c.evaluate_point(t)),
             CurveKind::Hyperbola(c) => c.base().evaluate_point(t),
             CurveKind::Conic(c) => Ok(c.evaluate_point(t)),
+            CurveKind::Parabola(c) => c.base().evaluate_point(t),
             CurveKind::Projected(c) => c.evaluate_point(t),
             CurveKind::Iso(c) => c.evaluate_point(t),
             CurveKind::Offset(c) => c.evaluate_point(t),
@@ -1024,6 +1056,7 @@ impl Curve {
             CurveKind::Hyperbola(c) => c.base().calculate_continuities(angle_tol),
             CurveKind::Hermite(c) => Ok(c.calculate_continuities()),
             CurveKind::Conic(c) => Ok(c.calculate_continuities()),
+            CurveKind::Parabola(c) => c.base().calculate_continuities(angle_tol),
             CurveKind::Projected(c) => c.calculate_continuities(angle_tol),
             CurveKind::Iso(c) => c.calculate_continuities(),
             CurveKind::Offset(c) => c.calculate_continuities(angle_tol),
@@ -1043,6 +1076,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.knots(interval),
             CurveKind::Hyperbola(c) => c.base().knots(interval),
+            CurveKind::Parabola(c) => c.base().knots(interval),
             CurveKind::Hermite(c) => {
                 let (k, m) = c.knots(interval);
                 Ok((k, m.into_iter().map(|v| v as usize).collect()))
@@ -1072,6 +1106,7 @@ impl Curve {
             CurveKind::Hyperbola(c) => c.base().ends(),
             CurveKind::Hermite(c) => base_ends(c),
             CurveKind::Conic(c) => base_ends(c),
+            CurveKind::Parabola(c) => c.base().ends(),
             CurveKind::Projected(c) => base_ends(c),
             CurveKind::Iso(c) => base_ends(c),
             CurveKind::Offset(c) => base_ends(c),
@@ -1132,6 +1167,7 @@ impl Curve {
     pub fn step_inversion(&self, point: Point3) -> Result<f64> {
         match &self.kind {
             CurveKind::Hyperbola(c) => c.step_inversion(point, false).map(|(t, _)| t),
+            CurveKind::Parabola(c) => Ok(c.step_inversion(point, false).0),
             CurveKind::Line(c) => Ok(c.step_inversion(point).0),
             CurveKind::BSpline(_)
             | CurveKind::Hermite(_)
@@ -1209,6 +1245,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.convert_to_2d(),
             CurveKind::Hyperbola(c) => c.base.convert_to_2d(),
+            CurveKind::Parabola(c) => c.base_mut().convert_to_2d(),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -1230,6 +1267,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.edit_parameterization(new_param),
             CurveKind::Hyperbola(c) => c.base.edit_parameterization(new_param),
+            CurveKind::Parabola(c) => c.base_mut().edit_parameterization(new_param),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Iso(_)
@@ -1248,9 +1286,11 @@ impl Curve {
     /// `SM_ERR` for kinds without the edit; those of
     /// [`BSplineCurve::reverse_parameterization`].
     pub fn reverse_parameterization(&mut self, old_interval: &Extent1d) -> Result<Extent1d> {
+        let owner = self.owner;
         match &mut self.kind {
             CurveKind::BSpline(c) => c.reverse_parameterization(old_interval),
-            CurveKind::Hyperbola(c) => c.reverse_parameterization(old_interval, self.owner),
+            CurveKind::Hyperbola(c) => c.reverse_parameterization(old_interval, owner),
+            CurveKind::Parabola(c) => c.reverse_parameterization(old_interval, owner),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
             CurveKind::Projected(c) => c.reverse_parameterization(old_interval),
             CurveKind::Offset(c) => Ok(c.reverse_parameterization(old_interval)),
@@ -1269,6 +1309,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.transform(rotate_n_move, scale),
             CurveKind::Hyperbola(c) => c.transform(rotate_n_move, scale),
+            CurveKind::Parabola(c) => c.transform(rotate_n_move, scale),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Iso(_)
@@ -1289,6 +1330,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.trim(k, trim_interval, mode),
             CurveKind::Hyperbola(c) => c.base.trim(k, trim_interval, mode),
+            CurveKind::Parabola(c) => c.base_mut().trim(k, trim_interval, mode),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
             CurveKind::Projected(c) => c.trim(k, trim_interval, mode),
             CurveKind::Offset(c) => c.trim(trim_interval, mode == TrimMode::IntervalOnly),
@@ -1307,6 +1349,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => Ok(Self::from(c.copy())),
             CurveKind::Hyperbola(c) => Ok(Self::from(c.copy())),
+            CurveKind::Parabola(c) => Ok(Self::from(c.copy())),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
             CurveKind::Projected(c) => c.copy().map(Self::from),
             CurveKind::Offset(c) => Ok(Self::from(c.copy())),
@@ -1329,6 +1372,10 @@ impl Curve {
                 Some(AnalyticCurve::Line(l)) => Ok(Some(Self::from(l))),
             },
             CurveKind::Hyperbola(c) => match c.base().create_analytic_curve(interval)? {
+                None => Ok(None),
+                Some(AnalyticCurve::Line(l)) => Ok(Some(Self::from(l))),
+            },
+            CurveKind::Parabola(c) => match c.base().create_analytic_curve(interval)? {
                 None => Ok(None),
                 Some(AnalyticCurve::Line(l)) => Ok(Some(Self::from(l))),
             },
@@ -1521,8 +1568,7 @@ impl Curve {
             CIRCLE_TYPE => unported("SmCircle::ReadFromDB", "curve.ellipse_p1"),
             HYPERBOLA_TYPE => Hyperbola::read_from_db(db, dim, version).map(Self::from),
             LINE_TYPE => Line::read_from_db(db, dim, version).map(Self::from),
-            // UNPORTED(curve.parabola): SmParabola::ReadFromDB
-            PARABOLA_TYPE => unported("SmParabola::ReadFromDB", "curve.parabola"),
+            PARABOLA_TYPE => Parabola::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.composite_curve_p2): SmCompositeCurve::ReadFromDB
             COMPOSITE_CURVE_TYPE => {
                 unported("SmCompositeCurve::ReadFromDB", "curve.composite_curve_p2")
@@ -3362,6 +3408,13 @@ pub struct CciGlobalSolver<'t, O> {
     pub projection_type: ProjectionType,
     /// `m_bSelfIntersection`: both trees are the same tree.
     pub self_intersection: bool,
+    /// The curves the two trees decompose (upstream reads them back as the tree
+    /// nodes' owner objects, `pCurveNode->GetOwnerObject()`); `None` until set with
+    /// [`CciGlobalSolver::with_curves`].
+    pub curves: Option<[&'t Curve; 2]>,
+    /// The kernel the local solves run in (upstream reaches it through the curves'
+    /// context); `None` until set with [`CciGlobalSolver::with_curves`].
+    pub kernel: Option<&'t Kernel>,
 }
 
 impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
@@ -3384,7 +3437,24 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
             do_projection,
             projection_type,
             self_intersection: core::ptr::eq(tree1, tree2),
+            curves: None,
+            kernel: None,
         }
+    }
+
+    /// The solver with `curve1` and `curve2`, the curves its trees were built for
+    /// (the owner objects of the trees' nodes upstream), and the kernel `k`, which
+    /// [`GlobalSolve::local_solve`] needs.
+    #[must_use]
+    pub const fn with_curves(
+        mut self,
+        curve1: &'t Curve,
+        curve2: &'t Curve,
+        k: &'t Kernel,
+    ) -> Self {
+        self.curves = Some([curve1, curve2]);
+        self.kernel = Some(k);
+        self
     }
 }
 
@@ -3397,12 +3467,8 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for CciGlobalSolver<'t, O> {
         &mut self.base
     }
 
-    fn local_solve(&mut self, _branch: &Branch) -> Result<bool> {
-        // UNPORTED(curve.curve_p7): SmCCIGlobalSolver::LocalSolve
-        Err(SolidError::Unported {
-            upstream: "SmCCIGlobalSolver::LocalSolve",
-            unit: "curve.curve_p7",
-        })
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.local_solve_branch(branch)
     }
 }
 

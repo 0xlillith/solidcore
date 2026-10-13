@@ -2195,6 +2195,60 @@ No Rust/C++ disagreements (3136 cases, 3048 bit-identical, 88 deferred on `curve
   `GlobalPointSolve`, `Tessellate` and `ApproximateCurve` are called directly (288
   deferred cases became passes).
 
+## curve.curve_p7 (`SmCCIGlobalSolver::LocalSolve`, `SmCurve::GlobalPropertyAnalysis`)
+
+- **Pruned curve trees.** `LocalSolve` casts every leaf's `m_pData` to `SmBezierSpan`
+  (the `m_eAuxDataType == SM_AD_BEZIER_CURVE` check is an `SM_ASSERT`). A cache built with
+  aux data but without a full tree (`bComputeAuxTreeData && !bMakeFullTree`) turns parents
+  into leaves holding `SmBezierAux1d` data, so the cast reads past the object (the pseudo
+  box is garbage). The curves' object caches always build full trees, so upstream never
+  reaches this; the port returns `InvalidInput` and the ffi rejects such caches.
+- **Degenerate curves.** When either (projected) curve is degenerate, upstream re-adds the
+  last end point solution built (`sSolution2`) once per accumulated end point solution
+  instead of each accumulated one; kept.
+- **Ignored statuses.** The span end `EvaluatePoint`s, the closed-curve
+  `EvaluateContinuity`, `SmProjectedCurve::SetCanonical`, the in-place
+  `SmPseudoBox::ProjectToPlane`s and the end point `LocalPointSolve`s ignore their status;
+  the port does too (a failed point solve is no answer).
+- **`GlobalPropertyAnalysis` comb.** `EvaluateGeometric`'s status is ignored, so for a curve
+  whose second derivative vanishes (degree 1) the comb uses what
+  `smgu_FrenetFromDerivatives` wrote before failing (position, tangent, zero curvature);
+  the port reproduces those partial outputs (`evaluate_geometric_partial`).
+- **`SmBSplineCurve::AssertValid`** ignores `GlobalPropertyAnalysis`'s status; on a failed
+  solve upstream keeps the solutions found before the failure, the port none (the solve
+  only fails for errors upstream asserts on).
+- **Deferred.** Every leaf pair that reaches a Newton intersection
+  (`LocalCurveIntersect` -> `SmCCIntersectENFO::Evaluate`) and every property solve that
+  reaches `SmCurve::LocalPropertyAnalysis` is deferred on `curve.curve_p5`; the co-ported
+  `sm_FindAdditionalCcTangentGuess` is only reached after such an intersection.
+
+## curve.parabola (SmParabola)
+
+Upstream behaviour worth knowing (all kept by the port unless noted):
+
+- **Lazy NURB.** `ReverseParameterization` frees the NURB; the next
+  `GetOrCreateGwNurbPointer` rebuilds it with `MakeNurb`. The port rebuilds it at once (same
+  data, same NURB). A `Transform` in between differs: upstream skips the control points
+  (`if (m_pNurb)`) and later rebuilds from the transformed placement, the port transforms
+  the rebuilt control points; the results agree to rounding only. The difftest shim calls
+  `GetOrCreateGwNurbPointer` after the reversal.
+- **`ReadFromDB` ignores the `SmBSplineCurve::ReadFromDB` status** (and does not clip the
+  domain to `±SM_INFINITE_PARAMETER_SQRT`, unlike the constructor and
+  `AdjustSTEPInterval`). A short or missing base stream makes upstream read undefined
+  values (huge `n`, `bad_alloc`); the runner only feeds complete base streams.
+- `GlobalPointSolveSTEP` first runs `AdjustSTEPInterval` (it changes the curve), projects
+  the point onto the plane and discards the projection. When the interval equals the
+  current one and the curve has no NURB (its `MakeNurb` failed: zero focal distance,
+  degenerate interval), `GlobalPointSolve` would run on a NULL NURB; the runner avoids
+  that input. At merge `SmCurve::GlobalPointSolve` (`curve.curve_p1`) was ported and is
+  called directly (the 206 formerly deferred `gps_step` cases now pass bit-identical).
+- `MakeNurb` fails (`SM_ERR` from `smgu_LineLineClosestPoint`) when the end tangents are
+  parallel or zero: a degenerate interval or a zero focal distance. The constructor ignores
+  that status (the curve has no NURB); `AdjustSTEPInterval` returns it.
+- `STEPInversion` reads the parameter off the `Y` coordinate only (`dY / 2 / F`); with
+  classification the point must also be within `SM_EFF_ZERO * (1 + size)` of the curve.
+- `Trim`, `EditParameterization` and `ConvertTo2D` are the `SmBSplineCurve` ones: they edit
+  the NURB and leave the analytic domain stale.
 ## curve.crv_on_surf (SmCrvOnSurf)
 
 - **Partial, not blocked.** Every non-deferred difftest case is bit-identical
