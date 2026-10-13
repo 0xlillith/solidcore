@@ -681,8 +681,14 @@ fn pv(o: &mut Vec<f64>, v: Vec3) {
 }
 
 fn state(o: &mut Vec<f64>, c: &Curve) {
-    match c.kind() {
-        CurveKind::BSpline(b) => {
+    let bspline = match c.kind() {
+        CurveKind::BSpline(b) => Some(b),
+        // an SmBSplineCurve (upstream IsKindOf)
+        CurveKind::Parabola(p) => Some(p.base()),
+        CurveKind::Hermite(_) => None,
+    };
+    match (bspline, c.kind()) {
+        (Some(b), _) => {
             o.extend([0.0, b.dim() as f64]);
             match b.gw_nurb() {
                 None => o.push(-1.0),
@@ -695,7 +701,7 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
-        CurveKind::Hermite(h) => {
+        (None, CurveKind::Hermite(h)) => {
             o.extend([1.0, h.dim() as f64]);
             let a = h.evaluate(0.0, 1, false);
             let e = h.evaluate(1.0, 1, false);
@@ -703,6 +709,7 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
+        (None, _) => {}
     }
 }
 
