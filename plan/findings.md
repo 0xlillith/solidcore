@@ -2539,3 +2539,38 @@ fixtures use Surface.sms and offset_nurb.sms from the allowed upstream corpus.
 The C++ shim deliberately excludes classifying a surface without a face: upstream
 would dereference null. FFI regression tests reject this path, truncated/trailing
 records, invalid counts and non-finite coordinates before entering C++.
+
+## surface.plane_p1 (`SmPlane`, part 1)
+
+All non-deferred cases agree bit for bit with upstream (`max_rel_err = 0`). Upstream
+behaviour worth knowing:
+
+- **`SmPlane::Reparameterize` keeps the origin.** The new origin (`sOriginMax`) is only
+  computed inside `SM_DEBUG_CODE`. The release build changes the analytic domain and the
+  scales but keeps `m_vPosition`, so the analytic plane no longer matches its NURB unless
+  the new domain starts where the old one did. The port keeps this (fixture
+  `edge_reparameterize_keeps_origin`).
+- **Lazy NURB through `const_cast`.** An `SmPlane` built by its constructors has no NURB.
+  `const` methods that need it (`GetNaturalUVDomain`, so `CoincidenceCheck`,
+  `CreateIsoParametricCurve`, `DropPointFast(SM_SO_NORMALIZE)` via `SmTol::MapTo2d`) make
+  it on `this` through `GetOrCreateGwNurbPointer`. So does the `SmBSplineSurface` copy
+  constructor, on the *source*. The port makes it on a copy (`Plane::base_with_nurb`), so
+  the source keeps none. Only `ToggleSwapUVBit` (which leaves the NURB alone) and
+  `operator==` (which compares NURBs) can see the difference. The runner generates those
+  two only while both sides agree. The shim copies planes without a NURB by rebuilding
+  them from their analytic data, because its own copies would otherwise change plane A.
+- **`SmPlane::Evaluate` with `bOnlyUpperHalf` and more u than v derivatives** writes
+  outside its array (the `ULONG` index `lHighestVDeriv - k` wraps). The port returns
+  `InvalidInput`, and the ffi wrapper rejects that input.
+- **Deferred paths:** `CoincidenceCheck` with a surface that is not an `SmPlane` needs
+  `SmSurface::IsPlanar` (`surface.surface_p7`), then `CreateNaturalUVTrimCurves`
+  (`surface.surface_p6`) and `DropPoint` (`surface.surface_p5`). `DropCurve` with a curve
+  whose control points must be clamped to the domain, or with a curve that is neither a
+  line nor a B-spline kind, needs the general `SmSurface::DropCurve`
+  (`intersect.surface_drop_lib_p3`). `GlobalLineIntersect` of a line lying in the plane
+  that meets the domain at a single line parameter needs the general
+  `SmSurface::GlobalLineIntersect` through the surface cache (`surface.surface_p8`).
+- **`SmSurfaceCache` and planes.** The surface cache port treats its surface as a plain
+  B-spline. For an `SmPlane` it returns `SolidError::Unsupported`
+  (`CreateIsoParametricCurve`, which makes an `SmLine`, and the plane branch of
+  `CalculateBoundingBox`), or refuses the B-spline cast.

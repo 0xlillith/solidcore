@@ -174,11 +174,24 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
     SolidError::InvalidInput { operation, reason }
 }
 
+const OP_PLANE_ISO: &str = "surface::surface_cache::p1::create_iso_parametric_curve";
+const OP_PLANE_BOX: &str = "surface::surface_cache::p1::calculate_bounding_box";
+
+/// A surface cache operation on an `SmPlane`, which the cache code does not handle.
+const fn plane_unsupported(operation: &'static str) -> SolidError {
+    SolidError::Unsupported {
+        operation,
+        reason: "SmPlane surfaces in the surface cache",
+    }
+}
+
 /// `SM_CAST_PTR(SmBSplineSurface, surface)`.
 const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => Some(b),
-        SurfaceKind::CurveBounded(_) => None,
+        // an SmPlane is an SmBSplineSurface upstream, but the cache code here runs the
+        // B-spline methods without the plane's overrides: refused
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Plane(_) => None,
     }
 }
 
@@ -213,6 +226,9 @@ fn create_iso_parametric_curve(
 ) -> Result<BSplineCurve> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
+        // SmPlane::CreateIsoParametricCurve makes an SmLine, which the cache code here
+        // cannot hold as a B-spline
+        SurfaceKind::Plane(_) => Err(plane_unsupported(OP_PLANE_ISO)),
         SurfaceKind::CurveBounded(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
@@ -247,6 +263,8 @@ fn calculate_bounding_box(
 ) -> Result<BoundingBoxes> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => b.calculate_bounding_box(domain, req),
+        // the plane branch of SmBSplineSurface::CalculateBoundingBox is not ported
+        SurfaceKind::Plane(_) => Err(plane_unsupported(OP_PLANE_BOX)),
         SurfaceKind::CurveBounded(_) => {
             // UNPORTED(surface.surface_p1): SmSurface::CalculateBoundingBox
             Err(SolidError::unported(
