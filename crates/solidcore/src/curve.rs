@@ -10,4 +10,5 @@ pub mod conic;
 pub mod curve;
 pub mod curve_cache;
 pub mod hermite_curve;
+pub mod hyperbola;
 pub mod tangent_field;
