@@ -19,7 +19,6 @@
 //! | [`Ellipse`], [`Ellipse::empty`]                   | `SmEllipse`, `SmEllipse(lDimension, cpContext)`  |
 //! | `Drop` (implicit)                                 | `~SmEllipse`                                     |
 //! | [`Ellipse::new`], [`EllipseOptions`]              | `SmEllipse(Center, XAxis, YAxis, AnalDomain, ..)` (co-ported from `curve.ellipse_p1`) |
-//! | [`Ellipse::make_nurb`]                            | `MakeNurb` (co-ported from `curve.ellipse_p1`)   |
 //! | [`Ellipse::approx_eq`]                            | `operator==`                                     |
 //! | [`Ellipse::convert_to_3d`]                        | `ConvertTo3D`                                    |
 //! | [`Ellipse::convert_t_from_step_to_nurbs`]         | `ConvertTFromSTEPToNURBS`                        |
@@ -42,13 +41,12 @@
 //!
 //! Deviations:
 //! - **Derived class.** `SmEllipse` derives from `SmBSplineCurve`; the base object is
-//!   the [`Ellipse::base`] field. The ellipse does not join
-//!   [`crate::curve::curve::Curve`] here: its virtual overrides that dispatch needs
-//!   (`Copy`, `ReadFromDB`, `Trim`, ...) belong to unit `curve.ellipse_p1`. The
-//!   methods act on an ellipse without owner: `GetEdge` is `NULL`, so
+//!   the [`Ellipse::base`] field; the ellipse (and `SmCircle`, unit `curve.ellipse_p1`)
+//!   joins [`crate::curve::curve::Curve`] as [`curve_base::CurveKind::Ellipse`]. The
+//!   methods here act on an ellipse without owner: `GetEdge` is `NULL`, so
 //!   `STEPInversion` uses the context zone tolerance (here the kernel's,
 //!   [`context_zone_tol_3d`] of no context: the default `SmContext` has the system
-//!   tolerance) and `MakeNurb` the angle tolerance `0.01` and no owner surface.
+//!   tolerance).
 //! - **Polar converter.** `m_cpCurve` always points at the owning ellipse
 //!   ("borrowed"), so it is not stored: [`PolarConversion`] keeps only whether it has
 //!   been attached to a curve, and its methods take the curve as an argument. The
@@ -66,10 +64,9 @@
 //!   `SM_NO_POST_EDIT`, whose `SmEllipse::Notify` override rebuilds the polar
 //!   converter (status ignored); the port calls [`Ellipse::set_up_polar_conversion`]
 //!   at those points. The other notifications only drop caches and are omitted.
-//! - **Co-port.** The geometric constructor and `MakeNurb` belong to unit
-//!   `curve.ellipse_p1`; they are ported here because every method of this unit needs
-//!   an ellipse with its NURB. `MakeNurb` of a 2D ellipse calls `ConvertTo2D` (unit
-//!   `curve.ellipse_p1`), which returns [`SolidError::Unported`].
+//! - **Co-port.** The geometric constructor belongs to unit `curve.ellipse_p1`; it is
+//!   ported here because every method of this unit needs an ellipse with its NURB
+//!   (made by `MakeNurb`, `p1`).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments and the
 //!   arguments upstream marks `NotUsed` (`EvaluateSTEP`'s `bFromLeft` and zone
 //!   tolerance, `IsDegenerate`'s interval, `ConvertToNURBSParameter`'s zone tolerance
@@ -79,13 +76,12 @@
 //! - **Statuses.** Calls whose status upstream ignores keep upstream's values, except
 //!   that [`SolidError::Unported`] is always propagated. Upstream outputs written
 //!   before a failing status (partial solution arrays) are not returned.
-//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`),
-//!   `SmCurve::GlobalPointSolve` of the ellipse and
+//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`) and
 //!   `SmCurve::GlobalCoincidenceChecker` (`curve.curve_p6`) return
-//!   [`SolidError::Unported`]. The global point solve is ported
-//!   ([`curve_base::Curve::global_point_solve`]) but needs the ellipse as a curve
-//!   kind (its `DropPointFast` override, its cache), which is unit
-//!   `curve.ellipse_p1`'s (`SmEllipse` joins [`curve_base::CurveKind`] there). The
+//!   [`SolidError::Unported`]. `SmCurve::GlobalPointSolve` of the ellipse is
+//!   [`curve_base::Curve::global_point_solve`] on a copy of the ellipse as a curve
+//!   kind (taking the [`Kernel`]; its solutions name no object, only their parameters
+//!   are used). The
 //!   line's `GlobalPointSolve(SM_SO_INTERSECT)` of `IntersectWithLine` is the line's
 //!   `DropPointFast`, which handles every intersection. `SmCurve::LocalCurveSolve` (unit
 //!   `curve.curve_p3`) evaluates the ellipse through its B-spline base and the line
@@ -94,7 +90,8 @@
 //!   conversion when it succeeds, so `DropPointFast`'s refinement call is never
 //!   reached.
 
-use crate::curve::curve::p2::{self as curve_base, ELLIPSE_TYPE};
+use crate::curve::curve::p1::GlobalPointSolveOptions;
+use crate::curve::curve::p2::{self as curve_base, CIRCLE_TYPE, ELLIPSE_TYPE};
 use crate::curve::curve::p3::local_curve_solve;
 use crate::curve::line::{CurveLocationType, Line};
 use crate::error::{ignore_status, Result, SolidError};
@@ -107,7 +104,7 @@ use crate::geom::geom_utility::p1::{
 };
 use crate::geom::geom_utility::p2::{intersect_two_planes, PlanesIntersection};
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-use crate::geom::solution_array::{Solution, SolutionType};
+use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
 use crate::geom::tol::{
     are_same, are_same_to_tol, context_zone_tol_3d, is_zero, is_zero_to_tol, SmallTopoType,
 };
@@ -118,14 +115,10 @@ use crate::math::{
 };
 use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm};
 use crate::nurbs::b_spline_surface::p1::SurfParamType;
-use crate::nurbs::crv_basic::ConicType;
-use crate::nurbs::crv_common::{elliptical_arc_tol, EllipseArc};
-use crate::nurbs::nurbs_crv::to_euclid;
 
 const OP_SET_UP: &str = "curve::ellipse::p2::Ellipse::set_up_polar_conversion";
 const OP_TO_NURBS: &str = "curve::ellipse::p2::PolarConversion::convert_to_nurbs_parameter";
 const OP_ANGLE: &str = "curve::ellipse::p2::PolarConversion::angle_param_to_nurb_param";
-const OP_MAKE_NURB: &str = "curve::ellipse::p2::Ellipse::make_nurb";
 const OP_EVAL_STEP: &str = "curve::ellipse::p2::Ellipse::evaluate_step";
 const OP_DROP: &str = "curve::ellipse::p2::Ellipse::drop_point_fast";
 const OP_TRANSFORM: &str = "curve::ellipse::p2::Ellipse::transform";
@@ -160,21 +153,59 @@ fn local_point_inversion(
 }
 
 /// `SmCurve::GlobalPointSolve(Interval, SM_SO_INTERSECT, Point, dTol, NULL, NULL,
-/// SM_SR_ALL, rSolutions)` of the ellipse `curve`. The solve is ported
-/// (`Curve::global_point_solve`, unit `curve.curve_p1`); running it on an ellipse
-/// needs `SmEllipse` as a curve kind (its `DropPointFast` override and cache), which
-/// unit `curve.ellipse_p1` adds.
+/// SM_SR_ALL, rSolutions)` of the ellipse `curve` ([`curve_base::Curve::global_point_solve`]
+/// on a copy of the ellipse as a curve kind); only the solution parameters are used,
+/// the solutions name no object.
 fn ellipse_global_point_solve<O: Copy>(
-    _curve: &Ellipse,
-    _interval: &Extent1d,
-    _point: Point3,
-    _tol: f64,
+    k: &Kernel,
+    curve: &Ellipse,
+    interval: &Extent1d,
+    point: Point3,
+    tol: f64,
 ) -> Result<Vec<Solution<O>>> {
-    // UNPORTED(curve.ellipse_p1): SmCurve::GlobalPointSolve on SmEllipse (CurveKind::Ellipse)
-    Err(SolidError::Unported {
-        upstream: "SmCurve::GlobalPointSolve",
-        unit: "curve.ellipse_p1",
-    })
+    let c = curve_base::Curve::from(curve.clone());
+    let opts = GlobalPointSolveOptions {
+        handle: Some(ParamHandle(curve.base.natural_interval())),
+        ..GlobalPointSolveOptions::default()
+    };
+    let sols = c.global_point_solve(
+        k,
+        interval,
+        SolverOperation::Intersect,
+        point,
+        tol,
+        SolutionRequested::All,
+        &opts,
+    )?;
+    Ok(sols
+        .as_slice()
+        .iter()
+        .map(|s| {
+            let mut r: Solution<O> = Solution::new();
+            r.solution_type = s.solution_type;
+            r.num_variables = s.num_variables;
+            r.start = s.start;
+            r.end = s.end;
+            r.num_objects = s.num_objects;
+            r.nodes = s.nodes;
+            r
+        })
+        .collect())
+}
+
+/// The handle of an ellipse in its own global solve: a curve with the given natural
+/// interval (the solver's duplicate test reads it).
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct ParamHandle(Extent1d);
+
+impl SolutionObject for ParamHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.0)
+    }
 }
 
 /// `SmCurve::GlobalPointSolve(Interval, SM_SO_INTERSECT, Point, dTol, NULL, NULL,
@@ -272,15 +303,15 @@ fn global_coincidence_checker<O: Copy>(
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct PolarConversion {
     /// `m_bPolarConversionPossible`: the tables are set up.
-    possible: bool,
+    pub(crate) possible: bool,
     /// `m_vNaturalKnots`.
-    natural_knots: Vec<f64>,
+    pub(crate) natural_knots: Vec<f64>,
     /// `m_vAngles`: the angle (degrees) of every natural knot.
-    angles: Vec<f64>,
+    pub(crate) angles: Vec<f64>,
     /// `m_vExactConversion`: per span, `TRUE` when the span weights are constant.
-    exact_conversion: Vec<bool>,
+    pub(crate) exact_conversion: Vec<bool>,
     /// `m_cpCurve != NULL` (the curve is always the owning ellipse, borrowed).
-    has_curve: bool,
+    pub(crate) has_curve: bool,
 }
 
 impl PolarConversion {
@@ -670,6 +701,8 @@ pub struct Ellipse {
     pub(crate) polar: PolarConversion,
     /// `m_bInsideOut`.
     pub(crate) inside_out: bool,
+    /// The object is an `SmCircle` (the derived class; unit `curve.ellipse_p1`).
+    pub(crate) circle: bool,
 }
 
 impl Ellipse {
@@ -692,6 +725,7 @@ impl Ellipse {
             radius_y: 0.0,
             polar: PolarConversion::new(),
             inside_out: false,
+            circle: false,
         }
     }
 
@@ -704,8 +738,8 @@ impl Ellipse {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from `MakeNurb` of a 2D ellipse (`ConvertTo2D`, unit
-    /// `curve.ellipse_p1`).
+    /// None but [`SolidError::Unported`] (never produced for an ellipse without
+    /// owner).
     pub fn new(
         k: &Kernel,
         center: Point3,
@@ -724,6 +758,7 @@ impl Ellipse {
             radius_y,
             polar: PolarConversion::new(),
             inside_out: opts.inside_out,
+            circle: false,
         };
 
         // make the associated NURB curve
@@ -749,7 +784,7 @@ impl Ellipse {
 
     /// `SmBSplineCurve::SetFromGwNurb` followed by the `SM_NO_POST_EDIT` notification,
     /// which rebuilds the polar converter (status ignored).
-    fn set_from_gw_nurb(
+    pub(crate) fn set_from_gw_nurb(
         &mut self,
         k: &Kernel,
         gw_nurb: Option<&crate::nurbs::crv_basic::Curve>,
@@ -759,135 +794,8 @@ impl Ellipse {
     }
 
     /// `Notify(SM_NO_POST_EDIT, ..)`: recompute the polar converter (status ignored).
-    fn notify_post_edit(&mut self, k: &Kernel) -> Result<()> {
+    pub(crate) fn notify_post_edit(&mut self, k: &Kernel) -> Result<()> {
         ignore_status(self.set_up_polar_conversion(k))
-    }
-
-    /// Makes the NURB (`MakeNurb`, co-ported from unit `curve.ellipse_p1`): the
-    /// rational quadratic elliptical arc over the STEP domain (`N_CreateEllipticalArcTol`
-    /// with angle tolerance `0.01`; an inside-out ellipse is built over the mirrored
-    /// angles with the Y axis negated). When a domain end is within `3e-4` degrees of
-    /// `0`, `180` or `360` (NLib may snap it), the STEP domain is recomputed from the
-    /// NURB's end points. The NURB is set (rebuilding the polar converter).
-    ///
-    /// # Errors
-    ///
-    /// `SM_ERR` when NLib fails (the old NURB is gone); [`SolidError::Unported`] for a
-    /// 2D ellipse (`ConvertTo2D`, unit `curve.ellipse_p1`).
-    pub fn make_nurb(&mut self, k: &Kernel) -> Result<()> {
-        // free existing m_pNurb object
-        self.base.nurb = None;
-
-        // get circle origin and axis from Circle Position
-        let c = self.position.origin();
-        let x = self.position.x_axis();
-        let mut start_ang_deg = self.start_angle_deg();
-        let mut end_ang_deg = self.end_angle_deg();
-
-        // Get X and Y vectors depending on bInsideOut flag
-        let y = if self.inside_out {
-            // reverse and swap Start/End angles
-            let t = start_ang_deg;
-            start_ang_deg = 360.0 - end_ang_deg;
-            end_ang_deg = 360.0 - t;
-
-            if start_ang_deg > 360.0 {
-                start_ang_deg -= 360.0;
-                end_ang_deg -= 360.0;
-            }
-
-            // negate the Y vector
-            -self.position.y_axis()
-        } else {
-            self.position.y_axis()
-        };
-
-        // Convert 3d tolerance to Angle tol [B630]: no edge
-        let angle_tol = 0.01; // Preserves behavior
-
-        // Build the circular arc
-        let arc = EllipseArc {
-            center: c,
-            x,
-            y,
-            r1: self.radius_x,
-            r2: self.radius_y,
-            start: start_ang_deg,
-            end: end_ang_deg,
-        };
-        let cur = elliptical_arc_tol(&arc, angle_tol, ConicType::Quadratic)
-            .map_err(SolidError::nl_ser(OP_MAKE_NURB))?;
-
-        // when arc's domain may have been modified
-        if is_zero_to_tol(start_ang_deg, 3.0e-4)
-            || is_zero_to_tol(180.0 - start_ang_deg, 3.0e-4)
-            || is_zero_to_tol(360.0 - start_ang_deg, 3.0e-4)
-            || is_zero_to_tol(end_ang_deg, 3.0e-4)
-            || is_zero_to_tol(180.0 - end_ang_deg, 3.0e-4)
-            || is_zero_to_tol(360.0 - end_ang_deg, 3.0e-4)
-        {
-            // compute analytic domain from curve: get curve endPoints
-            let cpts = cur.cpts();
-            let start_pt = to_euclid(cpts.first().copied().ok_or_else(empty_nurb)?);
-            let end_pt = to_euclid(cpts.last().copied().ok_or_else(empty_nurb)?);
-
-            // convert endPoints to ellipse angles
-            let (mut anal_start, _) = self.step_inversion(k, start_pt, false, 0.0);
-            let (mut anal_end, _) = self.step_inversion(k, end_pt, false, 0.0);
-
-            // Reset these to our analytic values.
-            start_ang_deg = if self.inside_out {
-                self.end_angle_deg()
-            } else {
-                self.start_angle_deg()
-            };
-            end_ang_deg = if self.inside_out {
-                self.start_angle_deg()
-            } else {
-                self.end_angle_deg()
-            };
-
-            // watch out for periodicity
-            if !is_zero_to_tol(anal_start - start_ang_deg, 3.0e-3) {
-                if is_zero_to_tol(anal_start + 360.0 - start_ang_deg, 3.0e-3) {
-                    anal_start += 360.0;
-                }
-                if is_zero_to_tol(anal_start - 360.0 - start_ang_deg, 3.0e-3) {
-                    anal_start -= 360.0;
-                }
-            }
-            if !is_zero_to_tol(anal_end - end_ang_deg, 3.0e-3) {
-                if is_zero_to_tol(anal_end + 360.0 - end_ang_deg, 3.0e-3) {
-                    anal_end += 360.0;
-                }
-                if is_zero_to_tol(anal_end - 360.0 - end_ang_deg, 3.0e-3) {
-                    anal_end -= 360.0;
-                }
-            }
-
-            // Set anal domain when its changed
-            if !is_zero_to_tol(anal_start - start_ang_deg, EFF_ZERO)
-                || !is_zero_to_tol(anal_end - end_ang_deg, EFF_ZERO)
-            {
-                // Either the start or end angle could be larger: m_bInsideOut.
-                self.anal_domain.init();
-                self.anal_domain.add_value(anal_start);
-                self.anal_domain.add_value(anal_end);
-            }
-        }
-
-        // set the m_pNurb pointer and use Notify to rebuild polarConverter
-        ignore_status(self.set_from_gw_nurb(k, Some(&cur)))?;
-
-        // Set ControlPoint Z values for 2d curves
-        if self.base.dim == 2 {
-            // UNPORTED(curve.ellipse_p1): SmEllipse::ConvertTo2D
-            return Err(SolidError::Unported {
-                upstream: "SmEllipse::ConvertTo2D",
-                unit: "curve.ellipse_p1",
-            });
-        }
-        Ok(())
     }
 
     // ---- access -----------------------------------------------------------------------
@@ -971,10 +879,14 @@ impl Ellipse {
         SurfParamType::Neither
     }
 
-    /// `SmEllipse_TYPE` (`GetType`).
+    /// `SmEllipse_TYPE`, or `SmCircle_TYPE` for a circle (`GetType`).
     #[must_use]
     pub const fn type_code(&self) -> i64 {
-        Self::TYPE
+        if self.circle {
+            CIRCLE_TYPE
+        } else {
+            Self::TYPE
+        }
     }
 
     /// `SmEllipse_TYPE` (`GetClassType`).
@@ -983,16 +895,24 @@ impl Ellipse {
         Self::TYPE
     }
 
-    /// `"SmEllipse_TYPE"` (`GetTypeString`).
+    /// `"SmEllipse_TYPE"`, or `"SmCircle_TYPE"` for a circle (`GetTypeString`).
     #[must_use]
     pub const fn type_string(&self) -> &'static str {
-        "SmEllipse_TYPE"
+        if self.circle {
+            "SmCircle_TYPE"
+        } else {
+            "SmEllipse_TYPE"
+        }
     }
 
-    /// `"SmEllipse"` (`GetClassString`).
+    /// `"SmEllipse"`, or `"SmCircle"` for a circle (`GetClassString`).
     #[must_use]
     pub const fn class_string(&self) -> &'static str {
-        "SmEllipse"
+        if self.circle {
+            "SmCircle"
+        } else {
+            "SmEllipse"
+        }
     }
 
     /// True for `SmEllipse_TYPE` and the types of its bases (`IsKindOf`).
@@ -1152,7 +1072,7 @@ impl Ellipse {
     }
 
     /// [`Self::evaluate_step`] without derivatives.
-    fn step_point(&self, step_param: f64) -> Point3 {
+    pub(crate) fn step_point(&self, step_param: f64) -> Point3 {
         self.eval_step(step_param, 0)
             .first()
             .copied()
@@ -1503,10 +1423,11 @@ impl Ellipse {
     /// # Errors
     ///
     /// The errors of the plane and circle intersections; [`SolidError::Unported`]
-    /// from the general point solver (on an ellipse, `curve.ellipse_p1`), the local curve solver
-    /// (its Newton equations, `curve.curve_p5`) and the coincidence checker (`curve.curve_p6`).
+    /// from the general point solver and the local curve solver (their Newton equations,
+    /// `curve.curve_p5`) and the coincidence checker (`curve.curve_p6`).
     pub fn intersect_with_ellipse<O: Copy>(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         other: &Self,
         other_interval: &Extent1d,
@@ -1639,14 +1560,14 @@ impl Ellipse {
 
         for ip in &intersection_points {
             let solutions1: Vec<Solution<O>> =
-                ellipse_global_point_solve(self, interval, *ip, tol * 10.0)?;
+                ellipse_global_point_solve(k, self, interval, *ip, tol * 10.0)?;
 
             if solutions1.is_empty() {
                 continue;
             }
 
             let solutions2: Vec<Solution<O>> =
-                ellipse_global_point_solve(other, other_interval, *ip, tol * 10.0)?;
+                ellipse_global_point_solve(k, other, other_interval, *ip, tol * 10.0)?;
 
             // Check every combination
             for s1 in &solutions1 {
@@ -1722,11 +1643,11 @@ impl Ellipse {
     /// # Errors
     ///
     /// `SM_ERR` from the plane intersection of a line parallel to the plane or a zero
-    /// line vector; [`SolidError::Unported`] from the general point solver
-    /// (on the ellipse, `curve.ellipse_p1`) and the local curve solver (its Newton
-    /// equations, `curve.curve_p5`).
+    /// line vector; [`SolidError::Unported`] from the general point solver and the
+    /// local curve solver (their Newton equations, `curve.curve_p5`).
     pub fn intersect_with_line<O: Copy>(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         line: &Line,
         other_interval: &Extent1d,
@@ -1823,7 +1744,7 @@ impl Ellipse {
             }
 
             let solutions1: Vec<Solution<O>> =
-                match ellipse_global_point_solve(self, interval, *ip, tol * 10.0) {
+                match ellipse_global_point_solve(k, self, interval, *ip, tol * 10.0) {
                     Ok(s) => s,
                     Err(e @ SolidError::Unported { .. }) => return Err(e),
                     Err(_) => return Ok(out),
@@ -1952,14 +1873,6 @@ impl Ellipse {
             self.notify_post_edit(k)?;
         }
         Ok(())
-    }
-}
-
-/// An empty NURB from NLib (upstream reads its first control point regardless).
-const fn empty_nurb() -> SolidError {
-    SolidError::InvalidInput {
-        operation: OP_MAKE_NURB,
-        reason: "NLib returned a curve without control points",
     }
 }
 
@@ -2337,7 +2250,7 @@ mod tests {
         let ivl = a.base().natural_interval();
         // same object
         let r = a
-            .intersect_with_ellipse::<i64>(&ivl, &a, &ivl, 1e-6, None, None)
+            .intersect_with_ellipse::<i64>(&k, &ivl, &a, &ivl, 1e-6, None, None)
             .expect("same");
         assert!(!r.needs_more_intersections);
         // parallel planes far apart
@@ -2353,11 +2266,11 @@ mod tests {
         )
         .expect("b");
         let r = a
-            .intersect_with_ellipse::<i64>(&ivl, &b, &ivl, 1e-6, None, None)
+            .intersect_with_ellipse::<i64>(&k, &ivl, &b, &ivl, 1e-6, None, None)
             .expect("far");
         assert!(!r.needs_more_intersections);
         assert!(r.solutions.is_empty());
-        // crossing circles reach the unported point solver
+        // crossing circles: two intersections through the point solver
         let c = Ellipse::new(
             &k,
             Vec3::new(2.0, 2.0, 3.0),
@@ -2369,10 +2282,10 @@ mod tests {
             &EllipseOptions::default(),
         )
         .expect("c");
-        assert!(matches!(
-            a.intersect_with_ellipse::<i64>(&ivl, &c, &ivl, 1e-6, None, None),
-            Err(SolidError::Unported { .. })
-        ));
+        let r = a
+            .intersect_with_ellipse::<i64>(&k, &ivl, &c, &ivl, 1e-6, None, None)
+            .expect("crossing");
+        assert_eq!(r.solutions.len(), 2);
     }
 
     #[test]

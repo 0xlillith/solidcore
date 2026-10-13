@@ -422,6 +422,7 @@ impl Curve {
     /// curve, [`flush_crv`] and `Copy`; `InvalidInput` when nothing is built.
     pub fn approximate_curve(
         &self,
+        k: &Kernel,
         breaks: &[f64],
         approx_tol_3d: f64,
         opts: &ApproximateCurveOptions,
@@ -429,7 +430,7 @@ impl Curve {
         // low work - when asked, just copy BSplines
         if opts.just_copy_bsplines && self.is_kind_of(BSPLINE_CURVE_TYPE) {
             // (upstream ignores the status of Copy)
-            let curve = self.copy()?;
+            let curve = self.copy(k)?;
             return Ok(CurveApproximation {
                 curve,
                 achieved_tol: Some(0.0),
@@ -451,7 +452,7 @@ impl Curve {
             let mut curve = Curve::from(degenerate);
             let ivl = Extent1d::from_min_max(first, last);
             // (status ignored)
-            keep(curve.edit_parameterization(&ivl))?;
+            keep(curve.edit_parameterization(k, &ivl))?;
             return Ok(CurveApproximation {
                 curve,
                 achieved_tol: None,
@@ -567,7 +568,7 @@ impl Curve {
             && !self.is_kind_of(CRV_ON_SURF_TYPE)
             && new_count > self.number_control_points()?
         {
-            out.curve = self.copy()?;
+            out.curve = self.copy(k)?;
         }
 
         Ok(out)
@@ -1459,8 +1460,9 @@ impl<O> Default for GlobalPointSolveOptions<'_, O> {
     }
 }
 
-/// `DropPointFast` of `curve` naming `handle` (base: `SM_ERR`; a line drops the point
-/// onto itself).
+/// `DropPointFast(interval, op, point, NULL, tol, target, requested, ..)` of `curve`
+/// naming `handle` (base: `SM_ERR`; a line drops the point onto itself, an ellipse
+/// handles circles).
 fn drop_point_fast<O: Copy>(
     curve: &Curve,
     interval: &Extent1d,
@@ -1468,10 +1470,21 @@ fn drop_point_fast<O: Copy>(
     point: Point3,
     tol: f64,
     target_distance: Option<f64>,
+    requested: SolutionRequested,
     handle: Option<O>,
 ) -> Result<Vec<Solution<O>>> {
     match curve.kind() {
         CurveKind::Line(l) => l.drop_point_fast(interval, op, point, tol, target_distance, handle),
+        CurveKind::Ellipse(e) => e.drop_point_fast(
+            interval,
+            op,
+            point,
+            None,
+            tol,
+            target_distance,
+            requested,
+            handle,
+        ),
         _ => Err(SolidError::sm_err("curve::curve::p1::drop_point_fast")),
     }
 }
@@ -1512,6 +1525,7 @@ impl Curve {
                 test_point,
                 dist_tol,
                 target,
+                requested,
                 opts.handle,
             ))? {
                 let mut out = SolutionArray::new();
@@ -1532,7 +1546,7 @@ impl Curve {
 
         // Analytical Curve Optimization
         if op == SolverOperation::Minimize || op == SolverOperation::Intersect {
-            if let Some(analytic) = cache.analytic_curve()? {
+            if let Some(analytic) = cache.analytic_curve(k)? {
                 // (the cache's analytic curve is this curve when it is analytic)
                 let analytic_handle = if self.is_analytic() {
                     opts.handle
@@ -1546,6 +1560,7 @@ impl Curve {
                     test_point,
                     dist_tol,
                     target,
+                    requested,
                     analytic_handle,
                 ))? {
                     for s in &sols {
@@ -1919,6 +1934,12 @@ impl Curve {
                 angle_tol_deg,
                 min_segments as usize,
             ),
+            CurveKind::Ellipse(c) => c.base().tessellate(
+                interval,
+                chord_height_tol,
+                angle_tol_deg,
+                min_segments as usize,
+            ),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
@@ -1986,7 +2007,12 @@ mod tests {
     fn approximation_is_within_tolerance() {
         let c = cubic();
         let r = c
-            .approximate_curve(&[0.0, 1.0], 1e-3, &ApproximateCurveOptions::default())
+            .approximate_curve(
+                &Kernel::default(),
+                &[0.0, 1.0],
+                1e-3,
+                &ApproximateCurveOptions::default(),
+            )
             .unwrap();
         assert!(r.achieved_tol.unwrap() <= 1e-3);
         let p = r.curve.evaluate_point(0.5).unwrap();
