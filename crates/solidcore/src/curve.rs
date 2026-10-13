@@ -9,6 +9,7 @@ pub mod conic;
 pub mod crv_in_volume;
 #[allow(clippy::module_inception)]
 pub mod curve;
+pub mod curve_cache;
 pub mod hermite_curve;
 pub mod hyperbola;
 pub mod projected_curve;
