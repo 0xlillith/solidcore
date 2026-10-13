@@ -960,7 +960,7 @@ impl Curve {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the `SmSurface` queries are not ported yet.
+    /// [`SolidError::Unported`] from the `SmSurface` queries, which are not ported yet.
     pub fn surface_max_distance_between<S>(
         &self,
         interval: &Extent1d,
