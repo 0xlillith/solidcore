@@ -87,7 +87,7 @@ fn output(flat: Vec<f64>) -> Output {
     let status = values.next().unwrap_or(-1.0);
     Output::new()
         .scalar("status", status)
-        .values("out", values.collect())
+        .values("out", values.collect::<Vec<_>>())
 }
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let k = Kernel::default();
