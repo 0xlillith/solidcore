@@ -394,7 +394,7 @@ fn put_curve(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
-        CurveKind::CrvInVolume(_) => o.push(-1.0),
+        CurveKind::Conic(_) | CurveKind::CrvInVolume(_) => o.push(-1.0),
     }
 }
 
