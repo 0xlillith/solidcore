@@ -1,0 +1,54 @@
+name: Validate C++ harness quality
+on:
+  push:
+    branches: [codex/validate-cpp-quality]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upstream reference
+        run: |
+          git init upstream
+          git -C upstream remote add origin https://github.com/NVIDIA-Omniverse/usd-brep
+          git -C upstream fetch --depth 1 origin c9c5979f04cea8c38213004d4f04df0dcfb40d05
+          git -C upstream checkout --detach FETCH_HEAD
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake g++
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> bin"
+          key: trim-validation
+      - uses: actions/cache@v4
+        with:
+          path: bin/cpp
+          key: trim-cpp-${{ runner.os }}-c9c5979-v1
+      - name: Build reference
+        run: nice -n 10 harness/cpp/build.sh --jobs 6
+      - name: Rust and C++ comparison
+        run: |
+          nice -n 10 cargo run -p difftest --features cpp -- --unit curve.crv_on_surf
+          nice -n 10 cargo run -p difftest --features cpp -- --unit curve.parabola
+          git diff --exit-code -- reports/difftest/curve.crv_on_surf.json reports/difftest/curve.parabola.json
+      - name: Required lint and test gates
+        run: |
+          nice -n 10 cargo fmt --all --check
+          nice -n 10 cargo clippy --workspace --all-targets -- -D warnings
+          nice -n 10 cargo check -p solidcore --target wasm32-unknown-unknown
+          nice -n 10 cargo test --workspace --features difftest/cpp
+      - name: Additional C++ feature lint audit (pre-existing upstream warnings)
+        run: nice -n 10 cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cpp-quality-reports
+          path: reports/difftest/
+
+
+
+
