@@ -30,12 +30,9 @@
 //! | `SetContext` (dropped)                         | `SetContext`                                      |
 //!
 //! Deviations:
-//! - **Volumes.** `SmVolume` (units `surface.volume_p1`, `surface.volume_p2`) is not
-//!   ported yet. [`Volume`] stands in for it: it records only the volume's type code,
-//!   and every volume query this unit makes (`GetNaturalParamDomain`, `Evaluate`,
-//!   `Map`, `EvaluatePoint`, `MapPoint`, `Transform`, `operator==`, `ReadFromDB`) and
-//!   the derivative lifts `smvol_Lift*Derivative` return [`SolidError::Unported`].
-//!   The volume unit replaces [`Volume`] with the real type.
+//! - **Volumes.** The volume is a [`Volume`] (unit `surface.volume_p1`); the
+//!   queries of unit `surface.volume_p2` it needs (`EvaluatePoint`, `ReadFromDB`)
+//!   and those of the unported volume kinds return [`SolidError::Unported`].
 //! - **Curve classification.** `GetKnots` classifies the base curve against the
 //!   volume's knot iso-planes with `SmCurveClassification` (units
 //!   `intersect.curve_class_p1`, `_p4`, `_p8`); that call returns
@@ -52,8 +49,7 @@
 //!   notifications (`Notify`) are not modelled; `SetContext` and the `SmContext`
 //!   arguments (they only choose where upstream allocates) are dropped.
 //! - **Equality.** Upstream first compares the curve and volume pointers; held by
-//!   value, the parts are always compared by value (the volume through the unported
-//!   `SmVolume::operator==`), after the parameter-space flag and the curves, in
+//!   value, the parts are always compared by value ([`Volume::approx_eq`]), after the parameter-space flag and the curves, in
 //!   upstream's order. `m_bInParamSpace` is a `bool` (upstream any nonzero
 //!   `SmBoolean` is true in every test this unit makes).
 //! - **Break cache.** `GetKnots` caches the breaks through a `const_cast`: here
@@ -88,18 +84,22 @@
 //!   (unit `curve.curve_p5`) only sets the dimension, 3.
 
 use crate::curve::curve::p2::{
-    evaluate_continuity, is_kind_of as curve_is_kind_of, Curve, CurveEvaluate, CRV_IN_VOLUME_TYPE,
+    at, evaluate_continuity, is_kind_of as curve_is_kind_of, Curve, CurveEvaluate,
+    CRV_IN_VOLUME_TYPE,
 };
-use crate::error::{Result, SolidError};
+use crate::error::{ignored, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
-use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::tol::is_zero_to_tol;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{max2, BIG_DOUBLE, BOUNDED_INFINITE_PARAM, EFF_ZERO};
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
+use crate::surface::volume::p1::{
+    lift_first_derivative, lift_second_derivative, lift_third_derivative,
+};
+use crate::surface::volume::{EvalOptions, Volume};
 use crate::topology::database_io::{DatabaseReader, FileType};
 
 const OP: &str = "curve::crv_in_volume::CrvInVolume";
@@ -114,100 +114,15 @@ const MAX_DERIVS: usize = 3;
 /// `SM_CONTINUITY_ANGLE` (degrees): the default G1 angle tolerance.
 pub const CONTINUITY_ANGLE: f64 = 0.5;
 
-const fn unported<T>(upstream: &'static str, unit: &'static str) -> Result<T> {
-    Err(SolidError::Unported { upstream, unit })
-}
-
-const fn is_unported(e: &SolidError) -> bool {
-    matches!(e, SolidError::Unported { .. })
-}
-
-const fn bad(operation: &'static str, reason: &'static str) -> SolidError {
-    SolidError::InvalidInput { operation, reason }
-}
-
-// ---- the volume stand-in ------------------------------------------------------------
-
-/// Stand-in for an `SmVolume` until unit `surface.volume_p1` ports the volume
-/// classes: it records the volume's type code (`SmBSplineVolume_TYPE`,
-/// `SmTwistVolume_TYPE`, ...) and nothing else. Every query this unit makes on a
-/// volume returns [`SolidError::Unported`].
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct Volume {
-    type_code: i64,
-}
-
-impl Volume {
-    /// A volume of type `type_code`.
-    #[must_use]
-    pub const fn new(type_code: i64) -> Self {
-        Self { type_code }
-    }
-
-    /// The volume's type code (`GetType`).
-    #[must_use]
-    pub const fn type_code(&self) -> i64 {
-        self.type_code
-    }
-}
-
-/// `SmVolume::GetNaturalParamDomain`.
-fn volume_natural_param_domain(_volume: &Volume) -> Result<Extent3d> {
-    // UNPORTED(surface.volume_p1): SmVolume::GetNaturalParamDomain
-    unported("SmVolume::GetNaturalParamDomain", "surface.volume_p1")
-}
-
-/// `SmVolume::Evaluate` (parameter space to the final out-space): the
-/// `(n+1)^3` partial derivatives at `point`, from the left or right per direction.
-fn volume_evaluate(
-    _volume: &Volume,
-    _point: Point3,
-    _num_derivs: usize,
-    _from_left: [bool; 3],
-    _non_zero_tangents: bool,
-) -> Result<Vec<Vec3>> {
-    // UNPORTED(surface.volume_p1): SmVolume::Evaluate
-    unported("SmVolume::Evaluate", "surface.volume_p1")
-}
-
-/// `SmVolume::Map` (in-space to the final out-space), as [`volume_evaluate`].
-fn volume_map(
-    _volume: &Volume,
-    _point: Point3,
-    _num_derivs: usize,
-    _from_left: [bool; 3],
-    _non_zero_tangents: bool,
-) -> Result<Vec<Vec3>> {
-    // UNPORTED(surface.volume_p1): SmVolume::Map
-    unported("SmVolume::Map", "surface.volume_p1")
-}
+// ---- back-edges ----------------------------------------------------------------------
 
 /// `SmVolume::EvaluatePoint`.
 fn volume_evaluate_point(_volume: &Volume, _point: Point3) -> Result<Point3> {
     // UNPORTED(surface.volume_p2): SmVolume::EvaluatePoint
-    unported("SmVolume::EvaluatePoint", "surface.volume_p2")
-}
-
-/// `SmVolume::MapPoint`.
-fn volume_map_point(_volume: &Volume, _point: Point3) -> Result<Point3> {
-    // UNPORTED(surface.volume_p1): SmVolume::MapPoint
-    unported("SmVolume::MapPoint", "surface.volume_p1")
-}
-
-/// `SmVolume::Transform`.
-fn volume_transform(
-    _volume: &mut Volume,
-    _rotate_n_move: &Axis2Placement,
-    _scale: Option<Vec3>,
-) -> Result<()> {
-    // UNPORTED(surface.volume_p1): SmVolume::Transform
-    unported("SmVolume::Transform", "surface.volume_p1")
-}
-
-/// `SmVolume::operator==`.
-fn volume_eq(_a: &Volume, _b: &Volume) -> Result<bool> {
-    // UNPORTED(surface.volume_p1): SmVolume::operator==
-    unported("SmVolume::operator==", "surface.volume_p1")
+    Err(SolidError::unported(
+        "SmVolume::EvaluatePoint",
+        "surface.volume_p2",
+    ))
 }
 
 /// `SmVolume::ReadFromDB` of a volume of type `volume_type`.
@@ -217,33 +132,10 @@ fn volume_read_from_db(
     _version: u64,
 ) -> Result<Volume> {
     // UNPORTED(surface.volume_p2): SmVolume::ReadFromDB
-    unported("SmVolume::ReadFromDB", "surface.volume_p2")
-}
-
-/// `smvol_LiftFirstDerivative`: the out-space first derivative of a curve through a
-/// volume from the curve's first derivative and the volume's first partials.
-fn lift_first_derivative(_c1: Vec3, _v1: [Vec3; 3]) -> Result<Vec3> {
-    // UNPORTED(surface.volume_p1): smvol_LiftFirstDerivative
-    unported("smvol_LiftFirstDerivative", "surface.volume_p1")
-}
-
-/// `smvol_LiftSecondDerivative` (first and second partials `Du Dv Dw`,
-/// `Duu Duv Duw Dvv Dvw Dww`).
-fn lift_second_derivative(_c: [Vec3; 2], _v1: [Vec3; 3], _v2: [Vec3; 6]) -> Result<Vec3> {
-    // UNPORTED(surface.volume_p1): smvol_LiftSecondDerivative
-    unported("smvol_LiftSecondDerivative", "surface.volume_p1")
-}
-
-/// `smvol_LiftThirdDerivative` (plus third partials `Duuu Duuv Duuw Duvv Duvw Duww
-/// Dvvv Dvvw Dvww Dwww`).
-fn lift_third_derivative(
-    _c: [Vec3; 3],
-    _v1: [Vec3; 3],
-    _v2: [Vec3; 6],
-    _v3: [Vec3; 10],
-) -> Result<Vec3> {
-    // UNPORTED(surface.volume_p1): smvol_LiftThirdDerivative
-    unported("smvol_LiftThirdDerivative", "surface.volume_p1")
+    Err(SolidError::unported(
+        "SmVolume::ReadFromDB",
+        "surface.volume_p2",
+    ))
 }
 
 /// The parameter intervals of the `SmCurveClassification` of `curve` over `interval`
@@ -259,10 +151,10 @@ fn classify_against_volume(
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
     // UNPORTED(intersect.curve_class_p8): SmCurveClassification::Intersect3DDiscontinuities
     // UNPORTED(intersect.curve_class_p1): SmCurveClassification::GetSize, SmCurveClassification::GetAt
-    unported(
+    Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
         "intersect.curve_class_p4",
-    )
+    ))
 }
 
 // ---- continuity codes ---------------------------------------------------------------
@@ -506,8 +398,8 @@ impl CrvInVolume {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the volume comparison (reached only when the
-    /// flags and curves agree).
+    /// [`SolidError::Unported`] from the curve comparison or from comparing an
+    /// unported volume kind (reached only when the flags and curves agree).
     pub fn approx_eq(&self, other: &Self) -> Result<bool> {
         // low work
         if core::ptr::eq(self, other) {
@@ -516,7 +408,7 @@ impl CrvInVolume {
         // check equivalence of these objects
         Ok(self.in_param_space == other.in_param_space
             && self.curve.approx_eq(&other.curve)?
-            && volume_eq(&self.volume, &other.volume)?)
+            && self.volume.approx_eq(&other.volume)?)
     }
 
     // ---- evaluation -----------------------------------------------------------------
@@ -538,12 +430,17 @@ impl CrvInVolume {
             if t.y > 0.0 { from_left } else { !from_left },
             if t.z > 0.0 { from_left } else { !from_left },
         ];
+        let opts = EvalOptions {
+            from_left: sides,
+            non_zero_tangents,
+            ..EvalOptions::default()
+        };
         if self.in_param_space {
             // Volume Evaluate - from Param to compounded last OutSpace
-            volume_evaluate(&self.volume, p, n, sides, non_zero_tangents)
+            self.volume.evaluate(p, n, &opts)
         } else {
             // Volume map - from InSpace to compounded last OutSpace
-            volume_map(&self.volume, p, n, sides, non_zero_tangents)
+            self.volume.map(p, n, &opts)
         }
     }
 
@@ -574,7 +471,7 @@ impl CrvInVolume {
         // Volume Evaluate / Map - with fewer derivatives while the volume can't
         let mut vol = self.volume_derivs(&crv, n_eval, from_left, non_zero_tangents);
         while let Err(e) = &vol {
-            if is_unported(e) || n_eval == 0 {
+            if e.is_unported() || n_eval == 0 {
                 break;
             }
             n_eval -= 1;
@@ -609,14 +506,14 @@ impl CrvInVolume {
 
         // 1st Derivs
         if n_eval >= 1 {
-            put(1, lift_first_derivative(at(&crv, 1), v1())?);
+            put(1, lift_first_derivative(at(&crv, 1), v1()));
         }
 
         // 2nd Derivs
         if n_eval >= 2 {
             put(
                 2,
-                lift_second_derivative([at(&crv, 1), at(&crv, 2)], v1(), v2())?,
+                lift_second_derivative([at(&crv, 1), at(&crv, 2)], v1(), v2()),
             );
         }
 
@@ -636,7 +533,7 @@ impl CrvInVolume {
             ];
             put(
                 3,
-                lift_third_derivative([at(&crv, 1), at(&crv, 2), at(&crv, 3)], v1(), v2(), v3)?,
+                lift_third_derivative([at(&crv, 1), at(&crv, 2), at(&crv, 3)], v1(), v2(), v3),
             );
         }
 
@@ -659,14 +556,14 @@ impl CrvInVolume {
         let p = self.curve.evaluate_point(t)?;
 
         // volume eval
-        volume_map_point(&self.volume, p)?;
+        self.volume.map_point(p, true)?;
 
         if self.in_param_space {
             // Volume Evaluate - from Param to compounded last OutSpace
             volume_evaluate_point(&self.volume, p)
         } else {
             // Volume map - from InSpace to compounded last OutSpace
-            volume_map_point(&self.volume, p)
+            self.volume.map_point(p, true)
         }
     }
 
@@ -701,7 +598,9 @@ impl CrvInVolume {
     /// tolerance.
     fn compute_breaks(&self) -> Result<(Vec<f64>, Vec<usize>, f64)> {
         // pick a UVWSpace tolerance
-        let volume_param_size = volume_natural_param_domain(&self.volume)?
+        let volume_param_size = self
+            .volume
+            .natural_param_domain()?
             .approximate_unbounded(None, BOUNDED_INFINITE_PARAM)
             .max_dimension();
         let curve_param_size = self
@@ -712,11 +611,7 @@ impl CrvInVolume {
         let tol_uvw = EFF_ZERO * (1.0 + max2(volume_param_size, curve_param_size));
 
         // get the Curve knots and multiplicities for the natural curve (status ignored)
-        let (mut knots, mut mults) = match self.curve.knots(None) {
-            Ok(km) => km,
-            Err(e) if is_unported(&e) => return Err(e),
-            Err(_) => (Vec::new(), Vec::new()),
-        };
+        let (mut knots, mut mults) = ignored(self.curve.knots(None))?.unwrap_or_default();
 
         // modify the multiplicity list to act as if Curve is a degree 3 BSpline
         let crv_degree = self.curve.degree()?;
@@ -741,7 +636,9 @@ impl CrvInVolume {
 
         // add the classification boundaries uniquely and in order to the knots and mults
         let cnt = classes.len();
-        let short = || bad(OP_KNOTS, "no base curve knots or classification intervals");
+        let short = || {
+            SolidError::invalid_input(OP_KNOTS, "no base curve knots or classification intervals")
+        };
         let mut uvw_knot = *knots.first().ok_or_else(short)?;
         let mut jj = 0usize;
         for ii in 0..=cnt {
@@ -817,7 +714,7 @@ impl CrvInVolume {
         let Some(ivl) = interval else {
             return Ok(());
         };
-        let short = || bad(OP_KNOTS, "no breaks to cull");
+        let short = || SolidError::invalid_input(OP_KNOTS, "no breaks to cull");
         let first = *knots.first().ok_or_else(short)?;
         let last = *knots.last().ok_or_else(short)?;
         if !(first < ivl.min() - tol || last > ivl.max() + tol) {
@@ -928,10 +825,9 @@ impl CrvInVolume {
             }
 
             // check cache currency (upstream indexes the continuities by the knot index)
-            let cont = *self
-                .conts
-                .get(ii)
-                .ok_or_else(|| bad(OP_MULTS, "more knots matched than continuities"))?;
+            let cont = *self.conts.get(ii).ok_or_else(|| {
+                SolidError::invalid_input(OP_MULTS, "more knots matched than continuities")
+            })?;
             if cont == ContinuityType::Undefined {
                 return Err(SolidError::sm_err(OP_MULTS));
             }
@@ -998,7 +894,7 @@ impl CrvInVolume {
     ) -> Result<(ContinuityType, Vec<ContinuityType>)> {
         let n = breaks.len();
         if n == 0 {
-            return Err(bad(OP_CONTS, "no breaks"));
+            return Err(SolidError::invalid_input(OP_CONTS, "no breaks"));
         }
         let mut min_cont = ContinuityType::CInfinity;
         let mut conts = vec![ContinuityType::Undefined; n];
@@ -1009,7 +905,9 @@ impl CrvInVolume {
             *c = ContinuityType::Discontinuous;
         }
         for ii in 1..n - 1 {
-            let t = *breaks.get(ii).ok_or_else(|| bad(OP_CONTS, "no breaks"))?;
+            let t = *breaks
+                .get(ii)
+                .ok_or_else(|| SolidError::invalid_input(OP_CONTS, "no breaks"))?;
             // evaluate geometric continuities
             let c = evaluate_continuity(self, t, true, self, t, false, angle_tol)?.continuity;
             if let Some(d) = conts.get_mut(ii) {
@@ -1135,7 +1033,7 @@ impl CrvInVolume {
         }
 
         // compound the Transform onto the contained volume
-        volume_transform(&mut self.volume, rotate_n_move, scale)
+        self.volume.transform(rotate_n_move, scale)
     }
 
     // ---- persistence ----------------------------------------------------------------
@@ -1152,7 +1050,7 @@ impl CrvInVolume {
     /// header, a count larger than the input or an unknown continuity code.
     pub fn read_from_db(db: &mut DatabaseReader, version: u64) -> Result<Self> {
         let ascii = db.file_type() == FileType::Ascii;
-        let no_stream = || bad(OP_READ, "no input stream");
+        let no_stream = || SolidError::invalid_input(OP_READ, "no input stream");
 
         // cache flag
         let need_knots = if ascii {
@@ -1160,7 +1058,7 @@ impl CrvInVolume {
                 .in_stream_mut()
                 .ok_or_else(no_stream)?
                 .extract_int()
-                .ok_or_else(|| bad(OP_READ, "cache flag not read"))?;
+                .ok_or_else(|| SolidError::invalid_input(OP_READ, "cache flag not read"))?;
             db.go_to_next_line();
             v != 0
         } else {
@@ -1174,10 +1072,10 @@ impl CrvInVolume {
         let header = db.read_type(true)?;
         let curve_type = header
             .type_code
-            .ok_or_else(|| bad(OP_READ, "curve type not read"))?;
+            .ok_or_else(|| SolidError::invalid_input(OP_READ, "curve type not read"))?;
         let curve_dim = header
             .dim
-            .ok_or_else(|| bad(OP_READ, "curve dimension not read"))?;
+            .ok_or_else(|| SolidError::invalid_input(OP_READ, "curve dimension not read"))?;
         let curve = Curve::read_from_db(curve_type, db, curve_dim, version)?;
 
         // bInParamSpace value (extracted as text in either file type; the empty
@@ -1196,7 +1094,7 @@ impl CrvInVolume {
         let volume_type = db
             .read_type(false)?
             .type_code
-            .ok_or_else(|| bad(OP_READ, "volume type not read"))?;
+            .ok_or_else(|| SolidError::invalid_input(OP_READ, "volume type not read"))?;
         let volume = volume_read_from_db(volume_type, db, version)?;
 
         // when appropriate - knots
@@ -1208,14 +1106,14 @@ impl CrvInVolume {
                     .in_stream_mut()
                     .ok_or_else(no_stream)?
                     .extract_ulong()
-                    .ok_or_else(|| bad(OP_READ, "break count not read"))?;
+                    .ok_or_else(|| SolidError::invalid_input(OP_READ, "break count not read"))?;
                 db.go_to_next_line();
                 n
             } else {
                 db.read_ulong()?
             };
-            let count =
-                usize::try_from(count).map_err(|_| bad(OP_READ, "break count too large"))?;
+            let count = usize::try_from(count)
+                .map_err(|_| SolidError::invalid_input(OP_READ, "break count too large"))?;
             db.ensure_available(count, if ascii { 1 } else { 8 }, OP_READ)?;
 
             // read every knot
@@ -1247,10 +1145,9 @@ impl CrvInVolume {
                 }
             }
             for c in codes {
-                conts.push(
-                    continuity_from_code(c)
-                        .ok_or_else(|| bad(OP_READ, "unknown continuity code"))?,
-                );
+                conts.push(continuity_from_code(c).ok_or_else(|| {
+                    SolidError::invalid_input(OP_READ, "unknown continuity code")
+                })?);
             }
         }
 
@@ -1265,11 +1162,6 @@ impl CrvInVolume {
             owner_flag: 3,
         })
     }
-}
-
-/// Entry `i` of an evaluation, or `UNDEF` (an unwritten `SmVector3d`).
-fn at(v: &[Vec3], i: usize) -> Vec3 {
-    v.get(i).copied().unwrap_or(Vec3::UNDEF)
 }
 
 impl CurveEvaluate for CrvInVolume {
@@ -1301,9 +1193,8 @@ mod tests {
     use super::*;
     use crate::nurbs::b_spline_curve::BSplineCurve;
     use crate::nurbs::nurbs_crv::allocate_nurb_curve;
+    use crate::surface::volume::VolumeKind;
     use crate::topology::database_io::InputStream;
-
-    const TWIST: i64 = 22011;
 
     /// A clamped cubic with one interior knot at 0.5 on `[0, 1]`.
     fn base() -> Curve {
@@ -1320,7 +1211,7 @@ mod tests {
     }
 
     fn civ(owner: u64) -> CrvInVolume {
-        CrvInVolume::new(base(), true, Volume::new(TWIST), 0, owner)
+        CrvInVolume::new(base(), true, Volume::new(VolumeKind::Twist), 0, owner)
     }
 
     fn cached(owner: u64) -> CrvInVolume {
@@ -1340,10 +1231,10 @@ mod tests {
 
     #[test]
     fn construct_and_flags() {
-        let c = CrvInVolume::new(base(), false, Volume::new(TWIST), 3, 0);
+        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Twist), 3, 0);
         assert_eq!(c.owner_flag(), 3);
         assert!(c.owns_curve() && c.owns_volume());
-        let c = CrvInVolume::new(base(), false, Volume::new(TWIST), 1, 4);
+        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Twist), 1, 4);
         assert_eq!(c.owner_flag(), 5);
         assert!(!c.owns_curve() && !c.owns_volume());
         assert_eq!(c.copy().owner_flag(), 0);

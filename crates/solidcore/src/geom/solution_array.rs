@@ -363,13 +363,13 @@ pub struct Solution<O> {
     pub nodes: [Option<NodeId>; MAX_TREES],
 }
 
-impl<O: SolutionObject> Default for Solution<O> {
+impl<O: Copy> Default for Solution<O> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<O: SolutionObject> Solution<O> {
+impl<O: Copy> Solution<O> {
     /// An empty solution of type [`SolutionType::Unknown`] (`SmSolution()`).
     #[must_use]
     pub const fn new() -> Self {
@@ -393,7 +393,9 @@ impl<O: SolutionObject> Solution<O> {
             ..Self::new()
         }
     }
+}
 
+impl<O: SolutionObject> Solution<O> {
     /// Clears the type, the counts, the objects and the nodes (`ReSet`). The
     /// solution ends keep their values, as upstream.
     pub fn reset(&mut self) {
@@ -1067,9 +1069,12 @@ fn surface_natural_uv_domain<O>(_surface: &O) -> Result<crate::geom::extent2d::E
     })
 }
 
-/// `SmVolume::GetNaturalParamDomain`.
+/// `SmVolume::GetNaturalParamDomain`. The volume itself is ported
+/// (`surface::volume::Volume::natural_param_domain`), but a solution object is an
+/// opaque handle `O` with no way to reach it yet.
 fn volume_natural_param_domain<O>(_volume: &O) -> Result<crate::geom::extent3d::Extent3d> {
-    // UNPORTED(surface.volume_p1): SmVolume::GetNaturalParamDomain
+    // UNPORTED(surface.volume_p1): SmVolume::GetNaturalParamDomain (needs a handle-to-volume
+    // lookup on SolutionObject)
     Err(SolidError::Unported {
         upstream: "SmVolume::GetNaturalParamDomain",
         unit: "surface.volume_p1",
