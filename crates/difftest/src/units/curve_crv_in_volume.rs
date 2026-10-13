@@ -14,11 +14,10 @@
 //! `SmStatus`; `1007` for a Rust `InvalidInput`, `-1` for a Rust error upstream cannot
 //! produce) and the rest as `out`.
 //!
-//! Deferred cases: everything that reaches the volume (`SmVolume`, units
-//! `surface.volume_p1` / `_p2`: evaluation, uncached breaks, continuities at interior
-//! breaks, equality of equal curves, non-identity transforms, reading the volume) —
-//! the Rust side has no volume yet. Every run has at least [`MIN_GENERATED`] generated
-//! cases; generated inputs the ffi wrapper rejects are redrawn.
+//! Deferred cases: what reaches the unported parts: the curve classification of
+//! uncached breaks (`intersect.curve_class_*`) and the volume's `EvaluatePoint` /
+//! `ReadFromDB` (`surface.volume_p2`). Every run has at least [`MIN_GENERATED`]
+//! generated cases; generated inputs the ffi wrapper rejects are redrawn.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
