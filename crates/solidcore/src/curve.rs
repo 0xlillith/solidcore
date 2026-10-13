@@ -5,7 +5,9 @@
 //! `SmHyperbola`, `SmBSplineCurve`, `SmOffsetCurve`, `SmCompositeCurve`, `SmIsoCurve`,
 //! `SmProjectedCurve`, `SmCurveClass` in `source/SMLib`, and `SM_API/SmApiCurves`.
 
+pub mod conic;
 #[allow(clippy::module_inception)]
 pub mod curve;
 pub mod hermite_curve;
 pub mod offset_curve;
+pub mod tangent_field;
