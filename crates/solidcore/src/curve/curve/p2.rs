@@ -64,8 +64,10 @@
 //!
 //! Deviations:
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
-//!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`] and
-//!   [`HermiteCurve`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
+//!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`], [`HermiteCurve`]
+//!   and [`Line`] (`SmLine`, derived from `SmBSplineCurve`: the inherited B-spline
+//!   queries run on its B-spline part, made with its NURB, see
+//!   [`crate::curve::line`]); the other analytic and generated curves (`SmEllipse`,
 //!   `SmOffsetCurve`, ...) join the enum in their own units. Each virtual method is
 //!   one `match`: a kind that overrides it calls its own method, the others run the
 //!   base-class body ported here (the `SmCurve.h` inline defaults: `SM_ERR`,
@@ -86,8 +88,9 @@
 //! - **Arguments.** Out-params become return values; `SmContext` arguments only
 //!   choose where upstream allocates and are dropped, as are arguments upstream
 //!   marks `NotUsed` (`EvaluateSTEP`'s zone tolerance, `sm_TestStep`'s current
-//!   parameter, `sm_FindTestParams`' degree, `IntersectWithLine`'s curves and
-//!   tolerance) and `Evaluate`'s `bFromLeft` for Hermite curves. `EditParameterization`'s
+//!   parameter, `sm_FindTestParams`' degree) and `Evaluate`'s `bFromLeft` for
+//!   Hermite and line curves. Solutions of the line overrides (`DropPointFast`,
+//!   `IntersectWithLine`) name no objects here (the curve has no object reference). `EditParameterization`'s
 //!   and `Trim`'s notify flags become [`TrimMode`] (trim) or are dropped (the
 //!   B-spline edit does not notify here, see its unit). `bOptCreateAnalytics` of
 //!   [`flush_crv`] is honoured as upstream (`USE_ANALYTICS` is defined).
@@ -132,6 +135,7 @@
 //!   those calls return [`SolidError::Unported`].
 
 use crate::curve::hermite_curve::HermiteCurve;
+use crate::curve::line::Line;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, AObject, CacheStore};
 use crate::geom::attribute::AttributeStore;
@@ -157,7 +161,8 @@ use crate::geom::vector3d::{acos, Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_curve::{
-    BSplineCurve, BSplineCurveForm, CanonicalData, Ends, KnotType, NurbCircleParam, ProjectionType,
+    AnalyticCurve, BSplineCurve, BSplineCurveForm, CanonicalData, Ends, KnotType, NurbCircleParam,
+    ProjectionType,
 };
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::topology::database_io::DatabaseReader;
@@ -377,6 +382,8 @@ pub enum CurveKind {
     BSpline(BSplineCurve),
     /// `SmHermiteCurve`.
     Hermite(HermiteCurve),
+    /// `SmLine`.
+    Line(Line),
 }
 
 /// A curve (`SmCurve`): its concrete kind and the object owning it (`m_pOwner`:
@@ -406,6 +413,12 @@ impl From<BSplineCurve> for Curve {
 impl From<HermiteCurve> for Curve {
     fn from(c: HermiteCurve) -> Self {
         Self::new(CurveKind::Hermite(c))
+    }
+}
+
+impl From<Line> for Curve {
+    fn from(c: Line) -> Self {
+        Self::new(CurveKind::Line(c))
     }
 }
 
@@ -463,6 +476,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => BSplineCurve::TYPE,
             CurveKind::Hermite(_) => HermiteCurve::TYPE,
+            CurveKind::Line(_) => Line::TYPE,
         }
     }
 
@@ -472,6 +486,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve_TYPE",
             CurveKind::Hermite(_) => "SmHermiteCurve_TYPE",
+            CurveKind::Line(_) => "SmLine_TYPE",
         }
     }
 
@@ -481,13 +496,16 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve",
             CurveKind::Hermite(_) => "SmHermiteCurve",
+            CurveKind::Line(_) => "SmLine",
         }
     }
 
     /// `IsKindOf`: the concrete type or one of its base types.
     #[must_use]
     pub const fn is_kind_of(&self, t: i64) -> bool {
-        t == self.type_code() || is_kind_of(t)
+        t == self.type_code()
+            || (matches!(self.kind, CurveKind::Line(_)) && t == BSPLINE_CURVE_TYPE)
+            || is_kind_of(t)
     }
 
     /// `operator==`: same object, or same type and dimension and (per kind) the same
@@ -501,6 +519,7 @@ impl Curve {
         match (&self.kind, &other.kind) {
             (CurveKind::BSpline(a), CurveKind::BSpline(b)) => a.approx_eq(b),
             (CurveKind::Hermite(a), CurveKind::Hermite(b)) => a.approx_eq(b),
+            (CurveKind::Line(a), CurveKind::Line(b)) => a.approx_eq(b),
             // GetType() differs
             _ => false,
         }
@@ -514,6 +533,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.dim(),
             CurveKind::Hermite(c) => c.dim(),
+            CurveKind::Line(c) => c.dim(),
         }
     }
 
@@ -526,6 +546,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.degree(),
             CurveKind::Hermite(_) => Ok(3),
+            CurveKind::Line(c) => Ok(c.degree()),
         }
     }
 
@@ -538,6 +559,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_natural_knots(),
             CurveKind::Hermite(_) => Ok(2),
+            CurveKind::Line(c) => Ok(c.number_natural_knots()),
         }
     }
 
@@ -550,6 +572,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_control_points(),
             CurveKind::Hermite(_) => Ok(0),
+            CurveKind::Line(c) => c.base_with_nurb()?.number_control_points(),
         }
     }
 
@@ -559,19 +582,24 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.natural_interval(),
             CurveKind::Hermite(c) => c.natural_interval(),
+            CurveKind::Line(c) => c.natural_interval(),
         }
     }
 
-    /// `IsAnalytic` (base default `FALSE`; no ported kind overrides it).
+    /// `IsAnalytic` (base default `FALSE`; `TRUE` for a line).
     #[must_use]
     pub const fn is_analytic(&self) -> bool {
-        false
+        matches!(self.kind, CurveKind::Line(_))
     }
 
-    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves).
+    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves; a line
+    /// is bounded when its analytic domain is).
     #[must_use]
-    pub const fn is_bounded(&self) -> bool {
-        true
+    pub fn is_bounded(&self) -> bool {
+        match &self.kind {
+            CurveKind::Line(c) => c.is_bounded(),
+            _ => true,
+        }
     }
 
     /// `IsRational` (base: an error message and `FALSE`).
@@ -583,6 +611,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.is_rational(),
             CurveKind::Hermite(_) => Ok(false),
+            CurveKind::Line(c) => c.base_with_nurb()?.is_rational(),
         }
     }
 
@@ -595,6 +624,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.has_repeated_end_control_points(tol),
             CurveKind::Hermite(_) => Ok(false),
+            CurveKind::Line(c) => c.base_with_nurb()?.has_repeated_end_control_points(tol),
         }
     }
 
@@ -691,6 +721,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Hermite(c) => Ok(c.evaluate(t, num_derivs, non_zero_tangents)),
+            CurveKind::Line(c) => Ok(c.evaluate(t, num_derivs)),
         }
     }
 
@@ -703,6 +734,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate_point(t),
             CurveKind::Hermite(c) => Ok(c.evaluate_point(t)),
+            CurveKind::Line(c) => Ok(c.evaluate_point(t)),
         }
     }
 
@@ -719,6 +751,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.calculate_continuities(angle_tol),
             CurveKind::Hermite(c) => Ok(c.calculate_continuities()),
+            CurveKind::Line(c) => c.base_with_nurb()?.calculate_continuities(angle_tol),
         }
     }
 
@@ -735,6 +768,7 @@ impl Curve {
                 let (k, m) = c.knots(interval);
                 Ok((k, m.into_iter().map(|v| v as usize).collect()))
             }
+            CurveKind::Line(c) => c.base_with_nurb()?.knots(interval),
         }
     }
 
@@ -748,25 +782,32 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.ends(),
             CurveKind::Hermite(c) => base_ends(c),
+            CurveKind::Line(c) => c.ends_copy(),
         }
     }
 
-    /// `ConvertTFromNURBSToSTEP` (base: the identity; no ported kind overrides it).
+    /// `ConvertTFromNURBSToSTEP` (base: the identity; a line maps its domains).
     ///
     /// # Errors
     ///
     /// None for the ported kinds.
-    pub const fn convert_t_from_nurbs_to_step(&self, nurbs_param: f64) -> Result<f64> {
-        Ok(nurbs_param)
+    pub fn convert_t_from_nurbs_to_step(&self, nurbs_param: f64) -> Result<f64> {
+        match &self.kind {
+            CurveKind::Line(c) => Ok(c.convert_t_from_nurbs_to_step(nurbs_param)),
+            _ => Ok(nurbs_param),
+        }
     }
 
-    /// `ConvertTFromSTEPToNURBS` (base: the identity; no ported kind overrides it).
+    /// `ConvertTFromSTEPToNURBS` (base: the identity; a line maps its domains).
     ///
     /// # Errors
     ///
     /// None for the ported kinds.
-    pub const fn convert_t_from_step_to_nurbs(&self, step_param: f64) -> Result<f64> {
-        Ok(step_param)
+    pub fn convert_t_from_step_to_nurbs(&self, step_param: f64) -> Result<f64> {
+        match &self.kind {
+            CurveKind::Line(c) => Ok(c.convert_t_from_step_to_nurbs(step_param)),
+            _ => Ok(step_param),
+        }
     }
 
     /// `ApproximateLength`: polygon length through `samples + 1` equally spaced
@@ -782,43 +823,74 @@ impl Curve {
         samples: usize,
         want_turn_angle: bool,
     ) -> Result<(f64, Option<f64>)> {
-        approximate_length(self, interval, samples, want_turn_angle)
+        match &self.kind {
+            CurveKind::Line(c) => Ok(c.approximate_length(interval, want_turn_angle)),
+            _ => approximate_length(self, interval, samples, want_turn_angle),
+        }
     }
 
-    /// `STEPInversion` (base: `SM_ERR`; no ported kind overrides it).
+    /// `STEPInversion` (base: `SM_ERR`; a line finds its closest point).
     ///
     /// # Errors
     ///
-    /// Always `SM_ERR`.
-    pub const fn step_inversion(&self, _point: Point3) -> Result<f64> {
-        Err(base_err())
+    /// `SM_ERR` for kinds without the inversion.
+    pub fn step_inversion(&self, point: Point3) -> Result<f64> {
+        match &self.kind {
+            CurveKind::Line(c) => Ok(c.step_inversion(point).0),
+            _ => Err(base_err()),
+        }
     }
 
-    /// `DropPointFast` (base: `SM_ERR`; no ported kind overrides it).
+    /// `DropPointFast` (base: `SM_ERR`; a line drops the point onto itself; the
+    /// solution's object is `NULL` here, the curve has no object reference).
     ///
     /// # Errors
     ///
-    /// Always `SM_ERR`.
-    pub const fn drop_point_fast(
+    /// `SM_ERR` for kinds without the fast drop and for unsupported operations.
+    pub fn drop_point_fast(
         &self,
-        _interval: &Extent1d,
-        _operation: SolverOperation,
-        _point: Point3,
+        interval: &Extent1d,
+        operation: SolverOperation,
+        point: Point3,
         _in_pointing: Option<Vec3>,
-        _tol: f64,
-        _target_distance: Option<f64>,
+        tol: f64,
+        target_distance: Option<f64>,
         _requested: SolutionRequested,
     ) -> Result<Vec<Solution<ObjectRef>>> {
-        Err(base_err())
+        match &self.kind {
+            CurveKind::Line(c) => {
+                c.drop_point_fast(interval, operation, point, tol, target_distance, None)
+            }
+            _ => Err(base_err()),
+        }
     }
 
-    /// `IntersectWithLine` (base: no solutions, ask the general intersector; no
-    /// ported kind overrides it).
-    #[must_use]
-    pub const fn intersect_with_line(&self) -> LineIntersection {
-        LineIntersection {
-            solutions: Vec::new(),
-            needs_more_intersections: true,
+    /// `IntersectWithLine` of this curve over `interval` and `other` over
+    /// `other_interval` (base: no solutions, ask the general intersector; a line
+    /// intersects analytically, its solutions' objects are `NULL` here).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Line::intersect_with_line`].
+    pub fn intersect_with_line(
+        &self,
+        interval: &Extent1d,
+        other: &Line,
+        other_interval: &Extent1d,
+        tol: f64,
+    ) -> Result<LineIntersection> {
+        match &self.kind {
+            CurveKind::Line(c) => {
+                let r = c.intersect_with_line(interval, other, other_interval, tol, None, None)?;
+                Ok(LineIntersection {
+                    solutions: r.solutions,
+                    needs_more_intersections: r.needs_more_intersections,
+                })
+            }
+            _ => Ok(LineIntersection {
+                solutions: Vec::new(),
+                needs_more_intersections: true,
+            }),
         }
     }
 
@@ -834,6 +906,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.convert_to_2d(),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => c.convert_to_2d_owned(self.owner),
         }
     }
 
@@ -847,6 +920,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.edit_parameterization(new_param),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => c.edit_parameterization_owned(self.owner, new_param),
         }
     }
 
@@ -860,6 +934,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.reverse_parameterization(old_interval),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => Ok(c.reverse_parameterization(old_interval)),
         }
     }
 
@@ -872,6 +947,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.transform(rotate_n_move, scale),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => c.transform(rotate_n_move, scale),
         }
     }
 
@@ -884,6 +960,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.trim(k, trim_interval, mode),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => c.trim_owned(self.owner, trim_interval, mode),
         }
     }
 
@@ -896,6 +973,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => Ok(Self::from(c.copy())),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Line(c) => Ok(Self::from(c.copy())),
         }
     }
 
@@ -909,9 +987,10 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => match c.create_analytic_curve(interval)? {
                 None => Ok(None),
-                Some(a) => match a {},
+                Some(AnalyticCurve::Line(l)) => Ok(Some(Self::from(l))),
             },
             CurveKind::Hermite(_) => Ok(None),
+            CurveKind::Line(c) => Ok(c.clone().create_analytic_curve(interval)?.map(Self::from)),
         }
     }
 
@@ -1094,8 +1173,7 @@ impl Curve {
             CIRCLE_TYPE => unported("SmCircle::ReadFromDB", "curve.ellipse_p1"),
             // UNPORTED(curve.hyperbola): SmHyperbola::ReadFromDB
             HYPERBOLA_TYPE => unported("SmHyperbola::ReadFromDB", "curve.hyperbola"),
-            // UNPORTED(curve.line): SmLine::ReadFromDB
-            LINE_TYPE => unported("SmLine::ReadFromDB", "curve.line"),
+            LINE_TYPE => Line::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.parabola): SmParabola::ReadFromDB
             PARABOLA_TYPE => unported("SmParabola::ReadFromDB", "curve.parabola"),
             // UNPORTED(curve.composite_curve_p2): SmCompositeCurve::ReadFromDB
