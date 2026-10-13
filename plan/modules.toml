@@ -1440,10 +1440,10 @@ depends_on = ["curve.curve_cache", "curve.curve_p2", "curve.curve_p3", "curve.cu
 est_lines = 1783
 layer = 23
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "green"
 claimed_by = ""
 claimed_at = ""
-notes = "8 fns; largest: SmCCGlobalSolver::LocalSolve, SmCurve::GlobalCurveSolve, sm_SolveMinSignedAngle, SmCurve::CalculateTightBoundingBox; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "GREEN: difftest 3055 cases (55 fixture + 3000 generated), 0 deferred, max_rel_err 0 (bit-identical); 30,055-case run clean. Wired SmCCGlobalSolver::LocalSolve stub in curve.curve_p2 (CcGlobalSolver now carries its curves and kernel). 8 fns; largest: SmCCGlobalSolver::LocalSolve, SmCurve::GlobalCurveSolve, sm_SolveMinSignedAngle, SmCurve::CalculateTightBoundingBox; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.plane_p1"

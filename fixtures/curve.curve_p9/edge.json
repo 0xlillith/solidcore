@@ -1,0 +1,2054 @@
+{
+ "cases": [
+  {
+   "name": "rect_adjacent_min",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 3,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [],
+    "requested": 1
+   }
+  },
+  {
+   "name": "rect_opposite_max_single",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 4,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [],
+    "requested": 0
+   }
+  },
+  {
+   "name": "rect_opposite_normalize",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 5,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [],
+    "requested": 1
+   }
+  },
+  {
+   "name": "rect_opposite_min_target_far",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 3,
+    "tol": 1e-05,
+    "target": 0.5,
+    "vecs": [],
+    "requested": 1
+   }
+  },
+  {
+   "name": "rect_opposite_projected_intersect_lines",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 16,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      1,
+      0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "rect_perspective_intersect_lines",
+   "upstream_ref": "SM_API_test:TestSmCreateRectangle",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        3,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 18,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      -5
+     ],
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      2,
+      1,
+      30
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_self_min_sub_intervals",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     0.25
+    ],
+    "c2": null,
+    "ivl2": [
+     0.5,
+     0.75
+    ],
+    "sop": 3,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_pivot_min",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "circle": {
+      "center": [
+       3,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 0.5,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 23,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      1.5,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_projected_tangency",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "circle": {
+      "center": [
+       3,
+       0,
+       1
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 0.5,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 22,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_rotated_projected_intersect",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        -2,
+        0.5,
+        1,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        0.5,
+        1,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 17,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      1,
+      0,
+      0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_projected_min_max",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "circle": {
+      "center": [
+       3,
+       0,
+       2
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 0.5,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 14,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "circle_projected_max",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "gcs",
+    "c1": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl1": [
+     0.0,
+     1.0
+    ],
+    "c2": {
+     "circle": {
+      "center": [
+       3,
+       0,
+       2
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 0.5,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl2": [
+     0.0,
+     1.0
+    ],
+    "sop": 15,
+    "tol": 1e-05,
+    "target": null,
+    "vecs": [
+     [
+      0,
+      0,
+      1
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "requested": 1
+   }
+  },
+  {
+   "name": "tight_box_rect_side",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_box",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "tight_pseudo_box_rect_side",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_pseudo_box",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "basis": [
+     [
+      0.6,
+      0.8,
+      0
+     ],
+     [
+      -0.8,
+      0.6,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "on_plane_z_rect_side",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "p": [
+     0,
+     0,
+     0
+    ],
+    "n": [
+     0,
+     0,
+     1
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "positive_side_rect_side",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "positive_side",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "planes": [
+     [
+      [
+       0,
+       0,
+       -10
+      ],
+      [
+       0,
+       0,
+       1
+      ]
+     ],
+     [
+      [
+       -10,
+       0,
+       0
+      ],
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "name": "tight_box_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_box",
+    "c": {
+     "circle": {
+      "center": [
+       1,
+       2,
+       3
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "tight_pseudo_box_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_pseudo_box",
+    "c": {
+     "circle": {
+      "center": [
+       1,
+       2,
+       3
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "basis": [
+     [
+      0.6,
+      0.8,
+      0
+     ],
+     [
+      -0.8,
+      0.6,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "on_plane_z_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "circle": {
+      "center": [
+       1,
+       2,
+       3
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "p": [
+     0,
+     0,
+     0
+    ],
+    "n": [
+     0,
+     0,
+     1
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "positive_side_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "positive_side",
+    "c": {
+     "circle": {
+      "center": [
+       1,
+       2,
+       3
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "planes": [
+     [
+      [
+       0,
+       0,
+       -10
+      ],
+      [
+       0,
+       0,
+       1
+      ]
+     ],
+     [
+      [
+       -10,
+       0,
+       0
+      ],
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "name": "tight_box_tilted_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_box",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0,
+       0.6,
+       0.8
+      ],
+      "radius": 2.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "tight_pseudo_box_tilted_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_pseudo_box",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0,
+       0.6,
+       0.8
+      ],
+      "radius": 2.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "basis": [
+     [
+      0.6,
+      0.8,
+      0
+     ],
+     [
+      -0.8,
+      0.6,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "on_plane_z_tilted_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0,
+       0.6,
+       0.8
+      ],
+      "radius": 2.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "p": [
+     0,
+     0,
+     0
+    ],
+    "n": [
+     0,
+     0,
+     1
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "positive_side_tilted_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "positive_side",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0,
+       0.6,
+       0.8
+      ],
+      "radius": 2.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "planes": [
+     [
+      [
+       0,
+       0,
+       -10
+      ],
+      [
+       0,
+       0,
+       1
+      ]
+     ],
+     [
+      [
+       -10,
+       0,
+       0
+      ],
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "name": "tight_box_nurb",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_box",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        135.31300000000002,
+        209.53635520519697,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        204.45636353268367,
+        297.0223818265181,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        291.16238902103225,
+        69.74464031538852,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        123.00247623465691,
+        173.25534580070646,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "tight_pseudo_box_nurb",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_pseudo_box",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        135.31300000000002,
+        209.53635520519697,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        204.45636353268367,
+        297.0223818265181,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        291.16238902103225,
+        69.74464031538852,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        123.00247623465691,
+        173.25534580070646,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "basis": [
+     [
+      0.6,
+      0.8,
+      0
+     ],
+     [
+      -0.8,
+      0.6,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "on_plane_z_nurb",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        135.31300000000002,
+        209.53635520519697,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        204.45636353268367,
+        297.0223818265181,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        291.16238902103225,
+        69.74464031538852,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        123.00247623465691,
+        173.25534580070646,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "p": [
+     0,
+     0,
+     0
+    ],
+    "n": [
+     0,
+     0,
+     1
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "positive_side_nurb",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "positive_side",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        135.31300000000002,
+        209.53635520519697,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        204.45636353268367,
+        297.0223818265181,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        291.16238902103225,
+        69.74464031538852,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        123.00247623465691,
+        173.25534580070646,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "planes": [
+     [
+      [
+       0,
+       0,
+       -10
+      ],
+      [
+       0,
+       0,
+       1
+      ]
+     ],
+     [
+      [
+       -10,
+       0,
+       0
+      ],
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "name": "tight_pseudo_box_dependent_basis",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_pseudo_box",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "basis": [
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "on_plane_zero_normal_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "p": [
+     0,
+     0,
+     0
+    ],
+    "n": [
+     0,
+     0,
+     0
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "on_plane_hermite_z",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "hermite": {
+      "dim": 3,
+      "p1": [
+       0,
+       0,
+       1
+      ],
+      "d1": [
+       3,
+       3,
+       0
+      ],
+      "p2": [
+       4,
+       0,
+       1
+      ],
+      "d2": [
+       3,
+       -3,
+       0
+      ]
+     }
+    },
+    "p": [
+     1,
+     0,
+     1
+    ],
+    "n": [
+     0,
+     0,
+     1
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "on_plane_hermite_zero_normal",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "hermite": {
+      "dim": 3,
+      "p1": [
+       0,
+       0,
+       1
+      ],
+      "d1": [
+       3,
+       3,
+       0
+      ],
+      "p2": [
+       4,
+       0,
+       1
+      ],
+      "d2": [
+       3,
+       -3,
+       0
+      ]
+     }
+    },
+    "p": [
+     1,
+     0,
+     1
+    ],
+    "n": [
+     0,
+     0,
+     0
+    ],
+    "tol": 1e-06
+   }
+  },
+  {
+   "name": "on_plane_hermite_tilted",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "on_plane",
+    "c": {
+     "hermite": {
+      "dim": 3,
+      "p1": [
+       0,
+       0,
+       1
+      ],
+      "d1": [
+       3,
+       3,
+       0
+      ],
+      "p2": [
+       4,
+       0,
+       1
+      ],
+      "d2": [
+       3,
+       -3,
+       0
+      ]
+     }
+    },
+    "p": [
+     1,
+     0,
+     1
+    ],
+    "n": [
+     0,
+     0.6,
+     0.8
+    ],
+    "tol": 0.5
+   }
+  },
+  {
+   "name": "tight_box_hermite",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "tight_box",
+    "c": {
+     "hermite": {
+      "dim": 3,
+      "p1": [
+       0,
+       0,
+       1
+      ],
+      "d1": [
+       3,
+       3,
+       0
+      ],
+      "p2": [
+       4,
+       0,
+       1
+      ],
+      "d2": [
+       3,
+       -3,
+       0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "self_intersect_circle",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "self_intersect",
+    "c": {
+     "circle": {
+      "center": [
+       0,
+       0,
+       0
+      ],
+      "x": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "y": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 1.0,
+      "a0": 0.0,
+      "a1": 360.0
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "tol": 1e-05
+   }
+  },
+  {
+   "name": "self_intersect_rect_side",
+   "upstream_ref": "tests/prog_test/src/smCurveTest.cpp",
+   "inputs": {
+    "op": "self_intersect",
+    "c": {
+     "bspline": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0.0,
+       0.0,
+       1.0,
+       1.0
+      ]
+     }
+    },
+    "ivl": [
+     0.0,
+     1.0
+    ],
+    "tol": 1e-05
+   }
+  }
+ ]
+}
