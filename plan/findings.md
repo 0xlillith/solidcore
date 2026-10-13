@@ -1599,6 +1599,35 @@ knowing:
 - `JoinWith` hands `this` and the other curve to `CreateByJoining`, which may degree-elevate
   the other curve in place.
 
+## nurbs.b_spline_surface_n_lib_p1 (SmBSplineSurfaceNLib part 1)
+
+No Rust-vs-C++ disagreement: 638 of 638 non-deferred difftest cases bit-identical (65 fixtures:
+`my_test_bsplinesurface_nlib` offset / sweep / swung, `my_test_surface_interface` operations on
+the surf1 net, Coons patches from the surf1 boundaries, the three `pt_TestFiles` `.sms` surfaces
+and the 3D `.smc` curves through every op, edge cases; plus 600 generated). 27 cases are
+deferred: every `CreateExtendedSurface` (`SmSurface::IsSingularity`, `surface.surface_p5`, then
+`IsClosed`, `surface.surface_p7`). The file statics `sm_CreateNonRationalCurve`, `sm_MakeKnots`,
+`sm_CheckTrimBoundaries` and `sm_check_zero_surface_derivs` are diffed through verbatim copies
+in the shim (the file defines class members, so it cannot be compiled inside a namespace). No
+`UNPORTED(nurbs.b_spline_surface_n_lib_p1)` stubs existed. Upstream behaviour worth knowing:
+
+- `sm_CreateNonRationalCurve` of a rational curve with a base surface crashes in the C++ shim
+  (segfault) even for a line lying on a bilinear plane (`DropCurveCurve.smc` with unit weights on
+  `DropCurveSurface.sms`); presumably `SmSurface::DropCurve` on a surface without face/brep.
+  Root cause not verified; the drop path (Rust: `UNPORTED(intersect.surface_drop_lib_p3)`) is not
+  diffed.
+- `CreateCoonsPatch`, `CreateNSidedPatch` and `JoinSurface` hand the NURBs of their inputs to NLib,
+  which changes them in place (compatibility, rescaled cross-boundary derivatives); arrays NLib
+  reallocates come from the method's local stack, so the caller's objects dangle after the call.
+  The port stores the changed NURBs back; the shim never reads the inputs afterwards.
+- `Reverse` reverses in v only for `SM_SP_V` (every other value reverses in u), while
+  `CreateRuledSurface` / `ExpandBoundarySpan` treat only `SM_SP_U` as u.
+- `CreateExtendedSurface` halves the distance after each failed extension until it is below
+  `dDist / 100`, which never happens for `dDist == 0` (or NaN): upstream loops forever; the port
+  stops after 1100 halvings (`NotConverged`).
+- `N_SrfPowerBasisEvalDerivs` (power-basis `EvaluateSimple`) stores `min(hv, q)` rows of v-power
+  derivatives after the `p + 1` u powers in one `NL_MAXDEG + 1` array and overruns it when
+  `p + 1 + min(hv, q)(q + 1) + q > 17`; the FFI rejects such input.
 ## curve.curve_p2 (SmCurve part 2: the curve base class)
 
 No Rust-vs-C++ disagreement: 3012 of 3012 non-deferred difftest cases bit-identical (18
@@ -1688,6 +1717,16 @@ Green, no disagreement. Upstream behaviour worth knowing:
 - `SmConic::ReadFromDB`: an ASCII type code whose extraction is skipped leaves
   `lConicType` uninitialised (port: `InvalidInput`); type codes outside `0..=3` behave as
   `SM_CT_UNKNOWN`.
+
+## Nested reads (all polymorphic readers)
+
+Upstream `SmCurve::ReadFromDB` dispatches to `SmProjectedCurve::ReadFromDB` (and offset,
+iso, ... curves), which reads its base curve through `SmCurve::ReadFromDB` again, with no
+depth limit: a crafted file of a few bytes per level overflows the stack. The Rust
+dispatcher bounds nesting with `DatabaseReader::enter_nested` (limit
+`MAX_READ_NESTING` = 64); deeper input is `InvalidInput`. Deviation from upstream only
+for inputs that would crash it. Found by the commit security review of
+`curve.projected_curve`.
 ## curve.projected_curve (`SmProjectedCurve`)
 
 Difftest: 2727 cases (227 fixtures re-expressing the two upstream constructions in

@@ -1185,8 +1185,11 @@ impl Curve {
         let unported = |upstream: &'static str, unit: &'static str| -> Result<Self> {
             Err(SolidError::Unported { upstream, unit })
         };
+        // Bound nesting (a projected/offset/... curve reads its base curve through
+        // here): upstream recurses without limit on crafted input.
+        db.enter_nested(OP_READ)?;
         // pass the call along to the appropriate derived type
-        match curve_type {
+        let result = match curve_type {
             BSPLINE_CURVE_TYPE => BSplineCurve::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.ellipse_p1): SmEllipse::ReadFromDB
             ELLIPSE_TYPE => unported("SmEllipse::ReadFromDB", "curve.ellipse_p1"),
@@ -1216,7 +1219,9 @@ impl Curve {
             OFFSET_CURVE_TYPE => unported("SmOffsetCurve::ReadFromDB", "curve.offset_curve"),
             PROJECTED_CURVE_TYPE => ProjectedCurve::read_from_db(db, version).map(Self::from),
             _ => Err(SolidError::sm_err(OP_READ)),
-        }
+        };
+        db.leave_nested();
+        result
     }
 }
 
