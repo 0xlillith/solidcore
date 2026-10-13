@@ -277,8 +277,13 @@ impl UnitDiff for Runner {
             i.diagonals,
             i.line,
         )
-        .map(output)
         .map_err(harness)
+        .and_then(|v| {
+            if i.op == 2 && v.first().copied() != Some(0.0) {
+                return Err(harness("CSI reference fixture must solve successfully"));
+            }
+            Ok(output(v))
+        })
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         run_rust(&case.parse()?)
