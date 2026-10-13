@@ -1695,6 +1695,33 @@ Upstream behaviour worth knowing:
   `Copy`, so splitting one fails with `SM_ERR`; it also inherits the base `GetDegree` (3),
   `GetNumberControlPoints` (0), `GetNumberNaturalKnots` (2) and `IsRational` (`FALSE`).
 
+## curve.curve_cache
+
+Partial (deferred: `GetAnalyticCurve` of lines and arcs needs `SmLine` / `SmCircle` /
+`SmCurve::IsArc`), no disagreement. Notes for later units:
+
+- **Co-ports.** Every tessellation reaches `SmFindCurveDistanceExtremaEFO::Evaluate`
+  (unit `curve.curve_p4`) and, through `SmBSplineCurve::CalculateBoundingBox` /
+  `IsLine`, `SmCurve::IsLine` (unit `curve.curve_p5`). Both are ported here:
+  `impl EvalFunction for FindCurveDistanceExtrema` in `curve::curve_cache`, and
+  `curve::curve::p5::is_line_base` (B-spline only; the `Curve` dispatch is left to
+  `curve.curve_p5`). The `UNPORTED(curve.curve_p5): SmCurve::IsLine` stub of
+  `nurbs::b_spline_curve::p2` now calls it; `nurbs.b_spline_curve_p2` (56 cases) and
+  `_p3` (188 cases, some now reaching `curve.curve_p7`) un-deferred and pass. Porters of
+  `curve.curve_p4` / `_p5`: do not port these twice.
+- **Tree data.** `geom::tree::NodeData` gained `Curve(CurveSpanRef)`; a curve tree owns
+  its cache's span/parent arrays (`Tree::set_curve_data`) and the end points `GetEnds`
+  evaluates (stored at build time, since the tree cannot reach the curve). The curve
+  solvers of `curve::curve::p2` read them through `Tree::curve_aux` / `curve_span`.
+- **Upstream quirks kept.** `sm_ComputeConstants` stops at the first non-zero polygon
+  angle when the angle tolerance is `0` (`dTotalAngle > 0`), so with only a chord
+  tolerance the chord height is often not computed; after a successful local solve it
+  measures the distance at the *step* parameter, not the solution. `BuildTree`'s parent
+  test omits the off-axis and approximation tests the leaf tests use. Tessellation with
+  a tiny chord tolerance and `dMinimumParametricRatio = 0` subdivides down to
+  `SM_EFF_ZERO_SQRT` intervals (up to ~10^6 spans); the ffi wrapper requires a ratio of
+  at least `1e-4`.
+
 ## curve.tangent_field
 
 - **Base class not ported.** `SmTangentField` derives from `SmCrvOnSurf`
@@ -1764,3 +1791,31 @@ for inputs that would crash it. Found by the commit security review of
 - `MakeNurb` of a generator curve of `SmSurfOfExtrusion` / `SmSurfOfRevolution` (owner
   type) returns `Unported` (`surface.surf_of_extrusion_p1`, `surface.surf_of_revolution_p1`);
   the hyperbola methods that make the NURB take the owner as an argument.
+## curve.projected_curve (`SmProjectedCurve`)
+
+Difftest: 2727 cases (227 fixtures re-expressing the two upstream constructions in
+`SmTransSweepGeometry.cpp:794` / `SmRotationalSweepGeometry.cpp:586`, perspective views,
+`MakeOrthoNormal` edge cases and `WriteToDB`-format streams, plus 2500 generated), all
+bit-identical. The shim reads the private members through the explicit-instantiation access
+rule (no upstream change). Upstream behaviour kept as is:
+
+- **`MakeOrthoNormal` is inverted.** It unitizes `m_sProjVec` only when it `IsZero()`
+  (giving `(0, 0, 1)`) and returns `SM_ERR` for every non-zero vector, which is left
+  un-normalised; for `SM_PT_ROTATION` the same holds for `m_sAuxData`, and the
+  `NormalInPlane` result is discarded. Callers (the sweep geometry above) pass vectors that
+  are already unit, so the projections still work; a non-unit view normal gives a skewed
+  "projection" (both sides agree). The constructor ignores the status; `SetCanonical`
+  returns it.
+- **`Transform` needs `m_bOwnsCurve == UNSURE`.** It tests `m_bOwnsCurve < 2`, so a curve
+  that owns its base (`TRUE`, e.g. every curve from `ReadFromDB`) or borrows it (`FALSE`)
+  fails with `SM_ERR` (after a pre-edit notify); only the member-initialiser value
+  `UNSURE` passes. `EditParameterization`, `ReverseParameterization` and `Trim` refuse only
+  `FALSE`.
+- **`Copy` of a curve owning a Hermite base** (`SmCurve::Copy` = `SM_ERR`, ignored by the
+  copy constructor) returns `SM_SUCCESS` and a projected curve with a null base curve that
+  crashes on use. The port returns the `SM_ERR`; the shim maps upstream's null-base result
+  to `SM_ERR`.
+- `EvaluatePoint` computes the parallel projection before the switch and again inside it;
+  `Evaluate` projects perspective derivatives about the already projected position.
+- `ReadFromDB` casts the stored ULONG to `SmProjectionType` (undefined beyond `0..=3`; the
+  port maps it to `Unknown`) and does not call `MakeOrthoNormal`.
