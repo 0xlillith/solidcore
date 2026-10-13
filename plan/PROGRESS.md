@@ -2,18 +2,18 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**111 / 261 units ported** (83 green, 28 partial), **141,627 / 387,903 upstream lines (36.5%)**. 1 claimed, 0 blocked, 149 todo.
+**111 / 261 units ported** (83 green, 28 partial), **141,627 / 387,903 upstream lines (36.5%)**. 2 claimed, 0 blocked, 148 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready to claim · ⏳ waiting on dependencies · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `curve.curve_p9` (1783 lines) — ready
 - [ ] ▶️ `surface.plane_p1` (1934 lines) — ready
 - [ ] ▶️ `surface.surf_of_revolution_p1` (1522 lines) — ready
 
 ## In progress
 
+- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 
 ## By module
@@ -127,7 +127,7 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [x] ✅ `curve.composite_curve_p1` (1700 lines) — green, 3093 cases
 - [x] ✅ `curve.composite_curve_p2` (1345 lines) — green, 661 cases
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
-- [ ] ▶️ `curve.curve_p9` (1783 lines) — ready
+- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (draft)
 
 ### surface (7/40)
 
