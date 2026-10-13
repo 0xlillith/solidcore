@@ -105,8 +105,7 @@
 //!   `SmBezierPatch` of a tree node, which the tree reaches once the tree construction
 //!   (`surface.surface_cache_p3`) hands the cache's patch data over;
 //!   `ReadFromDB` of the analytic and generated surfaces needs their units. Those
-//!   calls return [`SolidError::Unported`]. The `IntersectWithPlane` default takes
-//!   the plane as an opaque argument until `SmPlane` is ported.
+//!   calls return [`SolidError::Unported`].
 //! - **`SmDerivSurfDefinition`.** The reference curves are borrowed
 //!   ([`Option<&Curve>`]). `AssertValid` runs every test (all are `SM_LEVEL_0` and the
 //!   release build ignores the test level and the test requests), so it takes only
