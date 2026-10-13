@@ -618,27 +618,26 @@ fn rust_op(i: &Inputs) -> Result<Run, HarnessError> {
                     }
                 }
             }
-            match err {
-                Some(e) => Err(e),
-                None => {
-                    push_dom(&mut o, &ext);
-                    let t = c.base().tree().ok_or_else(|| harness("no tree"))?;
-                    for id in 0..tree.len() {
-                        let n = t.node(NodeId(id)).map_err(|e| harness(e.to_string()))?;
-                        let NodeData::Surface(a) = n.data else {
-                            return Err(harness("node lost its surface data"));
-                        };
-                        o.push(flag(a.is_marked));
-                        o.push(class_code(a.node_class));
-                        let aux = c
-                            .base()
-                            .aux(NodeId(id))
-                            .map_err(|e| harness(e.to_string()))?;
-                        o.push(aux.edgeuse_list.len() as f64);
-                        o.extend(aux.edgeuse_list.iter().map(|&e| e as f64));
-                    }
-                    Ok(o)
+            if let Some(e) = err {
+                Err(e)
+            } else {
+                push_dom(&mut o, &ext);
+                let t = c.base().tree().ok_or_else(|| harness("no tree"))?;
+                for id in 0..tree.len() {
+                    let n = t.node(NodeId(id)).map_err(|e| harness(e.to_string()))?;
+                    let NodeData::Surface(a) = n.data else {
+                        return Err(harness("node lost its surface data"));
+                    };
+                    o.push(flag(a.is_marked));
+                    o.push(class_code(a.node_class));
+                    let aux = c
+                        .base()
+                        .aux(NodeId(id))
+                        .map_err(|e| harness(e.to_string()))?;
+                    o.push(aux.edgeuse_list.len() as f64);
+                    o.extend(aux.edgeuse_list.iter().map(|&e| e as f64));
                 }
+                Ok(o)
             }
         }
         OpIn::Face { build, points } => {
@@ -980,7 +979,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             ],
             kinds: {
                 let pool = [15120, 15100, 15150, 15000, 11001, 16002, 15011, 0];
-                (0..1 + rng.below(5))
+                (0..=rng.below(5))
                     .map(|_| *rng.choose(&pool).unwrap_or(&15120))
                     .collect()
             },
@@ -1022,7 +1021,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             let dom = gen_cache_dom(rng, d, touch);
             let tree = gen_tree(rng, dom);
             let nn = tree.len() as u64;
-            let calls = (0..1 + rng.below(4))
+            let calls = (0..=rng.below(4))
                 .map(|_| {
                     let node = if rng.chance(0.06) {
                         -1
