@@ -182,14 +182,6 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
     SolidError::InvalidInput { operation, reason }
 }
 
-/// An NLib failure as upstream's `SER(SM_ERR)`; `Unported` passes through.
-fn nl_err(operation: &'static str) -> impl Fn(SolidError) -> SolidError {
-    move |e| match e {
-        SolidError::Unported { .. } => e,
-        _ => SolidError::sm_err(operation),
-    }
-}
-
 // ---- back-edges -------------------------------------------------------------------
 
 /// `SmCurve::IsLine` of `curve`: the line point and vector when the curve is a
@@ -403,13 +395,13 @@ impl BSplineCurve {
                 (0, n + 1)
             } else {
                 // use control polygon which contributes to the included spans
-                let knt = cur.knot_vector().map_err(nl_err(OP_BBOX))?;
+                let knt = cur.knot_vector().map_err(SolidError::nl_ser(OP_BBOX))?;
                 let start_span = knt
                     .find_span(p, target.min(), Side::Left)
-                    .map_err(nl_err(OP_BBOX))?;
+                    .map_err(SolidError::nl_ser(OP_BBOX))?;
                 let end_span = knt
                     .find_span(p, target.max(), Side::Right)
-                    .map_err(nl_err(OP_BBOX))?;
+                    .map_err(SolidError::nl_ser(OP_BBOX))?;
                 let start = start_span
                     .checked_sub(p)
                     .ok_or_else(|| invalid(OP_BBOX, "span below the degree"))?;
@@ -1415,13 +1407,13 @@ impl BSplineCurve {
             (0, n + 1)
         } else {
             // use control polygon which contributes to the included spans
-            let knt = cur.knot_vector().map_err(nl_err(OP_POLYGON))?;
+            let knt = cur.knot_vector().map_err(SolidError::nl_ser(OP_POLYGON))?;
             let start_span = knt
                 .find_span(p, interval.min(), Side::Left)
-                .map_err(nl_err(OP_POLYGON))?;
+                .map_err(SolidError::nl_ser(OP_POLYGON))?;
             let end_span = knt
                 .find_span(p, interval.max(), Side::Right)
-                .map_err(nl_err(OP_POLYGON))?;
+                .map_err(SolidError::nl_ser(OP_POLYGON))?;
             let start = start_span
                 .checked_sub(p)
                 .ok_or_else(|| invalid(OP_POLYGON, "span below the degree"))?;
@@ -1487,7 +1479,7 @@ impl BSplineCurve {
         let cur = self
             .nurb_p2()?
             .elevate_degree(increment)
-            .map_err(nl_err(OP_ELEVATE))?;
+            .map_err(SolidError::nl_ser(OP_ELEVATE))?;
 
         // Swap Nurbs with this
         self.nurb = Self::from_gw_nurb(self.dim, &cur).nurb;
@@ -1506,7 +1498,9 @@ impl BSplineCurve {
         let t_new_max = 1.0 - (old_interval.min() - ivl.min()) / (ivl.max() - ivl.min());
         let t_new_min = 1.0 - (old_interval.max() - ivl.min()) / (ivl.max() - ivl.min());
 
-        self.nurb_p2_mut()?.reverse().map_err(nl_err(OP_REVERSE))?;
+        self.nurb_p2_mut()?
+            .reverse()
+            .map_err(SolidError::nl_ser(OP_REVERSE))?;
 
         let new_ivl = self.natural_interval();
         let (a, b) = (new_ivl.evaluate(t_new_min), new_ivl.evaluate(t_new_max));
