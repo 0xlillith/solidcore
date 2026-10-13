@@ -2674,3 +2674,39 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## surface.volume_p2 (`SmVolume`, part 2)
+
+Difftest: 2055 cases (55 fixtures: `TestSmTransform`-derived boxes, points and inverses
+plus edge cases; 2000 generated), 1963 pass, 92 deferred (`surface.b_spline_volume_n_lib`
+90: a B-spline map's `IsCurveInParamDomainSimple` / `HasDiscontinuitiesSimple`;
+`surface.unbend_volume` 2), max_rel_err 0. A 20,000-case run was also clean. The shim
+builds plain, transform, twist (component constructor), B-spline and default unbend
+maps, each but the twist optionally oriented.
+
+Notes for later agents:
+- **Partial outputs of ignored statuses.** `SmTwistVolume::Evaluate` writes the twist's
+  own image into the caller's array before its next map's `Map` fails. Where upstream
+  ignores `EvaluatePoint`'s status (box samplers, `IsPointInParamDomain`, gap loops) the
+  point is therefore the twist's first out-space image, not the previous value
+  (`Volume::evaluate_point_written`). The base `Evaluate` writes nothing on failure.
+- **Undefined call paths.** `SmTransform::EvaluateBoundingBoxSimple` with a NULL
+  parameter pseudo box (UB-42) is reachable from `EvaluateBoundingBox`, `MapPseudoBox`,
+  `InvMapPoint`, `InvEvaluatePoint` and `GlobalPointSolve` (UB-74; it crashed the C++
+  run). The port returns `SolidError::Unsupported` at the dispatch (also for a twist's
+  unbounded box without a box output). The FFI guard models the call paths over the
+  chain's kinds and orient flags; whether the box/line domain checks that precede them
+  pass is structural (a plain `SmVolume` later in the chain fails them), except for a
+  B-spline map, where the guard rejects as if the check passed.
+- **`ReadFromDB`** (UB-73): a next map of `SmVolume_TYPE`, an orient map that is not a
+  transform or fails to read, and a map type missing after a "has map" flag are
+  undefined upstream and `SolidError::Unsupported` here. The FFI only accepts ASCII text
+  in a strict token grammar (one well-formed token per value, no bend/unbend data) so it
+  can predict those cases. `SmTransform::ReadFromDB` and `SmTwistVolume::ReadFromDB` now
+  return the whole volume (`Transform::read_from_db(db, version) -> Volume`).
+- **Wiring.** `UNPORTED(surface.volume_p2)` stubs replaced in `geom::transform`
+  (`EvaluatePoint` in the unaligned box branch now a function argument; `ReadFromDB`),
+  `surface::twist_volume` (`ReadFromDB`), `curve::crv_in_volume` (`EvaluatePoint`,
+  `ReadFromDB`) and `geom::tol` (`GetScaledZero(SmVolume)`). `geom.transform` and
+  `surface.twist_volume` have no deferred cases left; `curve.crv_in_volume` keeps only
+  `intersect.curve_class_p4`.

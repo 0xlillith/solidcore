@@ -663,20 +663,29 @@ pub fn scaled_zero_of_equations<E: EvalNFunctions + ?Sized>(equations: &E) -> f6
 }
 
 /// `SmTol::GetScaledZero(const SmVolume&)`: `100 * SM_EFF_ZERO` for an unbounded
-/// parameter domain; a bounded one needs the out-space bounding box.
+/// parameter domain; for a bounded one the scaled zero of the out-space bounding box
+/// of the domain (`EvaluateBoundingBox`, status ignored: the box stays in its
+/// initial state on failure).
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] from the volume, and for a bounded domain
-/// (`SmVolume::EvaluateBoundingBox`, unit `surface.volume_p2`).
+/// [`SolidError::Unported`] from the volume; the undefined cases of
+/// `EvaluateBoundingBox` ([`SolidError::Unsupported`]).
 pub fn scaled_zero_of_volume(volume: &Volume) -> Result<f64> {
     let param_domain = volume.natural_param_domain()?;
     if param_domain.is_bounded() {
-        // UNPORTED(surface.volume_p2): SmVolume::EvaluateBoundingBox
-        return Err(SolidError::Unported {
-            upstream: "SmVolume::EvaluateBoundingBox",
-            unit: "surface.volume_p2",
-        });
+        let mut out_box = Extent3d::new();
+        let r = volume.evaluate_bounding_box(
+            &param_domain,
+            None,
+            Some(&mut out_box),
+            None,
+            None,
+            None,
+            true,
+        );
+        crate::surface::volume::p2::ignore_read(r)?;
+        return Ok(out_box.scaled_zero());
     }
     Ok(tol3d(100.0 * EFF_ZERO))
 }
