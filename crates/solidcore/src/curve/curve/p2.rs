@@ -1707,7 +1707,7 @@ impl Curve {
                 })
             }
             HERMITE_CURVE_TYPE => HermiteCurve::read_from_db(db).map(Self::from),
-            ISO_CURVE_TYPE => IsoCurve::read_from_db(db, version).map(Self::from),
+            ISO_CURVE_TYPE => IsoCurve::read_from_db(k, db, version).map(Self::from),
             OFFSET_CURVE_TYPE => OffsetCurve::read_from_db(k, db, version).map(Self::from),
             PROJECTED_CURVE_TYPE => ProjectedCurve::read_from_db(k, db, version).map(Self::from),
             _ => Err(SolidError::sm_err(OP_READ)),
