@@ -104,7 +104,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "partial"
 claimed_by = "swarm-geom.tree-a1"
 claimed_at = "2026-10-12T19:33:41Z"
-notes = "difftest: 618 cases (18 fixture + 600 generated), 611 pass bit-identical, 7 deferred (nurbs.b_spline_surface_p1 6, surface.surface_cache_p1 1); 34 fns; largest: SmTree::AddToSpatialTree, SmTree::RmFromSpatialTree, SmTreeNode::PropagateToParents, SmTreeNode::GetBotSide; cycle back-edges (call into later units; stub or co-port): geom.vector3d(5), geom.object(2), surface.surface_cache_p1(2), curve.curve_cache(1), nurbs.b_spline_surface_p1(1), surface.surface_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "difftest: 618 cases (18 fixture + 600 generated), 611 pass bit-identical, 7 deferred (surface.surface_cache_p3 7: GetFirstBezierPatch reading patch data from a bare tree; GetOwnerObject of surface trees wired by surface.surface_cache_p1); 34 fns; largest: SmTree::AddToSpatialTree, SmTree::RmFromSpatialTree, SmTreeNode::PropagateToParents, SmTreeNode::GetBotSide; cycle back-edges (call into later units; stub or co-port): geom.vector3d(5), geom.object(2), surface.surface_cache_p1(2), curve.curve_cache(1), nurbs.b_spline_surface_p1(1), surface.surface_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "nlib.geom"
@@ -390,7 +390,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "partial"
 claimed_by = "swarm-geom.grid-a1"
 claimed_at = "2026-10-12T20:21:29Z"
-notes = "PARTIAL: difftest 615 cases (15 fixture + 600 generated), 613 pass bit-identical, 2 deferred (surface.surface_cache_p1 2: SmSurfaceGridElement::Init, ExpandHierarchy via smsurf_GetSurfaceCache); 30k-seed run clean; no UNPORTED(geom.grid) stubs existed. 23 fns; largest: SmGrid::Setup3DDDA, SmGrid::Step3DDDA, SmSurfaceHierarchyElement::ExpandHierarchy, SmGrid::AddElement; cycle back-edges (call into later units; stub or co-port): geom.extent2d(2), surface.surface_cache_p1(2), surface.surface_p2(2), geom.polar_box(1), geom.pseudo_box(1), surface.surface_cache_p3(1), surface.surface_p7(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 615 cases (15 fixture + 600 generated), 613 pass bit-identical, 2 deferred (surface.surface_cache_p3 1: SmSurfaceGridElement::Init needs the patch data of a bare tree node; surface.surface_p1 1: ExpandHierarchy via smsurf_GetSurfaceCache / CacheMakeOrValidate; retagged by surface.surface_cache_p1); 30k-seed run clean; no UNPORTED(geom.grid) stubs existed. 23 fns; largest: SmGrid::Setup3DDDA, SmGrid::Step3DDDA, SmSurfaceHierarchyElement::ExpandHierarchy, SmGrid::AddElement; cycle back-edges (call into later units; stub or co-port): geom.extent2d(2), surface.surface_cache_p1(2), surface.surface_p2(2), geom.polar_box(1), geom.pseudo_box(1), surface.surface_cache_p3(1), surface.surface_p7(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "geom.polar_box"
@@ -1427,10 +1427,10 @@ depends_on = ["curve.curve_p2", "geom.extent1d", "geom.extent2d", "geom.extent3d
 est_lines = 1944
 layer = 22
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-surface.surface_cache_p1-a1"
 claimed_at = "2026-10-13T06:57:51Z"
-notes = "43 fns; largest: sm_ComputeBezierApproximation, SmSurfaceCache::MarkFaceContainment, SmSurfaceCache::BuildTreeTop, SmPatchBoundaryBoundingPlanes::ComputeBoundingPlanes; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(3), surface.surface_p1(2), surface.surface_cache_p3(1), surface.surface_p7(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 872 cases (72 fixture + 800 generated), 709 pass bit-identical, 163 deferred (surface.surface_p7 107: SmSurface::EvaluateNormal in every polar box and at collinear boundary samples; surface.surface_p5 37: SmSurface::IsSingularity in every Bezier approximation; surface.surface_p1 19: GetFace); 20k-seed run clean, --perturb SENSITIVE; co-ports SmSurfaceCache's constructor field init and GetTree's existing-tree path (surface.surface_cache_p3); wired UNPORTED(surface.surface_cache_p1): SmTree::GetOwnerObject of surface trees (Tree::set_owner_surface), sm_GetOriginalSurface; retagged the bare-tree patch data stubs (GetFirstBezierPatch, SmSurfaceGridElement::Init, sm_CsArePerpenDisjoint) to surface.surface_cache_p3 and smsurf_GetSurfaceCache / ExpandHierarchy to surface.surface_p1 (CacheMakeOrValidate); geom.tree 7 and geom.grid 2 deferred now blocked by those; 43 fns; largest: sm_ComputeBezierApproximation, SmSurfaceCache::MarkFaceContainment, SmSurfaceCache::BuildTreeTop, SmPatchBoundaryBoundingPlanes::ComputeBoundingPlanes; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(3), surface.surface_p1(2), surface.surface_cache_p3(1), surface.surface_p7(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "curve.curve_p9"
