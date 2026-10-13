@@ -2671,3 +2671,41 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## surface.surface_p7 (`SmSurface`, part 7)
+
+- **Co-ported callees.** `SmSurface::Evaluate1stDerivatives`, `Evaluate2ndDerivatives` and
+  `EvaluateDirectionalDerivs` (unit `surface.surface_p1`) are non-virtual one-call wrappers of
+  the virtual `Evaluate` that nearly every function here calls first; stubbing them would
+  have deferred the whole unit. They live in `surface::surface::p7`, generic over
+  `SurfaceEvaluate`, and are recorded as `CO-PORTED` in `surface.surface_p1`'s notes. Their
+  stubs elsewhere (`b_spline_surface::p2`, `b_spline_surface_n_lib::p2`, `trim_srf_cache`,
+  `crv_on_surf`) were wired too.
+- **`SurfaceEvaluate::evaluate_normal`.** Code generic over the surface type
+  (`TangentField<S>`) needs `EvaluateNormal`'s virtual dispatch; the trait method defaults to
+  the `SmSurface` body (what `SmBSplineSurface` runs) and `Surface` dispatches to the plane and
+  curve-bounded overrides. `surface_cache::p1`'s stub assumed no ported kind overrides
+  `EvaluateNormal`; planes and curve-bounded surfaces do, so it now dispatches.
+- **Mislabelled stub.** `b_spline_surface::p1::is_closed` was marked
+  `UNPORTED(surface.surface_p5)` for `SmSurface::IsClosed`, which is this unit's; wired.
+  `b_spline_surface::p1::owner_zone_tolerance` is commented `GetFace` (`surface.surface_p1`)
+  but returns `SmSurface::IsSingularity` / `surface.surface_p5`; left as is (not this unit's),
+  but note that it is why `IsPlanar` of a B-spline defers on `GetFace`.
+- **Upstream quirks kept.** `GetFlatCorners` masks its return with `&=` while filling the
+  points; `SmSSGlobalSolver::BranchMayContainAnswers` returns `SM_SUCCESS` (`FALSE`) for a
+  node outside its face and `NER`'s status (`TRUE`) for a missing patch; `sm_GoodDropResult`
+  swaps the guess/result distance names; `FindDegenParamForDirection` compares a sample
+  fraction with the parameter `dS`, and on Newton failure returns `SM_ERR` with `rUV` moved
+  (the port returns `DegenParam { converged: false }`). `IsClosed` ignores the status of
+  `smgu_EvaluateCurveContinuity` and reads its uninitialised output on failure; the port
+  propagates the error instead (no generated or fixture case reaches it).
+- **Not difftested.** `SmSPGlobalSolver` / `SmSSGlobalSolver::BranchMayContainAnswers` need
+  surface cache trees with Bezier patch data (`surface.surface_cache_p3`); their non-normalize
+  path is the green base `SmGlobalSolver::BranchMayContainAnswers`. The shim's
+  `sm_LoadGuesses` copy takes the owner surface directly (two lines marked `ADAPTED`):
+  reaching it through a tree node needs a real `SmSurfaceCache`.
+- **Generator note.** Ordinary random nets almost never reach `EvaluateNormal`'s fall-backs
+  (zero-corrected first derivatives keep the cross product alive); the runner adds poles,
+  exactly folded nets and pinched corners and samples boundaries, and the fixtures hit each
+  branch (pole: second-derivative substitution; fold: zero result; pinch: step-off
+  extrapolation).

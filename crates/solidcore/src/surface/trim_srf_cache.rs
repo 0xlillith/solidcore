@@ -1019,12 +1019,13 @@ fn surface_singularities(_surface: &Surface) -> Result<u64> {
 ///
 /// When wiring, keep upstream's flag arguments exactly: `(uv, TRUE, TRUE, ..)`
 /// (`SmTrimSrfCache.cpp:856`).
-fn evaluate_1st_derivatives(_surface: &Surface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)
-    Err(SolidError::unported(
-        "SmSurface::Evaluate1stDerivatives",
-        "surface.surface_p1",
-    ))
+fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    crate::surface::surface::p7::evaluate_1st_derivatives(
+        surface,
+        uv,
+        crate::nurbs::knots::Side::Left,
+        crate::nurbs::knots::Side::Left,
+    )
 }
 
 /// `SmTol::MapTo2d(tol, uv, dir, surface)`.

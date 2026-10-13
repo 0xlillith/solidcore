@@ -81,9 +81,10 @@
 //!   are used; the curve-bounded surface runs the base class bodies
 //!   (`SmSurface::CreateIsoParametricCurve`, `surface.surface_p5`;
 //!   `SmSurface::CalculateBoundingBox`, `surface.surface_p1`), and
-//!   `SmSurface::IsSingularity` (`surface.surface_p5`), `SmSurface::EvaluateNormal`
-//!   (`surface.surface_p7`) and `SmSurface::GetFace` (`surface.surface_p1`) are not
-//!   overridden by any kind: those return [`SolidError::Unported`]. An `SmPlane` is an
+//!   `SmSurface::IsSingularity` (`surface.surface_p5`) and `SmSurface::GetFace`
+//!   (`surface.surface_p1`) are not overridden by any kind: those return
+//!   [`SolidError::Unported`]. `EvaluateNormal` is [`Surface::evaluate_normal`]
+//!   (`surface::surface::p7`, with the plane and curve-bounded overrides). An `SmPlane` is an
 //!   `SmBSplineSurface` upstream: the cast gives its B-spline part, and its
 //!   `CreateIsoParametricCurve` (an `SmLine`, which the cache cannot hold as a
 //!   [`BSplineCurve`] without losing the line's overrides) and the inherited
@@ -294,14 +295,11 @@ fn is_singularity(_surface: &Surface, _uv: Point2) -> Result<bool> {
     ))
 }
 
-/// `SmSurface::EvaluateNormal(uv, u_from_left, v_from_left, normal)`: not overridden
-/// by the ported kinds.
-fn evaluate_normal(_surface: &Surface, _uv: Point2, _u_left: bool, _v_left: bool) -> Result<Vec3> {
-    // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
-    Err(SolidError::unported(
-        "SmSurface::EvaluateNormal",
-        "surface.surface_p7",
-    ))
+/// `EvaluateNormal(uv, u_from_left, v_from_left, normal)` (virtual).
+fn evaluate_normal(surface: &Surface, uv: Point2, u_left: bool, v_left: bool) -> Result<Vec3> {
+    use crate::nurbs::knots::Side;
+    let side = |left: bool| if left { Side::Left } else { Side::Right };
+    surface.evaluate_normal(uv, side(u_left), side(v_left))
 }
 
 /// `smos_Max`.
