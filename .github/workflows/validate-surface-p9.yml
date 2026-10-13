@@ -24,12 +24,21 @@ jobs:
         with:
           workspaces: ". -> bin"
           key: trim-validation
+          cache-on-failure: true
+          cache-workspace-crates: true
       - uses: actions/cache@v4
+        id: cpp-cache
         with:
           path: bin/cpp
           key: trim-cpp-${{ runner.os }}-c9c5979-v1
       - name: Build reference
+        if: steps.cpp-cache.outputs.cache-hit != 'true'
         run: nice -n 10 harness/cpp/build.sh --jobs 6
+      - uses: actions/cache/save@v4
+        if: steps.cpp-cache.outputs.cache-hit != 'true'
+        with:
+          path: bin/cpp
+          key: trim-cpp-${{ runner.os }}-c9c5979-v1
       - name: Rust and C++ comparison
         run: |
           nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9
