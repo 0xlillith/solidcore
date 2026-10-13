@@ -1,4 +1,4 @@
-//! Differential runner for surface.surface_p9. Reference: SmSurface.cpp:11644,
+//! Differential runner for `surface.surface_p9`. Reference: SmSurface.cpp:11644,
 //! 13887, 14877. A quadratic Bezier patch is used on both sides. CSI fixtures use
 //! one planar patch and one line span, so both subdivision trees have one leaf.
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
@@ -83,10 +83,11 @@ fn surface(i: &Inputs) -> Result<Surface, HarnessError> {
     Ok(Surface::from(BSplineSurface::from_nurb(nurb, false)))
 }
 fn output(flat: Vec<f64>) -> Output {
-    let (status, rest) = flat.split_first().unwrap_or((&-1.0, &[]));
+    let mut values = flat.into_iter();
+    let status = values.next().unwrap_or(-1.0);
     Output::new()
-        .scalar("status", *status)
-        .values("out", rest.to_vec())
+        .scalar("status", status)
+        .values("out", values.collect())
 }
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let k = Kernel::default();
@@ -143,102 +144,102 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                 interval,
                 CurveCacheOptions {
                     make_full_tree: true,
+                    chord_height_tolerance: 0.01,
                     ..CurveCacheOptions::default()
                 },
             );
             cc.set_curve_handle(Some(Handle(0)));
-            match cc.tessellate(&k) {
-                Err(e) => Err(e),
-                Ok(()) => {
-                    let mut cache = SurfaceCache::<Handle>::new(
-                        surface,
-                        Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
-                        SurfaceCacheOptions::default(),
-                    );
-                    cache.set_surface_handle(Some(Handle(1)));
-                    let uv = cache.uv_domain();
-                    let mut bbox = Extent3d::new();
-                    for p in i.net {
-                        bbox = bbox.union(&Extent3d::from_points(
-                            Vec3::new(p[0], p[1], p[2]),
-                            Vec3::new(p[0], p[1], p[2]),
-                        ));
-                    }
-                    cache.patches_mut().push(BezierPatch {
-                        aux: BezierAux2d {
-                            uv_domain: uv,
-                            owning_tree_node: Some(NodeId(0)),
-                            ..BezierAux2d::default()
-                        },
-                        pseudo_box: PseudoBox::from_extent3d(&bbox),
-                        ..BezierPatch::default()
-                    });
-                    let mut tree = Tree::new(Some(TreeOwner::SurfaceCache));
-                    tree.add_node(TreeNode {
-                        bbox,
-                        aux_type: AuxDataType::BezierSurface,
-                        data: NodeData::Surface(SurfaceAux {
-                            split_dir: SplitDir::Unknown,
-                            is_marked: false,
-                            node_class: NodeClass::Unknown,
-                            face: None,
-                            surface: Some(Handle(1)),
-                            slot: Some(0),
-                        }),
-                        ..TreeNode::new()
-                    });
-                    tree.set_top_node(Some(NodeId(0)));
-                    cache.set_tree(Some(tree));
-                    let curve_tree = cc.tree().ok_or_else(|| harness("curve tree"))?;
-                    let tree = cache.tree().ok_or_else(|| harness("surface tree"))?;
-                    let mut base = GlobalSolver::with_trees(curve_tree, tree, 3);
-                    base.operation = SolverOperation::Intersect;
-                    base.tolerance_3d = 1e-6;
-                    let mut solver = CsiGlobalSolver {
-                        base,
-                        curve: &curve,
-                        surface_cache: &cache,
-                        kernel: &k,
-                        found_coincidence: false,
-                        interval,
-                        uv_domain: domain,
-                    };
-                    solver
-                        .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None])
-                        .map(|more| {
-                            let mut out = vec![
-                                0.0,
-                                f64::from(u8::from(more)),
-                                solver.base.solutions.len() as f64,
-                            ];
-                            for solution in solver.base.solutions.as_slice() {
-                                out.extend([
-                                    f64::from(solution.solution_type.code()),
-                                    solution.num_variables as f64,
-                                    solution.num_objects as f64,
-                                    solution.start.solution_value,
-                                    solution.end.solution_value,
-                                ]);
-                                out.extend(solution.start.parameters.iter().take(3));
-                                out.extend(solution.end.parameters.iter().take(3));
-                                out.extend(
-                                    solution
-                                        .nodes
-                                        .iter()
-                                        .take(2)
-                                        .map(|v| v.map_or(-1.0, |n| n.0 as f64)),
-                                );
-                                out.extend(
-                                    solution
-                                        .objects
-                                        .iter()
-                                        .take(2)
-                                        .map(|v| v.map_or(-1.0, |n| f64::from(n.0))),
-                                );
-                            }
-                            out
-                        })
+            if let Err(e) = cc.tessellate(&k) {
+                return Err(harness(format!("CSI fixture cache setup: {e}")));
+            } else {
+                let mut cache = SurfaceCache::<Handle>::new(
+                    surface,
+                    Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+                    SurfaceCacheOptions::default(),
+                );
+                cache.set_surface_handle(Some(Handle(1)));
+                let uv = cache.uv_domain();
+                let mut bbox = Extent3d::new();
+                for p in i.net {
+                    bbox = bbox.union(&Extent3d::from_points(
+                        Vec3::new(p[0], p[1], p[2]),
+                        Vec3::new(p[0], p[1], p[2]),
+                    ));
                 }
+                cache.patches_mut().push(BezierPatch {
+                    aux: BezierAux2d {
+                        uv_domain: uv,
+                        owning_tree_node: Some(NodeId(0)),
+                        ..BezierAux2d::default()
+                    },
+                    pseudo_box: PseudoBox::from_extent3d(&bbox),
+                    ..BezierPatch::default()
+                });
+                let mut tree = Tree::new(Some(TreeOwner::SurfaceCache));
+                tree.add_node(TreeNode {
+                    bbox,
+                    aux_type: AuxDataType::BezierSurface,
+                    data: NodeData::Surface(SurfaceAux {
+                        split_dir: SplitDir::Unknown,
+                        is_marked: false,
+                        node_class: NodeClass::Unknown,
+                        face: None,
+                        surface: Some(Handle(1)),
+                        slot: Some(0),
+                    }),
+                    ..TreeNode::new()
+                });
+                tree.set_top_node(Some(NodeId(0)));
+                cache.set_tree(Some(tree));
+                let curve_tree = cc.tree().ok_or_else(|| harness("curve tree"))?;
+                let tree = cache.tree().ok_or_else(|| harness("surface tree"))?;
+                let mut base = GlobalSolver::with_trees(curve_tree, tree, 3);
+                base.operation = SolverOperation::Intersect;
+                base.tolerance_3d = 1e-6;
+                let mut solver = CsiGlobalSolver {
+                    base,
+                    curve: &curve,
+                    surface_cache: &cache,
+                    kernel: &k,
+                    found_coincidence: false,
+                    interval,
+                    uv_domain: domain,
+                };
+                solver
+                    .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None])
+                    .map(|more| {
+                        let mut out = vec![
+                            0.0,
+                            f64::from(u8::from(more)),
+                            solver.base.solutions.len() as f64,
+                        ];
+                        for solution in solver.base.solutions.as_slice() {
+                            out.extend([
+                                f64::from(solution.solution_type.code()),
+                                solution.num_variables as f64,
+                                solution.num_objects as f64,
+                                solution.start.solution_value,
+                                solution.end.solution_value,
+                            ]);
+                            out.extend(solution.start.parameters.iter().take(3));
+                            out.extend(solution.end.parameters.iter().take(3));
+                            out.extend(
+                                solution
+                                    .nodes
+                                    .iter()
+                                    .take(2)
+                                    .map(|v| v.map_or(-1.0, |n| n.0 as f64)),
+                            );
+                            out.extend(
+                                solution
+                                    .objects
+                                    .iter()
+                                    .take(2)
+                                    .map(|v| v.map_or(-1.0, |n| f64::from(n.0))),
+                            );
+                        }
+                        out
+                    })
             }
         }
         _ => return Err(harness("invalid op")),

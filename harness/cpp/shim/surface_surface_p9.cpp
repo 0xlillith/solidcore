@@ -63,10 +63,11 @@ SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, const double* xyz, cons
         gw_CPOINT cp[2]={{line[0],line[1],line[2],NL_NOW},{line[3],line[4],line[5],NL_NOW}};
         double ck[4]={0,0,1,1};
         SmBSplineCurve* curve=new(context) SmBSplineCurve(3,1,3,1,cp,ck);
+        bool setup_failed=false;
         {
             SmExtent1d interval(0.0,1.0);
-            SmCurveCache cc(*curve,interval,TRUE);
-            SmSurfaceCache sc(*surface,surface->GetNaturalUVDomain());
+            SmCurveCache cc(*curve,interval,TRUE,0.01);
+            SmSurfaceCache sc(*surface,surface->GetNaturalUVDomain(),0.01);
             SmStatus r=cc.Tessellate();
             if(r==SM_SUCCESS) r=sc.BuildTree(NULL);
             if(r==SM_SUCCESS) {
@@ -88,8 +89,9 @@ SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, const double* xyz, cons
                         for(int j=0;j<2;j++) out.push_back(s.m_apObjects[j]==curve?0.0:(s.m_apObjects[j]==surface?1.0:-1.0));
                     }
                 }
-            } else out.push_back(status(r));
+            } else setup_failed=true;
         }
+        if(setup_failed) {delete curve;delete surface;return SC_ERR_ARG;}
         delete curve;
     } else {delete surface;return SC_ERR_ARG;}
     delete surface;
