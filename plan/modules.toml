@@ -1492,9 +1492,9 @@ depends_on = ["curve.curve_cache", "geom.extent1d", "geom.extent2d", "geom.exten
 est_lines = 966
 layer = 23
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-surface.trim_srf_cache-a1"
+claimed_at = "2026-10-13T07:44:25Z"
 notes = "11 fns; largest: SmTrimSrfCache::ImplantEdgeuse, SmTrimSrfCache::BuildTree, SmTrimSrfCache::ImplantVertexuse, SmTrimSrfCache::ImplantPolyEdge; cycle back-edges (call into later units; stub or co-port): intersect.point_class(7), query.poly(5), surface.surface_cache_p3(5), query.face_p2(2), topology.face_p2(2), topology.face_p4(2), topology.loopuse(2), topology.vertexuse(2), query.tess(1), surface.surface_p1(1), surface.surface_p3(1), topology.edgeuse_p1(1), topology.face_p3(1), topology.vertex(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
 
 [[unit]]
