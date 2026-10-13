@@ -44,6 +44,7 @@ impl SolutionObject for Handle {
         (self.0 == 0).then(|| Extent1d::from_min_max(0.0, 1.0))
     }
 }
+/// Differential runner for the three owned surface operations.
 pub struct Runner;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
