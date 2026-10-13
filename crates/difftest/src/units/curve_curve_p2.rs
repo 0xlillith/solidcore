@@ -703,6 +703,7 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
+        CurveKind::Projected(_) => o.push(-1.0),
     }
 }
 
