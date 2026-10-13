@@ -2545,9 +2545,9 @@ records, invalid counts and non-finite coordinates before entering C++.
 
 Ported `SmSurfOfRevolution` part 1 (`crates/solidcore/src/surface/surf_of_revolution/p1.rs`)
 with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (units `_p2`,
-`_p3`). difftest: 682 cases (82 fixtures, 600 seeded), 649 bit-identical, 0 failed,
-33 deferred (`IntersectWithPlane` of a planar generator needs `SmPlane`,
-`surface.plane_p1`); `--perturb` detected 649/649.
+`_p3`). difftest: 807 cases (207 fixtures, 600 seeded), 776 bit-identical, 0 failed,
+31 deferred (`IntersectWithPlane` of a planar generator needs `SmPlane`,
+`surface.plane_p1`); `--perturb` detected 776/776.
 
 - **Generator owner stubs not wired.** `SmLine`, `SmEllipse`, `SmHyperbola` and
   `SmParabola::MakeNurb` reparameterise a generator owned by a surface of revolution to
@@ -2571,3 +2571,17 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   two iso planes intersect; with parallel planes after the first common line, it keeps
   comparing the last line found (stale `smgu_IntersectTwoPlanes` outputs). The port returns
   the unwritten outputs as `None` and keeps the stale-line behaviour.
+- **Review fixes (PR #15).** `CreateSurfOfRevolution` reparametrises the sweep circle with
+  arc length when the generator is an `SmLine` parallel to the axis within 0.001 degrees
+  (a cylinder: sweep knots span the arc length, `0..2*pi` for radius 1, not `0..1`); the
+  port missed it because the generator reached `BSplineSurface::create_surf_of_revolution`
+  as its plain B-spline base. `make_nurb_with_sweep_params` now passes the line vector to
+  `create_surf_of_revolution_with_line_vector`. `CreateCanonical` ignores the status of
+  `Unitize`, so a zero axis (length squared below `SM_EFF_ZERO_SQ`) becomes `(0, 0, 1)`;
+  the port does the same (`unitize_or_z`). `SetOutOfBoundsEnabled` also sets the
+  generator's flag, as upstream's override; the shim now calls it instead of writing the
+  base flag. The FFI accepts any finite `CreateCanonical` axis, and only unit placement
+  axes for the constructor: a Y axis with `|y|^2 - 1 > SM_EFF_ZERO` makes
+  `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
+  `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
+  generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
