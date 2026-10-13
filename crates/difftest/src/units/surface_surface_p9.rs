@@ -34,12 +34,17 @@ use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
 struct Handle(u8);
 impl SolutionObject for Handle {
     fn kind(&self) -> ObjectKind {
-        if self.0 == 0 { ObjectKind::Curve } else { ObjectKind::Surface }
+        if self.0 == 0 {
+            ObjectKind::Curve
+        } else {
+            ObjectKind::Surface
+        }
     }
     fn natural_interval(&self) -> Option<Extent1d> {
         (self.0 == 0).then(|| Extent1d::from_min_max(0.0, 1.0))
     }
 }
+/// Differential runner for the three owned surface operations.
 pub struct Runner;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
@@ -199,7 +204,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                         uv_domain: domain,
                     };
                     solver
-                        .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None, None])
+                        .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None])
                         .map(|more| {
                             let mut out = vec![
                                 0.0,
@@ -327,4 +332,3 @@ impl UnitDiff for Runner {
         .ok()
     }
 }
-
