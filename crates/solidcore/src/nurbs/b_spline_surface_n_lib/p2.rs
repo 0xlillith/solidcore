@@ -39,8 +39,12 @@
 //!   [`EvaluateFlags`] value; the internal `bDoZeroSampling` argument is private.
 //! - **`SmSurface::GetDerivativeLimit`** (a one-line static of `surface.surface_p2`)
 //!   is co-ported as `derivative_limit` (`// CO-PORT(surface.surface_p2)`).
-//! - **Unported callees** return [`SolidError::Unported`]: `SmTangentField`
-//!   (`curve.tangent_field`), `SmSurface::EvaluateNormal` (`surface.surface_p7`),
+//! - **Tangent fields** are [`TangentField`]s of `SmCurve` views of the B-spline
+//!   curves (the same data, not a copy-constructed curve); its constructor still needs
+//!   `SmSurface::GetNaturalUVDomain` (`surface.surface_p2`).
+//! - **Unported callees** return [`SolidError::Unported`]:
+//!   `SmCrvOnSurf::ApproximateCurve` (`curve.crv_on_surf`),
+//!   `SmSurface::EvaluateNormal` (`surface.surface_p7`),
 //!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`),
 //!   `SmSurface::Evaluate1stDerivatives` (`surface.surface_p1`) and
 //!   `SmCurve::LocalCurveIntersect` (`curve.curve_p3`). Upstream ignores the status of
@@ -49,6 +53,8 @@
 //!   `MakeCurvesCompatible`, the curve evaluations of the n-sided blend, `Scale`,
 //!   `GetKnots`, `N_CrvElevateDegree`, `SetMinMax`).
 
+use crate::curve::curve::p2::Curve as SmCurve;
+use crate::curve::tangent_field::{CurveEnd as TangentFieldEnd, TangentDirType, TangentField};
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::{Extent2d, SS_UMAX, SS_UMIN, SS_VMIN};
@@ -185,44 +191,91 @@ impl Default for SkinnedSurfaceOptions<'_> {
 
 // ---- unported callees -------------------------------------------------------------------
 
-/// `SmTangentField::Create(ctx, tol, boundary, uv, surface, start, t0, SAME, end, t1,
-/// SAME)` followed by its `ApproximateCurve(knots, ang_tol, ..)`: the cross-tangent
-/// curve of `boundary` on `surface`.
-#[allow(clippy::too_many_arguments)]
-fn tangent_field_curve(
-    _tol: f64,
-    _boundary: &BSplineCurve,
-    _uv_curve: &BSplineCurve,
-    _surface: &BSplineSurface,
-    _start: &BSplineCurve,
-    _start_param: f64,
-    _end: &BSplineCurve,
-    _end_param: f64,
+/// `curve` as an `SmCurve` (the same object upstream: the NURB and flags as they are,
+/// without the copy constructor's knot fix-up).
+fn as_sm_curve(curve: &BSplineCurve) -> SmCurve {
+    SmCurve::from(BSplineCurve {
+        dim: curve.dim,
+        nurb: curve.nurb.clone(),
+        nurb_is_borrowed: curve.nurb_is_borrowed,
+        out_of_bounds_enabled: curve.out_of_bounds_enabled,
+        knot_type: curve.knot_type,
+        form: curve.form,
+    })
+}
+
+/// `SmTangentField::ApproximateCurve(ctx, knots, ang_tol, max_gap, curve, TRUE, FALSE,
+/// FALSE)` (inherited from `SmCrvOnSurf`).
+fn approximate_tangent_field(
+    _field: &TangentField<'_, BSplineSurface>,
     _knots: &[f64],
     _ang_tol: f64,
 ) -> Result<BSplineCurve> {
-    // UNPORTED(curve.tangent_field): SmTangentField::Create
+    // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::ApproximateCurve
     Err(SolidError::Unported {
-        upstream: "SmTangentField::Create",
-        unit: "curve.tangent_field",
+        upstream: "SmCrvOnSurf::ApproximateCurve",
+        unit: "curve.crv_on_surf",
     })
+}
+
+/// `SmTangentField::Create(ctx, tol, boundary, uv, surface, start, t0, SAME, end, t1,
+/// SAME)` followed by its `ApproximateCurve` over the knots of `boundary`: the
+/// cross-tangent curve of `boundary` on `surface`.
+fn tangent_field_curve(
+    tol: f64,
+    boundary: &BSplineCurve,
+    uv_curve: &BSplineCurve,
+    surface: &BSplineSurface,
+    (start, start_param): (&BSplineCurve, f64),
+    (end, end_param): (&BSplineCurve, f64),
+    ang_tol: f64,
+) -> Result<BSplineCurve> {
+    let base_3d = as_sm_curve(boundary);
+    let base_uv = as_sm_curve(uv_curve);
+    let start_crv = as_sm_curve(start);
+    let end_crv = as_sm_curve(end);
+    let field = TangentField::create(
+        tol,
+        &base_3d,
+        &base_uv,
+        surface,
+        TangentFieldEnd {
+            curve: &start_crv,
+            param: start_param,
+            opposite: false,
+        },
+        TangentFieldEnd {
+            curve: &end_crv,
+            param: end_param,
+            opposite: false,
+        },
+    )?;
+
+    // build an approximate piecewise hermite curve to the crossTangent curve
+    let knots = unique_knots(boundary);
+    approximate_tangent_field(&field, &knots, ang_tol)
 }
 
 /// `new SmTangentField(uv, surface, SM_INTERPOLATE_DIR, start, end)` followed by its
 /// `ApproximateCurve(knots, ang_tol, ..)`.
 fn interpolated_tangent_field_curve(
-    _uv_curve: &BSplineCurve,
-    _surface: &BSplineSurface,
-    _start: Vec3,
-    _end: Vec3,
-    _knots: &[f64],
-    _ang_tol: f64,
+    uv_curve: &BSplineCurve,
+    surface: &BSplineSurface,
+    start: Vec3,
+    end: Vec3,
+    knots: &[f64],
+    ang_tol: f64,
 ) -> Result<BSplineCurve> {
-    // UNPORTED(curve.tangent_field): SmTangentField::SmTangentField
-    Err(SolidError::Unported {
-        upstream: "SmTangentField::SmTangentField",
-        unit: "curve.tangent_field",
-    })
+    let base_uv = as_sm_curve(uv_curve);
+    let field = TangentField::new(
+        &base_uv,
+        surface,
+        TangentDirType::Interpolate,
+        start,
+        end,
+        None,
+    )?;
+    approximate_tangent_field(&field, knots, ang_tol)
 }
 
 /// `SmSurface::EvaluateNormal(uv, TRUE, TRUE, normal)`.
@@ -1292,17 +1345,13 @@ fn corner_blend_4(
                     .get(ii)
                     .and_then(Option::as_ref)
                     .ok_or_else(|| invalid(OP, "missing UV curve"))?;
-                let knots = unique_knots(boundary_curve);
                 tangent_field_curve(
                     2.0 * approx_tol,
                     boundary_curve,
                     uv,
                     srf,
-                    start_curve,
-                    start_param,
-                    end_curve,
-                    end_param,
-                    &knots,
+                    (start_curve, start_param),
+                    (end_curve, end_param),
                     tangency_tol_radians,
                 )?
             } else {

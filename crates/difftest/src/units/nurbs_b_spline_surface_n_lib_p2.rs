@@ -15,9 +15,9 @@
 //! `new_*` and `patch<i>_*` surface states (`flags`, `dims`, `cpts`, `u`, `v`).
 //!
 //! Cases whose Rust side reaches an unported callee are deferred: G1 corner blends
-//! (`SmTangentField`, `curve.tangent_field`; `SmSurface::EvaluateNormal`,
-//! `surface.surface_p7`) and skins whose two rails change their domains when
-//! synchronized (`SmCurve::LocalCurveIntersect`, `curve.curve_p3`). Every run has at
+//! (the tangent field's `SmSurface::GetNaturalUVDomain`, `surface.surface_p2`;
+//! `SmSurface::EvaluateNormal`, `surface.surface_p7`) and skins whose two rails change
+//! their domains when synchronized (`SmCurve::LocalCurveIntersect`, `curve.curve_p3`). Every run has at
 //! least [`MIN_GENERATED`] generated cases.
 
 use serde::{Deserialize, Serialize};

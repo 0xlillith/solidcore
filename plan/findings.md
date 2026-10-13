@@ -1860,7 +1860,7 @@ Green, no disagreement (2808 cases bit-identical). Upstream behaviour worth know
 
 ## nurbs.b_spline_surface_n_lib_p2 (`Evaluate`, `TrimWithDomain`, `CreateSkinnedSurface`, `CreateCornerBlend`)
 
-Partial, no disagreement (654 cases, 40 deferred; 20k-seed run clean). Upstream behaviour
+Partial, no disagreement (654 cases, 26 deferred; 20k-seed run clean). Upstream behaviour
 worth knowing:
 
 - **`TrimWithDomain` v snapping uses `idxMin` for both boundaries.** In the v loop the upper
@@ -1883,10 +1883,11 @@ worth knowing:
   3D curve with a surface (`SmSurface::DropCurve` crashes on a standalone surface) and
   n-sided bilinear blends with missing UV curves / surfaces dereference `NULL` upstream; the
   shim rejects them, the port returns `InvalidInput`. `SM_OT_UNKNOWN` behaves as "not
-  `SM_OT_SAME`" for four curves and as "not `SM_OT_OPPOSITE`" for more. Every G1 blend is
-  deferred until `curve.tangent_field` / `surface.surface_p7` land; bilinear blends of
-  single-span line boundaries are deferred on `SmCurve::IsLine` (`curve.curve_p5`, via
-  `CalculateBoundingBox`).
+  `SM_OT_SAME`" for four curves and as "not `SM_OT_OPPOSITE`" for more. G1 blends run
+  `SmTangentField::Create` (its end-point checks are compared) and are then deferred on
+  `SmSurface::GetNaturalUVDomain` (`surface.surface_p2`), `SmCrvOnSurf::ApproximateCurve`
+  (`curve.crv_on_surf`) or, for n-sided blends, `SmSurface::EvaluateNormal`
+  (`surface.surface_p7`).
 - **`Evaluate`**'s `SmSurface::GetDerivativeLimit` (`10 * SM_EFF_ZERO * (1 + max|P|)`) is
   co-ported (`CO-PORT(surface.surface_p2)`). With fewer than two derivatives in either
   direction a zero tangent is fixed by recursing with `2, 2` upper-half (from the
