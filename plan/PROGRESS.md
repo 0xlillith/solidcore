@@ -154,7 +154,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (draft)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (draft)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (draft)
-- [ ] 🔨 `surface.surface_cache_p2` (1245 lines) — in progress: #35 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_cache_p2` (1245 lines) — in progress: #35 @bherbruck (ready for review)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (draft)
@@ -295,7 +295,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (draft)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (draft)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (draft)
-- [ ] 🔨 `surface.surface_cache_p2` (1245 lines) — in progress: #35 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_cache_p2` (1245 lines) — in progress: #35 @bherbruck (ready for review)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
