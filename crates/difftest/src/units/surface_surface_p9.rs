@@ -149,9 +149,9 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                 },
             );
             cc.set_curve_handle(Some(Handle(0)));
-            if let Err(e) = cc.tessellate(&k) {
-                return Err(harness(format!("CSI fixture cache setup: {e}")));
-            } else {
+            cc.tessellate(&k)
+                .map_err(|e| harness(format!("CSI fixture cache setup: {e}")))?;
+            {
                 let mut cache = SurfaceCache::<Handle>::new(
                     surface,
                     Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
