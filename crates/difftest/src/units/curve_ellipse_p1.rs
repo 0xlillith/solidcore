@@ -1028,6 +1028,37 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     Ok(Output::new().values("rec", o))
 }
 
+/// Whether an `AssertValid` of the case reads the NURB parameter of a failed STEP
+/// conversion that wrote none (`dNurbT` is uninitialised upstream: undefined
+/// behaviour, see `plan/findings.md`, unit `curve.curve_p5`); such cases are not
+/// generated.
+fn reads_uninitialised(i: &Inputs) -> bool {
+    let k = Kernel::default();
+    let mut o = Vec::new();
+    let Ok(Some(mut a)) = build(&k, &i.build, &mut o) else {
+        return false;
+    };
+    if a.base().gw_nurb().is_none() {
+        return false;
+    }
+    for op in &i.ops {
+        if let OpJ::Assert { given } = op {
+            let mut list = AssertArray::new();
+            if let Err(SolidError::InvalidInput { reason, .. }) =
+                a.assert_valid(&k, Some(&mut list), *given, KEY_A, KEY_POLAR)
+            {
+                if reason.contains("uninitialised") {
+                    return true;
+                }
+            }
+        }
+        if run_op(&k, &mut a, op, &mut o).is_err() {
+            return false;
+        }
+    }
+    false
+}
+
 // ---- generation -------------------------------------------------------------------
 
 fn round(x: f64) -> f64 {
@@ -1464,7 +1495,7 @@ impl UnitDiff for Runner {
                 continue;
             };
             let (b, ops) = ffi_program(&i);
-            if ffi::encode(&b, &ops).is_ok() {
+            if ffi::encode(&b, &ops).is_ok() && !reads_uninitialised(&i) {
                 return serde_json::to_value(i).ok();
             }
         }

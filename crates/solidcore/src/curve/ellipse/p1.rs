@@ -1012,15 +1012,15 @@ impl Ellipse {
             let step_t = self
                 .anal_domain
                 .evaluate(f64::from(ii) / f64::from(smp_count - 1));
-            let nurb_t = match self.convert_t_from_step_to_nurbs(step_t) {
-                Ok(t) => t,
-                Err(e @ SolidError::Unported { .. }) => return Err(e),
-                Err(_) => {
-                    return Err(SolidError::invalid_input(
-                        OP_ASSERT,
-                        "STEP parameter not convertible (upstream: uninitialised)",
-                    ))
-                }
+            // (status ignored: a failed conversion leaves the polar table's guess)
+            let Some(nurb_t) = self
+                .polar
+                .convert_to_nurbs_parameter_or_written(self, step_t, 0.0)?
+            else {
+                return Err(SolidError::invalid_input(
+                    OP_ASSERT,
+                    "STEP parameter not convertible (upstream: uninitialised)",
+                ));
             };
 
             // Evaluate the points (status ignored)

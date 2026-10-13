@@ -552,7 +552,42 @@ impl PolarConversion {
         &self,
         curve: &Ellipse,
         polar_param_deg: f64,
+        zone_tol: f64,
+    ) -> Result<(f64, bool)> {
+        let mut written = None;
+        self.convert_to_nurbs_parameter_into(curve, polar_param_deg, zone_tol, &mut written)
+    }
+
+    /// [`Self::convert_to_nurbs_parameter`] for a caller that ignores its status: the
+    /// parameter, or after a failure the value upstream had already written to
+    /// `rdNurbsParameter` (the polar table's guess; `None` when nothing was written,
+    /// an uninitialised value upstream).
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] only.
+    pub fn convert_to_nurbs_parameter_or_written(
+        &self,
+        curve: &Ellipse,
+        polar_param_deg: f64,
+        zone_tol: f64,
+    ) -> Result<Option<f64>> {
+        let mut written = None;
+        match self.convert_to_nurbs_parameter_into(curve, polar_param_deg, zone_tol, &mut written) {
+            Ok((t, _)) => Ok(Some(t)),
+            Err(e) if e.is_unported() => Err(e),
+            Err(_) => Ok(written),
+        }
+    }
+
+    /// The body of [`Self::convert_to_nurbs_parameter`]; `written` follows upstream's
+    /// writes to the out-parameter `rdNurbsParameter`.
+    fn convert_to_nurbs_parameter_into(
+        &self,
+        curve: &Ellipse,
+        polar_param_deg: f64,
         _zone_tol: f64,
+        written: &mut Option<f64>,
     ) -> Result<(f64, bool)> {
         if !self.has_curve {
             return Err(SolidError::InvalidInput {
@@ -607,6 +642,7 @@ impl PolarConversion {
             // check first angle boundary
             if are_same_to_tol(polar_deg, first_angle, angle_tol) {
                 nurbs_guess = first_knot;
+                *written = Some(nurbs_guess);
             } else {
                 // for every arc interval
                 for ii in 1..self.angles.len() {
@@ -615,6 +651,7 @@ impl PolarConversion {
                     // check interval other bound
                     if are_same_to_tol(polar_deg, angle, angle_tol) {
                         nurbs_guess = table(&self.natural_knots, ii, OP_TO_NURBS)?;
+                        *written = Some(nurbs_guess);
                         break;
                     }
 
@@ -628,6 +665,7 @@ impl PolarConversion {
                             angle,
                             polar_deg,
                         )?;
+                        *written = Some(nurbs_guess);
                         break;
                     }
                 }
@@ -656,6 +694,7 @@ impl PolarConversion {
             }
             param
         };
+        *written = Some(nurbs_param);
         Ok((nurbs_param, true))
     }
 }

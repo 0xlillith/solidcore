@@ -637,7 +637,9 @@ impl Curve {
     /// `GlobalPointSolveSTEP`: the line, hyperbola, ellipse and parabola overrides;
     /// the base passes the call to [`Curve::global_point_solve`]. `this` names the
     /// curve in the solutions (the hyperbola's, ellipse's and parabola's name no
-    /// object, see their units).
+    /// object, see their units); `analytic` names the analytic replacement the base
+    /// solve may answer from ([`GlobalPointSolveOptions::analytic_handle`]: upstream's
+    /// pointer to the cache's analytic curve).
     ///
     /// # Errors
     ///
@@ -654,6 +656,7 @@ impl Curve {
         vectors: Option<&[Vec3]>,
         requested: SolutionRequested,
         this: Option<O>,
+        analytic: Option<O>,
     ) -> Result<Vec<Solution<O>>> {
         let owner = self.owner();
         match self.kind_mut() {
@@ -738,7 +741,7 @@ impl Curve {
                     target_distance,
                     opt_vectors: vectors,
                     handle: this,
-                    ..GlobalPointSolveOptions::default()
+                    analytic_handle: analytic,
                 };
                 Ok(self
                     .global_point_solve(

@@ -2396,3 +2396,21 @@ Upstream behaviour worth knowing:
   `make_curve_cache` (building) and `validate_curve_cache` (type check, reuse);
   `GetOrCreateObjectCache` on an object without the curve returns `InvalidInput` when a
   new curve cache would be needed.
+- **Wiring this unit exposed four harness / port gaps in dependent units** (their cases
+  were deferred on `curve.curve_p5` before):
+  - `SmPolarConversion::ConvertToNURBSParameter` writes the polar-table guess to
+    `rdNurbsParameter` before the point inversion; when the inversion fails (`SM_ERR`)
+    callers that ignore the status (`SmEllipse::AssertValid`) use that guess. The ellipse
+    port now does the same (`convert_to_nurbs_parameter_or_written`); without a usable table
+    nothing is written and upstream reads an uninitialised `dNurbT` (UB): `curve.ellipse_p1`
+    no longer generates those cases.
+  - `SmSolution::IsEqual` scales its parameter tolerance by the object's natural interval;
+    the `curve.curve_p3` / `curve.curve_p7` runners' solution handles now are curve objects
+    with the curve's interval (as upstream's `SmCurve*`), so near-equal minima merge.
+  - `GlobalPointSolve` answers from the cache's analytic curve, whose pointer names the
+    solution: `Curve::global_point_solve_step` takes that handle (`analytic`).
+  - `SmGlobalSolver::SolveIt` initialises `sStartBranch[i]` only for `i < m_lNumTrees`; a
+    one-tree solve whose top node is a leaf hands an uninitialised `apBranch[1]` to
+    `LocalSolve`, and `SmCurvePropertyGS::LocalSolve`'s angle special case copies it into
+    `m_apNodes[1]` of a one-object solution. The `curve.curve_p7` harness reports the second
+    node only for two-object solutions.
