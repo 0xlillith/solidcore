@@ -27,9 +27,9 @@
 //!   have no counterpart). The surface virtuals then resolve to the B-spline
 //!   overrides: `GetNaturalUVDomain` and `GetKnots` are ported
 //!   ([`BSplineSurface::natural_uv_domain`], [`BSplineSurface::knots`]); `Evaluate`
+//!   `EvaluatePoint` resolves to [`BSplineSurface::evaluate_point`]; `Evaluate`
 //!   (`SmBSplineSurface::Evaluate`, unit `nurbs.b_spline_surface_n_lib_p2`),
-//!   `EvaluatePoint` (`SmBSplineSurface::EvaluatePoint`, unit
-//!   `nurbs.b_spline_surface_n_lib_p1`), `CalculateContinuities` (not overridden:
+//!   `CalculateContinuities` (not overridden:
 //!   `SmSurface::CalculateContinuities`, unit `surface.surface_p6`) and
 //!   `SmSurface::ReadFromDB` (unit `surface.surface_p2`) return
 //!   [`SolidError::Unported`]. `CreateUVIsoLine` builds an `SmLine` (unit
@@ -276,9 +276,9 @@ impl IsoCurve {
     ///
     /// # Errors
     ///
-    /// Those of the surface evaluation ([`SolidError::Unported`] for now).
+    /// Those of [`BSplineSurface::evaluate_point`] (`SM_ERR` without NURB).
     pub fn evaluate_point(&self, t: f64) -> Result<Point3> {
-        surface_evaluate_point(&self.surface, self.uv(t))
+        self.surface.evaluate_point(self.uv(t))
     }
 
     /// The distinct knots and multiplicities of the surface across the iso direction,
@@ -416,15 +416,6 @@ fn surface_evaluate(
     })
 }
 
-/// `SmSurface::EvaluatePoint(uv)` of a B-spline surface.
-fn surface_evaluate_point(_srf: &BSplineSurface, _uv: Point2) -> Result<Point3> {
-    // UNPORTED(nurbs.b_spline_surface_n_lib_p1): SmBSplineSurface::EvaluatePoint
-    Err(SolidError::Unported {
-        upstream: "SmBSplineSurface::EvaluatePoint",
-        unit: "nurbs.b_spline_surface_n_lib_p1",
-    })
-}
-
 /// `SmSurface::CalculateContinuities(eSurfParam, ..)` (not overridden by
 /// `SmBSplineSurface`).
 fn surface_calculate_continuities(
@@ -541,9 +532,8 @@ mod tests {
             a.evaluate(0.5, 1, false, true),
             Err(SolidError::Unported { .. })
         ));
-        assert!(matches!(
-            a.evaluate_point(0.5),
-            Err(SolidError::Unported { .. })
-        ));
+        // constant v = 1 on the patch: y = (v + 1) / 4
+        let p = a.evaluate_point(0.5).expect("point");
+        assert!((p.y - 0.5).abs() < 1e-12);
     }
 }

@@ -65,7 +65,9 @@
 //! Deviations:
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
 //!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
-//!   [`HermiteCurve`], [`Conic`] and [`IsoCurve`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
+//!   [`HermiteCurve`], [`Conic`], [`IsoCurve`] and [`Hyperbola`] (whose variant runs the B-spline
+//!   methods on its base where it does not override them); the other analytic and
+//!   generated curves (`SmLine`, `SmEllipse`,
 //!   `SmOffsetCurve`, ...) join the enum in their own units. Each virtual method is
 //!   one `match`: a kind that overrides it calls its own method, the others run the
 //!   base-class body ported here (the `SmCurve.h` inline defaults: `SM_ERR`,
@@ -134,6 +136,7 @@
 
 use crate::curve::conic::Conic;
 use crate::curve::hermite_curve::HermiteCurve;
+use crate::curve::hyperbola::Hyperbola;
 use crate::curve::iso_curve::IsoCurve;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, AObject, CacheStore};
@@ -428,6 +431,8 @@ pub enum CurveKind {
     BSpline(BSplineCurve),
     /// `SmHermiteCurve`.
     Hermite(HermiteCurve),
+    /// `SmHyperbola` (an `SmBSplineCurve`).
+    Hyperbola(Hyperbola),
     /// `SmConic`.
     Conic(Conic),
     /// `SmIsoCurve`.
@@ -530,6 +535,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => BSplineCurve::TYPE,
             CurveKind::Hermite(_) => HermiteCurve::TYPE,
+            CurveKind::Hyperbola(_) => Hyperbola::TYPE,
             CurveKind::Conic(_) => Conic::TYPE,
             CurveKind::Iso(_) => IsoCurve::TYPE,
         }
@@ -541,6 +547,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve_TYPE",
             CurveKind::Hermite(_) => "SmHermiteCurve_TYPE",
+            CurveKind::Hyperbola(_) => "SmHyperbola_TYPE",
             CurveKind::Conic(_) => "SmConic_TYPE",
             CurveKind::Iso(_) => "SmIsoCurve_TYPE",
         }
@@ -552,6 +559,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve",
             CurveKind::Hermite(_) => "SmHermiteCurve",
+            CurveKind::Hyperbola(_) => "SmHyperbola",
             CurveKind::Conic(_) => "SmConic",
             CurveKind::Iso(_) => "SmIsoCurve",
         }
@@ -560,7 +568,10 @@ impl Curve {
     /// `IsKindOf`: the concrete type or one of its base types.
     #[must_use]
     pub const fn is_kind_of(&self, t: i64) -> bool {
-        t == self.type_code() || is_kind_of(t)
+        match &self.kind {
+            CurveKind::Hyperbola(_) => Hyperbola::is_kind_of(t),
+            _ => t == self.type_code() || is_kind_of(t),
+        }
     }
 
     /// `operator==`: same object, or same type and dimension and (per kind) the same
@@ -574,6 +585,7 @@ impl Curve {
         match (&self.kind, &other.kind) {
             (CurveKind::BSpline(a), CurveKind::BSpline(b)) => a.approx_eq(b),
             (CurveKind::Hermite(a), CurveKind::Hermite(b)) => a.approx_eq(b),
+            (CurveKind::Hyperbola(a), CurveKind::Hyperbola(b)) => a.approx_eq(b),
             (CurveKind::Conic(a), CurveKind::Conic(b)) => a.approx_eq(b),
             (CurveKind::Iso(a), CurveKind::Iso(b)) => a.approx_eq(b),
             // GetType() differs
@@ -589,6 +601,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.dim(),
             CurveKind::Hermite(c) => c.dim(),
+            CurveKind::Hyperbola(c) => c.base().dim(),
             CurveKind::Conic(c) => c.dim(),
             CurveKind::Iso(c) => c.dim(),
         }
@@ -602,6 +615,7 @@ impl Curve {
     pub fn degree(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.degree(),
+            CurveKind::Hyperbola(c) => c.base().degree(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(3),
         }
     }
@@ -614,6 +628,7 @@ impl Curve {
     pub fn number_natural_knots(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_natural_knots(),
+            CurveKind::Hyperbola(c) => c.base().number_natural_knots(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(2),
         }
     }
@@ -626,6 +641,7 @@ impl Curve {
     pub fn number_control_points(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_control_points(),
+            CurveKind::Hyperbola(c) => c.base().number_control_points(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(0),
         }
     }
@@ -636,21 +652,35 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.natural_interval(),
             CurveKind::Hermite(c) => c.natural_interval(),
+            CurveKind::Hyperbola(c) => c.base().natural_interval(),
             CurveKind::Conic(c) => c.natural_interval(),
             CurveKind::Iso(c) => c.natural_interval(),
         }
     }
 
-    /// `IsAnalytic` (base default `FALSE`; no ported kind overrides it).
+    /// `IsAnalytic` (base default `FALSE`; `TRUE` for a hyperbola).
     #[must_use]
     pub const fn is_analytic(&self) -> bool {
-        false
+        match &self.kind {
+            CurveKind::Hyperbola(c) => c.is_analytic(),
+            CurveKind::BSpline(_)
+            | CurveKind::Hermite(_)
+            | CurveKind::Conic(_)
+            | CurveKind::Iso(_) => false,
+        }
     }
 
-    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves).
+    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves; a
+    /// hyperbola asks its analytic domain).
     #[must_use]
-    pub const fn is_bounded(&self) -> bool {
-        true
+    pub fn is_bounded(&self) -> bool {
+        match &self.kind {
+            CurveKind::Hyperbola(c) => c.is_bounded(),
+            CurveKind::BSpline(_)
+            | CurveKind::Hermite(_)
+            | CurveKind::Conic(_)
+            | CurveKind::Iso(_) => true,
+        }
     }
 
     /// `IsRational` (base: an error message and `FALSE`).
@@ -661,6 +691,7 @@ impl Curve {
     pub fn is_rational(&self) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.is_rational(),
+            CurveKind::Hyperbola(c) => c.base().is_rational(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(false),
         }
     }
@@ -673,6 +704,7 @@ impl Curve {
     pub fn has_repeated_end_control_points(&self, tol: f64) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.has_repeated_end_control_points(tol),
+            CurveKind::Hyperbola(c) => c.base().has_repeated_end_control_points(tol),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Ok(false),
         }
     }
@@ -770,6 +802,10 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Hermite(c) => Ok(c.evaluate(t, num_derivs, non_zero_tangents)),
+            CurveKind::Hyperbola(c) => {
+                c.base()
+                    .evaluate(t, num_derivs, from_left, non_zero_tangents)
+            }
             CurveKind::Conic(c) => c.evaluate(t, num_derivs, non_zero_tangents),
             CurveKind::Iso(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
         }
@@ -784,6 +820,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate_point(t),
             CurveKind::Hermite(c) => Ok(c.evaluate_point(t)),
+            CurveKind::Hyperbola(c) => c.base().evaluate_point(t),
             CurveKind::Conic(c) => Ok(c.evaluate_point(t)),
             CurveKind::Iso(c) => c.evaluate_point(t),
         }
@@ -801,6 +838,7 @@ impl Curve {
     ) -> Result<(ContinuityType, Vec<ContinuityType>)> {
         match &self.kind {
             CurveKind::BSpline(c) => c.calculate_continuities(angle_tol),
+            CurveKind::Hyperbola(c) => c.base().calculate_continuities(angle_tol),
             CurveKind::Hermite(c) => Ok(c.calculate_continuities()),
             CurveKind::Conic(c) => Ok(c.calculate_continuities()),
             CurveKind::Iso(c) => c.calculate_continuities(),
@@ -816,6 +854,7 @@ impl Curve {
     pub fn knots(&self, interval: Option<&Extent1d>) -> Result<(Vec<f64>, Vec<usize>)> {
         match &self.kind {
             CurveKind::BSpline(c) => c.knots(interval),
+            CurveKind::Hyperbola(c) => c.base().knots(interval),
             CurveKind::Hermite(c) => {
                 let (k, m) = c.knots(interval);
                 Ok((k, m.into_iter().map(|v| v as usize).collect()))
@@ -837,6 +876,7 @@ impl Curve {
     pub fn ends(&self) -> Result<Ends> {
         match &self.kind {
             CurveKind::BSpline(c) => c.ends(),
+            CurveKind::Hyperbola(c) => c.base().ends(),
             CurveKind::Hermite(c) => base_ends(c),
             CurveKind::Conic(c) => base_ends(c),
             CurveKind::Iso(c) => base_ends(c),
@@ -877,13 +917,19 @@ impl Curve {
         approximate_length(self, interval, samples, want_turn_angle)
     }
 
-    /// `STEPInversion` (base: `SM_ERR`; no ported kind overrides it).
+    /// `STEPInversion` (base: `SM_ERR`), without point classification.
     ///
     /// # Errors
     ///
-    /// Always `SM_ERR`.
-    pub const fn step_inversion(&self, _point: Point3) -> Result<f64> {
-        Err(base_err())
+    /// `SM_ERR` for kinds without the inversion.
+    pub fn step_inversion(&self, point: Point3) -> Result<f64> {
+        match &self.kind {
+            CurveKind::Hyperbola(c) => c.step_inversion(point, false).map(|(t, _)| t),
+            CurveKind::BSpline(_)
+            | CurveKind::Hermite(_)
+            | CurveKind::Conic(_)
+            | CurveKind::Iso(_) => Err(base_err()),
+        }
     }
 
     /// `DropPointFast` (base: `SM_ERR`; no ported kind overrides it).
@@ -925,6 +971,7 @@ impl Curve {
     pub fn convert_to_2d(&mut self) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.convert_to_2d(),
+            CurveKind::Hyperbola(c) => c.base.convert_to_2d(),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -938,6 +985,7 @@ impl Curve {
     pub fn edit_parameterization(&mut self, new_param: &Extent1d) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.edit_parameterization(new_param),
+            CurveKind::Hyperbola(c) => c.base.edit_parameterization(new_param),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -951,6 +999,7 @@ impl Curve {
     pub fn reverse_parameterization(&mut self, old_interval: &Extent1d) -> Result<Extent1d> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.reverse_parameterization(old_interval),
+            CurveKind::Hyperbola(c) => c.reverse_parameterization(old_interval, self.owner),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -963,6 +1012,7 @@ impl Curve {
     pub fn transform(&mut self, rotate_n_move: &Axis2Placement, scale: Option<Vec3>) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.transform(rotate_n_move, scale),
+            CurveKind::Hyperbola(c) => c.transform(rotate_n_move, scale),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -975,6 +1025,7 @@ impl Curve {
     pub fn trim(&mut self, k: &Kernel, trim_interval: &mut Extent1d, mode: TrimMode) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.trim(k, trim_interval, mode),
+            CurveKind::Hyperbola(c) => c.base.trim(k, trim_interval, mode),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -987,6 +1038,7 @@ impl Curve {
     pub fn copy(&self) -> Result<Self> {
         match &self.kind {
             CurveKind::BSpline(c) => Ok(Self::from(c.copy())),
+            CurveKind::Hyperbola(c) => Ok(Self::from(c.copy())),
             CurveKind::Hermite(_) | CurveKind::Conic(_) | CurveKind::Iso(_) => Err(base_err()),
         }
     }
@@ -1000,6 +1052,10 @@ impl Curve {
     pub fn create_analytic_curve(&self, interval: &Extent1d) -> Result<Option<Self>> {
         match &self.kind {
             CurveKind::BSpline(c) => match c.create_analytic_curve(interval)? {
+                None => Ok(None),
+                Some(a) => match a {},
+            },
+            CurveKind::Hyperbola(c) => match c.base().create_analytic_curve(interval)? {
                 None => Ok(None),
                 Some(a) => match a {},
             },
@@ -1177,15 +1233,17 @@ impl Curve {
         let unported = |upstream: &'static str, unit: &'static str| -> Result<Self> {
             Err(SolidError::Unported { upstream, unit })
         };
+        // Bound nesting (a projected/offset/... curve reads its base curve through
+        // here): upstream recurses without limit on crafted input.
+        db.enter_nested(OP_READ)?;
         // pass the call along to the appropriate derived type
-        match curve_type {
+        let result = match curve_type {
             BSPLINE_CURVE_TYPE => BSplineCurve::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.ellipse_p1): SmEllipse::ReadFromDB
             ELLIPSE_TYPE => unported("SmEllipse::ReadFromDB", "curve.ellipse_p1"),
             // UNPORTED(curve.ellipse_p1): SmCircle::ReadFromDB
             CIRCLE_TYPE => unported("SmCircle::ReadFromDB", "curve.ellipse_p1"),
-            // UNPORTED(curve.hyperbola): SmHyperbola::ReadFromDB
-            HYPERBOLA_TYPE => unported("SmHyperbola::ReadFromDB", "curve.hyperbola"),
+            HYPERBOLA_TYPE => Hyperbola::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.line): SmLine::ReadFromDB
             LINE_TYPE => unported("SmLine::ReadFromDB", "curve.line"),
             // UNPORTED(curve.parabola): SmParabola::ReadFromDB
@@ -1199,8 +1257,14 @@ impl Curve {
             CRV_ON_SURF_TYPE => unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf"),
             // UNPORTED(curve.crv_in_volume): SmCrvInVolume::ReadFromDB
             CRV_IN_VOLUME_TYPE => unported("SmCrvInVolume::ReadFromDB", "curve.crv_in_volume"),
-            // UNPORTED(curve.tangent_field): SmTangentField::ReadFromDB
-            TANGENT_FIELD_TYPE => unported("SmTangentField::ReadFromDB", "curve.tangent_field"),
+            TANGENT_FIELD_TYPE => {
+                // SmTangentField::ReadFromDB; its SmCrvOnSurf part is unported (no early
+                // return: the nesting level must be left below)
+                crate::curve::tangent_field::read_from_db(db, dim, version).and_then(|_| {
+                    // UNPORTED(curve.crv_on_surf): SmTangentField as a curve kind
+                    unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf")
+                })
+            }
             HERMITE_CURVE_TYPE => HermiteCurve::read_from_db(db).map(Self::from),
             ISO_CURVE_TYPE => IsoCurve::read_from_db(db, version).map(Self::from),
             // UNPORTED(curve.offset_curve): SmOffsetCurve::ReadFromDB
@@ -1210,7 +1274,9 @@ impl Curve {
                 unported("SmProjectedCurve::ReadFromDB", "curve.projected_curve")
             }
             _ => Err(SolidError::sm_err(OP_READ)),
-        }
+        };
+        db.leave_nested();
+        result
     }
 }
 
