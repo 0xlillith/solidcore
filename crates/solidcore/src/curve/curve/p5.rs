@@ -262,8 +262,8 @@ pub fn make_curve_cache<O: Copy + PartialEq>(
 
 impl Curve {
     /// `IsLine(lNumSamples, dTol, ..)`: the line point and vector when the curve is a
-    /// straight, constant-speed line ([`BSplineCurve::is_line`] for B-splines and
-    /// hyperbolas, always for a line, else the base body sampling `num_samples`
+    /// straight, constant-speed line ([`BSplineCurve::is_line`] for B-splines,
+    /// hyperbolas and parabolas, always for a line, else the base body sampling `num_samples`
     /// points as [`is_line_base`]).
     ///
     /// # Errors
@@ -274,13 +274,15 @@ impl Curve {
         match self.kind() {
             CurveKind::BSpline(c) => c.is_line(num_samples, tol),
             CurveKind::Hyperbola(c) => c.base().is_line(num_samples, tol),
+            CurveKind::Parabola(c) => c.base().is_line(num_samples, tol),
             CurveKind::Line(l) => Ok(Some(l.is_line())),
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => curve_is_line_base(self, num_samples, tol),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => curve_is_line_base(self, num_samples, tol),
         }
     }
 }
@@ -329,6 +331,7 @@ impl Curve {
                 CurveKind::BSpline(c) => c.gw_nurb().is_some(),
                 CurveKind::Line(c) => c.base().gw_nurb().is_some(),
                 CurveKind::Hyperbola(c) => c.base().gw_nurb().is_some(),
+                CurveKind::Parabola(c) => c.base().gw_nurb().is_some(),
                 _ => false,
             };
             // don't force building Nurb
