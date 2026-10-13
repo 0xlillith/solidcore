@@ -64,8 +64,8 @@
 //!
 //! Deviations:
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
-//!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`] and
-//!   [`HermiteCurve`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
+//!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
+//!   [`HermiteCurve`] and [`CrvInVolume`]; the analytic and generated curves (`SmLine`, `SmEllipse`,
 //!   `SmOffsetCurve`, ...) join the enum in their own units. Each virtual method is
 //!   one `match`: a kind that overrides it calls its own method, the others run the
 //!   base-class body ported here (the `SmCurve.h` inline defaults: `SM_ERR`,
@@ -131,6 +131,7 @@
 //!   `ReadFromDB` of the analytic and generated curve types needs their units;
 //!   those calls return [`SolidError::Unported`].
 
+use crate::curve::crv_in_volume::CrvInVolume;
 use crate::curve::hermite_curve::HermiteCurve;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, AObject, CacheStore};
@@ -377,6 +378,8 @@ pub enum CurveKind {
     BSpline(BSplineCurve),
     /// `SmHermiteCurve`.
     Hermite(HermiteCurve),
+    /// `SmCrvInVolume`.
+    CrvInVolume(Box<CrvInVolume>),
 }
 
 /// A curve (`SmCurve`): its concrete kind and the object owning it (`m_pOwner`:
@@ -406,6 +409,12 @@ impl From<BSplineCurve> for Curve {
 impl From<HermiteCurve> for Curve {
     fn from(c: HermiteCurve) -> Self {
         Self::new(CurveKind::Hermite(c))
+    }
+}
+
+impl From<CrvInVolume> for Curve {
+    fn from(c: CrvInVolume) -> Self {
+        Self::new(CurveKind::CrvInVolume(Box::new(c)))
     }
 }
 
@@ -463,6 +472,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => BSplineCurve::TYPE,
             CurveKind::Hermite(_) => HermiteCurve::TYPE,
+            CurveKind::CrvInVolume(_) => CrvInVolume::TYPE,
         }
     }
 
@@ -472,6 +482,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve_TYPE",
             CurveKind::Hermite(_) => "SmHermiteCurve_TYPE",
+            CurveKind::CrvInVolume(_) => "SmCrvInVolume_TYPE",
         }
     }
 
@@ -481,6 +492,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(_) => "SmBSplineCurve",
             CurveKind::Hermite(_) => "SmHermiteCurve",
+            CurveKind::CrvInVolume(_) => "SmCrvInVolume",
         }
     }
 
@@ -492,17 +504,22 @@ impl Curve {
 
     /// `operator==`: same object, or same type and dimension and (per kind) the same
     /// data.
-    #[must_use]
-    pub fn approx_eq(&self, other: &Self) -> bool {
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] from [`CrvInVolume::approx_eq`] (the volume
+    /// comparison).
+    pub fn approx_eq(&self, other: &Self) -> Result<bool> {
         // low work
         if core::ptr::eq(self, other) {
-            return true;
+            return Ok(true);
         }
         match (&self.kind, &other.kind) {
-            (CurveKind::BSpline(a), CurveKind::BSpline(b)) => a.approx_eq(b),
-            (CurveKind::Hermite(a), CurveKind::Hermite(b)) => a.approx_eq(b),
+            (CurveKind::BSpline(a), CurveKind::BSpline(b)) => Ok(a.approx_eq(b)),
+            (CurveKind::Hermite(a), CurveKind::Hermite(b)) => Ok(a.approx_eq(b)),
+            (CurveKind::CrvInVolume(a), CurveKind::CrvInVolume(b)) => a.approx_eq(b),
             // GetType() differs
-            _ => false,
+            _ => Ok(false),
         }
     }
 
@@ -514,6 +531,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.dim(),
             CurveKind::Hermite(c) => c.dim(),
+            CurveKind::CrvInVolume(c) => c.dim(),
         }
     }
 
@@ -525,7 +543,7 @@ impl Curve {
     pub fn degree(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.degree(),
-            CurveKind::Hermite(_) => Ok(3),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Ok(3),
         }
     }
 
@@ -538,6 +556,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_natural_knots(),
             CurveKind::Hermite(_) => Ok(2),
+            CurveKind::CrvInVolume(c) => c.number_natural_knots_ref(),
         }
     }
 
@@ -549,7 +568,7 @@ impl Curve {
     pub fn number_control_points(&self) -> Result<usize> {
         match &self.kind {
             CurveKind::BSpline(c) => c.number_control_points(),
-            CurveKind::Hermite(_) => Ok(0),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Ok(0),
         }
     }
 
@@ -559,6 +578,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.natural_interval(),
             CurveKind::Hermite(c) => c.natural_interval(),
+            CurveKind::CrvInVolume(c) => c.natural_interval(),
         }
     }
 
@@ -568,10 +588,14 @@ impl Curve {
         false
     }
 
-    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves).
+    /// `IsBounded` (base default `TRUE`: B-splines and finite analytic curves; a
+    /// curve in a volume asks its base curve).
     #[must_use]
-    pub const fn is_bounded(&self) -> bool {
-        true
+    pub fn is_bounded(&self) -> bool {
+        match &self.kind {
+            CurveKind::CrvInVolume(c) => c.is_bounded(),
+            CurveKind::BSpline(_) | CurveKind::Hermite(_) => true,
+        }
     }
 
     /// `IsRational` (base: an error message and `FALSE`).
@@ -582,7 +606,7 @@ impl Curve {
     pub fn is_rational(&self) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.is_rational(),
-            CurveKind::Hermite(_) => Ok(false),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Ok(false),
         }
     }
 
@@ -594,7 +618,7 @@ impl Curve {
     pub fn has_repeated_end_control_points(&self, tol: f64) -> Result<bool> {
         match &self.kind {
             CurveKind::BSpline(c) => c.has_repeated_end_control_points(tol),
-            CurveKind::Hermite(_) => Ok(false),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Ok(false),
         }
     }
 
@@ -691,6 +715,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Hermite(c) => Ok(c.evaluate(t, num_derivs, non_zero_tangents)),
+            CurveKind::CrvInVolume(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
         }
     }
 
@@ -703,6 +728,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.evaluate_point(t),
             CurveKind::Hermite(c) => Ok(c.evaluate_point(t)),
+            CurveKind::CrvInVolume(c) => c.evaluate_point(t),
         }
     }
 
@@ -719,6 +745,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.calculate_continuities(angle_tol),
             CurveKind::Hermite(c) => Ok(c.calculate_continuities()),
+            CurveKind::CrvInVolume(c) => c.calculate_continuities_ref(angle_tol),
         }
     }
 
@@ -735,6 +762,7 @@ impl Curve {
                 let (k, m) = c.knots(interval);
                 Ok((k, m.into_iter().map(|v| v as usize).collect()))
             }
+            CurveKind::CrvInVolume(c) => c.knots_ref(interval),
         }
     }
 
@@ -748,6 +776,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => c.ends(),
             CurveKind::Hermite(c) => base_ends(c),
+            CurveKind::CrvInVolume(c) => base_ends(c.as_ref()),
         }
     }
 
@@ -833,7 +862,7 @@ impl Curve {
     pub fn convert_to_2d(&mut self) -> Result<()> {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.convert_to_2d(),
-            CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Err(base_err()),
         }
     }
 
@@ -847,6 +876,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.edit_parameterization(new_param),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::CrvInVolume(c) => c.edit_parameterization(new_param),
         }
     }
 
@@ -860,6 +890,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.reverse_parameterization(old_interval),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::CrvInVolume(c) => c.reverse_parameterization(old_interval),
         }
     }
 
@@ -872,6 +903,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.transform(rotate_n_move, scale),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::CrvInVolume(c) => c.transform(rotate_n_move, scale),
         }
     }
 
@@ -884,6 +916,7 @@ impl Curve {
         match &mut self.kind {
             CurveKind::BSpline(c) => c.trim(k, trim_interval, mode),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::CrvInVolume(c) => c.trim(k, trim_interval, mode),
         }
     }
 
@@ -896,6 +929,7 @@ impl Curve {
         match &self.kind {
             CurveKind::BSpline(c) => Ok(Self::from(c.copy())),
             CurveKind::Hermite(_) => Err(base_err()),
+            CurveKind::CrvInVolume(c) => Ok(Self::from(c.copy())),
         }
     }
 
@@ -911,7 +945,7 @@ impl Curve {
                 None => Ok(None),
                 Some(a) => match a {},
             },
-            CurveKind::Hermite(_) => Ok(None),
+            CurveKind::Hermite(_) | CurveKind::CrvInVolume(_) => Ok(None),
         }
     }
 
@@ -1106,8 +1140,7 @@ impl Curve {
             CONIC_TYPE => unported("SmConic::ReadFromDB", "curve.conic"),
             // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::ReadFromDB
             CRV_ON_SURF_TYPE => unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf"),
-            // UNPORTED(curve.crv_in_volume): SmCrvInVolume::ReadFromDB
-            CRV_IN_VOLUME_TYPE => unported("SmCrvInVolume::ReadFromDB", "curve.crv_in_volume"),
+            CRV_IN_VOLUME_TYPE => CrvInVolume::read_from_db(db, version).map(Self::from),
             // UNPORTED(curve.tangent_field): SmTangentField::ReadFromDB
             TANGENT_FIELD_TYPE => unported("SmTangentField::ReadFromDB", "curve.tangent_field"),
             HERMITE_CURVE_TYPE => HermiteCurve::read_from_db(db).map(Self::from),
@@ -3047,7 +3080,7 @@ mod tests {
         assert_eq!(h.number_natural_knots().unwrap(), 2);
         assert!(!h.is_rational().unwrap());
         let b = cubic();
-        assert!(b.approx_eq(&b.clone()) && !b.approx_eq(&h));
+        assert!(b.approx_eq(&b.clone()).unwrap() && !b.approx_eq(&h).unwrap());
         assert!(h.copy().is_err() && b.copy().is_ok());
     }
 
