@@ -1521,6 +1521,84 @@ from 150 to 57 deferred cases (all `curve.curve_p2` now). Upstream behaviour wor
   meant to equal a curve's last knot may land an ulp outside; the ffi's interval checks for
   `BBox` allow a few ulps (upstream clamps them).
 
+## nlib.srf_adv_p1 (NL_SrfAdv.cpp part 1: extension by distance, offset bounds, unbounded evaluation, spine skinning, vector-field strips)
+
+No Rust-vs-C++ disagreement: 2886 of 2886 default difftest cases bit-identical (386
+fixtures on the three `pt_TestFiles` `.sms` surfaces, the `TestSmCreateRectangle` patch, a
+closed rational cylinder, the `.smc` curves and the `TestSmCreateRegularPolygon` hexagon;
+2500 generated), and a 20,386-case run (`--seeds 20000`) also clean; `--perturb` detects
+every case. No `UNPORTED(nlib.srf_adv_p1)` stubs existed to wire. Upstream behaviour worth
+knowing:
+
+- **Degree-1 extensions read past `Rw` (inherited from `ST_surxsdr`).** `N_SrfExtendByDist`
+  is a wrapper of `ST_surxsdr` (`nlib.srf_adv_p2`): with G1/G2 in a degree-1 direction the
+  reflection-plane fallback can read outside the scratch row, where upstream "succeeds" on
+  whatever memory it reads and the port returns `InvalidInput`. The generator keeps
+  degree-1 extension directions to `NL_CMAX`. Past the recursion limit the stale error
+  number is compared as the bare flag, as in the p2 runner.
+- **`N_SrfEvalPtDerivsUnbounded`** wraps parameters of a G1-closed direction with `while`
+  loops that never end when `ue - us` no longer changes the parameter (or take ~1e12 steps
+  for far parameters); the port stops with `NotConverged` (after `MAX_PERIOD_SHIFTS`) and
+  the FFI only passes parameters within 16 domain lengths (or beyond `1e12`, the immediate
+  bare-flag exit). It copies the surface into `esur` before `N_SrfIsClosedSmooth`; if that
+  test fails `esur` stays set with the caller's `gflg`, while the port leaves its
+  extension `None` (the difftest stops a call sequence at the first failure).
+- **`N_SrfOffsetGetMaxDeriv`** allocates `u`/`v` with `N_AllocReal1dArray(p)` (p + 1 entries,
+  enough) and clears every `N_SrfEvalPtNormalDeriv` error (skips the sample).
+- **`N_CreateSkinSpine`** modifies the profiles in place (compatibility, alignment, and the
+  `N_CrvsAreCoincident` closedness test on profiles 0 and k), reads
+  `pSpineParams[iNumProfiles - 1]` (index -1 for a single profile with end derivatives;
+  the port returns `InvalidInput`), and with `bMakeCompatible == NL_NO` copies profile 0's
+  control point count from every profile (the FFI requires equal shapes then). Rational
+  profiles often produce weights outside `[NL_WMIN, NL_WMAX]` (`NL_WEI_ERR`, surface built
+  but not returned by the port).
+- **`N_CrossBoundaryDerivsVectorField`** compares knots exactly; two valid clamped curves
+  with equal knot vectors have equal degree and size, so its unchecked `Qw[ii]` reads stay
+  in bounds.
+
+## nlib.srf_adv_p5 (NL_SrfAdv.cpp part 5: N_CreateSkinSrfBoundaryContinuity)
+
+- **Shared knot array.** In the rational case with rails, the derivative curves are built by
+  `N_CrvFromCPolygonAndKnotVector` over the derivative surface's own knot vector (v for
+  `NL_UDIR`, u for `NL_VDIR`), so the in-place knot writes of `N_CrvsMakeCompatibleKnotTol`
+  (`N_CrvReparamToInterval`, the knot averaging of `N_GetCompatibleKnotVectorToTol`) and the
+  rescaling in `N_CrvFuncMultiplyCrv4d` (`N_MakeKnotsCompatible`) also change `der[i]`'s
+  knots, until a degree elevation or refinement gives the curve new storage. Only the
+  in-place output `der` is affected (the surface is not). The port reproduces it with
+  `crv_tool::p2::make_compatible_knot_tol_traced` (contents of each curve's entry knot
+  storage); difftest compares `der` after the call bit for bit.
+- With derivative surfaces and `NL_UVDIR` upstream uses an uninitialised derivative curve
+  (the port returns `InvalidInput`; the FFI rejects it). With `cmp == NL_YES` upstream reads
+  `Dws[j]`/`Rw` assuming the cross sections and the derivative data are compatible, and copies
+  rail control points into the net assuming both rails share a knot vector; the FFI enforces
+  both.
+
+## nurbs.b_spline_curve_p3 (SmBSplineCurve part 3)
+
+No Rust-vs-C++ disagreement: 1229 of 1229 non-deferred difftest cases bit-identical (195
+fixtures: the six `pt_TestFiles` `.smc` curves through every op, the `my_test_curve_interface`
+`JoinWith` / `GetControlPoint` curves, `my_test_reversed_line_join` as B-spline lines,
+`TestSmCreateRectangle` / `TestSmCreateRegularPolygon` style line joins and gaps, edge cases,
+plus 2000 generated). 966 cases are deferred: `curve.curve_p2` (the `IsKindOf(SmLine_TYPE)` test
+of `IsSegmentLine` / `IsOnPlane` / `JoinWith`, `IsDegenerate` in `HasInternalPole`,
+`SmTol::IsDegenerate` in `AssertValid`, `ApproximateLength` for joins without a gap tolerance,
+`EvaluateContinuity` in `SubdivideAtDiscontinuity`), `curve.curve_p4` (`SmCurve::AssertValid`),
+`curve.curve_p5` (`IsLine` in `JoinWith`) and `curve.curve_p8` (`GlobalCurveIntersect` in
+`TrimGap`). No `UNPORTED(nurbs.b_spline_curve_p3)` stubs existed. Upstream behaviour worth
+knowing:
+
+- `IsSegmentLine` returns an `SmBoolean` but uses `SER`, so a failed evaluation returns the
+  status (e.g. 1001) as a "true" boolean; the shim reports it as a status.
+- `AssertValid` test 4 (last two control points coincident) tests and reports the *start*
+  pair's distance and scaled zero; kept. Its radius-of-curvature check (tests 13/14) compares
+  `dMinRadius` before setting it (it is still `SM_BIG_DOUBLE`), so it never fires.
+- Without `SM_DEBUG_CODE` the `SM_ASSERT_*_REPORT` macros ignore `pTestRequests`; the test
+  level only matters as `SM_LEVEL_GIVEN` (skips `SmCurve::AssertValid`).
+- `GetControlPoint` of a 2D curve takes the weight from the third slot; `CreateByScaleTransRot`
+  then writes a `z` value into a 2D curve's `NOZ` slots through `SetControlPoint`.
+- `JoinWith` hands `this` and the other curve to `CreateByJoining`, which may degree-elevate
+  the other curve in place.
+
 ## curve.curve_p2 (SmCurve part 2: the curve base class)
 
 No Rust-vs-C++ disagreement: 3012 of 3012 non-deferred difftest cases bit-identical (18

@@ -946,10 +946,10 @@ depends_on = ["geom.assert_array", "geom.axis2_placement", "geom.context", "geom
 est_lines = 1187
 layer = 13
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "partial"
 claimed_by = "swarm-nurbs.b_spline_curve_p3-a1"
 claimed_at = "2026-10-13T00:13:51Z"
-notes = "9 fns; largest: SmBSplineCurve::AssertValid, SmBSplineCurve::JoinWith, SmBSplineCurve::TrimGap, SmBSplineCurve::IsSegmentLine; cycle back-edges (call into later units; stub or co-port): curve.curve_p2(6), curve.line(3), curve.curve_p4(1), curve.curve_p7(1), curve.curve_p8(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "difftest partial: 2195 cases, 1229 passed, 966 deferred (curve.curve_p2 734, curve.curve_p5 130, curve.curve_p8 56, curve.curve_p4 46); 9 fns; largest: SmBSplineCurve::AssertValid, SmBSplineCurve::JoinWith, SmBSplineCurve::TrimGap, SmBSplineCurve::IsSegmentLine; cycle back-edges (call into later units; stub or co-port): curve.curve_p2(6), curve.line(3), curve.curve_p4(1), curve.curve_p7(1), curve.curve_p8(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "curve.conic"
@@ -1115,10 +1115,10 @@ depends_on = ["nlib.crv_basic", "nlib.crv_fit_p1", "nlib.crv_fit_p2", "nlib.crv_
 est_lines = 1188
 layer = 15
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.srf_adv_p1-a1"
 claimed_at = "2026-10-12T23:52:37Z"
-notes = "5 fns; largest: N_CreateSkinSpine, N_SrfEvalPtDerivsUnbounded, N_CrossBoundaryDerivsVectorField, N_SrfOffsetGetMaxDeriv; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "5 fns; largest: N_CreateSkinSpine, N_SrfEvalPtDerivsUnbounded, N_CrossBoundaryDerivsVectorField, N_SrfOffsetGetMaxDeriv; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; green: 2886 difftest cases (386 fixtures + 2500 generated), 0 deferred, bit-identical"
 
 [[unit]]
 id = "nlib.srf_adv_p5"
@@ -1128,10 +1128,10 @@ depends_on = ["nlib.basis_adv", "nlib.crv_adv_p1", "nlib.crv_adv_p2", "nlib.crv_
 est_lines = 1970
 layer = 15
 tests = ["SM_API_test:TestSmCreateSkinSurface", "SM_API_test:TestSmCreateExtrude", "SM_API_test:TestSmCreateSkinFromFaces", "SM_API_test:TestSmCreateSkinPrimitive", "prog_test:my_test_parallel_projection", "prog_test:my_test_tsurf_projection"]
-status = "claimed"
+status = "green"
 claimed_by = "swarm-nlib.srf_adv_p5-a1"
 claimed_at = "2026-10-12T23:52:36Z"
-notes = "1 fns; largest: N_CreateSkinSrfBoundaryContinuity; unit-SCC #22 (220 units); 159 upstream test entry points reach this unit"
+notes = "1 fns; largest: N_CreateSkinSrfBoundaryContinuity; unit-SCC #22 (220 units); 159 upstream test entry points reach this unit; difftest 3073 cases (73 fixtures + 3000 generated), 0 deferred, max_rel_err 0"
 
 [[unit]]
 id = "surface.volume_p1"
@@ -1167,10 +1167,10 @@ depends_on = ["nlib.basis_basic", "nlib.crv_basic", "nlib.crv_geom", "nlib.crv_n
 est_lines = 2214
 layer = 16
 tests = ["SM_API_test:TestSmCreateExtrude", "SM_API_test:TestSmCurveSweep", "SM_API_test:TestSmPipeSweep", "SM_API_test:TestSmCurveSweepFromFaces", "SM_API_test:TestSmCurveSweepFailureCleanup", "prog_test:my_test_bsplinesurface_nlib"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
-notes = "2 fns; largest: N_FillNSidedHole, N_CreateSweepScale; unit-SCC #22 (220 units); 51 upstream test entry points reach this unit"
+status = "green"
+claimed_by = "swarm-nlib.srf_adv_p6-a1"
+claimed_at = "2026-10-13T00:25:33Z"
+notes = "2 fns; largest: N_FillNSidedHole, N_CreateSweepScale; unit-SCC #22 (220 units); 51 upstream test entry points reach this unit; difftest: 1016 cases (16 fixtures + 1000 generated), 0 deferred, max_rel_err 0"
 
 [[unit]]
 id = "nlib.srf_offset"
@@ -1180,10 +1180,10 @@ depends_on = ["nlib.crv_basic", "nlib.crv_fit_p1", "nlib.crv_nurb", "nlib.crv_of
 est_lines = 613
 layer = 16
 tests = ["prog_test:my_test_ss_nurb", "prog_test:my_test_surface_point_intersect", "prog_test:my_test_GlobalCC_intersect", "prog_test:my_test_GlobalCSI", "prog_test:my_test_surface_curve_intersect", "prog_test:my_test_cci_nurb"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
-notes = "1 fns; largest: N_SrfOffset; unit-SCC #22 (220 units); 181 upstream test entry points reach this unit"
+status = "green"
+claimed_by = "swarm-nlib.srf_offset-a1"
+claimed_at = "2026-10-13T00:15:44Z"
+notes = "1 fns; largest: N_SrfOffset; unit-SCC #22 (220 units); 181 upstream test entry points reach this unit; difftest: 424 cases (24 upstream .sms fixtures + 400 generated), 0 deferred, max_rel_err 0"
 
 [[unit]]
 id = "surface.b_spline_volume"
@@ -1232,9 +1232,9 @@ depends_on = ["geom.extent1d", "geom.extent2d", "geom.object", "geom.tol", "geom
 est_lines = 2033
 layer = 17
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
-claimed_by = ""
-claimed_at = ""
+status = "claimed"
+claimed_by = "swarm-nurbs.b_spline_surface_n_lib_p1-a1"
+claimed_at = "2026-10-13T00:47:51Z"
 notes = "23 fns; largest: sm_CreateCoonsSrf, SmBSplineSurface::CreateExtendedSurface, SmBSplineSurface::CreateCoonsPatch, SmBSplineSurface::CreateNSidedPatch; cycle back-edges (call into later units; stub or co-port): surface.surface_p2(4), curve.curve_p2(1), intersect.surface_drop_lib_p3(1), surface.surface_p5(1), surface.surface_p7(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
