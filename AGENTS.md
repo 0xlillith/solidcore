@@ -138,8 +138,16 @@ Every ported file starts with:
 
 Unit list and states: `plan/modules.toml` (format: `plan/modules.schema.md`, order:
 `plan/order.md`). **`plan/PROGRESS.md` is the checklist** (regenerated on `main` by CI;
-never edit it in a PR). A unit is ready when its `depends_on` are all `green` or
-`partial` (`soft_depends_on` never blocks; see section 4a); take the lowest `layer` first.
+never edit it in a PR). **Any `todo` unit can be claimed.** A unit is *ready* when its `depends_on` are all
+`green` or `partial` (`soft_depends_on` never blocks; see section 4a); ready units are
+the easiest, lowest `layer` first. Claiming a unit that is not ready is fine:
+- Calls into a missing dependency are stubbed (`UNPORTED(<unit>)`, cases deferred; 4a).
+- If you need a **type** (struct, enum variant, base class) from a missing dependency,
+  port the minimum of it yourself and record it in that unit's `notes` in
+  `plan/modules.toml` as `CO-PORTED in <your unit> (PR #n): <C++ symbols> -> <Rust path>`
+  so its eventual porter extends your code instead of duplicating it.
+- If that dependency has an open `port:` PR, do not port the same code twice: build on
+  that PR's branch (merge it into yours) or agree on the split in that PR's comments.
 
 **One-time setup** (per machine): clone this repo, clone upstream at the pinned commit
 into `upstream/` (see README), build the C++ reference with
