@@ -44,11 +44,21 @@
 //!   curve on surface yet, so upstream's `SM_CAST_NONNULL_PTR(SmCrvOnSurf, this)` is
 //!   `NULL` for every curve and the branch is never taken; the surface and orientation
 //!   arguments are dropped until unit `curve.crv_on_surf` adds the kind.
-//! - **Unported callees.** `SmCurve::GlobalPointSolve`, `SmCurve::Tessellate` (base)
-//!   and `SmCurve::ApproximateCurve` (unit `curve.curve_p1`),
-//!   `SmCurve::LocalPropertyAnalysis` and `sm_IsPointSolutionAcrossClosedSeamBoundary`
-//!   (unit `curve.curve_p5`) return [`SolidError::Unported`].
+//! - **Handles.** The global point solves of `DropPoint` and `CurveMaxDistanceBetween`
+//!   name a private handle of the curve (with its natural interval, as upstream's
+//!   `this`); those solutions are not returned.
+//! - **`ApproximateCurve`** in `DeformToEndPointTargets`: upstream ignores its status
+//!   and dereferences the new curve; a failure is an error here (an approximation
+//!   that is not a B-spline is `InvalidInput`).
+//! - **Recursion.** `GlobalCoincidenceChecker` splits closed and half closed curves
+//!   recursively; past [`MAX_COINCIDENCE_DEPTH`] nested splits it fails with
+//!   `InvalidInput` (upstream recurses without bound).
+//! - **Unported callees.** `SmCurve::LocalPropertyAnalysis` and
+//!   `sm_IsPointSolutionAcrossClosedSeamBoundary` (unit `curve.curve_p5`, also behind
+//!   `LocalCurveSolve`'s `SmFindCCNormalENFO::Evaluate`) return
+//!   [`SolidError::Unported`].
 
+use crate::curve::curve::p1::{ApproximateCurveOptions, GlobalPointSolveOptions};
 use crate::curve::curve::p2::{
     at, snap_sol_to_specified_endpoint, Curve, CurveKind, CurvePropertyType,
 };
@@ -60,7 +70,9 @@ use crate::geom::global_solver::{GlobalSolve, GlobalSolver, SolutionRequested, S
 use crate::geom::object::ObjectRef;
 use crate::geom::polar_box::{PolarBox, PolarBoxState};
 use crate::geom::pseudo_box::{Planar, PseudoBox};
-use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType, SortKey};
+use crate::geom::solution_array::{
+    ObjectKind, Solution, SolutionArray, SolutionObject, SolutionType, SortKey,
+};
 use crate::geom::tol::{approx_tol_3d, are_same, is_zero, SmallTopoType, ZONE_TOL_3D};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
@@ -71,58 +83,32 @@ use crate::nurbs::b_spline_curve_n_lib::InValueType;
 const OP_BOX: &str = "curve::curve::p6::calculate_bounding_box";
 const OP_DEFORM: &str = "curve::curve::p6::deform_to_end_point_targets";
 
+const OP_COINCIDENCE: &str = "curve::curve::p6::global_coincidence_checker";
+
+/// Deepest nesting of the closed / half closed splits of
+/// [`Curve::global_coincidence_checker`] (each split shrinks a parameter interval to at
+/// most 37.5% and stops below a tenth of the zone tolerance, so upstream inputs need
+/// fewer than 40 levels).
+pub const MAX_COINCIDENCE_DEPTH: usize = 200;
+
 /// `lNumSpans` of the base `CalculateBoundingBox`.
 const NUM_SPANS: u64 = 12;
 
-// ---- unported callees -------------------------------------------------------------------
+// ---- callees ----------------------------------------------------------------------------
 
-/// `SmCurve::GlobalPointSolve(crInterval, eOp, crTestPoint, dDistTol, cpdOptTarget,
-/// cpOptVectors, eRequested, rSolutions)` of `curve`: the solutions.
-#[allow(clippy::too_many_arguments)]
-fn global_point_solve<O: Copy>(
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _op: SolverOperation,
-    _test_point: Point3,
-    _dist_tol: f64,
-    _target_distance: Option<f64>,
-    _vectors: Option<&[Vec3]>,
-    _requested: SolutionRequested,
-) -> Result<Vec<Solution<O>>> {
-    // UNPORTED(curve.curve_p1): SmCurve::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmCurve::GlobalPointSolve",
-        "curve.curve_p1",
-    ))
-}
+/// The handle of a curve inside this unit's own solves (upstream `this`): a curve with
+/// its natural interval.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct CurveHandle(Extent1d);
 
-/// `SmCurve::Tessellate(crInterval, dChordHeight, dAngleTolDeg, lMinSegs, NULL,
-/// &rPoints, pOptTangents)` of the base class (the kinds reaching the base
-/// `CalculateBoundingBox` do not override it).
-fn tessellate_base(
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _chord_height: f64,
-    _angle_tol_deg: f64,
-    _min_segments: u64,
-    _points: &mut Vec<Point3>,
-    _tangents: Option<&mut Vec<Vec3>>,
-) -> Result<()> {
-    // UNPORTED(curve.curve_p1): SmCurve::Tessellate
-    Err(SolidError::unported(
-        "SmCurve::Tessellate",
-        "curve.curve_p1",
-    ))
-}
+impl SolutionObject for CurveHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
 
-/// `SmCurve::ApproximateCurve(ctx, breaks, tol, rdMaxGap, rpNewCurve, FALSE, FALSE,
-/// TRUE)` of `curve`: the approximating B-spline.
-fn approximate_curve(_curve: &Curve, _breaks: &[f64], _tol: f64) -> Result<BSplineCurve> {
-    // UNPORTED(curve.curve_p1): SmCurve::ApproximateCurve
-    Err(SolidError::unported(
-        "SmCurve::ApproximateCurve",
-        "curve.curve_p1",
-    ))
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.0)
+    }
 }
 
 /// `sm_IsPointSolutionAcrossClosedSeamBoundary(rSol, crThisCurve, crInterval,
@@ -289,15 +275,12 @@ pub fn calculate_bounding_box_base(
     if !stat_ok {
         // sample the target curve over target interval
         let chord_height = size / 100_000.0;
-        tessellate_base(
-            curve,
-            interval,
-            chord_height,
-            angle_tol_deg,
-            0,
-            &mut points,
-            want_tangents.then_some(&mut tangents),
-        )?;
+        // (Tessellate resets the arrays it is given)
+        let tess = curve.tessellate(interval, chord_height, angle_tol_deg, 0)?;
+        points = tess.points;
+        if want_tangents {
+            tangents = tess.tangents;
+        }
     }
 
     let count = points.len();
@@ -528,6 +511,7 @@ impl Curve {
     /// unit `curve.curve_p1`).
     pub fn drop_point(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         point: Point3,
         vec_to_inside: Option<Vec3>,
@@ -601,19 +585,22 @@ impl Curve {
         if !local_converged
             || (op == SolverOperation::Intersect && solution.start.solution_value > xsect_tol)
         {
-            let solutions: Vec<Solution<()>> = global_point_solve(
-                self,
+            let opts = GlobalPointSolveOptions {
+                handle: Some(CurveHandle(self.natural_interval())),
+                ..GlobalPointSolveOptions::default()
+            };
+            let solutions = self.global_point_solve(
+                k,
                 interval,
                 op,
                 point,
                 dist_tol,
-                None,
-                None,
                 SolutionRequested::Single,
+                &opts,
             )?;
 
             // for every solution
-            for sol in &solutions {
+            for sol in solutions.as_slice() {
                 let (snapped, keep_sol) = snap_sol_to_specified_endpoint(
                     self,
                     interval,
@@ -637,16 +624,16 @@ impl Curve {
     }
 
     /// `GlobalPointSolveSTEP`: the line and hyperbola overrides; the base passes the
-    /// call to `GlobalPointSolve`. `this` names the curve in the line's solutions
-    /// (the hyperbola uses the curve's owner, see its unit).
+    /// call to [`Curve::global_point_solve`]. `this` names the curve in the
+    /// solutions (the hyperbola's name no object, see its unit).
     ///
     /// # Errors
     ///
-    /// Those of the hyperbola override; [`SolidError::Unported`] for
-    /// `SmCurve::GlobalPointSolve` (unit `curve.curve_p1`).
+    /// Those of the hyperbola override and of [`Curve::global_point_solve`].
     #[allow(clippy::too_many_arguments)]
-    pub fn global_point_solve_step(
+    pub fn global_point_solve_step<O: SolutionObject>(
         &mut self,
+        k: &Kernel,
         step_interval: &Extent1d,
         op: SolverOperation,
         test_point: Point3,
@@ -654,32 +641,58 @@ impl Curve {
         target_distance: Option<f64>,
         vectors: Option<&[Vec3]>,
         requested: SolutionRequested,
-        this: Option<ObjectRef>,
-    ) -> Result<Vec<Solution<ObjectRef>>> {
+        this: Option<O>,
+    ) -> Result<Vec<Solution<O>>> {
         let owner = self.owner();
         match self.kind_mut() {
             CurveKind::Line(l) => {
                 Ok(l.global_point_solve_step(step_interval, op, test_point, dist_tol, this))
             }
-            CurveKind::Hyperbola(h) => h.global_point_solve_step(
-                step_interval,
-                op,
-                test_point,
-                dist_tol,
-                target_distance,
-                requested,
-                owner,
-            ),
-            _ => global_point_solve(
-                self,
-                step_interval,
-                op,
-                test_point,
-                dist_tol,
-                target_distance,
-                vectors,
-                requested,
-            ),
+            CurveKind::Hyperbola(h) => {
+                let sols = h.global_point_solve_step(
+                    k,
+                    step_interval,
+                    op,
+                    test_point,
+                    dist_tol,
+                    target_distance,
+                    requested,
+                    owner,
+                )?;
+                Ok(sols
+                    .iter()
+                    .map(|s| {
+                        let mut r: Solution<O> = Solution::new();
+                        r.solution_type = s.solution_type;
+                        r.num_variables = s.num_variables;
+                        r.start = s.start;
+                        r.end = s.end;
+                        r.num_objects = s.num_objects;
+                        r.nodes = s.nodes;
+                        r
+                    })
+                    .collect())
+            }
+            _ => {
+                let opts = GlobalPointSolveOptions {
+                    target_distance,
+                    opt_vectors: vectors,
+                    handle: this,
+                    ..GlobalPointSolveOptions::default()
+                };
+                Ok(self
+                    .global_point_solve(
+                        k,
+                        step_interval,
+                        op,
+                        test_point,
+                        dist_tol,
+                        requested,
+                        &opts,
+                    )?
+                    .as_slice()
+                    .to_vec())
+            }
         }
     }
 
@@ -699,6 +712,7 @@ impl Curve {
     /// (`SmFindCCNormalENFO::Evaluate`, unit `curve.curve_p5`).
     pub fn curve_max_distance_between(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         other: &Self,
         other_start: f64,
@@ -837,19 +851,23 @@ impl Curve {
                 };
                 if borrowed == Some(false) {
                     // look for ThisCurve nearest Point to sOtherCurvePoint using GlobalPoint solution
-                    let solutions: Vec<Solution<()>> = global_point_solve(
-                        self,
+                    let opts = GlobalPointSolveOptions {
+                        target_distance: max_needed,
+                        handle: Some(CurveHandle(self.natural_interval())),
+                        ..GlobalPointSolveOptions::default()
+                    };
+                    let solutions = self.global_point_solve(
+                        k,
                         interval,
                         SolverOperation::Minimize,
                         pnt,
                         EFF_ZERO_SQRT,
-                        max_needed,
-                        None,
                         SolutionRequested::Single,
+                        &opts,
                     )?;
 
                     // when a solution was found
-                    if let Some(first) = solutions.first() {
+                    if let Some(first) = solutions.as_slice().first() {
                         found = true;
                         found_parameter = first.start.param(0)?;
 
@@ -975,6 +993,7 @@ impl Curve {
     #[allow(clippy::too_many_arguments)]
     pub fn simple_coincidence_checker<O: Copy>(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         other: &Self,
         other_interval: &Extent1d,
@@ -1129,6 +1148,7 @@ impl Curve {
         } else {
             // find maxDistance between the two intervals
             let gap = self.curve_max_distance_between(
+                k,
                 &ivl_t1,
                 other,
                 first.1,
@@ -1171,10 +1191,13 @@ impl Curve {
     /// # Errors
     ///
     /// Those of the evaluations, box, closure, degeneracy and drop computations;
-    /// [`SolidError::Unported`] for the global point solve of the drops (unit
-    /// `curve.curve_p1`) and the seam test of split solutions (unit `curve.curve_p5`).
+    /// `InvalidInput` past [`MAX_COINCIDENCE_DEPTH`] nested splits;
+    /// [`SolidError::Unported`] for the seam test of split solutions (unit
+    /// `curve.curve_p5`).
+    #[allow(clippy::too_many_arguments)]
     pub fn global_coincidence_checker<O: SolutionObject>(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         other: &Self,
         other_interval: &Extent1d,
@@ -1182,6 +1205,38 @@ impl Curve {
         snap_to_ends: bool,
         objects: [Option<O>; 2],
     ) -> Result<Coincidence<O>> {
+        self.global_coincidence_checker_at(
+            k,
+            interval,
+            other,
+            other_interval,
+            tol,
+            snap_to_ends,
+            objects,
+            0,
+        )
+    }
+
+    /// [`Curve::global_coincidence_checker`] at split depth `depth`.
+    #[allow(clippy::too_many_arguments)]
+    fn global_coincidence_checker_at<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        interval: &Extent1d,
+        other: &Self,
+        other_interval: &Extent1d,
+        tol: f64,
+        snap_to_ends: bool,
+        objects: [Option<O>; 2],
+        depth: usize,
+    ) -> Result<Coincidence<O>> {
+        if depth > MAX_COINCIDENCE_DEPTH {
+            return Err(SolidError::invalid_input(
+                OP_COINCIDENCE,
+                "coincidence check split deeper than MAX_COINCIDENCE_DEPTH",
+            ));
+        }
+
         // init output
         let mut out = Coincidence {
             additional_work_needed: false,
@@ -1224,13 +1279,15 @@ impl Curve {
             let mut parts = Vec::with_capacity(3);
             for piece in &pieces {
                 parts.push(
-                    self.global_coincidence_checker(
+                    self.global_coincidence_checker_at(
+                        k,
                         piece,
                         other,
                         other_interval,
                         tol,
                         true,
                         objects,
+                        depth + 1,
                     )?
                     .solutions,
                 );
@@ -1244,8 +1301,17 @@ impl Curve {
             let mut parts = Vec::with_capacity(3);
             for piece in &pieces {
                 parts.push(
-                    self.global_coincidence_checker(interval, other, piece, tol, true, objects)?
-                        .solutions,
+                    self.global_coincidence_checker_at(
+                        k,
+                        interval,
+                        other,
+                        piece,
+                        tol,
+                        true,
+                        objects,
+                        depth + 1,
+                    )?
+                    .solutions,
                 );
             }
             return self.merge_split_solutions(&parts, interval, other, other_interval, false);
@@ -1309,6 +1375,7 @@ impl Curve {
 
         // drop thisCurve StartPoint onto otherCurve snapping to sLinePt1[0]
         let d = other.drop_point(
+            k,
             other_interval,
             line_pt1_0,
             snap(line_pt1_1),
@@ -1321,13 +1388,21 @@ impl Curve {
         }
 
         // drop otherCurve startPoint onto thisCurve
-        let d = self.drop_point(interval, line_pt2_0, snap(line_pt2_1), tol, None, solver_op)?;
+        let d = self.drop_point(
+            k,
+            interval,
+            line_pt2_0,
+            snap(line_pt2_1),
+            tol,
+            None,
+            solver_op,
+        )?;
         if d.success && d.distance < tol {
             drops.push((d.parameter, other_interval.min(), d.distance));
         }
 
         // drop otherCurve EndPoint onto thisCurve
-        let d = self.drop_point(interval, end2_0, snap(end2_1), tol, None, solver_op)?;
+        let d = self.drop_point(k, interval, end2_0, snap(end2_1), tol, None, solver_op)?;
         if d.success && d.distance < tol {
             let entry = (d.parameter, other_interval.max(), d.distance);
             match drops.last() {
@@ -1346,7 +1421,15 @@ impl Curve {
         }
 
         // drop thisCurve EndPoint onto otherCurve
-        let d = other.drop_point(other_interval, end1_0, snap(end1_1), tol, None, solver_op)?;
+        let d = other.drop_point(
+            k,
+            other_interval,
+            end1_0,
+            snap(end1_1),
+            tol,
+            None,
+            solver_op,
+        )?;
         if d.success && d.distance < tol {
             drops.push((interval.max(), d.parameter, d.distance));
         }
@@ -1377,6 +1460,7 @@ impl Curve {
 
         // find the max distance between the curves
         let gap = self.curve_max_distance_between(
+            k,
             &ivl_t1,
             other,
             first.1,
@@ -1653,7 +1737,26 @@ impl Curve {
             _ => {
                 let ivl = self.natural_interval();
                 let breaks = [ivl.min(), ivl.max()];
-                approximate_curve(self, &breaks, approx_tol_3d(k, SmallTopoType::default()))?
+                let opts = ApproximateCurveOptions {
+                    create_analytics: false,
+                    match_parameterization: false,
+                    just_copy_bsplines: true,
+                };
+                // (upstream ignores the status and dereferences the new curve)
+                let approx = self.approximate_curve(
+                    &breaks,
+                    approx_tol_3d(k, SmallTopoType::default()),
+                    &opts,
+                )?;
+                match approx.curve.into_kind() {
+                    CurveKind::BSpline(c) => c,
+                    _ => {
+                        return Err(SolidError::invalid_input(
+                            OP_DEFORM,
+                            "the approximation is not an SmBSplineCurve",
+                        ))
+                    }
+                }
             }
         };
 
@@ -1716,6 +1819,7 @@ mod tests {
         let ivl = c.natural_interval();
         let d = c
             .drop_point(
+                &Kernel::default(),
                 &ivl,
                 Vec3::new(1.0, 1.0, 0.0),
                 None,
@@ -1729,11 +1833,12 @@ mod tests {
     }
 
     #[test]
-    fn drop_point_without_guess_is_unported() {
+    fn drop_point_without_guess_uses_the_global_solve() {
         let c = quarter_line();
         let ivl = c.natural_interval();
-        let e = c
+        let d = c
             .drop_point(
+                &Kernel::default(),
                 &ivl,
                 Vec3::new(1.0, 1.0, 0.0),
                 None,
@@ -1741,8 +1846,9 @@ mod tests {
                 None,
                 SolverOperation::Minimize,
             )
-            .unwrap_err();
-        assert!(e.is_unported());
+            .unwrap();
+        assert!(d.success);
+        assert!((d.distance - 1.0).abs() < 1e-9);
     }
 
     #[test]
@@ -1750,7 +1856,7 @@ mod tests {
         let c = quarter_line();
         let ivl = c.natural_interval();
         let g = c
-            .curve_max_distance_between(&ivl, &c, ivl.min(), ivl.max(), 5, None)
+            .curve_max_distance_between(&Kernel::default(), &ivl, &c, ivl.min(), ivl.max(), 5, None)
             .unwrap();
         assert_eq!(g.distance, 0.0);
         assert_eq!(g.incorrect_dir, None);
@@ -1769,6 +1875,7 @@ mod tests {
         );
         let sols = a
             .simple_coincidence_checker::<u8>(
+                &Kernel::default(),
                 &a.natural_interval(),
                 &b,
                 &b.natural_interval(),

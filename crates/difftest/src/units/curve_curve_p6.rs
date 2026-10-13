@@ -15,15 +15,14 @@
 //! `SM_SUCCESS`, else the `SmStatus`; `1007` for a Rust `InvalidInput`, `-1` for a Rust
 //! error upstream cannot produce) and the rest as the `out` values.
 //!
-//! Deferred cases: `DropPoint` without a guess (or whose local solve fails),
-//! `GlobalPointSolveSTEP` of B-splines and Hermite curves and `CurveMaxDistanceBetween`
-//! falling back to the global solve reach `SmCurve::GlobalPointSolve` (unit
-//! `curve.curve_p1`), as do the end drops of `GlobalCoincidenceChecker`; the precise
-//! (`nsamp = 0`) gap refinement reaches `SmFindCCNormalENFO::Evaluate` (unit
-//! `curve.curve_p5`); deforming a Hermite curve reaches `SmCurve::ApproximateCurve`
-//! (unit `curve.curve_p1`). The base `CalculateBoundingBox` body is only reached by
-//! curve kinds without an override (none of the kinds here: B-spline, line and Hermite
-//! all override it).
+//! Deferred cases (unit `curve.curve_p5`): the precise (`nsamp = 0`) gap refinement of
+//! `CurveMaxDistanceBetween` (`SmFindCCNormalENFO::Evaluate` behind `LocalCurveSolve`),
+//! the split recombination of `GlobalCoincidenceChecker` once a piece has a solution
+//! (`sm_IsPointSolutionAcrossClosedSeamBoundary`) and the global solves that reach
+//! `LocalPropertyAnalysis` or `SmCurve::IsArc`. The base `CalculateBoundingBox` body is
+//! only reached by curve kinds without an override (none of the kinds here: B-spline,
+//! line and Hermite all override it). Global point solves name a curve handle carrying
+//! the curve's natural interval (upstream's `this`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -34,7 +33,6 @@ use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::global_solver::{SolutionRequested, SolverOperation};
-use solidcore::geom::object::ObjectRef;
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
 use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
@@ -521,12 +519,17 @@ macro_rules! tri {
     };
 }
 
+/// A curve handle: its id (`0` this curve, `1` the other) and natural interval.
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Obj(i64);
+struct Obj(i64, Extent1d);
 
 impl SolutionObject for Obj {
     fn kind(&self) -> ObjectKind {
-        ObjectKind::Other
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.1)
     }
 }
 
@@ -680,6 +683,7 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             let d = tri!(
                 o,
                 c.drop_point(
+                    &k,
                     &ivl_of(*ivl),
                     v3(*p),
                     vec.map(v3),
@@ -701,13 +705,11 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
         } => {
             let mut c = build(curve)?;
             let requested = SolutionRequested::from_code(*req).ok_or_else(|| harness("req"))?;
-            let this = ObjectRef {
-                type_code: c.type_code(),
-                key: solidcore::geom::attribute::ObjectKey(1),
-            };
+            let this = Obj(0, c.natural_interval());
             let sols = tri!(
                 o,
                 c.global_point_solve_step(
+                    &k,
                     &ivl_of(*ivl),
                     sop_of(*sop)?,
                     v3(*p),
@@ -720,9 +722,7 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             );
             o.extend([0.0, sols.len() as f64]);
             for s in &sols {
-                put_sol(&mut o, s, |x: Option<ObjectRef>| {
-                    x.map_or(-1.0, |r| if r == this { 0.0 } else { 2.0 })
-                });
+                put_sol(&mut o, s, obj_id);
             }
         }
         OpIn::MaxDist {
@@ -742,6 +742,7 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             let r = tri!(
                 o,
                 a.curve_max_distance_between(
+                    &k,
                     &ivl_of(*ivl),
                     other.as_ref().unwrap_or(&a),
                     *s,
@@ -789,13 +790,17 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             let sols = tri!(
                 o,
                 a.simple_coincidence_checker(
+                    &k,
                     &i1,
                     &bb,
                     &i2,
                     *tol,
                     box1.as_ref(),
                     box2.as_ref(),
-                    [Some(Obj(0)), Some(Obj(1))],
+                    [
+                        Some(Obj(0, a.natural_interval())),
+                        Some(Obj(1, bb.natural_interval())),
+                    ],
                 )
             );
             o.extend([0.0, sols.len() as f64]);
@@ -816,12 +821,16 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             let r = tri!(
                 o,
                 a.global_coincidence_checker(
+                    &k,
                     &ivl_of(*ivl1),
                     &bb,
                     &ivl_of(*ivl2),
                     *tol,
                     *snap,
-                    [Some(Obj(0)), Some(Obj(1))],
+                    [
+                        Some(Obj(0, a.natural_interval())),
+                        Some(Obj(1, bb.natural_interval())),
+                    ],
                 )
             );
             o.extend([0.0, b(r.additional_work_needed), r.solutions.len() as f64]);
