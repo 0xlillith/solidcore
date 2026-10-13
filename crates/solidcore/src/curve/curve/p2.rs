@@ -1180,8 +1180,11 @@ impl Curve {
         let unported = |upstream: &'static str, unit: &'static str| -> Result<Self> {
             Err(SolidError::Unported { upstream, unit })
         };
+        // Bound nesting (a projected/offset/... curve reads its base curve through
+        // here): upstream recurses without limit on crafted input.
+        db.enter_nested(OP_READ)?;
         // pass the call along to the appropriate derived type
-        match curve_type {
+        let result = match curve_type {
             BSPLINE_CURVE_TYPE => BSplineCurve::read_from_db(db, dim, version).map(Self::from),
             // UNPORTED(curve.ellipse_p1): SmEllipse::ReadFromDB
             ELLIPSE_TYPE => unported("SmEllipse::ReadFromDB", "curve.ellipse_p1"),
@@ -1201,8 +1204,12 @@ impl Curve {
             CRV_ON_SURF_TYPE => unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf"),
             // UNPORTED(curve.crv_in_volume): SmCrvInVolume::ReadFromDB
             CRV_IN_VOLUME_TYPE => unported("SmCrvInVolume::ReadFromDB", "curve.crv_in_volume"),
-            // UNPORTED(curve.tangent_field): SmTangentField::ReadFromDB
-            TANGENT_FIELD_TYPE => unported("SmTangentField::ReadFromDB", "curve.tangent_field"),
+            TANGENT_FIELD_TYPE => {
+                // SmTangentField::ReadFromDB; its SmCrvOnSurf part is unported
+                crate::curve::tangent_field::read_from_db(db, dim, version)?;
+                // UNPORTED(curve.crv_on_surf): SmTangentField as a curve kind
+                unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf")
+            }
             HERMITE_CURVE_TYPE => HermiteCurve::read_from_db(db).map(Self::from),
             // UNPORTED(curve.iso_curve): SmIsoCurve::ReadFromDB
             ISO_CURVE_TYPE => unported("SmIsoCurve::ReadFromDB", "curve.iso_curve"),
@@ -1213,7 +1220,9 @@ impl Curve {
                 unported("SmProjectedCurve::ReadFromDB", "curve.projected_curve")
             }
             _ => Err(SolidError::sm_err(OP_READ)),
-        }
+        };
+        db.leave_nested();
+        result
     }
 }
 
