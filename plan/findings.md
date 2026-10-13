@@ -1746,3 +1746,49 @@ dispatcher bounds nesting with `DatabaseReader::enter_nested` (limit
 `MAX_READ_NESTING` = 64); deeper input is `InvalidInput`. Deviation from upstream only
 for inputs that would crash it. Found by the commit security review of
 `curve.projected_curve`.
+
+## curve.hyperbola
+
+- `SmHyperbola::MakeNurb` fails (`SM_ERR`, no NURB) for a degenerate analytic domain
+  (parallel end tangents in `smgu_LineLineClosestPoint`) or when the middle tangent
+  line cuts the chord outside `(SM_EFF_ZERO, 1 - SM_EFF_ZERO)`; the constructor ignores
+  the status. `GlobalPointSolveSTEP` on such a curve reaches `SmCurve::GlobalPointSolve`,
+  whose curve cache dereferences the missing NURB (`SmBSplineCurve::EvaluatePoint`):
+  upstream segfaults. The difftest shim refuses those inputs and the generator avoids
+  them; the Rust side returns `Unported` there anyway until `curve.curve_p1` lands,
+  whose porter must decide what a NURB-less curve does (`SM_ERR` is the natural port).
+- Upstream frees the NURB in `ReverseParameterization` and rebuilds it lazily through the
+  virtual `MakeNurb` in `GetOrCreateGwNurbPointer`. The Rust B-spline base cannot reach
+  the override, so `Hyperbola::reverse_parameterization` rebuilds it at once (same NURB);
+  the difftest shim calls `GetOrCreateGwNurbPointer` before reading the state.
+- `MakeNurb` of a generator curve of `SmSurfOfExtrusion` / `SmSurfOfRevolution` (owner
+  type) returns `Unported` (`surface.surf_of_extrusion_p1`, `surface.surf_of_revolution_p1`);
+  the hyperbola methods that make the NURB take the owner as an argument.
+## curve.projected_curve (`SmProjectedCurve`)
+
+Difftest: 2727 cases (227 fixtures re-expressing the two upstream constructions in
+`SmTransSweepGeometry.cpp:794` / `SmRotationalSweepGeometry.cpp:586`, perspective views,
+`MakeOrthoNormal` edge cases and `WriteToDB`-format streams, plus 2500 generated), all
+bit-identical. The shim reads the private members through the explicit-instantiation access
+rule (no upstream change). Upstream behaviour kept as is:
+
+- **`MakeOrthoNormal` is inverted.** It unitizes `m_sProjVec` only when it `IsZero()`
+  (giving `(0, 0, 1)`) and returns `SM_ERR` for every non-zero vector, which is left
+  un-normalised; for `SM_PT_ROTATION` the same holds for `m_sAuxData`, and the
+  `NormalInPlane` result is discarded. Callers (the sweep geometry above) pass vectors that
+  are already unit, so the projections still work; a non-unit view normal gives a skewed
+  "projection" (both sides agree). The constructor ignores the status; `SetCanonical`
+  returns it.
+- **`Transform` needs `m_bOwnsCurve == UNSURE`.** It tests `m_bOwnsCurve < 2`, so a curve
+  that owns its base (`TRUE`, e.g. every curve from `ReadFromDB`) or borrows it (`FALSE`)
+  fails with `SM_ERR` (after a pre-edit notify); only the member-initialiser value
+  `UNSURE` passes. `EditParameterization`, `ReverseParameterization` and `Trim` refuse only
+  `FALSE`.
+- **`Copy` of a curve owning a Hermite base** (`SmCurve::Copy` = `SM_ERR`, ignored by the
+  copy constructor) returns `SM_SUCCESS` and a projected curve with a null base curve that
+  crashes on use. The port returns the `SM_ERR`; the shim maps upstream's null-base result
+  to `SM_ERR`.
+- `EvaluatePoint` computes the parallel projection before the switch and again inside it;
+  `Evaluate` projects perspective derivatives about the already projected position.
+- `ReadFromDB` casts the stored ULONG to `SmProjectionType` (undefined beyond `0..=3`; the
+  port maps it to `Unknown`) and does not call `MakeOrthoNormal`.
