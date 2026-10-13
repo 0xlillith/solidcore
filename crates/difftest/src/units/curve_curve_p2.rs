@@ -685,7 +685,7 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
         CurveKind::BSpline(b) => Some(b),
         // an SmBSplineCurve (upstream IsKindOf)
         CurveKind::Parabola(p) => Some(p.base()),
-        CurveKind::Hermite(_) => None,
+        CurveKind::Hermite(_) | CurveKind::Conic(_) => None,
     };
     match (bspline, c.kind()) {
         (Some(b), _) => {
@@ -707,6 +707,20 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
             let e = h.evaluate(1.0, 1, false);
             for v in a.iter().take(2).chain(e.iter().take(2)) {
                 pv(o, *v);
+            }
+        }
+        (None, CurveKind::Conic(k)) => {
+            // the defining data evaluated back: position and tangent at 0 and 0.5
+            o.extend([2.0, k.dim() as f64]);
+            for t in [0.0, 0.5] {
+                match k.evaluate(t, 1, false) {
+                    Ok(v) => {
+                        for p in v.iter().take(2) {
+                            pv(o, *p);
+                        }
+                    }
+                    Err(_) => o.push(-1.0),
+                }
             }
         }
         (None, _) => {}
