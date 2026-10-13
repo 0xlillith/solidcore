@@ -2,19 +2,20 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**112 / 261 units ported** (83 green, 29 partial), **143,561 / 387,903 upstream lines (37.0%)**. 3 claimed, 0 blocked, 146 todo.
+**112 / 261 units ported** (83 green, 29 partial), **143,561 / 387,903 upstream lines (37.0%)**. 4 claimed, 0 blocked, 145 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready to claim · ⏳ waiting on dependencies · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `surface.unbend_volume` (920 lines) — ready
+_None: every todo unit waits on a claimed or todo dependency._
 
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p1` (1522 lines) — in progress: #15 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
+- [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (draft)
 
 ## By module
 
@@ -148,7 +149,7 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [ ] ⏳ `surface.surf_of_revolution_p3` (1620 lines) — waiting
 - [ ] ⏳ `surface.surface_cache_p2` (1245 lines) — waiting
 - [ ] ⏳ `surface.torus` (1180 lines) — waiting
-- [ ] ▶️ `surface.unbend_volume` (920 lines) — ready
+- [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (draft)
 - [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
 - [ ] ⏳ `surface.surf_of_revolution_p2` (1369 lines) — waiting
 - [ ] ⏳ `surface.surface_cache_p3` (1703 lines) — waiting
