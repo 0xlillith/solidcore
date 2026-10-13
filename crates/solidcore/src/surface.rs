@@ -10,5 +10,6 @@
 pub mod b_spline_volume;
 #[allow(clippy::module_inception)]
 pub mod surface;
+pub mod surface_cache;
 pub mod twist_volume;
 pub mod volume;
