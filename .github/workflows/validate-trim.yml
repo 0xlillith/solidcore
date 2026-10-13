@@ -24,6 +24,10 @@ jobs:
         with:
           workspaces: ". -> bin"
           key: trim-validation
+      - uses: actions/cache@v4
+        with:
+          path: bin/cpp
+          key: trim-cpp-${{ runner.os }}-c9c5979-v1
       - name: Build reference
         run: nice -n 10 harness/cpp/build.sh --jobs 6
       - name: Rust and C++ comparison
@@ -39,3 +43,4 @@ jobs:
         with:
           name: trim-difftest-reports
           path: reports/difftest/
+
