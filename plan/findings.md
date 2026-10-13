@@ -2512,3 +2512,36 @@ Upstream behaviour worth knowing:
     `LocalSolve`, and `SmCurvePropertyGS::LocalSolve`'s angle special case copies it into
     `m_apNodes[1]` of a one-object solution. The `curve.curve_p7` harness reports the second
     node only for two-object solutions.
+
+## surface.surface_p9
+
+- Owns `FindTessellationSplits`, `CreateIsoBoundaries` and the CSI leaf `LocalSolve`
+  body in `SmSurface.cpp:11644,13887,14877`. Default report: 630 cases (30 fixtures
+  and 600 fixed-seed generated), 615 bit-identical, zero failed, 15 deferred,
+  max relative error zero, no absolute floors.
+- The 13 diagonal-tessellation deferrals reach curve classification in
+  `intersect.curve_class_p4`. The two CSI fixtures reach `sm_GetSurfaceToEvaluate`
+  (`surface.surface_p1`). The downstream CSI body is therefore not C++ verified;
+  its surface_p1/p4/p5/p6/p7 calls and identical-solution virtual stay explicit
+  Unported back-edges. The constructor belongs to surface_p1. Do not describe the
+  intersection solver as usable end to end.
+- CSI fixture caches use a nonzero chord tolerance. Cache preparation failures
+  are harness failures, never matching operation errors. The reference solver
+  must also return success. The surface fixture is one planar quadratic patch;
+  Rust assembles its one-leaf arena because general surface tree construction is
+  not available yet. Further CSI coverage must use fully equivalent constructed
+  caches when those dependencies land.
+- B-spline iso extraction is exact, so the approximation tolerance has no effect
+  for that supported kind. Curve-bounded surface virtuals defer to surface_p5.
+  The maximum-side branch retains the upstream last-sampled length for its
+  equally-spaced-point tolerance, even if another sampled curve was longest.
+- Input-driven tessellation recursion has an explicit depth limit of two (the
+  recursive call sets maximum side length to zero). Split arrays are bounded to
+  1,000,000 entries including endpoints. Invalid/nonfinite/negative derived counts
+  return an error instead of converting to an unsigned count. The FFI excludes
+  the all-degenerate maximum-side case where upstream's negative count conversion
+  is unsafe. Two kernel tests cover analytic boundaries and excessive counts.
+- Ignored non-Unported tessellation failures leave empty returned arrays in Rust;
+  the C++ out-array API can retain partial arrays on failure. This deviation is
+  documented in the module header. All Unported errors propagate explicitly.
+  No numerical disagreement was found in the tested supported paths.

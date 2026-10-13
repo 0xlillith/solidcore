@@ -1479,10 +1479,10 @@ depends_on = ["curve.crv_on_surf", "curve.curve_cache", "curve.curve_p1", "curve
 est_lines = 1252
 layer = 23
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "3 fns; largest: SmCSIGlobalSolver::LocalSolve, SmSurface::FindTessellationSplits, SmSurface::CreateIsoBoundaries; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(4), surface.surface_p1(3), surface.surface_p7(2), surface.surface_p4(1), surface.surface_p6(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "3 fns; largest: SmCSIGlobalSolver::LocalSolve, SmSurface::FindTessellationSplits, SmSurface::CreateIsoBoundaries; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(4), surface.surface_p1(3), surface.surface_p7(2), surface.surface_p4(1), surface.surface_p6(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; verified: 630 cases (30 fixtures + 600 generated), 615 bit-identical, 0 failed, 15 deferred: intersect.curve_class_p4(13), surface.surface_p1(2), max_rel_err=0; CSI body remains unverified behind sm_GetSurfaceToEvaluate; explicit back-edges and bounded tessellation recursion/allocation"
 
 [[unit]]
 id = "surface.trim_srf_cache"
