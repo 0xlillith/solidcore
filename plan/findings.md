@@ -1555,3 +1555,46 @@ knowing:
 - **`N_CrossBoundaryDerivsVectorField`** compares knots exactly; two valid clamped curves
   with equal knot vectors have equal degree and size, so its unchecked `Qw[ii]` reads stay
   in bounds.
+
+## nlib.srf_adv_p5 (NL_SrfAdv.cpp part 5: N_CreateSkinSrfBoundaryContinuity)
+
+- **Shared knot array.** In the rational case with rails, the derivative curves are built by
+  `N_CrvFromCPolygonAndKnotVector` over the derivative surface's own knot vector (v for
+  `NL_UDIR`, u for `NL_VDIR`), so the in-place knot writes of `N_CrvsMakeCompatibleKnotTol`
+  (`N_CrvReparamToInterval`, the knot averaging of `N_GetCompatibleKnotVectorToTol`) and the
+  rescaling in `N_CrvFuncMultiplyCrv4d` (`N_MakeKnotsCompatible`) also change `der[i]`'s
+  knots, until a degree elevation or refinement gives the curve new storage. Only the
+  in-place output `der` is affected (the surface is not). The port reproduces it with
+  `crv_tool::p2::make_compatible_knot_tol_traced` (contents of each curve's entry knot
+  storage); difftest compares `der` after the call bit for bit.
+- With derivative surfaces and `NL_UVDIR` upstream uses an uninitialised derivative curve
+  (the port returns `InvalidInput`; the FFI rejects it). With `cmp == NL_YES` upstream reads
+  `Dws[j]`/`Rw` assuming the cross sections and the derivative data are compatible, and copies
+  rail control points into the net assuming both rails share a knot vector; the FFI enforces
+  both.
+
+## nurbs.b_spline_curve_p3 (SmBSplineCurve part 3)
+
+No Rust-vs-C++ disagreement: 1229 of 1229 non-deferred difftest cases bit-identical (195
+fixtures: the six `pt_TestFiles` `.smc` curves through every op, the `my_test_curve_interface`
+`JoinWith` / `GetControlPoint` curves, `my_test_reversed_line_join` as B-spline lines,
+`TestSmCreateRectangle` / `TestSmCreateRegularPolygon` style line joins and gaps, edge cases,
+plus 2000 generated). 966 cases are deferred: `curve.curve_p2` (the `IsKindOf(SmLine_TYPE)` test
+of `IsSegmentLine` / `IsOnPlane` / `JoinWith`, `IsDegenerate` in `HasInternalPole`,
+`SmTol::IsDegenerate` in `AssertValid`, `ApproximateLength` for joins without a gap tolerance,
+`EvaluateContinuity` in `SubdivideAtDiscontinuity`), `curve.curve_p4` (`SmCurve::AssertValid`),
+`curve.curve_p5` (`IsLine` in `JoinWith`) and `curve.curve_p8` (`GlobalCurveIntersect` in
+`TrimGap`). No `UNPORTED(nurbs.b_spline_curve_p3)` stubs existed. Upstream behaviour worth
+knowing:
+
+- `IsSegmentLine` returns an `SmBoolean` but uses `SER`, so a failed evaluation returns the
+  status (e.g. 1001) as a "true" boolean; the shim reports it as a status.
+- `AssertValid` test 4 (last two control points coincident) tests and reports the *start*
+  pair's distance and scaled zero; kept. Its radius-of-curvature check (tests 13/14) compares
+  `dMinRadius` before setting it (it is still `SM_BIG_DOUBLE`), so it never fires.
+- Without `SM_DEBUG_CODE` the `SM_ASSERT_*_REPORT` macros ignore `pTestRequests`; the test
+  level only matters as `SM_LEVEL_GIVEN` (skips `SmCurve::AssertValid`).
+- `GetControlPoint` of a 2D curve takes the weight from the third slot; `CreateByScaleTransRot`
+  then writes a `z` value into a 2D curve's `NOZ` slots through `SetControlPoint`.
+- `JoinWith` hands `this` and the other curve to `CreateByJoining`, which may degree-elevate
+  the other curve in place.
