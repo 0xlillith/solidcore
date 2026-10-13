@@ -2139,10 +2139,10 @@ soft_depends_on = ["curve.curve_p1", "curve.curve_p8", "curve.curve_p9", "geom.e
 est_lines = 1838
 layer = 32
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "55 fns; largest: SmTopologySolver::MayContainAnswer, SmTLSPointFace::SolveIt, SmTLSPointVertex::SolveIt, SmTLSCurveCurve::SolveIt; cycle back-edges (call into later units; stub or co-port): topology.face_p2(6), topology.edge(5), topology.vertex(4), query.face_p1(1), query.face_p2(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 3224 cases (224 fixture: SM_API_test TestSmCreateRectangle / TestSmCreateRegularPolygon edges, my_test_drop_point, my_test_reversed_line_join lines, every operation on degenerate boxes / coincident and unit-distance vertices, tiny and huge circles, ray and at-distance tolerance limits, sub-domain edges; 3000 generated), 2884 pass bit-identical, 0 failed, 340 deferred (curve.curve_p9 135: GlobalCurveSolve of non-intersecting curve/edge solves; intersect.topology_solver_p2 87: SmTopologySolver::LocalSolve reached from SolveTrees; topology.edge 76: edge parameter intervals in solution comparisons; topology.brep_p1 42: object zone tolerances of ray-fire solutions and ellipse solves); --perturb SENSITIVE. Solvers read vertices, edges, faces and shape membership through the TopologyObjects trait (the difftest backs it with free-standing SmVertex/SmEdge objects); a B-rep implementation belongs with the BrepCache trees (intersect.topology_solver_p2, topology.vertex, topology.edge, topology.face_p2). SmTLSPointFace and sm_GetFaceSilhouettes are ported but stubbed at surface.surface_p8/surface.surface_p4/surface.surface_p1/intersect.point_class/query.face_p1 and not difftested. Upstream issues UB-73, UB-74, WR-48. 55 fns; largest: SmTopologySolver::MayContainAnswer, SmTLSPointFace::SolveIt, SmTLSPointVertex::SolveIt, SmTLSCurveCurve::SolveIt; cycle back-edges (call into later units; stub or co-port): topology.face_p2(6), topology.edge(5), topology.vertex(4), query.face_p1(1), query.face_p2(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.surface_point_solve_p1"

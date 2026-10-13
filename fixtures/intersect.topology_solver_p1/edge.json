@@ -8967,6 +8967,126 @@
    }
   },
   {
+   "name": "point_vertex_rayfire_behind_start",
+   "inputs": {
+    "op": "local",
+    "solver": {
+     "op": 8,
+     "req": 1,
+     "tol": 1e-09,
+     "best": 1e+20,
+     "vecs": [
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    },
+    "objects": [
+     {
+      "vertex": {
+       "p": [
+        0.9999999999999,
+        0,
+        0
+       ],
+       "tol": 0.0
+      }
+     },
+     {
+      "vertex": {
+       "p": [
+        3,
+        0,
+        0
+       ],
+       "tol": 0.0
+      }
+     }
+    ],
+    "local": {
+     "kind": 2,
+     "point": [
+      1,
+      0,
+      0
+     ],
+     "swap": false
+    },
+    "calls": [
+     [
+      -1,
+      0
+     ],
+     [
+      -1,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "name": "point_vertex_rayfire_behind_start_swapped",
+   "inputs": {
+    "op": "local",
+    "solver": {
+     "op": 8,
+     "req": 1,
+     "tol": 1e-09,
+     "best": 1e+20,
+     "vecs": [
+      [
+       1,
+       0,
+       0
+      ]
+     ]
+    },
+    "objects": [
+     {
+      "vertex": {
+       "p": [
+        0.9999999999999,
+        0,
+        0
+       ],
+       "tol": 0.0
+      }
+     },
+     {
+      "vertex": {
+       "p": [
+        3,
+        0,
+        0
+       ],
+       "tol": 0.0
+      }
+     }
+    ],
+    "local": {
+     "kind": 2,
+     "point": [
+      1,
+      0,
+      0
+     ],
+     "swap": true
+    },
+    "calls": [
+     [
+      0,
+      -1
+     ],
+     [
+      1,
+      -1
+     ]
+    ]
+   }
+  },
+  {
    "name": "point_vertex_at_distance_boundary",
    "inputs": {
     "op": "local",

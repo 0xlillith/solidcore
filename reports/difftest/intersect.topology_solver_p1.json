@@ -1126,11 +1126,35 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "point_vertex_rayfire_behind_start",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#138",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "point_vertex_rayfire_behind_start_swapped",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#139",
+      "values_compared": 0
+    },
+    {
       "max_rel_err": 0.0,
       "name": "point_vertex_at_distance_boundary",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#138",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#140",
       "values_compared": 15
     },
     {
@@ -1138,7 +1162,7 @@
       "name": "point_curve_subdomain_endpoint",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#139",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#141",
       "values_compared": 10
     },
     {
@@ -1146,7 +1170,7 @@
       "name": "point_curve_owner_vertex_swapped",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#140",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#142",
       "values_compared": 10
     },
     {
@@ -1154,7 +1178,7 @@
       "name": "abstract_solvers",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#141",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#143",
       "values_compared": 3
     },
     {
@@ -1166,7 +1190,7 @@
       "name": "trees_point_vertices_minimize",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#142",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#144",
       "values_compared": 0
     },
     {
@@ -1174,7 +1198,7 @@
       "name": "trees_disjoint_intersect",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#143",
+      "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#145",
       "values_compared": 3
     },
     {
@@ -27131,14 +27155,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 338,
+  "cases_deferred": 340,
   "cases_failed": 0,
   "cases_passed": 2884,
-  "cases_total": 3222,
+  "cases_total": 3224,
   "deferred_by_unit": {
     "curve.curve_p9": 135,
     "intersect.topology_solver_p2": 87,
-    "topology.brep_p1": 40,
+    "topology.brep_p1": 42,
     "topology.edge": 76
   },
   "max_rel_err": 0.0,
