@@ -78,7 +78,7 @@ use crate::kernel::Kernel;
 use crate::math::EFF_ZERO;
 use crate::nurbs::b_spline_curve::ProjectionType;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
-use crate::topology::database_io::{DatabaseReader, FileType};
+use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 const OP: &str = "curve::projected_curve::ProjectedCurve";
 const OP_READ: &str = "curve::projected_curve::ProjectedCurve::read_from_db";
@@ -228,20 +228,23 @@ impl ProjectedCurve {
 
     /// `operator==`: same object, or equal base curves (under
     /// [`Curve::approx_eq`]) and equal projection data (under [`Vec3::approx_eq`]).
-    #[must_use]
-    pub fn approx_eq(&self, other: &Self) -> bool {
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Curve::approx_eq`] on the base curves.
+    pub fn approx_eq(&self, other: &Self) -> Result<bool> {
         // low work
         if core::ptr::eq(self, other) {
-            return true;
+            return Ok(true);
         }
 
         // check equivalence of these objects
-        (core::ptr::eq(self.curve.as_ref(), other.curve.as_ref())
-            || self.curve.approx_eq(&other.curve))
+        Ok((core::ptr::eq(self.curve.as_ref(), other.curve.as_ref())
+            || self.curve.approx_eq(&other.curve)?)
             && self.proj_point.approx_eq(other.proj_point)
             && self.proj_vec.approx_eq(other.proj_vec)
             && self.aux_data.approx_eq(other.aux_data)
-            && self.proj_type == other.proj_type
+            && self.proj_type == other.proj_type)
     }
 
     /// `Copy`: a copy of the projected curve (copy constructor).
@@ -363,11 +366,7 @@ impl ProjectedCurve {
         };
 
         // count the knots
-        let mut cnt = 0usize;
-        for m in mults {
-            cnt += m;
-        }
-        Ok(cnt)
+        Ok(mults.iter().sum())
     }
 
     /// The continuities of the base curve (`CalculateContinuities`).
@@ -632,9 +631,7 @@ impl ProjectedCurve {
                 }
                 db.go_to_next_line();
             }
-            let pt = db
-                .in_stream_mut()
-                .and_then(crate::topology::database_io::InputStream::extract_ulong);
+            let pt = db.in_stream_mut().and_then(InputStream::extract_ulong);
             db.go_to_next_line();
             pt.ok_or_else(undefined)?
         } else {
@@ -665,12 +662,7 @@ impl ProjectedCurve {
             proj_point,
             proj_vec,
             aux_data,
-            proj_type: match proj_type {
-                0 => ProjectionType::Parallel,
-                1 => ProjectionType::Perspective,
-                2 => ProjectionType::Rotation,
-                _ => ProjectionType::Unknown,
-            },
+            proj_type: ProjectionType::from_code(proj_type).unwrap_or(ProjectionType::Unknown),
             owns_curve: OwnsCurve::Yes,
         })
     }
@@ -740,8 +732,8 @@ mod tests {
         for v in pd.iter().skip(1) {
             assert!(v.z.abs() < 1e-12);
         }
-        assert!(c.approx_eq(&c.clone()));
-        assert!(!c.approx_eq(&c2));
+        assert!(c.approx_eq(&c.clone()).unwrap());
+        assert!(!c.approx_eq(&c2).unwrap());
     }
 
     #[test]
