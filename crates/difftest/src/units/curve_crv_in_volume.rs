@@ -394,10 +394,8 @@ fn put_curve(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
-        CurveKind::Hyperbola(_)
-        | CurveKind::Projected(_)
-        | CurveKind::Conic(_)
-        | CurveKind::CrvInVolume(_) => o.push(-1.0),
+        // other kinds never are the base curve here
+        _ => o.push(-1.0),
     }
 }
 

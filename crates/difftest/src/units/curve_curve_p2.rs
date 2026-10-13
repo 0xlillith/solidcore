@@ -707,6 +707,9 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 pv(o, *v);
             }
         }
+        CurveKind::Iso(c) => {
+            o.extend([3.0, c.dim() as f64, c.iso_parameter()]);
+        }
         CurveKind::Conic(k) => {
             // the defining data evaluated back: position and tangent at 0 and 0.5
             o.extend([2.0, k.dim() as f64]);
@@ -721,7 +724,8 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
-        CurveKind::Projected(_) | CurveKind::CrvInVolume(_) => o.push(-1.0),
+        // the shim reports another type as -1
+        CurveKind::Projected(_) | CurveKind::Offset(_) | CurveKind::CrvInVolume(_) => o.push(-1.0),
     }
 }
 

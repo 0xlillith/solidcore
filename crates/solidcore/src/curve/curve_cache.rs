@@ -573,6 +573,8 @@ impl<O: Copy + PartialEq> CurveCache<O> {
             CurveKind::Hermite(_)
             | CurveKind::Conic(_)
             | CurveKind::Projected(_)
+            | CurveKind::Iso(_)
+            | CurveKind::Offset(_)
             | CurveKind::CrvInVolume(_) => false,
         };
 
@@ -593,6 +595,8 @@ impl<O: Copy + PartialEq> CurveCache<O> {
                 CurveKind::Hermite(_)
                 | CurveKind::Conic(_)
                 | CurveKind::Projected(_)
+                | CurveKind::Iso(_)
+                | CurveKind::Offset(_)
                 | CurveKind::CrvInVolume(_) => None,
             };
             create_bezier_segment_block(nurb, &self.curve)?
