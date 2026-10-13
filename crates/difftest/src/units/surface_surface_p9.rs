@@ -34,7 +34,11 @@ use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
 struct Handle(u8);
 impl SolutionObject for Handle {
     fn kind(&self) -> ObjectKind {
-        if self.0 == 0 { ObjectKind::Curve } else { ObjectKind::Surface }
+        if self.0 == 0 {
+            ObjectKind::Curve
+        } else {
+            ObjectKind::Surface
+        }
     }
     fn natural_interval(&self) -> Option<Extent1d> {
         (self.0 == 0).then(|| Extent1d::from_min_max(0.0, 1.0))
@@ -327,4 +331,3 @@ impl UnitDiff for Runner {
         .ok()
     }
 }
-
