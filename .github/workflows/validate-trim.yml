@@ -1,0 +1,41 @@
+name: Validate trim cache port
+on:
+  push:
+    branches: [codex/validate-trim]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upstream reference
+        run: |
+          git init upstream
+          git -C upstream remote add origin https://github.com/NVIDIA-Omniverse/usd-brep
+          git -C upstream fetch --depth 1 origin c9c5979f04cea8c38213004d4f04df0dcfb40d05
+          git -C upstream checkout --detach FETCH_HEAD
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake g++
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> bin"
+          key: trim-validation
+      - name: Build reference
+        run: nice -n 10 harness/cpp/build.sh --jobs 6
+      - name: Rust and C++ comparison
+        run: |
+          nice -n 10 cargo run -p difftest --features cpp -- --unit surface.trim_srf_cache --unit surface.surface_cache_p1
+          nice -n 10 cargo run -p difftest --features cpp -- --unit surface.trim_srf_cache --perturb
+      - name: FFI and runner lints and tests
+        run: |
+          nice -n 10 cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
+          nice -n 10 cargo test -p difftest --features cpp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trim-difftest-reports
+          path: reports/difftest/
