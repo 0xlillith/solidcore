@@ -39,6 +39,8 @@
 //! would then not increase: upstream builds an invalid knot vector) with at most 64 points of
 //! strictly increasing parameters.
 
+use core::cmp::Ordering;
+
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -356,7 +358,8 @@ impl Enc {
                 domain,
             } => {
                 let c = norm(cross(*x, *y));
-                if !(c > 1e-6 * norm(*x) * norm(*y)) || norm(*x) < 1e-9 || norm(*y) < 1e-9 {
+                let independent = c.partial_cmp(&(1e-6 * norm(*x) * norm(*y))) == Some(Ordering::Greater);
+                if !independent || norm(*x) < 1e-9 || norm(*y) < 1e-9 {
                     return Err(bad("plane axes"));
                 }
                 if !(scale[0] > 1e-9 && scale[1] > 1e-9) {
@@ -469,7 +472,7 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
                     return Err(bad("too many points"));
                 }
                 if points.windows(2).any(|w| match w {
-                    [a, b] => !(a.param < b.param),
+                    [a, b] => a.param.partial_cmp(&b.param) != Some(Ordering::Less),
                     _ => false,
                 }) {
                     return Err(bad("flush parameters must increase"));

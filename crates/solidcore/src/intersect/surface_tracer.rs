@@ -89,9 +89,9 @@
 //!   [`SolidError::Unported`] (see the `UNPORTED` markers).
 //! - **Undefined behaviour.** `ReverseCurveDirection` on an empty curve is
 //!   `SM_ERR_NULL_POINTER` (upstream `NER`); a `TraceCurve` that ends with an empty
-//!   curve (upstream dereferences the null last node) is
-//!   [`SolidError::InvalidInput`], as is a boundary iso curve index past the four
-//!   curves.
+//!   curve and a `TestPoint` closure check on an empty curve (upstream dereferences
+//!   the null last node) are [`SolidError::InvalidInput`], as is a boundary iso curve
+//!   index past the four curves or a node solution without node.
 //! - The `SM_DEBUG_CODE` drawing blocks, `SmTracePnt::Draw`, `SmTracePnt::Dump` and
 //!   `SmSurfaceTracer::Dump` are not ported. No recursion depends on input here
 //!   (the global solve bounds its own).
