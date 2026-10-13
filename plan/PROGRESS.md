@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**110 / 261 units ported** (83 green, 27 partial), **140,661 / 387,903 upstream lines (36.3%)**. 0 claimed, 0 blocked, 151 todo.
+**110 / 261 units ported** (83 green, 27 partial), **140,661 / 387,903 upstream lines (36.3%)**. 1 claimed, 0 blocked, 150 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready to claim · ⏳ waiting on dependencies · ⛔ blocked.
 
@@ -12,11 +12,10 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [ ] ▶️ `surface.plane_p1` (1934 lines) — ready
 - [ ] ▶️ `surface.surf_of_revolution_p1` (1522 lines) — ready
 - [ ] ▶️ `surface.surface_p9` (1252 lines) — ready
-- [ ] ▶️ `surface.trim_srf_cache` (966 lines) — ready
 
 ## In progress
 
-_None._
+- [ ] 🔨 `surface.trim_srf_cache` (966 lines) — in progress: #4 @0xlillith (draft)
 
 ## By module
 
@@ -142,7 +141,7 @@ _None._
 - [ ] ▶️ `surface.plane_p1` (1934 lines) — ready
 - [ ] ▶️ `surface.surf_of_revolution_p1` (1522 lines) — ready
 - [ ] ▶️ `surface.surface_p9` (1252 lines) — ready
-- [ ] ▶️ `surface.trim_srf_cache` (966 lines) — ready
+- [ ] 🔨 `surface.trim_srf_cache` (966 lines) — in progress: #4 @0xlillith (draft)
 - [ ] ⏳ `surface.b_spline_volume_n_lib` (310 lines) — waiting
 - [ ] ⏳ `surface.bend_volume` (945 lines) — waiting
 - [ ] ⏳ `surface.cone_p1` (1835 lines) — waiting
