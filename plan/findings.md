@@ -2386,3 +2386,50 @@ Upstream behaviour worth knowing (all kept by the port unless noted):
 - **`sm_FlushCrv`** is listed as unused by the call graph (another file has a static
   function of the same name) but is reached from `BuildCompositesFromCurves`; it is ported
   in this unit.
+
+## curve.composite_curve_p2 (`SmCompositeCurve`, part 2)
+
+- **`sm_CreateCorner` chamfer crash reaches the offsetters.** `CreateOffsetsOfManyCurves`
+  (and `CreateTrimmedOffsets`) with `SM_OC_LINEAR_CHAMFER` segfault in upstream
+  `sm_CreateCorner` (`sSolutions[0]` of an empty intersection array, see
+  `curve.composite_curve_p1`) whenever the chamfer line misses an extension line, which
+  random planar polygons hit often. The port returns `InvalidInput` there; the ffi sends
+  the offsetters fillet and linear-extension corners only.
+- **`sm_CheckBowTies` indexes `crOffsets` by the original curve count** (`crOffsets[0]`,
+  `crOffsets[lNumOrig-1]`) and `crOrigCurves[0]` without checks; `IntersectAndTrimOffsets`
+  ignores its status. Fewer raw offsets than original curves (degenerate offsets dropped
+  with one-sided offsetting) read past the array. The port returns `InvalidInput` and the
+  trimmer goes on without bow-tie points; the ffi requires `1 <= originals <= raws` for
+  `IntersectAndTrimOffsets` (the shim's copy of `sm_CheckBowTies` returns
+  `SM_ERR_INVALID_INPUT` at those points).
+- **`SmCompositeCurve::ReadFromDB` ignores the segment statuses.** A segment without a
+  curve, or whose curve fails to read, keeps a `NULL` curve (every later use
+  dereferences it); the port returns `InvalidInput`, the shim reports such a composite as
+  `SM_ERR_INVALID_INPUT`. An unreadable ASCII segment count leaves `SM_UNDEF_ULONG`
+  (123456789) segments to `calloc` and read with uninitialised locals; the port rejects
+  counts the remaining input cannot hold.
+- **`MakeCompositeNurb` is `const` but `CreateByJoining` raises the segments' degree in
+  place**; the port takes `&mut self` and writes the raised B-spline segments back
+  (analytic segments derived from `SmBSplineCurve` join through a copy).
+- **Deferred cases** (unit `curve.curve_p5`): most trimmed offsets reach
+  `SmCCIntersectENFO::Evaluate` (curve/curve intersection), `SmCurve::IsArc` (offset
+  approximation) or `SmCurve::LocalPropertyAnalysis` (`sm_FixBowTie`, classification).
+
+## surface.curve_bounded_surface
+
+- **`SmCurveBoundedSurface::operator==` reads past the UV array.** The UV loop runs to the
+  number of 3D boundaries; with more 3D than UV boundaries (and equal counts, flags and
+  3D curves) upstream reads `m_vUVBoundaries[i]` out of bounds and crashed the difftest
+  (`drop_curve_eq_other_same` before the guard). The port stops at the end of the UV
+  array; the ffi rejects `EqOther` when `n3d > nuv`.
+- **`SmCurveBoundedSurface::ReadFromDB`** reads the UV boundaries with the type of the last
+  3D boundary (`l3DType`, `0` when there is none, so any UV boundary then fails with
+  `SM_ERR`) and drops the implicit-outer flag it reads (the new surface gets `FALSE`). The
+  port keeps both; the difftest covers them with `WriteToDB`-layout ASCII records.
+- **Deferred cases**: the evaluation overrides call basis-surface virtuals the Rust
+  `Surface` dispatch does not have yet (`surface.surface_p1`: `EvaluateSimple`,
+  `EvaluateSTEP`, `EvaluateSTEPPoint`, `SmSurface::operator==`; `surface.surface_p3`:
+  `EvaluateGeometric`, `EvaluateNormalSection`; `surface.surface_p5`:
+  `EvaluateNormalAtSingularity`; `surface.surface_p7`: `EvaluateNormal`). `SmCrvOnSurf` and
+  `SmIsoCurve` still hold a B-spline surface; reading one over a curve bounded surface
+  returns `Unported` (`surface.surface_p1`).
