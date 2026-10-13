@@ -90,9 +90,10 @@
 //!   (`intersect.surface_intersector_p1`); `CurveOnClassify` needs
 //!   `SmCurveClassification` (`intersect.curve_class_p*`); `CreatePlaneWith3DCurves`
 //!   needs `SmTrimmingTools` (`topology.trimming_tools`); `smsurf_GetSurfaceCache`
-//!   and `sm_GetOriginalSurface` need the surface caches (`surface.surface_cache_p1`,
-//!   `geom.a_object`'s cache manager has no surface caches yet); the polar box test of
-//!   `sm_CsArePerpenDisjoint` needs `SmBezierPatch` (`surface.surface_cache_p1`);
+//!   needs the cache store to make surface caches (`SmSurface::CacheMakeOrValidate`,
+//!   `surface.surface_p1`); the polar box test of `sm_CsArePerpenDisjoint` needs the
+//!   `SmBezierPatch` of a tree node, which the tree reaches once the tree construction
+//!   (`surface.surface_cache_p3`) hands the cache's patch data over;
 //!   `ReadFromDB` of the analytic and generated surfaces needs their units. Those
 //!   calls return [`SolidError::Unported`]. The `IntersectWithPlane` default takes
 //!   the plane as an opaque argument until `SmPlane` is ported.
@@ -153,7 +154,7 @@ use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::polynomial::solve_quadratic;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject};
 use crate::geom::tol::{are_same, eff_zero_param, scaled_zero2, tol3d};
-use crate::geom::tree::{AuxDataType, Tree, TreeNode};
+use crate::geom::tree::{AuxDataType, Tree, TreeNode, TreeOwner};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
 use crate::kernel::Kernel;
@@ -1274,28 +1275,34 @@ pub fn notify<T>(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: the surface caches (`surface.surface_cache_p1`).
+/// [`SolidError::Unported`]: the cache store makes surface caches through
+/// `SmSurface::CacheMakeOrValidate` (`surface.surface_p1`).
 pub fn surface_cache(_surface: &Surface) -> Result<a_object::CacheId> {
-    // UNPORTED(surface.surface_cache_p1): SmCacheMgr::GetOrCreateObjectCache(SM_OC_TRIMSRF / SM_OC_SURFACE)
+    // SmCacheMgr::GetOrCreateObjectCache(SM_OC_TRIMSRF / SM_OC_SURFACE) makes the cache
+    // through SmSurface::CacheMakeOrValidate; the cache store holds no surface caches
+    // until it is ported.
+    // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
     Err(SolidError::unported(
-        "SmCacheMgr::GetOrCreateObjectCache",
-        "surface.surface_cache_p1",
+        "SmSurface::CacheMakeOrValidate",
+        "surface.surface_p1",
     ))
 }
 
 /// `sm_GetOriginalSurface`: the surface of the surface cache owning the tree of
-/// `node`.
+/// `node` (its handle, `SmSurfaceCache::GetSurface`).
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmSurfaceCache::GetSurface`
-/// (`surface.surface_cache_p1`).
-pub fn original_surface<O>(_tree: &Tree<O>, _node: &TreeNode<O>) -> Result<O> {
-    // UNPORTED(surface.surface_cache_p1): SmSurfaceCache::GetSurface
-    Err(SolidError::unported(
-        "SmSurfaceCache::GetSurface",
-        "surface.surface_cache_p1",
-    ))
+/// `SM_ERR` when the tree is not owned by a surface cache or the cache has no
+/// surface handle (upstream signals and reads through the owner anyway).
+pub fn original_surface<O: Copy + PartialEq>(tree: &Tree<O>, _node: &TreeNode<O>) -> Result<O> {
+    const OP: &str = "surface::surface::p2::original_surface";
+    match tree.owner() {
+        Some(TreeOwner::SurfaceCache | TreeOwner::TrimSrfCache | TreeOwner::TessSrfCache) => {
+            tree.owner_object()?.ok_or(SolidError::sm_err(OP))
+        }
+        _ => Err(SolidError::sm_err(OP)),
+    }
 }
 
 // ---- SmSurfaceEval ----------------------------------------------------------------------
@@ -3265,7 +3272,8 @@ pub fn cc_local_solve<O: SolutionObject>(
 /// # Errors
 ///
 /// Those of `SmExtent3d::ComputeConeBoundTo`; [`SolidError::Unported`] once the
-/// patch's polar box is needed (`SmBezierPatch`, `surface.surface_cache_p1`).
+/// patch's polar box is needed (`SmBezierPatch` of a tree node,
+/// `surface.surface_cache_p3`).
 pub fn cs_are_perpen_disjoint<O>(
     curve_tree: &Tree<O>,
     curve_node: &TreeNode<O>,
@@ -3280,13 +3288,16 @@ pub fn cs_are_perpen_disjoint<O>(
             return Ok(false);
         }
 
-        // UNPORTED(surface.surface_cache_p1): SmBezierPatch::GetPolarBox
+        // SmBezierPatch::GetPolarBox is SurfaceCache::polar_box, but the patch data
+        // lives in the surface cache, which the tree reaches once the tree
+        // construction hands it over.
+        // UNPORTED(surface.surface_cache_p3): SmBezierPatch::GetPolarBox
         // (then IsDisjointWithCone, and for a curve span node the chord cone test
         // smgu_ConesAreDisjointPerpen with the span's turning angle plus 3 degrees)
         let _ = (curve_tree, cone_vec);
         return Err(SolidError::unported(
             "SmBezierPatch::GetPolarBox",
-            "surface.surface_cache_p1",
+            "surface.surface_cache_p3",
         ));
     }
 
