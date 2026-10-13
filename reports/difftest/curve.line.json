@@ -738,16 +738,12 @@
       "values_compared": 69
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::IsLine",
-        "unit": "curve.curve_p5"
-      },
       "max_rel_err": 0.0,
       "name": "join_bspline_curved",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/curve.line/upstream.json#91 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -16839,13 +16835,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 3,
+  "cases_deferred": 2,
   "cases_failed": 0,
-  "cases_passed": 2100,
+  "cases_passed": 2101,
   "cases_total": 2103,
   "deferred_by_unit": {
     "curve.curve_p4": 1,
-    "curve.curve_p5": 1,
     "curve.ellipse_p2": 1
   },
   "max_rel_err": 0.0,

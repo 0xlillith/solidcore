@@ -307,7 +307,11 @@ fn other_is_line(other: &Curve, num_samples: u64, tol: f64) -> Result<bool> {
             Ok(true)
         }
         CurveKind::BSpline(b) => Ok(b.is_line(num_samples, tol)?.is_some()),
-        CurveKind::Hermite(_) => Err(SolidError::InvalidInput {
+        CurveKind::Hyperbola(h) => Ok(h.base().is_line(num_samples, tol)?.is_some()),
+        CurveKind::Hermite(_)
+        | CurveKind::Conic(_)
+        | CurveKind::Projected(_)
+        | CurveKind::Iso(_) => Err(SolidError::InvalidInput {
             operation: OP_JOIN,
             reason: "the other curve is not an SmBSplineCurve",
         }),
@@ -319,7 +323,11 @@ fn other_ends(other: &Curve) -> Result<Ends> {
     match other.kind() {
         CurveKind::Line(l) => l.ends_copy(),
         CurveKind::BSpline(b) => b.ends(),
-        CurveKind::Hermite(_) => Err(SolidError::InvalidInput {
+        CurveKind::Hyperbola(h) => h.base().ends(),
+        CurveKind::Hermite(_)
+        | CurveKind::Conic(_)
+        | CurveKind::Projected(_)
+        | CurveKind::Iso(_) => Err(SolidError::InvalidInput {
             operation: OP_JOIN,
             reason: "the other curve is not an SmBSplineCurve",
         }),
@@ -615,7 +623,7 @@ impl Line {
 
     /// True for `SmLine_TYPE` and the base types of `SmBSplineCurve` (`IsKindOf`).
     #[must_use]
-    pub fn is_kind_of(&self, t: i64) -> bool {
+    pub const fn is_kind_of(&self, t: i64) -> bool {
         t == Self::TYPE || t == BSplineCurve::TYPE || crate::curve::curve::p2::is_kind_of(t)
     }
 
