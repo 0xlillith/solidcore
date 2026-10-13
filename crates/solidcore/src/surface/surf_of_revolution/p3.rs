@@ -1159,9 +1159,13 @@ impl SurfOfRevolution {
         } else {
             1.0
         };
-        let is_co_planar = (is_linear || origin_point_dist < scaled_zero)
-            && ((!is_linear && frame_plane_ortho < scaled_zero)
-                || (is_linear && frame_line_co_planar < scaled_zero));
+        // ((bLinear || dOriginPointDist < dScaledZero) && ((!bLinear && dFramePlaneOrtho
+        // < dScaledZero) || (bLinear && dFrameLineCoPlanar < dScaledZero)))
+        let is_co_planar = if is_linear {
+            frame_line_co_planar < scaled_zero
+        } else {
+            origin_point_dist < scaled_zero && frame_plane_ortho < scaled_zero
+        };
         if !is_co_planar {
             return Err(SolidError::sm_err(OP_REBUILD));
         }
@@ -1283,14 +1287,11 @@ impl SurfOfRevolution {
             db.go_to_next_line();
         }
         let header = db.read_type(true)?;
-        let (gen_type, gen_dim) = match (header.type_code, header.dim) {
-            (Some(t), Some(d)) => (t, d),
-            _ => {
-                return Err(SolidError::invalid_input(
-                    OP_READ,
-                    "generator type header not read (uninitialised upstream)",
-                ))
-            }
+        let (Some(gen_type), Some(gen_dim)) = (header.type_code, header.dim) else {
+            return Err(SolidError::invalid_input(
+                OP_READ,
+                "generator type header not read (uninitialised upstream)",
+            ));
         };
         let gen_curve = Curve::read_from_db(k, gen_type, db, gen_dim, version)?;
         // (m_pGenCurve is an SmBSplineCurve: the cast upstream)

@@ -322,7 +322,7 @@ fn frame_of(f: &FrameIn) -> (Axis2Placement, Option<Vec3>) {
 /// The surface of revolution a [`Surface`] holds.
 fn revolution(s: &Surface) -> solidcore::Result<&SurfOfRevolution> {
     match s.kind() {
-        SurfaceKind::SurfOfRevolution(r) => Ok(r),
+        SurfaceKind::SurfOfRevolution(r) => Ok(r.as_ref()),
         _ => Err(solidcore::SolidError::sm_err("difftest: not a surface of revolution")),
     }
 }
@@ -811,7 +811,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
                 vec: rng.chance(0.3).then(|| unit_vec(rng)),
                 tol: *rng.choose(&[1e-9, 1e-6, 1e-4, 1e-2])? * size,
                 target: rng.chance(0.15).then(|| rng.uniform(0.0, 2.0) * size),
-                requested: if rng.chance(0.3) { 0 } else { 1 },
+                requested: i32::from(!rng.chance(0.3)),
             }
         }
         9..=13 => {

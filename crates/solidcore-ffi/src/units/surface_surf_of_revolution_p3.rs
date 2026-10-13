@@ -270,7 +270,7 @@ fn tolerance(t: f64, what: &str) -> Result<(), FfiError> {
 
 fn push_op(o: &mut Vec<f64>, op: &Op) -> Result<(), FfiError> {
     match op {
-        Op::Copy => {}
+        Op::Copy | Op::Swap => {}
         Op::Reparam { dom } => {
             bounds(*dom, "reparam")?;
             o.extend_from_slice(dom);
@@ -356,16 +356,15 @@ fn push_op(o: &mut Vec<f64>, op: &Op) -> Result<(), FfiError> {
             }
             o.extend([f64::from(u8::from(tol.is_some())), tol.unwrap_or(0.0)]);
         }
-        Op::Rebuild { edit } => match edit {
-            Some(f) => {
+        Op::Rebuild { edit } => {
+            if let Some(f) = edit {
                 o.push(1.0);
                 push_frame(o, f, "rebuild edit")?;
-            }
-            None => {
+            } else {
                 o.push(0.0);
                 o.extend([0.0; 13]);
             }
-        },
+        }
         Op::Transform { frame } => push_frame(o, frame, "transform")?,
         Op::Update { dom } => push_dom(o, *dom, "update domain")?,
         Op::Reverse { param } => {
@@ -374,7 +373,6 @@ fn push_op(o: &mut Vec<f64>, op: &Op) -> Result<(), FfiError> {
             }
             o.push(f64::from(*param));
         }
-        Op::Swap => {}
     }
     Ok(())
 }

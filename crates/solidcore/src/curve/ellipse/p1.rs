@@ -491,7 +491,7 @@ impl PolarConversion {
                 "a polar converter owning a copy of its curve is not modelled",
             ));
         }
-        Self::finish_back_pointer(db, pc, true)
+        Ok(Self::finish_back_pointer(db, pc, true))
     }
 
     /// Reads a table that may own a copy of its curve (`ReadFromDB` with a null
@@ -515,7 +515,7 @@ impl PolarConversion {
         let (mut pc, has_curve) = Self::read_tables(db)?;
         if !has_curve {
             // m_cpCurve is the (null) back pointer passed in
-            return Ok((Self::finish_back_pointer(db, pc, false)?, None));
+            return Ok((Self::finish_back_pointer(db, pc, false), None));
         }
 
         // read m_cpCurve object from file (statuses ignored upstream)
@@ -548,16 +548,12 @@ impl PolarConversion {
     /// The end of a read whose table has no stored curve: the back pointer
     /// (`has_back_pointer`: the ellipse being read; else null), then the ASCII line
     /// break.
-    fn finish_back_pointer(
-        db: &mut DatabaseReader,
-        mut pc: Self,
-        has_back_pointer: bool,
-    ) -> Result<Self> {
+    fn finish_back_pointer(db: &mut DatabaseReader, mut pc: Self, has_back_pointer: bool) -> Self {
         pc.has_curve = has_back_pointer;
         if db.file_type() == FileType::Ascii {
             db.go_to_next_line();
         }
-        Ok(pc)
+        pc
     }
 
     /// The tables of [`PolarConversion::read_from_db`] and the has-curve flag.

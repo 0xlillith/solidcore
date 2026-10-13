@@ -246,8 +246,8 @@ pub enum SurfaceKind {
     CurveBounded(CurveBoundedSurface),
     /// `SmPlane` (an `SmBSplineSurface`).
     Plane(Plane),
-    /// `SmSurfOfRevolution` (an `SmBSplineSurface`).
-    SurfOfRevolution(SurfOfRevolution),
+    /// `SmSurfOfRevolution` (an `SmBSplineSurface`; boxed, it is the largest kind).
+    SurfOfRevolution(Box<SurfOfRevolution>),
 }
 
 /// A surface (`SmSurface`): its concrete kind and the object owning it (`m_pOwner`:
@@ -282,7 +282,7 @@ impl From<Plane> for Surface {
 
 impl From<SurfOfRevolution> for Surface {
     fn from(s: SurfOfRevolution) -> Self {
-        Self::new(SurfaceKind::SurfOfRevolution(s))
+        Self::new(SurfaceKind::SurfOfRevolution(Box::new(s)))
     }
 }
 
