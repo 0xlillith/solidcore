@@ -18,7 +18,7 @@
 //! | [`SurfOfRevolution::approx_eq`]                   | `operator==`                                     |
 //! | [`SurfOfRevolution::create_canonical`]            | `CreateCanonical` (co-ported from `surface.surf_of_revolution_p2`) |
 //! | [`SurfOfRevolution::make_nurb`], [`SurfOfRevolution::make_nurb_with_sweep_params`] | `MakeNurb`, `MakeNurbWithSweepParams` (co-ported from `_p2`, `_p3`) |
-//! | `rebuild_polar_converter` (crate)                 | `RebuildPolarConverter`                          |
+//! | `rebuild_polar_converter_with` (crate)            | `RebuildPolarConverter`                          |
 //! | [`SurfOfRevolution::max_analytic_domain`]         | `GetMaxAnalyticDomain`                           |
 //! | [`SurfOfRevolution::gen_dir_param_extent`]        | `GetGenDirParamExtent`                           |
 //! | [`SurfOfRevolution::create_iso_parametric_curve`], [`RevolutionIsoCurve`] | `CreateIsoParametricCurve`     |
@@ -112,6 +112,11 @@ const OP_DIRECTRIX: &str =
 const OP_EVAL_STEP: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::evaluate_step";
 const OP_ISO_CIRCLES: &str = "surface::surf_of_revolution::p1::test_for_iso_circles";
 
+/// The virtual `CreateIsoParametricCurve(context, param, iso, 0.0, curve)` the NURB
+/// rebuild dispatches to: the surface, its parameter direction and iso parameter.
+pub(crate) type IsoCurveFn<'a> =
+    dyn Fn(&SurfOfRevolution, &Kernel, SurfParamType, f64) -> Result<Curve> + 'a;
+
 /// `ANALYTIC_TOL_SCALE` (`SmConfig.h`).
 const ANALYTIC_TOL_SCALE: f64 = 100.0;
 
@@ -131,7 +136,7 @@ fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
 
 /// The `SmBSplineCurve` base object of a generator, mutably (`None` for a kind not
 /// derived from `SmBSplineCurve`).
-fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
+pub(crate) fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
     match c.kind_mut() {
         CurveKind::BSpline(b) => Some(b),
         CurveKind::Ellipse(e) => Some(&mut e.base),
@@ -147,7 +152,7 @@ const fn not_b_spline() -> SolidError {
 }
 
 /// `GetSTEPInterval` of a generator.
-fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(b.step_interval()),
         CurveKind::Ellipse(e) => Ok(e.step_interval()),
@@ -173,7 +178,7 @@ fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result
 }
 
 /// `GetMaxAnalyticDomain` of a generator.
-fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => b.max_analytic_domain(),
         CurveKind::Ellipse(e) => Ok(e.max_analytic_domain()),
@@ -508,6 +513,24 @@ impl SurfOfRevolution {
         k: &Kernel,
         opt_sweep_curve: Option<&Curve>,
     ) -> Result<()> {
+        self.make_nurb_with_sweep_params_with(k, opt_sweep_curve, &|s, k, p, t| {
+            Ok(s.create_iso_parametric_curve(k, p, t, None)?.curve)
+        })
+    }
+
+    /// [`Self::make_nurb_with_sweep_params`] with the virtual `CreateIsoParametricCurve`
+    /// the polar converter rebuild calls given as `iso` (a derived surface, `SmCone`,
+    /// passes its override).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::make_nurb_with_sweep_params`].
+    pub(crate) fn make_nurb_with_sweep_params_with(
+        &mut self,
+        k: &Kernel,
+        opt_sweep_curve: Option<&Curve>,
+        iso: &IsoCurveFn<'_>,
+    ) -> Result<()> {
         // locals
         let surf_sweep_step_ivl = self.anal_uv_domain.u_interval();
         let surf_gen_step_ivl = self.anal_uv_domain.v_interval();
@@ -552,20 +575,25 @@ impl SurfOfRevolution {
         self.base.nurb = tmp.nurb;
 
         // Set up the Polar conversion - create a sweep isoParametric curve
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter_with(k, iso))?;
         Ok(())
     }
 
     /// Rebuilds the polar converter from the sweep iso curve at the NURB domain's
     /// generator-direction start (or, when that circle is degenerate, at 45% of the
-    /// domain) (`RebuildPolarConverter`).
+    /// domain) (`RebuildPolarConverter`). The virtual `CreateIsoParametricCurve` it
+    /// calls is `iso` (this surface's, or a derived surface's override: `SmCone`).
     ///
     /// # Errors
     ///
     /// `SM_ERR` when both iso curves are degenerate; those of the iso curves (upstream
     /// then dereferences a null curve) and of the table set-up; `InvalidInput` when the
     /// iso curve is not a circle (upstream casts it).
-    pub(crate) fn rebuild_polar_converter(&mut self, k: &Kernel) -> Result<()> {
+    pub(crate) fn rebuild_polar_converter_with(
+        &mut self,
+        k: &Kernel,
+        iso: &IsoCurveFn<'_>,
+    ) -> Result<()> {
         // Try the beginning of the curve if possible
         let nurb_domain = self.base.natural_uv_domain();
         let nurb_min_uv = nurb_domain.min();
@@ -576,9 +604,7 @@ impl SurfOfRevolution {
         } else {
             (SurfParamType::V, nurb_min_uv.y)
         };
-        let mut sweep_iso = self
-            .create_iso_parametric_curve(k, param, sweep_param, None)?
-            .curve;
+        let mut sweep_iso = iso(self, k, param, sweep_param)?;
         let mut iso_degenerate = sweep_iso.is_degenerate(EFF_ZERO, None)?;
 
         if iso_degenerate {
@@ -591,9 +617,7 @@ impl SurfOfRevolution {
             } else {
                 nurb_mid_uv.y
             };
-            sweep_iso = self
-                .create_iso_parametric_curve(k, param, sweep_param, None)?
-                .curve;
+            sweep_iso = iso(self, k, param, sweep_param)?;
             iso_degenerate = sweep_iso.is_degenerate(EFF_ZERO, None)?;
         }
 
