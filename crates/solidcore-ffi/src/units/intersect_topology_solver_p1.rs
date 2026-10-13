@@ -568,18 +568,16 @@ fn solver(rd: &mut Reader<'_>, objs: &[Entry], op: usize, nvec: usize) -> Result
     if nvec < vectors_needed(op) {
         return Err(bad("operation needs more option vectors"));
     }
-    match kind {
-        LocalKind::PointCurve | LocalKind::PointEdge | LocalKind::VertexEdge => {
-            if !point_curve_op(op) {
-                return Err(bad("operation not accepted by GlobalPointSolve"));
-            }
-        }
-        LocalKind::CurveEdge | LocalKind::EdgeEdge => {
-            if !curve_curve_op(op) {
-                return Err(bad("operation not accepted by the curve/curve solvers"));
-            }
-        }
-        _ => {}
+    let point_curve = matches!(
+        kind,
+        LocalKind::PointCurve | LocalKind::PointEdge | LocalKind::VertexEdge
+    );
+    if point_curve && !point_curve_op(op) {
+        return Err(bad("operation not accepted by GlobalPointSolve"));
+    }
+    let curve_curve = matches!(kind, LocalKind::CurveEdge | LocalKind::EdgeEdge);
+    if curve_curve && !curve_curve_op(op) {
+        return Err(bad("operation not accepted by the curve/curve solvers"));
     }
     if kind == LocalKind::PointCurve && !has_ivl {
         return Err(bad("point/curve solver needs an interval"));
@@ -652,43 +650,37 @@ fn call(
 
 /// A tree whose objects are passed to `spec` as the first (`first`) or second object.
 fn tree(rd: &mut Reader<'_>, objs: &[Entry], spec: Spec, first: bool) -> Result<(), FfiError> {
-    match rd.index(1)? {
-        0 => {
-            rd.vec3()?;
-            if rd.finite()? < 0.0 {
-                return Err(bad("negative point size"));
-            }
-            // the point tree's object is NULL
-            let ok = if first {
-                matches!(
-                    spec.kind,
-                    LocalKind::PointVertex | LocalKind::PointCurve | LocalKind::PointEdge
-                )
-            } else {
-                false
-            };
-            if !ok {
-                return Err(bad("point tree objects do not fit the solver"));
-            }
+    if rd.index(1)? == 0 {
+        rd.vec3()?;
+        if rd.finite()? < 0.0 {
+            return Err(bad("negative point size"));
         }
-        _ => {
-            rd.bbox()?;
-            let m = rd.index(MAX_TREE_OBJECTS)?;
-            for _ in 0..m {
-                let o = rd.object(objs.len())?;
-                let e = entry(objs, o);
-                let ok = match (spec.kind, first) {
-                    (LocalKind::PointVertex, false) => o.is_none() || is_vertex(e),
-                    (LocalKind::PointCurve, false) => is_curve(e),
-                    (LocalKind::PointEdge, false) | (LocalKind::EdgeEdge, _) => is_edge_curve(e),
-                    _ => false,
-                };
-                if !ok {
-                    return Err(bad("tree objects do not fit the solver"));
-                }
-                rd.bbox()?;
-            }
+        // the point tree's object is NULL
+        let ok = first
+            && matches!(
+                spec.kind,
+                LocalKind::PointVertex | LocalKind::PointCurve | LocalKind::PointEdge
+            );
+        if !ok {
+            return Err(bad("point tree objects do not fit the solver"));
         }
+        return Ok(());
+    }
+    rd.bbox()?;
+    let m = rd.index(MAX_TREE_OBJECTS)?;
+    for _ in 0..m {
+        let o = rd.object(objs.len())?;
+        let e = entry(objs, o);
+        let ok = match (spec.kind, first) {
+            (LocalKind::PointVertex, false) => o.is_none() || is_vertex(e),
+            (LocalKind::PointCurve, false) => is_curve(e),
+            (LocalKind::PointEdge, false) | (LocalKind::EdgeEdge, _) => is_edge_curve(e),
+            _ => false,
+        };
+        if !ok {
+            return Err(bad("tree objects do not fit the solver"));
+        }
+        rd.bbox()?;
     }
     Ok(())
 }
