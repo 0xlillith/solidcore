@@ -344,7 +344,8 @@ impl IsoCurve {
         // load obj
         Ok(Self {
             surface: Box::new(surface),
-            surf_param: surf_param_from_code(surf_param),
+            // a code outside the enum behaves as a non-`SM_SP_U` value everywhere here
+            surf_param: SurfParamType::from_code(surf_param).unwrap_or(SurfParamType::Unknown),
             iso_parameter,
             from_left: from_left != 0,
             // m_bOwnsSurface = TRUE
@@ -373,24 +374,6 @@ impl IsoCurve {
     #[must_use]
     pub const fn is_kind_of(t: i64) -> bool {
         t == Self::TYPE || curve_base::is_kind_of(t)
-    }
-}
-
-/// The `SmSurfParamType` of a stored code (`(SmSurfParamType) lSurfParam`); a code
-/// outside the enum behaves as a non-`SM_SP_U` value everywhere here and is stored as
-/// [`SurfParamType::Unknown`].
-fn surf_param_from_code(code: u64) -> SurfParamType {
-    match code {
-        0 => SurfParamType::U,
-        1 => SurfParamType::V,
-        3 => SurfParamType::Both,
-        4 => SurfParamType::Neither,
-        5 => SurfParamType::UMin,
-        6 => SurfParamType::VMin,
-        7 => SurfParamType::UMax,
-        8 => SurfParamType::VMax,
-        9 => SurfParamType::Out,
-        _ => SurfParamType::Unknown,
     }
 }
 
