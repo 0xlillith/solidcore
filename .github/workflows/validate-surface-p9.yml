@@ -40,8 +40,7 @@ jobs:
           nice -n 10 cargo clippy --workspace --all-targets -- -D warnings
           nice -n 10 cargo check -p solidcore --target wasm32-unknown-unknown
           nice -n 10 cargo test --workspace --features difftest/cpp
-      - name: Additional C++ feature lint audit (pre-existing upstream warnings)
-        continue-on-error: true
+      - name: Strict C++ feature lint
         run: nice -n 10 cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
       - uses: actions/upload-artifact@v4
         if: always()
