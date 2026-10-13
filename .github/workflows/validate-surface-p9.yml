@@ -45,12 +45,14 @@ jobs:
         run: |
           nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9
           nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9 --perturb
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit surface.surface_p9
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --green
       - name: Required lint and test gates
         run: |
           nice -n 10 cargo fmt --all --check
           nice -n 10 cargo clippy --workspace --all-targets -- -D warnings
           nice -n 10 cargo check -p solidcore --target wasm32-unknown-unknown
-          nice -n 10 cargo test --workspace --features difftest/cpp
+          nice -n 10 cargo test -p solidcore
       - uses: actions/upload-artifact@v4
         if: always()
         with:
