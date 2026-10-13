@@ -1,6 +1,6 @@
 # solidcore status
 
-Last updated: 2026-10-13, Wave 1 in progress (after `curve.composite_curve_p2`). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
+Last updated: 2026-10-13, Wave 1 in progress (after `surface.surface_cache_p1`). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
 
 ## Progress
 
@@ -11,9 +11,9 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 |---|---|
 | Units planned | 261 (65 layers), 387,903 upstream lines |
 | Green | **71** (83,534 lines): `geom.extent3d`, `geom.vector2d`, `nlib.knots`, `nlib.math`, `topology.database_io`, `geom.tol`, `nlib.geom`, `geom.assert_array`, `geom.context`, `geom.extent1d`, `geom.matrix`, `geom.periodic_extent1d`, `geom.vector3d`, `nlib.basis_basic`, `nlib.srf_basic`, `geom.axis2_placement`, `geom.extent2d`, `geom.geom_utility_p2`, `geom.hash_table`, `geom.local_solve1d`, `geom.local_solve_nd`, `geom.polynomial`, `nlib.basis_adv`, `nlib.bezier`, `nlib.funcs_basic`, `geom.geom_utility_p1`, `geom.polar_box`, `nlib.crv_basic`, `geom.pseudo_box`, `nlib.crv_fit_p1`, `nlib.crv_tool_p1`, `nlib.iges`, `nlib.srf_tool_p1`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_fit_p2`, `nlib.crv_nurb`, `nlib.funcs_adv`, `nlib.srf_fit`, `nlib.crv_fit_p3`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nurbs.nurbs_crv`, `topology.topology`, `nlib.crv_adv_p1`, `nlib.crv_common`, `nlib.spiral`, `nlib.crv_adv_p2`, `nlib.srf_common`, `nlib.crv_approx`, `nlib.crv_offset`, `nlib.srf_nurb`, `nlib.srf_tool_p2`, `nurbs.b_spline_curve_n_lib`, `nurbs.nurbs_srf`, `nlib.srf_adv_p2`, `nlib.srf_adv_p3`, `nlib.srf_tool_p3`, `nlib.srf_tool_p4`, `curve.conic`, `curve.projected_curve`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1`, `nlib.srf_adv_p5`, `nlib.srf_adv_p6`, `nlib.srf_offset`, `curve.offset_curve`, `surface.b_spline_volume`, `nurbs.b_spline_curve_p1`, `curve.parabola`, `primitive.api_curves` |
-| Partial | **37** (52,884 lines): `geom.attribute`, `geom.tree`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.global_solver`, `geom.tools`, `geom.transform`, `geom.a_object`, `nurbs.b_spline_curve_p2`, `nurbs.b_spline_surface_p1`, `curve.curve_p2`, `nurbs.b_spline_curve_p3`, `curve.crv_in_volume`, `curve.curve_cache`, `curve.hyperbola`, `curve.tangent_field`, `nurbs.b_spline_surface_n_lib_p1`, `curve.iso_curve`, `nurbs.b_spline_surface_n_lib_p2`, `curve.line`, `nurbs.b_spline_surface_p2`, `curve.ellipse_p2`, `surface.volume_p1`, `curve.curve_p4`, `surface.twist_volume`, `curve.curve_p3`, `curve.curve_p1`, `curve.curve_p6`, `curve.curve_p7`, `curve.crv_on_surf`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `surface.surface_p2`, `curve.composite_curve_p2`, `surface.curve_bounded_surface` |
-| Ported (green + partial) | 108 units, 136,418 upstream lines (35.2%); about 143,000 Rust lines in `crates/solidcore/src` |
-| Claimed | 2 (4,243 lines): `curve.curve_p5`, `surface.surface_cache_p1` |
+| Partial | **38** (54,828 lines): `geom.attribute`, `geom.tree`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.global_solver`, `geom.tools`, `geom.transform`, `geom.a_object`, `nurbs.b_spline_curve_p2`, `nurbs.b_spline_surface_p1`, `curve.curve_p2`, `nurbs.b_spline_curve_p3`, `curve.crv_in_volume`, `curve.curve_cache`, `curve.hyperbola`, `curve.tangent_field`, `nurbs.b_spline_surface_n_lib_p1`, `curve.iso_curve`, `nurbs.b_spline_surface_n_lib_p2`, `curve.line`, `nurbs.b_spline_surface_p2`, `curve.ellipse_p2`, `surface.volume_p1`, `curve.curve_p4`, `surface.twist_volume`, `curve.curve_p3`, `curve.curve_p1`, `curve.curve_p6`, `curve.curve_p7`, `curve.crv_on_surf`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `surface.surface_p2`, `curve.composite_curve_p2`, `surface.curve_bounded_surface`, `surface.surface_cache_p1` |
+| Ported (green + partial) | 109 units, 138,362 upstream lines (35.7%); about 146,000 Rust lines in `crates/solidcore/src` |
+| Claimed | 1 (2,299 lines): `curve.curve_p5` |
 | Blocked | 0 |
 | Todo | 151 (247,242 lines) |
 
@@ -115,10 +115,10 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 
 | Unit | Rust module | difftest | Deferred on |
 |---|---|---|---|
-| `geom.tree` | `geom::tree` | 618 cases (18 fixture + 600 generated), 611 bit-identical; a 20,018-case run was also clean | 7 (`surface.surface_cache_p1`: `GetBezierPtr`, and `GetGwNurbPointer` of the opaque subdivision surface) |
+| `geom.tree` | `geom::tree` | 618 cases (18 fixture + 600 generated), 611 bit-identical; a 20,018-case run was also clean | 7 (`surface.surface_cache_p3`: `GetBezierPtr` and `GetGwNurbPointer` read the cache's patch data, which a bare tree reaches once the tree construction hands it over; `GetOwnerObject` of surface trees wired by surface.surface_cache_p1) |
 | `geom.attribute` | `geom::attribute` | 2029 cases (29 fixture + 2000 generated), 1991 bit-identical; a 200,029-case run was also clean | 38 (`topology.shell`: merge-region Merge) |
 | `geom.object` | `geom::object` | 624 cases (24 fixture + 600 generated), 593 bit-identical | 31 (every non-empty `SmShape`: `topology.face_p2` 11, `topology.brep_p1` 10, `topology.vertex` 6, `topology.edge` 4) |
-| `geom.grid` | `geom::grid` | 615 cases (15 fixture + 600 generated), 613 bit-identical; a 30,015-case run was also clean | 2 (`surface.surface_cache_p1`: `SmSurfaceGridElement::Init`, `ExpandHierarchy` via `smsurf_GetSurfaceCache`) |
+| `geom.grid` | `geom::grid` | 615 cases (15 fixture + 600 generated), 613 bit-identical; a 30,015-case run was also clean | 2 (`surface.surface_cache_p3` 1: `SmSurfaceGridElement::Init` needs a bare tree node's patch data; `surface.surface_p1` 1: `ExpandHierarchy` via `smsurf_GetSurfaceCache` / `CacheMakeOrValidate`) |
 | `geom.solution_array` | `geom::solution_array` | 810 cases (10 fixture + 800 generated), 754 bit-identical | 56 (object geometry: `curve.curve_p2` 16, `topology.face_p2` 14, `topology.edge` 12, `surface.surface_p2` 9, `topology.vertex` 5) |
 | `geom.a_object` | `geom::a_object` | 2040 cases (40 fixture + 2000 generated), 1872 bit-identical; a 50,040-case run was also clean | 168 (`topology.brep_cache` 131: new `SmBrepCache`; `topology.shell` 37: `SmRegion::IsVoid`) |
 | `geom.tools` | `geom::tools` | 913 cases, 721 bit-identical | 192 (`curve.curve_p2` 68, `topology.brep_p1` 64, `topology.vertex` 60) |
@@ -150,13 +150,15 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 | `curve.curve_p8` | `curve::curve::p8` | 3058 cases (58 fixture: SM_API_test rectangle / polygon edge pairs, my_test_reversed_line_join line pairs, with and without the coincidence check; edge cases: line and B-spline line crossings / overlaps / self intersections, vertex touch, parabola tangency, parallel gaps at the tolerance limit, coincident cubics, degenerate Hermite, looping self intersection, disjoint boxes + 3000 generated `GlobalCurveIntersect` calls), 1968 bit-identical; `--perturb` SENSITIVE; wired the `TrimGap` stub in nurbs.b_spline_curve_p3 | 1090 (`curve.curve_p5` 1090: `SmCCIntersectENFO::Evaluate` behind the leaf pair Newton intersections and `sm_RefineCCSolutions`, `sm_IsPointSolutionAcrossClosedSeamBoundary`, `SmCurve::IsArc`) |
 | `surface.surface_p2` | `surface::surface::p2` | 869 cases (69 fixture: the three pt_TestFiles .sms surfaces through queries / Evaluate / knots / edits / copies / `SmSurfaceEval` / `ReadFromDB`, base `SmSurface()` defaults, TestSmPrincipalDirectionPairing + 800 generated), 756 bit-identical; `--perturb` SENSITIVE; introduces `Surface` / `SurfaceKind` (B-spline only) and `SurfaceEvaluate` | 113 (`surface.surface_p5` 36: extensions; `curve.curve_p5` 33: CC local solves and plane splits; `surface.surface_p7` 18: `GetMaxAnalyticDomain`; `surface.surface_p1` 13: STEP inversion solves; `surface.plane_p2` 11: `CopyAndAddAnalytics`; `intersect.adv_surface_intersector` 1; `topology.trimming_tools` 1) |
 | `surface.curve_bounded_surface` | `surface::curve_bounded_surface` | 535 cases (135 fixture: Surface.sms / DropCurveSurface.sms / offset_nurb.sms bases with the pt_TestFiles .smc boundaries through state / queries / Evaluate / SmSurface defaults / operator== / SetContext, WriteToDB-layout ReadFromDB records incl. the dropped implicit flag and the UV-read-with-3D-type bug + 400 generated), 359 bit-identical; `--perturb` SENSITIVE; `SurfaceKind::CurveBounded` | 176 (`surface.surface_p1` 85: `EvaluateSimple` / `EvaluateSTEP` / `EvaluateSTEPPoint` / `operator==`; `surface.surface_p3` 56: `EvaluateGeometric` / `EvaluateNormalSection`; `surface.surface_p7` 25: `EvaluateNormal`; `surface.surface_p5` 10: `EvaluateNormalAtSingularity`) |
+| `surface.surface_cache_p1` | `surface::surface_cache::p1` | 872 cases (72 fixture: the three pt_TestFiles .sms surfaces through boundary bounding planes, Bezier approximation, size tolerances, corners, iso boundary curves, knot continuity, BuildTreeTop over their knot spans and polar boxes, hand-built decompositions through FindUnmarkedLeafNode / GetConnectedRegion / MarkFaceContainment / GetFirstBezierPatch, alternate cache matching, static helper edge cases + 800 generated), 709 bit-identical; a 20,072-case run was also clean; `--perturb` SENSITIVE; `SurfaceCache` keeps the patch / aux arenas, tree nodes carry the arena slot (`SurfaceAux::slot`) | 163 (`surface.surface_p7` 107: `EvaluateNormal` in every polar box and at collinear boundary samples; `surface.surface_p5` 37: `IsSingularity` in every Bezier approximation; `surface.surface_p1` 19: `GetFace`) |
 
 ## Ready set
 
-2026-10-13 (after style review batch #16): `surface.surface_cache_p1`. Claimed and in
-progress: `surface.curve_bounded_surface`, `curve.curve_p5`
+2026-10-13 (after `surface.surface_cache_p1`): `surface.trim_srf_cache`
+(`surface.surface_cache_p2` also waits for `curve.curve_p5` and `surface.surface_p9`,
+`surface.surface_cache_p3` for both). Claimed and in progress: `curve.curve_p5`
 (`LocalPropertyAnalysis`, `IsArc`, the CC evaluators; the largest single blocker of the
-curve partials) and `curve.composite_curve_p2`. New curve classes become `CurveKind`
+curve partials). New curve classes become `CurveKind`
 variants of `curve::curve::Curve` (see `plan/findings.md`, curve.curve_p2); a merge that
 adds a variant must also extend the exhaustive matches in `curve::curve_cache`.
 
