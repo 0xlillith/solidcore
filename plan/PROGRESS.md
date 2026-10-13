@@ -2,14 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**113 / 261 units ported** (83 green, 30 partial), **145,083 / 387,903 upstream lines (37.4%)**. 4 claimed, 0 blocked, 144 todo.
+**113 / 261 units ported** (83 green, 30 partial), **145,083 / 387,903 upstream lines (37.4%)**. 5 claimed, 0 blocked, 143 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
 - [ ] ▶️ `surface.b_spline_volume_n_lib` (310 lines) — ready
-- [ ] ▶️ `surface.bend_volume` (945 lines) — ready
 - [ ] ▶️ `surface.cone_p1` (1835 lines) — ready
 - [ ] ▶️ `surface.surf_of_extrusion_p1` (1865 lines) — ready
 - [ ] ▶️ `surface.surf_of_revolution_p3` (1620 lines) — ready
@@ -162,6 +161,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
+- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (draft)
 
@@ -291,7 +291,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 620 cases
 - [ ] ▶️ `surface.b_spline_volume_n_lib` (310 lines) — ready
-- [ ] ▶️ `surface.bend_volume` (945 lines) — ready
+- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (draft)
 - [ ] ▶️ `surface.cone_p1` (1835 lines) — ready
 - [ ] ▶️ `surface.surf_of_extrusion_p1` (1865 lines) — ready
 - [ ] ▶️ `surface.surf_of_revolution_p3` (1620 lines) — ready
