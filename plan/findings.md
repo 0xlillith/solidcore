@@ -2674,3 +2674,38 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## surface.surf_of_extrusion_p1 (`SmSurfOfExtrusion`, part 1, 2026-10-13)
+
+PARTIAL: 885 difftest cases (85 fixture, 800 generated), 780 bit-identical, 105 deferred
+(60 `STEPInversion` of non-perpendicular generators, `SmBSplineSurface::STEPInversion` ->
+`surface.surface_p1` solves; 45 `sm_IntersectGenerators` of parallel sweeps,
+`SmCurve::GlobalCurveSolve` -> `curve.curve_p9`). The shim builds B-spline, `SmLine`,
+`SmCircle` and `SmEllipse` generators and every orientation (`SM_CO_LINEAR`,
+`_PERPENDICULAR`, `_INDEPENDENT`, `_COPLANAR`, `_NOT_PLANAR`) is reached.
+
+- **Generator owner step.** The C++ constructors make the surface its generator's owner.
+  `SmLine::MakeNurb` (run by `AdjustSTEPInterval` when the interval changes and the line has
+  a NURB) then reparameterises the line's NURB to the owner's `GetGenDirParamExtent`.
+  `AdjustSTEPUVDomain` with an unswapped surface keeps that (its `Reparameterize` call
+  returns early because it compares the new STEP domain with the equal NURB domain), so the
+  rebuilt surface's generator knots are the old interval's. The Rust curves only hold an
+  `ObjectRef` owner, so the `UNPORTED(surface.surf_of_extrusion_p1)` stubs in the line,
+  ellipse, hyperbola and parabola `MakeNurb` stay (as for `surface.surf_of_revolution_p1`);
+  `SurfOfExtrusion` leaves its generator unowned and applies the line step itself
+  (`adjust_gen_step_interval`; disabling it fails `linear_adjust_owner_step` and 5 generated
+  cases). The ellipse's owner step is overwritten upstream by `AdjustSTEPInterval`'s own
+  `EditParameterization`, so it is not repeated (one affine reparameterisation instead of
+  two: the knots then agree within rounding).
+- **Curve solve handles.** The generator solves (`GlobalPointSolve`, `GlobalPointSolveSTEP`,
+  `GlobalCurveIntersect`) name the generator with a handle that answers
+  `GetNaturalInterval`; without it the solution merge keeps near-duplicate minima (a tiny
+  scale `DropPointFast` returned 2 solutions against upstream's 1).
+- **Upstream defects** (in `plan/upstream-issues.md`): `EvaluateSTEP` order 5 of a B-spline
+  generator smashes the stack (UB-73, confirmed; the FFI rejects it), `sm_IntersectGenerators`
+  reads unset offsets (UB-74), constructor / copy hazards (UB-75), the unused clamp in
+  `EvaluateSTEP` / `EvaluateSTEPPoint` (WR-48, ported as is).
+- With a full-circle `SmCircle` generator a seam point gives one solution, so `STEPInversion`
+  reports `SM_LT_INTERIOR`; the U-seam branch is reached with a closed tangent-continuous
+  B-spline (fixtures `closed_seam_*`), as are `DropPointFast`'s in-pointing seam skips.
+
