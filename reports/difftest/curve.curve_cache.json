@@ -5130,7 +5130,7 @@
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
-  "seeds": 0,
+  "seeds": 16,
   "status": "partial",
   "unit": "curve.curve_cache"
 }

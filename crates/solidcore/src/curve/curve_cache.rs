@@ -559,7 +559,7 @@ impl<O: Copy + PartialEq> CurveCache<O> {
                 }
                 true
             }
-            CurveKind::Hermite(_) => false,
+            CurveKind::Hermite(_) | CurveKind::Conic(_) => false,
         };
 
         // ordered leaf Beziers each passing the tessellation tests
@@ -575,7 +575,7 @@ impl<O: Copy + PartialEq> CurveCache<O> {
         let beziers = {
             let nurb = match self.curve.kind() {
                 CurveKind::BSpline(b) => b.gw_nurb(),
-                CurveKind::Hermite(_) => None,
+                CurveKind::Hermite(_) | CurveKind::Conic(_) => None,
             };
             create_bezier_segment_block(nurb, &self.curve)?
         };
