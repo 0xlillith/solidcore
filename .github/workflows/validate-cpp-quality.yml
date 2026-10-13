@@ -32,9 +32,11 @@ jobs:
         run: nice -n 10 harness/cpp/build.sh --jobs 6
       - name: Rust and C++ comparison
         run: |
-          nice -n 10 cargo run -p difftest --features cpp -- --unit curve.crv_on_surf
-          nice -n 10 cargo run -p difftest --features cpp -- --unit curve.parabola
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit curve.crv_on_surf
+          nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --unit curve.parabola
           git diff --exit-code -- reports/difftest/curve.crv_on_surf.json reports/difftest/curve.parabola.json
+      - name: Verify every ported unit
+        run: nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --green
       - name: Required lint and test gates
         run: |
           nice -n 10 cargo fmt --all --check
