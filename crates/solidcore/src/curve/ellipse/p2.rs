@@ -76,12 +76,12 @@
 //! - **Statuses.** Calls whose status upstream ignores keep upstream's values, except
 //!   that [`SolidError::Unported`] is always propagated. Upstream outputs written
 //!   before a failing status (partial solution arrays) are not returned.
-//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`) and
-//!   `SmCurve::GlobalCoincidenceChecker` (`curve.curve_p6`) return
-//!   [`SolidError::Unported`]. `SmCurve::GlobalPointSolve` of the ellipse is
-//!   [`curve_base::Curve::global_point_solve`] on a copy of the ellipse as a curve
-//!   kind (taking the [`Kernel`]; its solutions name no object, only their parameters
-//!   are used). The
+//! - **Back-edges.** `SmCurve::LocalPropertyAnalysis` (`curve.curve_p5`) returns
+//!   [`SolidError::Unported`]. `SmCurve::GlobalPointSolve` and
+//!   `SmCurve::GlobalCoincidenceChecker` of the ellipse are
+//!   [`curve_base::Curve::global_point_solve`] and
+//!   [`curve_base::Curve::global_coincidence_checker`] on copies of the ellipses as
+//!   curve kinds (taking the [`Kernel`]). The
 //!   line's `GlobalPointSolve(SM_SO_INTERSECT)` of `IntersectWithLine` is the line's
 //!   `DropPointFast`, which handles every intersection. `SmCurve::LocalCurveSolve` (unit
 //!   `curve.curve_p3`) evaluates the ellipse through its B-spline base and the line
@@ -275,19 +275,60 @@ fn local_curve_solve_line<O: Copy>(
 }
 
 /// `SmCurve::GlobalCoincidenceChecker(Interval, Other, OtherInterval, dTol,
-/// bNeedsMoreWork, rSolutions, FALSE)` of `curve`.
+/// bNeedsMoreWork, rSolutions, FALSE)` of `curve` with `other`
+/// ([`curve_base::Curve::global_coincidence_checker`] on copies of the ellipses as
+/// curve kinds); the solutions name `objects` (`[this, other]`).
 fn global_coincidence_checker<O: Copy>(
-    _curve: &Ellipse,
-    _interval: &Extent1d,
-    _other: &Ellipse,
-    _other_interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    curve: &Ellipse,
+    interval: &Extent1d,
+    other: &Ellipse,
+    other_interval: &Extent1d,
+    tol: f64,
+    objects: [Option<O>; 2],
 ) -> Result<(bool, Vec<Solution<O>>)> {
-    // UNPORTED(curve.curve_p6): SmCurve::GlobalCoincidenceChecker
-    Err(SolidError::Unported {
-        upstream: "SmCurve::GlobalCoincidenceChecker",
-        unit: "curve.curve_p6",
-    })
+    let a = curve_base::Curve::from(curve.clone());
+    let b = curve_base::Curve::from(other.clone());
+    let handles = [
+        Some(IndexHandle(0, curve.base.natural_interval())),
+        Some(IndexHandle(1, other.base.natural_interval())),
+    ];
+    let r = a.global_coincidence_checker(k, interval, &b, other_interval, tol, false, handles)?;
+    let name =
+        |h: Option<IndexHandle>| h.and_then(|IndexHandle(i, _)| objects.get(i).copied().flatten());
+    let sols = r
+        .solutions
+        .iter()
+        .map(|s| {
+            let mut out: Solution<O> = Solution::new();
+            out.solution_type = s.solution_type;
+            out.num_variables = s.num_variables;
+            out.start = s.start;
+            out.end = s.end;
+            out.num_objects = s.num_objects;
+            for (d, h) in out.objects.iter_mut().zip(s.objects) {
+                *d = name(h);
+            }
+            out.nodes = s.nodes;
+            out
+        })
+        .collect();
+    Ok((r.additional_work_needed, sols))
+}
+
+/// A curve of a two-curve solve: its index (`0` this, `1` the other) and natural
+/// interval (the solvers' duplicate tests read it).
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct IndexHandle(usize, Extent1d);
+
+impl SolutionObject for IndexHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.1)
+    }
 }
 
 // ---- the polar conversion table -------------------------------------------------------
@@ -1501,8 +1542,15 @@ impl Ellipse {
                 }
                 // check for coincident circles
                 CircleCircle::Coincident => {
-                    let (_needs_more_work, sols) =
-                        global_coincidence_checker(self, interval, other, other_interval, tol)?;
+                    let (_needs_more_work, sols) = global_coincidence_checker(
+                        k,
+                        self,
+                        interval,
+                        other,
+                        other_interval,
+                        tol,
+                        [this_obj, other_obj],
+                    )?;
                     out.solutions = sols;
                     out.needs_more_intersections = false;
                     return Ok(out);

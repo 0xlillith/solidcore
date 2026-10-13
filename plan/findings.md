@@ -2159,6 +2159,68 @@ volume. Upstream behaviour worth knowing (all ported as written):
   points plus degree reads out of bounds. The port returns `InvalidInput`; the ffi only
   builds records with `cp + degree + 1` knots.
 
+
+## curve.curve_p6 (SmCurve part 6: boxes, planarity, drops, gaps, coincidence, deform)
+
+No Rust/C++ disagreements (3136 cases, 3048 bit-identical, 88 deferred on `curve.curve_p5`;
+30k-seed run clean; `--perturb` SENSITIVE). Notes for later porters:
+
+- **`CurveMaxDistanceBetween` with `lNumSamples == 1`** divides `0.0 / 0.0` (`ii /
+  (lNumSamples - 1)`) and evaluates both curves at NaN parameters. The port computes the
+  same NaN; the ffi rejects one sample.
+- **`CurveMaxDistanceBetween` early returns** (the gap limit `pdOptMaxDistanceNeeded` hit,
+  the same curve over the same interval) leave `pbOptIncorrectDir` unwritten; the port
+  returns `incorrect_dir: None` there.
+- **`DeformToEndPointTargets`** ignores the status of `ApproximateCurve` and then calls the
+  B-spline deform through `*ppOptNewCurve` (a null dereference when the approximation
+  fails); the port returns the error. The `SmCrvOnSurf` branch is unreachable until
+  `curve.crv_on_surf` adds the curve kind (no `CurveKind` is a curve on surface yet).
+- **`GlobalCoincidenceChecker`** recurses on closed and half closed curves without a
+  depth bound; the port stops at `MAX_COINCIDENCE_DEPTH` (200) nested splits with
+  `InvalidInput` (AGENTS.md recursion rule). Its recursive calls use the default
+  `bSnapToEnds = TRUE`, whatever the caller passed; the port keeps that.
+- **`IsPlanar`** ignores the status of `CalculateBoundingBox`; a failed box leaves the
+  default-constructed pseudo box, which the port reproduces.
+- **Stubs left.** `UNPORTED(curve.curve_p6)` in `geom/tools.rs` (`DropPoint`,
+  `CurveMaxDistanceBetween` on the opaque curve handle `C` and on edge curves) stay, as
+  the `curve.curve_p2` stubs there did: the handle cannot become a `Curve` until edges
+  carry real curves (`topology.edge`). They are behind `topology.*` stubs, so no
+  `geom.tools` case is deferred on `curve.curve_p6`. The ellipse's
+  `GlobalCoincidenceChecker` stub (`curve.ellipse_p2`) is retagged
+  `UNPORTED(curve.ellipse_p1)`: the checker is ported but needs `SmEllipse` as a curve
+  kind (its `IsDegenerate` / `GetDegree` overrides), as `curve.curve_p1` did for the
+  ellipse's `GlobalPointSolve` (`curve.ellipse_p2`: 1 case moved from `curve.curve_p6` to
+  `curve.ellipse_p1`).
+- **Wired at merge.** `curve.curve_p1` landed while this unit was in flight; its
+  `GlobalPointSolve`, `Tessellate` and `ApproximateCurve` are called directly (288
+  deferred cases became passes).
+
+## curve.curve_p7 (`SmCCIGlobalSolver::LocalSolve`, `SmCurve::GlobalPropertyAnalysis`)
+
+- **Pruned curve trees.** `LocalSolve` casts every leaf's `m_pData` to `SmBezierSpan`
+  (the `m_eAuxDataType == SM_AD_BEZIER_CURVE` check is an `SM_ASSERT`). A cache built with
+  aux data but without a full tree (`bComputeAuxTreeData && !bMakeFullTree`) turns parents
+  into leaves holding `SmBezierAux1d` data, so the cast reads past the object (the pseudo
+  box is garbage). The curves' object caches always build full trees, so upstream never
+  reaches this; the port returns `InvalidInput` and the ffi rejects such caches.
+- **Degenerate curves.** When either (projected) curve is degenerate, upstream re-adds the
+  last end point solution built (`sSolution2`) once per accumulated end point solution
+  instead of each accumulated one; kept.
+- **Ignored statuses.** The span end `EvaluatePoint`s, the closed-curve
+  `EvaluateContinuity`, `SmProjectedCurve::SetCanonical`, the in-place
+  `SmPseudoBox::ProjectToPlane`s and the end point `LocalPointSolve`s ignore their status;
+  the port does too (a failed point solve is no answer).
+- **`GlobalPropertyAnalysis` comb.** `EvaluateGeometric`'s status is ignored, so for a curve
+  whose second derivative vanishes (degree 1) the comb uses what
+  `smgu_FrenetFromDerivatives` wrote before failing (position, tangent, zero curvature);
+  the port reproduces those partial outputs (`evaluate_geometric_partial`).
+- **`SmBSplineCurve::AssertValid`** ignores `GlobalPropertyAnalysis`'s status; on a failed
+  solve upstream keeps the solutions found before the failure, the port none (the solve
+  only fails for errors upstream asserts on).
+- **Deferred.** Every leaf pair that reaches a Newton intersection
+  (`LocalCurveIntersect` -> `SmCCIntersectENFO::Evaluate`) and every property solve that
+  reaches `SmCurve::LocalPropertyAnalysis` is deferred on `curve.curve_p5`; the co-ported
+  `sm_FindAdditionalCcTangentGuess` is only reached after such an intersection.
 ## curve.ellipse_p1 (`SmEllipse` / `SmCircle` / `SmPolarConversion`, part 1)
 
 - **`ConvertTo2D` uses `dThetaXRad` for both new axes** when the projected axes are no

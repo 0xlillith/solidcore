@@ -303,8 +303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::GlobalCoincidenceChecker",
-        "unit": "curve.curve_p6"
+        "symbol": "sm_IsPointSolutionAcrossClosedSeamBoundary",
+        "unit": "curve.curve_p5"
       },
       "max_rel_err": 0.0,
       "name": "circle_circle_coincident",
@@ -17212,8 +17212,7 @@
   "cases_passed": 2005,
   "cases_total": 2102,
   "deferred_by_unit": {
-    "curve.curve_p5": 96,
-    "curve.curve_p6": 1
+    "curve.curve_p5": 97
   },
   "max_rel_err": 0.0,
   "pass": true,
