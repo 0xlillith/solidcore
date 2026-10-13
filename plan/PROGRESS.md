@@ -13,7 +13,7 @@ _None: every todo unit waits on a claimed or todo dependency._
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.plane_p1` (1934 lines) — in progress: #14 @bherbruck (draft)
+- [ ] 🔨 `surface.plane_p1` (1934 lines) — in progress: #14 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p1` (1522 lines) — in progress: #15 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 
@@ -138,7 +138,7 @@ _None: every todo unit waits on a claimed or todo dependency._
 - [ ] 🟡 `surface.surface_p2` (2398 lines) — partial, 869 cases
 - [ ] 🟡 `surface.curve_bounded_surface` (324 lines) — partial, 535 cases
 - [ ] 🟡 `surface.surface_cache_p1` (1944 lines) — partial, 872 cases
-- [ ] 🔨 `surface.plane_p1` (1934 lines) — in progress: #14 @bherbruck (draft)
+- [ ] 🔨 `surface.plane_p1` (1934 lines) — in progress: #14 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p1` (1522 lines) — in progress: #15 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 620 cases
