@@ -525,9 +525,7 @@ impl PolarConversion {
         let header = ignored(db.read_type(true))?;
         let curve = match header {
             Some(h) => match (h.type_code, h.dim) {
-                (Some(ty), Some(dim)) => ignored(Curve::read_from_db(
-                    k, ty, db, dim, version,
-                ))?,
+                (Some(ty), Some(dim)) => ignored(Curve::read_from_db(k, ty, db, dim, version))?,
                 // (an unread header: upstream passes uninitialised values on)
                 _ => None,
             },

@@ -2094,7 +2094,9 @@ fn transpose<T: Copy>(a: &mut [T], num_rows: usize) {
 fn surface_is_planar(s: &Surface, _tol: f64) -> Result<bool> {
     match s.kind() {
         SurfaceKind::Plane(_) => Ok(true),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_) => {
             // UNPORTED(surface.surface_p7): SmSurface::IsPlanar
             Err(SolidError::unported(
                 "SmSurface::IsPlanar",
@@ -2109,7 +2111,9 @@ fn surface_is_planar(s: &Surface, _tol: f64) -> Result<bool> {
 fn surface_evaluate_normal(s: &Surface, _uv: Point2) -> Result<Vec3> {
     match s.kind() {
         SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_) => {
             // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
             Err(SolidError::unported(
                 "SmSurface::EvaluateNormal",

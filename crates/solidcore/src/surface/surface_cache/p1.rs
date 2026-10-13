@@ -196,6 +196,7 @@ const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
+        SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
         SurfaceKind::CurveBounded(_) => None,
     }
 }
@@ -232,6 +233,15 @@ fn create_iso_parametric_curve(
     match surface.kind() {
         SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
         SurfaceKind::Plane(_) => Err(plane_iso_unported()),
+        // UNPORTED(surface.surf_of_revolution_p1): SmSurfOfRevolution::CreateIsoParametricCurve.
+        // Ported as SurfOfRevolution::create_iso_parametric_curve, but it makes an
+        // SmCircle in the sweep direction and this cache holds its iso curves as
+        // BSplineCurve, which would drop the SmEllipse overrides; wiring it needs Curve
+        // storage here.
+        SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
+            "SmSurfOfRevolution::CreateIsoParametricCurve",
+            "surface.surf_of_revolution_p1",
+        )),
         SurfaceKind::CurveBounded(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
@@ -266,6 +276,8 @@ fn calculate_bounding_box(
 ) -> Result<BoundingBoxes> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => b.calculate_bounding_box(domain, req),
+        // inherited from SmBSplineSurface: none of its virtual calls is overridden
+        SurfaceKind::SurfOfRevolution(s) => s.base().calculate_bounding_box(domain, req),
         SurfaceKind::Plane(_) => {
             // UNPORTED(surface.plane_p1): SmBSplineSurface::CalculateBoundingBox on an
             // SmPlane, inherited and dispatching to the plane (IsKindOf(SmPlane_TYPE),

@@ -215,6 +215,13 @@ fn ascii<T>(v: Option<T>) -> Result<T> {
 impl SurfOfRevolution {
     // ---- copies and edits -----------------------------------------------------------
 
+    /// The `SmBSplineSurface` base object, mutably: an edit of the NURB alone (an
+    /// explicit `SmBSplineSurface::` call upstream) leaves the analytic data as it was
+    /// until [`Self::rebuild_step_from_nurb_parameters`].
+    pub fn base_mut(&mut self) -> &mut BSplineSurface {
+        &mut self.base
+    }
+
     /// An exact copy (`Copy`: the copy constructor).
     #[must_use]
     pub fn copy(&self) -> Self {
@@ -346,8 +353,10 @@ impl SurfOfRevolution {
         new_nurbs_domain: &Extent2d,
     ) -> Result<()> {
         // convert given NurbUVDomain corners into STEPUVPoints (statuses ignored)
-        let min_anal_uv = self.convert_uv_from_nurbs_to_step_or_written(k, new_nurbs_domain.min())?;
-        let max_anal_uv = self.convert_uv_from_nurbs_to_step_or_written(k, new_nurbs_domain.max())?;
+        let min_anal_uv =
+            self.convert_uv_from_nurbs_to_step_or_written(k, new_nurbs_domain.min())?;
+        let max_anal_uv =
+            self.convert_uv_from_nurbs_to_step_or_written(k, new_nurbs_domain.max())?;
 
         // Build desired new STEP UVDomain (min might not be smaller, if swapped)
         self.anal_uv_domain.init();
@@ -390,9 +399,9 @@ impl SurfOfRevolution {
         // (init output to something in case of failure: the port returns the error)
         if !self.have_polar_conversion() {
             let nat_domain = self.base.natural_uv_domain();
-            let mapped = self
-                .anal_uv_domain
-                .point_map_to_domain(step_uv, &nat_domain, self.swap_uv)?;
+            let mapped =
+                self.anal_uv_domain
+                    .point_map_to_domain(step_uv, &nat_domain, self.swap_uv)?;
 
             // Use numerical techniques to convert to NURBS coordinates.
             let nurbs_guess = mapped;
@@ -413,8 +422,9 @@ impl SurfOfRevolution {
             .polar_curve
             .as_ref()
             .ok_or(SolidError::null_pointer(OP_TO_NURBS))?;
-        let (mut x, exact_conversion) =
-            self.polar.convert_to_nurbs_parameter(circle, step_uv.x, 0.0)?;
+        let (mut x, exact_conversion) = self
+            .polar
+            .convert_to_nurbs_parameter(circle, step_uv.x, 0.0)?;
         let y = self.gen()?.convert_t_from_step_to_nurbs(step_uv.y)?;
 
         // when the conversion was not exact
@@ -963,10 +973,8 @@ impl SurfOfRevolution {
                     // surface region (its boundaries) or a generator segment
 
                     // get GenCurve intersection interval
-                    let mut gen_curve_ivl = Extent1d::from_min_max(
-                        solution.start.param(0)?,
-                        solution.end.param(0)?,
-                    );
+                    let mut gen_curve_ivl =
+                        Extent1d::from_min_max(solution.start.param(0)?, solution.end.param(0)?);
 
                     // Trim a genCurve at the interval start angle to the intersection
                     // interval (may snap the interval to existing knots; status ignored)
@@ -983,11 +991,7 @@ impl SurfOfRevolution {
 
                         // Trim a genCurve at the interval end angle
                         let mut max_angle_gen = self.create_generator_from_angle(k, ivl.max())?;
-                        ignore_status(max_angle_gen.trim(
-                            k,
-                            &mut gen_curve_ivl,
-                            TrimMode::Notify,
-                        ))?;
+                        ignore_status(max_angle_gen.trim(k, &mut gen_curve_ivl, TrimMode::Notify))?;
 
                         // bottom Circle
                         let bot_sweep_arc =
@@ -1423,7 +1427,10 @@ mod tests {
         let best = sols.get_at(0).unwrap();
         let p = s
             .base()
-            .evaluate_point(Point2::new(best.start.parameters[0], best.start.parameters[1]))
+            .evaluate_point(Point2::new(
+                best.start.parameters[0],
+                best.start.parameters[1],
+            ))
             .unwrap();
         assert!(p.x.abs() < 1e-9 && p.y > 1.0);
         // a non-planar test is not this one's job: a point outside the sweep fails
@@ -1505,7 +1512,10 @@ mod tests {
         let mut s = cone();
         s.rebuild_step_from_nurb_parameters(&k).unwrap();
         assert!(s.have_polar_conversion());
-        assert!(matches!(s.gen_curve().unwrap().kind(), CurveKind::BSpline(_)));
+        assert!(matches!(
+            s.gen_curve().unwrap().kind(),
+            CurveKind::BSpline(_)
+        ));
         let mut r = cone();
         r.reparameterize(&k, &Extent2d::from_bounds(0.0, 0.0, 2.0, 3.0))
             .unwrap();
@@ -1514,7 +1524,8 @@ mod tests {
         let mut t = cone();
         let mut rf = Axis2Placement::IDENTITY;
         rf.rotate_about_axis_at_point(PI / 2.0, Vec3::ZERO, Vec3::X);
-        t.transform(&k, &rf, Some(Vec3::new(2.0, 2.0, 2.0))).unwrap();
+        t.transform(&k, &rf, Some(Vec3::new(2.0, 2.0, 2.0)))
+            .unwrap();
         assert!(t.position().z_axis().y.abs() > 0.99);
         assert!(t
             .transform(&k, &rf, Some(Vec3::new(1.0, 2.0, 1.0)))
