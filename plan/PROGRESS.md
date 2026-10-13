@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**112 / 261 units ported** (83 green, 29 partial), **143,561 / 387,903 upstream lines (37.0%)**. 4 claimed, 0 blocked, 145 todo.
+**112 / 261 units ported** (83 green, 29 partial), **143,561 / 387,903 upstream lines (37.0%)**. 5 claimed, 0 blocked, 144 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -15,7 +15,6 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [ ] ▶️ `surface.volume_p2` (1490 lines) — ready
 - [ ] ▶️ `surface.surface_p7` (2406 lines) — ready
 - [ ] ▶️ `intersect.surface_tracer` (1900 lines) — ready
-- [ ] ▶️ `intersect.point_class` (909 lines) — ready
 - [ ] ▶️ `intersect.surface_intersector_p1` (1816 lines) — ready
 - [ ] ▶️ `intersect.topology_solver_p1` (1838 lines) — ready
 - [ ] ▶️ `topology.brep_data` (1466 lines) — ready
@@ -165,6 +164,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surf_of_revolution_p1` (1522 lines) — in progress: #15 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (draft)
+- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (draft)
 
 ## By module
 
@@ -359,7 +359,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### intersect (0/25)
 
 - [ ] ▶️ `intersect.surface_tracer` (1900 lines) — ready
-- [ ] ▶️ `intersect.point_class` (909 lines) — ready
+- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (draft)
 - [ ] ⏳ `intersect.curve_class_p1` (2087 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p1` (1478 lines) — waiting
 - [ ] ⏳ `intersect.surface_silhouette` (979 lines) — waiting
