@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**114 / 261 units ported** (83 green, 31 partial), **145,393 / 387,903 upstream lines (37.5%)**. 16 claimed, 0 blocked, 131 todo.
+**114 / 261 units ported** (83 green, 31 partial), **145,393 / 387,903 upstream lines (37.5%)**. 17 claimed, 0 blocked, 130 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `sweep.api_surfaces` (381 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -163,6 +163,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
+- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (draft)
 
 ## By module
 
@@ -413,7 +414,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
 - [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
-- [ ] ▶️ `sweep.api_surfaces` (381 lines) — ready
+- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (draft)
 
 ### heal (0/7)
 
