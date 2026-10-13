@@ -31,7 +31,7 @@
 //! | [`SurfOfRevolution::transform_point_to_start_plane`] | `TransformPointToStartPlane`                  |
 //! | [`SurfOfRevolution::is_kind_of`], [`SurfOfRevolution::TYPE`], [`SurfOfRevolution::type_code`], [`SurfOfRevolution::type_string`], [`SurfOfRevolution::class_string`] | `IsKindOf`, `GetType`, `GetTypeString`, `GetClassString` (`SM_COMMON`) |
 //! | [`SurfOfRevolution::swap_uv`], [`SurfOfRevolution::step_uv_domain`], [`SurfOfRevolution::start_angle_deg`], [`SurfOfRevolution::end_angle_deg`], [`SurfOfRevolution::gen_curve`], [`SurfOfRevolution::position`], [`SurfOfRevolution::have_polar_conversion`] | `GetSwapUV`, `GetSTEPUVDomain`, `GetStartAngleDeg`, `GetEndAngleDeg`, `GetGenCurve`, `GetPosition`, `HavePolarConversion` (inline) |
-//! | [`SurfOfRevolution::set_context`], [`SurfOfRevolution::toggle_swap_uv_bit`] | `SetContext`, `ToggleSwapUVBit` (inline) |
+//! | [`SurfOfRevolution::set_context`], [`SurfOfRevolution::toggle_swap_uv_bit`], [`SurfOfRevolution::set_out_of_bounds_enabled`] | `SetContext`, `ToggleSwapUVBit`, `SetOutOfBoundsEnabled` (inline) |
 //! | [`test_for_iso_circles`], [`IsoCircles`]          | `sm_TestForIsoCircles`                           |
 //!
 //! Deviations:
@@ -123,6 +123,19 @@ fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
         CurveKind::Hyperbola(h) => Ok(h.base()),
         CurveKind::Parabola(p) => Ok(p.base()),
         _ => Err(not_b_spline()),
+    }
+}
+
+/// The `SmBSplineCurve` base object of a generator, mutably (`None` for a kind not
+/// derived from `SmBSplineCurve`).
+fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
+    match c.kind_mut() {
+        CurveKind::BSpline(b) => Some(b),
+        CurveKind::Ellipse(e) => Some(&mut e.base),
+        CurveKind::Line(l) => Some(&mut l.base),
+        CurveKind::Hyperbola(h) => Some(&mut h.base),
+        CurveKind::Parabola(p) => Some(p.base_mut()),
+        _ => None,
     }
 }
 
@@ -397,12 +410,13 @@ impl SurfOfRevolution {
     /// `surface.surf_of_revolution_p2`): the X axis points from the axis point to the
     /// curve's STEP start point (or, when that is on the axis, its point at 45%), the
     /// domain is `[0, 360]` by the curve's STEP interval; the NURB is made by
-    /// [`Self::make_nurb`].
+    /// [`Self::make_nurb`]. A zero axis (squared length below `SM_EFF_ZERO_SQ`) is
+    /// taken as `(0, 0, 1)`, as upstream's unchecked `Unitize`.
     ///
     /// # Errors
     ///
-    /// `SM_ERR` when the curve lies on the axis (no Y axis); a zero axis; those of the
-    /// curve's STEP evaluation, [`Self::new`] and [`Self::make_nurb`].
+    /// `SM_ERR` when the curve lies on the axis (no Y axis); those of the curve's STEP
+    /// evaluation, [`Self::new`] and [`Self::make_nurb`].
     pub fn create_canonical(
         k: &Kernel,
         swept_curve: Curve,
@@ -411,7 +425,7 @@ impl SurfOfRevolution {
         swap_uv: bool,
     ) -> Result<Self> {
         // unitize the rotation axis (status ignored upstream)
-        let z_vec = axis_direction.unitize().unwrap_or(axis_direction);
+        let z_vec = axis_direction.unitize_or_z();
 
         // locals
         let crv_ivl = gen_step_interval(&swept_curve)?;
@@ -477,8 +491,9 @@ impl SurfOfRevolution {
     /// `surface.surf_of_revolution_p3`): the generator rotated to the start angle
     /// (trimmed with the stored generator to the V domain when their intervals
     /// differ) swept by the domain's angle span
-    /// ([`BSplineSurface::create_surf_of_revolution`], whose sweep parameterisation
-    /// follows `opt_sweep_curve` when given); then the polar converter is rebuilt
+    /// ([`BSplineSurface::create_surf_of_revolution_with_line_vector`], whose sweep
+    /// parameterisation follows `opt_sweep_curve` when given, else is by arc length for
+    /// a line generator parallel to the axis); then the polar converter is rebuilt
     /// (status ignored).
     ///
     /// # Errors
@@ -514,9 +529,15 @@ impl SurfOfRevolution {
         // Check if we need to create GenCurve's Nurb form
         gen_ensure_nurb(k, &mut gen_curve)?;
 
-        // build the Nurb Surface
-        let tmp = BSplineSurface::create_surf_of_revolution(
+        // build the Nurb Surface (an SmLine generator parallel to the axis gets an
+        // arc length sweep parameterisation)
+        let line_vector = match gen_curve.kind() {
+            CurveKind::Line(l) => Some(l.line_vector()),
+            _ => None,
+        };
+        let tmp = BSplineSurface::create_surf_of_revolution_with_line_vector(
             gen_base(&gen_curve)?,
+            line_vector,
             self.position.origin(),
             self.position.z_axis(),
             surf_sweep_step_ivl.length(),
@@ -649,11 +670,16 @@ impl SurfOfRevolution {
         self.base.is_out_of_bounds_enabled()
     }
 
-    /// Enables or disables out-of-bounds evaluation of the surface
-    /// (`GetOutOfBoundsEnabled() = ..`; the generator takes the flag only while the
-    /// surface evaluates it).
+    /// Enables or disables out-of-bounds evaluation of the surface and of its
+    /// generator (`SetOutOfBoundsEnabled`, which sets the generator's
+    /// `SmBSplineCurve` flag too; the empty I/O surface has no generator to set).
     pub fn set_out_of_bounds_enabled(&mut self, enabled: bool) {
         *self.base.out_of_bounds_enabled_mut() = enabled;
+        if let Some(gen) = self.gen_curve.as_mut() {
+            if let Some(b) = gen_base_mut(gen) {
+                b.set_out_of_bounds_enabled(enabled);
+            }
+        }
     }
 
     /// `m_bMakeNurbGenCurve`: whether an equivalent NURB is made for an unbounded
