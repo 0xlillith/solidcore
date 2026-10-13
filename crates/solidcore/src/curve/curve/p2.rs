@@ -66,7 +66,7 @@
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
 //!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
 //!   [`HermiteCurve`], [`Conic`], [`IsoCurve`], [`ProjectedCurve`], [`OffsetCurve`],
-//!   [`CrvInVolume`], [`Hyperbola`] (whose variant runs the B-spline methods on its
+//!   [`CrvInVolume`], [`CrvOnSurf`], [`Hyperbola`] (whose variant runs the B-spline methods on its
 //!   base where it does not override them) and [`Line`] (`SmLine`, derived from
 //!   `SmBSplineCurve`: the inherited B-spline queries run on its B-spline part, made
 //!   with its NURB, see [`crate::curve::line`]); the other analytic and generated
@@ -145,6 +145,7 @@
 
 use crate::curve::conic::Conic;
 use crate::curve::crv_in_volume::CrvInVolume;
+use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::hermite_curve::HermiteCurve;
 use crate::curve::hyperbola::Hyperbola;
 use crate::curve::iso_curve::IsoCurve;
@@ -497,6 +498,8 @@ pub enum CurveKind {
     Conic(Conic),
     /// `SmCrvInVolume`.
     CrvInVolume(Box<CrvInVolume>),
+    /// `SmCrvOnSurf`.
+    CrvOnSurf(Box<CrvOnSurf>),
     /// `SmLine`.
     Line(Line),
 }
@@ -552,6 +555,12 @@ impl From<IsoCurve> for Curve {
 impl From<CrvInVolume> for Curve {
     fn from(c: CrvInVolume) -> Self {
         Self::new(CurveKind::CrvInVolume(Box::new(c)))
+    }
+}
+
+impl From<CrvOnSurf> for Curve {
+    fn from(c: CrvOnSurf) -> Self {
+        Self::new(CurveKind::CrvOnSurf(Box::new(c)))
     }
 }
 
@@ -627,6 +636,7 @@ impl Curve {
             CurveKind::Iso(_) => IsoCurve::TYPE,
             CurveKind::Offset(_) => OffsetCurve::TYPE,
             CurveKind::CrvInVolume(_) => CrvInVolume::TYPE,
+            CurveKind::CrvOnSurf(_) => CrvOnSurf::TYPE,
             CurveKind::Line(_) => Line::TYPE,
         }
     }
@@ -643,6 +653,7 @@ impl Curve {
             CurveKind::Iso(_) => "SmIsoCurve_TYPE",
             CurveKind::Offset(_) => "SmOffsetCurve_TYPE",
             CurveKind::CrvInVolume(_) => "SmCrvInVolume_TYPE",
+            CurveKind::CrvOnSurf(_) => "SmCrvOnSurf_TYPE",
             CurveKind::Line(_) => "SmLine_TYPE",
         }
     }
@@ -659,6 +670,7 @@ impl Curve {
             CurveKind::Iso(_) => "SmIsoCurve",
             CurveKind::Offset(_) => "SmOffsetCurve",
             CurveKind::CrvInVolume(_) => "SmCrvInVolume",
+            CurveKind::CrvOnSurf(_) => "SmCrvOnSurf",
             CurveKind::Line(_) => "SmLine",
         }
     }
@@ -694,6 +706,7 @@ impl Curve {
             (CurveKind::Iso(a), CurveKind::Iso(b)) => Ok(a.approx_eq(b)),
             (CurveKind::Offset(a), CurveKind::Offset(b)) => a.approx_eq(b),
             (CurveKind::CrvInVolume(a), CurveKind::CrvInVolume(b)) => a.approx_eq(b),
+            (CurveKind::CrvOnSurf(a), CurveKind::CrvOnSurf(b)) => a.approx_eq(b),
             (CurveKind::Line(a), CurveKind::Line(b)) => Ok(a.approx_eq(b)),
             // GetType() differs
             _ => Ok(false),
@@ -714,6 +727,7 @@ impl Curve {
             CurveKind::Iso(c) => c.dim(),
             CurveKind::Offset(c) => c.dim(),
             CurveKind::CrvInVolume(c) => c.dim(),
+            CurveKind::CrvOnSurf(c) => c.dim(),
             CurveKind::Line(c) => c.dim(),
         }
     }
@@ -732,7 +746,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Ok(3),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Ok(3),
             CurveKind::Line(c) => Ok(c.degree()),
         }
     }
@@ -750,6 +765,7 @@ impl Curve {
             CurveKind::Offset(c) => c.number_natural_knots(),
             CurveKind::Projected(c) => c.number_natural_knots(),
             CurveKind::CrvInVolume(c) => c.number_natural_knots_ref(),
+            CurveKind::CrvOnSurf(c) => c.number_natural_knots_ref(),
             CurveKind::Line(c) => Ok(c.number_natural_knots()),
         }
     }
@@ -768,7 +784,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Ok(0),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Ok(0),
             CurveKind::Line(c) => c.base_with_nurb()?.number_control_points(),
         }
     }
@@ -785,6 +802,7 @@ impl Curve {
             CurveKind::Iso(c) => c.natural_interval(),
             CurveKind::Offset(c) => c.natural_interval(),
             CurveKind::CrvInVolume(c) => c.natural_interval(),
+            CurveKind::CrvOnSurf(c) => c.natural_interval(),
             CurveKind::Line(c) => c.natural_interval(),
         }
     }
@@ -801,7 +819,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => false,
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => false,
         }
     }
 
@@ -819,6 +838,7 @@ impl Curve {
             | CurveKind::Offset(_) => true,
             CurveKind::Projected(c) => c.is_bounded(),
             CurveKind::CrvInVolume(c) => c.is_bounded(),
+            CurveKind::CrvOnSurf(c) => c.is_bounded(),
         }
     }
 
@@ -836,7 +856,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Ok(false),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Ok(false),
             CurveKind::Line(c) => c.base_with_nurb()?.is_rational(),
         }
     }
@@ -855,7 +876,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Ok(false),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Ok(false),
             CurveKind::Line(c) => c.base_with_nurb()?.has_repeated_end_control_points(tol),
         }
     }
@@ -962,6 +984,7 @@ impl Curve {
             CurveKind::Iso(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Offset(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::CrvInVolume(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
+            CurveKind::CrvOnSurf(c) => c.evaluate(t, num_derivs, from_left, non_zero_tangents),
             CurveKind::Line(c) => Ok(c.evaluate(t, num_derivs)),
         }
     }
@@ -981,6 +1004,7 @@ impl Curve {
             CurveKind::Iso(c) => c.evaluate_point(t),
             CurveKind::Offset(c) => c.evaluate_point(t),
             CurveKind::CrvInVolume(c) => c.evaluate_point(t),
+            CurveKind::CrvOnSurf(c) => c.evaluate_point(t),
             CurveKind::Line(c) => Ok(c.evaluate_point(t)),
         }
     }
@@ -1004,6 +1028,7 @@ impl Curve {
             CurveKind::Iso(c) => c.calculate_continuities(),
             CurveKind::Offset(c) => c.calculate_continuities(angle_tol),
             CurveKind::CrvInVolume(c) => c.calculate_continuities_ref(angle_tol),
+            CurveKind::CrvOnSurf(c) => c.calculate_continuities_ref(angle_tol),
             CurveKind::Line(c) => c.base_with_nurb()?.calculate_continuities(angle_tol),
         }
     }
@@ -1030,6 +1055,7 @@ impl Curve {
             CurveKind::Iso(c) => c.knots(interval),
             CurveKind::Offset(c) => c.knots(interval),
             CurveKind::CrvInVolume(c) => c.knots_ref(interval),
+            CurveKind::CrvOnSurf(c) => c.knots_ref(interval),
             CurveKind::Line(c) => c.base_with_nurb()?.knots(interval),
         }
     }
@@ -1050,6 +1076,7 @@ impl Curve {
             CurveKind::Iso(c) => base_ends(c),
             CurveKind::Offset(c) => base_ends(c),
             CurveKind::CrvInVolume(c) => base_ends(c.as_ref()),
+            CurveKind::CrvOnSurf(c) => base_ends(c.as_ref()),
             CurveKind::Line(c) => c.ends_copy(),
         }
     }
@@ -1112,7 +1139,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Err(base_err()),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Err(base_err()),
         }
     }
 
@@ -1186,7 +1214,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Err(base_err()),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Err(base_err()),
             CurveKind::Line(c) => c.convert_to_2d_owned(self.owner),
         }
     }
@@ -1207,6 +1236,7 @@ impl Curve {
             | CurveKind::Offset(_) => Err(base_err()),
             CurveKind::Projected(c) => c.edit_parameterization(new_param),
             CurveKind::CrvInVolume(c) => c.edit_parameterization(new_param),
+            CurveKind::CrvOnSurf(c) => c.edit_parameterization(new_param),
             CurveKind::Line(c) => c.edit_parameterization_owned(self.owner, new_param),
         }
     }
@@ -1225,6 +1255,7 @@ impl Curve {
             CurveKind::Projected(c) => c.reverse_parameterization(old_interval),
             CurveKind::Offset(c) => Ok(c.reverse_parameterization(old_interval)),
             CurveKind::CrvInVolume(c) => c.reverse_parameterization(old_interval),
+            CurveKind::CrvOnSurf(c) => c.reverse_parameterization(old_interval),
             CurveKind::Line(c) => Ok(c.reverse_parameterization(old_interval)),
         }
     }
@@ -1244,6 +1275,7 @@ impl Curve {
             | CurveKind::Offset(_) => Err(base_err()),
             CurveKind::Projected(c) => c.transform(rotate_n_move, scale),
             CurveKind::CrvInVolume(c) => c.transform(rotate_n_move, scale),
+            CurveKind::CrvOnSurf(c) => c.transform(rotate_n_move, scale),
             CurveKind::Line(c) => c.transform(rotate_n_move, scale),
         }
     }
@@ -1261,6 +1293,7 @@ impl Curve {
             CurveKind::Projected(c) => c.trim(k, trim_interval, mode),
             CurveKind::Offset(c) => c.trim(trim_interval, mode == TrimMode::IntervalOnly),
             CurveKind::CrvInVolume(c) => c.trim(k, trim_interval, mode),
+            CurveKind::CrvOnSurf(c) => c.trim(k, trim_interval, mode),
             CurveKind::Line(c) => c.trim_owned(self.owner, trim_interval, mode),
         }
     }
@@ -1278,6 +1311,7 @@ impl Curve {
             CurveKind::Projected(c) => c.copy().map(Self::from),
             CurveKind::Offset(c) => Ok(Self::from(c.copy())),
             CurveKind::CrvInVolume(c) => Ok(Self::from(c.copy())),
+            CurveKind::CrvOnSurf(c) => c.copy().map(Self::from),
             CurveKind::Line(c) => Ok(Self::from(c.copy())),
         }
     }
@@ -1304,7 +1338,8 @@ impl Curve {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => Ok(None),
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => Ok(None),
         }
     }
 
@@ -1493,8 +1528,7 @@ impl Curve {
                 unported("SmCompositeCurve::ReadFromDB", "curve.composite_curve_p2")
             }
             CONIC_TYPE => Conic::read_from_db(db).map(Self::from),
-            // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::ReadFromDB
-            CRV_ON_SURF_TYPE => unported("SmCrvOnSurf::ReadFromDB", "curve.crv_on_surf"),
+            CRV_ON_SURF_TYPE => CrvOnSurf::read_from_db(db, version).map(Self::from),
             CRV_IN_VOLUME_TYPE => CrvInVolume::read_from_db(db, version).map(Self::from),
             TANGENT_FIELD_TYPE => {
                 // SmTangentField::ReadFromDB; its SmCrvOnSurf part is unported (no early
