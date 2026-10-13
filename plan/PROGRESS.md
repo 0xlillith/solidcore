@@ -161,7 +161,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.surface_tracer` (1900 lines) — in progress: #27 @bherbruck (draft)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
-- [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (draft)
 
@@ -366,7 +366,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `intersect.ray_tracer` (1246 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_curve` (2014 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p2` (1080 lines) — waiting
-- [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (draft)
 - [ ] ⏳ `intersect.adv_surface_intersector` (1646 lines) — waiting
 - [ ] ⏳ `intersect.curve_class_p2` (1928 lines) — waiting
