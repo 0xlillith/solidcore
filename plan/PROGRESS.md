@@ -13,7 +13,7 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 
 ## In progress
 
-- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (draft)
+- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 
 ## By module
@@ -127,7 +127,7 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [x] ✅ `curve.composite_curve_p1` (1700 lines) — green, 3093 cases
 - [x] ✅ `curve.composite_curve_p2` (1345 lines) — green, 661 cases
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
-- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (draft)
+- [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 
 ### surface (7/40)
 
