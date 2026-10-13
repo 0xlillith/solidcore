@@ -2,6 +2,27 @@
 
 Last updated: 2026-10-13, Wave 1 in progress (after `curve.curve_p5`). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
 
+## Handoff (2026-10-13): from one local swarm to pull requests
+
+The original local swarm (one machine, up to 10 agents) was stopped here so that others
+can contribute. From now on all work goes through PRs; see AGENTS.md section 4.
+
+- **Where things get ticked off:** `plan/PROGRESS.md` (checklist, regenerated on `main`
+  by `.github/workflows/progress.yml` from `plan/modules.toml` and open `port: <id>` PRs).
+  The source of truth stays `plan/modules.toml`; evidence per unit is
+  `reports/difftest/<unit>.json`.
+- **Ready now:** `curve.curve_p9`, `surface.plane_p1`, `surface.surf_of_revolution_p1`,
+  `surface.surface_p9`, `surface.trim_srf_cache` (unverified WIP for the last one is on
+  `origin` branch `unit/surface.trim_srf_cache`).
+- **Throughput limit:** the dependency chain, not people. Often only 2 to 5 units are
+  ready at once. A useful non-port task: find `depends_on` links that are only 1 or 2
+  calls and could become back-edges (section 4a), which would widen the ready set.
+- **CI was red on `main` before this handoff** (newer clippy on GitHub; a test-only FFI
+  buffer that needed ~37 GB on GitHub's runner). Fixed here: toolchain pinned to
+  1.98.0, and `topology.database_io`'s FFI wrapper now sizes buffers exactly.
+- **Last unit, after everything else:** `audit.recursion` (bounds input-driven recursion;
+  wasm has no stack guard page).
+
 ## Progress
 
 Counts are from `plan/modules.toml`. Line counts are the upstream function-body lines
