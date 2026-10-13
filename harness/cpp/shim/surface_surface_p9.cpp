@@ -73,7 +73,7 @@ SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, const double* xyz, cons
                 SmCSIGlobalSolver solver(cc.GetTree(),sc.GetTree(),FALSE,interval,domain);
                 SmSolutionArray solutions;solver.SetSolutions(&solutions);
                 solver.SetSolverOperation(SM_SO_INTERSECT);solver.Set3DTolerance(1e-6);solver.SetSolutionRequested(SM_SR_ALL);
-                SmTreeNode* branch[SM_GS_MAX_TREES]={cc.GetTree()->GetFirstLeafNode(),sc.GetTree()->GetFirstLeafNode(),NULL,NULL};
+                SmTreeNode* branch[SM_GS_MAX_TREES]={cc.GetTree()->GetFirstLeafNode(),sc.GetTree()->GetFirstLeafNode(),NULL};
                 SmBoolean more=FALSE;r=solver.LocalSolve(branch,more);
                 out.push_back(status(r));
                 if(r==SM_SUCCESS) {

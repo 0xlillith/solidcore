@@ -984,7 +984,7 @@ mod tests {
         let domain = s.natural_uv_domain();
         for direction in [SurfParamType::U, SurfParamType::V] {
             assert_eq!(
-                s.find_tessellation_splits(&k, direction, &domain, 0.01, 10.0, 0.0, true)
+                s.find_tessellation_splits(&k, direction, &domain, 0.01, 10.0, 0.0, false)
                     .unwrap(),
                 vec![0.0, 1.0]
             );
@@ -1022,3 +1022,4 @@ mod tests {
             .is_err());
     }
 }
+
