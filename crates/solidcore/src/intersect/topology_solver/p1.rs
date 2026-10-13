@@ -443,7 +443,8 @@ impl<'t, 'a, O: SolutionObject + 't> TopologySolver<'t, 'a, O> {
                 let proj_pnt = point_project_to_plane(s2.center, s1.center, opt_vector(s, 0)?);
                 if s.operation == SolverOperation::ProjectedMinimize {
                     let min_proj_dist = proj_pnt.distance(s1.center) - s1.radius - s2.radius;
-                    if min_proj_dist > 0.0 && min_proj_dist * min_proj_dist > s.best_answer_so_far_sq
+                    if min_proj_dist > 0.0
+                        && min_proj_dist * min_proj_dist > s.best_answer_so_far_sq
                     {
                         return Ok(false);
                     }
@@ -495,7 +496,8 @@ impl<'t, 'a, O: SolutionObject + 't> TopologySolver<'t, 'a, O> {
 
                 if s.operation == SolverOperation::DirectedMinimize {
                     let min_proj_dist = proj_pnt.distance(s1.center) - s1.radius - s2.radius;
-                    if min_proj_dist > 0.0 && min_proj_dist * min_proj_dist > s.best_answer_so_far_sq
+                    if min_proj_dist > 0.0
+                        && min_proj_dist * min_proj_dist > s.best_answer_so_far_sq
                     {
                         return Ok(false);
                     }
@@ -1542,7 +1544,11 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let mut uv_curve1: Option<&Curve> = None;
         let mut uv_curve2: Option<&Curve> = None;
 
-        let first = (self.curve_edge, self.curve_face, self.curve.map(|c| c.handle));
+        let first = (
+            self.curve_edge,
+            self.curve_face,
+            self.curve.map(|c| c.handle),
+        );
         let second = (
             self.curve_edge2,
             self.curve_face2,
@@ -1914,7 +1920,10 @@ mod tests {
             &BoundedLineOptions::default(),
         );
         Scene {
-            vertices: vec![(Vec3::new(3.0, 4.0, 0.0), 0.0), (Vec3::new(0.0, 0.0, 0.0), 0.0)],
+            vertices: vec![
+                (Vec3::new(3.0, 4.0, 0.0), 0.0),
+                (Vec3::new(0.0, 0.0, 0.0), 0.0),
+            ],
             curves: vec![Curve::from(line)],
             edges: vec![(0, Extent1d::from_min_max(2.0, 8.0))],
         }
