@@ -695,6 +695,10 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
+        CurveKind::Hyperbola(h) => {
+            // not produced by this unit's cases (see curve.hyperbola's runner)
+            o.extend([2.0, h.base().dim() as f64]);
+        }
         CurveKind::Hermite(h) => {
             o.extend([1.0, h.dim() as f64]);
             let a = h.evaluate(0.0, 1, false);
@@ -702,6 +706,9 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
             for v in a.iter().take(2).chain(e.iter().take(2)) {
                 pv(o, *v);
             }
+        }
+        CurveKind::Iso(c) => {
+            o.extend([3.0, c.dim() as f64, c.iso_parameter()]);
         }
         CurveKind::Conic(k) => {
             // the defining data evaluated back: position and tangent at 0 and 0.5
@@ -717,6 +724,8 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
+        // the shim reports another type as -1
+        CurveKind::Projected(_) | CurveKind::Offset(_) => o.push(-1.0),
     }
 }
 

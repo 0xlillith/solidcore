@@ -70,17 +70,20 @@
 //! - **`ReverseParameterization`** sets the new interval with `SetMinMax`, whose
 //!   failure (new min above new max, only for an inverted natural interval) upstream
 //!   ignores, leaving the caller's interval; the port then returns the old interval.
-//! - **Back-edges.** `IsLine` defers to `SmCurve::IsLine` (unit `curve.curve_p5`) for
-//!   rational curves and curves it cannot classify from the control points;
+//! - **Back-edges.** `IsLine` defers to `SmCurve::IsLine` (unit `curve.curve_p5`,
+//!   co-ported by `curve.curve_cache` as [`crate::curve::curve::p5::is_line_base`])
+//!   for rational curves and curves it cannot classify from the control points;
 //!   `IsDegenerate` calls `SmCurve::IsDegenerate` (`curve.curve_p4`) for other
 //!   intervals; `GetMaxAnalyticDomain` calls
 //!   `SmCurve::IsClosed` (`curve.curve_p4`); `CreateAnalyticCurve` builds `SmLine`
 //!   (`curve.line`) and `SmCircle` (`curve.ellipse_p1`) and calls `SmCurve::IsArc`
 //!   (`curve.curve_p5`); `CreateSimpleOffset` calls `SmCurve::IsArc`
-//!   (`curve.curve_p5`) and approximates an `SmOffsetCurve` (`curve.offset_curve`,
-//!   `SmCurve::ApproximateCurve` in `curve.curve_p1`). Those calls return
+//!   (`curve.curve_p5`) and approximates an [`OffsetCurve`] with
+//!   `SmCurve::ApproximateCurve` (`curve.curve_p1`). Those calls return
 //!   [`SolidError::Unported`] until the units are ported.
 
+use crate::curve::curve::Curve;
+use crate::curve::offset_curve::OffsetCurve;
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
@@ -188,17 +191,14 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
 // ---- back-edges -------------------------------------------------------------------
 
 /// `SmCurve::IsLine` of `curve`: the line point and vector when the curve is a
-/// constant-speed line.
+/// constant-speed line (co-ported by unit `curve.curve_cache` into
+/// [`crate::curve::curve::p5`]).
 fn curve_is_line(
-    _curve: &BSplineCurve,
-    _num_samples: u64,
-    _tol: f64,
+    curve: &BSplineCurve,
+    num_samples: u64,
+    tol: f64,
 ) -> Result<Option<(Point3, Vec3)>> {
-    // UNPORTED(curve.curve_p5): SmCurve::IsLine
-    Err(SolidError::Unported {
-        upstream: "SmCurve::IsLine",
-        unit: "curve.curve_p5",
-    })
+    crate::curve::curve::p5::is_line_base(curve, num_samples, tol)
 }
 
 /// `SmCurve::IsDegenerate` of `curve` over `interval`.
@@ -240,17 +240,37 @@ fn curve_is_arc(_curve: &BSplineCurve, _num_samples: u64, _tol: f64) -> Result<O
 /// `ApproximateCurve(ctx, {ivl.min, ivl.max}, tol, gap, approx, bMatch, FALSE)`: the
 /// approximation and its maximum gap.
 fn offset_curve_approximation(
-    _curve: &BSplineCurve,
-    _interval: &Extent1d,
-    _normal: Vec3,
-    _distance: f64,
+    curve: &BSplineCurve,
+    interval: &Extent1d,
+    normal: Vec3,
+    distance: f64,
+    approx_tol_3d: f64,
+    match_parameterization: bool,
+) -> Result<(BSplineCurve, f64)> {
+    let off = OffsetCurve::new(
+        3,
+        Curve::from(curve.clone()),
+        *interval,
+        normal,
+        distance,
+        false,
+    );
+    let breaks = [interval.min(), interval.max()];
+    approximate_curve(&off, &breaks, approx_tol_3d, match_parameterization)
+}
+
+/// `SmCurve::ApproximateCurve(ctx, breaks, tol, gap, approx, bMatch, FALSE)` of
+/// `curve`: the approximation and its maximum gap.
+fn approximate_curve(
+    _curve: &OffsetCurve,
+    _breaks: &[f64],
     _approx_tol_3d: f64,
     _match_parameterization: bool,
 ) -> Result<(BSplineCurve, f64)> {
-    // UNPORTED(curve.offset_curve): SmOffsetCurve::ApproximateCurve
+    // UNPORTED(curve.curve_p1): SmCurve::ApproximateCurve
     Err(SolidError::Unported {
-        upstream: "SmOffsetCurve::ApproximateCurve",
-        unit: "curve.offset_curve",
+        upstream: "SmCurve::ApproximateCurve",
+        unit: "curve.curve_p1",
     })
 }
 
@@ -350,8 +370,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` without a NURB or when a span cannot be found; [`SolidError::Unported`]
-    /// when the Bezier line test reaches `SmCurve::IsLine`.
+    /// `SM_ERR` without a NURB or when a span cannot be found.
     pub fn calculate_bounding_box(
         &self,
         interval: &Extent1d,
@@ -1103,8 +1122,7 @@ impl BSplineCurve {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` without a NURB; [`SolidError::Unported`] where `SmCurve::IsLine`
-    /// (unit `curve.curve_p5`) is needed.
+    /// `SM_ERR` without a NURB.
     pub fn is_line(&self, num_samples: u64, tol: f64) -> Result<Option<(Point3, Vec3)>> {
         let num_samples = num_samples.max(3);
 
@@ -1787,11 +1805,9 @@ mod tests {
     }
 
     #[test]
-    fn non_bezier_line_test_is_unported() {
-        assert!(matches!(
-            cubic().is_line(3, 1e-9),
-            Err(SolidError::Unported { .. })
-        ));
+    fn non_bezier_line_test_samples_the_curve() {
+        // a curved cubic: SmCurve::IsLine (co-ported) rejects it
+        assert!(cubic().is_line(3, 1e-9).unwrap().is_none());
     }
 
     #[test]
