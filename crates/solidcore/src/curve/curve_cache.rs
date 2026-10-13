@@ -67,7 +67,7 @@
 //!   implementation of [`FindCurveDistanceExtrema`].
 //! - **Curve kinds.** `SM_CAST_NONNULL_PTR(SmBSplineCurve, ...)` is non-null for
 //!   [`CurveKind::BSpline`] and the analytic B-spline kinds ([`CurveKind::Hyperbola`],
-//!   [`CurveKind::Ellipse`]),
+//!   [`CurveKind::Ellipse`], [`CurveKind::Parabola`], [`CurveKind::Line`]),
 //!   whose NURB is decomposed exactly; the other kinds (Hermite, conic, projected) are
 //!   approximated by cubic spans over their knots.
 //! - **Undefined behaviour.** Where upstream would index past an array (a
@@ -549,6 +549,12 @@ impl<O: Copy + PartialEq> CurveCache<O> {
                 }
                 true
             }
+            CurveKind::Parabola(p) => {
+                if p.base().gw_nurb().is_none() {
+                    p.make_nurb(owner)?;
+                }
+                true
+            }
             CurveKind::Line(l) => {
                 if l.base().gw_nurb().is_none() {
                     l.make_nurb_owned(owner)?;
@@ -560,7 +566,8 @@ impl<O: Copy + PartialEq> CurveCache<O> {
             | CurveKind::Projected(_)
             | CurveKind::Iso(_)
             | CurveKind::Offset(_)
-            | CurveKind::CrvInVolume(_) => false,
+            | CurveKind::CrvInVolume(_)
+            | CurveKind::CrvOnSurf(_) => false,
         };
 
         // ordered leaf Beziers each passing the tessellation tests
@@ -578,13 +585,15 @@ impl<O: Copy + PartialEq> CurveCache<O> {
                 CurveKind::BSpline(b) => b.gw_nurb(),
                 CurveKind::Hyperbola(h) => h.base().gw_nurb(),
                 CurveKind::Ellipse(e) => e.base().gw_nurb(),
+                CurveKind::Parabola(p) => p.base().gw_nurb(),
                 CurveKind::Line(l) => l.base().gw_nurb(),
                 CurveKind::Hermite(_)
                 | CurveKind::Conic(_)
                 | CurveKind::Projected(_)
                 | CurveKind::Iso(_)
                 | CurveKind::Offset(_)
-                | CurveKind::CrvInVolume(_) => None,
+                | CurveKind::CrvInVolume(_)
+                | CurveKind::CrvOnSurf(_) => None,
             };
             create_bezier_segment_block(nurb, &self.curve)?
         };

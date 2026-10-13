@@ -7,6 +7,7 @@
 
 pub mod conic;
 pub mod crv_in_volume;
+pub mod crv_on_surf;
 #[allow(clippy::module_inception)]
 pub mod curve;
 pub mod curve_cache;
@@ -16,5 +17,6 @@ pub mod hyperbola;
 pub mod iso_curve;
 pub mod line;
 pub mod offset_curve;
+pub mod parabola;
 pub mod projected_curve;
 pub mod tangent_field;

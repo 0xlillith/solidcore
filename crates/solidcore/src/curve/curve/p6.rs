@@ -8,9 +8,9 @@
 //!
 //! | Rust                                                    | Upstream                              |
 //! |---------------------------------------------------------|---------------------------------------|
-//! | [`Curve::calculate_bounding_box`], [`calculate_bounding_box_base`] | `SmCurve::CalculateBoundingBox` (and its dispatch) |
+//! | [`Curve::calculate_bounding_box`], [`calculate_bounding_box_base`] | `SmCurve::CalculateBoundingBox` (and its dispatch, with the `SmCrvOnSurf` override) |
 //! | [`Curve::is_planar`]                                    | `SmCurve::IsPlanar`                   |
-//! | [`Curve::drop_point`], [`DroppedPoint`]                 | `SmCurve::DropPoint`                  |
+//! | [`Curve::drop_point`], [`Curve::drop_point_base`], [`DroppedPoint`] | `DropPoint` (virtual: the `SmCrvOnSurf` override), `SmCurve::DropPoint` |
 //! | [`Curve::global_point_solve_step`]                      | `SmCurve::GlobalPointSolveSTEP` (and its dispatch) |
 //! | [`Curve::curve_max_distance_between`], [`MaxDistance`]  | `SmCurve::CurveMaxDistanceBetween`    |
 //! | [`Curve::simple_coincidence_checker`]                   | `SmCurve::SimpleCoincidenceChecker`   |
@@ -40,10 +40,11 @@
 //! - **Object identity.** `&crOtherCurve == this` is [`core::ptr::eq`].
 //! - **`DeformToEndPointTargets`.** `ppOptNewCurve` is `want_new_curve`; the new curve
 //!   is returned. The `SmCrvOnSurf` branch (editing the UV curve when
-//!   `pOptSurfCrvOnSurf` is its base surface) is not here: no [`CurveKind`] is a
-//!   curve on surface yet, so upstream's `SM_CAST_NONNULL_PTR(SmCrvOnSurf, this)` is
-//!   `NULL` for every curve and the branch is never taken; the surface and orientation
-//!   arguments are dropped until unit `curve.crv_on_surf` adds the kind.
+//!   `pOptSurfCrvOnSurf` is its base surface) is not here: it is taken only with
+//!   that surface argument, which the port drops with `pOptCrvOrientation` (every
+//!   caller here passes `NULL`), and it needs `SmSurface::DropPoint` (unit
+//!   `surface.surface_p5`). A curve on surface takes the approximation path, through
+//!   its `ApproximateCurve` override.
 //! - **Handles.** The global point solves of `DropPoint` and `CurveMaxDistanceBetween`
 //!   name a private handle of the curve (with its natural interval, as upstream's
 //!   `this`); those solutions are not returned.
@@ -443,6 +444,7 @@ impl Curve {
     /// Those of the override or of [`calculate_bounding_box_base`].
     pub fn calculate_bounding_box(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         req: BoundingBoxRequest,
         expand: bool,
@@ -451,7 +453,10 @@ impl Curve {
             CurveKind::BSpline(c) => c.calculate_bounding_box(interval, req),
             CurveKind::Hyperbola(c) => c.base().calculate_bounding_box(interval, req),
             CurveKind::Ellipse(c) => c.base().calculate_bounding_box(interval, req),
+            CurveKind::Parabola(c) => c.base().calculate_bounding_box(interval, req),
             CurveKind::Line(c) => Ok(c.calculate_bounding_box(interval, req)),
+            // (its cache update is lost on this copy)
+            CurveKind::CrvOnSurf(c) => c.calculate_bounding_box_ref(k, interval, req, expand),
             CurveKind::Hermite(c) => {
                 let mut normal = Extent3d::new();
                 let mut pseudo = PseudoBox::new();
@@ -478,13 +483,13 @@ impl Curve {
     ///
     /// [`SolidError::Unported`] from [`Curve::calculate_bounding_box`] (whose other
     /// failures leave the default box, as upstream ignores the status).
-    pub fn is_planar(&self, tol: f64) -> Result<Planar> {
+    pub fn is_planar(&self, k: &Kernel, tol: f64) -> Result<Planar> {
         let req = BoundingBoxRequest {
             normal: false,
             pseudo: true,
             polar: false,
         };
-        let pseudo = ignored(self.calculate_bounding_box(&self.natural_interval(), req, true))?
+        let pseudo = ignored(self.calculate_bounding_box(k, &self.natural_interval(), req, true))?
             .and_then(|b| b.pseudo)
             .unwrap_or_else(PseudoBox::new);
         Ok(pseudo.is_planar(tol))
@@ -505,6 +510,30 @@ impl Curve {
     /// [`SolidError::Unported`] for the global solve (`SmCurve::GlobalPointSolve`,
     /// unit `curve.curve_p1`).
     pub fn drop_point(
+        &self,
+        k: &Kernel,
+        interval: &Extent1d,
+        point: Point3,
+        vec_to_inside: Option<Vec3>,
+        dist_tol: f64,
+        guess: Option<f64>,
+        op: SolverOperation,
+    ) -> Result<DroppedPoint> {
+        match self.kind() {
+            // the SmCrvOnSurf override (its cache update is lost on this copy)
+            CurveKind::CrvOnSurf(c) => {
+                c.drop_point_ref(k, interval, point, vec_to_inside, dist_tol, guess, op)
+            }
+            _ => self.drop_point_base(k, interval, point, vec_to_inside, dist_tol, guess, op),
+        }
+    }
+
+    /// `SmCurve::DropPoint` (the base-class body of [`Curve::drop_point`]).
+    ///
+    /// # Errors
+    ///
+    /// As [`Curve::drop_point`].
+    pub fn drop_point_base(
         &self,
         k: &Kernel,
         interval: &Extent1d,
@@ -618,13 +647,15 @@ impl Curve {
         Ok(out)
     }
 
-    /// `GlobalPointSolveSTEP`: the line, hyperbola and ellipse overrides; the base
-    /// passes the call to [`Curve::global_point_solve`]. `this` names the curve in the
-    /// solutions (the hyperbola's and ellipse's name no object, see their units).
+    /// `GlobalPointSolveSTEP`: the line, hyperbola, ellipse and parabola overrides;
+    /// the base passes the call to [`Curve::global_point_solve`]. `this` names the
+    /// curve in the solutions (the hyperbola's, ellipse's and parabola's name no
+    /// object, see their units).
     ///
     /// # Errors
     ///
-    /// Those of the hyperbola override and of [`Curve::global_point_solve`].
+    /// Those of the hyperbola and parabola overrides and of
+    /// [`Curve::global_point_solve`].
     pub fn global_point_solve_step<O: SolutionObject>(
         &mut self,
         k: &Kernel,
@@ -670,6 +701,31 @@ impl Curve {
             CurveKind::Ellipse(e) => {
                 let sols = e.global_point_solve_step(
                     k,
+                    op,
+                    test_point,
+                    dist_tol,
+                    target_distance,
+                    requested,
+                )?;
+                Ok(sols
+                    .iter()
+                    .map(|s| {
+                        let mut r: Solution<O> = Solution::new();
+                        r.solution_type = s.solution_type;
+                        r.num_variables = s.num_variables;
+                        r.start = s.start;
+                        r.end = s.end;
+                        r.num_objects = s.num_objects;
+                        r.nodes = s.nodes;
+                        r
+                    })
+                    .collect())
+            }
+            CurveKind::Parabola(p) => {
+                let sols = p.global_point_solve_step(
+                    k,
+                    owner,
+                    step_interval,
                     op,
                     test_point,
                     dist_tol,
@@ -864,6 +920,7 @@ impl Curve {
                     CurveKind::BSpline(c) => Some(c.is_nurb_borrowed()),
                     CurveKind::Hyperbola(c) => Some(c.base().is_nurb_borrowed()),
                     CurveKind::Ellipse(c) => Some(c.base().is_nurb_borrowed()),
+                    CurveKind::Parabola(c) => Some(c.base().is_nurb_borrowed()),
                     CurveKind::Line(c) => Some(c.base.is_nurb_borrowed()),
                     _ => None,
                 };
@@ -1274,9 +1331,9 @@ impl Curve {
                 pseudo: false,
                 polar: false,
             };
-            if let Some(this_box) = ignored(self.calculate_bounding_box(interval, req, true))? {
+            if let Some(this_box) = ignored(self.calculate_bounding_box(k, interval, req, true))? {
                 if let Some(other_box) =
-                    ignored(other.calculate_bounding_box(other_interval, req, true))?
+                    ignored(other.calculate_bounding_box(k, other_interval, req, true))?
                 {
                     if let (Some(a), Some(b)) = (this_box.normal, other_box.normal) {
                         if a.are_disjoint(&b, tol) {
@@ -1739,7 +1796,8 @@ impl Curve {
                 ));
             }
 
-            // UNPORTED(curve.crv_on_surf): the SmCrvOnSurf branch (no CurveKind yet)
+            // UNPORTED(surface.surface_p5): SmSurface::DropPoint (the SmCrvOnSurf branch; it
+            // also needs the dropped pOptSurfCrvOnSurf and pOptCrvOrientation arguments)
 
             // for derived BSpline types: copy the Nurb curve as a plain BSplineCurve
             CurveKind::Hyperbola(h) => {
@@ -1752,6 +1810,10 @@ impl Curve {
                     ignore_status(e.make_nurb(k))?;
                 }
                 let nurb = e.base.get_or_create_gw_nurb()?;
+                BSplineCurve::from_gw_nurb(dim, nurb)
+            }
+            CurveKind::Parabola(p) => {
+                let nurb = p.base_mut().get_or_create_gw_nurb()?;
                 BSplineCurve::from_gw_nurb(dim, nurb)
             }
 
@@ -1832,8 +1894,18 @@ mod tests {
 
     #[test]
     fn planar_line_and_hermite() {
-        assert!(quarter_line().is_planar(EFF_ZERO).unwrap().is_planar);
-        assert!(hermite().is_planar(EFF_ZERO).unwrap().is_planar);
+        assert!(
+            quarter_line()
+                .is_planar(&Kernel::default(), EFF_ZERO)
+                .unwrap()
+                .is_planar
+        );
+        assert!(
+            hermite()
+                .is_planar(&Kernel::default(), EFF_ZERO)
+                .unwrap()
+                .is_planar
+        );
     }
 
     #[test]
