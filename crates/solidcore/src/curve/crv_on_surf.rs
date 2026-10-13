@@ -1700,6 +1700,10 @@ impl CurveEvaluate for CrvOnSurf {
     fn evaluate_point(&self, t: f64) -> Result<Point3> {
         Self::evaluate_point(self, t)
     }
+
+    fn as_crv_on_surf(&self) -> Option<&CrvOnSurf> {
+        Some(self)
+    }
 }
 
 #[cfg(test)]
