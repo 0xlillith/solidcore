@@ -725,8 +725,8 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
-        // (this unit's cases never build lines; unit curve.line checks them)
-        CurveKind::Projected(_) | CurveKind::Line(_) => o.push(-1.0),
+        // the shim reports another type as -1
+        CurveKind::Projected(_) | CurveKind::Offset(_) | CurveKind::Line(_) => o.push(-1.0),
     }
 }
 
