@@ -139,7 +139,12 @@ impl Reader<'_> {
     }
 
     fn domain(&mut self) -> Result<[f64; 4], FfiError> {
-        let d = [self.finite()?, self.finite()?, self.finite()?, self.finite()?];
+        let d = [
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+        ];
         if d[0] > d[2] || d[1] > d[3] {
             return Err(bad("domain not ordered"));
         }
@@ -199,7 +204,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -214,7 +221,9 @@ fn check_points(rd: &mut Reader<'_>, k: usize, two_d: bool, what: &str) -> Resul
         let z = rd.num()?;
         let w = rd.num()?;
         if two_d != (z == NOZ) {
-            return Err(bad(format!("{what}: dimension does not match the z marker")));
+            return Err(bad(format!(
+                "{what}: dimension does not match the z marker"
+            )));
         }
         let rational = w != NOW;
         if *w0.get_or_insert(rational) != rational {
@@ -224,7 +233,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, two_d: bool, what: &str) -> Resul
             return Err(bad(format!("{what}: weight out of range")));
         }
         let zz = if two_d { 0.0 } else { z };
-        if [x, y, zz].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, zz]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -344,7 +356,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             let enabled = rd.flag()?;
             let modified = rd.flag()?;
             if enabled && !modified {
-                return Err(bad("point test without face would classify against a null face"));
+                return Err(bad(
+                    "point test without face would classify against a null face",
+                ));
             }
             rd.finite()?;
             rd.finite()?;

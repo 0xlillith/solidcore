@@ -385,6 +385,15 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// edge use and vertex use, reduce the cache domain to the face domain and
     /// classify the nodes. `true` when the face containment is done.
     fn implant_face(&mut self, k: &Kernel, face: O) -> Result<bool> {
+        let saved_editing = face_brep_editing_enabled(face)?;
+        set_face_brep_editing_enabled(face, true)?;
+        let result = self.implant_face_body(k, face);
+        // SmTemporaryChangeValue restores the brep editing flag on errors too.
+        set_face_brep_editing_enabled(face, saved_editing)?;
+        result
+    }
+
+    fn implant_face_body(&mut self, k: &Kernel, face: O) -> Result<bool> {
         // create UVTrimCurve for every face->edge
         face_create_uv_trim_curves(face)?;
 
@@ -1037,6 +1046,15 @@ fn face_point_classify<O>(
 fn face_brep_editing_enabled<O>(_face: O) -> Result<bool> {
     // UNPORTED(topology.face_p4): SmFace::GetBrep
     Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
+}
+
+/// The temporary `GetFace()->GetBrep()->m_bEditingEnabled` assignment.
+fn set_face_brep_editing_enabled<O>(_face: O, _editing: bool) -> Result<()> {
+    // UNPORTED(topology.brep_p1): SmBrep::m_bEditingEnabled
+    Err(SolidError::unported(
+        "SmBrep::m_bEditingEnabled",
+        "topology.brep_p1",
+    ))
 }
 
 /// `SmFace::CreateUVTrimCurves(TRUE, NULL, NULL, ..)`.
