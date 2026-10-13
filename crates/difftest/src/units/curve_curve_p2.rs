@@ -695,6 +695,10 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
+        CurveKind::Hyperbola(h) => {
+            // not produced by this unit's cases (see curve.hyperbola's runner)
+            o.extend([2.0, h.base().dim() as f64]);
+        }
         CurveKind::Hermite(h) => {
             o.extend([1.0, h.dim() as f64]);
             let a = h.evaluate(0.0, 1, false);
@@ -717,8 +721,7 @@ fn state(o: &mut Vec<f64>, c: &Curve) {
                 }
             }
         }
-        // the shim reports -1 for a type it does not describe
-        CurveKind::CrvInVolume(_) => o.push(-1.0),
+        CurveKind::Projected(_) | CurveKind::CrvInVolume(_) => o.push(-1.0),
     }
 }
 
