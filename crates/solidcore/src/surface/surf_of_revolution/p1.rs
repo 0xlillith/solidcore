@@ -67,10 +67,12 @@
 //!   upstream would read uninitialised (a failed generator or surface evaluation, a
 //!   failed iso curve in `RebuildPolarConverter`) is returned.
 //! - **Unported callees.** `ConvertUVFromNURBSToSTEP` without exact polar conversion
-//!   needs `SmSTEPSurface` (unit `surface.surface_p1`); `IntersectWithPlane` of a
-//!   planar generator needs `SmPlane` (units `surface.plane_p1`, `surface.plane_p2`).
-//!   Those return [`SolidError::Unported`]; the plane argument is opaque until
-//!   `SmPlane` is ported.
+//!   needs `SmSTEPSurface` (unit `surface.surface_p1`). `IntersectWithPlane` of a
+//!   planar generator takes the plane's pseudo box, which upstream expands by the zone
+//!   tolerance of the plane's face (`SmSurface::GetFace`, unit `surface.surface_p1`),
+//!   and then trims curves to the plane domain (`SmPlane::TrimCurveToPlaneDomain`, unit
+//!   `surface.plane_p2`); the body below the plane box is ported with the latter.
+//!   Those return [`SolidError::Unported`].
 //! - **`sm_TestForIsoCircles`** returns its outputs in [`IsoCircles`]; the ones
 //!   upstream leaves unwritten (no non-degenerate iso curve, no second plane) are
 //!   `None`. With parallel iso planes `smgu_IntersectTwoPlanes` writes no line, so the
@@ -91,11 +93,12 @@ use crate::geom::tol::is_zero;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
 use crate::kernel::Kernel;
-use crate::math::{EFF_ZERO, PI};
+use crate::math::{EFF_ZERO, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::{
-    BSplineSurface, BSplineSurfaceForm, IsoCurveOptions, SurfParamType,
+    BSplineSurface, BSplineSurfaceForm, BoundingBoxRequest, IsoCurveOptions, SurfParamType,
 };
+use crate::surface::plane::Plane;
 use crate::surface::surface::p2::{
     scale_step_angular_derivatives, SurfaceIntersection, SURF_OF_REVOLUTION_TYPE,
 };
@@ -1254,32 +1257,52 @@ impl SurfOfRevolution {
 
     // ---- intersections and points -----------------------------------------------------
 
-    /// The special cases of the intersection with a plane (`IntersectWithPlane`):
+    /// The special cases of the intersection with `plane` (`IntersectWithPlane`):
     /// whether the general intersector is needed, and the curves found. A non-planar
-    /// generator always needs the general intersector. `plane` stands for the
-    /// `SmPlane` argument until that type is ported.
+    /// generator always needs the general intersector.
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for a planar generator (`SmPlane`, units
-    /// `surface.plane_p1` and `surface.plane_p2`).
-    pub fn intersect_with_plane<P: ?Sized>(
+    /// For a planar generator, [`SolidError::Unported`]: the plane's pseudo box
+    /// (`SmBSplineSurface::CalculateBoundingBox`, expanded by the zone tolerance of the
+    /// plane's face, `SmSurface::GetFace`, unit `surface.surface_p1`), and the rest of
+    /// the body behind it (`SmPlane::TrimCurveToPlaneDomain`, unit `surface.plane_p2`).
+    pub fn intersect_with_plane(
         &self,
-        plane: &P,
+        plane: &Plane,
         other_uv_domain: &Extent2d,
         approx_tol_3d: Option<f64>,
     ) -> Result<(bool, SurfaceIntersection)> {
-        let _ = (plane, other_uv_domain, approx_tol_3d);
+        let _ = other_uv_domain;
 
         // use general intersection for nonPlanar generators
         if !self.planar_generator {
             return Ok((true, SurfaceIntersection::default()));
         }
 
-        // UNPORTED(surface.plane_p1): SmPlane::GetPosition
+        // plane and RevolutionSurface locals (the plane position and the axes are read
+        // by the branches below the plane box)
+        let tol = approx_tol_3d.unwrap_or(EFF_ZERO_SQRT);
+
+        // get plane bounding box increased by tolerance (status ignored upstream; an
+        // unported callee still propagates)
+        let req = BoundingBoxRequest {
+            pseudo: true,
+            expand_by_zone_tol: true,
+            ..BoundingBoxRequest::default()
+        };
+        let plane_nurb = plane.base_with_nurb()?;
+        let boxes = ignored(plane_nurb.calculate_bounding_box(&plane.natural_uv_domain(), &req))?;
+        let mut plane_pbox = boxes.and_then(|b| b.pseudo).unwrap_or_default();
+        plane_pbox.expand_absolute(tol);
+
+        // UNPORTED(surface.plane_p2): SmPlane::TrimCurveToPlaneDomain. The rest of the
+        // body (the perpendicular / parallel axis cases, which trim the rotated generator
+        // or the swept iso curves to the plane domain) is ported with it; it is
+        // unreachable until the plane box above is (SmSurface::GetFace, surface.surface_p1).
         Err(SolidError::unported(
-            "SmPlane::GetPosition",
-            "surface.plane_p1",
+            "SmPlane::TrimCurveToPlaneDomain",
+            "surface.plane_p2",
         ))
     }
 
@@ -1647,13 +1670,14 @@ mod tests {
         t.toggle_swap_uv_bit();
         assert!(!s.approx_eq(&k, &t).unwrap());
         // a non-planar generator needs the general intersector
+        let plane = Plane::from_normal(Vec3::ZERO, Vec3::Z);
         let (more, x) = s
-            .intersect_with_plane(&(), &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
+            .intersect_with_plane(&plane, &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
             .unwrap();
         assert!(more && x.curves_3d.is_empty());
-        // a planar one needs SmPlane
+        // a planar one needs the plane box (SmSurface::GetFace)
         assert!(cone()
-            .intersect_with_plane(&(), &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
+            .intersect_with_plane(&plane, &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
             .unwrap_err()
             .is_unported());
     }

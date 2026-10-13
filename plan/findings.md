@@ -2540,6 +2540,80 @@ The C++ shim deliberately excludes classifying a surface without a face: upstrea
 would dereference null. FFI regression tests reject this path, truncated/trailing
 records, invalid counts and non-finite coordinates before entering C++.
 
+### surface.trim_srf_cache: review follow-ups (2026-10-13)
+
+- **Test gap closed.** The generator's negative-area face extents for
+  `ImplantEdgeuse` were rejected by the FFI validator (`rd.domain()` requires ordered
+  bounds) and silently redrawn, so C++ never saw them. The validator now only checks
+  finiteness; difftest is 620 cases, 462 bit-identical, 0 failed, 158 deferred
+  (surface.surface_cache_p3 100, surface.surface_p1 32, surface.surface_p3 26);
+  `--perturb` detects 462/462.
+- **MarkFaceContainment dispatch gap (no UNPORTED marker possible).**
+  `TrimSrfCache::build_tree` calls `SurfaceCache::mark_face_containment`, which uses
+  the base `SurfaceCache::point_classify` (always `SM_ERR`). Upstream
+  (`SmTrimSrfCache.cpp:343`) reaches the virtual override `SmTrimSrfCache::PointClassify`
+  (`:1048`). That override belongs to surface.trim_srf_cache itself
+  (`harness/callgraph/units.json`) and is already ported as
+  `TrimSrfCache::point_classify`, so an `UNPORTED(<unit>)` marker would point at the
+  wrong porter. The call site carries a `DISPATCH GAP` comment instead. It is
+  unreachable today (the face path returns `Unported` earlier, at
+  `CreateUVTrimCurves`), but whoever wires topology.face_p3 / topology.face_p4 here
+  must make `mark_face_containment` dispatch to the trimmed override (e.g. take a
+  classifier argument) before any face-backed case can pass.
+
+## surface.plane_p1 (`SmPlane`, part 1)
+
+All non-deferred cases agree bit for bit with upstream (`max_rel_err = 0`). Upstream
+behaviour worth knowing:
+
+- **`SmPlane::Reparameterize` keeps the origin.** The new origin (`sOriginMax`) is only
+  computed inside `SM_DEBUG_CODE`. The release build changes the analytic domain and the
+  scales but keeps `m_vPosition`, so the analytic plane no longer matches its NURB unless
+  the new domain starts where the old one did. The port keeps this (fixture
+  `edge_reparameterize_keeps_origin`).
+- **Lazy NURB through `const_cast`.** An `SmPlane` built by its constructors has no NURB.
+  `const` methods that need it (`GetNaturalUVDomain`, so `CoincidenceCheck`,
+  `CreateIsoParametricCurve`, `DropPointFast(SM_SO_NORMALIZE)` via `SmTol::MapTo2d`) make
+  it on `this` through `GetOrCreateGwNurbPointer`. So does the `SmBSplineSurface` copy
+  constructor, on the *source*. The port makes it on a copy (`Plane::base_with_nurb`), so
+  the source keeps none. Only `ToggleSwapUVBit` (which leaves the NURB alone) and
+  `operator==` (which compares NURBs) can see the difference. The runner generates those
+  two only while both sides agree, and the adversarial fixtures (`zz_adv.json`) leave
+  out the sequences that observe it (`==` after `Copy`, `ToggleSwapUVBit` after
+  `CreateIsoParametricCurve` or `CoincidenceCheck`). The shim copies planes without a NURB by rebuilding
+  them from their analytic data, because its own copies would otherwise change plane A.
+- **`SmPlane::Evaluate` with `bOnlyUpperHalf` and more u than v derivatives** writes
+  outside its array (the `ULONG` index `lHighestVDeriv - k` wraps). The port returns
+  `InvalidInput`, and the ffi wrapper rejects that input.
+- **Deferred paths:** `CoincidenceCheck` with a surface that is not an `SmPlane` needs
+  `SmSurface::IsPlanar` (`surface.surface_p7`), then `CreateNaturalUVTrimCurves`
+  (`surface.surface_p6`) and `DropPoint` (`surface.surface_p5`). `DropCurve` with a curve
+  whose control points must be clamped to the domain, or with a curve that is neither a
+  line nor a B-spline kind, needs the general `SmSurface::DropCurve`
+  (`intersect.surface_drop_lib_p3`). `GlobalLineIntersect` of a line lying in the plane
+  that meets the domain at a single line parameter needs the general
+  `SmSurface::GlobalLineIntersect` through the surface cache (`surface.surface_p8`).
+- **`SmSurfaceCache` and planes.** Upstream the `SM_CAST_PTR(SmBSplineSurface, plane)`
+  in the cache succeeds and the virtual calls reach the plane. The port's cast gives the
+  plane's B-spline part, and the two virtual paths return `SolidError::Unported`
+  (marker `UNPORTED(surface.plane_p1)`): `SmPlane::CreateIsoParametricCurve` (ported, but
+  it makes an `SmLine` and the cache stores its iso curves as `BSplineCurve`, which
+  would drop the line's overrides; wiring needs `Curve` storage in the cache) and the
+  inherited `SmBSplineSurface::CalculateBoundingBox` (which dispatches back to the plane
+  through `IsKindOf` and `SmPlane::EvaluateNormal`; the plane does not re-dispatch it yet).
+- **Undefined behaviour the harness keeps away from upstream** (found in review):
+  `SmPlane(Origin, Normal)` with `|n|^2 < SM_EFF_ZERO_SQ`: `MakeUnitOrthoVectors` fails,
+  the status is ignored and the axes stay uninitialised (the ffi encoder rejects a normal
+  with `|n|^2 < 1e-24`). `Reverse` and `RebuildSTEPFromNURBParameters` on a plane whose
+  NURB cannot be made (degenerate or inverted domain) pass a `NULL` NURB to
+  `N_SrfReverse` / `SmBSplineSurface::EvaluatePoint` and segfault; the shim checks
+  `GetOrCreateGwNurbPointer()` first and reports `SM_ERR`, which is what the port
+  returns. `CreateExtendedSurface` with a zero distance loops forever (the halving never
+  falls below `dDist / 100`); the ffi encoder accepts only positive distances.
+- **`CreateExtendedSurface` on a plane** runs the `SmBSplineSurface` body with the
+  `SmPlane` overrides of `IsSingularity` (none) and `IsClosed` (never), so a plane
+  extends where a plain B-spline would still be waiting on `surface.surface_p5` /
+  `surface.surface_p7`.
 
 ## surface.surf_of_revolution_p1 (2026-10-13)
 
@@ -2548,6 +2622,18 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 `_p3`). difftest: 807 cases (207 fixtures, 600 seeded), 776 bit-identical, 0 failed,
 31 deferred (`IntersectWithPlane` of a planar generator needs `SmPlane`,
 `surface.plane_p1`); `--perturb` detected 776/776.
+
+- **`IntersectWithPlane` after `surface.plane_p1` (merge of main, 2026-10-13).** The
+  `UNPORTED(surface.plane_p1)` stub (`SmPlane::GetPosition`) is wired: the method takes a
+  real `Plane` and the difftest builds it with `Plane::create_canonical`, as the shim. The
+  31 planar-generator cases stay deferred, now on `surface.surface_p1`: before any branch
+  upstream takes `crPlane.CalculateBoundingBox(GetNaturalUVDomain(), NULL, &sPlanePBox,
+  NULL)` with the default `bExpandPosBoxesByZoneTol3d = TRUE`, which expands the pseudo
+  box by `GetFace() ? GetFace()->GetTolerance() : ...` (`SmSurface::GetFace`, unported;
+  upstream ignores the status, `Unported` still propagates). The body below the plane box
+  (perpendicular / parallel axis cases) is not ported: both of its curve-producing paths
+  call `SmPlane::TrimCurveToPlaneDomain` (`surface.plane_p2`), so it stays behind an
+  `UNPORTED(surface.plane_p2)` stub for that unit's porter, unreachable until `GetFace` is.
 
 - **Generator owner stubs not wired.** `SmLine`, `SmEllipse`, `SmHyperbola` and
   `SmParabola::MakeNurb` reparameterise a generator owned by a surface of revolution to

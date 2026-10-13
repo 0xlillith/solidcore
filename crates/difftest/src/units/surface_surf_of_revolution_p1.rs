@@ -17,7 +17,8 @@
 //!
 //! Deferred cases: `ConvertUVFromNURBSToSTEP` without exact polar conversion
 //! (`SmSTEPSurface`, `surface.surface_p1`) and `IntersectWithPlane` of a planar
-//! generator (`SmPlane`, `surface.plane_p1`).
+//! generator (the plane's pseudo box needs `SmSurface::GetFace`, `surface.surface_p1`;
+//! the rest of the body `SmPlane::TrimCurveToPlaneDomain`, `surface.plane_p2`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -25,6 +26,7 @@ use serde_json::Value;
 use solidcore::curve::curve::{Curve, CurveKind};
 use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::line::Line;
+use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::vector2d::Point2;
@@ -35,6 +37,7 @@ use solidcore::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
 use solidcore::nurbs::crv_basic::Curve as NurbCurve;
 use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
+use solidcore::surface::plane::Plane;
 use solidcore::surface::surf_of_revolution::{test_for_iso_circles, SurfOfRevolution};
 use solidcore::surface::surface::p2::{B_SPLINE_SURFACE_TYPE, SURF_OF_REVOLUTION_TYPE, TYPE};
 use solidcore::SolidError;
@@ -566,6 +569,9 @@ fn put_state(o: &mut Vec<f64>, s: &SurfOfRevolution) -> solidcore::Result<()> {
     Ok(())
 }
 
+/// `SC_ERR_ARG` (`harness/cpp/shim/sc_shim.h`): the shim rejected the arguments.
+const SC_ERR_ARG: f64 = -1002.0;
+
 fn param_of(p: u8) -> SurfParamType {
     if p == 0 {
         SurfParamType::U
@@ -640,9 +646,26 @@ fn rust_op(
                 Ok(())
             }),
         },
-        OpIn::Plane { dom, tol, .. } => {
+        OpIn::Plane {
+            origin,
+            x,
+            y,
+            dom,
+            tol,
+        } => {
+            // the shim: SmPlane::CreateCanonical(SmAxis2Placement(o, x, y)), SC_ERR_ARG
+            // when it fails
+            let frame = Axis2Placement::new(v3(*origin), v3(*x), v3(*y));
+            let plane = match Plane::create_canonical(&frame) {
+                Err(e) if e.is_unported() => return Ok(Err(e)),
+                Err(_) => {
+                    o.push(SC_ERR_ARG);
+                    return Ok(Ok(()));
+                }
+                Ok(p) => p,
+            };
             let [a, b, c, d] = *dom;
-            s.intersect_with_plane(&(), &Extent2d::from_bounds(a, b, c, d), *tol)
+            s.intersect_with_plane(&plane, &Extent2d::from_bounds(a, b, c, d), *tol)
                 .map(|(more, x)| {
                     o.extend([0.0, flag(more), x.curves_3d.len() as f64]);
                     for c in &x.curves_3d {
