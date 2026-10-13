@@ -136,8 +136,6 @@ use crate::nurbs::math::NOW;
 use crate::nurbs::nurbs_crv::allocate_nurb_curve;
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
-/// `CURV_BASE_TYPE` (`SmCurveTypes.h`).
-const CURV_BASE_TYPE: i64 = 14000;
 /// `SmSurfOfRevolution_TYPE` (`SURF_BASE_TYPE + 20`).
 const SURF_OF_REVOLUTION_TYPE: i64 = 15020;
 /// `SmSurfOfExtrusion_TYPE` (`SURF_BASE_TYPE + 30`).
@@ -332,7 +330,7 @@ fn other_ends(other: &Curve) -> Result<Ends> {
 
 impl Line {
     /// `SmLine_TYPE`.
-    pub const TYPE: i64 = CURV_BASE_TYPE + 10;
+    pub const TYPE: i64 = crate::curve::curve::p2::LINE_TYPE;
 
     // ---- construction -----------------------------------------------------------------
 
