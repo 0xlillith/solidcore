@@ -1599,6 +1599,35 @@ knowing:
 - `JoinWith` hands `this` and the other curve to `CreateByJoining`, which may degree-elevate
   the other curve in place.
 
+## nurbs.b_spline_surface_n_lib_p1 (SmBSplineSurfaceNLib part 1)
+
+No Rust-vs-C++ disagreement: 638 of 638 non-deferred difftest cases bit-identical (65 fixtures:
+`my_test_bsplinesurface_nlib` offset / sweep / swung, `my_test_surface_interface` operations on
+the surf1 net, Coons patches from the surf1 boundaries, the three `pt_TestFiles` `.sms` surfaces
+and the 3D `.smc` curves through every op, edge cases; plus 600 generated). 27 cases are
+deferred: every `CreateExtendedSurface` (`SmSurface::IsSingularity`, `surface.surface_p5`, then
+`IsClosed`, `surface.surface_p7`). The file statics `sm_CreateNonRationalCurve`, `sm_MakeKnots`,
+`sm_CheckTrimBoundaries` and `sm_check_zero_surface_derivs` are diffed through verbatim copies
+in the shim (the file defines class members, so it cannot be compiled inside a namespace). No
+`UNPORTED(nurbs.b_spline_surface_n_lib_p1)` stubs existed. Upstream behaviour worth knowing:
+
+- `sm_CreateNonRationalCurve` of a rational curve with a base surface crashes in the C++ shim
+  (segfault) even for a line lying on a bilinear plane (`DropCurveCurve.smc` with unit weights on
+  `DropCurveSurface.sms`); presumably `SmSurface::DropCurve` on a surface without face/brep.
+  Root cause not verified; the drop path (Rust: `UNPORTED(intersect.surface_drop_lib_p3)`) is not
+  diffed.
+- `CreateCoonsPatch`, `CreateNSidedPatch` and `JoinSurface` hand the NURBs of their inputs to NLib,
+  which changes them in place (compatibility, rescaled cross-boundary derivatives); arrays NLib
+  reallocates come from the method's local stack, so the caller's objects dangle after the call.
+  The port stores the changed NURBs back; the shim never reads the inputs afterwards.
+- `Reverse` reverses in v only for `SM_SP_V` (every other value reverses in u), while
+  `CreateRuledSurface` / `ExpandBoundarySpan` treat only `SM_SP_U` as u.
+- `CreateExtendedSurface` halves the distance after each failed extension until it is below
+  `dDist / 100`, which never happens for `dDist == 0` (or NaN): upstream loops forever; the port
+  stops after 1100 halvings (`NotConverged`).
+- `N_SrfPowerBasisEvalDerivs` (power-basis `EvaluateSimple`) stores `min(hv, q)` rows of v-power
+  derivatives after the `p + 1` u powers in one `NL_MAXDEG + 1` array and overruns it when
+  `p + 1 + min(hv, q)(q + 1) + q > 17`; the FFI rejects such input.
 ## curve.curve_p2 (SmCurve part 2: the curve base class)
 
 No Rust-vs-C++ disagreement: 3012 of 3012 non-deferred difftest cases bit-identical (18
@@ -1665,3 +1694,26 @@ Upstream behaviour worth knowing:
   values); `CreateBySplitCurve` ignores both `Trim` statuses. `SmHermiteCurve` has no
   `Copy`, so splitting one fails with `SM_ERR`; it also inherits the base `GetDegree` (3),
   `GetNumberControlPoints` (0), `GetNumberNaturalKnots` (2) and `IsRational` (`FALSE`).
+
+## curve.conic
+
+Green, no disagreement. Upstream behaviour worth knowing:
+
+- **`SmConic::Evaluate` zero-tangent fix reads an unwritten slot.** With
+  `bNonZeroTangents` and two derivatives, the fix of a tiny first derivative reads
+  `aPointAndDerivatives[2]` *before* the second derivative is written there (it is written
+  afterwards), i.e. whatever the caller's array held. For a fresh `SmVector3d` array
+  (`SM_UNDEF_DOUBLE` members, length ~2e-61) the fix never fires; the port reads
+  `Vec3::UNDEF` there, so it matches every caller that passes a fresh array. The
+  `lNumDerivatives < 2` recursion branch is unreachable (the function returns after one
+  derivative before the fix), and `lNumDerivatives > 2` fills three vectors and returns
+  `SM_ERR`.
+- `SmConic::IntersectImplicitConic` (and so `IntersectConic`) of an `SM_CT_UNKNOWN` conic
+  solves a quartic of uninitialised coefficients (UB); the port returns `InvalidInput`,
+  the shim rejects such inputs. `EvaluatePoint` of an unknown conic leaves `x`, `y` of the
+  caller's point untouched (port: a fresh point, `SM_UNDEF_DOUBLE`).
+- `IntersectConic` ignores both intervals. The upstream test asserts on solution counts
+  in `smCurveTest.cpp` (lines 6053-6499) all hold in both implementations.
+- `SmConic::ReadFromDB`: an ASCII type code whose extraction is skipped leaves
+  `lConicType` uninitialised (port: `InvalidInput`); type codes outside `0..=3` behave as
+  `SM_CT_UNKNOWN`.
