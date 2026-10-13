@@ -56,10 +56,14 @@
 //! Deviations:
 //! - **Kinds.** The class hierarchy is the [`VolumeKind`] enum: [`VolumeKind::Base`]
 //!   is a plain `SmVolume` (as made by the slicing copy in `IsLineInParamDomain`),
-//!   [`VolumeKind::Transform`] holds the [`Transform`] matrix of an `SmTransform`.
-//!   The B-spline, bend, unbend and twist volumes (units `surface.b_spline_volume`,
-//!   `surface.bend_volume`, `surface.unbend_volume`, `surface.twist_volume`) are not
-//!   ported: their variants carry no data and every virtual they override returns
+//!   [`VolumeKind::Transform`] holds the [`Transform`] matrix of an `SmTransform`,
+//!   [`VolumeKind::BSpline`] the [`BSplineVolume`] of an `SmBSplineVolume` (unit
+//!   `surface.b_spline_volume`; its `HasDiscontinuitiesSimple` and
+//!   `IsCurveInParamDomainSimple` belong to the unported unit
+//!   `surface.b_spline_volume_n_lib` and return [`SolidError::Unported`]).
+//!   The bend, unbend and twist volumes (units `surface.bend_volume`,
+//!   `surface.unbend_volume`, `surface.twist_volume`) are not ported: their variants
+//!   carry no data and every virtual they override returns
 //!   [`SolidError::Unported`]; the virtuals they inherit run the base code.
 //! - **Ownership.** The next map is held by value (`Box`), the orient maps as
 //!   [`Transform`] matrices (upstream keeps them simple: `RefreshInvOrientMap` makes
@@ -109,6 +113,7 @@ use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::transform::{Transform, MAX_DERIV as GW_MAX_DERIV};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::math::{max2, EFF_ZERO, EFF_ZERO_SQ};
+use crate::surface::b_spline_volume::BSplineVolume;
 
 const OP: &str = "surface::volume::p1::Volume";
 const OP_EVAL: &str = "surface::volume::p1::Volume::evaluate";
@@ -198,8 +203,8 @@ pub enum VolumeKind {
     Base,
     /// `SmTransform`: a 4x4 matrix map.
     Transform(Transform),
-    /// `SmBSplineVolume` (unit `surface.b_spline_volume`, not ported: no data).
-    BSpline,
+    /// `SmBSplineVolume`: a trivariate NURBS map.
+    BSpline(BSplineVolume),
     /// `SmBendVolume` (unit `surface.bend_volume`, not ported: no data).
     Bend,
     /// `SmUnbendVolume` (unit `surface.unbend_volume`, not ported: no data).
@@ -217,8 +222,8 @@ impl VolumeKind {
     fn unported<T>(&self, names: Derived) -> Result<T> {
         let [b_spline, bend, unbend, twist] = names;
         match self {
-            // UNPORTED(surface.b_spline_volume): SmBSplineVolume virtual overrides
-            Self::BSpline => unported(b_spline, "surface.b_spline_volume"),
+            // UNPORTED(surface.b_spline_volume_n_lib): SmBSplineVolume::HasDiscontinuitiesSimple, SmBSplineVolume::IsCurveInParamDomainSimple
+            Self::BSpline(_) => unported(b_spline, "surface.b_spline_volume_n_lib"),
             // UNPORTED(surface.bend_volume): SmBendVolume virtual overrides
             Self::Bend => unported(bend, "surface.bend_volume"),
             // UNPORTED(surface.unbend_volume): SmUnbendVolume virtual overrides
@@ -424,7 +429,11 @@ impl Volume {
             shared => shared.clone(),
         };
         Ok(Self {
-            kind: source.kind.clone(),
+            kind: match &source.kind {
+                // the derived copy constructor fixes the knot vectors up again
+                VolumeKind::BSpline(b) => VolumeKind::BSpline(b.copy()),
+                k => k.clone(),
+            },
             owner: source.owner,
             next_map,
             next_owner_flag: source.next_owner_flag,
@@ -442,7 +451,9 @@ impl Volume {
     pub fn copy(&self, simple_map_only: bool) -> Result<Self> {
         match &self.kind {
             VolumeKind::Base => Err(SolidError::sm_err("surface::volume::p1::Volume::copy")),
-            VolumeKind::Transform(_) => Self::copy_from(self, simple_map_only),
+            VolumeKind::Transform(_) | VolumeKind::BSpline(_) => {
+                Self::copy_from(self, simple_map_only)
+            }
             k => k.unported([
                 "SmBSplineVolume::Copy",
                 "SmBendVolume::Copy",
@@ -557,7 +568,7 @@ impl Volume {
         match self.kind {
             VolumeKind::Base => VOLUME_TYPE,
             VolumeKind::Transform(_) => TRANSFORM_TYPE,
-            VolumeKind::BSpline => B_SPLINE_VOLUME_TYPE,
+            VolumeKind::BSpline(_) => B_SPLINE_VOLUME_TYPE,
             VolumeKind::Bend => BEND_VOLUME_TYPE,
             VolumeKind::Unbend => UNBEND_VOLUME_TYPE,
             VolumeKind::Twist => TWIST_VOLUME_TYPE,
@@ -570,7 +581,7 @@ impl Volume {
         match self.kind {
             VolumeKind::Base => "SmVolume_TYPE",
             VolumeKind::Transform(_) => "SmTransform_TYPE",
-            VolumeKind::BSpline => "SmBSplineVolume_TYPE",
+            VolumeKind::BSpline(_) => "SmBSplineVolume_TYPE",
             VolumeKind::Bend => "SmBendVolume_TYPE",
             VolumeKind::Unbend => "SmUnbendVolume_TYPE",
             VolumeKind::Twist => "SmTwistVolume_TYPE",
@@ -583,7 +594,7 @@ impl Volume {
         match self.kind {
             VolumeKind::Base => "SmVolume",
             VolumeKind::Transform(_) => "SmTransform",
-            VolumeKind::BSpline => "SmBSplineVolume",
+            VolumeKind::BSpline(_) => "SmBSplineVolume",
             VolumeKind::Bend => "SmBendVolume",
             VolumeKind::Unbend => "SmUnbendVolume",
             VolumeKind::Twist => "SmTwistVolume",
@@ -619,6 +630,17 @@ impl Volume {
                 // check equivalence of these objects
                 Ok(match &other.kind {
                     VolumeKind::Transform(o) => t.approx_eq(o),
+                    _ => false,
+                })
+            }
+            VolumeKind::BSpline(b) => {
+                // first check the base
+                if !self.base_eq(other)? {
+                    return Ok(false);
+                }
+                // distinct volumes never share their NURBS records
+                Ok(match &other.kind {
+                    VolumeKind::BSpline(o) => b.approx_eq(o),
                     _ => false,
                 })
             }
@@ -743,6 +765,7 @@ impl Volume {
                 Ok(Extent3d::from_points(zero, zero))
             }
             VolumeKind::Transform(t) => Ok(t.natural_param_domain()),
+            VolumeKind::BSpline(b) => Ok(b.natural_param_domain()),
             k => k.unported([
                 "SmBSplineVolume::GetNaturalParamDomain",
                 "SmBendVolume::GetNaturalParamDomain",
@@ -1155,12 +1178,12 @@ impl Volume {
         n: usize,
         opts: &EvalOptions,
     ) -> Result<Vec<Vec3>> {
-        let _ = opts;
         match &self.kind {
             VolumeKind::Base => Err(SolidError::sm_err(
                 "surface::volume::p1::Volume::evaluate_simple",
             )),
             VolumeKind::Transform(t) => t.evaluate_simple(param_point, n),
+            VolumeKind::BSpline(b) => b.evaluate_simple(param_point, n, opts),
             k => k.unported([
                 "SmBSplineVolume::EvaluateSimple",
                 "SmBendVolume::EvaluateSimple",
@@ -1221,6 +1244,7 @@ impl Volume {
                 "surface::volume::p1::Volume::inv_evaluate_guess_point_simple",
             )),
             VolumeKind::Transform(t) => t.inv_evaluate_guess_point_simple(proj_point),
+            VolumeKind::BSpline(b) => b.inv_evaluate_guess_point_simple(proj_point),
             k => k.unported([
                 "SmBSplineVolume::InvEvaluateGuessPointSimple",
                 "SmBendVolume::InvEvaluateGuessPointSimple",
@@ -1240,6 +1264,7 @@ impl Volume {
         match &self.kind {
             VolumeKind::Base => Ok(false),
             VolumeKind::Transform(t) => Ok(t.is_bounded_simple()),
+            VolumeKind::BSpline(b) => Ok(b.is_bounded_simple()),
             k => k.unported([
                 "SmBSplineVolume::IsBoundedSimple",
                 "SmBendVolume::IsBoundedSimple",
@@ -1369,17 +1394,20 @@ impl Volume {
         rotate_n_move: &Axis2Placement,
         scale: Option<Vec3>,
     ) -> Result<()> {
-        if let VolumeKind::Transform(t) = &mut self.kind {
-            t.transform_simple(rotate_n_move, scale);
-            return Ok(());
-        }
-        if matches!(self.kind, VolumeKind::BSpline) {
-            return self.kind.unported([
-                "SmBSplineVolume::TransformSimple",
-                "SmBendVolume::TransformSimple",
-                "SmUnbendVolume::TransformSimple",
-                "SmTwistVolume::TransformSimple",
-            ]);
+        match &mut self.kind {
+            VolumeKind::Transform(t) => {
+                t.transform_simple(rotate_n_move, scale);
+                return Ok(());
+            }
+            VolumeKind::BSpline(b) => {
+                return b.transform_simple(
+                    self.orient_map.as_ref(),
+                    self.inv_orient_map.as_ref(),
+                    rotate_n_move,
+                    scale,
+                );
+            }
+            _ => {}
         }
         // Create a Transform SmTransform to compound with current mapping
         let mut transform = Transform::IDENTITY;
@@ -1401,7 +1429,7 @@ impl Volume {
     ) -> Result<bool> {
         match &self.kind {
             VolumeKind::Transform(t) => Ok(t.has_discontinuities_simple(disconts)),
-            VolumeKind::BSpline => self.kind.unported([
+            VolumeKind::BSpline(_) => self.kind.unported([
                 "SmBSplineVolume::HasDiscontinuitiesSimple",
                 "SmBendVolume::HasDiscontinuitiesSimple",
                 "SmUnbendVolume::HasDiscontinuitiesSimple",
@@ -2350,15 +2378,14 @@ mod tests {
         let id = Axis2Placement::new(Vec3::ZERO, v(1.0, 0.0, 0.0), v(0.0, 1.0, 0.0));
         c.transform(&id, Some(v(1.0, 1.0, 1.0))).unwrap();
         assert!(c.next_map().is_none());
-        // the unported B-spline volume cannot
-        let mut s = Volume::new(VolumeKind::BSpline);
+        // a B-spline volume cannot (no USE_VOLUMES upstream)
+        let mut s = Volume::new(VolumeKind::BSpline(b_spline()));
+        let before = s.kind().clone();
         assert!(matches!(
             s.transform(&ax, None),
-            Err(SolidError::Unported {
-                unit: "surface.b_spline_volume",
-                ..
-            })
+            Err(SolidError::Upstream { code: 1001, .. })
         ));
+        assert_eq!(s.kind(), &before);
     }
 
     #[test]
@@ -2548,10 +2575,21 @@ mod tests {
         assert!(e.evaluate(&[0.0, 0.0, 0.0], &mut f, None).is_err());
     }
 
+    fn b_spline() -> BSplineVolume {
+        let mut n = crate::nurbs::spiral::allocate_nurb_volume([1; 3], [1; 3], [3; 3]).unwrap();
+        for d in 0..3 {
+            n.knots_mut(d).copy_from_slice(&[0.0, 0.0, 1.0, 1.0]);
+        }
+        for (i, c) in n.cpts_mut().iter_mut().enumerate() {
+            let f = i as f64;
+            *c = crate::nurbs::math::CPoint::new(f, f * f, 1.0 - f, 1.0);
+        }
+        BSplineVolume::new(n)
+    }
+
     #[test]
     fn unported_kinds_defer() {
         for (k, unit) in [
-            (VolumeKind::BSpline, "surface.b_spline_volume"),
             (VolumeKind::Bend, "surface.bend_volume"),
             (VolumeKind::Unbend, "surface.unbend_volume"),
             (VolumeKind::Twist, "surface.twist_volume"),
@@ -2561,6 +2599,23 @@ mod tests {
             assert!(matches!(r, Err(SolidError::Unported { unit: u, .. }) if u == unit));
             assert!(vol.natural_param_domain().is_err());
         }
+        // the B-spline volume's NLib overrides are not ported
+        let bs = Volume::new(VolumeKind::BSpline(b_spline()));
+        assert!(matches!(
+            bs.has_discontinuities_simple(None),
+            Err(SolidError::Unported {
+                unit: "surface.b_spline_volume_n_lib",
+                ..
+            })
+        ));
+        assert!(bs.natural_param_domain().is_ok());
+        assert!(bs.is_bounded().unwrap());
+        assert!(bs
+            .evaluate_simple(Vec3::ZERO, 0, &EvalOptions::default())
+            .is_err());
+        let copy = bs.copy(false).unwrap();
+        assert!(bs.approx_eq(&bs).unwrap());
+        assert!(!bs.approx_eq(&copy).unwrap());
         // inherited base behaviour still runs
         let mut twist = Volume::new(VolumeKind::Twist);
         assert!(!twist.has_discontinuities_simple(None).unwrap());
