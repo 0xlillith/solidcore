@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**113 / 261 units ported** (83 green, 30 partial), **145,083 / 387,903 upstream lines (37.4%)**. 6 claimed, 0 blocked, 142 todo.
+**113 / 261 units ported** (83 green, 30 partial), **145,083 / 387,903 upstream lines (37.4%)**. 7 claimed, 0 blocked, 141 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,7 +14,6 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 - [ ] ▶️ `surface.surf_of_revolution_p3` (1620 lines) — ready
 - [ ] ▶️ `surface.surface_cache_p2` (1245 lines) — ready
 - [ ] ▶️ `surface.volume_p2` (1490 lines) — ready
-- [ ] ▶️ `surface.surface_p7` (2406 lines) — ready
 - [ ] ▶️ `intersect.surface_tracer` (1900 lines) — ready
 - [ ] ▶️ `intersect.surface_intersector_p1` (1816 lines) — ready
 - [ ] ▶️ `intersect.topology_solver_p1` (1838 lines) — ready
@@ -163,6 +162,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (draft)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 
 ## By module
@@ -302,7 +302,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `surface.surf_of_revolution_p2` (1369 lines) — waiting
 - [ ] ⏳ `surface.surface_cache_p3` (1703 lines) — waiting
 - [ ] ▶️ `surface.volume_p2` (1490 lines) — ready
-- [ ] ▶️ `surface.surface_p7` (2406 lines) — ready
+- [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (draft)
 - [ ] ⏳ `surface.plane_p2` (1627 lines) — waiting
 - [ ] ⏳ `surface.surface_p4` (2270 lines) — waiting
 - [ ] ⏳ `surface.sphere` (2861 lines) — waiting
