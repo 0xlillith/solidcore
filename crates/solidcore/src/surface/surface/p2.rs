@@ -832,8 +832,7 @@ impl Surface {
             )),
             SurfaceKind::CurveBounded(_) => base_create_extended_surface(),
             SurfaceKind::Plane(s) => Ok(Self::from(
-                s.base_for_query()
-                    .create_extended_surface(dist, extension_continuity)?,
+                s.create_extended_surface(dist, extension_continuity)?,
             )),
         }
     }
@@ -857,13 +856,11 @@ impl Surface {
                 extension_continuity,
             )?)),
             SurfaceKind::CurveBounded(_) => base_create_extended_surface(),
-            SurfaceKind::Plane(s) => {
-                Ok(Self::from(s.base_for_query().create_extended_surface_dir(
-                    ext_direction,
-                    dist,
-                    extension_continuity,
-                )?))
-            }
+            SurfaceKind::Plane(s) => Ok(Self::from(s.create_extended_surface_dir(
+                ext_direction,
+                dist,
+                extension_continuity,
+            )?)),
         }
     }
 

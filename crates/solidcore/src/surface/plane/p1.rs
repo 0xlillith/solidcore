@@ -38,20 +38,23 @@
 //! | [`Plane::is_kind_of`], [`Plane::TYPE`], [`Plane::type_string`], [`Plane::class_string`] | `IsKindOf`, `GetType`, `GetTypeString`, `GetClassString` (`SM_COMMON`) |
 //! | [`Plane::base`], [`Plane::base_with_nurb`], [`Plane::natural_uv_domain`] | the `SmBSplineSurface` part, `GetOrCreateGwNurbPointer`, `GetNaturalUVDomain` (inherited) |
 //! | [`Plane::max_analytic_domain`], [`Plane::is_parallel_to_vector`], [`Plane::reverse`], [`Plane::swap_uv`] | `SmBSplineSurface::GetMaxAnalyticDomain`, `IsParallelToVector`, `Reverse`, `SwapUV` (inherited, re-dispatched) |
+//! | [`Plane::create_extended_surface`], [`Plane::create_extended_surface_dir`] | `SmBSplineSurface::CreateExtendedSurface` (both overloads; inherited, re-dispatched to the `IsSingularity` / `IsClosed` overrides) |
 //!
 //! Deviations:
 //! - **Derived class.** `SmPlane` derives from `SmBSplineSurface`; a [`Plane`] holds
 //!   its B-spline part ([`Plane::base`]) next to the analytic data, and is the
 //!   [`SurfaceKind::Plane`] kind of [`Surface`]. Inherited methods whose upstream
 //!   bodies call `SmPlane` overrides through the virtual table (`MakeNurb`,
-//!   `ToggleSwapUVBit`, `RebuildSTEPFromNURBParameters`, `IsPlanar`) are
-//!   re-dispatched here. A missing NURB is made with [`Plane::make_nurb`] where
+//!   `ToggleSwapUVBit`, `RebuildSTEPFromNURBParameters`, `IsPlanar`, `IsSingularity`,
+//!   `IsClosed`) are re-dispatched here. A missing NURB is made with [`Plane::make_nurb`] where
 //!   upstream calls `GetOrCreateGwNurbPointer`: `&mut self` methods make it in
 //!   place, read-only methods (upstream `const` methods that make it through a
 //!   `const_cast`) make it on a copy ([`Plane::base_with_nurb`]), so the plane keeps
 //!   none (so does the source of a copy). The observable differences are the NURB a
 //!   later [`Plane::toggle_swap_uv_bit`] leaves alone and `operator==`, which compares
-//!   the NURBs.
+//!   the NURBs; the difftest therefore runs those two only while both sides agree
+//!   (before such a method, or once the NURB is made in place), and the shim copies a
+//!   plane without NURB from its analytic data (`plan/findings.md`).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments and the
 //!   arguments upstream marks `NotUsed` (`DropPointFast`'s pointing vector and
 //!   solution request, `Evaluate`'s sides and zero-tangent flags,
@@ -60,7 +63,9 @@
 //!   [`Plane::drop_point_fast`] name `this` through an optional caller handle.
 //!   `CoincidenceCheck`'s containing surface is always `this` and is not returned.
 //! - **`Evaluate`** writes beyond its array upstream when `bOnlyUpperHalf` is given
-//!   with more `u` than `v` derivatives; the port returns `InvalidInput` there.
+//!   with more `u` than `v` derivatives; the port returns `InvalidInput` there, and
+//!   for derivative orders above `MAX_DERIVATIVE` (upstream writes into a caller-sized
+//!   array; the port allocates it, as `BSplineSurface::evaluate` bounds it).
 //!   Entries upstream leaves untouched are zero.
 //! - **`Reparameterize`** computes a new origin only in debug code: the release
 //!   build keeps the old origin while changing the scales and the domain, so the
@@ -114,6 +119,7 @@ use crate::nurbs::b_spline_surface::{
 };
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::nurbs::math::MAX_DERIVATIVE;
 use crate::surface::surface::p2::{Surface, SurfaceKind, PLANE_TYPE};
 
 const OP_EVAL: &str = "surface::plane::p1::Plane::evaluate";
@@ -440,6 +446,46 @@ impl Plane {
         (false, SurfParamType::Neither)
     }
 
+    /// `SmBSplineSurface::CreateExtendedSurface(dDist, ..)` (inherited): the plane's
+    /// NURB extended by `dist` across each side, through the `SmPlane` overrides of
+    /// `IsSingularity` and `IsClosed` (none, never closed).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Plane::create_extended_surface_dir`].
+    pub fn create_extended_surface(
+        &self,
+        dist: f64,
+        extension_continuity: ContinuityType,
+    ) -> Result<BSplineSurface> {
+        // pass the call along
+        self.create_extended_surface_dir(SurfParamType::Both, dist, extension_continuity)
+    }
+
+    /// `SmBSplineSurface::CreateExtendedSurface(eExtDirection, dDist, ..)` (inherited):
+    /// [`BSplineSurface::create_extended_surface_dir`] of the plane's NURB, with the
+    /// virtual `IsSingularity` and `IsClosed` dispatched to the `SmPlane` overrides
+    /// ([`Plane::is_singularity`], [`Plane::is_closed`]) as upstream.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when no NURB can be made (upstream copies a `NULL` NURB) and the
+    /// errors of the extension.
+    pub fn create_extended_surface_dir(
+        &self,
+        ext_direction: SurfParamType,
+        dist: f64,
+        extension_continuity: ContinuityType,
+    ) -> Result<BSplineSurface> {
+        self.base_for_query().create_extended_surface_dispatched(
+            ext_direction,
+            dist,
+            extension_continuity,
+            &|_| Ok(self.is_singularity()),
+            &|_, _| Ok(self.is_closed().0),
+        )
+    }
+
     /// `SmBSplineSurface::GetMaxAnalyticDomain` (inherited): planar, so the natural
     /// domain expanded relatively by 100.
     #[must_use]
@@ -508,6 +554,14 @@ impl Plane {
             return Err(SolidError::invalid_input(
                 OP_EVAL,
                 "only upper half with more u than v derivatives",
+            ));
+        }
+        // upstream writes into a caller-sized array; bound the allocation here (as
+        // BSplineSurface::evaluate does)
+        if highest_u_deriv > MAX_DERIVATIVE || highest_v_deriv > MAX_DERIVATIVE {
+            return Err(SolidError::invalid_input(
+                OP_EVAL,
+                "derivative order too high",
             ));
         }
 
@@ -2237,5 +2291,45 @@ mod tests {
             .coincidence_check(&k, &b, 1e-6, true)
             .unwrap_err()
             .is_unported());
+    }
+
+    #[test]
+    fn evaluate_rejects_huge_derivative_orders() {
+        // regression: usize::MAX overflowed the size computation and usize::MAX / 8
+        // overflowed the allocation (both panicked)
+        let p = Plane::new(
+            Point3::ZERO,
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            Vec2::new(1.0, 1.0),
+            &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+        );
+        let uv = Point2::new(0.0, 0.0);
+        assert!(p.evaluate(uv, usize::MAX, 0, false).is_err());
+        assert!(p.evaluate(uv, 0, usize::MAX / 8, false).is_err());
+        assert!(p.evaluate(uv, MAX_DERIVATIVE + 1, 0, false).is_err());
+        assert!(p.evaluate(uv, 0, MAX_DERIVATIVE + 1, true).is_err());
+        assert!(p
+            .evaluate(uv, MAX_DERIVATIVE, MAX_DERIVATIVE, false)
+            .is_ok());
+    }
+
+    #[test]
+    fn extension_uses_plane_overrides() {
+        // the B-spline IsSingularity / IsClosed are unported; the plane's are not
+        let p = Plane::new(
+            Point3::ZERO,
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            Vec2::new(1.0, 1.0),
+            &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+        );
+        let e = p.create_extended_surface(0.5, ContinuityType::G1).unwrap();
+        let d = e.natural_uv_domain();
+        assert!(d.max().x - d.min().x > 1.0);
+        let e = p
+            .create_extended_surface_dir(SurfParamType::UMax, 0.5, ContinuityType::G1)
+            .unwrap();
+        assert!(e.gw_nurb().is_some());
     }
 }
