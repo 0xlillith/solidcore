@@ -204,7 +204,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                         uv_domain: domain,
                     };
                     solver
-                        .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None, None])
+                        .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None])
                         .map(|more| {
                             let mut out = vec![
                                 0.0,
