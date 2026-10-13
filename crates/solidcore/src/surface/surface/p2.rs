@@ -3522,6 +3522,37 @@ mod tests {
         assert!(evaluate_geometric(&mut s).is_err());
     }
 
+    /// `TestSmPrincipalDirectionPairing` (`SM_API_test`, `TestSmGeneral.cpp`): curvatures 1
+    /// and 0 with directions (5,-12,0)/13 and (12,5,0)/13 on a skewed UV frame.
+    #[test]
+    fn principal_direction_pairing() {
+        let mut e = [[Vec3::ZERO; 3]; 3];
+        e[1][0] = Vec3::new(1.0, 0.0, 0.0);
+        e[0][1] = Vec3::new(1.0, 1.0, 0.0);
+        e[2][0] = Vec3::new(0.0, 0.0, 25.0 / 169.0);
+        e[1][1] = Vec3::new(0.0, 0.0, -35.0 / 169.0);
+        e[0][2] = Vec3::new(0.0, 0.0, 49.0 / 169.0);
+        let g = evaluate_geometric(&mut e).unwrap();
+        let close = |a: f64, b: f64| (a - b).abs() <= 1e-12;
+        assert!(close(g.gaussian_curvature, 0.0) && close(g.normal_curvature, 0.5));
+        assert!(close(g.principle_curvature1, 1.0) && close(g.principle_curvature2, 0.0));
+        let same = |a: Vec3, b: Vec3| (a.dot(b).abs() - 1.0).abs() <= 1e-12;
+        assert!(same(
+            g.principle_curvature_vector1,
+            Vec3::new(5.0 / 13.0, -12.0 / 13.0, 0.0)
+        ));
+        assert!(same(
+            g.principle_curvature_vector2,
+            Vec3::new(12.0 / 13.0, 5.0 / 13.0, 0.0)
+        ));
+        assert!(close(
+            g.principle_curvature_vector1
+                .cross(g.principle_curvature_vector2)
+                .z,
+            1.0
+        ));
+    }
+
     #[test]
     fn point_type_keeps_upstream_bug() {
         let mut uu = SurfaceSideType::On;
