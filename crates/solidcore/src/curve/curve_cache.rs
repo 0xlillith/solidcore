@@ -65,6 +65,10 @@
 //! - **Co-port.** `SmFindCurveDistanceExtremaEFO::Evaluate` (unit `curve.curve_p4`,
 //!   called by every tessellation) is ported here as the [`EvalFunction`]
 //!   implementation of [`FindCurveDistanceExtrema`].
+//! - **Curve kinds.** `SM_CAST_NONNULL_PTR(SmBSplineCurve, ...)` is non-null for
+//!   [`CurveKind::BSpline`] and the analytic B-spline kinds ([`CurveKind::Hyperbola`]),
+//!   whose NURB is decomposed exactly; the other kinds (Hermite, conic) are
+//!   approximated by cubic spans over their knots.
 //! - **Undefined behaviour.** Where upstream would index past an array (a
 //!   continuity array shorter than the span list, a non-cubic span in
 //!   `sm_SplitSegment`) the port returns [`SolidError::InvalidInput`].
@@ -552,10 +556,17 @@ impl<O: Copy + PartialEq> CurveCache<O> {
         }
 
         // force curve to have a NURB representation
+        let owner = self.curve.owner();
         let is_bspline = match self.curve.kind_mut() {
             CurveKind::BSpline(b) => {
                 if b.gw_nurb().is_none() {
                     b.make_nurb()?;
+                }
+                true
+            }
+            CurveKind::Hyperbola(h) => {
+                if h.base().gw_nurb().is_none() {
+                    h.make_nurb(owner)?;
                 }
                 true
             }
@@ -575,6 +586,7 @@ impl<O: Copy + PartialEq> CurveCache<O> {
         let beziers = {
             let nurb = match self.curve.kind() {
                 CurveKind::BSpline(b) => b.gw_nurb(),
+                CurveKind::Hyperbola(h) => h.base().gw_nurb(),
                 CurveKind::Hermite(_) | CurveKind::Conic(_) => None,
             };
             create_bezier_segment_block(nurb, &self.curve)?
