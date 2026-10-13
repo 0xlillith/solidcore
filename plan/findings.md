@@ -2540,6 +2540,27 @@ The C++ shim deliberately excludes classifying a surface without a face: upstrea
 would dereference null. FFI regression tests reject this path, truncated/trailing
 records, invalid counts and non-finite coordinates before entering C++.
 
+### surface.trim_srf_cache: review follow-ups (2026-10-13)
+
+- **Test gap closed.** The generator's negative-area face extents for
+  `ImplantEdgeuse` were rejected by the FFI validator (`rd.domain()` requires ordered
+  bounds) and silently redrawn, so C++ never saw them. The validator now only checks
+  finiteness; difftest is 620 cases, 462 bit-identical, 0 failed, 158 deferred
+  (surface.surface_cache_p3 100, surface.surface_p1 32, surface.surface_p3 26);
+  `--perturb` detects 462/462.
+- **MarkFaceContainment dispatch gap (no UNPORTED marker possible).**
+  `TrimSrfCache::build_tree` calls `SurfaceCache::mark_face_containment`, which uses
+  the base `SurfaceCache::point_classify` (always `SM_ERR`). Upstream
+  (`SmTrimSrfCache.cpp:343`) reaches the virtual override `SmTrimSrfCache::PointClassify`
+  (`:1048`). That override belongs to surface.trim_srf_cache itself
+  (`harness/callgraph/units.json`) and is already ported as
+  `TrimSrfCache::point_classify`, so an `UNPORTED(<unit>)` marker would point at the
+  wrong porter. The call site carries a `DISPATCH GAP` comment instead. It is
+  unreachable today (the face path returns `Unported` earlier, at
+  `CreateUVTrimCurves`), but whoever wires topology.face_p3 / topology.face_p4 here
+  must make `mark_face_containment` dispatch to the trimmed override (e.g. take a
+  classifier argument) before any face-backed case can pass.
+
 ## surface.plane_p1 (`SmPlane`, part 1)
 
 All non-deferred cases agree bit for bit with upstream (`max_rel_err = 0`). Upstream
@@ -2557,7 +2578,9 @@ behaviour worth knowing:
   constructor, on the *source*. The port makes it on a copy (`Plane::base_with_nurb`), so
   the source keeps none. Only `ToggleSwapUVBit` (which leaves the NURB alone) and
   `operator==` (which compares NURBs) can see the difference. The runner generates those
-  two only while both sides agree. The shim copies planes without a NURB by rebuilding
+  two only while both sides agree, and the adversarial fixtures (`zz_adv.json`) leave
+  out the sequences that observe it (`==` after `Copy`, `ToggleSwapUVBit` after
+  `CreateIsoParametricCurve` or `CoincidenceCheck`). The shim copies planes without a NURB by rebuilding
   them from their analytic data, because its own copies would otherwise change plane A.
 - **`SmPlane::Evaluate` with `bOnlyUpperHalf` and more u than v derivatives** writes
   outside its array (the `ULONG` index `lHighestVDeriv - k` wraps). The port returns
