@@ -649,13 +649,15 @@ impl<O: Copy> Grid<O> {
         const OP: &str = "geom::grid::Grid::add_element";
         let mut ge = match source {
             ElementSource::Surface(_) => {
-                // UNPORTED(surface.surface_cache_p1): SmBezierPatch::GetPseudoBox
-                // (SmSurfaceGridElement::Init also needs SmBezierAux2d::GetPolarBox,
-                // SmPseudoBox/SmPolarBox copies, SmSurface::Evaluate and
-                // SmSurface::EvaluateNormal)
+                // SmBezierPatch::GetPseudoBox and SmBezierAux2d::GetPolarBox are ported
+                // (surface::surface_cache::p1), but the patch data lives in the surface
+                // cache, which a tree node reaches once the tree construction hands it
+                // over (SmSurfaceGridElement::Init also needs SmPseudoBox/SmPolarBox
+                // copies, SmSurface::Evaluate and SmSurface::EvaluateNormal)
+                // UNPORTED(surface.surface_cache_p3): SmBezierPatch::GetPseudoBox
                 return Err(SolidError::Unported {
                     upstream: "SmBezierPatch::GetPseudoBox",
-                    unit: "surface.surface_cache_p1",
+                    unit: "surface.surface_cache_p3",
                 });
             }
             ElementSource::PolyBrep(node) => GridElement::polygon(node),
@@ -686,13 +688,17 @@ impl<O: Copy> Grid<O> {
         if element.surface.is_none() {
             return Err(SolidError::sm_err(OP));
         }
-        // UNPORTED(surface.surface_p2): smsurf_GetSurfaceCache
+        // smsurf_GetSurfaceCache (surface::surface::p2::surface_cache) needs the
+        // surface caches:
+        // SmCacheMgr::GetOrCreateObjectCache makes surface caches through
+        // SmSurface::CacheMakeOrValidate:
+        // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
         // (then SmSurfaceCache::GetTree, SmTree::GetAllTreeNodes, and for every
         // lowest SM_AD_BEZIER_SURFACE node not classified outside:
         // AddElement(node, SM_GE_SURFACE, node box grown by the expansion tolerance))
         Err(SolidError::Unported {
-            upstream: "smsurf_GetSurfaceCache",
-            unit: "surface.surface_p2",
+            upstream: "SmSurface::CacheMakeOrValidate",
+            unit: "surface.surface_p1",
         })
     }
 

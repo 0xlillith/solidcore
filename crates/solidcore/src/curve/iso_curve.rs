@@ -30,9 +30,9 @@
 //!   `EvaluatePoint` to [`BSplineSurface::evaluate_point`] and `Evaluate` to
 //!   [`BSplineSurface::evaluate`] (whose `[nu + 1][nv + 1]` result is flattened, as
 //!   upstream writes it into the curve's array); `CalculateContinuities` (not overridden:
-//!   `SmSurface::CalculateContinuities`, unit `surface.surface_p6`) and
-//!   `SmSurface::ReadFromDB` (unit `surface.surface_p2`) return
-//!   [`SolidError::Unported`]. `CreateUVIsoLine` builds an `SmLine`
+//!   `SmSurface::CalculateContinuities`, unit `surface.surface_p6`) returns
+//!   [`SolidError::Unported`], as does `SmSurface::ReadFromDB`
+//!   ([`Surface::read_from_db`]) for the surface types not ported yet. `CreateUVIsoLine` builds an `SmLine`
 //!   ([`crate::curve::line::Line`]).
 //! - **Equality.** `operator==` accepts identical surface pointers before comparing the
 //!   surfaces (`SmBSplineSurface::operator==`); the port always compares the surfaces
@@ -64,9 +64,11 @@ use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::tol::is_zero;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::surface::surface::p2::{Surface, SurfaceKind};
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 const OP_UV_ISO_LINE: &str = "curve::iso_curve::IsoCurve::create_uv_iso_line";
@@ -303,7 +305,7 @@ impl IsoCurve {
     ///
     /// Those of the stream reads; [`SolidError::InvalidInput`] for an unreadable ASCII
     /// surface type; [`SolidError::Unported`] (`SmSurface::ReadFromDB`).
-    pub fn read_from_db(db: &mut DatabaseReader, version: u64) -> Result<Self> {
+    pub fn read_from_db(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Self> {
         // curve locals
         let mut surf_param: u64 = 0;
         let mut iso_parameter = 0.0;
@@ -338,7 +340,7 @@ impl IsoCurve {
                 reason: "surface type not read",
             });
         };
-        let surface = surface_read_from_db(surface_type, db, version)?;
+        let surface = surface_read_from_db(k, surface_type, db, version)?;
 
         // load obj
         Ok(Self {
@@ -391,17 +393,24 @@ fn surface_calculate_continuities(
     })
 }
 
-/// `SmSurface::ReadFromDB(type, db, .., version)`.
+/// `SmSurface::ReadFromDB(type, db, .., version)`: the surface of the record (the
+/// only ported surface kind is the B-spline; the other types are unported in the
+/// reader).
 fn surface_read_from_db(
-    _surface_type: i64,
-    _db: &mut DatabaseReader,
-    _version: u64,
+    k: &Kernel,
+    surface_type: i64,
+    db: &mut DatabaseReader,
+    version: u64,
 ) -> Result<BSplineSurface> {
-    // UNPORTED(surface.surface_p2): SmSurface::ReadFromDB
-    Err(SolidError::Unported {
-        upstream: "SmSurface::ReadFromDB",
-        unit: "surface.surface_p2",
-    })
+    match Surface::read_from_db(k, surface_type, db, version)?.into_kind() {
+        SurfaceKind::BSpline(s) => Ok(s),
+        // UNPORTED(surface.surface_p1): SmSurface dispatch for a non-B-spline surface
+        // (the curve holds an SmBSplineSurface until the SmSurface virtuals are ported)
+        SurfaceKind::CurveBounded(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmCurveBoundedSurface",
+            "surface.surface_p1",
+        )),
+    }
 }
 
 /// `new SmLine(point, unit_vec, interval, scale, dim, context)`.

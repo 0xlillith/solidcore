@@ -101,7 +101,9 @@
 
 use crate::curve::curve::p1::ApproximateCurveOptions;
 use crate::curve::curve::p1::GlobalPointSolveOptions;
-use crate::curve::curve::p2::{Curve, CurveEvaluate, CurveKind, COMPOSITE_CURVE_TYPE};
+use crate::curve::curve::p2::{
+    at, Curve, CurveEvaluate, CurveKind, COMPOSITE_CURVE_TYPE, CURV_BASE_TYPE,
+};
 use crate::curve::curve::p3::compute_crvs_normal;
 use crate::curve::curve::p8::CurveIntersectOptions;
 use crate::error::{ignored, Result, SolidError};
@@ -143,9 +145,6 @@ const OP_BUILD: &str = "curve::composite_curve::p1::CompositeCurve::build_compos
 const OP_CORNER: &str = "curve::composite_curve::p1::create_corner";
 
 // ---- type codes -----------------------------------------------------------------------
-
-/// `CURV_BASE_TYPE` (`SmCurveTypes.h`).
-const CURV_BASE_TYPE: i64 = 14000;
 
 /// `SmCompositeCurve_TYPE` (`CURV_BASE_TYPE + 32`).
 pub const TYPE: i64 = COMPOSITE_CURVE_TYPE;
@@ -213,7 +212,6 @@ impl OffsetMapAttribute {
     /// `SmOffsetMapAttribute(lAttributeID, bCornerOffset, bLeftHandOffset,
     /// lCompositeIndex, lCurve, lOtherCurve, pOrigCurve, dApproxErr)`.
     #[must_use]
-    #[allow(clippy::too_many_arguments)]
     pub const fn new(
         attribute_id: u64,
         corner_offset: bool,
@@ -340,9 +338,9 @@ impl CompositeCurveSegment {
 /// the first segment's.
 #[derive(Debug, Clone)]
 pub struct CompositeCurve {
-    dim: u64,
-    segments: Vec<CompositeCurveSegment>,
-    closed: bool,
+    pub(super) dim: u64,
+    pub(super) segments: Vec<CompositeCurveSegment>,
+    pub(super) closed: bool,
 }
 
 /// [`CompositeCurve::canonical`]: the data the composite was built from
@@ -1456,9 +1454,29 @@ pub fn convert_to_bspline_curves(
     match_pz: bool,
     just_copy_bsplines: bool,
 ) -> Result<(Vec<Curve>, Vec<f64>)> {
+    let (out, gaps, _) =
+        convert_to_bspline_curves_indexed(k, curves, approx_tol_3d, match_pz, just_copy_bsplines)?;
+    Ok((out, gaps))
+}
+
+/// [`convert_to_bspline_curves`], also returning the index in `curves` each
+/// approximation was made from (the offsetters move the source curve's offset map
+/// attribute to it, as upstream's `RemoveAttribute` / `AddAttribute`).
+///
+/// # Errors
+///
+/// [`SolidError::Unported`] from the approximations.
+pub(super) fn convert_to_bspline_curves_indexed(
+    k: &Kernel,
+    curves: &[&Curve],
+    approx_tol_3d: f64,
+    match_pz: bool,
+    just_copy_bsplines: bool,
+) -> Result<(Vec<Curve>, Vec<f64>, Vec<usize>)> {
     // init output
     let mut out = Vec::with_capacity(curves.len());
     let mut gaps = Vec::with_capacity(curves.len());
+    let mut sources = Vec::with_capacity(curves.len());
 
     // locals
     let mut max_gap = 0.0;
@@ -1469,7 +1487,7 @@ pub fn convert_to_bspline_curves(
     };
 
     // for every curve - approx with BSplineCurve
-    for c in curves {
+    for (index, c) in curves.iter().enumerate() {
         let ivl = c.natural_interval();
         let breaks = [ivl.min(), ivl.max()];
 
@@ -1480,9 +1498,10 @@ pub fn convert_to_bspline_curves(
             }
             out.push(a.curve);
             gaps.push(max_gap);
+            sources.push(index);
         }
     }
-    Ok((out, gaps))
+    Ok((out, gaps, sources))
 }
 
 // ---- offset corners -------------------------------------------------------------------
@@ -1580,7 +1599,6 @@ fn extension_params(p1: Point3, v1: Vec3, p2: Point3, v2: Vec3) -> Result<(f64, 
 /// Those of the closest points (parallel extensions), the lines, the frame and
 /// angle of the fillet, the arc and the trims; `InvalidInput` when a chamfer
 /// intersection is missing; [`SolidError::Unported`] from the intersections.
-#[allow(clippy::too_many_arguments)]
 pub fn create_corner(
     k: &Kernel,
     vertex_point: Point3,
@@ -1763,8 +1781,8 @@ pub fn curve_classify(
         let mid = ivl.evaluate(0.5);
         let pv_this = ignored(trimmed_offset.evaluate(mid, 1, false, true))?.unwrap_or_default();
         let pv_orig = ignored(orig.evaluate(mid, 1, false, true))?.unwrap_or_default();
-        let d_this = pv_this.get(1).copied().unwrap_or(Vec3::UNDEF);
-        let d_orig = pv_orig.get(1).copied().unwrap_or(Vec3::UNDEF);
+        let d_this = at(&pv_this, 1);
+        let d_orig = at(&pv_orig, 1);
         if d_this.dot(d_orig) < 0.0 {
             return Ok(false);
         }
