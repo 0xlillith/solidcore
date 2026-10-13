@@ -46,7 +46,7 @@
 use crate::curve::curve::p2::{
     evaluate_continuity, CciGlobalSolver, Curve, CurvePropertyGs, CurvePropertyType,
 };
-use crate::curve::curve::p3::{local_curve_intersect, PointSolveOptions};
+use crate::curve::curve::p3::{eval_n, local_curve_intersect, PointSolveOptions};
 use crate::curve::curve::p4::filter_solution;
 use crate::curve::curve::p5::{find_additional_cc_tangent_guess, make_curve_cache};
 use crate::curve::curve_cache::BezierSpan;
@@ -63,7 +63,9 @@ use crate::geom::global_solver::{
     Branch, GlobalSolve, SolutionRequested, SolveRequest, SolverOperation,
 };
 use crate::geom::pseudo_box::{Projection, PseudoBox};
-use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType, SortKey};
+use crate::geom::solution_array::{
+    Solution, SolutionArray, SolutionEnd, SolutionObject, SolutionType, SortKey,
+};
 use crate::geom::tol::{are_same, is_zero, ANG_TOL_DEG};
 use crate::geom::tree::{NodeData, Tree, TreeNode};
 use crate::geom::vector3d::{Point3, Vec3};
@@ -77,46 +79,21 @@ const OP_GPA: &str = "curve::curve::p7::Curve::global_property_analysis";
 /// Number of comb samples of `GlobalPropertyAnalysis`.
 const COMB_COUNT: usize = 150;
 
-fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
-    SolidError::InvalidInput { operation, reason }
-}
-
 /// `SM_RAD2DEG`.
 fn rad_to_deg(a: f64) -> f64 {
     a * (180.0 / PI)
 }
 
 /// Sets parameter `i` of a solution end.
-fn set_param(end: &mut crate::geom::solution_array::SolutionEnd, i: usize, v: f64) -> Result<()> {
+fn set_param(end: &mut SolutionEnd, i: usize, v: f64) -> Result<()> {
     *end.param_mut(i)? = v;
     Ok(())
-}
-
-/// Parameter `i` of a solution end.
-fn param(end: &crate::geom::solution_array::SolutionEnd, i: usize) -> Result<f64> {
-    end.param(i)
 }
 
 /// `EvaluatePoint` whose status upstream ignores: [`Vec3::UNDEF`] (an uninitialised
 /// point) on failure; [`SolidError::Unported`] is propagated.
 fn point_or_undef(curve: &Curve, t: f64) -> Result<Point3> {
     Ok(ignored(curve.evaluate_point(t))?.unwrap_or(Vec3::UNDEF))
-}
-
-/// `Evaluate` (from the left) into an `N`-entry array; entries not written stay
-/// [`Vec3::UNDEF`].
-fn eval_n<const N: usize>(
-    curve: &Curve,
-    t: f64,
-    num_derivs: usize,
-    non_zero: bool,
-) -> Result<[Vec3; N]> {
-    let v = curve.evaluate(t, num_derivs, true, non_zero)?;
-    let mut out = [Vec3::UNDEF; N];
-    for (d, s) in out.iter_mut().zip(v) {
-        *d = s;
-    }
-    Ok(out)
 }
 
 /// `pBox->ProjectToPlane(*pBox, ...)`: the box projected in place (status ignored;
@@ -200,10 +177,10 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
         let mut ivl2 = *bez_span2.interval();
         let [parent_curve1, parent_curve2] = self
             .curves
-            .ok_or(invalid(OP_CCI, "solver without curves"))?;
+            .ok_or(SolidError::invalid_input(OP_CCI, "solver without curves"))?;
         let k: &Kernel = self
             .kernel
-            .ok_or(invalid(OP_CCI, "solver without kernel"))?;
+            .ok_or(SolidError::invalid_input(OP_CCI, "solver without kernel"))?;
         let tol = self.base.tolerance_3d;
         let interval1 = self.interval1;
         let interval2 = self.interval2;
@@ -267,7 +244,10 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                     )
                 }
                 ProjectionType::Unknown => {
-                    return Err(invalid(OP_CCI, "unsupported projection type"));
+                    return Err(SolidError::invalid_input(
+                        OP_CCI,
+                        "unsupported projection type",
+                    ));
                 }
             };
             let make = |c: &Curve| {
@@ -370,21 +350,21 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                     .base
                     .solutions
                     .get_mut(0)
-                    .ok_or(invalid(OP_CCI, "missing first solution"))?;
-                let count = param(&sol.start, 6)?;
+                    .ok_or(SolidError::invalid_input(OP_CCI, "missing first solution"))?;
+                let count = sol.start.param(6)?;
                 set_param(&mut sol.start, 6, count + 1.0)?; // Number of contributors to intersection
 
                 // build previous intersection bounding box
                 let old_box = Extent3d::from_points(
                     Vec3::new(
-                        param(&sol.start, 0)?,
-                        param(&sol.start, 1)?,
-                        param(&sol.start, 2)?,
+                        sol.start.param(0)?,
+                        sol.start.param(1)?,
+                        sol.start.param(2)?,
                     ),
                     Vec3::new(
-                        param(&sol.start, 3)?,
-                        param(&sol.start, 4)?,
-                        param(&sol.start, 5)?,
+                        sol.start.param(3)?,
+                        sol.start.param(4)?,
+                        sol.start.param(5)?,
                     ),
                 );
 
@@ -400,8 +380,8 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                 set_param(&mut sol.start, 5, result.max().z)?;
 
                 // build previous intersection interval bounds
-                let old_ivl1 = Extent1d::from_min_max(param(&sol.end, 0)?, param(&sol.end, 1)?);
-                let old_ivl2 = Extent1d::from_min_max(param(&sol.end, 2)?, param(&sol.end, 3)?);
+                let old_ivl1 = Extent1d::from_min_max(sol.end.param(0)?, sol.end.param(1)?);
+                let old_ivl2 = Extent1d::from_min_max(sol.end.param(2)?, sol.end.param(3)?);
 
                 // union new intersection interval with previous
                 ivl1 = old_ivl1.union(&ivl1);
@@ -604,8 +584,8 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                             // where the curves are tangent to each other at the points.
 
                             // get span endPoint positions and tangents
-                            let pv1: [Vec3; 2] = eval_n(curve1, t1, 1, true)?; // nonZeroTangent values
-                            let pv2: [Vec3; 2] = eval_n(curve2, t2, 1, true)?; // nonZeroTangent values
+                            let pv1: [Vec3; 2] = eval_n(curve1, t1, 1, true, true)?; // nonZeroTangent values
+                            let pv2: [Vec3; 2] = eval_n(curve2, t2, 1, true, true)?; // nonZeroTangent values
                             let tan1 = pv1[1].unitize()?;
                             let tan2 = pv2[1].unitize()?;
 
@@ -713,8 +693,8 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                             curve2,
                             &ivl2,
                             tol,
-                            param(&sol.start, 0)?,
-                            param(&sol.start, 1)?,
+                            sol.start.param(0)?,
+                            sol.start.param(1)?,
                         )?;
                         if let Some(isect) = found {
                             if isect.deviation < sol.start.solution_value {
@@ -842,7 +822,7 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
             if !(found_answer && point_solution.start.solution_value < tol) {
                 continue;
             }
-            let other_t = param(&point_solution.start, 0)?;
+            let other_t = point_solution.start.param(0)?;
 
             // when end point is tightly within tolerance or closest other span point
             // is in the interior
@@ -1103,11 +1083,11 @@ impl Curve {
         let opt = |i: usize| -> Result<Vec3> {
             vecs.get(i)
                 .copied()
-                .ok_or(invalid(OP_GPA, "missing optional vector"))
+                .ok_or(SolidError::invalid_input(OP_GPA, "missing optional vector"))
         };
         let value = || -> Result<f64> {
             opts.property_value
-                .ok_or(invalid(OP_GPA, "missing property value"))
+                .ok_or(SolidError::invalid_input(OP_GPA, "missing property value"))
         };
 
         // make sure curve has a cache and get its decomposition tree
@@ -1157,13 +1137,13 @@ impl Curve {
                 let t1 = match i.checked_sub(1).and_then(|j| sols.get(j)) {
                     None => interval.min(),
                     Some(prev) if prev.solution_type == SolutionType::RangeOfValues => {
-                        param(&prev.end, 0)?
+                        prev.end.param(0)?
                     }
-                    Some(prev) => param(&prev.start, 0)?,
+                    Some(prev) => prev.start.param(0)?,
                 };
                 let t2 = match sols.get(i) {
                     None => interval.max(),
-                    Some(s) => param(&s.start, 0)?,
+                    Some(s) => s.start.param(0)?,
                 };
 
                 let t_mid = (t1 + t2) / 2.0;
@@ -1232,7 +1212,7 @@ impl Curve {
                         | P::MaximizeRadiusOfCurvature
                 );
                 let mut pv: [Vec3; 3] =
-                    ignored(eval_n(self, t, 2, !exact))?.unwrap_or([Vec3::UNDEF; 3]);
+                    ignored(eval_n(self, t, 2, true, !exact))?.unwrap_or([Vec3::UNDEF; 3]);
                 let geom = evaluate_geometric_partial(self, t)?;
                 out.comb_points.push(pv[0]);
 
