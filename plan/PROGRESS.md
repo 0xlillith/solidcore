@@ -163,7 +163,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (draft)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
-- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (draft)
+- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 
 ## By module
 
@@ -358,7 +358,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### intersect (0/25)
 
 - [ ] ▶️ `intersect.surface_tracer` (1900 lines) — ready
-- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (draft)
+- [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] ⏳ `intersect.curve_class_p1` (2087 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p1` (1478 lines) — waiting
 - [ ] ⏳ `intersect.surface_silhouette` (979 lines) — waiting
