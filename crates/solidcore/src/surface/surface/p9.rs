@@ -12,7 +12,9 @@
 //! recurses once with maximum length zero; an explicit depth limit of two guards
 //! that invariant. Split arrays are limited to 1,000,000 entries before allocation
 //! or concatenation. Unsupported surface virtuals return `Unported`, never an
-//! approximate replacement. Failed tessellations retain the empty parameter array;
+//! approximate replacement. Iso extraction is exact for B-splines, so the public
+//! approximation tolerance has no numerical effect for that supported kind.
+//! Failed tessellations retain the empty parameter array;
 //! unported errors are propagated even where upstream ignores a status.
 
 use super::p2::{merge_double_arrays, Surface, SurfaceKind};
@@ -186,7 +188,7 @@ impl Surface {
                 }
             }
             let count = max_length / max_side + 1.0;
-            if !count.is_finite() || count < 0.0 || count > MAX_SPLITS as f64 {
+            if !count.is_finite() || count < 0.0 || count > (MAX_SPLITS - 1) as f64 {
                 return Err(SolidError::invalid_input(
                     OP,
                     "tessellation split limit exceeded",
