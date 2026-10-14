@@ -396,10 +396,22 @@ bool has_polar_curve(const SmCone* s)
     return pc.GetCurve() != NULL;
 }
 
+// `len chars...` of a string (GetTypeString / GetClassString).
+void put_str(std::vector<double>& o, const TCHAR* t)
+{
+    std::vector<double> c;
+    for (const TCHAR* q = t; q && *q; q++)
+        c.push_back((double)*q);
+    o.push_back((double)c.size());
+    o.insert(o.end(), c.begin(), c.end());
+}
+
 // The cone state.
 void put_state(std::vector<double>& o, const SmCone* s)
 {
     o.push_back((double)s->GetType());
+    put_str(o, s->GetTypeString());
+    put_str(o, s->GetClassString());
     o.push_back(flg(s->IsKindOf(SmCylinder_TYPE)));
     o.push_back(flg(s->IsKindOf(SmCone_TYPE)));
     o.push_back(flg(s->IsKindOf(SmSurfOfRevolution_TYPE)));

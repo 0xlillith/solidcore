@@ -2871,6 +2871,22 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   derivative orders up to 4, cross-class equality and reversed/partial/ellipse
   coincidence pairs. Difftest: 8794 cases, 8446 pass bit-identically, 0 failed, 348
   deferred (`surface.surf_of_revolution_p2` 283, `_p3` 65); perturbation 8446/8446.
+- **Third review fixes.** `Cone::type_string` (`GetTypeString`) returned the class name;
+  upstream's `SM_COMMON(cl, sc, ty)` returns `_T(#ty)`, i.e. `"SmCone_TYPE"` /
+  `"SmCylinder_TYPE"`, and `GetClassString` (`#cl`) returns `"SmCone"` / `"SmCylinder"`.
+  Fixed, and both strings are now part of the compared state (shim and runner). The same
+  bug is still in `SurfOfRevolution::type_string` (`surface::surf_of_revolution::p1`,
+  returns `"SmSurfOfRevolution"` instead of `"SmSurfOfRevolution_TYPE"`; unit
+  `surface.surf_of_revolution_p1`, already merged, not changed here). Pinned-toolchain
+  clippy lints in the runner's generator fixed without changing its RNG draw order. The
+  third adversarial set is `fixtures/surface.cone_p1/review3.json` (4100 cases: every
+  derivative order pair incl. out of range, NURB eval at knot boundaries with every flag
+  combination, `to_nurbs` at u = 720 / -725 / 1e6, iso curves with reversed, zero-size and
+  over-range trims, inversion and iso circles with tolerances 0..10*scale and seam
+  guesses, radius-boundary heights in `adjust`, near-identity and negative-scale
+  transforms, cross-mode equality, partial/reversed circle coincidence at 1e-5..1e5 radii,
+  near-coincident lines). Difftest: 12894 cases, 12426 pass bit-identically, 0 failed,
+  468 deferred (`surface.surf_of_revolution_p2` 403, `_p3` 65); perturbation 12426/12426.
 
 ## surface.surface_p7 (`SmSurface`, part 7)
 

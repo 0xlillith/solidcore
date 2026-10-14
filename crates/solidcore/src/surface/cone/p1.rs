@@ -976,20 +976,24 @@ impl Cone {
         }
     }
 
-    /// `"SmCone"` or `"SmCylinder"` (`GetTypeString`).
+    /// `"SmCone_TYPE"` or `"SmCylinder_TYPE"` (`GetTypeString`: `SM_COMMON`'s `#ty`).
     #[must_use]
     pub const fn type_string(&self) -> &'static str {
+        if self.cylinder {
+            "SmCylinder_TYPE"
+        } else {
+            "SmCone_TYPE"
+        }
+    }
+
+    /// `"SmCone"` or `"SmCylinder"` (`GetClassString`: `SM_COMMON`'s `#cl`).
+    #[must_use]
+    pub const fn class_string(&self) -> &'static str {
         if self.cylinder {
             "SmCylinder"
         } else {
             "SmCone"
         }
-    }
-
-    /// `"SmCone"` or `"SmCylinder"` (`GetClassString`).
-    #[must_use]
-    pub const fn class_string(&self) -> &'static str {
-        self.type_string()
     }
 
     /// `IsKindOf`: the cylinder type (for an `SmCylinder`), the cone type, or a type
@@ -2008,6 +2012,8 @@ mod tests {
         assert!((c.bot_radius() - 1.0).abs() < 1e-12);
         assert!((c.top_radius() - 2.0).abs() < 1e-12);
         assert_eq!(c.type_code(), CONE_TYPE);
+        assert_eq!(c.type_string(), "SmCone_TYPE");
+        assert_eq!(c.class_string(), "SmCone");
         assert!(c.is_kind_of(CONE_TYPE).unwrap());
         assert!(!c.is_kind_of(CYLINDER_TYPE).unwrap());
         assert!(c.rev().have_polar_conversion());
@@ -2112,6 +2118,8 @@ mod tests {
         let c = Cone::create_canonical_cylinder(&k(), &std_placement(), 2.0).unwrap();
         assert!(c.is_cylinder() && c.is_cylinder_class());
         assert_eq!(c.type_code(), CYLINDER_TYPE);
+        assert_eq!(c.type_string(), "SmCylinder_TYPE");
+        assert_eq!(c.class_string(), "SmCylinder");
         assert!(c.is_kind_of(CONE_TYPE).unwrap());
         assert!(c.apex(&k()).unwrap().is_cylinder);
         let d = c.max_analytic_domain(&k()).unwrap();

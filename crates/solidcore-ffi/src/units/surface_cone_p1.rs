@@ -10,7 +10,7 @@
 //!
 //! * cone ops: the construction status, then on success the op's record: its status
 //!   and, on success, its outputs. `Build`: the state (no status). A state is `type
-//!   is_cyl is_cone is_rev is_bspline is_surface is_cylinder base semi inside swap
+//!   n type_string[n] n class_string[n] is_cyl is_cone is_rev is_bspline is_surface is_cylinder base semi inside swap
 //!   planar make_nurb_gen bounded O[3] X[3] Y[3] D[4] bot_r top_r bot_h top_h r(1.25)
 //!   lin[2] lin_param MAXD[4] apex_status apex_cyl apex[3] apex_param canon_O[3]
 //!   canon_r canon_semi canon_swap canon_inside height_ok [height] have_polar

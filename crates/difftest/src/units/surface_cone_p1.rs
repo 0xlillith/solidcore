@@ -650,10 +650,18 @@ fn put_curve(o: &mut Vec<f64>, c: Option<&Curve>) {
     o.extend_from_slice(cur.knots());
 }
 
+/// `len chars...` of a string (`GetTypeString` / `GetClassString`).
+fn put_str(o: &mut Vec<f64>, t: &str) {
+    o.push(t.len() as f64);
+    o.extend(t.bytes().map(f64::from));
+}
+
 fn put_state(k: &Kernel, o: &mut Vec<f64>, s: &Cone) -> solidcore::Result<()> {
     let rev = s.rev();
+    o.push(s.type_code() as f64);
+    put_str(o, s.type_string());
+    put_str(o, s.class_string());
     o.extend([
-        s.type_code() as f64,
         flag(s.is_kind_of(CYLINDER_TYPE)?),
         flag(s.is_kind_of(CONE_TYPE)?),
         flag(s.is_kind_of(SURF_OF_REVOLUTION_TYPE)?),
@@ -1395,12 +1403,12 @@ fn gen_curve_pair(rng: &mut Rng) -> OpIn {
     }
 }
 
-fn gen_case(rng: &mut Rng) -> Option<Inputs> {
+fn gen_case(rng: &mut Rng) -> Inputs {
     if rng.chance(0.06) {
-        return Some(Inputs {
+        return Inputs {
             cone: None,
             op: gen_curve_pair(rng),
-        });
+        };
     }
     let c = gen_cone(rng);
     let k = Kernel::default();
@@ -1430,8 +1438,8 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         };
         add3([p.x, p.y, p.z], jitter)
     };
+    // (0 and 14 build)
     let op = match rng.below(15) {
-        0 => OpIn::Build {},
         1 => {
             let [u, v] = step_uv(rng, &step_dom);
             let point = rng.chance(0.2);
@@ -1585,18 +1593,21 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         12 => {
             let other = if rng.chance(0.5) {
                 c.clone()
-            } else if rng.chance(0.5) {
-                let mut o = c.clone();
-                if let ModeIn::ConeBounded { top, .. } = &mut o.mode {
-                    *top += 1e-14;
-                } else if let ModeIn::CylUnbounded { radius, .. } = &mut o.mode {
-                    *radius *= 1.5;
-                } else {
-                    o.origin = add3(o.origin, [1e-3, 0.0, 0.0]);
-                }
-                o
             } else {
-                gen_cone(rng)
+                let tweak = rng.chance(0.5);
+                if tweak {
+                    let mut o = c.clone();
+                    if let ModeIn::ConeBounded { top, .. } = &mut o.mode {
+                        *top += 1e-14;
+                    } else if let ModeIn::CylUnbounded { radius, .. } = &mut o.mode {
+                        *radius *= 1.5;
+                    } else {
+                        o.origin = add3(o.origin, [1e-3, 0.0, 0.0]);
+                    }
+                    o
+                } else {
+                    gen_cone(rng)
+                }
             };
             OpIn::Eq {
                 other: Box::new(other),
@@ -1605,7 +1616,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         13 => OpIn::Copy {},
         _ => OpIn::Build {},
     };
-    Some(Inputs { cone: Some(c), op })
+    Inputs { cone: Some(c), op }
 }
 
 impl UnitDiff for Runner {
@@ -1614,12 +1625,7 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
-        for _ in 0..8 {
-            if let Some(i) = gen_case(rng) {
-                return serde_json::to_value(i).ok();
-            }
-        }
-        None
+        serde_json::to_value(gen_case(rng)).ok()
     }
 
     fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
@@ -1671,9 +1677,7 @@ mod tests {
         let mut tally: BTreeMap<(String, String), usize> = BTreeMap::new();
         for seed in 0..1500u64 {
             let mut rng = Rng::new(0x5eed_0000 + seed);
-            let Some(i) = gen_case(&mut rng) else {
-                continue;
-            };
+            let i = gen_case(&mut rng);
             let out = rust(&i).expect("harness");
             let kind = if let Some(d) = &out.deferred {
                 format!("deferred:{}", d.symbol)
