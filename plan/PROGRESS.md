@@ -262,7 +262,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p1` (1944 lines) — partial, 872 cases
 - [ ] 🟡 `surface.plane_p1` (1934 lines) — partial, 2705 cases
 - [x] ✅ `surface.surf_of_revolution_p1` (1522 lines) — green, 858 cases
-- [ ] 🟡 `surface.surface_p9` (1252 lines) — partial, 778 cases
+- [ ] 🟡 `surface.surface_p9` (1252 lines) — partial, 821 cases
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 621 cases
 - [ ] 🟡 `surface.b_spline_volume_n_lib` (310 lines) — partial, 2420 cases
 - [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
