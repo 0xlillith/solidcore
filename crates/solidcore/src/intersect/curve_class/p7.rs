@@ -20,7 +20,7 @@
 //! | [`CurveClassification::are_coincident_maybe`], [`CoincidentMaybe`] | `AreCoincidentMaybe`                          |
 //! | [`CurveClassification::classify_face_interval`]             | `ClassifyFaceInterval`                                |
 //! | [`CurveClassification::test_for_partial_coincident_edges`], [`PartialCoincidence`] | `TestForPartialCoincidentEdges` |
-//! | [`set_do_filleting_geometry`]                               | `sm_SetDoFilletingGeometry` (static)                  |
+//! | [`set_do_filleting_geometry`]                               | `sm_SetDoFilletingGeometry`                           |
 //! | [`CurveClassification::curve`] of the owner                 | `SmCurveInterval::GetCurve`                           |
 //! | `tol_is_degenerate_curve` (private)                         | `SmTol::IsDegenerate(const SmCurve*, SmExtent1d, SmXSectTol3d*)` (CO-PORTED from `geom.tol`, with the tolerance given) |
 //! | `tol_is_closed_curve` (private)                             | `SmTol::IsClosed(const SmObject*, SmXSectTol3d*)` for a curve (CO-PORTED from `geom.tol`, with the tolerance given) |
