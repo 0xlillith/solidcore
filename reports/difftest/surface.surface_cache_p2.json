@@ -38,16 +38,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "Surface_test_aux_data_tess",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#4 (upstream prog_test smSurfaceTest.cpp:4117 (my_test_surface_closest_point, my_test_drop_point: surface cache of Surface.sms))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -82,16 +78,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "Surface_test_aux_data_min_side_stop",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#9 (upstream prog_test smSurfaceTest.cpp:4117 (my_test_surface_closest_point, my_test_drop_point: surface cache of Surface.sms))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -190,16 +182,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Surface_subdiv_block",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#22 (upstream prog_test smSurfaceTest.cpp:4117 (my_test_surface_closest_point, my_test_drop_point: surface cache of Surface.sms))",
-      "values_compared": 0
+      "values_compared": 2507
     },
     {
       "max_rel_err": 0.0,
@@ -274,16 +262,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_test_aux_data_tess",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#31 (upstream prog_test smFilletTest.cpp:3769 (offset_nurb.sms))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -318,16 +302,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_test_aux_data_min_side_stop",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#36 (upstream prog_test smFilletTest.cpp:3769 (offset_nurb.sms))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -426,16 +406,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_subdiv_block",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#49 (upstream prog_test smFilletTest.cpp:3769 (offset_nurb.sms))",
-      "values_compared": 0
+      "values_compared": 167
     },
     {
       "max_rel_err": 0.0,
@@ -510,16 +486,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "DropCurveSurface_test_aux_data_tess",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#58 (upstream pt_TestFiles/DropCurveSurface.sms (planar bilinear patch; my_test_drop_point family))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -554,16 +526,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "DropCurveSurface_test_aux_data_min_side_stop",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_cache_p2/cases.json#63 (upstream pt_TestFiles/DropCurveSurface.sms (planar bilinear patch; my_test_drop_point family))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -663,8 +631,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "DropCurveSurface_subdiv_block",
@@ -720,7 +688,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_rect_nth",
@@ -780,7 +748,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_hexagon_nth",
@@ -840,7 +808,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_far_thin_nth",
@@ -922,16 +890,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313452988",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -1006,16 +970,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0011",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313452998",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -1216,7 +1176,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0035",
@@ -1252,7 +1212,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -1280,7 +1240,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -1316,7 +1276,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0046",
@@ -1326,16 +1286,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0047",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453034",
-      "values_compared": 0
+      "values_compared": 1187
     },
     {
       "max_rel_err": 0.0,
@@ -1354,16 +1310,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0050",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453037",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -1390,16 +1342,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0054",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453041",
-      "values_compared": 0
+      "values_compared": 107
     },
     {
       "max_rel_err": 0.0,
@@ -1548,7 +1496,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0073",
@@ -1674,16 +1622,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0088",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453075",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -1776,7 +1720,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0100",
@@ -1902,16 +1846,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0115",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453102",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -1950,16 +1890,12 @@
       "values_compared": 112
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0120",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453107",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2004,7 +1940,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0126",
@@ -2064,7 +2000,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0133",
@@ -2146,16 +2082,12 @@
       "values_compared": 412
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0142",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453129",
-      "values_compared": 0
+      "values_compared": 527
     },
     {
       "max_rel_err": 0.0,
@@ -2180,7 +2112,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -2252,7 +2184,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -2512,7 +2444,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -2540,7 +2472,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0188",
@@ -2550,16 +2482,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0189",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453176",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2626,16 +2554,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0198",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453185",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2690,16 +2614,12 @@
       "values_compared": 84
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0205",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453192",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2902,16 +2822,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0231",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453218",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2940,7 +2856,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0235",
@@ -3042,16 +2958,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0247",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453234",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3088,7 +3000,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0252",
@@ -3122,16 +3034,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0256",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453243",
-      "values_compared": 0
+      "values_compared": 24167
     },
     {
       "max_rel_err": 0.0,
@@ -3176,7 +3084,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0262",
@@ -3240,7 +3148,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0269",
@@ -3292,7 +3200,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -3302,16 +3210,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0276",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453263",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3638,16 +3542,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0317",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453304",
-      "values_compared": 0
+      "values_compared": 227
     },
     {
       "max_rel_err": 0.0,
@@ -3658,16 +3558,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0319",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453306",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3814,16 +3710,12 @@
       "values_compared": 96
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0338",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453325",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3858,16 +3750,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0343",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453330",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3880,7 +3768,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -3988,7 +3876,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -4008,7 +3896,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -4018,16 +3906,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0361",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453348",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -4066,16 +3950,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0366",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453353",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4218,16 +4098,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0384",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453371",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4338,16 +4214,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0397",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453384",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4402,16 +4274,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0404",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453391",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4424,7 +4292,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0406",
@@ -4450,16 +4318,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0409",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453396",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4522,16 +4386,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0417",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453404",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4710,28 +4570,20 @@
       "values_compared": 204
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0439",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453426",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0440",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453427",
-      "values_compared": 0
+      "values_compared": 167
     },
     {
       "max_rel_err": 0.0,
@@ -4814,16 +4666,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0451",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453438",
-      "values_compared": 0
+      "values_compared": 827
     },
     {
       "max_rel_err": 0.0,
@@ -4874,21 +4722,17 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0458",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453445",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -4900,7 +4744,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0460",
@@ -5018,16 +4862,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0474",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453461",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5038,16 +4878,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0476",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453463",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5292,7 +5128,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0506",
@@ -5334,16 +5170,12 @@
       "values_compared": 220
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0511",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453498",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5362,21 +5194,17 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0514",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453501",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -5428,7 +5256,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0521",
@@ -5600,7 +5428,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0542",
@@ -5612,7 +5440,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0543",
@@ -5680,7 +5508,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0551",
@@ -5698,16 +5526,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0553",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453540",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5776,7 +5600,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0562",
@@ -5804,7 +5628,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0565",
@@ -5854,16 +5678,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0571",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453558",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5954,16 +5774,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0583",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453570",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -6034,28 +5850,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0592",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453579",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0593",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453580",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -6066,21 +5874,17 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0595",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453582",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0596",
@@ -6092,7 +5896,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0597",
@@ -6112,7 +5916,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0599",
@@ -6150,16 +5954,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0603",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453590",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -6202,16 +6002,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0609",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453596",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -6248,7 +6044,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0614",
@@ -6268,7 +6064,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0616",
@@ -6376,7 +6172,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -6508,7 +6304,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0645",
@@ -6520,7 +6316,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0646",
@@ -6660,7 +6456,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0662",
@@ -6710,16 +6506,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0668",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453655",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -6768,7 +6560,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0674",
@@ -6918,33 +6710,25 @@
       "values_compared": 304
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0692",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453679",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0693",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453680",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0694",
@@ -6956,7 +6740,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0695",
@@ -7000,7 +6784,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0699",
@@ -7036,7 +6820,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0703",
@@ -7124,7 +6908,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0713",
@@ -7182,16 +6966,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0720",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453707",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7252,7 +7032,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0728",
@@ -7564,7 +7344,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -7576,7 +7356,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0767",
@@ -7634,16 +7414,12 @@
       "values_compared": 26
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0774",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453761",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -7754,16 +7530,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0788",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453775",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7784,7 +7556,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0791",
@@ -7794,16 +7566,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0792",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453779",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7830,16 +7598,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::FindTessellationSplits",
-        "unit": "surface.surface_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0796",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500106336313453783",
-      "values_compared": 0
+      "values_compared": 917
     },
     {
       "max_rel_err": 0.0,
@@ -7867,15 +7631,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 156,
+  "cases_deferred": 97,
   "cases_failed": 0,
-  "cases_passed": 749,
+  "cases_passed": 808,
   "cases_total": 905,
   "deferred_by_unit": {
-    "surface.plane_p1": 53,
-    "surface.surface_p1": 47,
-    "surface.surface_p5": 43,
-    "surface.surface_p9": 13
+    "intersect.curve_class_p4": 1,
+    "surface.surface_cache_p1": 53,
+    "surface.surface_p5": 43
   },
   "max_rel_err": 0.0,
   "pass": true,

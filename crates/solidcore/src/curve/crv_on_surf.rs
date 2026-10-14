@@ -160,7 +160,7 @@ fn surface_evaluate_2nd_derivatives(
     from_left: bool,
 ) -> Result<[Vec3; 6]> {
     let side = if from_left { Side::Left } else { Side::Right };
-    let d = crate::surface::surface::p7::evaluate_2nd_derivatives(srf, uv, side, side)?;
+    let d = crate::surface::surface::p1::evaluate_2nd_derivatives(srf, uv, side, side)?;
     Ok([d.point, d.du, d.dv, d.duv, d.duu, d.dvv])
 }
 
@@ -175,16 +175,23 @@ fn surface_read_from_db(
 ) -> Result<BSplineSurface> {
     match Surface::read_from_db(k, surface_type, db, version)?.into_kind() {
         SurfaceKind::BSpline(s) => Ok(s),
-        // UNPORTED(surface.surface_p1): SmSurface dispatch for a non-B-spline surface
-        // (the curve holds an SmBSplineSurface until the SmSurface virtuals are ported)
+        // DISPATCH GAP: the SmSurface virtuals (surface.surface_p1, ported; no UNPORTED
+        // marker: the ported SmCrvOnSurf holds an SmBSplineSurface here, not any Surface)
         SurfaceKind::CurveBounded(_) => Err(SolidError::unported(
             "SmSurface virtuals of an SmCurveBoundedSurface",
-            "surface.surface_p1",
+            "curve.crv_on_surf",
         )),
-        // UNPORTED(surface.surface_p1): SmSurface dispatch for an SmPlane
         SurfaceKind::Plane(_) => Err(SolidError::unported(
             "SmSurface virtuals of an SmPlane",
-            "surface.surface_p1",
+            "curve.crv_on_surf",
+        )),
+        SurfaceKind::Step(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmSTEPSurface",
+            "curve.crv_on_surf",
+        )),
+        SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmSurfOfRevolution",
+            "curve.crv_on_surf",
         )),
     }
 }
@@ -200,7 +207,7 @@ fn classify_against_surface(
 ) -> Result<Vec<Extent1d>> {
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
     // UNPORTED(intersect.curve_class_p8): SmCurveClassification::IntersectUVDiscontinuties
-    // UNPORTED(intersect.curve_class_p1): SmCurveClassification::GetSize, SmCurveClassification::GetAt
+    // (then the intervals: intersect::curve_class::CurveClassification::size / at)
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
         "intersect.curve_class_p4",

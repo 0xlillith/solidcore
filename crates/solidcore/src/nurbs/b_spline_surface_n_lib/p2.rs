@@ -41,7 +41,7 @@
 //! - **Unported callees** return [`SolidError::Unported`]:
 //!   `SmCrvOnSurf::ApproximateCurve` (`curve.crv_on_surf`),
 //!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`). (`SmSurface::EvaluateNormal`
-//!   and `Evaluate1stDerivatives` are those of `surface::surface::p7`.) Upstream ignores the status of
+//!   is `surface::surface::p7`'s, `Evaluate1stDerivatives` `surface::surface::p1`'s.) Upstream ignores the status of
 //!   most of these calls; an unported one still stops the port.
 //! - Status values upstream ignores stay ignored (`EditParameterization` before
 //!   `MakeCurvesCompatible`, the curve evaluations of the n-sided blend, `Scale`,
@@ -278,7 +278,7 @@ fn evaluate_normal_section(surface: &BSplineSurface, uv: Point2, dir: Vec3) -> R
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`: `(Su, Sv)`.
 fn evaluate_1st_derivatives(surface: &BSplineSurface, uv: Point2) -> Result<(Vec3, Vec3)> {
     let (_, du, dv) =
-        crate::surface::surface::p7::evaluate_1st_derivatives(surface, uv, Side::Left, Side::Left)?;
+        crate::surface::surface::p1::evaluate_1st_derivatives(surface, uv, Side::Left, Side::Left)?;
     Ok((du, dv))
 }
 

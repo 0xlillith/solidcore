@@ -1068,7 +1068,7 @@ fn surface_singularities(k: &Kernel, surface: &Surface) -> Result<u64> {
 /// When wiring, keep upstream's flag arguments exactly: `(uv, TRUE, TRUE, ..)`
 /// (`SmTrimSrfCache.cpp:856`).
 fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    crate::surface::surface::p7::evaluate_1st_derivatives(
+    crate::surface::surface::p1::evaluate_1st_derivatives(
         surface,
         uv,
         crate::nurbs::knots::Side::Left,
@@ -1077,9 +1077,8 @@ fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Ve
 }
 
 /// `SmTol::MapTo2d(tol, uv, dir, surface)`.
-fn map_to_2d(_tol_3d: f64, _uv: Point2, _dir: Vec2, _surface: &Surface) -> Result<f64> {
-    // UNPORTED(surface.surface_p1): SmTol::MapTo2d
-    Err(SolidError::unported("SmTol::MapTo2d", "surface.surface_p1"))
+fn map_to_2d(tol_3d: f64, uv: Point2, dir: Vec2, surface: &Surface) -> Result<f64> {
+    crate::surface::surface::p1::map_to_2d_dir(tol_3d, uv, dir, surface)
 }
 
 /// `SmTol::GetZoneTol3d(pFace)`.
@@ -1300,10 +1299,11 @@ mod tests {
             (true, None)
         );
         c.base_mut().point_test_enabled = true;
-        assert!(c
-            .point_test(&k, Point2::new(5.0, 5.0), None)
-            .unwrap_err()
-            .is_unported());
+        // no face to classify against (SM_ERR_NULL_POINTER)
+        assert!(matches!(
+            c.point_test(&k, Point2::new(5.0, 5.0), None),
+            Err(SolidError::Upstream { code: 1006, .. })
+        ));
     }
 
     #[test]
@@ -1359,7 +1359,7 @@ mod tests {
     }
 
     #[test]
-    fn unavailable_surface_operations_are_explicit_and_preserve_state() {
+    fn implant_poly_edge_marks_the_leaf() {
         let mut c = cache();
         let surface = plane();
         let edge = PolyEdgeInput {
@@ -1369,15 +1369,10 @@ mod tests {
             tolerance: 0.001,
             surface: &surface,
         };
-        assert!(matches!(
-            c.implant_poly_edge(edge, NodeId(1)),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p1",
-                ..
-            })
-        ));
+        // (SmTol::MapTo2d is ported with surface.surface_p1)
+        c.implant_poly_edge(edge, NodeId(1)).unwrap();
         let aux = c.base().aux(NodeId(1)).unwrap();
-        assert!(aux.poly_edge_list.is_empty() && aux.vertex_list.is_empty());
+        assert_eq!((aux.poly_edge_list.len(), aux.vertex_list.len()), (1, 0));
     }
 
     #[test]

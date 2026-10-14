@@ -32,10 +32,13 @@ use solidcore::nurbs::knots::Side;
 use solidcore::nurbs::math::NOW;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::SurfaceEval;
+use solidcore::surface::surface::p1::{
+    evaluate_normal_section, CsIntersectEnfo, CsNormalizeEnfo, SspIntersectEnfo, SsiNormalizeEnfo,
+    SsNormalizeEnfo,
+};
 use solidcore::surface::surface::p4::{
-    classify_curve_surface_xsect_point, evaluate_normal_section, is_point_on_normal,
-    pass_sp_convergence_test, CsIntersect, CsNormalize, NoObject, NormalTestReason, SspIntersect,
-    SsiNormalize, SsNormalize,
+    classify_curve_surface_xsect_point, is_point_on_normal, pass_sp_convergence_test, NoObject,
+    NormalTestReason,
 };
 use solidcore::surface::surface::Surface;
 use solidcore_ffi::units::surface_surface_p4::{self as ffi, Op};
@@ -331,6 +334,11 @@ fn vecs3(v: &[[f64; 3]]) -> Vec<Vec3> {
     v.iter().map(|&x| v3(x)).collect()
 }
 
+/// `m_cpOptVectors`: NULL when there are no vectors.
+fn opt_vecs(v: &[Vec3]) -> Option<&[Vec3]> {
+    (!v.is_empty()).then_some(v)
+}
+
 fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
     let s = surface_of(&i.surface)?;
     let mut o = Vec::new();
@@ -347,10 +355,10 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         }
         OpIn::SectionFn { uv, dir } => match eval_matrix(&s, *uv)? {
             Ok(mut pvv) => match stat(evaluate_normal_section(&mut pvv, v3(*dir)))? {
-                Ok(sec) => {
+                Ok((tangent, curvature)) => {
                     o.push(0.0);
-                    pv(&mut o, sec.tangent);
-                    o.push(sec.curvature);
+                    pv(&mut o, tangent);
+                    o.push(curvature);
                 }
                 Err(c) => o.push(c),
             },
@@ -422,7 +430,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 Err(c) => o.push(c),
             }
         }
-        OpIn::IsOnSeam { uv, tol } => match stat(s.is_on_seam(p2(*uv), *tol))? {
+        OpIn::IsOnSeam { uv, tol } => match stat(s.is_on_seam(&Kernel::new(&KernelOptions::default()), p2(*uv), *tol))? {
             Ok(info) => {
                 o.extend([0.0, b(info.on_seam), f64::from(info.seam_dir as i32)]);
                 o.push(info.cross_seam_uvs.len() as f64);
@@ -433,7 +441,9 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             Err(c) => o.push(c),
         },
         OpIn::Gps { dom, sop, p, tol, target, req } => {
+            let k = Kernel::new(&KernelOptions::default());
             match stat(s.global_point_solve::<NoObject>(
+                &k,
                 &dom_of(*dom),
                 sop_of(*sop)?,
                 v3(*p),
@@ -456,30 +466,30 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         }
         OpIn::CsIntersect { curve, pts } => {
             let c = curve_of(curve)?;
-            run_enfo(&mut CsIntersect::new(&c, &s), 3, pts, &mut o)?;
+            run_enfo(&mut CsIntersectEnfo::new(&c, &s, 0.0), 3, pts, &mut o)?;
         }
         OpIn::CsNormalize { curve, sop, vecs, pts } => {
             let c = curve_of(curve)?;
             let op = sop_of(*sop)?;
             let dim = if op == SolverOperation::Signed3dDirectedMinimize { 4 } else { 3 };
             let vs = vecs3(vecs);
-            run_enfo(&mut CsNormalize::new(&c, &s, op, &vs), dim, pts, &mut o)?;
+            run_enfo(&mut CsNormalizeEnfo::new(&c, &s, op, 0.0, opt_vecs(&vs), 0.0), dim, pts, &mut o)?;
         }
         OpIn::SspIntersect { other, steepest, plane, pts } => {
             let s2 = surface_of(other)?;
             let pl = plane.map(|(po, pn)| Plane::from_normal(v3(po), v3(pn)));
-            run_enfo(&mut SspIntersect::new(&s, &s2, *steepest, pl.as_ref()), 4, pts, &mut o)?;
+            run_enfo(&mut SspIntersectEnfo::new(&s, &s2, *steepest, pl.as_ref(), 0.0), 4, pts, &mut o)?;
         }
         OpIn::SsiNormalize { other, n, d, pts } => {
             let s2 = surface_of(other)?;
-            run_enfo(&mut SsiNormalize::new(&s, &s2, v3(*n), *d), 4, pts, &mut o)?;
+            run_enfo(&mut SsiNormalizeEnfo::new(&s, &s2, 0.0, v3(*n), *d), 4, pts, &mut o)?;
         }
         OpIn::SsNormalize { other, sop, vecs, pts } => {
             let s2 = surface_of(other)?;
             let op = sop_of(*sop)?;
             let dim = if op == SolverOperation::Signed3dDirectedMinimize { 5 } else { 4 };
             let vs = vecs3(vecs);
-            run_enfo(&mut SsNormalize::new(&s, &s2, op, &vs), dim, pts, &mut o)?;
+            run_enfo(&mut SsNormalizeEnfo::new(&s, &s2, op, opt_vecs(&vs), 0.0), dim, pts, &mut o)?;
         }
         OpIn::Classify { dom, curve, ivl, uv, t } => {
             let c = curve_of(curve)?;
@@ -562,10 +572,10 @@ fn gen_tangent_curve(rng: &mut Rng, srf: &SrfIn, uv: [f64; 2]) -> Option<(CrvIn,
         }
     }
     pvv[2][2] = n;
-    let sec = evaluate_normal_section(&mut pvv, t).ok()?;
+    let (_, sec_curvature) = evaluate_normal_section(&mut pvv, t).ok()?;
     let len = *rng.choose(&[0.05, 0.3, 1.0]).unwrap_or(&0.3);
     let delta = *rng.choose(&[0.0, 1e-3, -1e-3, 0.5, -0.5, 3.0, -2.0, -1.0]).unwrap_or(&0.0);
-    let k = if rng.chance(0.2) { 0.0 } else { sec.curvature * (1.0 + delta) };
+    let k = if rng.chance(0.2) { 0.0 } else { sec_curvature * (1.0 + delta) };
     // curvature of the bezier is 2|a|/L^2 along sign(a) N
     let amp = k * len * len / 2.0;
     // tilt the curve out of the tangent plane by a small angle: its osculating circle then
@@ -627,17 +637,16 @@ fn gen_pts4(rng: &mut Rng, s1: &SrfIn, s2: &SrfIn, same: bool) -> Vec<Vec<f64>> 
         .collect()
 }
 
-fn gen_signed_vec(rng: &mut Rng) -> Vec<[f64; 3]> {
+fn gen_unit_vec(rng: &mut Rng) -> [f64; 3] {
     let mut v = rng.point3(-1.0, 1.0);
     if v.iter().map(|c| c * c).sum::<f64>() < 1e-3 {
         v = [0.0, 0.0, 1.0];
     }
-    vec![v]
+    v
 }
 
-/// The single vector of [`gen_signed_vec`].
-fn gen_signed_dir(rng: &mut Rng) -> [f64; 3] {
-    gen_signed_vec(rng).first().copied().unwrap_or([0.0, 0.0, 1.0])
+fn gen_signed_vec(rng: &mut Rng) -> Vec<[f64; 3]> {
+    vec![gen_unit_vec(rng)]
 }
 
 fn gen_dir(rng: &mut Rng) -> [f64; 3] {
@@ -735,7 +744,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
             let other = if same { s.clone() } else { gen_surface(rng) };
             let steepest = rng.chance(0.5);
             let plane = if !steepest || rng.chance(0.2) {
-                Some((rng.point3(-2.0, 2.0), gen_signed_dir(rng)))
+                Some((rng.point3(-2.0, 2.0), gen_unit_vec(rng)))
             } else {
                 None
             };
@@ -744,9 +753,29 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
         }
         37..=39 => {
             let same = rng.chance(0.25);
-            let other = if same { s.clone() } else { gen_surface(rng) };
-            let pts = gen_pts4(rng, s, &other, same);
-            OpIn::SsiNormalize { other, n: gen_signed_dir(rng), d: rng.uniform(-2.0, 2.0), pts }
+            // two different planes through a common point reach the small-gap branch,
+            // which evaluates the second normal on the other surface
+            let crossing = match s {
+                SrfIn::Plane { o, .. } if !same && rng.chance(0.3) => {
+                    let mut n = gen_unit_vec(rng);
+                    if rng.chance(0.5) {
+                        n = [0.0, 1.0, 0.0];
+                    }
+                    Some(SrfIn::Plane { o: *o, n })
+                }
+                _ => None,
+            };
+            let other = match &crossing {
+                Some(p) => p.clone(),
+                None if same => s.clone(),
+                None => gen_surface(rng),
+            };
+            let pts = if crossing.is_some() {
+                vec![vec![0.0; 4]]
+            } else {
+                gen_pts4(rng, s, &other, same)
+            };
+            OpIn::SsiNormalize { other, n: gen_unit_vec(rng), d: rng.uniform(-2.0, 2.0), pts }
         }
         40..=42 => {
             let same = rng.chance(0.25);

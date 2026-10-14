@@ -7,9 +7,12 @@
 //! each lives in its own submodule and adds methods to [`Surface`] (or free
 //! functions).
 
+pub mod p1;
 pub mod p2;
 pub mod p3;
 pub mod p4;
 pub mod p7;
+pub mod p9;
 
+pub use p1::StepSurface;
 pub use p2::{Surface, SurfaceKind};
