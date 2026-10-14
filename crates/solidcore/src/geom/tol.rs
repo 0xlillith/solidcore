@@ -128,9 +128,10 @@ use crate::surface::volume::Volume;
 // SmTol::MapTo1d(SmTol3d&, double, const SmCurve&), SmTol::MapTo2d(.., double, const
 // SmCurve&, const SmSurface&) and SmTol::GetScaledZero(const SmCurve&) need
 // SmCurve::IsDegenerate / Evaluate / GetNaturalInterval / ApproximateLength.
-// UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&, [const
-// SmVector2d&,] const SmSurface&) and SmTol::GetScaledZero(const SmSurface&) need
-// SmSurface::Evaluate1stDerivatives / GetNaturalUVDomain / ApproximateSize.
+// CO-PORTED in surface.surface_p1: SmTol::MapTo2d(const SmTol3d&, const SmVector2d&,
+// [const SmVector2d&,] const SmSurface&), SmTol::GetScaledZero(const SmSurface&) and
+// the SmSurface branch of SmTol::GetZoneTol3d(const SmObject*) are
+// surface::surface::p1::{map_to_2d, map_to_2d_dir, scaled_zero_of_surface, zone_tol_3d}.
 // SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of SmCurveClassification / SmCurveInterval
 // and SmTol::GetScaledZero(const SmCurveInterval&) are
 // intersect::curve_class::src_zone_tol_3d_of / interval_obj_zone_tol_3d and the
@@ -666,20 +667,32 @@ pub fn scaled_zero_of_equations<E: EvalNFunctions + ?Sized>(equations: &E) -> f6
 }
 
 /// `SmTol::GetScaledZero(const SmVolume&)`: `100 * SM_EFF_ZERO` for an unbounded
-/// parameter domain; a bounded one needs the out-space bounding box.
+/// parameter domain; for a bounded one the scaled zero of the out-space bounding box
+/// of the domain (`EvaluateBoundingBox`, status ignored: on a failure the box holds
+/// whatever was written before it, possibly nothing, as upstream).
 ///
+/// No caller and no difftest coverage of the bounded branch yet: `geom.tol` has no
+/// B-spline volume fixture.
 /// # Errors
 ///
-/// [`SolidError::Unported`] from the volume, and for a bounded domain
-/// (`SmVolume::EvaluateBoundingBox`, unit `surface.volume_p2`).
-pub fn scaled_zero_of_volume(volume: &Volume) -> Result<f64> {
+/// [`SolidError::Unported`] from the volume; the undefined cases of
+/// `EvaluateBoundingBox` ([`SolidError::Unsupported`]).
+pub fn scaled_zero_of_volume(k: &Kernel, volume: &Volume) -> Result<f64> {
     let param_domain = volume.natural_param_domain()?;
     if param_domain.is_bounded() {
-        // UNPORTED(surface.volume_p2): SmVolume::EvaluateBoundingBox
-        return Err(SolidError::Unported {
-            upstream: "SmVolume::EvaluateBoundingBox",
-            unit: "surface.volume_p2",
-        });
+        let mut out_box = Extent3d::new();
+        let r = volume.evaluate_bounding_box(
+            k,
+            &param_domain,
+            None,
+            Some(&mut out_box),
+            None,
+            None,
+            None,
+            true,
+        );
+        crate::surface::volume::p2::ignore_read(r)?;
+        return Ok(out_box.scaled_zero());
     }
     Ok(tol3d(100.0 * EFF_ZERO))
 }
@@ -964,12 +977,15 @@ mod tests {
         use crate::geom::transform::Transform;
         use crate::surface::volume::VolumeKind;
         let v = Volume::new(VolumeKind::Transform(Transform::IDENTITY));
-        assert_eq!(scaled_zero_of_volume(&v), Ok(100.0 * EFF_ZERO));
+        assert_eq!(
+            scaled_zero_of_volume(&Kernel::default(), &v),
+            Ok(100.0 * EFF_ZERO)
+        );
+        // the base class's zero natural domain is bounded: the scaled zero of its
+        // (sampled) bounding box
         let t = Volume::new(VolumeKind::Base);
-        assert!(matches!(
-            scaled_zero_of_volume(&t),
-            Err(SolidError::Unported { .. })
-        ));
+        let z = scaled_zero_of_volume(&Kernel::default(), &t).unwrap();
+        assert!(z.is_finite() && z > 0.0, "{z}");
     }
     use crate::kernel::KernelOptions;
 

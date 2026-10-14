@@ -1080,15 +1080,7 @@ pub fn interval_obj_zone_tol_3d<O: ClassObject>(
 /// `SmTol::GetZoneTol3d(const SmSurface*)`: the tolerance of the surface's face, the
 /// system zone tolerance for a surface without one.
 fn surface_zone_tol_3d(k: &Kernel, surface: &Surface) -> Result<f64> {
-    if surface.owner().is_some() {
-        // UNPORTED(surface.surface_p1): SmSurface::GetFace
-        // UNPORTED(topology.face_p2): SmFace::GetTolerance
-        return Err(SolidError::unported(
-            "SmSurface::GetFace",
-            "surface.surface_p1",
-        ));
-    }
-    Ok(zone_tol_3d(k, SmallTopoType::NormalSize))
+    crate::surface::surface::p1::zone_tol_3d(k, surface)
 }
 
 // ---- static helpers -----------------------------------------------------------------------
@@ -1107,7 +1099,13 @@ fn out_of_bounds(surface: &Surface) -> Cow<'_, Surface> {
             *p.out_of_bounds_enabled_mut() = true;
             Cow::Owned(Surface::from(p))
         }
-        SurfaceKind::CurveBounded(_) => Cow::Borrowed(surface),
+        SurfaceKind::SurfOfRevolution(s) => {
+            // the SmBSplineSurface base flag only (not SetOutOfBoundsEnabled)
+            let mut s = s.as_ref().clone();
+            *s.base_mut().out_of_bounds_enabled_mut() = true;
+            Cow::Owned(Surface::from(s))
+        }
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Cow::Borrowed(surface),
     }
 }
 
@@ -1403,9 +1401,9 @@ pub struct CciSurfaceGaps {
 ///
 /// [`SolidError::InvalidInput`] for fewer UV curve entries than surfaces;
 /// [`SolidError::Unported`] for any surface: the surface point solves (units
-/// `surface.surface_p5`, `surface.surface_p4`) and the surface cache and size
-/// (`surface.surface_p1`).
+/// `surface.surface_p5`, `surface.surface_p4`).
 pub fn get_cci_surface_gaps<S: Copy>(
+    k: &Kernel,
     class_curve_point: Point3,
     edge_curve_point: Point3,
     solution: &Solution<S>,
@@ -1449,7 +1447,7 @@ pub fn get_cci_surface_gaps<S: Copy>(
             surface_local_point_solve(surface, point, Point2::new(guess.x, guess.y))?
         } else {
             // get classCurvePoint/surf dist without checking trim boundaries
-            let _cache = surface_cache(surface)?;
+            let _cache = surface_cache::<()>(k, surface, None)?;
             let _size = surface_approximate_size(surface)?;
             match surface_global_point_solve(surface, point)? {
                 Some(s) => Some(s),
@@ -1954,13 +1952,13 @@ fn surface_local_point_solve(
     ))
 }
 
-/// `SmSurface::ApproximateSize`.
-fn surface_approximate_size(_surface: &Surface) -> Result<Vec2> {
-    // UNPORTED(surface.surface_p1): SmSurface::ApproximateSize
-    Err(SolidError::unported(
-        "SmSurface::ApproximateSize",
-        "surface.surface_p1",
-    ))
+/// `SmSurface::ApproximateSize`: upstream ignores the status, leaving the size zero.
+fn surface_approximate_size(surface: &Surface) -> Result<Vec2> {
+    match surface.approximate_size(None) {
+        Ok(size) => Ok(size),
+        Err(e @ SolidError::Unported { .. }) => Err(e),
+        Err(_) => Ok(Vec2::ZERO),
+    }
 }
 
 /// `SmSurface::GlobalPointSolve(domain, SM_SO_MINIMIZE, point, tol, &maxDrop,

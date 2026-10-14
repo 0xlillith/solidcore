@@ -1431,6 +1431,7 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
                         uvcs.push(pool.curve_at(*u)?);
                     }
                     let r = must(cc_mod::get_cci_surface_gaps(
+                        &k,
                         v3(*cp),
                         v3(*ep),
                         &solution,
