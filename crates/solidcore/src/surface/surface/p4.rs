@@ -1524,6 +1524,7 @@ impl Surface {
         if op == SolverOperation::Intersect || op == SolverOperation::Minimize {
             // upstream ignores a failing status and tries the solvers
             let fast = ignored(self.drop_point_fast::<O>(
+                &Kernel::default(),
                 uv_domain,
                 op,
                 test_point,
