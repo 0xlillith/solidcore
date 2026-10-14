@@ -252,8 +252,8 @@ fn create_iso_parametric_curve(
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             let r =
                 surface.create_iso_parametric_curve(k, param, iso, 0.0, domain.as_ref(), false)?;
-            match r.curve.kind() {
-                CurveKind::BSpline(b) => Ok(b.clone()),
+            match r.curve.into_kind() {
+                CurveKind::BSpline(b) => Ok(b),
                 _ => Err(SolidError::sm_err(
                     "surface::surface_cache::p1::create_iso_parametric_curve",
                 )),
