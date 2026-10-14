@@ -3,14 +3,14 @@
 // SmCCGlobalSolver::LocalSolve and sm_SolveMinSignedAngle), GlobalCurveSelfIntersect,
 // CalculateTightBoundingBox, CalculateTightPseudoBox, IsOnPlane and
 // IsOnPositiveSideOfPlanes (source/SMLib/src/SmCurve.cpp, source/SMLib/inc/SmCurve.h),
-// called through `SmCurve*` on SmBSplineCurve, SmHermiteCurve and SmLine objects (public
+// called through `SmCurve*` on SmBSplineCurve, SmHermiteCurve, SmLine and SmEllipse objects (public
 // members; no copies of file-static code are needed).
 //
 // One entry point, sc_curve_curve_p9_eval(op, in, n_in, out, cap, out_len). Layouts are
 // documented in crates/solidcore-ffi/src/units/curve_curve_p9.rs, which validates every
 // input. A curve block is `kind dim ...` (0: SmBSplineCurve `oob n p m cpts(x y z w)
-// knots`; 1: SmHermiteCurve `P1 D1 P2 D2`; 2: bounded SmLine `P V d0 d1 scale io`), as in
-// unit curve.curve_p8. `out` receives the op status (0 = SM_SUCCESS, else the SmStatus
+// knots`; 1: SmHermiteCurve `P1 D1 P2 D2`; 2: bounded SmLine `P V d0 d1 scale io`; 3: SmEllipse
+// `C X Y d0 d1 rx ry io`, no source NURB, as in unit curve.curve_p5). `out` receives the op status (0 = SM_SUCCESS, else the SmStatus
 // value) and the op's outputs.
 #include "sc_shim.h"
 
@@ -18,6 +18,7 @@
 #include <SmBSplineCurve.h>
 #include <SmContext.h>
 #include <SmCurve.h>
+#include <SmEllipse.h>
 #include <SmExtent1d.h>
 #include <SmExtent3d.h>
 #include <SmHermiteCurve.h>
@@ -99,6 +100,19 @@ SmCurve* read_curve(Rd& rd, const SmContext& ctx)
         double scale = rd.num();
         bool io = rd.flag();
         return new (ctx) SmLine(p, v, SmExtent1d(d0, d1), scale, 3, &ctx, NULL, io ? TRUE : FALSE);
+    }
+    if (kind == 3)
+    {
+        SmPoint3d c = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        double d0 = rd.num();
+        double d1 = rd.num();
+        double rx = rd.num();
+        double ry = rd.num();
+        bool io = rd.flag();
+        return new (ctx) SmEllipse(c, x, y, SmExtent1d(d0, d1), rx, ry, dim, &ctx, NULL,
+                                   io ? TRUE : FALSE);
     }
     SmVector3d p1 = rd.vec();
     SmVector3d d1 = rd.vec();

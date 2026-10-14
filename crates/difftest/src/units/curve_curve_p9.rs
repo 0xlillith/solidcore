@@ -4,12 +4,13 @@
 //! `IsOnPositiveSideOfPlanes`.
 //!
 //! C++: `solidcore_ffi::units::curve_curve_p9` (upstream `source/SMLib/src/SmCurve.cpp`,
-//! called through `SmCurve*` on B-spline, Hermite and line curves). Rust:
+//! called through `SmCurve*` on B-spline, Hermite, line and ellipse curves). Rust:
 //! `solidcore::curve::curve::p9`.
 //!
 //! A case is one `op` with its curves (`{"bspline": {dim, oob, cpts, p, u}}` with control
 //! points as stored `[x, y, z, w]`, `{"hermite": {dim, p1, d1, p2, d2}}`, `{"circle": ..}`
-//! (a quadratic B-spline arc) or `{"line": {p, v, domain, scale, inside_out}}`, as in unit
+//! (a quadratic B-spline arc) or `{"line": {p, v, domain, scale, inside_out}}` or `{"ellipse": {c, x, y, domain, radii,
+//! inside_out}}` (domain in degrees), as in unit
 //! `curve.curve_p8`): `gcs` (`GlobalCurveSolve`: `c2: null` solves the first curve
 //! against itself; `sop` the `SmSolverOperationType`, `target` the optional target
 //! distance, `vecs` the option vectors, `requested` the `SmSolutionRequestedType`),
@@ -26,6 +27,7 @@ use serde_json::Value;
 
 use solidcore::curve::curve::p2::Curve;
 use solidcore::curve::curve::p9::CurveSolveOptions;
+use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::hermite_curve::HermiteCurve;
 use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::axis2_placement::Axis2Placement;
@@ -105,6 +107,18 @@ fn one() -> f64 {
     1.0
 }
 
+/// An `SmEllipse` without source NURB; the domain is in degrees.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct EllipseIn {
+    c: [f64; 3],
+    x: [f64; 3],
+    y: [f64; 3],
+    domain: [f64; 2],
+    radii: [f64; 2],
+    #[serde(default)]
+    inside_out: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum CurveIn {
@@ -112,6 +126,7 @@ enum CurveIn {
     Hermite(HermiteIn),
     Circle(CircleIn),
     Line(LineIn),
+    Ellipse(EllipseIn),
 }
 
 
@@ -174,6 +189,13 @@ fn curve_block(v: &mut Vec<f64>, c: &CurveIn) -> Result<(), HarnessError> {
             v.extend([2.0, 3.0]);
             push_line(v, l);
         }
+        CurveIn::Ellipse(e) => {
+            v.extend([3.0, 3.0]);
+            v.extend_from_slice(&e.c);
+            v.extend_from_slice(&e.x);
+            v.extend_from_slice(&e.y);
+            v.extend([e.domain[0], e.domain[1], e.radii[0], e.radii[1], b(e.inside_out)]);
+        }
         CurveIn::Circle(_) => return Err(harness("unresolved circle")),
     }
     Ok(())
@@ -209,6 +231,24 @@ fn build_line(l: &LineIn) -> Line {
     )
 }
 
+fn build_ellipse(e: &EllipseIn) -> solidcore::Result<Ellipse> {
+    let opts = EllipseOptions {
+        dim: 3,
+        nurb: None,
+        inside_out: e.inside_out,
+    };
+    Ellipse::new(
+        &Kernel::default(),
+        v3(e.c),
+        v3(e.x),
+        v3(e.y),
+        Extent1d::from_min_max(e.domain[0], e.domain[1]),
+        e.radii[0],
+        e.radii[1],
+        &opts,
+    )
+}
+
 fn build(c: &CurveIn) -> Result<Curve, HarnessError> {
     match &resolve(c)? {
         CurveIn::Bspline(bs) => {
@@ -239,6 +279,9 @@ fn build(c: &CurveIn) -> Result<Curve, HarnessError> {
             h.dim,
         ))),
         CurveIn::Line(l) => Ok(Curve::from(build_line(l))),
+        CurveIn::Ellipse(e) => Ok(Curve::from(
+            build_ellipse(e).map_err(|e| harness(format!("ellipse: {e}")))?,
+        )),
         CurveIn::Circle(_) => Err(harness("unresolved circle")),
     }
 }
@@ -452,11 +495,43 @@ fn gen_circle(rng: &mut Rng) -> CurveIn {
     })
 }
 
+fn gen_ellipse(rng: &mut Rng, full: bool) -> CurveIn {
+    let (x, y) = if rng.chance(0.5) {
+        ([1.0, 0.0, 0.0], [0.0, 1.0, 0.0])
+    } else {
+        (
+            [1.0, rng.uniform(-0.5, 0.5), rng.uniform(-0.5, 0.5)],
+            [rng.uniform(-0.3, 0.3), 1.0, rng.uniform(-0.5, 0.5)],
+        )
+    };
+    let d0 = *rng.choose(&[0.0, 0.0, -90.0, 30.0]).unwrap_or(&0.0);
+    let r = rng.uniform(0.5, 10.0);
+    CurveIn::Ellipse(EllipseIn {
+        c: rp(rng, 5.0),
+        x,
+        y,
+        domain: [
+            d0,
+            d0 + if full {
+                360.0
+            } else {
+                rng.uniform(10.0, 359.0)
+            },
+        ],
+        radii: [r, r * rng.uniform(0.2, 0.9)],
+        inside_out: rng.chance(0.2),
+    })
+}
+
 fn gen_curve(rng: &mut Rng) -> CurveIn {
-    let c = match rng.below(20) {
+    let c = match rng.below(24) {
         0..=2 => gen_circle(rng),
         3..=6 => CurveIn::Line(gen_line(rng)),
         7..=14 => CurveIn::Bspline(gen_bspline(rng)),
+        15..=17 => {
+            let full = rng.chance(0.3);
+            gen_ellipse(rng, full)
+        }
         _ => CurveIn::Hermite(gen_hermite(rng)),
     };
     resolve(&c).unwrap_or(c)
@@ -465,7 +540,8 @@ fn gen_curve(rng: &mut Rng) -> CurveIn {
 
 /// A curve that is closed (or nearly) over its natural interval.
 fn gen_closed_curve(rng: &mut Rng) -> CurveIn {
-    match rng.below(3) {
+    match rng.below(4) {
+        3 => gen_ellipse(rng, true),
         0 => {
             let a0 = rng.uniform(-90.0, 90.0);
             let c = CurveIn::Circle(CircleIn {
@@ -499,6 +575,7 @@ fn range_of(c: &CurveIn) -> (f64, f64) {
     let resolved = resolve(c).ok();
     match resolved.as_ref().unwrap_or(c) {
         CurveIn::Circle(ci) => (ci.a0, ci.a1),
+        CurveIn::Ellipse(e) => (e.domain[0], e.domain[1]),
         CurveIn::Bspline(bs) => (
             bs.u.first().copied().unwrap_or(0.0),
             bs.u.last().copied().unwrap_or(1.0),
@@ -588,6 +665,11 @@ fn translated(c: &CurveIn, d: [f64; 3]) -> CurveIn {
             let mut ci = ci.clone();
             ci.center = add(ci.center, d);
             CurveIn::Circle(ci)
+        }
+        CurveIn::Ellipse(e) => {
+            let mut e = e.clone();
+            e.c = add(e.c, d);
+            CurveIn::Ellipse(e)
         }
     }
 }
@@ -1072,6 +1154,13 @@ fn flattened(c: &CurveIn, z0: f64) -> CurveIn {
                 l.v[0] = 1.0;
             }
             CurveIn::Line(l)
+        }
+        CurveIn::Ellipse(e) => {
+            let mut e = e.clone();
+            e.c[2] = z0;
+            e.x[2] = 0.0;
+            e.y[2] = 0.0;
+            CurveIn::Ellipse(e)
         }
         CurveIn::Circle(_) => resolve(c).map_or_else(|_| c.clone(), |r| flattened(&r, z0)),
     }

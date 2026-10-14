@@ -9,7 +9,9 @@
 //! A curve block is `0 dim oob n p m cpts(x y z w) knots` (an `SmBSplineCurve` built with
 //! `SmBSplineCurve(gw_CURVE*, dim, FALSE)` and `SetOutOfBoundsEnabled(oob)`), `1 dim P1[3]
 //! D1[3] P2[3] D2[3]` (an `SmHermiteCurve`) or `2 3 P[3] V[3] d0 d1 scale io` (a bounded
-//! `SmLine(P, V, [d0, d1], scale, 3, ctx, NULL, io)`), as in unit `curve.curve_p8`. Every
+//! `SmLine(P, V, [d0, d1], scale, 3, ctx, NULL, io)`) or `3 3 C[3] X[3] Y[3] d0 d1 rx ry io`
+//! (an `SmEllipse` without source NURB, as in unit `curve.curve_p5`), as in unit
+//! `curve.curve_p8`. Every
 //! output starts with the status (`0` = `SM_SUCCESS`, else the `SmStatus`); the rest (on
 //! success):
 //!
@@ -24,7 +26,7 @@
 //!
 //! `same` passes this curve itself as the other one (no second block); `op` is an
 //! `SmSolverOperationType` from [`PLAIN_OPS`] (no vectors, `nvec` `0`) or
-//! [`VECTOR_OPS`] (`nvec` `3`); `has_target` passes `&target` (required, positive, for
+//! [`VECTOR_OPS`] (`nvec` `3`); `has_target` passes `&target` (required for
 //! `SM_SO_AT_DISTANCE`); `requested` is `SM_SR_SINGLE` (`0`) or `SM_SR_ALL` (`1`). A
 //! solution `sol` is `type nvar nobj o0 o1 value s0 s1 [evalue e0 e1]` (the end for a
 //! range); objects are `0` (this curve), `1` (the other), `2` (another object), `-1`
@@ -35,9 +37,9 @@
 //! work: well-formed clamped B-splines (`m = n+p+1`, `1 <= p <= n`, `p <= 9`, finite
 //! bounded data, positive weights, end multiplicity `p+1`, interior at most `p`) of
 //! dimension 2 or 3, finite bounded Hermite data, lines with non-zero vectors and
-//! positive scales, parameters within a few curve lengths of the curve's range,
-//! increasing intervals, positive tolerances and finite vectors (non-zero where upstream
-//! divides by them).
+//! positive scales, ellipses with non-parallel axes and sane radii and domains, parameters within a few curve lengths of the curve's range,
+//! non-reversed intervals (upstream's `SmExtent1d` signals an error for a reversed one),
+//! non-negative tolerances and finite vectors.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -277,9 +279,41 @@ fn line(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     Ok((d0.min(d1), d0.max(d1)))
 }
 
+/// An ellipse placement and domain `C X Y d0 d1` (degrees).
+fn conic_frame(rd: &mut Reader<'_>) -> Result<(), FfiError> {
+    rd.vec3()?;
+    let x = rd.nonzero3()?;
+    let y = rd.nonzero3()?;
+    let cross = [
+        x[1] * y[2] - x[2] * y[1],
+        x[2] * y[0] - x[0] * y[2],
+        x[0] * y[1] - x[1] * y[0],
+    ];
+    if cross.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
+        return Err(bad("ellipse: parallel axes"));
+    }
+    let d0 = rd.finite()?;
+    let d1 = rd.finite()?;
+    if d0.abs() > 720.0 || d1.abs() > 720.0 {
+        return Err(bad("ellipse: domain end beyond 720 degrees"));
+    }
+    if !(1e-4..=360.0).contains(&(d1 - d0)) {
+        return Err(bad("ellipse: domain length outside [1e-4, 360]"));
+    }
+    Ok(())
+}
+
+fn radius(rd: &mut Reader<'_>) -> Result<(), FfiError> {
+    let r = rd.finite()?;
+    if !(1e-6..=1e6).contains(&r) {
+        return Err(bad("ellipse: radius outside [1e-6, 1e6]"));
+    }
+    Ok(())
+}
+
 /// A curve block (see the module docs).
 fn curve_block(rd: &mut Reader<'_>) -> Result<CurveInfo, FfiError> {
-    let kind = rd.index(2)?;
+    let kind = rd.index(3)?;
     let dim = rd.index(3)?;
     if dim < 2 {
         return Err(bad("curve block: dimension must be 2 or 3"));
@@ -295,6 +329,19 @@ fn curve_block(rd: &mut Reader<'_>) -> Result<CurveInfo, FfiError> {
                 rd.vec3()?;
             }
             Ok(CurveInfo { a: 0.0, b: 1.0 })
+        }
+        3 => {
+            if dim != 3 {
+                return Err(bad("ellipse block: dimension must be 3"));
+            }
+            conic_frame(rd)?;
+            radius(rd)?;
+            radius(rd)?;
+            rd.flag()?;
+            Ok(CurveInfo {
+                a: -1e3,
+                b: 1e3,
+            })
         }
         _ => {
             if dim != 3 {
@@ -320,33 +367,25 @@ fn param(rd: &mut Reader<'_>, c: &CurveInfo) -> Result<f64, FfiError> {
     Ok(t)
 }
 
-/// An increasing interval `a b` of parameters of `c`.
+/// A non-reversed interval `a b` of parameters of `c`.
 fn interval(rd: &mut Reader<'_>, c: &CurveInfo) -> Result<(f64, f64), FfiError> {
     let a = param(rd, c)?;
     let b = param(rd, c)?;
-    if a >= b {
-        return Err(bad("interval not increasing"));
+    if a > b {
+        return Err(bad("interval reversed"));
     }
     Ok((a, b))
 }
 
-/// A positive finite tolerance.
+/// A non-negative finite tolerance.
 fn tol(rd: &mut Reader<'_>) -> Result<f64, FfiError> {
     let v = rd.finite()?;
-    if v <= 0.0 {
-        return Err(bad("tolerance not positive"));
+    if v < 0.0 {
+        return Err(bad("tolerance negative"));
     }
     Ok(v)
 }
 
-/// A finite vector, non-zero when `nonzero`.
-fn vector(rd: &mut Reader<'_>, nonzero: bool) -> Result<[f64; 3], FfiError> {
-    if nonzero {
-        rd.nonzero3()
-    } else {
-        rd.vec3()
-    }
-}
 
 fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
     match op {
@@ -363,19 +402,16 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             }
             tol(rd)?;
             let has_target = rd.flag()?;
-            let target = rd.finite()?;
-            if code == AT_DISTANCE && (!has_target || target <= 0.0) {
-                return Err(bad("SM_SO_AT_DISTANCE needs a positive target distance"));
+            rd.finite()?;
+            if code == AT_DISTANCE && !has_target {
+                return Err(bad("SM_SO_AT_DISTANCE needs a target distance"));
             }
             let nvec = rd.index(3)?;
             if nvec != if needs_vectors { 3 } else { 0 } {
                 return Err(bad("wrong option vector count for the operation"));
             }
-            for i in 0..nvec {
-                // the pivot (second vector of SM_SO_SIGNED_PIVOT_MINIMIZE) and the plane
-                // points of the rotated / perspective projections are points
-                let point = (code == 23 && i == 1) || (code == 17 && i == 0) || (code == 18 && i != 1);
-                vector(rd, !point)?;
+            for _ in 0..nvec {
+                rd.vec3()?;
             }
             rd.index(1)?;
         }
@@ -399,10 +435,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             let c = curve_block(rd)?;
             rd.vec3()?;
             rd.vec3()?;
-            let t = rd.finite()?;
-            if t < 0.0 {
-                return Err(bad("tolerance negative"));
-            }
+            rd.finite()?;
             if rd.flag()? {
                 interval(rd, &c)?;
             } else {
@@ -415,7 +448,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             let n = rd.index(MAX_PLANES)?;
             for _ in 0..n {
                 rd.vec3()?;
-                rd.nonzero3()?;
+                rd.vec3()?;
             }
         }
     }
