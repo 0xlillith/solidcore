@@ -17,9 +17,8 @@
 //! B-spline surface or `SmSurface::LocalSurfaceSolve` (normals within 3 degrees of a
 //! known previous point), `ClassifyBoundaryStartPointIntersection` sampling a tangent
 //! boundary (`SmSurface::LocalPointSolve`), `DoBoundaryPlaneTest` on a plane
-//! (`SmPlane::CreateIsoParametricCurve`) or on a B-spline with a straight boundary
-//! (`SmSurface::EvaluateNormal`), and `ComputeLawPointValues` with a valid plane
-//! (`SmFilletLaw::Evaluate`).
+//! (`SmPlane::CreateIsoParametricCurve`), and `ComputeLawPointValues` with a valid
+//! plane (`SmFilletLaw::Evaluate`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -585,46 +584,6 @@ fn classify_rejected(t: &TsectPnt) -> bool {
     zero(t.uv_curve_pv[0][1]) && zero(t.uv_curve_pv[1][1])
 }
 
-/// The shim's `is_rejected_flush`: the knots `FlushCurve` would build do not increase.
-fn flush_rejected(si: &SurfaceIntersector<'_>) -> Result<bool, Fail> {
-    let pts = si
-        .curve_points()
-        .iter()
-        .map(|&i| si.point(i).cloned())
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| Fail::Harness(harness(format!("{e}"))))?;
-    let n = pts.len();
-    if n < 2 {
-        return Ok(false);
-    }
-    let tol = si.this_approx_tol_3d;
-    if pts
-        .windows(2)
-        .all(|w| matches!(w, [a, c] if a.crv_pos().closer_than(tol, c.crv_pos())))
-    {
-        return Ok(false);
-    }
-    let param = |i: usize| pts.get(i).map_or(f64::NAN, |p| p.curve_parameter);
-    let mut last = param(0);
-    let mut i = 1;
-    while i < n {
-        if i == n - 2 {
-            let dt = param(i) - param(i - 1);
-            let dtf = param(i + 1) - param(i);
-            if dtf / dt < 0.1 {
-                i += 1;
-            }
-        }
-        let k = param(i);
-        if k.partial_cmp(&last) != Some(core::cmp::Ordering::Greater) {
-            return Ok(true);
-        }
-        last = k;
-        i += 1;
-    }
-    Ok(false)
-}
-
 fn pt_of(si: &SurfaceIntersector<'_>, i: usize) -> Result<TsectPnt, Fail> {
     si.point(id(i))
         .cloned()
@@ -689,9 +648,7 @@ fn run_op(
             }
         }
         OpIn::Flush => {
-            if flush_rejected(si)? {
-                o.push(ffi::REJECTED);
-            } else if st(o, si.flush_curve(outs))?.is_some() {
+            if st(o, si.flush_curve(outs))?.is_some() {
                 put_outs(o, outs, curves.len())?;
             }
         }

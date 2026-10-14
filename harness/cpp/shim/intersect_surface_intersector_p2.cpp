@@ -385,43 +385,6 @@ struct Peek : SmSurfaceIntersector
         m_dStartParallelTolRadians = start_tol;
     }
 
-    // FlushCurve hands the curve parameters to SmBSplineCurve::CreateCanonical as knots: when
-    // it would get there with knots that do not increase, the op is not run.
-    bool is_rejected_flush() const
-    {
-        SmTsectPnt* aData[70];
-        SmTArray<SmTsectPnt*> a(70, aData);
-        m_vCurvePoints.GetAllNodes(a);
-        ULONG n = a.GetSize();
-        if (n < 2)
-            return false;
-        bool too_short = true;
-        for (ULONG j = 1; j < n; j++)
-            if (!a[j - 1]->CrvPos().CloserThan(m_dThisApproxTol3d, a[j]->CrvPos()))
-            {
-                too_short = false;
-                break;
-            }
-        if (too_short)
-            return false;
-        double last = a[0]->m_dCurveParameter;
-        for (ULONG i = 1; i < n; i++)
-        {
-            if (i == n - 2)
-            {
-                double dt = a[i]->m_dCurveParameter - a[i - 1]->m_dCurveParameter;
-                double dtf = a[i + 1]->m_dCurveParameter - a[i]->m_dCurveParameter;
-                if (dtf / dt < 0.1)
-                    i++;
-            }
-            double k = a[i]->m_dCurveParameter;
-            if (!(k > last))
-                return true;
-            last = k;
-        }
-        return false;
-    }
-
     void put_list(std::vector<double>& o, const Prog& pr, const SmTList<SmTsectPnt>& l) const
     {
         SmTsectPnt* aData[70];
@@ -549,11 +512,6 @@ void run_op(int32_t op, Rd& rd, Prog& pr, Peek& si, Outs& outs, std::vector<doub
     }
     case OP_FLUSH:
     {
-        if (si.is_rejected_flush())
-        {
-            o.push_back(REJECTED);
-            return;
-        }
         SmStatus s = si.FlushCurve(outs.c3, outs.c0, outs.c1, outs.types, outs.devs);
         o.push_back(st(s));
         if (s == SM_SUCCESS)

@@ -42,8 +42,8 @@
 //! cannot alias them). The shim does not run (status [`REJECTED`]): `Add*` of a point
 //! already on a list (it corrupts the intrusive lists); `Classify` of a point with a
 //! non-finite UV value or both UV tangents zero (the gap walk may never leave the
-//! domains); `Flush` when the curve parameters it would pass as knots to
-//! `SmBSplineCurve::CreateCanonical` do not increase.
+//! domains). `Flush` always runs: knots that decrease are rejected by
+//! `N_IgesValidate` inside `SmBSplineCurve::CreateCanonical` (an `SM_ERR` status).
 
 use crate::{call_with_buffer, FfiError};
 
