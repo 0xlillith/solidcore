@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**132 / 261 units ported** (85 green, 47 partial), **172,536 / 387,903 upstream lines (44.5%)**. 17 claimed, 0 blocked, 112 todo.
+**132 / 261 units ported** (85 green, 47 partial), **172,536 / 387,903 upstream lines (44.5%)**. 18 claimed, 0 blocked, 111 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -19,7 +19,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `surface.surface_p6` (2150 lines) — missing: `surface.surface_p4`, `surface.surface_p5`
 - [ ] `surface.surface_p10` (2172 lines) — missing: `surface.surface_p5`
 - [ ] `intersect.surface_drop_lib_p1` (1478 lines) — missing: `surface.surface_p3`
-- [ ] `surface.offset_surface` (1787 lines) — missing: `surface.surface_p3`
 - [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p3`, `surface.surface_p5`, `surface.surface_p6`, `surface.surface_p9`
 - [ ] `surface.surface_p8` (2374 lines) — missing: `surface.surface_p3`, `surface.surface_p4`, `surface.surface_p5`, `surface.surface_p6`
 - [ ] `intersect.curve_class_p7` (2248 lines) — missing: `intersect.curve_class_p1`
@@ -139,6 +138,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `intersect.curve_class_p1` (2087 lines) — in progress: #47 @bherbruck (ready for review)
+- [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
@@ -295,7 +295,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.surface_p10` (2172 lines) — waiting
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
-- [ ] ⏳ `surface.offset_surface` (1787 lines) — waiting
+- [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (draft)
 - [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
 - [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
 - [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (ready for review)
