@@ -983,12 +983,12 @@ impl Torus {
         // finish the call in the parent function (status ignored upstream), whose
         // polar-converter rebuild reaches the torus's iso circles
         let shape = self.shape();
-        ignore_status(self.base.transform_using(
-            k,
-            rotate_n_move,
-            scale,
-            &|s, k, p, t| Ok(iso_curve(s, shape, k, p, t, None)?.curve),
-        ))?;
+        ignore_status(
+            self.base
+                .transform_using(k, rotate_n_move, scale, &|s, k, p, t| {
+                    Ok(iso_curve(s, shape, k, p, t, None)?.curve)
+                }),
+        )?;
 
         // all done
         Ok(())
@@ -1005,7 +1005,6 @@ impl Torus {
     /// A failed binary read; those of the surface of revolution record
     /// ([`SurfOfRevolution::read_from_db`]).
     pub fn read_from_db(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Self> {
-
         // init output object
         let mut torus = Self::empty();
 

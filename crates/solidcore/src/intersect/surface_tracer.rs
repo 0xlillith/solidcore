@@ -1649,7 +1649,8 @@ fn surface_drop_curve(
         }
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_) => {
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_) => {
             // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve
             Err(SolidError::unported(
                 "SmSurface::DropCurve",
@@ -2148,15 +2149,18 @@ where
     Ok(out)
 }
 
-/// `smsurf_GetSurfaceCache` for the tracer's surface ([`surface_cache`]): the
-/// lookup callers make before [`SurfaceTrace::do_trace`].
+/// `smsurf_GetSurfaceCache` for the tracer's surface ([`surface_cache`], built fresh):
+/// the cache callers pass to [`SurfaceTrace::do_trace`].
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] until the cache store makes surface caches
-/// (`surface.surface_p1`).
-pub fn tracer_surface_cache(t: &SurfaceTracer<'_>) -> Result<crate::geom::a_object::CacheId> {
-    surface_cache(t.surface)
+/// Those of the cache builds ([`SolidError::Unported`]: every tree build needs
+/// `SmSurface::CalculateContinuities`, `surface.surface_p6`).
+pub fn tracer_surface_cache<O: Copy + PartialEq>(
+    k: &Kernel,
+    t: &SurfaceTracer<'_>,
+) -> Result<SurfaceCache<O>> {
+    surface_cache(k, t.surface, None)
 }
 
 #[cfg(test)]
@@ -2290,7 +2294,9 @@ mod tests {
         let mut uv = Vec2::ZERO;
         assert!(!t.does_point_lie_on_curve(&k, &mut uv, true).unwrap());
         assert!(!t.test_iso_curve(&k, SurfParamType::U, 0.0).unwrap());
-        assert!(tracer_surface_cache(&t).unwrap_err().is_unported());
+        assert!(tracer_surface_cache::<()>(&k, &t)
+            .unwrap_err()
+            .is_unported());
     }
 
     #[test]

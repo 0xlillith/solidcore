@@ -21,7 +21,7 @@
 //! | [`SurfOfRevolution::transform`]                          | `Transform`                                  |
 //! | [`SurfOfRevolution::update_analytical_domain`]           | `UpdateAnalyticalDomain`                     |
 //! | [`SurfOfRevolution::read_from_db`]                       | `ReadFromDB`                                 |
-//! | [`SurfOfRevolution::convert_domain_from_nurbs_to_step`]  | `SmSurface::ConvertDomainFromNURBSToSTEP` (CO-PORTED from `surface.surface_p1`) |
+//! | [`SurfOfRevolution::convert_domain_from_nurbs_to_step`]  | `SmSurface::ConvertDomainFromNURBSToSTEP` (body in `surface::surface::p1`) |
 //!
 //! Deviations:
 //! - **Arguments.** Out-params become return values; `SmContext` arguments, the
@@ -57,11 +57,14 @@
 //!   level ([`DatabaseReader::enter_nested`]).
 //! - **Unported callees.** `SmSurface::LocalPointSolve` (unit `surface.surface_p5`) for
 //!   the conversions without exact polar conversion (`ConvertUVFromSTEPToNURBS` without
-//!   a polar converter, `DropPointFast` with an inexact angle), the zone tolerance of
-//!   the bounding box of `IntersectWithSurfOfRevolution` without approximation
-//!   tolerance (`SmSurface::GetFace`, unit `surface.surface_p1`) and
+//!   a polar converter, `DropPointFast` with an inexact angle) and
 //!   `ConvertUVFromNURBSToSTEP` without exact conversion (`p1`) return
 //!   [`SolidError::Unported`].
+//! - **Zone tolerance.** The bounding box of `IntersectWithSurfOfRevolution` without
+//!   approximation tolerance is the NURB's (the inherited
+//!   `SmBSplineSurface::CalculateBoundingBox`); the NURB has no owner, so its zone
+//!   tolerance expansion finds no face (`GetFace()` is `NULL`), as for a surface of
+//!   revolution outside a face upstream.
 
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p2::CurvePropertyType;
@@ -86,7 +89,7 @@ use crate::geom::tol::are_same;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
-use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_DEG, EFF_ZERO_SQRT, PI};
+use crate::math::{min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_DEG, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::{
@@ -471,9 +474,9 @@ impl SurfOfRevolution {
     }
 
     /// The STEP domain spanned by the converted corners of the NURB domain
-    /// `nurb_domain` (`SmSurface::ConvertDomainFromNURBSToSTEP`, CO-PORTED from unit
-    /// `surface.surface_p1`): the angles from the corners in order, the generator
-    /// parameters sorted.
+    /// `nurb_domain` (`SmSurface::ConvertDomainFromNURBSToSTEP`, the body shared with
+    /// unit `surface.surface_p1`'s [`crate::surface::surface::Surface`]): the angles
+    /// from the corners in order, the generator parameters sorted.
     ///
     /// # Errors
     ///
@@ -484,18 +487,9 @@ impl SurfOfRevolution {
         k: &Kernel,
         nurb_domain: &Extent2d,
     ) -> Result<Extent2d> {
-        let min_step_uv = self.convert_uv_from_nurbs_to_step(k, nurb_domain.min())?;
-        let max_step_uv = self.convert_uv_from_nurbs_to_step(k, nurb_domain.max())?;
-
-        // set output - InsideOut swaps the GenCurve min to max traversal direction
-        let mut anal_domain = Extent2d::new();
-        anal_domain.set_min_max_coords(
-            min_step_uv.x,
-            min2(min_step_uv.y, max_step_uv.y),
-            max_step_uv.x,
-            max2(min_step_uv.y, max_step_uv.y),
-        )?;
-        Ok(anal_domain)
+        crate::surface::surface::p1::convert_domain_from_nurbs_to_step_with(nurb_domain, |uv| {
+            self.convert_uv_from_nurbs_to_step(k, uv)
+        })
     }
 
     // ---- point drop -----------------------------------------------------------------
@@ -806,9 +800,7 @@ impl SurfOfRevolution {
     /// # Errors
     ///
     /// Those of the bounding box, the domain conversions, the generator copies, the
-    /// generator intersection, the circles and evaluations;
-    /// [`SolidError::Unported`] without `approx_tol_3d` (the box's zone tolerance,
-    /// `SmSurface::GetFace`, unit `surface.surface_p1`).
+    /// generator intersection, the circles and evaluations.
     pub fn intersect_with_surf_of_revolution<R: Revolved + ?Sized>(
         &self,
         k: &Kernel,
@@ -1513,8 +1505,8 @@ mod tests {
             )
             .unwrap();
         assert!(more);
-        // no tolerance: the bounding box needs the face's zone tolerance
-        assert!(c
+        // no tolerance: from the bounding box (no face, so no zone tolerance)
+        let (more, x) = c
             .intersect_with_surf_of_revolution(
                 &k,
                 &c.base().natural_uv_domain(),
@@ -1522,8 +1514,9 @@ mod tests {
                 &d.base().natural_uv_domain(),
                 None,
             )
-            .unwrap_err()
-            .is_unported());
+            .unwrap();
+        assert!(!more);
+        assert_eq!(x.curve_types, vec![TsectCurveType::Crossing]);
     }
 
     #[test]
