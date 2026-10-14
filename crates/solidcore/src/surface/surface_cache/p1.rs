@@ -20,7 +20,7 @@
 //! | [`compute_bezier_approximation`]                  | `sm_ComputeBezierApproximation` (static)         |
 //! | [`cull_array`]                                    | `sm_CullArray` (static)                          |
 //! | [`BezierAux2d`], [`BezierAux2d::uv_domain`]       | `SmBezierAux2d`, `GetUVDomain`                   |
-//! | [`SurfaceCache::polar_box`]                       | `SmBezierAux2d::GetPolarBox`                     |
+//! | [`SurfaceCache::polar_box`], [`SurfaceCache::polar_box_unstored`] | `SmBezierAux2d::GetPolarBox`     |
 //! | [`SurfaceCache::build_polar_box`]                 | `SmBezierAux2d::BuildPolarBox`                   |
 //! | [`BezierPatch`], [`BezierPatch::pseudo_box`], [`BezierPatch::bezier`] | `SmBezierPatch`, `GetPseudoBox`, `GetBezierPtr` |
 //! | [`AltSrfCache`], [`AltSrfCacheType`], [`AltCacheKey`] | `SmAltSrfCache`, `SmAltSrfCacheType`, the user data arguments |
@@ -72,10 +72,9 @@
 //!   for cache trees.
 //! - **Construction.** `SmSurfaceCache::SmSurfaceCache` (unit `surface.surface_cache_p3`)
 //!   only initialises fields; [`SurfaceCache::new`] does the same so the cache can
-//!   exist before its tree is built. The byte-size bookkeeping (`m_lBezierSize`,
+//!   exist before its tree is built ([`crate::surface::surface_cache::p3`] builds it). The byte-size bookkeeping (`m_lBezierSize`,
 //!   `m_lTotalBezSize`, `sm_ComputeNurbSurfaceSize`) has no counterpart.
-//!   `SmSurfaceCache::GetTree` (same unit) is only reproduced as far as returning an
-//!   existing tree: when it would build one, [`SolidError::Unported`] is returned.
+//!   `SmSurfaceCache::GetTree` is [`SurfaceCache::get_tree`] (same unit).
 //! - **Virtual dispatch.** The surface calls go through the surface kind: the
 //!   [`BSplineSurface`] overrides (`CreateIsoParametricCurve`, `CalculateBoundingBox`)
 //!   are used; the curve-bounded surface runs the base class bodies
@@ -109,7 +108,8 @@
 //!   list; a continuity array longer than the knot list) or dereference a null
 //!   subdivision surface, the port returns [`SolidError::InvalidInput`].
 //! - **Not ported here.** `GetNthBoundingPlane`, `AddCurvesToCache`, the destructor
-//!   (`surface.surface_cache_p2`, [`crate::surface::surface_cache::p2`]), the tree construction (`surface.surface_cache_p3`),
+//!   (`surface.surface_cache_p2`, [`crate::surface::surface_cache::p2`]), the tree construction
+//!   (`surface.surface_cache_p3`, [`crate::surface::surface_cache::p3`]),
 //!   `GetBoundingPlane`, `GetBrep`, `GetMemoryUsed`, `AssertValid`, the `Dump` and
 //!   `Draw` functions (other units or debug output).
 
@@ -144,7 +144,7 @@ pub const TYPE: i64 = 15100;
 pub const TYPE_STRING: &str = "SmSurfaceCache_TYPE";
 
 /// `SmFace_TYPE` (`TOPO_BASE_TYPE + 2`).
-const FACE_TYPE: i64 = 16002;
+pub(super) const FACE_TYPE: i64 = 16002;
 
 /// `SM_PB_SAMPLECOUNT`: sample points stored per bounding plane.
 pub const PB_SAMPLE_COUNT: usize = 5;
@@ -199,7 +199,7 @@ pub(super) const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
-        SurfaceKind::CurveBounded(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
     }
 }
 
@@ -235,7 +235,7 @@ fn create_iso_parametric_curve(
     match surface.kind() {
         SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
         SurfaceKind::Plane(_) => Err(plane_iso_unported()),
-        SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -269,20 +269,23 @@ pub(super) fn calculate_bounding_box(
 ) -> Result<BoundingBoxes> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => b.calculate_bounding_box(domain, req),
-        SurfaceKind::Plane(_) => {
-            // UNPORTED(surface.plane_p1): SmBSplineSurface::CalculateBoundingBox on an
-            // SmPlane, inherited and dispatching to the plane (IsKindOf(SmPlane_TYPE),
-            // the SmPlane::EvaluateNormal override); the plane does not re-dispatch it yet
+        SurfaceKind::Plane(p) => crate::surface::surface::p1::plane_bounding_box(p, domain, req),
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            // SmSurface::CalculateBoundingBox (surface::surface::p1). Its polar box asks the
+            // surface's own cache for it, whose build asks this function again: upstream
+            // recurses without bound (UB-84), so the request is refused.
+            if req.polar {
+                return Err(SolidError::invalid_input(
+                    "surface::surface_cache::p1::calculate_bounding_box",
+                    crate::surface::surface::p1::POLAR_RECURSION,
+                ));
+            }
+            // The other boxes come from the surface's own cache, whose tree build needs
+            // the continuities.
+            // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
             Err(SolidError::unported(
-                "SmBSplineSurface::CalculateBoundingBox",
-                "surface.plane_p1",
-            ))
-        }
-        SurfaceKind::CurveBounded(_) => {
-            // UNPORTED(surface.surface_p1): SmSurface::CalculateBoundingBox
-            Err(SolidError::unported(
-                "SmSurface::CalculateBoundingBox",
-                "surface.surface_p1",
+                "SmSurface::CalculateContinuities",
+                "surface.surface_p6",
             ))
         }
     }
@@ -293,7 +296,7 @@ pub(super) fn calculate_bounding_box(
 fn is_singularity(surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
         }
     }
@@ -1600,13 +1603,18 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::GetFace` (`surface.surface_p1`).
+    /// Those of [`Surface::face`]; [`SolidError::Unported`] for a surface with a face:
+    /// faces have no handle in the caller's object space until the topology units
+    /// (`SmFace`, `topology.face_p2`) are ported.
     pub fn face(&self) -> Result<Option<O>> {
-        // UNPORTED(surface.surface_p1): SmSurface::GetFace
-        Err(SolidError::unported(
-            "SmSurface::GetFace",
-            "surface.surface_p1",
-        ))
+        match self.surface.face()? {
+            None => Ok(None),
+            // UNPORTED(topology.face_p2): SmFace handle of a surface's face
+            Some(_) => Err(SolidError::unported(
+                "SmFace handle of a surface's face",
+                "topology.face_p2",
+            )),
+        }
     }
 
     /// Whether `uv_point` passes the trim boundary test (`PointTest`): always with
@@ -1905,6 +1913,74 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         Ok(())
     }
 
+    /// The polar box [`Self::polar_box`] returns for `node`, for callers that only
+    /// borrow the cache: a missing box is built as [`Self::build_polar_box`] builds it
+    /// (from the nearest ancestor with a box, or the root, down to `node`, each with
+    /// its parent's box as guess) without storing the chain; the values are the
+    /// same.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` for a node without surface data; [`SolidError::Unported`] from
+    /// the build (its other failures leave the stored box, as [`Self::polar_box`]).
+    pub fn polar_box_unstored(&self, node: NodeId) -> Result<PolarBox> {
+        if self.aux(node)?.polar_box.state() == PolarBoxState::Uninitialized {
+            match self.build_polar_box_unstored(node) {
+                Err(e) if e.is_unported() => return Err(e),
+                Err(_) => {}
+                Ok(b) => return Ok(b),
+            }
+        }
+        Ok(self.aux(node)?.polar_box)
+    }
+
+    /// The box [`Self::build_polar_box`] would store at `node`.
+    fn build_polar_box_unstored(&self, node: NodeId) -> Result<PolarBox> {
+        // collect chain of nodes up the tree, as build_polar_box
+        let mut chain = vec![node];
+        let mut found_polar = false;
+        let mut cur = node;
+        let limit = self.tree_ref(OP_POLAR)?.nodes().len();
+        loop {
+            if chain.len() > limit + 1 {
+                return Err(invalid(OP_POLAR, "tree node links are cyclic"));
+            }
+            let parent = self.tree_ref(OP_POLAR)?.node(cur)?.parent;
+            let Some(p) = parent else {
+                break; // found the root
+            };
+            chain.push(p);
+            if self.aux(p)?.polar_box.state() != PolarBoxState::Uninitialized {
+                found_polar = true;
+                break;
+            }
+            cur = p;
+        }
+
+        let last = chain
+            .pop()
+            .ok_or_else(|| invalid(OP_POLAR, "empty node chain"))?;
+        let mut last_polar = if found_polar {
+            self.aux(last)?.polar_box
+        } else {
+            // the root (can't have a box, else we would have stopped when we saw it)
+            match self.compute_polar_box(last, None)? {
+                Some(b) => b,
+                None => self.aux(last)?.polar_box,
+            }
+        };
+
+        // build boxes toward the start of the array (our starting node)
+        while let Some(n) = chain.pop() {
+            let guess = (last_polar.state() != PolarBoxState::Unbounded).then_some(last_polar);
+            last_polar = match self.compute_polar_box(n, guess.as_ref())? {
+                Some(b) => b,
+                None => self.aux(n)?.polar_box,
+            };
+        }
+        Ok(last_polar)
+    }
+
     /// `mBA_pSurface->CalculateBoundingBox(m_sUVDomain, NULL, NULL, &m_sPolarBox,
     /// NULL, guess)`; `None` when the (ignored) status is a failure.
     fn compute_polar_box(
@@ -2124,26 +2200,6 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         Ok(out)
     }
 
-    /// `SmSurfaceCache::GetTree` as far as it returns an existing tree.
-    fn existing_tree(&self) -> Result<()> {
-        let face_owned = self
-            .surface
-            .owner()
-            .is_some_and(|o| o.type_code == FACE_TYPE);
-        if self.tree.is_none()
-            || (!self.have_t_surface_cache
-                && face_owned
-                && self.face_containment_done != FaceContainment::UnderConstruction)
-        {
-            // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree (BuildTree)
-            return Err(SolidError::unported(
-                "SmSurfaceCache::GetTree",
-                "surface.surface_cache_p3",
-            ));
-        }
-        Ok(())
-    }
-
     /// Classifies every unclassified leaf inside or outside the face
     /// (`MarkFaceContainment`): each connected region of unknown leaves takes the
     /// class (and face) of a classified neighbour, else that of `PointClassify` at
@@ -2154,9 +2210,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// `SM_ERR` from the base class `PointClassify` (a region without classified
     /// neighbour); `InvalidInput` for malformed trees; [`SolidError::Unported`] from
-    /// `GetTree` (building a tree) and `SmTol::GetZoneTol3d` of a face.
+    /// `GetTree` (a tree build needs `SmSurface::CalculateContinuities`) and
+    /// `SmTol::GetZoneTol3d` of a face.
     pub fn mark_face_containment(&mut self, k: &Kernel) -> Result<()> {
-        self.existing_tree()?;
+        self.get_tree(k)?;
         let top = self
             .tree_ref(OP_MARK)?
             .top_node()
@@ -2786,7 +2843,7 @@ mod tests {
         c.point_test_enabled = true;
         assert!(!c.point_test(Point2::new(5.0, 5.0)));
         assert!(c.point_classify(Point2::new(0.5, 0.5), 0.0).is_err());
-        assert!(c.face().unwrap_err().is_unported());
+        assert_eq!(c.face().unwrap(), None);
         assert!(c.is_kind_of(TYPE) && c.is_kind_of(object::OBJECT_TYPE) && !c.is_kind_of(15001));
         let k = Kernel::default();
         let d = c.uv_domain();

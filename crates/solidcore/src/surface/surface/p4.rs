@@ -85,8 +85,9 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
 
-use super::p2::{evaluate_geometric, surface_cache, LocalSurfaceType, SurfaceEval, TsectCurveType};
-use super::p7::{evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs};
+use super::p1::get_surface_cache;
+use super::p1::{evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs};
+use super::p2::{evaluate_geometric, LocalSurfaceType, SurfaceEval, TsectCurveType};
 use super::{Surface, SurfaceKind};
 
 const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersect::evaluate";
@@ -1546,7 +1547,7 @@ impl Surface {
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
                 if self.owner().is_some() {
-                    surface_cache(self)?;
+                    get_surface_cache(&Kernel::default(), self, None::<NoObject>)?;
                     // UNPORTED(query.face_p2): SmFace::PointClassify
                     return Err(SolidError::unported(
                         "SmFace::PointClassify",

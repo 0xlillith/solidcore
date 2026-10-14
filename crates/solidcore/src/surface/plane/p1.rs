@@ -118,8 +118,8 @@ use crate::nurbs::b_spline_surface::{
 };
 use crate::nurbs::knots::Side;
 use crate::nurbs::math::MAX_DERIVATIVE;
+use crate::surface::surface::p1::{self as surface_p1, SecondDerivatives};
 use crate::surface::surface::p2::{Surface, SurfaceKind, PLANE_TYPE};
-use crate::surface::surface::p7::{self, SecondDerivatives};
 
 const OP_EVAL: &str = "surface::plane::p1::Plane::evaluate";
 const OP_DROP: &str = "surface::plane::p1::Plane::drop_point_fast";
@@ -1999,12 +1999,12 @@ fn in_plane(norm0: Vec3, d2: &SecondDerivatives, ang_tol: f64) -> bool {
 
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`.
 fn evaluate_1st_derivatives(s: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    p7::evaluate_1st_derivatives(s, uv, Side::Left, Side::Left)
+    surface_p1::evaluate_1st_derivatives(s, uv, Side::Left, Side::Left)
 }
 
 /// `SmSurface::Evaluate2ndDerivatives(uv, TRUE, TRUE, ..)`.
 fn evaluate_2nd_derivatives(s: &Surface, uv: Point2) -> Result<SecondDerivatives> {
-    p7::evaluate_2nd_derivatives(s, uv, Side::Left, Side::Left)
+    surface_p1::evaluate_2nd_derivatives(s, uv, Side::Left, Side::Left)
 }
 
 /// The `SmBSplineCurve` part of a curve of a B-spline kind (upstream's slicing copy
@@ -2224,10 +2224,12 @@ mod tests {
         let c = p.coincidence_check(&k, &q, 1e-6, true).unwrap();
         assert!(!c.are_coincident);
         let b = Surface::from(p.base_with_nurb().unwrap().into_owned());
-        assert!(p
-            .coincidence_check(&k, &b, 1e-6, true)
-            .unwrap_err()
-            .is_unported());
+        // (a B-spline other surface runs SmSurface::IsPlanar, surface.surface_p7)
+        assert!(
+            !p.coincidence_check(&k, &b, 1e-6, true)
+                .unwrap()
+                .are_coincident
+        );
     }
 
     #[test]
