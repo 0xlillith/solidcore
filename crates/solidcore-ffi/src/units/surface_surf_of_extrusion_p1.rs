@@ -464,7 +464,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             finite(b, "line")?;
             let [ax, ay, az] = *a;
             let [bx, by, bz] = *b;
-            if len([bx - ax, by - ay, bz - az]) < 1e-6 {
+            if len([bx - ax, by - ay, bz - az]) <= 0.0 {
                 return Err(bad("line: degenerate"));
             }
             o.push(1.0);
@@ -476,7 +476,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             axes(*x, *y, "circle")?;
             let [d0, d1] = *d;
             angular(d0, d1, "circle")?;
-            if !(r.is_finite() && *r > 1e-6) {
+            if !(r.is_finite() && *r > 0.0) {
                 return Err(bad("circle: radius"));
             }
             o.push(2.0);
@@ -490,7 +490,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             axes(*x, *y, "ellipse")?;
             let [d0, d1] = *d;
             angular(d0, d1, "ellipse")?;
-            if !(rx.is_finite() && *rx > 1e-6 && ry.is_finite() && *ry > 1e-6) {
+            if !(rx.is_finite() && *rx > 0.0 && ry.is_finite() && *ry > 0.0) {
                 return Err(bad("ellipse: radii"));
             }
             o.push(3.0);

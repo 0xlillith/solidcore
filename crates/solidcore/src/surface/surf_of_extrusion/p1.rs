@@ -52,7 +52,10 @@
 //!   generator whose `MakeNurb` (run by `AdjustSTEPInterval` when its interval
 //!   changes) reparameterises its NURB to the owner's
 //!   [`SurfOfExtrusion::gen_dir_param_extent`], is done here by the surface
-//!   (see `adjust_gen_step_interval`). An ellipse generator's owner step is
+//!   (see `adjust_generator_interval`), also where `STEPInversion`'s
+//!   `GlobalPointSolveSTEP` of a hyperbola or parabola generator first adjusts it to
+//!   the solve interval (upstream on the owned generator itself, which `STEPInversion`
+//!   leaves adjusted; here on a copy). An ellipse generator's owner step is
 //!   overwritten by `AdjustSTEPInterval`'s own reparameterisation upstream, so it is
 //!   not repeated (the knots then agree within rounding, not bit for bit).
 //! - **Lazy NURB.** Upstream's `const` methods make a missing NURB through
@@ -604,61 +607,21 @@ impl SurfOfExtrusion {
     /// no NURB, where upstream's owner call builds the surface from the line itself and
     /// reparameterises it to its own interval).
     fn adjust_gen_step_interval(&mut self, k: &Kernel, ivl: &Extent1d) -> Result<()> {
-        let owner_ivl = self
-            .base
-            .gw_nurb()
-            .is_some()
-            .then(|| self.gen_dir_param_extent().0);
+        let owner_ivl = self.owner_ivl();
         let gen = self
             .gen_curve
             .as_mut()
             .ok_or(SolidError::null_pointer(OP_GEN))?;
-        match gen.kind_mut() {
-            CurveKind::BSpline(b) => b.adjust_step_interval(k, ivl),
-            CurveKind::Ellipse(e) => e.adjust_step_interval(k, ivl, None),
-            CurveKind::Hyperbola(h) => {
-                let anal = h.step_interval();
-                let no_work =
-                    ivl.is_contained_by(&anal, EFF_ZERO) && anal.is_contained_by(ivl, EFF_ZERO);
-                h.adjust_step_interval(ivl, None)?;
-                if !no_work {
-                    if let Some(nurb_ivl) = owner_ivl {
-                        // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
-                        // (status ignored)
-                        ignore_status(h.base.edit_parameterization(&nurb_ivl))?;
-                    }
-                }
-                Ok(())
-            }
-            CurveKind::Parabola(p) => {
-                let anal = p.step_interval();
-                let no_work = ivl.is_contained_by(&anal, 0.0) && anal.is_contained_by(ivl, 0.0);
-                p.adjust_step_interval(ivl, None)?;
-                if !no_work {
-                    if let Some(nurb_ivl) = owner_ivl {
-                        // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
-                        // (status ignored)
-                        ignore_status(p.base_mut().edit_parameterization(&nurb_ivl))?;
-                    }
-                }
-                Ok(())
-            }
-            CurveKind::Line(l) => {
-                let anal = l.step_interval();
-                let no_work =
-                    ivl.is_contained_by(&anal, EFF_ZERO) && anal.is_contained_by(ivl, EFF_ZERO);
-                let rebuilds = !no_work && l.base().gw_nurb().is_some();
-                l.adjust_step_interval(ivl)?;
-                if rebuilds {
-                    if let Some(nurb_ivl) = owner_ivl {
-                        // EditParameterization(sNURBIvl, FALSE) (status ignored)
-                        ignore_status(l.edit_parameterization_owned(None, &nurb_ivl))?;
-                    }
-                }
-                Ok(())
-            }
-            _ => Err(not_b_spline()),
-        }
+        adjust_generator_interval(k, gen, ivl, owner_ivl)
+    }
+
+    /// The interval an owned generator's `MakeNurb` reparameterises its NURB to
+    /// ([`Self::gen_dir_param_extent`]); `None` while the surface has no NURB.
+    fn owner_ivl(&self) -> Option<Extent1d> {
+        self.base
+            .gw_nurb()
+            .is_some()
+            .then(|| self.gen_dir_param_extent().0)
     }
 
     // ---- access ---------------------------------------------------------------------
@@ -1222,6 +1185,14 @@ impl SurfOfExtrusion {
             ivl = gen_max_analytic_domain(&gen)?;
             gen_base_mut(&mut gen)?.set_out_of_bounds_enabled(true);
         }
+
+        // SmHyperbola / SmParabola::GlobalPointSolveSTEP first adjusts the (owned)
+        // generator to the interval; the MakeNurb that runs then reparameterises the
+        // rebuilt NURB to this surface's generator interval (the solve's own adjustment
+        // below is then a no-op).
+        if matches!(gen.kind(), CurveKind::Hyperbola(_) | CurveKind::Parabola(_)) {
+            adjust_generator_interval(k, &mut gen, &ivl, self.owner_ivl())?;
+        }
         let (this, analytic) = CurveHandle::gen_pair(&gen);
         let solutions = gen.global_point_solve_step::<CurveHandle>(
             k,
@@ -1587,6 +1558,64 @@ impl SurfOfExtrusion {
         self.curve_point = rotate_n_move.transform_point(self.curve_point);
         self.curve_vec = rotate_n_move.transform_vector(self.curve_vec);
         Ok(())
+    }
+}
+
+/// `AdjustSTEPInterval` of the generator `gen` owned by a surface of extrusion whose
+/// generator-direction NURB interval is `owner_ivl` (`None` while it has no NURB): the
+/// `SmLine`, `SmHyperbola` and `SmParabola` `MakeNurb` run by the adjustment then
+/// reparameterise the rebuilt NURB to that interval (status ignored).
+fn adjust_generator_interval(
+    k: &Kernel,
+    gen: &mut Curve,
+    ivl: &Extent1d,
+    owner_ivl: Option<Extent1d>,
+) -> Result<()> {
+    match gen.kind_mut() {
+        CurveKind::BSpline(b) => b.adjust_step_interval(k, ivl),
+        CurveKind::Ellipse(e) => e.adjust_step_interval(k, ivl, None),
+        CurveKind::Hyperbola(h) => {
+            let anal = h.step_interval();
+            let no_work =
+                ivl.is_contained_by(&anal, EFF_ZERO) && anal.is_contained_by(ivl, EFF_ZERO);
+            h.adjust_step_interval(ivl, None)?;
+            if !no_work {
+                if let Some(nurb_ivl) = owner_ivl {
+                    // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
+                    // (status ignored)
+                    ignore_status(h.base.edit_parameterization(&nurb_ivl))?;
+                }
+            }
+            Ok(())
+        }
+        CurveKind::Parabola(p) => {
+            let anal = p.step_interval();
+            let no_work = ivl.is_contained_by(&anal, 0.0) && anal.is_contained_by(ivl, 0.0);
+            p.adjust_step_interval(ivl, None)?;
+            if !no_work {
+                if let Some(nurb_ivl) = owner_ivl {
+                    // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
+                    // (status ignored)
+                    ignore_status(p.base_mut().edit_parameterization(&nurb_ivl))?;
+                }
+            }
+            Ok(())
+        }
+        CurveKind::Line(l) => {
+            let anal = l.step_interval();
+            let no_work =
+                ivl.is_contained_by(&anal, EFF_ZERO) && anal.is_contained_by(ivl, EFF_ZERO);
+            let rebuilds = !no_work && l.base().gw_nurb().is_some();
+            l.adjust_step_interval(ivl)?;
+            if rebuilds {
+                if let Some(nurb_ivl) = owner_ivl {
+                    // EditParameterization(sNURBIvl, FALSE) (status ignored)
+                    ignore_status(l.edit_parameterization_owned(None, &nurb_ivl))?;
+                }
+            }
+            Ok(())
+        }
+        _ => Err(not_b_spline()),
     }
 }
 

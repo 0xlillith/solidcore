@@ -2897,5 +2897,17 @@ PARTIAL: 973 difftest cases (173 fixture, 800 generated), 880 bit-identical, 93 
   The shim always calls `MakeNurb`, so this is not compared.
 - **Not yet compared.** `sm_IntersectGenerators` (all deferred on `curve.curve_p9`) is
   checked only by reading; it needs a real difftest once that unit lands. The FFI's guards
-  on circle / ellipse radii `<= 1e-6` and on `v0 == v1` constructor domains may hide inputs
-  the C++ handles (a NaN fraction, not UB); not yet relaxed.
+  on `v0 == v1` constructor domains hides inputs the C++ handles (both sides then fail the
+  build; not relaxed).
+- **Second review (PR #28).** `SmHyperbola` / `SmParabola::GlobalPointSolveSTEP` start with
+  `AdjustSTEPInterval(crInterval)`; with out-of-bounds evaluation on, `STEPInversion` passes
+  the generator's maximum analytic domain, so the owned generator is rebuilt and its
+  `MakeNurb` owner step reparameterises the NURB to `GetGenDirParamExtent`. The port solved
+  on an unowned copy without that step: the solve converged elsewhere within tolerance
+  (STEP u rel. err up to 9.4e-3 near `u = 0`, 3.8e-10 in the generated cases). The copy now
+  takes the owner step before the solve (bit-identical after). Upstream leaves the owned
+  generator adjusted to the solve interval after this `const` call; the port does not.
+  The FFI's circle / ellipse radius and line length guards (`<= 1e-6`) hid valid tiny
+  generators (radii down to `5e-324` agree); they now reject only non-positive sizes.
+  Tiny hyperbolas and parabolas (`a`, `b`, `f` of `1e-7` and below) crash the C++ build
+  (segfault), so their `1e-6` guards stay. 1082 cases in `review2_extra_cases.json`.
