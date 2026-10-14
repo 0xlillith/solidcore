@@ -75,6 +75,15 @@ const OP_SHAPE_MATCH: &str = "surface::surface::p3::check_shape_match";
 const OP_LOCAL_SOLVE: &str = "surface::surface::p3::Surface::local_surface_solve";
 const OP_PVV: &str = "surface::surface::p3::evaluate_pvv";
 
+/// `sdMaxStepRatio` of `sm_CrossedSeamOrPole`: the largest step, as a fraction of the domain.
+const MAX_STEP_RATIO: f64 = 0.4;
+/// `lSmpCnt` of `GetSingularities`: the samples along a natural boundary.
+const SMP_CNT: usize = 5;
+/// `lNumSamples` of `CoverCoincidentSurface`: the grid is `6 x 6` points.
+const NUM_SAMPLES: usize = 6;
+/// `lNumBdrySamples` of `CoverCoincidentSurface`: the samples along each boundary.
+const NUM_BDRY_SAMPLES: usize = 15;
+
 /// `Side` of an upstream `bFromLeft` flag.
 const fn side(from_left: bool) -> Side {
     if from_left {
@@ -288,7 +297,6 @@ fn crossed_seam_or_pole(
 
     // Just look for a big jump.
     let step = curr_uv - prev_uv;
-    const MAX_STEP_RATIO: f64 = 0.4;
 
     // Check u and v separately.
     let dom_size_u = domain.u_interval().length();
@@ -454,7 +462,6 @@ impl Surface {
         let mut approx_singularities: u32 = SS_NONE;
 
         // locals
-        const SMP_CNT: usize = 5;
         let uv_domain = self.natural_uv_domain();
         let u_ivl = uv_domain.u_interval();
         let v_ivl = uv_domain.v_interval();
@@ -784,7 +791,6 @@ impl Surface {
         // Also, we have a value for the first drop-point guess.
         let mut guess_uv = corner_uvs[0][0];
 
-        const NUM_SAMPLES: usize = 6;
         let mut denom = (NUM_SAMPLES - 1) as f64;
         for ii in 0..NUM_SAMPLES {
             let du = ii as f64 / denom;
@@ -851,7 +857,6 @@ impl Surface {
         // Sampling: we already sampled the edges with NUM_SAMPLES (including the ends).
         // Use an odd number here, to make sure we get the midpoints, which will often be
         // the extrema.
-        const NUM_BDRY_SAMPLES: usize = 15;
         denom = (NUM_BDRY_SAMPLES - 1) as f64;
 
         let dom_u = other_dom.u_interval();
