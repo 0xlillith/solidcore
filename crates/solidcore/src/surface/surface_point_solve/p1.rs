@@ -154,7 +154,6 @@ impl<'s> SurfacePointSolver<'s> {
         let b_spline = match surface.kind() {
             SurfaceKind::BSpline(b) => Some(b),
             SurfaceKind::Plane(p) => Some(p.base()),
-            // an SmSurfOfRevolution is an SmBSplineSurface
             SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
         }
@@ -1907,14 +1906,28 @@ impl<'s> SurfPtSolveStepper<'s> {
                     Err(_) => return Ok(false),
                 }
             }
-            SurfaceKind::CurveBounded(_)
-            | SurfaceKind::SurfOfRevolution(_)
-            | SurfaceKind::Step(_) => {
-                // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
-                return Err(SolidError::unported(
-                    "SmSurface::CreateIsoParametricCurve",
-                    "surface.surface_p5",
-                ));
+            SurfaceKind::SurfOfRevolution(s) => {
+                match s.create_iso_parametric_curve(k, which_param, crease_param_val, None) {
+                    Ok(r) => r.curve,
+                    Err(e) if e.is_unported() => return Err(e),
+                    Err(_) => return Ok(false),
+                }
+            }
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+                // the SmSurface body (surface.surface_p5), with the loose tolerance as
+                // upstream's approximation tolerance
+                match b.surface.create_iso_parametric_curve(
+                    k,
+                    which_param,
+                    crease_param_val,
+                    b.loose_tol,
+                    None,
+                    false,
+                ) {
+                    Ok(r) => r.curve,
+                    Err(e) if e.is_unported() => return Err(e),
+                    Err(_) => return Ok(false),
+                }
             }
         };
 
