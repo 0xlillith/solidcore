@@ -1396,6 +1396,34 @@ mod tests {
     }
 
     #[test]
+    fn next_point_from_a_tangent_point_back_to_the_corner_is_good() {
+        // z = 0 and y = 0 meet along x; both planes' corner (0, 0) is the origin
+        let a = plane([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+        let b = plane([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]);
+        let mut si = intersector(&a, &b);
+        let mut prev = TsectPnt::new();
+        si.compute_point_values(
+            [Point2::new(0.5, 0.0), Point2::new(0.5, 0.0)],
+            &mut prev,
+            None,
+            None,
+        )
+        .expect("cpv");
+        prev.point_type = IntersectionPointType::TangentPoint;
+        prev.uv_curve_pv[0][1] = Vec2::new(-1.0, 0.0);
+        prev.uv_curve_pv[1][1] = Vec2::new(-1.0, 0.0);
+        prev.curve_pv[1] = Vec3::new(-1.0, 0.0, 0.0);
+        let p = si.alloc_point(prev);
+        let n = si.alloc_point(TsectPnt::new());
+        // a tangent point is not refined: the next point is the corner
+        let r = si.compute_next_point(p, 0.1, n).expect("next");
+        assert!(r.found_good_point, "{r:?}");
+        let next = si.point(n).expect("next");
+        assert!(next.crv_pos().length() < 1e-12);
+        assert!((next.curve_parameter - 0.5).abs() < 1e-12);
+    }
+
+    #[test]
     fn next_point_outside_the_domain_is_sm_err() {
         let (a, b) = two_planes();
         let mut si = intersector(&a, &b);
