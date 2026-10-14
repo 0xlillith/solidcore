@@ -873,28 +873,6 @@ mod tests {
         }
     }
 
-    #[test]
-    #[ignore = "debugging aid"]
-    fn p4_gps_plane_debug() {
-        let mut rng = Rng::new(11);
-        let mut n = 0;
-        for _ in 0..4000 {
-            let Some(v) = Runner.generate(&mut rng) else { continue };
-            let i: Inputs = serde_json::from_value(v).unwrap();
-            if let (SrfIn::Plane { .. }, OpIn::Gps { .. }) = (&i.surface, &i.op) {
-                n += 1;
-                match rust_run(&i) {
-                    Ok(o) => println!("GPS ok {o:?}"),
-                    Err(Fail::Deferred(o)) => println!("GPS deferred {o:?}"),
-                    Err(_) => println!("GPS harness"),
-                }
-                if n > 12 {
-                    break;
-                }
-            }
-        }
-    }
-
     /// Generated cases cover every op, most of the comparable ones not deferred.
     #[test]
     fn generated_cases_are_diverse() {
