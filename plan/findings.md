@@ -2675,6 +2675,49 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
 
+## topology.brep_data (`SmBrepData` readers, 2026-10-13)
+
+- **Records start zero-filled.** `SmTArray::SetSize` `calloc`s / `memset`s new elements
+  without running constructors, so every `Sm*Data` record read by `ReadFromDB` starts
+  with all fields `0` (index fields, `UNSURE` flags, extents `[0,0]`, points `(0,0,0)`),
+  not the header's member defaults. It matters where a field is not read (unknown shell,
+  loop or edge use types; the edge interval and face domain when `SetMinMax` refuses
+  `min > max`). The port's `*Data::zeroed()` reproduce it; `Default` is the C++
+  constructor. Confirmed by the `extreme_values_v30` and `unknown_types_*` fixtures.
+- **Tolerance build.** The reference build is `SM_USE_OLDTOL`: zone tolerances are read
+  only for `version <= 43`, the `SM_USE_NEWTOL` fields (`m_bIsSmallTopology`, model size
+  estimate) never.
+- **Statuses.** Every record read and `ReadIndexedAttributesFromDB` status is ignored
+  upstream. A failed ASCII attribute line skip (over 1000 characters, or a `0xFF` byte)
+  keeps the indices read but creates no placeholders; `geom.attribute` gained
+  `read_indexed_attributes_from_db_partial` for that (geom.attribute difftest unchanged).
+- **FFI guard.** `solidcore_ffi::units::topology_brep_data` simulates the whole read and
+  rejects any stream on which an extraction would fail or run short (upstream then reads
+  uninitialised locals, UB-75), counts of `SM_BIG_ULONG` or more, geometry attribute
+  indices past the table after a failed line skip (UB-76), closed composites without
+  segments (UB-77), and geometry kinds it does not model (B-spline curves/surfaces,
+  version <= 32 composites and offsets, type code 1). Upstream test files (`.smb` under
+  `TestFiles/pt_TestFiles`, 186 read with `ReadFromFile`, 170 also with `ReadFromDB`, and
+  the two part files' B-reps at version 32) are trusted past the first unknown kind.
+- **Record loops stop on a failed stream (security review, 2026-10-13).** The one-byte
+  per record bound (`checked_count`) assumed every record consumes input, but records
+  ignore their read status (UB-75): once the stream fails or hits end of data each
+  further record consumes nothing and is still appended zero-filled, so a count close
+  to the remaining byte count allocated `count * size_of::<record>()` (a 100 MB file
+  could cost tens of GB, per array). `ensure_more` now checks the stream before each
+  record, composite item and old composite segment and returns `InvalidInput`
+  ("stream ended before all declared records were read"). It runs before a record,
+  never after the last, so a stream whose final record ends exactly at end of data
+  (eofbit set, no trailing newline) reads fully. Only streams that are undefined
+  upstream (UB-75) change; the difftest results are unchanged.
+- **Deferred.** Offset surfaces (`surface.offset_surface`) and, in version 38 files,
+  planes, cones and extrusions (`surface.plane_p2`, `surface.cone_p1`,
+  `surface.surf_of_extrusion_p2`) are `Unported` on the Rust side.
+- **Old composite curves.** Composite curve records of version <= 32 pass `n + 1` gaps
+  (first start gap, then each end gap) to a constructor that reads `n`: the segment gaps
+  come out shifted (WR-54). Ported as is. Their evaluation returns `SM_ERR` on both
+  sides in the fixtures.
+
 ## intersect.surface_intersector_p1 (`SmSurfaceIntersector`, part 1, 2026-10-13)
 
 - **Point arena.** `SmTsectPnt`s live in an arena of the Rust `SurfaceIntersector`
@@ -2727,6 +2770,50 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `IsCurveIn*Domain` / `IsLineInParamDomain` volume entry points take a `&Kernel` for the
   curve bounding boxes the B-spline override computes.
 
+## intersect.point_class (`SmPointClassification`)
+
+- **Review fixes (PR #21).** The constructor takes an `SmZoneTol3d`, already converted, and
+  stores it as is (converting again turned `-SM_USE_DEFAULT` into the system tolerance).
+  `MergeIntoObject` runs `SmVertex::SetTolerance` in the reference build
+  (`SM_USE_OLDTOL`); it is an `UNPORTED(topology.vertex)` stub. Topology kinds without
+  their own `GetTolerance` (region, faceuse, loop, loopuse, vertexuse) use
+  `SmTopology::GetTolerance` (`SM_ZONE_TOL_3D`), and a faceuse `SmTopology::IsConnectedTo`
+  (`FALSE`); loop, loopuse and vertexuse do override `IsConnectedTo` and stay stubs. The
+  shim now builds real `SmEllipse` / `SmCircle` curves, `SetClassObject(class, NULL)` is
+  accepted for every class, and loads may read up to the last solution parameter.
+
+- **`SM_PC_POINT` stores an `SmPoint3d*` cast to `SmObject*`.** Upstream then calls virtual
+  `SmObject` members on it in `ComputePointParameters` (`SmTol::GetZoneTol3d(m_pObject)`),
+  `GetGap3d` with a surface and `SmTol::GetObjZoneTol3d` / `GetXSectTol3d` (the same call),
+  `IsConnectedTo` and `MergeIntoObject` (`GetType`): undefined behaviour. The port treats
+  a point like any other non-topology object (system zone tolerance, not connected, not
+  mergeable); the shim and the runner never send those ops for a point classification.
+- **`GetGap3d(pSurface)` returns `SM_ERR` as the gap value** (1001.0) when the object
+  point has no single drop point on the surface; the port does the same. Callers must not
+  read it as a distance.
+- **Release-build behaviour.** The reference build has no `SM_DEBUG_CODE`, so
+  `SetTParam`'s `bSnapToIvl` does nothing and `SetClassObject` accepts any object for any
+  class. `FindObjPoint3d`'s `SM_CAST_PTR` still checks the kind, so a mismatched class
+  and object gives `SM_ERR_NULL_POINTER` (ported as such). Scripts only pair a class with
+  an object of its kind.
+- **Stand-in objects.** The shim builds vertices, edges and faces without a B-rep and
+  `SmObject` stand-ins for volumes, regions, edgeuses and "other" objects. Upstream
+  dereferences a stand-in in `FindObjPoint3d` / `GetGap3d` (volume, edgeuse),
+  `ComputePointParameters`, `GetBrep` and `GetCurveObject` (edgeuse) and `MergeIntoObject`
+  (region, face, edge), so those ops are rejected at run time on both sides and dropped by
+  the generator. A stand-in region's zone tolerance is the system one upstream (it does
+  not answer `IsKindOf(SmTopology_TYPE)`); the port asks `topology.shell` (deferred).
+- **Deferred (356 of 2479 cases):** the surface point solve of `ComputePointParameters`
+  and `GetGap3d` (`surface.surface_p4` 256; `SmSurface::EvaluateNormal` in
+  `surface.surface_p7` follows it) and every topology member (`topology.vertex` 41,
+  `topology.edge` 27, `topology.face_p2` 21, `topology.face_p4` 5, `topology.shell` 3,
+  `topology.edgeuse_p1` 3). The volume branch (`SmVolume::GlobalPointSolve` /
+  `EvaluatePoint`, `surface.volume_p2`) is ported with stubs but not exercised: the shim
+  has no real volume to classify to.
+- **`SmSpaceBend` / `SmSpaceUnbend` type queries** are compared through the static
+  `GetClassType` / `GetClassTypeString` (an instance needs the unported bend units); the
+  `IsKindOf` chains are unit-tested only.
+
 ## surface.surface_cache_p3 (`SmSurfaceCache`, part 3: tree build and subdivision, 2026-10-14)
 
 - **Patch boxes of ownerless surfaces.** The construction Bezier patches get their
@@ -2763,7 +2850,7 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 ## surface.surface_p1 (`SmSurface` part 1 and `SmSTEPSurface`, 2026-10-14)
 
 - **Shim guard.** The base `GetDomainWithContinuity` dereferences a `NULL` surface cache
-  when none can be built (upstream-issues UB-75). The shim checks
+  when none can be built (upstream-issues UB-80). The shim checks
   `smsurf_GetSurfaceCache` first and reports `SM_ERR`, which is what the Rust port returns
   (the cache error). The check builds and stores the cache, so the call that follows uses
   the same cache.
