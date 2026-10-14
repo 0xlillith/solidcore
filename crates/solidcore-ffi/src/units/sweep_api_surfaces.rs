@@ -42,7 +42,7 @@
 //! `Revolution` and `SkinPrimitive`); `SmApiCreateCurve` with at least 4 points and
 //! positive arc / circle radii (a failing constructor is `SC_ERR_ARG`); at most 12
 //! skin profiles; a skin-from-faces degree of 1 to 3 with 1 to 4 positive-radius
-//! circles (no faces crash upstream, `plan/upstream-issues.md` UB-74).
+//! circles (no faces crash upstream, `plan/upstream-issues.md` UB-78).
 
 use crate::{call_with_buffer, FfiError};
 
