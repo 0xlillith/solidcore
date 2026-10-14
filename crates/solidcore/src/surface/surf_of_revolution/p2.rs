@@ -190,7 +190,7 @@ impl SurfOfRevolution {
         ignore_status(self.reparameterize(k, new_nurb_uv_domain))?;
 
         // rebuild the sweep polar converter
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 

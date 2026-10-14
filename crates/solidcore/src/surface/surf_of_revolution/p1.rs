@@ -579,7 +579,7 @@ impl SurfOfRevolution {
     }
 
     /// This class's `CreateIsoParametricCurve` without trim domain, as a [`SweepIsoFn`].
-    fn own_sweep_iso(
+    pub(crate) fn own_sweep_iso(
         &self,
         k: &Kernel,
         surf_param: SurfParamType,

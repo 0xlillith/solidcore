@@ -272,7 +272,7 @@ impl SurfOfRevolution {
         }
 
         // Rule 5: Set PolarConverter from Nurb midPoint rotation isoParamCurve
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 
@@ -333,7 +333,7 @@ impl SurfOfRevolution {
         }
 
         // update PolarConverter
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 
@@ -1186,7 +1186,7 @@ impl SurfOfRevolution {
         );
 
         // Set PolarConverter from Nurb midPoint rotation isoParamCurve (status ignored)
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 
