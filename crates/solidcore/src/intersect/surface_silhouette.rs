@@ -48,9 +48,8 @@
 //!   [`BoundaryCurve`] (with its natural interval) where upstream stores the curve
 //!   pointer.
 //! - **Unported callees** return [`SolidError::Unported`] (see the `UNPORTED`
-//!   markers): `SmSurface::EvaluateNormal` for surfaces other than planes and
-//!   `SmSurface::DropVectors` (`surface.surface_p7`), `SmSurface::EvaluateGeometric`
-//!   and `SmSurface::EvaluateNormalSection` (`surface.surface_p3`).
+//!   markers): `SmSurface::EvaluateGeometric` and `SmSurface::EvaluateNormalSection`
+//!   (`surface.surface_p3`).
 //! - The `SM_DEBUG_CODE` drawing blocks and `Dump` are not ported. Recursion:
 //!   `ComputePointValues` calls itself only without a previous point, which does not
 //!   recurse again (depth at most 1); the Brent loop of `LocalPointSolve` stops after
@@ -83,6 +82,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::curve_bounded_surface::NormalSection;
 use crate::surface::surface::p2::{drop_vectors, evaluate_geometric, GeometricProperties};
+use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::surface_cache::SurfaceCache;
 
@@ -92,6 +92,7 @@ pub const TYPE: i64 = 19_058;
 pub const TYPE_STRING: &str = "SmSurfaceSilhouette_TYPE";
 
 const OP_CPV: &str = "intersect::surface_silhouette::SurfaceSilhouette::compute_point_values";
+const OP_DROP: &str = "intersect::surface_silhouette::SurfaceSilhouette::local_point_solve";
 const OP_EFO: &str = "intersect::surface_silhouette::FindSilSingEfo::evaluate";
 
 /// `SmSurfaceSilhouette::IsKindOf`: the silhouette type or a base type
@@ -123,20 +124,9 @@ fn evaluate_upper_2(surface: &Surface, uv: Point2, eval: &mut [[Vec3; 3]; 3]) ->
     Ok(())
 }
 
-/// `SmSurface::EvaluateNormal(uv, TRUE, TRUE, ..)`: the plane override; other kinds
-/// run `SmSurface::EvaluateNormal`.
+/// `SmSurface::EvaluateNormal(uv, TRUE, TRUE, ..)` (virtual).
 fn evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
-    match surface.kind() {
-        SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::CurveBounded(s) => s.evaluate_normal(uv, Side::Left, Side::Left),
-        SurfaceKind::BSpline(_) => {
-            // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
-            Err(SolidError::unported(
-                "SmSurface::EvaluateNormal",
-                "surface.surface_p7",
-            ))
-        }
-    }
+    surface.evaluate_normal(uv, Side::Left, Side::Left)
 }
 
 /// `SmSurface::EvaluateGeometric(uv, TRUE, TRUE, ..)` (no plane override).
@@ -175,12 +165,11 @@ fn evaluate_normal_section(
 }
 
 /// `SmSurface::DropVectors(uv, TRUE, TRUE, 1, &vector, &uv_vector)` (no override).
-fn surface_drop_vector(_surface: &Surface, _uv: Point2, _vector: Vec3) -> Result<Vec2> {
-    // UNPORTED(surface.surface_p7): SmSurface::DropVectors
-    Err(SolidError::unported(
-        "SmSurface::DropVectors",
-        "surface.surface_p7",
-    ))
+fn surface_drop_vector(surface: &Surface, uv: Point2, vector: Vec3) -> Result<Vec2> {
+    drop_vectors_at(surface, uv, Side::Left, Side::Left, &[vector])?
+        .first()
+        .copied()
+        .ok_or(SolidError::sm_err(OP_DROP))
 }
 
 /// `SM_PI - a` for angles past a right angle: parallel and anti-parallel are alike.
