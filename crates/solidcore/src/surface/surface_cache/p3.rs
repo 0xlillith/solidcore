@@ -61,11 +61,11 @@
 
 use crate::error::{Result, SolidError};
 use crate::geom::extent2d::Extent2d;
+use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::tree::{
     AuxDataType, NodeClass, NodeData, NodeGeomType, NodeId, SplitDir, SurfaceAux, Tree, TreeNode,
     TreeOwner,
 };
-use crate::geom::tol::ZONE_TOL_3D;
 use crate::kernel::Kernel;
 use crate::math::Point2;
 use crate::nurbs::b_spline_surface::{BSplineSurface, BoundingBoxRequest, SurfParamType};
@@ -122,7 +122,10 @@ fn patch_boxes(
     bss: &BSplineSurface,
     pseudo_guess: Option<&crate::geom::pseudo_box::PseudoBox>,
     op: &'static str,
-) -> Result<(crate::geom::extent3d::Extent3d, crate::geom::pseudo_box::PseudoBox)> {
+) -> Result<(
+    crate::geom::extent3d::Extent3d,
+    crate::geom::pseudo_box::PseudoBox,
+)> {
     let req = BoundingBoxRequest {
         normal: true,
         pseudo: true,
@@ -145,7 +148,8 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     }
 
     fn tree_mut_or(&mut self, op: &'static str) -> Result<&mut Tree<O>> {
-        self.tree_mut().ok_or_else(|| invalid(op, "cache has no tree"))
+        self.tree_mut()
+            .ok_or_else(|| invalid(op, "cache has no tree"))
     }
 
     /// The `SmBezierAux2d` fields kept on a node (`m_eSplitDir`, `m_bIsMarked`,
@@ -423,7 +427,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 // split the subdivision surface in two
                 // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
                 let _ = handle;
-                return Err(SolidError::unported("SmSurface::SnapToKnots", "surface.surface_p1"));
+                return Err(SolidError::unported(
+                    "SmSurface::SnapToKnots",
+                    "surface.surface_p1",
+                ));
             }
             // either an SM_AD_BEZIER_SURFACE with a Bezier patch, or embedding an edge use
             self.aux_mut(node1)?.uv_domain =
@@ -450,7 +457,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 // split the subdivision surface in two
                 // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
                 let _ = handle;
-                return Err(SolidError::unported("SmSurface::SnapToKnots", "surface.surface_p1"));
+                return Err(SolidError::unported(
+                    "SmSurface::SnapToKnots",
+                    "surface.surface_p1",
+                ));
             }
             self.aux_mut(node1)?.uv_domain =
                 Extent2d::from_points(uv_min, Point2::new(uv_max.x, split_param));
@@ -472,8 +482,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 .ok_or_else(|| invalid(OP_NODE, "patch node without its Bezier"))?;
             let (bez1, bez2) = if bspline_of(self.surface()).is_some() {
                 // build child Beziers = split parent Bezier patch
-                split_srf(&parent_bezier, split_param, dir)
-                    .map_err(SolidError::nl_ser(OP_NODE))?
+                split_srf(&parent_bezier, split_param, dir).map_err(SolidError::nl_ser(OP_NODE))?
             } else {
                 // let child Bezier patches = Bezier approximations to the parent surface
                 // subdomain (coarse for all but the final leaf nodes)
@@ -568,7 +577,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// test, the block subdivision and [`SurfaceCache::subdivide_node`].
     pub fn subdivide_to_tolerances(&mut self, k: &Kernel, node: NodeId, depth: u32) -> Result<()> {
         if depth > MAX_SUBDIVISION_DEPTH {
-            return Err(invalid(OP_TOL, "subdivision deeper than MAX_SUBDIVISION_DEPTH"));
+            return Err(invalid(
+                OP_TOL,
+                "subdivision deeper than MAX_SUBDIVISION_DEPTH",
+            ));
         }
 
         // test to see if subdivision is required and pick a split direction
@@ -597,8 +609,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         let (c1, c2) = {
             let n = self.tree_or(OP_TOL)?.node(node)?;
             (
-                n.child1.ok_or_else(|| invalid(OP_TOL, "split node has no child 1"))?,
-                n.child2.ok_or_else(|| invalid(OP_TOL, "split node has no child 2"))?,
+                n.child1
+                    .ok_or_else(|| invalid(OP_TOL, "split node has no child 1"))?,
+                n.child2
+                    .ok_or_else(|| invalid(OP_TOL, "split node has no child 2"))?,
             )
         };
         self.subdivide_to_tolerances(k, c1, depth + 1)?;
@@ -614,9 +628,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
 
         // when Bezier patch approximations are being made for non B-spline surfaces
         let aux_type = self.tree_or(OP_TOL)?.node(node)?.aux_type;
-        if aux_type == AuxDataType::BezierSurface
-            && bspline_of(self.surface()).is_none()
-        {
+        if aux_type == AuxDataType::BezierSurface && bspline_of(self.surface()).is_none() {
             // parent pseudo box = union of the child pseudo boxes in the parent's basis
             let p1 = self.patch(c1)?.pseudo_box;
             let p2 = self.patch(c2)?.pseudo_box;
@@ -686,7 +698,12 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     }
 
     /// The rest of [`SurfaceCache::build_tree_base`] once the continuities are set.
-    fn build_tree_base_nodes(&mut self, k: &Kernel, u_count: usize, v_count: usize) -> Result<TreeBase> {
+    fn build_tree_base_nodes(
+        &mut self,
+        k: &Kernel,
+        u_count: usize,
+        v_count: usize,
+    ) -> Result<TreeBase> {
         let mut nodes = Vec::with_capacity(u_count.saturating_mul(v_count));
         let u_conts = self.u_continuities().to_vec();
         let v_conts = self.v_continuities().to_vec();
@@ -707,7 +724,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                     parent: None,
                     child1: None,
                     child2: None,
-                    bbox: crate::geom::extent3d::Extent3d::from_bounds(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                    bbox: crate::geom::extent3d::Extent3d::from_bounds(
+                        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    ),
                     aux_type: AuxDataType::BezierSurface,
                     data: NodeData::Surface(SurfaceAux {
                         split_dir: SplitDir::U,
@@ -850,7 +869,14 @@ fn calculate_continuities(_surface: &Surface, _dir: SurfParamType) -> Result<Vec
 fn zeroed_like(like: &NurbSurface) -> Result<NurbSurface> {
     let (p, q) = like.degrees();
     let (knu, knv) = like.knot_vectors()?;
-    crate::nurbs::nurbs_srf::allocate_nurb_surface(like.n(), like.m(), p, q, knu.last_index(), knv.last_index())
+    crate::nurbs::nurbs_srf::allocate_nurb_surface(
+        like.n(),
+        like.m(),
+        p,
+        q,
+        knu.last_index(),
+        knv.last_index(),
+    )
 }
 
 /// Ignores the status of a call, except [`SolidError::Unported`].
@@ -861,4 +887,3 @@ fn ignore<T>(r: Result<T>) -> Result<Option<T>> {
         Err(_) => Ok(None),
     }
 }
-
