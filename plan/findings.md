@@ -3165,3 +3165,27 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   plane's NURB (`GetGwNurbPointer` on an `SmBSplineSurface`); the port's plane makes its
   NURB lazily, so the test uses `Plane::base_for_query`. Found once the generator put
   planes on aux start nodes (the FFI had rejected them; upstream handles them).
+
+## surface.surface_p1 (`SmSurface` part 1 and `SmSTEPSurface`, 2026-10-14)
+
+- **Shim guard.** The base `GetDomainWithContinuity` dereferences a `NULL` surface cache
+  when none can be built (upstream-issues UB-83). The shim checks
+  `smsurf_GetSurfaceCache` first and reports `SM_ERR`, which is what the Rust port returns
+  (the cache error). The check builds and stores the cache, so the call that follows uses
+  the same cache.
+- **B-spline back-edges.** `SmBSplineSurface::IsDegenerateCurve` and
+  `IsDegeneratePoint` (sub-domains) pass the call to the `SmSurface` base body; the
+  B-spline methods run it on a copy wrapped as a `Surface`, which has no owner (the owner
+  is held by the `Surface` wrapper). `CalculateBoundingBox` grows its boxes by
+  `GetFace() ? face tolerance : SM_ZONE_TOL_3D`: a bare B-spline uses `SM_ZONE_TOL_3D`,
+  and `Surface::calculate_bounding_box` returns `Unported(topology.face_p2)` first for a
+  B-spline or plane with a face.
+- **trim_srf_cache face cases.** They used to defer through the `GetFace` stub of the
+  B-spline bounding box. With it wired, the Rust side ran without a face and returned
+  `SM_ERR_NULL_POINTER` where the C++ side had a brep face. The runner now defers them
+  on `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`), the step the Rust side lacks.
+- **Not wired**, still `UNPORTED(surface.surface_p1)`: `Grid::expand_hierarchy` (needs a
+  surface handle type for the grid elements), the surface cache's
+  `CalculateBoundingBox` of curve-bounded and STEP surfaces (called while that cache is
+  being built), and the `SmIsoCurve` / `SmCrvOnSurf` readers of non-B-spline surfaces
+  (those curves hold an `SmBSplineSurface`).
