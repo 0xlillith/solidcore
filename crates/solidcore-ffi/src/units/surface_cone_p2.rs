@@ -140,7 +140,7 @@ pub fn validate_analytic(
         || !distance.is_finite()
         || distance.abs() > 1e9
         || !tolerance.is_finite()
-        || !(0.0..=1e9).contains(&tolerance)
+        || tolerance.abs() > 1e9
         || (kind % 2 == 1 && input.first() != input.get(1))
         || (kind & 2 != 0 && mutation != 0)
         || (kind & 4 != 0

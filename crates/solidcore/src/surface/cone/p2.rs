@@ -603,6 +603,7 @@ impl Cone {
         distance: f64,
         tolerance: f64,
     ) -> Result<Option<Self>> {
+        let tolerance = crate::geom::tol::approx_tol3d(kernel, tolerance);
         // Native GetHeight precedes GetNaturalUVDomain's lazy MakeNurb.
         // Build a missing NURB on an owned working copy: this Rust API keeps
         // the input immutable while preserving the generated output geometry.

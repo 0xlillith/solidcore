@@ -571,7 +571,7 @@ SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mu
     } else if(op==2) {
         status=(double)input->RebuildSTEPFromNURBParameters();selected=input.get();
     } else if(op==3) {
-        if(!offset_factory_defined(context,*input,distance,tolerance)) return SC_ERR_ARG;
+        if(!offset_factory_defined(context,*input,distance,SmApproxTol3d(tolerance))) return SC_ERR_ARG;
         SmSurface* offset=NULL;
         status=(double)input->CreateOffsetSurface(context,distance,tolerance,offset);
         if(offset && !offset->IsKindOf(SmCone_TYPE)) {delete offset;return SC_ERR_ARG;}
