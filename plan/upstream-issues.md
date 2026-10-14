@@ -1465,6 +1465,24 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as written.
 
+#### WR-62. `SmSurfPtSolveStepper::DropToIsoCurve` passes the same variable as guess and output of `DropPoint`
+- **Location:** `SmSurfacePointSolve.cpp:4733` (`pIsoCurve->DropPoint(.., &dGuessParam, bGotThisDrop, dGuessParam, dDist)`), `SmCurve::DropPoint` at `SmCurve.cpp:3290`.
+- **What happens:** `DropPoint` zeroes its output parameter before it reads the guess, so the guess (the crease parameter clamped to the section) is always `0`.
+- **Trigger:** Any call (the method is not used upstream).
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** wrong result (a poorer guess for the local solve).
+- **Rust port:** Passes `Some(0.0)`, as upstream's code ends up doing.
+
+#### WR-63. The directed-maximise `SmSurfacePointSolver` ignores a failed `CalculateBoundingBox`
+- **Location:** `SmSurfacePointSolve.cpp:463` (`m_pSrf->CalculateBoundingBox(m_sDomain, &sBBox, NULL, NULL)`), constructor at `:406`.
+- **What happens:** The status is not checked. When the box cannot be built (for example a curve-bounded surface without boundary curves, whose surface cache fails on the base `SmSurface::GetKnots`), the box stays in its inside-out `Init()` state and the test point becomes a corner of it, near `±SM_BIG_DOUBLE`.
+- **Trigger:** `SM_SO_3D_SIGNED_DIRECTED_MAXIMIZE` on a surface whose cache cannot be built.
+- **How found:** generated difftest case (`surface.surface_point_solve_p1`, curve-bounded surfaces).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (the box stays `Extent3d::new()`); `SolidError::Unported` still propagates.
+
 ### Intersection
 
 #### WR-50. `AddStartPoint` "replaces" a bounded start point by assigning a local pointer
