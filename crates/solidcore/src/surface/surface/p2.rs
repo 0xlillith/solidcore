@@ -179,6 +179,7 @@ use crate::nurbs::knots::Side;
 use crate::surface::cone::Cone;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
 use crate::surface::plane::Plane;
+use crate::surface::surf_of_extrusion::SurfOfExtrusion;
 use crate::surface::surf_of_revolution::SurfOfRevolution;
 use crate::surface::surface::p1::StepSurface;
 use crate::surface::torus::Torus;
@@ -717,6 +718,7 @@ impl Surface {
     /// Those of the kind's override (the base default is `SM_ERR`).
     pub fn step_inversion(
         &self,
+        k: &Kernel,
         anal_domain: &Extent2d,
         point_on_surf: Point3,
         tol_3d: f64,
@@ -734,11 +736,9 @@ impl Surface {
                 "SmSurface::GlobalPointSolve",
                 "surface.surface_p4",
             )),
-            // UNPORTED(surface.surf_of_revolution_p2): SmSurfOfRevolution::STEPInversion
-            SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
-                "SmSurfOfRevolution::STEPInversion",
-                "surface.surf_of_revolution_p2",
-            )),
+            SurfaceKind::SurfOfRevolution(s) => {
+                s.step_inversion(k, anal_domain, point_on_surf, tol_3d, uv_guess)
+            }
         }
     }
 
@@ -834,16 +834,16 @@ impl Surface {
     /// # Errors
     ///
     /// Those of the kind's override (the base default is `SM_ERR`).
-    pub fn adjust_step_uv_domain(&mut self, new_step_uv_domain: &Extent2d) -> Result<()> {
+    pub fn adjust_step_uv_domain(
+        &mut self,
+        k: &Kernel,
+        new_step_uv_domain: &Extent2d,
+    ) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.adjust_step_uv_domain(new_step_uv_domain),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_adjust_step_uv_domain(),
             SurfaceKind::Plane(s) => s.adjust_step_uv_domain(new_step_uv_domain),
-            // UNPORTED(surface.surf_of_revolution_p2): SmSurfOfRevolution::AdjustSTEPUVDomain
-            SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
-                "SmSurfOfRevolution::AdjustSTEPUVDomain",
-                "surface.surf_of_revolution_p2",
-            )),
+            SurfaceKind::SurfOfRevolution(s) => s.adjust_step_uv_domain(k, new_step_uv_domain),
         }
     }
 
@@ -929,16 +929,12 @@ impl Surface {
     /// # Errors
     ///
     /// Those of the kind's override (the base default is `SM_ERR`).
-    pub fn trim_with_domain(&mut self, trim_domain: &mut Extent2d) -> Result<()> {
+    pub fn trim_with_domain(&mut self, k: &Kernel, trim_domain: &mut Extent2d) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.trim_with_domain(trim_domain),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
             SurfaceKind::Plane(s) => s.trim_with_domain(trim_domain),
-            // UNPORTED(surface.surf_of_revolution_p2): SmSurfOfRevolution::TrimWithDomain
-            SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
-                "SmSurfOfRevolution::TrimWithDomain",
-                "surface.surf_of_revolution_p2",
-            )),
+            SurfaceKind::SurfOfRevolution(s) => s.trim_with_domain(k, trim_domain),
         }
     }
 
@@ -1043,11 +1039,18 @@ impl Surface {
         match surface_type {
             B_SPLINE_SURFACE_TYPE => Ok(Self::from(BSplineSurface::read_from_db(db, version)?)),
             PLANE_TYPE => Ok(Self::from(Plane::read_from_db(db, version)?)),
-            // UNPORTED(surface.surf_of_extrusion_p2): SmSurfOfExtrusion::ReadFromDB
-            SURF_OF_EXTRUSION_TYPE => Err(SolidError::unported(
-                "SmSurfOfExtrusion::ReadFromDB",
-                "surface.surf_of_extrusion_p2",
-            )),
+            SURF_OF_EXTRUSION_TYPE => {
+                // SmSurfOfExtrusion::ReadFromDB reads the whole record.
+                let _surf = SurfOfExtrusion::read_from_db(k, db, version)?;
+                // DISPATCH GAP: the surface of extrusion is not a SurfaceKind yet (its
+                // SmSurface overrides need a Kernel the Surface dispatchers do not take;
+                // see plan/findings.md), so no Surface can hold it (no UNPORTED marker:
+                // the reader is ported; the error names the extrusion's unit).
+                Err(SolidError::unported(
+                    "SurfaceKind::SurfOfExtrusion",
+                    "surface.surf_of_extrusion_p2",
+                ))
+            }
             SURF_OF_REVOLUTION_TYPE => {
                 Ok(Self::from(SurfOfRevolution::read_from_db(k, db, version)?))
             }
@@ -1119,11 +1122,12 @@ impl Surface {
 
     /// The intersection curves of this surface over `uv_domain` with `other` over
     /// `other_uv_domain` (`GlobalSurfaceIntersect`): the `SmPlane` override (the
-    /// plane/plane special case first), else [`base_global_surface_intersect`].
+    /// plane/plane special case first) or the `SmSurfOfRevolution` override, else
+    /// [`base_global_surface_intersect`].
     ///
     /// # Errors
     ///
-    /// Those of the plane/plane intersection and of [`base_global_surface_intersect`].
+    /// Those of the overrides and of [`base_global_surface_intersect`].
     pub fn global_surface_intersect(
         &self,
         k: &Kernel,
@@ -1146,11 +1150,9 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
-            SurfaceKind::BSpline(_)
-            | SurfaceKind::CurveBounded(_)
-            | SurfaceKind::SurfOfRevolution(_)
-            | SurfaceKind::Step(_) => base_global_surface_intersect(
+            SurfaceKind::SurfOfRevolution(s) => s.global_surface_intersect(
                 self,
+                k,
                 uv_domain,
                 other,
                 other_uv_domain,
@@ -1158,6 +1160,17 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
+            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+                base_global_surface_intersect(
+                    self,
+                    uv_domain,
+                    other,
+                    other_uv_domain,
+                    use_surface_edges,
+                    approx_tol_3d,
+                    ang_tol_rad,
+                )
+            }
         }
     }
 
@@ -1489,7 +1502,9 @@ pub const fn base_number_control_points() -> usize {
 }
 
 /// `SmSurface::GlobalSurfaceIntersect`: the intersection curves of `this` over
-/// `uv_domain` with `other` over `other_uv_domain`, through `SmAdvSurfaceIntersector`.
+/// `uv_domain` with `other` over `other_uv_domain`, through `SmAdvSurfaceIntersector`
+/// (the general intersection of the kinds without an override, and the fall-back of the
+/// overrides).
 ///
 /// # Errors
 ///
