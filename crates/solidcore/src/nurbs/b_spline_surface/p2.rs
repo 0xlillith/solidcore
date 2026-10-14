@@ -58,20 +58,21 @@
 //! - **`SetCanonical`** passes no domain to `CreateCanonical` (as upstream), so the
 //!   [`CanonicalSurfaceData::uv_domain`] of its argument is ignored. As upstream, only
 //!   the NURB is replaced: form and knot type stay those of the surface.
-//! - **Back-edges.** `CopyAndAddAnalytics` needs `SmPlane::IsNurbSurfacePlane`
-//!   (`surface.plane_p2`, then `surface.cone_p2`, `surface.sphere`,
+//! - **Back-edges.** `CopyAndAddAnalytics` returns the [`Surface`] that
+//!   `SmPlane::IsNurbSurfacePlane` recognises, else needs the recognisers after it
+//!   (`surface.cone_p2`, `surface.sphere`,
 //!   `surface.surf_of_revolution_p2`, `surface.surf_of_extrusion_p2`);
-//!   `CreateTrimmedPlaneFromRuled` (unless the ruled
-//!   surface is a rectangle) nothing unported (`SmSurface::Evaluate1stDerivatives`,
-//!   `IsPlanar` and `IsClosed` are those of `surface::surface::p7`); `IsDegeneratePoint`
-//!   over another domain `SmSurface::IsDegeneratePoint` (`surface.surface_p1`). Those
-//!   calls return [`SolidError::Unported`].
+//!   `GetMaxAnalyticDomain` nothing unported (`SmSurface::Evaluate1stDerivatives` is
+//!   `surface::surface::p1`'s, `IsPlanar` and `IsClosed` are those of
+//!   `surface::surface::p7`). `IsDegeneratePoint` over another domain runs the
+//!   `SmSurface` base body on a copy of the B-spline wrapped as a `Surface` (without
+//!   owner).
 
 use crate::curve::curve::p2::CRV_ON_SURF_TYPE;
 use crate::curve::curve::Curve as SmCurve;
 use crate::curve::curve::CurveKind;
 use crate::curve::iso_curve::IsoCurve;
-use crate::error::{ignored, Result, SolidError};
+use crate::error::{ignore_status, ignored, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
@@ -91,6 +92,7 @@ use crate::nurbs::nurbs_srf::{is_nsrf_degenerate, split_srf};
 use crate::nurbs::srf_basic::Direction;
 use crate::nurbs::srf_tool::p1::{extract_iso_crv, extract_patch};
 use crate::surface::plane::Plane;
+use crate::surface::surface::Surface;
 
 use super::p1::{
     BSplineSurface, BSplineSurfaceForm, BoundingBoxRequest, CanonicalSurfaceData, SurfParamType,
@@ -200,13 +202,13 @@ fn transpose<T: Copy>(a: &mut [T], num_rows: usize) {
 
 // ---- unported callees ---------------------------------------------------------------
 
-/// `SmPlane::IsNurbSurfacePlane` (then the cone, sphere, revolution and extrusion
+/// `SmCone::IsNurbSurfaceCone` (then the sphere, revolution and extrusion
 /// recognisers).
-fn is_nurb_surface_plane(_srf: &BSplineSurface) -> Result<Option<BSplineSurface>> {
-    // UNPORTED(surface.plane_p2): SmPlane::IsNurbSurfacePlane
+fn is_nurb_surface_cone(_srf: &BSplineSurface) -> Result<Option<Surface>> {
+    // UNPORTED(surface.cone_p2): SmCone::IsNurbSurfaceCone
     Err(SolidError::Unported {
-        upstream: "SmPlane::IsNurbSurfacePlane",
-        unit: "surface.plane_p2",
+        upstream: "SmCone::IsNurbSurfaceCone",
+        unit: "surface.cone_p2",
     })
 }
 
@@ -247,7 +249,7 @@ fn sweep_circle(c: &SmCurve) -> Result<(CurveCanonical, Extent1d)> {
 
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`: point, `S_u`, `S_v`.
 fn evaluate_1st_derivatives(srf: &BSplineSurface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    crate::surface::surface::p7::evaluate_1st_derivatives(
+    crate::surface::surface::p1::evaluate_1st_derivatives(
         srf,
         uv,
         crate::nurbs::knots::Side::Left,
@@ -294,17 +296,15 @@ fn create_natural_uv_trim_curves(
     })
 }
 
-/// `SmSurface::IsDegeneratePoint(d3DTol, pUVDomain)`.
+/// `SmSurface::IsDegeneratePoint(d3DTol, pUVDomain)` (the base body, on a copy of the
+/// B-spline as an [`SmSurface`](crate::surface::surface::Surface)).
 fn surface_is_degenerate_point(
-    _srf: &BSplineSurface,
-    _tol_3d: f64,
-    _uv_domain: Option<&Extent2d>,
+    srf: &BSplineSurface,
+    tol_3d: f64,
+    uv_domain: Option<&Extent2d>,
 ) -> Result<bool> {
-    // UNPORTED(surface.surface_p1): SmSurface::IsDegeneratePoint
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsDegeneratePoint",
-        unit: "surface.surface_p1",
-    })
+    let s = Surface::from(srf.clone());
+    crate::surface::surface::p1::base_is_degenerate_point(&s, tol_3d, uv_domain)
 }
 
 /// `SmSurface::IsPlanar()`.
@@ -336,16 +336,20 @@ impl BSplineSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the recognisers (`SmPlane::IsNurbSurfacePlane`, ...)
-    /// are not ported.
-    pub fn copy_and_add_analytics(&self) -> Result<Self> {
+    /// Those of [`Plane::is_nurb_surface_plane`]; [`SolidError::Unported`]: the
+    /// recognisers after the plane (`SmCone::IsNurbSurfaceCone`, ...) are not ported.
+    pub fn copy_and_add_analytics(&self) -> Result<Surface> {
         // (a surface that is not SmBSplineSurface_TYPE is copied as is: never here)
-        // SmPlane (then SmCone, SmSphere, SmSurfOfRevolution, SmSurfOfExtrusion)
-        if let Some(analytic) = is_nurb_surface_plane(self)? {
+        // SmPlane
+        if let Some(plane) = Plane::is_nurb_surface_plane(self, 1.0)? {
+            return Ok(Surface::from(plane));
+        }
+        // SmCone (then SmSphere, SmSurfOfRevolution, SmSurfOfExtrusion)
+        if let Some(analytic) = is_nurb_surface_cone(self)? {
             return Ok(analytic);
         }
         // arrive here - make sure it's a copy
-        Ok(self.copy())
+        Ok(Surface::from(self.copy()))
     }
 
     /// The 3D iso-parametric curve at `iso_parameter` (`CreateIsoParametricCurve`):
@@ -589,8 +593,16 @@ impl BSplineSurface {
         let z_axis = z_axis.unitize_or_z();
 
         // Make the Sphere as a SurfOfRevolution
-        let sphere =
-            Self::create_surf_of_revolution(gen_curve, origin, z_axis, angle_span, false, None)?;
+        // (no sweep circle is given, so the kernel is not used)
+        let sphere = Self::create_surf_of_revolution(
+            &Kernel::default(),
+            gen_curve,
+            origin,
+            z_axis,
+            angle_span,
+            false,
+            None,
+        )?;
         Ok(SphereFromArcs {
             ccw_arcs,
             orients,
@@ -611,6 +623,7 @@ impl BSplineSurface {
     /// every control point is on the axis or a circle or the surface cannot be built;
     /// `InvalidInput` for a sweep curve that is not a circle.
     pub fn create_surf_of_revolution(
+        k: &Kernel,
         gen_curve: &BSplineCurve,
         origin: Point3,
         axis_dir: Vec3,
@@ -619,6 +632,7 @@ impl BSplineSurface {
         opt_sweep_curve: Option<&SmCurve>,
     ) -> Result<Self> {
         Self::create_surf_of_revolution_with_line_vector(
+            k,
             gen_curve,
             None,
             origin,
@@ -641,6 +655,7 @@ impl BSplineSurface {
     /// Those of [`Self::create_surf_of_revolution`] and of the circle's arc length
     /// reparametrisation.
     pub fn create_surf_of_revolution_with_line_vector(
+        k: &Kernel,
         gen_curve: &BSplineCurve,
         gen_line_vector: Option<Vec3>,
         origin: Point3,
@@ -773,22 +788,56 @@ impl BSplineSurface {
                 continue;
             }
 
-            // generate a sweep circle from scratch (a given sweep circle returned
-            // Unported above)
-            x_vec /= radius; // Unitize.
-            let y_vec = axis_dir.cross(x_vec).unitize()?;
-            let ref_frame = Axis2Placement::new(center, x_vec, y_vec);
-            let cir = BSplineCurve::create_circle_segment(
-                3,
-                &ref_frame,
-                radius,
-                0.0,
-                angle_span_deg,
-                NurbCircleParam::Quadratic,
-            )?;
+            // build sweep circle for this control point and add its control points
+            // to newSurface ControlPoint array
+            let cir_ctrl_pts = if let Some(sweep) = opt_sweep_curve {
+                // copy, scale, and move sweep circle to desired location: this lets
+                // the sweep curve specify the sweep parameterization of the surface
+                let CurveKind::Ellipse(sweep_ellipse) = sweep.kind() else {
+                    return Err(SolidError::invalid_input(
+                        OP_REV,
+                        "the sweep curve is not an SmCircle",
+                    ));
+                };
+                let mut cir = sweep_ellipse.clone();
 
-            // Add sweep circle controlPoint to newSurface ControlPoint array
-            let cir_ctrl_pts = cir.polygon(&cir.natural_interval())?;
+                // set up transformation from GivenSweepCurve to needed SweepCurve
+                let sweep_radius = sweep_ellipse.radius();
+                let sweep_frame = sweep_ellipse.position();
+                let origin_of_sweep = sweep_frame.origin();
+                let mut scale = radius / sweep_radius;
+
+                // Check for inverted circle.  [B505] This creates a transform with a
+                // negative scale, which creates an SmCircle with a negative radius. That
+                // works though, and the circle is transient (only its control points
+                // are used).
+                if x_vec.dot(sweep_frame.x_axis()) < 0.0 {
+                    scale *= -1.0;
+                }
+
+                // = -dScale * rOrigin + sCenter (translate to the current origin)
+                let move_vec = (-scale) * origin_of_sweep + center;
+                let mut move_frame = Axis2Placement::IDENTITY;
+                move_frame.translate(move_vec);
+                // (the status is ignored upstream: SmEllipse::Transform refuses a scale
+                // below SM_EFF_ZERO before changing anything, so the copy is used as it is)
+                ignore_status(cir.transform(k, &move_frame, Some(Vec3::new(scale, scale, scale))))?;
+                cir.base().polygon(&cir.base().natural_interval())?
+            } else {
+                // generate a sweep circle from scratch
+                x_vec /= radius; // Unitize.
+                let y_vec = axis_dir.cross(x_vec).unitize()?;
+                let ref_frame = Axis2Placement::new(center, x_vec, y_vec);
+                let cir = BSplineCurve::create_circle_segment(
+                    3,
+                    &ref_frame,
+                    radius,
+                    0.0,
+                    angle_span_deg,
+                    NurbCircleParam::Quadratic,
+                )?;
+                cir.polygon(&cir.natural_interval())?
+            };
             let take = cir_ctrl_pts.get(..num_cir_ctrl_pts).ok_or_else(|| {
                 SolidError::invalid_input(OP_REV, "sweep circle polygon too short")
             })?;
@@ -936,8 +985,8 @@ impl BSplineSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for a domain other than the natural one
-    /// (`SmSurface::IsDegeneratePoint`); `SM_ERR` without NURB.
+    /// Those of `SmSurface::IsDegeneratePoint` for a domain other than the natural
+    /// one; `SM_ERR` without NURB.
     pub fn is_degenerate_point(&self, tol_3d: f64, uv_domain: Option<&Extent2d>) -> Result<bool> {
         // low work - for nonNaturalUVInterval intervals pass the call
         //  along to the general SmSurface::IsDegenerate
@@ -1567,6 +1616,7 @@ mod tests {
         )
         .expect("line");
         let s = BSplineSurface::create_surf_of_revolution(
+            &Kernel::default(),
             &line,
             Point3::ZERO,
             Vec3::new(0.0, 0.0, 3.0),
@@ -1582,6 +1632,7 @@ mod tests {
             BSplineCurve::create_line_segment(3, Point3::ZERO, Point3::new(0.0, 0.0, 1.0))
                 .expect("axis line");
         assert!(BSplineSurface::create_surf_of_revolution(
+            &Kernel::default(),
             &on_axis,
             Point3::ZERO,
             Vec3::new(0.0, 0.0, 1.0),
@@ -1597,12 +1648,11 @@ mod tests {
         let s = patch(false);
         let unported = |r: Result<()>| matches!(r, Err(SolidError::Unported { .. }));
         assert!(unported(s.copy_and_add_analytics().map(|_| ())));
-        assert!(unported(s.max_analytic_domain().map(|_| ())));
+        // (wired through surface.surface_p1 / surface.surface_p7)
+        assert!(s.max_analytic_domain().is_ok());
         assert!(s.is_degenerate_point(1e-6, None).is_ok());
         let sub = Extent2d::from_bounds(0.0, 0.0, 0.5, 0.5);
-        assert!(unported(
-            s.is_degenerate_point(1e-6, Some(&sub)).map(|_| ())
-        ));
+        assert!(!s.is_degenerate_point(1e-6, Some(&sub)).unwrap());
         assert!(matches!(
             BSplineSurface::create_sphere_from_arcs(&[], 1e-6),
             Err(SolidError::Upstream { code: 1001, .. })

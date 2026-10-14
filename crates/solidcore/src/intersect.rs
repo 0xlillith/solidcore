@@ -5,8 +5,11 @@
 //! `SmPolyIntersector`, `SmSSIData` in `source/SMLib`, and
 //! `SM_API/SmApiIntersectors`.
 
+pub mod adv_surface_intersector;
+pub mod curve_class;
 pub mod point_class;
 pub mod ray_tracer;
 pub mod surface_intersector;
 pub mod surface_silhouette;
 pub mod surface_tracer;
+pub mod topology_solver;

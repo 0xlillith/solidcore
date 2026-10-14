@@ -40,8 +40,8 @@
 //!   [`crate::surface::surface::SurfaceKind`] with the units porting its remaining
 //!   virtual overrides (`_p2`, `_p3`). The NURB and polar-converter rebuilds reach
 //!   `CreateIsoParametricCurve` through a `SweepIsoFn` so that a derived class
-//!   (`SmTorus`, [`crate::surface::torus`]) supplies its override, as upstream's
-//!   virtual call does.
+//!   (`SmTorus`, [`crate::surface::torus`]; `SmCone`, [`crate::surface::cone`])
+//!   supplies its override, as upstream's virtual call does.
 //! - **Generator.** `m_pGenCurve` is a [`Curve`] of a kind derived from
 //!   `SmBSplineCurve` (B-spline, ellipse, line, hyperbola, parabola); the other kinds
 //!   are rejected (`InvalidInput`) where upstream casts. It is only `None` for the
@@ -70,18 +70,20 @@
 //!   upstream would read uninitialised (a failed generator or surface evaluation, a
 //!   failed iso curve in `RebuildPolarConverter`) is returned.
 //! - **Unported callees.** `ConvertUVFromNURBSToSTEP` without exact polar conversion
-//!   needs `SmSTEPSurface` (unit `surface.surface_p1`). `IntersectWithPlane` of a
-//!   planar generator takes the plane's pseudo box, which upstream expands by the zone
-//!   tolerance of the plane's face (`SmSurface::GetFace`, unit `surface.surface_p1`),
-//!   and then trims curves to the plane domain (`SmPlane::TrimCurveToPlaneDomain`, unit
-//!   `surface.plane_p2`); the body below the plane box is ported with the latter.
-//!   Those return [`SolidError::Unported`].
+//!   needs `SmSTEPSurface` (unit `surface.surface_p1`), which returns
+//!   [`SolidError::Unported`].
+//! - **`IntersectWithPlane`** (its body below the plane box ported by
+//!   `surface.plane_p2`) takes a bare [`Plane`], which has no owner: its pseudo box is
+//!   expanded by `SM_ZONE_TOL_3D` (upstream: the zone tolerance of the plane's face or
+//!   B-rep, `SmSurface::GetFace`, `NULL` for a plane without one). It takes a
+//!   [`Kernel`] for the curve operations.
 //! - **`sm_TestForIsoCircles`** returns its outputs in [`IsoCircles`]; the ones
 //!   upstream leaves unwritten (no non-degenerate iso curve, no second plane) are
 //!   `None`. With parallel iso planes `smgu_IntersectTwoPlanes` writes no line, so the
 //!   common-axis test keeps comparing the last line found, as upstream.
 
-use crate::curve::curve::{Curve, CurveKind};
+use crate::curve::curve::p7::PropertyAnalysisOptions;
+use crate::curve::curve::{Curve, CurveKind, CurvePropertyType};
 use crate::curve::ellipse::p2::set_up_polar_conversion;
 use crate::curve::ellipse::{Ellipse, EllipseOptions, PolarConversion};
 use crate::error::{ignore_status, ignored, Result, SolidError, SM_ERR};
@@ -92,21 +94,23 @@ use crate::geom::geom_utility::p1::{
     line_closest_point, line_point_distance, transform_point_to_start_plane, StartPlanePoint,
 };
 use crate::geom::geom_utility::p2::{intersect_two_planes, PlanesIntersection};
-use crate::geom::tol::is_zero;
+use crate::geom::pseudo_box::PseudoBox;
+use crate::geom::solution_array::{ObjectKind, SolutionObject, SolutionType};
+use crate::geom::tol::{are_same, is_zero, ZONE_TOL_3D};
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
 use crate::kernel::Kernel;
-use crate::math::{EFF_ZERO, EFF_ZERO_SQRT, PI};
-use crate::nurbs::b_spline_curve::BSplineCurve;
+use crate::math::{rad_to_deg, EFF_ZERO, EFF_ZERO_SQRT, PI};
+use crate::nurbs::b_spline_curve::{BSplineCurve, BoundingBoxRequest as CurveBoxRequest};
 use crate::nurbs::b_spline_surface::{
-    BSplineSurface, BSplineSurfaceForm, BoundingBoxRequest, IsoCurveOptions, SurfParamType,
+    BSplineSurface, BSplineSurfaceForm, IsoCurveOptions, SurfParamType,
 };
 use crate::surface::plane::Plane;
 use crate::surface::surface::p2::{
-    scale_step_angular_derivatives, SurfaceIntersection, SURF_OF_REVOLUTION_TYPE,
+    scale_step_angular_derivatives, SurfaceIntersection, TsectCurveType, SURF_OF_REVOLUTION_TYPE,
 };
 
-const OP_GEN: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::gen_curve";
+pub(crate) const OP_GEN: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::gen_curve";
 const OP_CANONICAL: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::create_canonical";
 const OP_REBUILD: &str =
     "surface::surf_of_revolution::p1::SurfOfRevolution::rebuild_polar_converter";
@@ -114,6 +118,22 @@ const OP_DIRECTRIX: &str =
     "surface::surf_of_revolution::p1::SurfOfRevolution::create_directrix_at_generator_param";
 const OP_EVAL_STEP: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::evaluate_step";
 const OP_ISO_CIRCLES: &str = "surface::surf_of_revolution::p1::test_for_iso_circles";
+const OP_XPLANE: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::intersect_with_plane";
+
+/// The generator's handle in `IntersectWithPlane`'s property analysis: its natural
+/// interval (what upstream reads through the curve pointer).
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct GenHandle(Extent1d);
+
+impl SolutionObject for GenHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.0)
+    }
+}
 
 /// `ANALYTIC_TOL_SCALE` (`SmConfig.h`).
 const ANALYTIC_TOL_SCALE: f64 = 100.0;
@@ -121,7 +141,7 @@ const ANALYTIC_TOL_SCALE: f64 = 100.0;
 // ---- the generator (a curve derived from SmBSplineCurve) -------------------------------
 
 /// The `SmBSplineCurve` base object of a generator.
-fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
+pub(crate) fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(b),
         CurveKind::Ellipse(e) => Ok(e.base()),
@@ -134,7 +154,7 @@ fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
 
 /// The `SmBSplineCurve` base object of a generator, mutably (`None` for a kind not
 /// derived from `SmBSplineCurve`).
-fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
+pub(crate) fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
     match c.kind_mut() {
         CurveKind::BSpline(b) => Some(b),
         CurveKind::Ellipse(e) => Some(&mut e.base),
@@ -145,12 +165,12 @@ fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
     }
 }
 
-const fn not_b_spline() -> SolidError {
+pub(crate) const fn not_b_spline() -> SolidError {
     SolidError::invalid_input(OP_GEN, "generator is not derived from SmBSplineCurve")
 }
 
 /// `GetSTEPInterval` of a generator.
-fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(b.step_interval()),
         CurveKind::Ellipse(e) => Ok(e.step_interval()),
@@ -163,8 +183,7 @@ fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
 
 /// `EvaluateSTEP(dT, lNumDerivs, TRUE, aDerivs)` of a generator (virtual: the
 /// analytic STEP evaluators, else the NURB evaluation).
-fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
-    let _ = k;
+fn gen_evaluate_step(c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
     match c.kind() {
         CurveKind::Ellipse(e) => e.evaluate_step(t, num_derivs),
         CurveKind::Line(l) => Ok(l.evaluate_step(t, num_derivs)),
@@ -176,7 +195,7 @@ fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result
 }
 
 /// `GetMaxAnalyticDomain` of a generator.
-fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => b.max_analytic_domain(),
         CurveKind::Ellipse(e) => Ok(e.max_analytic_domain()),
@@ -188,7 +207,7 @@ fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
 }
 
 /// `AdjustSTEPInterval` of a generator (without owner, see the module notes).
-fn gen_adjust_step_interval(k: &Kernel, c: &mut Curve, ivl: &Extent1d) -> Result<()> {
+pub(crate) fn gen_adjust_step_interval(k: &Kernel, c: &mut Curve, ivl: &Extent1d) -> Result<()> {
     match c.kind_mut() {
         CurveKind::BSpline(b) => b.adjust_step_interval(k, ivl),
         CurveKind::Ellipse(e) => e.adjust_step_interval(k, ivl, None),
@@ -235,7 +254,7 @@ fn gen_ensure_nurb(k: &Kernel, c: &mut Curve) -> Result<()> {
 /// The generator `c` with the out-of-bounds flag `enabled`
 /// (`SmTemporaryChangeValue<SmBoolean>(m_pGenCurve->GetOutOfBoundsEnabled(), ..)`):
 /// only the B-spline evaluation reads the flag, so only that kind is copied.
-fn gen_with_out_of_bounds(c: &Curve, enabled: bool) -> Option<Curve> {
+pub(crate) fn gen_with_out_of_bounds(c: &Curve, enabled: bool) -> Option<Curve> {
     match c.kind() {
         CurveKind::BSpline(b) if b.is_out_of_bounds_enabled() != enabled => {
             let mut b = b.clone();
@@ -443,7 +462,7 @@ impl SurfOfRevolution {
         let crv_ivl = gen_step_interval(&swept_curve)?;
 
         // SweptCurve start point
-        let mut pnt = first(&gen_evaluate_step(k, &swept_curve, crv_ivl.min(), 0)?)?;
+        let mut pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.min(), 0)?)?;
 
         // Vector from SweptCurve Start to RotAxis point
         let mut x_vec = pnt - axis_point;
@@ -451,12 +470,7 @@ impl SurfOfRevolution {
         // when start point is on rot axis
         if x_vec.length() < EFF_ZERO || x_vec.is_parallel_to(z_vec, 1.0) {
             // try SweptCurve nearMidPoint
-            pnt = first(&gen_evaluate_step(
-                k,
-                &swept_curve,
-                crv_ivl.evaluate(0.45),
-                0,
-            )?)?;
+            pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.evaluate(0.45), 0)?)?;
             x_vec = pnt - axis_point;
         }
 
@@ -560,6 +574,7 @@ impl SurfOfRevolution {
             _ => None,
         };
         let tmp = BSplineSurface::create_surf_of_revolution_with_line_vector(
+            k,
             gen_base(&gen_curve)?,
             line_vector,
             self.position.origin(),
@@ -578,7 +593,7 @@ impl SurfOfRevolution {
     }
 
     /// This class's `CreateIsoParametricCurve` without trim domain, as a [`SweepIsoFn`].
-    fn own_sweep_iso(
+    pub(crate) fn own_sweep_iso(
         &self,
         k: &Kernel,
         surf_param: SurfParamType,
@@ -655,7 +670,7 @@ impl SurfOfRevolution {
         &self.base
     }
 
-    fn gen(&self) -> Result<&Curve> {
+    pub(crate) fn gen(&self) -> Result<&Curve> {
         self.gen_curve
             .as_ref()
             .ok_or(SolidError::null_pointer(OP_GEN))
@@ -1092,6 +1107,45 @@ impl SurfOfRevolution {
     /// conversions; [`SolidError::Unported`] without exact polar conversion (the local
     /// solve on `SmSTEPSurface`, unit `surface.surface_p1`).
     pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
+        let mut written = Point2::new(0.0, 0.0);
+        self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written)
+    }
+
+    /// [`Self::convert_uv_from_nurbs_to_step`] for a caller that ignores its status:
+    /// the STEP parameters, or after a failure the value upstream had written to
+    /// `rSTEPUV` by then (it starts as the swapped input).
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] only.
+    pub(crate) fn convert_uv_from_nurbs_to_step_or_written(
+        &self,
+        k: &Kernel,
+        nurbs_uv: Point2,
+    ) -> Result<Point2> {
+        let mut written = Point2::new(0.0, 0.0);
+        match self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written) {
+            Ok(p) => Ok(p),
+            Err(e) if e.is_unported() => Err(e),
+            Err(_) => Ok(written),
+        }
+    }
+
+    /// The body of [`Self::convert_uv_from_nurbs_to_step`]; `written` follows
+    /// upstream's writes to the out-parameter `rSTEPUV`.
+    fn convert_uv_from_nurbs_to_step_into(
+        &self,
+        k: &Kernel,
+        nurbs_uv: Point2,
+        written: &mut Point2,
+    ) -> Result<Point2> {
+        // init output to something in case of failure
+        *written = if self.swap_uv {
+            Point2::new(nurbs_uv.y, nurbs_uv.x)
+        } else {
+            nurbs_uv
+        };
+
         // get approximate NURB to Step MAP using a linear approximation
         let nat_domain = self.base.natural_uv_domain();
 
@@ -1099,6 +1153,7 @@ impl SurfOfRevolution {
         let clamped_nurbs_uv = nat_domain.clamp_point(nurbs_uv);
         let mut step_uv =
             nat_domain.point_map_to_domain(clamped_nurbs_uv, &self.anal_uv_domain, self.swap_uv)?;
+        *written = step_uv;
 
         // swap the NURB point coordinates when needed
         let swapped = if self.swap_uv {
@@ -1118,16 +1173,20 @@ impl SurfOfRevolution {
                 .polar
                 .convert_to_polar_parameter(k, circle, swapped.x)?;
             step_uv.x = x;
+            written.x = x;
             exact_conversion = exact;
             step_uv.y = self.gen()?.convert_t_from_nurbs_to_step(k, swapped.y)?;
+            written.y = step_uv.y;
         }
 
         // when conversion was not exact - use solution as input to a local solve
         if !exact_conversion {
-            // UNPORTED(surface.surface_p1): SmSTEPSurface::SmSTEPSurface
+            // (an SmSTEPSurface of this surface, then a local point solve on it; the
+            // surface of revolution is not a Surface kind yet)
+            // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
             return Err(SolidError::unported(
-                "SmSTEPSurface::SmSTEPSurface",
-                "surface.surface_p1",
+                "SmSurface::LocalPointSolve",
+                "surface.surface_p5",
             ));
         }
         Ok(step_uv)
@@ -1144,6 +1203,13 @@ impl SurfOfRevolution {
     /// `SM_ERR` for orders above 3; `InvalidInput` for unequal orders (upstream asserts
     /// and then indexes as if they were equal); those of the generator evaluation.
     pub fn evaluate_step(&self, k: &Kernel, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
+        let _ = k;
+        self.evaluate_step_at(uv, hu, hv)
+    }
+
+    /// [`Self::evaluate_step`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch (`SmSurface::EvaluateSTEP`, which has no kernel).
+    pub(crate) fn evaluate_step_at(&self, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
         // check input
         if hu > 3 || hv > 3 {
             return Err(SolidError::sm_err(OP_EVAL_STEP));
@@ -1177,7 +1243,7 @@ impl SurfOfRevolution {
         let cos_u = (uv.x * PI / 180.0).cos();
         let sin_u = (uv.x * PI / 180.0).sin();
 
-        let pv_eval = gen_evaluate_step(k, gen, uv.y, min_highest)?;
+        let pv_eval = gen_evaluate_step(gen, uv.y, min_highest)?;
         let pv = |i: usize| pv_eval.get(i).copied().unwrap_or(Vec3::UNDEF);
 
         let p = pv(0) - r_o;
@@ -1290,55 +1356,216 @@ impl SurfOfRevolution {
         first(&self.evaluate_step(k, uv, 0, 0)?)
     }
 
+    /// [`Self::evaluate_step_point`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch.
+    pub(crate) fn evaluate_step_point_at(&self, uv: Point2) -> Result<Point3> {
+        first(&self.evaluate_step_at(uv, 0, 0)?)
+    }
+
     // ---- intersections and points -----------------------------------------------------
 
     /// The special cases of the intersection with `plane` (`IntersectWithPlane`):
-    /// whether the general intersector is needed, and the curves found. A non-planar
-    /// generator always needs the general intersector.
+    /// whether the general intersector is needed, and the curves found (no UV curves,
+    /// deviations `0`, degenerate curves typed [`TsectCurveType::Touching`]). A
+    /// non-planar generator, a plane cutting the axis at an angle or one parallel to the
+    /// axis but not through it, and a tangent plane at a flat generator point need the
+    /// general intersector. A plane containing the axis gets the generator rotated into
+    /// it on either side (inside the sweep); a plane normal to the axis gets the sweep
+    /// iso circles at its intersections with the generator (tangent ones typed
+    /// [`TsectCurveType::Tangent`]); both are trimmed to `other_uv_domain`
+    /// ([`Plane::trim_curve_to_plane_domain`]). The plane is taken as without owner (its
+    /// box is expanded by `SM_ZONE_TOL_3D`, see `surface::plane::p2`).
     ///
     /// # Errors
     ///
-    /// For a planar generator, [`SolidError::Unported`]: the plane's pseudo box
-    /// (`SmBSplineSurface::CalculateBoundingBox`, expanded by the zone tolerance of the
-    /// plane's face, `SmSurface::GetFace`, unit `surface.surface_p1`), and the rest of
-    /// the body behind it (`SmPlane::TrimCurveToPlaneDomain`, unit `surface.plane_p2`).
+    /// Those of the angle measures, the generator transform, property analysis and
+    /// evaluation and of the iso curves (upstream `SER`); `SM_ERR_NULL_POINTER` without
+    /// generator.
+    #[allow(clippy::too_many_lines)] // one upstream function
     pub fn intersect_with_plane(
         &self,
+        k: &Kernel,
         plane: &Plane,
         other_uv_domain: &Extent2d,
         approx_tol_3d: Option<f64>,
     ) -> Result<(bool, SurfaceIntersection)> {
-        let _ = other_uv_domain;
+        let mut out = SurfaceIntersection::default();
 
         // use general intersection for nonPlanar generators
         if !self.planar_generator {
+            return Ok((true, out));
+        }
+
+        // plane and RevolutionSurface locals
+        let plane_normal = plane.position().z_axis();
+        let plane_origin = plane.position().origin();
+        let axis = self.position.z_axis();
+        let ang_tol_rad = EFF_ZERO_SQRT;
+        let tol = approx_tol_3d.unwrap_or(EFF_ZERO_SQRT);
+
+        // the generator's out-of-bounds flag is the surface's during the call
+        // (SmTemporaryChangeValue)
+        let mut gen = self.gen()?.clone();
+        if let Some(b) = gen_base_mut(&mut gen) {
+            b.set_out_of_bounds_enabled(self.base.is_out_of_bounds_enabled());
+        }
+
+        // get plane bounding box increased by tolerance (status ignored)
+        let mut plane_pbox = ignored(plane.bounding_boxes(&plane.natural_uv_domain(), false))?
+            .map(|(_, p)| p)
+            .unwrap_or_default();
+        plane_pbox.expand_absolute(tol);
+
+        let mut types: Vec<TsectCurveType> = Vec::new();
+
+        // The curve pieces of `crv` inside the plane domain when its pseudo box meets
+        // the plane's (statuses ignored).
+        let trim = |crv: &Curve, plane_pbox: &PseudoBox| -> Result<Vec<Curve>> {
+            let req = CurveBoxRequest {
+                pseudo: true,
+                ..CurveBoxRequest::default()
+            };
+            let curve_pbox =
+                ignored(crv.calculate_bounding_box(k, &crv.natural_interval(), req, true))?
+                    .and_then(|b| b.pseudo)
+                    .unwrap_or_default();
+            if plane_pbox.are_disjoint(&curve_pbox, None) {
+                return Ok(Vec::new());
+            }
+            Ok(
+                ignored(plane.trim_curve_to_plane_domain(k, other_uv_domain, crv, tol))?
+                    .unwrap_or_default(),
+            )
+        };
+
+        // when RevolutionAxis is perpendicular to the plane normal
+        if axis.is_perpendicular_to(plane_normal, rad_to_deg(ang_tol_rad)) {
+            // when the plane does not contain the axis
+            let vec_between = self.position.origin() - plane_origin;
+            let dist_plane_to_center = vec_between.dot(plane_normal);
+            if dist_plane_to_center.abs() > tol {
+                return Ok((true, SurfaceIntersection::default()));
+            }
+
+            let start_ang_rad = self.start_angle_deg() * PI / 180.0;
+            let end_ang_rad = self.end_angle_deg() * PI / 180.0;
+
+            // the generator rotated into the plane on its positive, then negative side
+            let mut target_vec = axis.cross(plane_normal);
+            for side in 0..2 {
+                if side == 1 {
+                    target_vec *= -1.0;
+                }
+                let mut angle_rad = axis
+                    .ccw_angle_between(self.position.x_axis(), target_vec)
+                    .map_err(|_| SolidError::sm_err(OP_XPLANE))?;
+                if angle_rad < 0.0 {
+                    angle_rad += 2.0 * PI;
+                }
+
+                if angle_rad > start_ang_rad - ang_tol_rad && angle_rad < end_ang_rad + ang_tol_rad
+                {
+                    // the generator's SmBSplineCurve part, rotated about the axis
+                    let mut crv = gen_base(&gen)?.copy();
+                    let rot_ang_rad = angle_rad; // was dAngleRad-dStartAngRad [B143]
+                    let mut trans = Axis2Placement::IDENTITY;
+                    trans.translate(-self.position.origin());
+                    trans.rotate_about_axis(rot_ang_rad, axis);
+                    trans.translate(self.position.origin());
+                    crv.transform(&trans, None)?;
+
+                    if side == 1 {
+                        // (upstream expands the plane box a second time here)
+                        plane_pbox.expand_absolute(tol);
+                    }
+                    for c in trim(&Curve::from(crv), &plane_pbox)? {
+                        out.curves_3d.push(c);
+                        types.push(TsectCurveType::Crossing);
+                    }
+                }
+            }
+        }
+        // when RevolutionAxis is parallel to the plane normal
+        else if axis.is_parallel_to(plane_normal, rad_to_deg(ang_tol_rad)) {
+            let surf_param = if self.swap_uv {
+                SurfParamType::U
+            } else {
+                SurfParamType::V
+            };
+
+            // the generator's intersections with the plane
+            let d = -plane_origin.dot(plane_normal);
+            let gen_ivl = gen.natural_interval();
+            let normals = [plane_normal];
+            let sols = gen
+                .global_property_analysis(
+                    k,
+                    &gen_ivl,
+                    CurvePropertyType::PlaneIntersection,
+                    ZONE_TOL_3D,
+                    &PropertyAnalysisOptions {
+                        property_value: Some(d),
+                        opt_vectors: &normals,
+                        want_comb: false,
+                        handle: Some(GenHandle(gen_ivl)),
+                    },
+                )?
+                .solutions;
+
+            let is_closed = gen.is_closed(&gen_ivl, 0.0)?;
+
+            for sol in sols.as_slice() {
+                let iso_param = sol.start.param(0)?;
+                let mut is_tangent = false;
+                let pv = gen.evaluate(iso_param, 2, true, true)?;
+                let d1 = pv.get(1).copied().unwrap_or(Vec3::UNDEF);
+                let d2 = pv.get(2).copied().unwrap_or(Vec3::UNDEF);
+
+                if sol.solution_type == SolutionType::RangeOfValues
+                    || d1.is_perpendicular_to(plane_normal, rad_to_deg(ang_tol_rad))
+                {
+                    is_tangent = true;
+                    // a flat tangency: the general surf/surf solver is needed (upstream
+                    // empties only the 3D curves: the curve types found so far stay)
+                    if d2.length() < EFF_ZERO_SQRT {
+                        out.curves_3d.clear();
+                        out.curve_types = types;
+                        return Ok((true, out));
+                    }
+                }
+
+                if is_closed && are_same(iso_param, gen_ivl.max()) {
+                    continue;
+                }
+
+                let crv = self
+                    .create_iso_parametric_curve(k, surf_param, iso_param, None)?
+                    .curve;
+                for c in trim(&crv, &plane_pbox)? {
+                    out.curves_3d.push(c);
+                    types.push(if is_tangent {
+                        TsectCurveType::Tangent
+                    } else {
+                        TsectCurveType::Crossing
+                    });
+                }
+            }
+        }
+        // Plane cuts RevolutionSurface at an angle
+        else {
             return Ok((true, SurfaceIntersection::default()));
         }
 
-        // plane and RevolutionSurface locals (the plane position and the axes are read
-        // by the branches below the plane box)
-        let tol = approx_tol_3d.unwrap_or(EFF_ZERO_SQRT);
-
-        // get plane bounding box increased by tolerance (status ignored upstream; an
-        // unported callee still propagates)
-        let req = BoundingBoxRequest {
-            pseudo: true,
-            expand_by_zone_tol: true,
-            ..BoundingBoxRequest::default()
-        };
-        let plane_nurb = plane.base_with_nurb()?;
-        let boxes = ignored(plane_nurb.calculate_bounding_box(&plane.natural_uv_domain(), &req))?;
-        let mut plane_pbox = boxes.and_then(|b| b.pseudo).unwrap_or_default();
-        plane_pbox.expand_absolute(tol);
-
-        // UNPORTED(surface.plane_p2): SmPlane::TrimCurveToPlaneDomain. The rest of the
-        // body (the perpendicular / parallel axis cases, which trim the rotated generator
-        // or the swept iso curves to the plane domain) is ported with it; it is
-        // unreachable until the plane box above is (SmSurface::GetFace, surface.surface_p1).
-        Err(SolidError::unported(
-            "SmPlane::TrimCurveToPlaneDomain",
-            "surface.plane_p2",
-        ))
+        for (c, t) in out.curves_3d.iter().zip(types.iter_mut()) {
+            out.surface1_uv_curves.push(None);
+            out.surface2_uv_curves.push(None);
+            if c.is_degenerate(EFF_ZERO, None)? {
+                *t = TsectCurveType::Touching;
+            }
+            out.deviations.push(0.0);
+        }
+        out.curve_types = types;
+        Ok((false, out))
     }
 
     /// Rotates `point` about the axis onto the start (X/Z) half plane and returns the
@@ -1367,7 +1594,7 @@ impl SurfOfRevolution {
 }
 
 /// The first entry of an evaluation.
-fn first(v: &[Vec3]) -> Result<Vec3> {
+pub(crate) fn first(v: &[Vec3]) -> Result<Vec3> {
     v.first()
         .copied()
         .ok_or(SolidError::invalid_input(OP_EVAL_STEP, "empty evaluation"))
@@ -1707,14 +1934,24 @@ mod tests {
         // a non-planar generator needs the general intersector
         let plane = Plane::from_normal(Vec3::ZERO, Vec3::Z);
         let (more, x) = s
-            .intersect_with_plane(&plane, &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
+            .intersect_with_plane(
+                &k,
+                &plane,
+                &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0),
+                None,
+            )
             .unwrap();
         assert!(more && x.curves_3d.is_empty());
-        // a planar one needs the plane box (SmSurface::GetFace)
-        assert!(cone()
-            .intersect_with_plane(&plane, &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0), None)
-            .unwrap_err()
-            .is_unported());
+        // a planar one is intersected here (the plane has no owner)
+        let mut plane = plane;
+        plane.make_nurb().unwrap();
+        let r = cone().intersect_with_plane(
+            &k,
+            &plane,
+            &Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0),
+            None,
+        );
+        assert!(r.is_ok_and(|(_, x)| x.curves_3d.len() == x.curve_types.len()));
     }
 
     #[test]

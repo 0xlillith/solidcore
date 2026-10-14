@@ -374,7 +374,7 @@ fn check_bspline(c: &BSplineData) -> Result<(), FfiError> {
     check_knots(&c.knots, c.p, "curve")
 }
 
-fn check_surface(s: &SurfaceData) -> Result<(), FfiError> {
+pub(crate) fn check_surface(s: &SurfaceData) -> Result<(), FfiError> {
     let n = s
         .net
         .len()
@@ -448,7 +448,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
     Ok(())
 }
 
-fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
+pub(crate) fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
     match &s.build {
         Build::Canonical { point, axis } => {
             finite(point, "axis point")?;
@@ -539,8 +539,10 @@ fn push_op(o: &mut Vec<f64>, op: &Op) -> Result<(), FfiError> {
             finite(origin, "plane")?;
             axes(*x, *y, "plane")?;
             domain(*dom, "plane domain")?;
+            // the shim reads it into an `SmApproxTol3d`, which takes |tol| (and maps
+            // SM_USE_DEFAULT to the zone tolerance), so any finite value is valid
             let t = tol.unwrap_or(0.0);
-            if !(t.is_finite() && t >= 0.0) {
+            if !t.is_finite() {
                 return Err(bad("plane: tolerance"));
             }
             o.extend_from_slice(origin);
