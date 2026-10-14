@@ -627,12 +627,16 @@ fn gen_pts4(rng: &mut Rng, s1: &SrfIn, s2: &SrfIn, same: bool) -> Vec<Vec<f64>> 
         .collect()
 }
 
-fn gen_signed_vec(rng: &mut Rng) -> Vec<[f64; 3]> {
+fn gen_unit_vec(rng: &mut Rng) -> [f64; 3] {
     let mut v = rng.point3(-1.0, 1.0);
     if v.iter().map(|c| c * c).sum::<f64>() < 1e-3 {
         v = [0.0, 0.0, 1.0];
     }
-    vec![v]
+    v
+}
+
+fn gen_signed_vec(rng: &mut Rng) -> Vec<[f64; 3]> {
+    vec![gen_unit_vec(rng)]
 }
 
 fn gen_dir(rng: &mut Rng) -> [f64; 3] {
@@ -730,7 +734,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
             let other = if same { s.clone() } else { gen_surface(rng) };
             let steepest = rng.chance(0.5);
             let plane = if !steepest || rng.chance(0.2) {
-                Some((rng.point3(-2.0, 2.0), gen_signed_vec(rng)[0]))
+                Some((rng.point3(-2.0, 2.0), gen_unit_vec(rng)))
             } else {
                 None
             };
@@ -741,7 +745,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
             let same = rng.chance(0.25);
             let other = if same { s.clone() } else { gen_surface(rng) };
             let pts = gen_pts4(rng, s, &other, same);
-            OpIn::SsiNormalize { other, n: gen_signed_vec(rng)[0], d: rng.uniform(-2.0, 2.0), pts }
+            OpIn::SsiNormalize { other, n: gen_unit_vec(rng), d: rng.uniform(-2.0, 2.0), pts }
         }
         40..=42 => {
             let same = rng.chance(0.25);
