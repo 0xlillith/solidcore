@@ -530,7 +530,7 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
                 let surf = surfaces
                     .get(leaf.surface)
                     .ok_or_else(|| bad_index("surface"))?;
-                let ivl = interval.map(|[a, b]| Extent1d::from_raw(a, b));
+                let ivl = interval.map(|[a, b]| Extent1d::from_min_max(a, b));
                 let mut solver = Lsi3LocalSolver::new(
                     &leaf.uv_domain,
                     v3(*p),

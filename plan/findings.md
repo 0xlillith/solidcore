@@ -2894,3 +2894,20 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 - **`SmSpaceBend` / `SmSpaceUnbend` type queries** are compared through the static
   `GetClassType` / `GetClassTypeString` (an instance needs the unported bend units); the
   `IsKindOf` chains are unit-tested only.
+
+## intersect.ray_tracer: `surface_leaf` aborts where upstream's `SE` carries on
+
+- **Unit / code:** `intersect.ray_tracer`, `surface_leaf` (`SmSurfaceGridElement::Init`,
+  `SmGrid.cpp:252-290`).
+- **Inputs:** (a) a bilinear Bezier patch with all four control points at (5,5,5);
+  (b) a patch with `P00 == P10` and `P01 == P11` (du == 0 everywhere).
+- **C++:** `SE(Evaluate)`, `SE(Unitize)` and `SE(EvaluateNormal)` signal the error and
+  keep going, so `FireRay` returns a normal record (no error).
+- **Rust:** the same calls use `?`, so the leaf, and the whole `AddLeaf`, fails with
+  `BSplineSurface::evaluate: upstream status 1001`, even when the ray never enters the
+  leaf's box.
+- **Suspected cause:** upstream continues with whatever `Evaluate` left in the output
+  array on the failure path; the port has no equivalent of a partially filled array.
+  Matching it needs the surface evaluators' failure-path contents (`surface.surface_p8`).
+- **Status:** known deviation, documented on `surface_leaf`; a degenerate-patch fixture
+  should be added once the evaluator is ported so the two sides can be compared.
