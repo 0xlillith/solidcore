@@ -3342,7 +3342,7 @@ Notes for later agents:
 - **Lazy polar-box build not compared.** The shim's tree reader rejects patch/head nodes
   without polar-box vectors, so the lazy-build path of `AdvSurfaceIntersector::polar_box`
   (`cache.clone().polar_box(id)`) never runs against the C++. It only matters through
-  `BranchIsGaussSeparate`, which upstream `SolveBranch` never reaches (WR-61). Once
+  `BranchIsGaussSeparate`, which upstream `SolveBranch` never reaches (WR-70). Once
   `surface.surface_cache_p3` can build real trees, add a direct `OP_GAUSS` case on a real
   cache.
 - **`FindInteriorCurves` after `LocalSurfaceIntersect` not compared.** `IsPointOnCurve`,
@@ -3595,6 +3595,40 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   being built), and the `SmIsoCurve` / `SmCrvOnSurf` readers of non-B-spline surfaces
   (those curves hold an `SmBSplineSurface`).
 
+## topology.edgeuse_p1 (`SmEdgeuse` / `SmFaceuse` part 1, 2026-10-14; partial, no disagreements)
+
+- **B-rep import.** No Rust B-rep reader or builder exists yet (units `topology.brep_*`,
+  `topology.proto_topology_*`). The shim builds real `SmBrep`s (15 upstream `.smb` files
+  through `SmBrep::ReadFromFile`, optionally with `RebuildUVTrimCurves`; wire edges and
+  faces from B-spline curves/surfaces and `SmPlane`s; the wire network of prog_test
+  `my_test_topology`) and exports the graph in traversal order from raw members
+  (pointer-to-member access for the protected ones), never through the functions under
+  test. The runner imports it into `topology::Brep` and compares the ported functions'
+  results as traversal indices. UV trim curves are imported exactly: they are often
+  `SmLine`s (upstream converts linear UV curves), whose evaluation differs from a plain
+  B-spline's by an ulp (`Mouse.smb` gave `0` vs `2.2e-16` before lines were imported as
+  `Line`s, via `Line::from_parts`). Edge 3D curves of other kinds are imported as their
+  B-spline part; they are only evaluated before `SmSurface::DropPoint`, which is deferred.
+  Wire that import exactly when `surface.surface_p5` lands.
+- **Not wired**, still `UNPORTED(topology.edgeuse_p1)`: `surface::trim_srf_cache`
+  (`SmEdgeuse::GetUVTrimCurve` of the cache's edge uses), `intersect::point_class`
+  (`SmEdgeuse::GetBrep`, `GetEdge`) and the `SmTol` object dispatch in `geom::tol`. Those
+  callers hold opaque object handles and no `Brep`, so the edge use record cannot be
+  reached; wiring needs them to carry the B-rep (or a resolver) first.
+- **Co-ports.** The use records (`Region`, `Faceuse`, `Loopuse`, `Edgeuse`, `Vertexuse`),
+  the new skeleton fields and the small accessors of `topology.edge`, `topology.loopuse`,
+  `topology.vertexuse`, `topology.shell` and `topology.proto_topology_p1` are minimal; an
+  owner's intrusive circular list is a `Vec` in list order from its head, and an edge use's
+  `m_pNext` / `m_pLast` are its neighbours there. Their porters extend these (see the
+  CO-PORTED notes in `plan/modules.toml`).
+- **Review fixes (PR #55).** FFI guards widened to what the C++ handles: values up to
+  `1e300` (was `1e6`) and `uv` within 100 domain lengths of a B-spline surface's domain
+  (plane `uv` up to `1e6`). Every previously rejected huge-scale or far-out-of-domain case
+  tried (points to `1e200`, nets scaled `1e6`/`1e8`, `uv` 50 domains out) agrees exactly.
+  The Seam case generator copied curve 0's knots onto curve 1 of a different degree
+  (invalid curve; `--seeds 6000` case `gen5286` was a harness error); it now requires
+  equal degrees.
+
 ## surface.surf_of_extrusion_p2 (`SmSurfOfExtrusion`, part 2, 2026-10-14)
 
 - **Not a `SurfaceKind` yet.** `SurfOfExtrusion` does not join
@@ -3695,3 +3729,96 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   Hermite source curves, a container case past `MIN_ARRAY_SIZE`). At unit and huge scale
   the UV-curve cases defer on `SmSurface::LocalPointSolve` (`surface.surface_p5`, 20
   cases); only the tiny-scale ones are compared until that unit lands.
+
+## intersect.surface_intersector_p4
+
+- **No virtual dispatch in the intersector parts.** `SmSurfaceIntersector`'s
+  `TraceCurve` / `DoPointIntersection` reach `ComputeNextPoint`, `ComputePointValues`
+  (which calls `ComputeSingularityPoint` for parallel normals), `FlushCurve` and
+  `TestSpanAccuracy`, all virtual upstream. Parts 1-4 port them as methods of the basic
+  `SurfaceIntersector`, so they always run the basic versions. `SmAdvSurfaceIntersector`
+  overrides `ComputeSingularityPoint` (and `SmFilletIntersector` several more), so the
+  part 4 functions cannot replace the advanced intersector's `TraceCurve` stub
+  (`intersect/adv_surface_intersector.rs`) or `SmSurface::PointBasedSurfaceIntersect`'s
+  `DoPointIntersection` (`surface/surface/p2.rs`, run on an `SmAdvSurfaceIntersector`).
+  Those stubs stay `UNPORTED(intersect.surface_intersector_p4)` until the parts take a
+  trait for their virtual calls.
+- **Real-value coverage is narrow until `surface.surface_p11`.** The basic intersector
+  refines every crossing, tangent-curve and singular point with
+  `SmSurface::LocalSurfaceIntersect`, and the basic `ComputeSingularityPoint` fails
+  (`SM_ERR`) for parallel normals. So on planes the traces that run without deferral
+  start at raw points of the types it does not refine (unknown, tangent, coincident,
+  touching), and `DoPointIntersection` on coincident or parallel planes fails in its
+  `ComputePointValues` (`SM_ERR`, compared with all evaluated point values).
+  `FindInteriorCurves` always defers (global surface solve).
+
+## intersect.topology_solver_p2 (PR #60, 2026-10-14)
+
+- **Scope.** All 15 owned functions have Rust bodies: the shared VertexEdge and
+  EdgeEdge constructors reuse p1, followed by local traversal, six local solves,
+  five public B-rep/shape entrypoints and the ordered tree-set helper. Traversal
+  preserves list order, pair culling and the child-one subdivision test. The local
+  solver state is restored on errors. No numerical tolerance has changed.
+- **Default corpus.** 2,429 cases: 600 generated traversal cases, 2 traversal
+  fixtures, 180 CurveVertex cases and 1,647 static/face/operation/request/tolerance/scale/subdivision
+  cases. 2,384 compare exactly; zero fail; 45 defer (surface_p11 20, surface_p4 8,
+  surface_p6 8, surface_p8 4, topology.brep_p1 2, topology.edge 3). Counts include
+  rejected-operation and empty-shape cases, not only geometric solutions.
+- **Concrete reference construction.** Static B-rep fixtures use real native
+  `MakeShellVertex` bodies; face fixtures use `CreateFaceFromSurface`, and EdgeFace
+  uses `CreateWireEdgeFromCurve`. The Rust object adapter independently supplies
+  equivalent geometry and cache tree views. Native tolerances are also compared.
+  These adapters do not port SmBrepCache or nonempty SmShape construction.
+  Native preflight tests require construction to succeed even when a Rust case
+  defers. Setup failure is a harness failure, never a deferred/pass result.
+- **Point-tree storage.** The shared p1 tree fixture uses managed nodes on both
+  sides. A separate native probe finds zero entries in `GetObjectList` for the
+  external-node constructor and one for the managed-node constructor. The old
+  inconsistent fixture could skip every C++ comparison in SolveTwoTrees.
+- **Node metadata.** SmSolution has five node slots although the global traversal
+  supports three trees. Static fixtures compare all five presence flags, never
+  pointer addresses or dereferences of temporary native query-tree nodes.
+  The added 1,080 static cases use 12/11 and 40/30 vertices, scales 1/1e3/1e6
+  and tolerances 2/50 to exercise subdivision. Presence flags do not certify
+  arbitrary multi-node B-rep node identities.
+  Generated traversal cases use the shared p1 protocol.
+- **Typed shape conversion.** Shape trees store VertexKey, EdgeKey and FaceKey.
+  The topology adapter resolves these to vertices, edge CURVES and face SURFACES,
+  as the native spatial lists do. Mapping the edge/face object itself is wrong.
+  A regression distinguishes topology handles from geometry handles; tree mapping
+  separately checks links, neighbors, node classification, ownership and errors.
+  Nonempty Shape creation still requires unported topology queries.
+- **Undefined EdgeVertex operand.** SmTopologySolver.cpp:1032 selects pObj2 as
+  pCurve without swapping, or pObj1 when swapping: the SAME vertex selected just
+  above. The cast then calls GetEdge on a vertex. The Rust port rejects that class
+  with InvalidInput instead of fixing the operand. A native runtime-type probe
+  verifies the selected vertex is not a curve without performing the invalid cast;
+  a separate Rust test exercises both argument orders. No C++ SolveIt result is
+  fabricated or counted as differential coverage of this undefined operation.
+- **Remaining face paths.** Face exclusion is compared; included faces explicitly
+  defer in surface/query callees. Coincidence classification still needs the p4
+  curve-classification constructor overload. Range endpoints need
+  `SmSurface::GlobalPointSolve` in surface_p4 on the SAME shared cache with point
+  testing disabled around BOTH solves;
+  an independent owned-cache copy would not suppress the solver's trimming.
+  No unused independent cache is constructed before this explicit deferral.
+- **Signed endpoint behavior.** Native B-rep/curve and shape/curve entrypoints
+  currently test only the start (`i < 1`). Only the start parameter tuple is
+  rewritten for appended point solutions; the port preserves these choices.
+- **Back-edges.** p1's GlobalSolve local hook and six local-class dispatches now
+  call p2. Its 87 former traversal deferrals clear: 3,248/3,532 compare exactly,
+  with 284 remaining genuine foreign-callee deferrals. GeomTree compares
+  611/618; GeomTools compares 721/913. Its remaining
+  B-rep point-query marker names the missing topology.brep_cache adapter,
+  rather than this now-ported unit.
+- **Final validation.** Against current official main, all required
+  local gates pass. Sensitivity detects every non-deferred case in all four
+  affected units (2,384, 3,248, 611 and 721). Full validation evaluates 142 units:
+  89 green, 53 partial, zero failed. Default reports match the full run byte for
+  byte. Report paths and scope limits above remain authoritative.
+- **Review regression.** A node whose auxiliary type is not ObjectList is empty
+  in native LocalSolve, which ignores GetObjectList's status. The Rust traversal
+  now preserves that behavior for both operands while retaining structural
+  checks on actual object lists. Separate native and Rust tests verify success
+  with zero solutions in both orders. Part-2 regressions live in p2; only their
+  shared scene builder remains in p1's test module.
