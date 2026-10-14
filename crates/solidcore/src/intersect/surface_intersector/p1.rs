@@ -835,16 +835,44 @@ impl<'s> SurfaceIntersector<'s> {
         current: TsectId,
         step_size: f64,
     ) -> Result<()> {
+        let mut prev = self.point(previous)?.clone();
+        let mut curr = self.point(current)?.clone();
+        let r = self.step_back_from_singularity_points(
+            sing_dir,
+            srf,
+            step_off_current,
+            &mut prev,
+            &mut curr,
+            step_size,
+        );
+        // write the point stepped off last (they may be the same point)
+        if step_off_current {
+            *self.point_mut(previous)? = prev;
+            *self.point_mut(current)? = curr;
+        } else {
+            *self.point_mut(current)? = curr;
+            *self.point_mut(previous)? = prev;
+        }
+        r
+    }
+
+    /// [`SurfaceIntersector::step_back_from_singularity`] on points outside the arena
+    /// (upstream takes the points by reference).
+    pub(crate) fn step_back_from_singularity_points(
+        &self,
+        sing_dir: SurfParamType,
+        srf: SrfIndex,
+        step_off_current: bool,
+        prev: &mut TsectPnt,
+        curr: &mut TsectPnt,
+        step_size: f64,
+    ) -> Result<()> {
         // copy the curve tangent of the point stepped off to the other one
         if step_off_current {
-            let d = self.point(previous)?.crv_deriv();
-            self.point_mut(current)?.curve_pv[1] = d;
+            curr.curve_pv[1] = prev.crv_deriv();
         } else {
-            let d = self.point(current)?.crv_deriv();
-            self.point_mut(previous)?.curve_pv[1] = d;
+            prev.curve_pv[1] = curr.crv_deriv();
         }
-        let prev = self.point(previous)?.clone();
-        let curr = self.point(current)?.clone();
 
         let herm = HermiteCurve::new(
             prev.crv_pos(),
@@ -873,8 +901,7 @@ impl<'s> SurfaceIntersector<'s> {
         if found_answer {
             let uv = Point2::new(solution[0], solution[1]);
             let (_, du, dv) = evaluate_1st_derivatives(surface, uv)?;
-            let target = if step_off_current { current } else { previous };
-            let p = self.point_mut(target)?;
+            let p = if step_off_current { curr } else { prev };
             *p.srf_du_mut(srf) = du;
             *p.srf_dv_mut(srf) = dv;
             if sing_dir == SurfParamType::U {
@@ -1707,7 +1734,7 @@ fn surface_is_closed(
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`
 /// (`surface::surface::p7::evaluate_1st_derivatives`).
 fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    crate::surface::surface::p7::evaluate_1st_derivatives(surface, uv, Side::Left, Side::Left)
+    crate::surface::surface::p1::evaluate_1st_derivatives(surface, uv, Side::Left, Side::Left)
 }
 
 // ---- unported callees ---------------------------------------------------------------------------
@@ -1737,12 +1764,11 @@ fn surface_evaluate_geometric(_surface: &Surface, _uv: Point2) -> Result<Princip
 }
 
 /// `smsurf_EvaluateNormalSection(eval, direction, ..)`: the curvature in `direction`.
-fn evaluate_normal_section(_eval: &[[Vec3; 3]; 3], _direction: Vec3) -> Result<f64> {
-    // UNPORTED(surface.surface_p1): smsurf_EvaluateNormalSection
-    Err(SolidError::unported(
-        "smsurf_EvaluateNormalSection",
-        "surface.surface_p1",
-    ))
+fn evaluate_normal_section(eval: &[[Vec3; 3]; 3], direction: Vec3) -> Result<f64> {
+    // (upstream may rebuild a vanishing first derivative of the caller's matrix in
+    // place; the caller only reads the curvature, so a copy is evaluated)
+    let mut eval = *eval;
+    Ok(crate::surface::surface::p1::evaluate_normal_section(&mut eval, direction)?.1)
 }
 
 /// `crSurface.LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, ..)`: found flag
