@@ -43,8 +43,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -127,8 +127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0014",
@@ -171,8 +171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0019",
@@ -271,8 +271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0030",
@@ -299,8 +299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0033",
@@ -575,8 +575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -903,8 +903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0101",
@@ -1231,8 +1231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0137",
@@ -1307,8 +1307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0146",
@@ -1343,8 +1343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0150",
@@ -1430,16 +1430,12 @@
       "values_compared": 186281
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0160",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824936",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -1739,8 +1735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -1867,8 +1863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0209",
@@ -1959,8 +1955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0219",
@@ -2211,8 +2207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0248",
@@ -2251,8 +2247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0252",
@@ -2799,8 +2795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0311",
@@ -3207,8 +3203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0357",
@@ -3279,8 +3275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0365",
@@ -3719,8 +3715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0414",
@@ -3839,8 +3835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0428",
@@ -3875,8 +3871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0432",
@@ -3887,8 +3883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0433",
@@ -4195,8 +4191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0469",
@@ -4239,8 +4235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0473",
@@ -4403,8 +4399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0491",
@@ -4551,8 +4547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0507",
@@ -4879,8 +4875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0543",
@@ -4907,8 +4903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0546",
@@ -5123,8 +5119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0571",
@@ -5199,8 +5195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0579",
@@ -5327,8 +5323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::SnapToKnots",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0593",
@@ -5339,8 +5335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
       },
       "max_rel_err": 0.0,
       "name": "gen0594",
@@ -5399,13 +5395,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 149,
+  "cases_deferred": 148,
   "cases_failed": 0,
-  "cases_passed": 451,
+  "cases_passed": 452,
   "cases_total": 600,
   "deferred_by_unit": {
+    "query.tess": 32,
     "surface.plane_p1": 12,
-    "surface.surface_p1": 33,
     "surface.surface_p3": 14,
     "surface.surface_p5": 32,
     "surface.surface_p6": 57,

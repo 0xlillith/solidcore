@@ -1253,10 +1253,11 @@ mod tests {
             (true, None)
         );
         c.base_mut().point_test_enabled = true;
-        assert!(c
-            .point_test(&k, Point2::new(5.0, 5.0), None)
-            .unwrap_err()
-            .is_unported());
+        // no face to classify against (SM_ERR_NULL_POINTER)
+        assert!(matches!(
+            c.point_test(&k, Point2::new(5.0, 5.0), None),
+            Err(SolidError::Upstream { code: 1006, .. })
+        ));
     }
 
     #[test]
@@ -1293,7 +1294,7 @@ mod tests {
     }
 
     #[test]
-    fn unavailable_surface_operations_are_explicit_and_preserve_state() {
+    fn implants_vertexuse_and_poly_edge() {
         let k = Kernel::default();
         let mut c = cache();
         let mut ext = Extent2d::new();
@@ -1303,14 +1304,8 @@ mod tests {
             uv_point: Point2::new(0.4, 0.4),
             vertex_tolerance: 0.001,
         };
-        assert!(matches!(
-            c.implant_vertexuse(&k, vu, &mut ext),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p1",
-                ..
-            })
-        ));
-        assert_eq!(ext, before);
+        c.implant_vertexuse(&k, vu, &mut ext).unwrap();
+        assert_ne!(ext, before);
         let surface = plane();
         let edge = PolyEdgeInput {
             poly_edge: 8,
@@ -1319,15 +1314,9 @@ mod tests {
             tolerance: 0.001,
             surface: &surface,
         };
-        assert!(matches!(
-            c.implant_poly_edge(edge, NodeId(1)),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p1",
-                ..
-            })
-        ));
+        c.implant_poly_edge(edge, NodeId(1)).unwrap();
         let aux = c.base().aux(NodeId(1)).unwrap();
-        assert!(aux.poly_edge_list.is_empty() && aux.vertex_list.is_empty());
+        assert_eq!((aux.poly_edge_list.len(), aux.vertex_list.len()), (1, 1));
     }
 
     #[test]

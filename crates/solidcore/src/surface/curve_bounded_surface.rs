@@ -202,7 +202,7 @@ impl CurveBoundedSurface {
         }
 
         // first check the base
-        let mut rtn = surface_base_eq(self, other)?;
+        let mut rtn = surface_base_eq(self, other);
 
         if rtn {
             // OK to cast
@@ -437,9 +437,9 @@ impl CurveBoundedSurface {
 }
 
 /// `SmSurface::operator==(crOther)` on `this` (the base-class test).
-fn surface_base_eq(this: &CurveBoundedSurface, other: &Surface) -> Result<bool> {
+fn surface_base_eq(this: &CurveBoundedSurface, other: &Surface) -> bool {
     // (the same object was handled by the caller; the same type)
-    Ok(this.type_code() == other.type_code())
+    this.type_code() == other.type_code()
 }
 
 /// `*a == *b` for two surfaces (the virtual `operator==`).
@@ -610,7 +610,10 @@ mod tests {
             .evaluate_normal(uv, Side::Left, Side::Left)
             .unwrap_err()
             .is_unported());
-        assert!(c.evaluate_step_point(uv).unwrap_err().is_unported());
+        assert_eq!(
+            c.evaluate_step_point(uv).unwrap(),
+            b.evaluate_point(uv).unwrap()
+        );
     }
 
     #[test]
@@ -621,7 +624,7 @@ mod tests {
             panic!("kind");
         };
         assert!(inner.approx_eq(&s).unwrap());
-        assert!(c.approx_eq(&s).unwrap_err().is_unported());
+        assert!(c.approx_eq(&s).unwrap());
         assert_eq!(c.boundaries_3d().len(), 1);
         assert_eq!(c.boundaries_uv().len(), 1);
         assert!(c.implicit_outer());

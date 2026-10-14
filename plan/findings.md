@@ -2759,3 +2759,27 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   surface cache (`BezierPatchRef` is an empty enum). A hand-over like the curve cache's
   `set_curve_data` would close them; the stubs keep their `surface.surface_cache_p3` tag
   until then.
+
+## surface.surface_p1 (`SmSurface` part 1 and `SmSTEPSurface`, 2026-10-14)
+
+- **Shim guard.** The base `GetDomainWithContinuity` dereferences a `NULL` surface cache
+  when none can be built (upstream-issues UB-75). The shim checks
+  `smsurf_GetSurfaceCache` first and reports `SM_ERR`, which is what the Rust port returns
+  (the cache error). The check builds and stores the cache, so the call that follows uses
+  the same cache.
+- **B-spline back-edges.** `SmBSplineSurface::IsDegenerateCurve` and
+  `IsDegeneratePoint` (sub-domains) pass the call to the `SmSurface` base body; the
+  B-spline methods run it on a copy wrapped as a `Surface`, which has no owner (the owner
+  is held by the `Surface` wrapper). `CalculateBoundingBox` grows its boxes by
+  `GetFace() ? face tolerance : SM_ZONE_TOL_3D`: a bare B-spline uses `SM_ZONE_TOL_3D`,
+  and `Surface::calculate_bounding_box` returns `Unported(topology.face_p2)` first for a
+  B-spline or plane with a face.
+- **trim_srf_cache face cases.** They used to defer through the `GetFace` stub of the
+  B-spline bounding box. With it wired, the Rust side ran without a face and returned
+  `SM_ERR_NULL_POINTER` where the C++ side had a brep face. The runner now defers them
+  on `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`), the step the Rust side lacks.
+- **Not wired**, still `UNPORTED(surface.surface_p1)`: `Grid::expand_hierarchy` (needs a
+  surface handle type for the grid elements), the surface cache's
+  `CalculateBoundingBox` of curve-bounded and STEP surfaces (called while that cache is
+  being built), and the `SmIsoCurve` / `SmCrvOnSurf` readers of non-B-spline surfaces
+  (those curves hold an `SmBSplineSurface`).

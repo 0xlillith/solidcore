@@ -218,16 +218,12 @@
       "values_compared": 146
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "Surface_degen_curve",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nurbs.b_spline_surface_p1/cases.json#27 (upstream upstream/TestFiles/pt_TestFiles/Surface.sms (prog_test smSurfaceTest.cpp surface input (my_test_surface_closest_point reaches SmBSplineSurface)))",
-      "values_compared": 0
+      "values_compared": 147
     },
     {
       "max_rel_err": 0.0,
@@ -446,16 +442,12 @@
       "values_compared": 74
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_degen_curve",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nurbs.b_spline_surface_p1/cases.json#55 (upstream upstream/TestFiles/pt_TestFiles/offset_nurb.sms (prog_test surface input offset_nurb.sms))",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -674,16 +666,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "DropCurveSurface_degen_curve",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/nurbs.b_spline_surface_p1/cases.json#83 (upstream upstream/TestFiles/pt_TestFiles/DropCurveSurface.sms (prog_test smCurveTest.cpp my_test_drop_point surface input))",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "deferred": {
@@ -712,7 +700,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "Surface_step_inv",
@@ -723,8 +711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CreateOffsetSurface",
-        "unit": "surface.surface_p1"
+        "symbol": "SmOffsetSurface",
+        "unit": "surface.offset_surface"
       },
       "max_rel_err": 0.0,
       "name": "offset_nurb_offset",
@@ -990,16 +978,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0000",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153439",
-      "values_compared": 0
+      "values_compared": 148
     },
     {
       "max_rel_err": 0.0,
@@ -1982,16 +1966,12 @@
       "values_compared": 218
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153562",
-      "values_compared": 0
+      "values_compared": 282
     },
     {
       "deferred": {
@@ -2526,16 +2506,12 @@
       "values_compared": 46
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0190",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153629",
-      "values_compared": 0
+      "values_compared": 88
     },
     {
       "max_rel_err": 0.0,
@@ -3494,16 +3470,12 @@
       "values_compared": 99
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0310",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153749",
-      "values_compared": 0
+      "values_compared": 171
     },
     {
       "max_rel_err": 0.0,
@@ -3930,16 +3902,12 @@
       "values_compared": 187
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0364",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153803",
-      "values_compared": 0
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,
@@ -4150,16 +4118,12 @@
       "values_compared": 172
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153830",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -4760,7 +4724,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0466",
@@ -5338,16 +5302,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0538",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153977",
-      "values_compared": 0
+      "values_compared": 232
     },
     {
       "max_rel_err": 0.0,
@@ -5510,16 +5470,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0559",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641153998",
-      "values_compared": 0
+      "values_compared": 152
     },
     {
       "max_rel_err": 0.0,
@@ -6020,7 +5976,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0622",
@@ -7280,7 +7236,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0779",
@@ -7572,7 +7528,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0815",
@@ -7922,16 +7878,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0858",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154297",
-      "values_compared": 0
+      "values_compared": 171
     },
     {
       "max_rel_err": 0.0,
@@ -8396,7 +8348,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0915",
@@ -8592,7 +8544,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0939",
@@ -9226,16 +9178,12 @@
       "values_compared": 84
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1018",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154457",
-      "values_compared": 0
+      "values_compared": 177
     },
     {
       "max_rel_err": 0.0,
@@ -10160,7 +10108,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1134",
@@ -10612,7 +10560,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1190",
@@ -10686,16 +10634,12 @@
       "values_compared": 259
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1199",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154638",
-      "values_compared": 0
+      "values_compared": 157
     },
     {
       "max_rel_err": 0.0,
@@ -10868,7 +10812,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1221",
@@ -10944,7 +10888,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1230",
@@ -11148,7 +11092,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1255",
@@ -11430,16 +11374,12 @@
       "values_compared": 76
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1289",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154728",
-      "values_compared": 0
+      "values_compared": 110
     },
     {
       "max_rel_err": 0.0,
@@ -11966,16 +11906,12 @@
       "values_compared": 160
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1355",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154794",
-      "values_compared": 0
+      "values_compared": 363
     },
     {
       "max_rel_err": 0.0,
@@ -12106,16 +12042,12 @@
       "values_compared": 115
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1372",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154811",
-      "values_compared": 0
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -12406,16 +12338,12 @@
       "values_compared": 65
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1409",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154848",
-      "values_compared": 0
+      "values_compared": 124
     },
     {
       "max_rel_err": 0.0,
@@ -13098,16 +13026,12 @@
       "values_compared": 152
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1495",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641154934",
-      "values_compared": 0
+      "values_compared": 109
     },
     {
       "max_rel_err": 0.0,
@@ -13224,7 +13148,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1510",
@@ -13380,7 +13304,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1529",
@@ -14060,7 +13984,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1612",
@@ -14274,16 +14198,12 @@
       "values_compared": 124
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1638",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155077",
-      "values_compared": 0
+      "values_compared": 245
     },
     {
       "max_rel_err": 0.0,
@@ -15138,16 +15058,12 @@
       "values_compared": 142
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1745",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155184",
-      "values_compared": 0
+      "values_compared": 198
     },
     {
       "max_rel_err": 0.0,
@@ -15328,7 +15244,7 @@
     {
       "deferred": {
         "symbol": "SmSurface::GlobalPointSolve",
-        "unit": "surface.surface_p1"
+        "unit": "surface.surface_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1768",
@@ -15578,16 +15494,12 @@
       "values_compared": 255
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1799",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155238",
-      "values_compared": 0
+      "values_compared": 161
     },
     {
       "max_rel_err": 0.0,
@@ -16218,16 +16130,12 @@
       "values_compared": 239
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1878",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155317",
-      "values_compared": 0
+      "values_compared": 192
     },
     {
       "max_rel_err": 0.0,
@@ -16750,16 +16658,12 @@
       "values_compared": 552
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1944",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155383",
-      "values_compared": 0
+      "values_compared": 150
     },
     {
       "max_rel_err": 0.0,
@@ -16866,16 +16770,12 @@
       "values_compared": 153
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::IsDegenerateCurve",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1958",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155397",
-      "values_compared": 0
+      "values_compared": 489
     },
     {
       "max_rel_err": 0.0,
@@ -17030,16 +16930,12 @@
       "values_compared": 129
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetFace",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen1978",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2892965247641155417",
-      "values_compared": 0
+      "values_compared": 350
     },
     {
       "max_rel_err": 0.0,
@@ -17211,12 +17107,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 62,
+  "cases_deferred": 36,
   "cases_failed": 0,
-  "cases_passed": 2058,
+  "cases_passed": 2084,
   "cases_total": 2120,
   "deferred_by_unit": {
-    "surface.surface_p1": 43,
+    "surface.offset_surface": 1,
+    "surface.surface_p4": 16,
     "surface.surface_p7": 19
   },
   "max_rel_err": 0.0,
