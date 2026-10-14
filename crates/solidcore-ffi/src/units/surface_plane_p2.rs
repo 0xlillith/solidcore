@@ -28,10 +28,9 @@
 //!
 //! [`run`] accepts only finite inputs of magnitude at most [`MAX_COORD`], well-formed
 //! clamped B-splines (at most [`MAX_INDEX`] + 1 control points per direction, degree at
-//! most [`MAX_DEGREE`], positive weights or none), non-degenerate curve and plane
-//! constructors and transform scales without a zero component (upstream collapses the
-//! NURB, `IsNurbSurfacePlane` can then return `TRUE` without a plane and `Transform`
-//! dereferences it).
+//! most [`MAX_DEGREE`], positive weights or none), segments with distinct end points,
+//! planes with a non-zero normal and ellipses and circles without a zero radius (the
+//! upstream construction crashes).
 
 use crate::{call_with_buffer, FfiError};
 
@@ -422,7 +421,7 @@ impl Enc {
                 self.nums(&d.knots)
             }
             CurveIn::Ellipse { c, x, y, dom, r } => {
-                Self::check_conic(x, y, dom, r[0].min(r[1]))?;
+                Self::check_radii(r)?;
                 self.int(2);
                 self.nums(c)?;
                 self.nums(x)?;
@@ -431,7 +430,7 @@ impl Enc {
                 self.nums(r)
             }
             CurveIn::Circle { c, x, y, dom, r } => {
-                Self::check_conic(x, y, dom, *r)?;
+                Self::check_radii(&[*r])?;
                 self.int(3);
                 self.nums(c)?;
                 self.nums(x)?;
@@ -442,21 +441,10 @@ impl Enc {
         }
     }
 
-    /// An ellipse needs independent axes, positive radii and a non-empty domain within
-    /// one turn (the NURB construction divides by them).
-    fn check_conic(x: &[f64; 3], y: &[f64; 3], dom: &[f64; 2], r: f64) -> Result<(), FfiError> {
-        let cr = [
-            x[1] * y[2] - x[2] * y[1],
-            x[2] * y[0] - x[0] * y[2],
-            x[0] * y[1] - x[1] * y[0],
-        ];
-        if len_sq(x) < 1e-12 || len_sq(y) < 1e-12 || len_sq(&cr) < 1e-12 * len_sq(x) * len_sq(y)
-        {
-            return Err(bad("ellipse axes"));
-        }
-        if !(r > 1e-9) || !(dom[1] - dom[0] > 1e-6) || dom[1] - dom[0] > 360.0 || dom[0].abs() > 720.0
-        {
-            return Err(bad("ellipse radii or domain"));
+    /// A zero radius crashes the ellipse construction upstream.
+    fn check_radii(r: &[f64]) -> Result<(), FfiError> {
+        if r.contains(&0.0) {
+            return Err(bad("zero ellipse radius"));
         }
         Ok(())
     }
@@ -503,11 +491,6 @@ impl Enc {
                 self.num(*dist)
             }
             Op::Transform { a, frame, scale } => {
-                if let Some(s) = scale {
-                    if s.iter().any(|&c| c == 0.0) {
-                        return Err(bad("zero scale component"));
-                    }
-                }
                 self.int(2);
                 self.plane(a)?;
                 for v in frame {

@@ -3794,8 +3794,11 @@ mod tests {
     #[test]
     fn read_from_db_unported_types() {
         let mut db = DatabaseReader::default();
-        let e = Surface::read_from_db(&Kernel::default(), PLANE_TYPE, &mut db, 1).unwrap_err();
+        let e = Surface::read_from_db(&Kernel::default(), SPHERE_TYPE, &mut db, 1).unwrap_err();
         assert!(e.is_unported());
+        // a plane is read (an empty stream fails without Unported)
+        let e = Surface::read_from_db(&Kernel::default(), PLANE_TYPE, &mut db, 1).unwrap_err();
+        assert!(!e.is_unported());
         assert!(
             !Surface::read_from_db(&Kernel::default(), 12345, &mut db, 1)
                 .unwrap_err()

@@ -1072,12 +1072,15 @@ fn dump_bss(o: &mut Vec<f64>, s: &BSplineSurface) {
     }
 }
 
-/// `put_state`: `0` for the base class, else the B-spline state.
+/// `put_state`: `0` for the base class, else the B-spline state (of a plane's B-spline
+/// part).
 fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
     match s.map(Surface::kind) {
         Some(sp2::SurfaceKind::BSpline(b)) => dump_bss(o, b),
+        // an SmPlane is an SmBSplineSurface: its B-spline part
+        Some(sp2::SurfaceKind::Plane(p)) => dump_bss(o, p.base()),
         // `put_state` of a surface that is not a B-spline
-        Some(sp2::SurfaceKind::CurveBounded(_) | sp2::SurfaceKind::Plane(_)) | None => o.push(0.0),
+        Some(sp2::SurfaceKind::CurveBounded(_)) | None => o.push(0.0),
     }
 }
 

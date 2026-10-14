@@ -456,7 +456,11 @@ impl Plane {
     /// The axis aligned and pseudo boxes of the plane (`CalculateBoundingBox(domain,
     /// &box, &pbox)`, the inherited `SmBSplineSurface` override with its default
     /// zone-tolerance expansion).
-    fn boxes(&self, uv_domain: &Extent2d, owned: bool) -> Result<(Extent3d, PseudoBox)> {
+    pub(crate) fn bounding_boxes(
+        &self,
+        uv_domain: &Extent2d,
+        owned: bool,
+    ) -> Result<(Extent3d, PseudoBox)> {
         let req = BoundingBoxRequest {
             normal: true,
             pseudo: true,
@@ -554,8 +558,8 @@ impl Plane {
             }
 
             // get plane1 and plane2 bounding and pseudo boxes
-            let (bbox1, pbox1) = self.boxes(uv_domain, owned[0])?;
-            let (bbox2, pbox2) = other.boxes(other_uv_domain, owned[1])?;
+            let (bbox1, pbox1) = self.bounding_boxes(uv_domain, owned[0])?;
+            let (bbox2, pbox2) = other.bounding_boxes(other_uv_domain, owned[1])?;
 
             // no work - when bounding or pseudo boxes are disjoint
             if bbox1.are_disjoint(&bbox2, 0.0) || pbox1.are_disjoint(&pbox2, None) {
@@ -639,7 +643,7 @@ impl Plane {
 
         // get size of bounded ThisPlane
         if this_bounded {
-            (bbox1, pbox1) = self.boxes(uv_domain, owned[0])?;
+            (bbox1, pbox1) = self.bounding_boxes(uv_domain, owned[0])?;
             let radius1 = bbox1.sphere_bound().radius;
             bbox1.expand_absolute(tol / 2.0);
             pbox1.expand_absolute(tol / 2.0);
@@ -648,7 +652,7 @@ impl Plane {
 
         // get size of bounded OtherPlane
         if other_bounded {
-            (bbox2, pbox2) = other.boxes(other_uv_domain, owned[1])?;
+            (bbox2, pbox2) = other.bounding_boxes(other_uv_domain, owned[1])?;
             let radius2 = bbox2.sphere_bound().radius;
             bbox2.expand_absolute(tol / 2.0);
             pbox2.expand_absolute(tol / 2.0);
@@ -1373,4 +1377,227 @@ pub(crate) fn global_surface_intersect(
 
     // all done
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn rect() -> Plane {
+        let mut p = Plane::new(
+            Vec3::ZERO,
+            Vec3::X,
+            Vec3::Y,
+            Vec2::new(1.0, 1.0),
+            &Extent2d::from_bounds(-5.0, -3.0, 5.0, 3.0),
+        );
+        p.make_nurb().unwrap();
+        p
+    }
+
+    fn dom() -> Extent2d {
+        Extent2d::from_bounds(-5.0, -3.0, 5.0, 3.0)
+    }
+
+    #[test]
+    fn offset_moves_along_normal() {
+        let p = rect().create_offset_surface(2.0).unwrap();
+        assert_eq!(p.position().origin(), Vec3::new(0.0, 0.0, 2.0));
+        assert_eq!(p.step_uv_domain(), dom());
+    }
+
+    #[test]
+    fn transform_rejects_anisotropic_scale() {
+        let mut p = rect();
+        let r = p.transform(&Axis2Placement::IDENTITY, Some(Vec3::new(2.0, 1.0, 1.0)));
+        assert!(r.is_err());
+        let mut q = rect();
+        q.transform(&Axis2Placement::IDENTITY, Some(Vec3::new(2.0, 2.0, 2.0)))
+            .unwrap();
+        let o = q.evaluate_point(Point2::new(5.0, 3.0));
+        assert!((o - Vec3::new(10.0, 6.0, 0.0)).length() < 1e-12);
+    }
+
+    #[test]
+    fn trim_with_domain_checks_containment() {
+        let mut p = rect();
+        assert!(p
+            .trim_with_domain(&Extent2d::from_bounds(-6.0, 0.0, 1.0, 1.0))
+            .is_err());
+        p.trim_with_domain(&Extent2d::from_bounds(-1.0, 0.0, 1.0, 1.0))
+            .unwrap();
+        assert_eq!(
+            p.step_uv_domain(),
+            Extent2d::from_bounds(-1.0, 0.0, 1.0, 1.0)
+        );
+    }
+
+    #[test]
+    fn recognises_bilinear_plane() {
+        let s = BSplineSurface::create_bilinear_surface(
+            Vec3::ZERO,
+            Vec3::new(2.0, 0.0, 0.0),
+            Vec3::new(0.0, 3.0, 0.0),
+            Vec3::new(2.0, 3.0, 0.0),
+        )
+        .unwrap();
+        let p = Plane::is_nurb_surface_plane(&s, 1.0).unwrap().unwrap();
+        assert!(p.base().gw_nurb().is_some());
+        let twisted = BSplineSurface::create_bilinear_surface(
+            Vec3::ZERO,
+            Vec3::new(2.0, 0.0, 0.0),
+            Vec3::new(0.0, 3.0, 0.0),
+            Vec3::new(2.0, 3.0, 1.0),
+        )
+        .unwrap();
+        assert!(Plane::is_nurb_surface_plane(&twisted, 1.0)
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn plane_plane_intersections() {
+        let a = Plane::from_normal(Vec3::ZERO, Vec3::Z);
+        let b = Plane::from_normal(Vec3::new(1.0, 0.0, 0.0), Vec3::X);
+        let d = Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0);
+        let (more, x) = a.intersect_with_plane(&d, &b, &d, None).unwrap();
+        assert!(!more);
+        assert_eq!(x.curves_3d.len(), 1);
+        assert_eq!(x.curve_types, vec![TsectCurveType::Crossing]);
+        assert!(x.surface1_uv_curves.iter().all(Option::is_none));
+
+        // bounded crossing
+        let mut c = Plane::new(
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::Y,
+            Vec3::Z,
+            Vec2::new(1.0, 1.0),
+            &Extent2d::from_bounds(-4.0, -2.0, 4.0, 2.0),
+        );
+        c.make_nurb().unwrap();
+        let (_, x) = rect()
+            .intersect_with_plane(&dom(), &c, &c.step_uv_domain(), None)
+            .unwrap();
+        assert_eq!(x.curves_3d.len(), 1);
+
+        // coincident planes need the general intersector, parallel ones give nothing
+        let (more, x) = rect()
+            .intersect_with_plane(&dom(), &rect(), &dom(), None)
+            .unwrap();
+        assert!(more && x.curves_3d.is_empty());
+        let r = rect();
+        let (more, _) = r.intersect_with_plane(&dom(), &r, &dom(), None).unwrap();
+        assert!(!more);
+    }
+
+    #[test]
+    fn trims_curves_lines_and_ellipses() {
+        let k = Kernel::default();
+        let p = rect();
+        let seg = Curve::from(
+            Line::create_line_segment(
+                3,
+                Vec3::new(-10.0, 0.0, 0.0),
+                Vec3::new(10.0, 0.0, 0.0),
+                None,
+            )
+            .unwrap(),
+        );
+        let cs = p
+            .trim_curve_to_plane_domain(&k, &dom(), &seg, 1e-6)
+            .unwrap();
+        assert_eq!(cs.len(), 1);
+
+        let (c, found) = p
+            .make_new_plane_line(
+                &dom(),
+                Vec3::new(-10.0, 1.0, 0.0),
+                Vec3::new(10.0, 1.0, 0.0),
+                1e-6,
+            )
+            .unwrap();
+        assert!(found && c.is_some());
+        let (c, found) = p
+            .make_new_plane_line(
+                &dom(),
+                Vec3::new(6.0, 1.0, 0.0),
+                Vec3::new(8.0, 1.0, 0.0),
+                1e-6,
+            )
+            .unwrap();
+        assert!(!found && c.is_none());
+
+        let full = Extent1d::from_min_max(0.0, 360.0);
+        let inside = p
+            .make_new_plane_ellipse(
+                &k,
+                &dom(),
+                Vec3::ZERO,
+                2.0,
+                1.0,
+                Vec3::X,
+                Vec3::Y,
+                &full,
+                1e-6,
+            )
+            .unwrap();
+        assert_eq!(inside.len(), 1);
+        let crossing = p
+            .make_new_plane_ellipse(
+                &k,
+                &dom(),
+                Vec3::new(4.0, 0.0, 0.0),
+                2.0,
+                2.0,
+                Vec3::X,
+                Vec3::Y,
+                &full,
+                1e-6,
+            )
+            .unwrap();
+        assert!(!crossing.is_empty());
+        let point = p
+            .make_new_plane_ellipse(
+                &k,
+                &dom(),
+                Vec3::ZERO,
+                0.0,
+                0.0,
+                Vec3::X,
+                Vec3::Y,
+                &full,
+                1e-6,
+            )
+            .unwrap();
+        assert_eq!(point.len(), 1);
+    }
+
+    #[test]
+    fn reads_binary_plane() {
+        let mut bytes = Vec::new();
+        for x in [
+            0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, -5.0, -3.0, 5.0, 3.0, 1.0, 1.0,
+        ] {
+            bytes.extend_from_slice(&f64::to_ne_bytes(x));
+        }
+        for n in [1_i64, 1] {
+            bytes.extend_from_slice(&n.to_ne_bytes());
+        }
+        for p in [1_i16, 1, 0] {
+            bytes.extend_from_slice(&p.to_ne_bytes());
+        }
+        for x in [
+            -5.0, -3.0, 0.0, -5.0, 3.0, 0.0, 5.0, -3.0, 0.0, 5.0, 3.0, 0.0, -5.0, -5.0, 5.0, 5.0,
+            -3.0, -3.0, 3.0, 3.0,
+        ] {
+            bytes.extend_from_slice(&f64::to_ne_bytes(x));
+        }
+        let mut db = DatabaseReader::new();
+        db.open_for_read(bytes.clone(), FileType::Binary);
+        let p = Plane::read_from_db(&mut db, 30).unwrap();
+        assert_eq!(p.step_uv_domain(), dom());
+        let mut db = DatabaseReader::new();
+        db.open_for_read(bytes[..100].to_vec(), FileType::Binary);
+        assert!(Plane::read_from_db(&mut db, 30).is_err());
+    }
 }

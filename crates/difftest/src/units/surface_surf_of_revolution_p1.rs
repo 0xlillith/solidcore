@@ -665,7 +665,7 @@ fn rust_op(
                 Ok(p) => p,
             };
             let [a, b, c, d] = *dom;
-            s.intersect_with_plane(&plane, &Extent2d::from_bounds(a, b, c, d), *tol)
+            s.intersect_with_plane(k, &plane, &Extent2d::from_bounds(a, b, c, d), *tol)
                 .map(|(more, x)| {
                     o.extend([0.0, flag(more), x.curves_3d.len() as f64]);
                     for c in &x.curves_3d {
