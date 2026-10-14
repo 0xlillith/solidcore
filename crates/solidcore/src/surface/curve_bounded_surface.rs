@@ -322,18 +322,14 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateGeometric` (`surface.surface_p3`).
+    /// Those of the basis surface's [`Surface::evaluate_geometric`].
     pub fn evaluate_geometric(
         &self,
-        _uv: Point2,
-        _u_side: Side,
-        _v_side: Side,
+        uv: Point2,
+        u_side: Side,
+        v_side: Side,
     ) -> Result<GeometricProperties> {
-        // UNPORTED(surface.surface_p3): SmSurface::EvaluateGeometric
-        Err(SolidError::unported(
-            "SmSurface::EvaluateGeometric",
-            "surface.surface_p3",
-        ))
+        self.basis.evaluate_geometric(uv, u_side, v_side)
     }
 
     /// The basis surface's normal section in `direction` at `uv`
@@ -341,20 +337,21 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateNormalSection`
-    /// (`surface.surface_p3`).
+    /// Those of the basis surface's [`Surface::evaluate_normal_section`].
     pub fn evaluate_normal_section(
         &self,
-        _uv: Point2,
-        _u_side: Side,
-        _v_side: Side,
-        _direction: Vec3,
+        uv: Point2,
+        u_side: Side,
+        v_side: Side,
+        direction: Vec3,
     ) -> Result<NormalSection> {
-        // UNPORTED(surface.surface_p3): SmSurface::EvaluateNormalSection
-        Err(SolidError::unported(
-            "SmSurface::EvaluateNormalSection",
-            "surface.surface_p3",
-        ))
+        let section = self
+            .basis
+            .evaluate_normal_section(uv, u_side, v_side, direction)?;
+        Ok(NormalSection {
+            tangent: section.tangent,
+            curvature: section.curvature,
+        })
     }
 
     /// The basis surface's point at `uv` (`EvaluatePoint`).

@@ -10,8 +10,8 @@
 //!
 //! | Rust                                              | Upstream                                         |
 //! |---------------------------------------------------|--------------------------------------------------|
-//! | [`Surface::evaluate_geometric`]                   | `SmSurface::EvaluateGeometric`                   |
-//! | [`Surface::evaluate_normal_section`], [`SurfaceNormalSection`] | `SmSurface::EvaluateNormalSection`   |
+//! | [`Surface::evaluate_geometric`], [`evaluate_geometric_of`] | `SmSurface::EvaluateGeometric`          |
+//! | [`Surface::evaluate_normal_section`], [`evaluate_normal_section_of`], [`SurfaceNormalSection`] | `SmSurface::EvaluateNormalSection` |
 //! | [`Surface::get_singularities`], [`Singularities`] | `SmSurface::GetSingularities`                    |
 //! | [`Surface::cover_coincident_surface`], [`CoverCoincident`] | `SmSurface::CoverCoincidentSurface`     |
 //! | [`check_shape_match`]                             | `smsurf_CheckShapeMatch`                         |
@@ -62,7 +62,7 @@ use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
 
 use super::p2::evaluate_geometric as smsurf_evaluate_geometric;
-use super::p2::GeometricProperties;
+use super::p2::{GeometricProperties, SurfaceEvaluate};
 use super::p4::{evaluate_normal_section as smsurf_evaluate_normal_section, SsNormalize, SspIntersect};
 use super::p7::{
     approx_derivative_lengths, check_seam_drop, evaluate_1st_derivatives, evaluate_2nd_derivatives,
@@ -140,8 +140,8 @@ fn out_of_bounds_copy(surface: &Surface) -> Option<Surface> {
 /// The 3x3 evaluation matrix of `Evaluate(uv, 2, 2, .., TRUE, ..)`: entry `[i][j]` is the
 /// derivative `i` times in `u` and `j` times in `v`; the entries of the lower half (not
 /// computed) are undefined.
-fn evaluate_pvv(
-    surface: &Surface,
+fn evaluate_pvv<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
     uv: Point2,
     u_side: Side,
     v_side: Side,
@@ -379,6 +379,68 @@ pub fn check_shape_match(
     Ok(true)
 }
 
+/// `SmSurface::EvaluateGeometric` for code generic over the surface type (the
+/// `SmSurface` body, which no ported surface kind overrides).
+///
+/// # Errors
+///
+/// Those of the evaluations and of `smsurf_EvaluateGeometric`.
+pub fn evaluate_geometric_of<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
+    uv: Point2,
+    u_side: Side,
+    v_side: Side,
+) -> Result<GeometricProperties> {
+    // Evaluate Target parameter for position and derivatives
+    let mut pvv = evaluate_pvv(surface, uv, u_side, v_side)?; // exact Tangent values
+
+    // make sure there is a normal vector - even at singular points
+    let norm = pvv[0][1].cross(pvv[1][0]);
+    if norm.length_squared() < EFF_ZERO {
+        pvv[2][2] = surface.evaluate_normal(uv, u_side, v_side)?;
+    }
+
+    // pass the call along
+    smsurf_evaluate_geometric(&mut pvv)
+}
+
+/// `SmSurface::EvaluateNormalSection` for code generic over the surface type (the
+/// `SmSurface` body, which no ported surface kind overrides).
+///
+/// # Errors
+///
+/// Those of the evaluations, `SM_ERR` for a vanishing normal and those of
+/// `smsurf_EvaluateNormalSection`.
+pub fn evaluate_normal_section_of<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
+    uv: Point2,
+    u_side: Side,
+    v_side: Side,
+    direction: Vec3,
+) -> Result<SurfaceNormalSection> {
+    // Get SurfacePoint Evaluation
+    let mut pvv = evaluate_pvv(surface, uv, u_side, v_side)?; // exact Tangent values
+
+    // get surface Normal
+    let mut surface_normal = pvv[1][0].cross(pvv[0][1]);
+    if surface_normal.length_squared() < EFF_ZERO_SQ {
+        surface_normal = surface.evaluate_normal(uv, u_side, v_side)?;
+    } else {
+        surface_normal = surface_normal
+            .unitize()
+            .map_err(|_| SolidError::sm_err("surface::surface::p3::evaluate_normal_section_of"))?;
+    }
+
+    // get output TangentPlaneDirection and Curvature
+    pvv[2][2] = surface_normal;
+    let section = smsurf_evaluate_normal_section(&mut pvv, direction)?;
+    Ok(SurfaceNormalSection {
+        tangent: section.tangent,
+        curvature: section.curvature,
+        normal: surface_normal,
+    })
+}
+
 impl Surface {
     /// The curvatures, fundamental forms and principal directions at `uv`
     /// (`EvaluateGeometric`); `u_side` and `v_side` pick the interval at a boundary.
@@ -392,17 +454,7 @@ impl Surface {
         u_side: Side,
         v_side: Side,
     ) -> Result<GeometricProperties> {
-        // Evaluate Target parameter for position and derivatives
-        let mut pvv = evaluate_pvv(self, uv, u_side, v_side)?; // exact Tangent values
-
-        // make sure there is a normal vector - even at singular points
-        let norm = pvv[0][1].cross(pvv[1][0]);
-        if norm.length_squared() < EFF_ZERO {
-            pvv[2][2] = self.evaluate_normal(uv, u_side, v_side)?;
-        }
-
-        // pass the call along
-        smsurf_evaluate_geometric(&mut pvv)
+        evaluate_geometric_of(self, uv, u_side, v_side)
     }
 
     /// The tangent-plane direction, curvature and unit normal of the normal section
@@ -419,27 +471,7 @@ impl Surface {
         v_side: Side,
         direction: Vec3,
     ) -> Result<SurfaceNormalSection> {
-        // Get SurfacePoint Evaluation
-        let mut pvv = evaluate_pvv(self, uv, u_side, v_side)?; // exact Tangent values
-
-        // get surface Normal
-        let mut surface_normal = pvv[1][0].cross(pvv[0][1]);
-        if surface_normal.length_squared() < EFF_ZERO_SQ {
-            surface_normal = self.evaluate_normal(uv, u_side, v_side)?;
-        } else {
-            surface_normal = surface_normal
-                .unitize()
-                .map_err(|_| SolidError::sm_err("surface::surface::p3::evaluate_normal_section"))?;
-        }
-
-        // get output TangentPlaneDirection and Curvature
-        pvv[2][2] = surface_normal;
-        let section = smsurf_evaluate_normal_section(&mut pvv, direction)?;
-        Ok(SurfaceNormalSection {
-            tangent: section.tangent,
-            curvature: section.curvature,
-            normal: surface_normal,
-        })
+        evaluate_normal_section_of(self, uv, u_side, v_side, direction)
     }
 
     /// The singular sides: a natural boundary is singular (or approximately singular)
