@@ -2757,8 +2757,8 @@
       }
     },
     {
-      "name": "trim_point_u_1_0_0.0",
-      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (defined zero-width angular query with nonzero seam lines)",
+      "name": "trim_point_angular_v_1_0_0.0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (zero-width angular NURB v after UV swap; linear u remains nonzero)",
       "inputs": {
         "trim": [
           2.0,
@@ -2774,17 +2774,17 @@
           1.5,
           0.0,
           360.0,
-          0.3,
           0.2,
           0.3,
           0.9,
+          0.3,
           0.0
         ]
       }
     },
     {
-      "name": "trim_point_u_1_0_1e-07",
-      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (defined zero-width angular query with nonzero seam lines)",
+      "name": "trim_point_angular_v_1_0_1e-07",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (zero-width angular NURB v after UV swap; linear u remains nonzero)",
       "inputs": {
         "trim": [
           2.0,
@@ -2800,17 +2800,17 @@
           1.5,
           0.0,
           360.0,
-          0.3,
           0.2,
           0.3,
           0.9,
+          0.3,
           1e-07
         ]
       }
     },
     {
-      "name": "trim_point_u_1_1_0.0",
-      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (defined zero-width angular query with nonzero seam lines)",
+      "name": "trim_point_angular_v_1_1_0.0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (zero-width angular NURB v after UV swap; linear u remains nonzero)",
       "inputs": {
         "trim": [
           2.0,
@@ -2826,17 +2826,17 @@
           1.5,
           0.0,
           360.0,
-          0.3,
           0.2,
           0.3,
           0.9,
+          0.3,
           0.0
         ]
       }
     },
     {
-      "name": "trim_point_u_1_1_1e-07",
-      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (defined zero-width angular query with nonzero seam lines)",
+      "name": "trim_point_angular_v_1_1_1e-07",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (zero-width angular NURB v after UV swap; linear u remains nonzero)",
       "inputs": {
         "trim": [
           2.0,
@@ -2852,10 +2852,10 @@
           1.5,
           0.0,
           360.0,
-          0.3,
           0.2,
           0.3,
           0.9,
+          0.3,
           1e-07
         ]
       }

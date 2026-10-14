@@ -47,7 +47,11 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         || [swap, inside].iter().any(|v| *v != 0.0 && *v != 1.0)
         || [u0, v0, u1, v1].iter().any(|v| !(0.0..=1.0).contains(v))
         || u0 > u1
-        || v0 >= v1
+        || v0 > v1
+        // The linear NURB direction must span a nonzero seam line. The angular
+        // direction may collapse; swap exchanges which direction is linear.
+        || (swap == 0.0 && v0 == v1)
+        || (swap == 1.0 && u0 == u1)
     {
         return Err(FfiError::InvalidArgument(format!(
             "invalid bounded cone trim at z={z}"
@@ -211,6 +215,30 @@ mod tests {
         nonfinite[0] = f64::INFINITY;
         assert!(validate(&nonfinite).is_err());
     }
+    #[test]
+    fn validates_the_linear_axis_after_uv_swap() {
+        let mut input = record();
+        input[13] = 0.3;
+        input[15] = 0.3;
+        assert!(validate(&input).is_ok());
+        input[5] = 1.0;
+        assert!(matches!(
+            validate(&input),
+            Err(FfiError::InvalidArgument(_))
+        ));
+        input[13] = 0.2;
+        input[15] = 0.9;
+        input[14] = 0.3;
+        input[16] = 0.3;
+        assert!(validate(&input).is_ok());
+        assert!(eval_trim(&input).is_ok());
+        input[5] = 0.0;
+        assert!(matches!(
+            validate(&input),
+            Err(FfiError::InvalidArgument(_))
+        ));
+    }
+
     #[test]
     fn native_truncation_discards_the_partial_sweep() {
         let mut input = record();
