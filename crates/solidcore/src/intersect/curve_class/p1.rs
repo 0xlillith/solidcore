@@ -121,8 +121,8 @@
 //!   topology member (`SmEdge`, `SmVertex`, `SmFace`, `SmEdgeuse`), the surface point
 //!   solves (`surface.surface_p4`, `surface.surface_p5`), the 3D-curve
 //!   branch of `SmTol::MapTo2d(.., SmCurve, SmSurface)` (`SmSurface::DropPoint`,
-//!   `surface.surface_p5`; its UV-curve branch is ported privately as
-//!   `map_to_2d_on_curve`), and an `SmCrvOnSurf` over a
+//!   `surface.surface_p5`; its UV-curve branch is co-ported as
+//!   [`map_to_2d_on_curve`]), and an `SmCrvOnSurf` over a
 //!   surface that is not a B-spline (a dispatch gap of `curve.crv_on_surf`, whose
 //!   `CrvOnSurf` holds only an `SmBSplineSurface`).
 //! - **Recursion.** None.
@@ -139,7 +139,7 @@ use crate::geom::global_solver::SolverOperation;
 use crate::geom::object;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType};
 use crate::geom::tol::{
-    ang_tol_rad, eff_zero, eff_zero_param, tol3d, xsect_tol3d, xsect_tol_3d_from_zones, zone_tol3d,
+    ang_tol_rad, eff_zero, eff_zero_param, xsect_tol3d, xsect_tol_3d_from_zones, zone_tol3d,
     zone_tol_3d, ScaledZero, SmallTopoType, UNINIT_TOL,
 };
 use crate::intersect::point_class::{
@@ -149,6 +149,7 @@ use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec2, Vec3, PI};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType};
+use crate::surface::surface::p1::map_to_2d_on_curve;
 use crate::surface::surface::p2::surface_cache;
 use crate::surface::surface::{Surface, SurfaceKind};
 
@@ -1935,40 +1936,6 @@ pub fn xsect_tol_2d_or_3d_for_classify_pair(
         // Curve2d No m_cpSurface1
         Ok(xsect_tol3d(k, eff_zero_param()))
     }
-}
-
-/// `SmTol::MapTo2d(rTol3d, dParam, rTrimCurve, rSurface)` (the result as an
-/// `SmTol2d`): for a UV curve, the tolerance mapped to the parameter space of `surface`
-/// at the curve point in the curve direction (statuses ignored, as upstream).
-///
-/// # Errors
-///
-/// [`SolidError::Unported`] for a curve that is not a UV curve (the general 3D branch
-/// drops the point onto the surface, `SmSurface::DropPoint`, unit
-/// `surface.surface_p5`), and from the evaluations.
-fn map_to_2d_on_curve(
-    tol_3d: f64,
-    param: f64,
-    trim_curve: &Curve,
-    surface: &Surface,
-) -> Result<f64> {
-    // evaluate SurfacePt = rSurface(rUVTrimCurve(dParam)) for UVTrimCurves (a
-    // CrvOnSurf is 3D, so the classify-pair caller only reaches the 2D case)
-    if trim_curve.dim() != 2 {
-        // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-        return Err(SolidError::unported(
-            "SmSurface::DropPoint",
-            "surface.surface_p5",
-        ));
-    }
-    let [p0, p1] = curve_evaluate_1(trim_curve, param)?;
-    let uv = Point2::new(p0.x, p0.y);
-    let uv_dir = Vec2::new(p1.x, p1.y);
-
-    // pass the call along
-    Ok(tol3d(crate::surface::surface::p1::map_to_2d_dir(
-        tol_3d, uv, uv_dir, surface,
-    )?))
 }
 
 /// The dimension of a topology object (`sm_ObjectDimension`): face 2, edge 1, vertex
