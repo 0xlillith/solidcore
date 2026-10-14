@@ -545,9 +545,6 @@ fn push_res<T>(
         Err(e) => match defer(&e) {
             Some(d) => Err(d),
             None => {
-                if std::env::var_os("OFFSET_DEBUG").is_some() {
-                    eprintln!("DEBUG rust error: {e:?}");
-                }
                 o.push(status(&e));
                 Ok(())
             }
@@ -1402,13 +1399,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
     let k = Kernel::default();
     let scale = gen_scale(rng);
     let off = gen_off(rng, scale, 0);
-    if dbg {
-        eprintln!("DEBUG gen off {}", serde_json::to_string(&off).unwrap_or_default());
-    }
     let (d, size) = base_info(&k, &off)?;
-    if dbg {
-        eprintln!("DEBUG gen base ok {d:?}");
-    }
     let foff = ffi_off(&off).ok()?;
     if rng.chance(0.08) {
         let binary = rng.chance(0.5);
@@ -1537,21 +1528,12 @@ impl UnitDiff for Runner {
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
-        if std::env::var_os("OFFSET_DEBUG").is_some() {
-            eprintln!("DEBUG inputs {}: {}", case.name, case.inputs);
-        }
         let r = cpp(&case.parse()?);
-        if std::env::var_os("OFFSET_DEBUG").is_some() {
-            eprintln!("DEBUG cpp {}: {:?}", case.name, r.as_ref().map(|o| format!("{o:?}")));
-        }
         r
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let r = rust(&case.parse()?);
-        if std::env::var_os("OFFSET_DEBUG").is_some() {
-            eprintln!("DEBUG rust {}: {:?}", case.name, r.as_ref().map(|o| format!("{o:?}")));
-        }
         r
     }
 }
