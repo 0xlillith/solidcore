@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**114 / 261 units ported** (83 green, 31 partial), **145,393 / 387,903 upstream lines (37.5%)**. 17 claimed, 0 blocked, 130 todo.
+**114 / 261 units ported** (83 green, 31 partial), **145,393 / 387,903 upstream lines (37.5%)**. 18 claimed, 0 blocked, 129 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -16,7 +16,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] `surface.cone_p2` (1656 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p3`
 - [ ] `surface.surf_of_revolution_p2` (1369 lines) — missing: `surface.surf_of_revolution_p3`
-- [ ] `surface.surface_cache_p3` (1703 lines) — missing: `surface.surface_cache_p2`
 - [ ] `surface.plane_p2` (1627 lines) — missing: `surface.surface_p7`
 - [ ] `surface.surface_p4` (2270 lines) — missing: `surface.surface_p7`
 - [ ] `surface.sphere` (2861 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p2`, `surface.surf_of_revolution_p3`
@@ -156,6 +155,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_cache_p2` (1245 lines) — in progress: #35 @bherbruck (ready for review)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (draft)
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (draft)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.surface_tracer` (1900 lines) — in progress: #27 @bherbruck (ready for review)
@@ -300,7 +300,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.unbend_volume` (920 lines) — in progress: #20 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
 - [ ] ⏳ `surface.surf_of_revolution_p2` (1369 lines) — waiting
-- [ ] ⏳ `surface.surface_cache_p3` (1703 lines) — waiting
+- [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (draft)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (draft)
 - [ ] ⏳ `surface.plane_p2` (1627 lines) — waiting
