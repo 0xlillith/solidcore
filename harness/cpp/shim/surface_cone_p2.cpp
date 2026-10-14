@@ -538,7 +538,8 @@ bool offset_factory_defined(const SmContext& context,const SmCone& cone,double d
 }
 }
 
-// op 1 recognition, 2 rebuild, 3 offset; kind 0 actual SmCone, 1 SmCylinder.
+// op 1 recognition, 2 rebuild, 3 offset. Kind bits: cylinder=1, uncached=2, unbounded=4.
+// Optional final nine scalars specify origin, X axis and Y axis; real native types are used.
 SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mutation,
     double scale,double distance,double tolerance,const double* in,int64_t n_in,
     double* out,int64_t cap,int64_t* out_len)

@@ -838,6 +838,12 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
 
 ## Open issues
 
+- **Kernel-aware analytic Surface dispatch:** [issue #76](https://github.com/bherbruck/solidcore/issues/76)
+  coordinates the shared adapter refactor for cones/cylinders, torus and extrusion.
+  PR #71 wires the real cone recognizer into CopyAndAddAnalytics, but recognized
+  cones still return an explicit `DISPATCH GAP` until Surface dispatch can receive
+  the caller's Kernel. Do not substitute a default Kernel or a B-spline copy.
+
 - **`geom.vector2d` / `geom.vector3d` vs `math.rs`.** The plan puts these units at
   `geom::vector2d` / `geom::vector3d`, but `crates/solidcore/src/math.rs` already defines
   `Vec2`/`Vec3`, mapped to `SmVector2d`/`SmVector3d`. The agent porting those units should

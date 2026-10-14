@@ -1,4 +1,4 @@
-//! Safe fixture protocol for actual cone ellipse trim intervals (SmCone.cpp:5282).
+//! Guarded native cone trim, recognition, rebuilding and offset fixture protocol.
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -110,13 +110,14 @@ mod analytic_sys {
     }
 }
 
-/// Independent native recognition (1), rebuilding (2), or offsetting (3).
-/// Kind 0 constructs a real cone; kind 1 constructs a real cylinder.
-/// Mutation 1 twists one NURB end; 2 rescales its homogeneous control points.
+/// Validate analytic fixture geometry and all native options.
 ///
-/// # Errors
-/// Invalid records or options, construction, native state extraction or reference failure.
-/// Validate the analytic fixture geometry and all native options.
+/// Records contain 18 geometry scalars and optionally nine position/axis scalars.
+/// Kind bits select a real cylinder (1), an initially uncached surface (2), and
+/// an unbounded surface (4); zero selects a bounded, cached real cone.
+/// Mutations select none (0), end twist (1), homogeneous end rescaling (2),
+/// noncanonical interior knot (3), flattened control net (4), or nonrational net (5).
+/// Mutations require an initially cached NURB.
 ///
 /// # Errors
 /// Malformed or out-of-bounds fixture data.

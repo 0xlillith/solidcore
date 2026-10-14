@@ -3800,3 +3800,28 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+
+## surface.cone_p2: native state and adapter handoff (PR #71)
+
+The cone recognizer is wired into BSplineSurface::copy_and_add_analytics with the
+caller's Kernel. A recognized cone returns the established DISPATCH GAP error
+(`SurfaceKind::Cone`, surface.cone_p2), without an UNPORTED marker on owned code.
+Sphere recognition remains the next genuine unported callee. Subsequent revolution
+and extrusion recognition preserve native dispatch order. Issue #76 coordinates
+the Kernel-aware Surface refactor; this unit does not invent a default Kernel or
+return an unrecognized B-spline in place of a cone.
+
+Native trim classification may be written before STEPInversion reports an error;
+the shared revolution hook preserves that actual classification, without reading
+unset coordinates. CirclePlaneIntersect initializes its hit count to zero, so
+ordinary failures remain empty intersections; line-plane failures leave their
+parameter unset and are rejected by the shim before the helper consumes it.
+Offset TO_EUCLID divides each coordinate directly by its weight, whereas the
+separate N_CPtToPtEuclid helper multiplies by a reciprocal. Keeping that distinction
+is necessary for large-scale apex offsets to match bit for bit.
+
+Three native adapter regressions pass: malformed/lazy-mutated inputs rejected
+before C++, truncation of a 20..250-degree cone returns a full 0..360-degree sweep,
+and a near-collapse canonical factory returns NULL and is rejected before the
+unsafe native offset call. See upstream-issues UB-98 and WR-73.

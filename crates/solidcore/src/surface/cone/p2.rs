@@ -12,7 +12,12 @@
 //! Deviations: returns intervals instead of an output array. A failed primitive
 //! intersection/evaluation is returned where upstream ignores its status and may
 //! read unset output. A STEP classification actually written before an error is
-//! retained because this helper reads only that classification. The six-transition limit is checked; there is no recursion.
+//! retained because this helper reads only that classification. Circle-plane errors
+//! retain the native initialized empty hit count. The six-transition limit is
+//! checked; there is no recursion. Lazy NURB creation for offsets uses an owned
+//! working copy instead of mutating the input cache. Native attribute notifications
+//! have no Rust equivalent. Offset homogeneous conversion preserves the direct
+//! divisions of `TO_EUCLID`, which differs from `N_CPtToPtEuclid`'s reciprocal multiply.
 //! Cone STEP inversion deliberately uses the cone's own analytic domain, as its
 //! native override ignores the domain argument passed by this helper.
 
@@ -568,19 +573,19 @@ impl Cone {
 // and radius enough to alter the following offset branch and movement.
 fn offset_euclid(point: crate::nurbs::math::CPoint) -> crate::math::Point3 {
     use crate::nurbs::math::{NOW, NOZ};
-    let z = if point.z != NOZ { point.z } else { 0.0 };
-    if point.w != NOW {
+    let z = if point.z == NOZ { 0.0 } else { point.z };
+    if point.w == NOW {
+        crate::math::Point3::new(point.x, point.y, z)
+    } else {
         crate::math::Point3::new(
             point.x / point.w,
             point.y / point.w,
-            if point.z != NOZ {
-                point.z / point.w
-            } else {
+            if point.z == NOZ {
                 0.0
+            } else {
+                point.z / point.w
             },
         )
-    } else {
-        crate::math::Point3::new(point.x, point.y, z)
     }
 }
 

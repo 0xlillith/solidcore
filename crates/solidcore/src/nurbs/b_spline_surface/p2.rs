@@ -337,7 +337,7 @@ impl BSplineSurface {
     /// # Errors
     ///
     /// Recognition errors, the unported sphere recognizer, or an explicit
-    /// missing SurfaceKind adapter for a recognized cone or extrusion.
+    /// missing `SurfaceKind` adapter for a recognized cone or extrusion.
     pub fn copy_and_add_analytics(&self, kernel: &Kernel) -> Result<Surface> {
         // (a surface that is not SmBSplineSurface_TYPE is copied as is: never here)
         // SmPlane

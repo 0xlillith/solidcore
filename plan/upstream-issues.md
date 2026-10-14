@@ -705,6 +705,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Surfaces and volumes
 
+#### UB-98. Cone offset dereferences a failed truncation factory
+- **Location:** `SmCone.cpp:623-645`, `SmCone::CreateOffsetSurface`.
+- **What happens:** The apex-truncation branch ignores CreateCanonical's status and dereferences pOffCone even when the factory returns NULL.
+- **Trigger:** A near-collapse inward offset of a bounded cone (bottom radius 1, top radius 2, height 4, zero tolerance); the fixture advances the collapse distance by four floating-point successors.
+- **How found:** Read during porting; a native preflight regression safely confirms that the actual canonical factory returns NULL.
+- **Confirmed:** no unsafe offset execution; only the NULL factory result was confirmed. The shim rejects it before the dereference.
+- **Severity:** crash/UB.
+- **Rust port:** Propagates the canonical factory error.
+
+
 #### UB-63. `SmCurveBoundedSurface::operator==` reads past the UV boundary array
 - **Location:** `SmCurveBoundedSurface.cpp:122`, `SmCurveBoundedSurface::operator==` (def. `:83`).
 - **What happens:** The UV loop runs to the number of 3D boundaries, so `m_vUVBoundaries[i]` is read out of bounds when there are more 3D boundaries than UV boundaries.
@@ -1606,6 +1616,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (`surface.surf_of_extrusion_p1` generated `eval_step` cases outside the domain agree with the unclamped port).
 - **Severity:** wrong result.
 - **Rust port:** Faithful (evaluates the unclamped parameters).
+
+#### WR-73. Apex-truncated cone offsets discard the angular trim
+- **Location:** `SmCone.cpp:623-661`, `SmCone::CreateOffsetSurface`.
+- **What happens:** The canonical truncation factory creates a full 0..360-degree cone; the input angular interval is never reapplied despite the nearby preservation assertion.
+- **Trigger:** Cone bottom radius 2, top radius 1, height 4, angular interval 20..250 degrees, offset -1.5 and tolerance 1e-7.
+- **How found:** Read during porting, then independent native regression and differential fixtures.
+- **Confirmed:** yes; native output STEP U interval is 0..360 degrees.
+- **Severity:** wrong result.
+- **Rust port:** Faithful; preserves the native full-sweep output.
 
 #### WR-63. `SmCone::CreateCanonical` overloads misuse their arguments
 - **Location:** `SmCone.cpp:341`-`348` `SmCone::CreateCanonical(Origin, BotRadius, SemiAngleDeg, pOptHeight, bSwapUV, bInsideOut)` (def. `:308`); `SmCone.cpp:392`-`400` `SmCone::CreateCanonical(Origin, BotRadius, TopRadius, Height, ...)` (def. `:375`).
