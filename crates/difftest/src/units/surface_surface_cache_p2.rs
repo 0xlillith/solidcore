@@ -887,6 +887,7 @@ fn gen_add(rng: &mut Rng, surf: SurfIn) -> Inputs {
         .collect();
     let nq = rng.below(5) as usize;
     let queries = (0..nq)
+        // `adds` is never empty (na >= 1), so `get` always hits.
         .filter_map(|_| {
             let a = adds.get(rng.below(adds.len() as u64) as usize)?;
             Some(QueryIn {
