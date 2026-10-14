@@ -955,6 +955,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (uninitialised read).
 - **Rust port:** The comparison is false without a first point.
 
+#### UB-96. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
+- **Location:** `source/SMLib/src/SmPoly.cpp:2734` (`SmPointSet3d sPointSet(*pOptPolyPoints, FALSE)`), `SmPolyBrep::CalculateBoundingBox`.
+- **What happens:** In the branch without `pOptPolyPoints`, a requested pseudo box fills a local `sPolyPoints` and then builds the point set from `*pOptPolyPoints`, which is `NULL` in that branch.
+- **Trigger:** `CalculateBoundingBox(box, &pseudoBox)` (no point array).
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the FFI wrapper rejects the combination).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** `PolyBrep::calculate_bounding_box` returns `InvalidInput`.
+
+#### UB-97. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
+- **Location:** `source/SMLib/src/SmPoly.cpp:6505` (`(SmPolyEdge*) pPolyFace->GetList()`), `SmPolyBrep::GetPolyEdges`.
+- **What happens:** The filtered branch walks each face's `m_pList`, which holds the face's loops, casts them to `SmPolyEdge*`, reads `GetOriginalEdgeuse()` at the edge member offset of an `SmPolyLoop`, and would add loop pointers to the edge array.
+- **Trigger:** `GetPolyEdges(edges, pEdgeuse)` with a non-null edge use.
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the harness never passes an edge use).
+- **Severity:** crash/UB (type confusion, out-of-object read).
+- **Rust port:** `PolyBrep::poly_edges(Some(..))` returns `InvalidInput`.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1740,6 +1758,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** read during porting.
 - **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
 - **Severity:** wrong result (performance and duplicate start points).
+- **Rust port:** Faithful.
+
+#### WR-67. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
+- **Location:** `source/SMLib/src/SmPoly.cpp:13195` `SmCPolyFace::RemovePolyFace`.
+- **What happens:** The status of `FindElement` is ignored and the index starts at 0, so a face that is not a member removes member 0. `~SmPolyFace` calls it for any face whose `m_pCPolyFace` still points at the composite, for example after an earlier `RemovePolyFace` of that face.
+- **Trigger:** `RemovePolyFace(f)` twice, or deleting a face after removing it from its composite.
+- **How found:** generated difftest case (`query.poly` mutate ops).
+- **Confirmed:** yes (`query.poly` generated `cpoly_remove` cases agree with the port, which keeps the behaviour).
+- **Severity:** wrong result.
 - **Rust port:** Faithful.
 
 ## Docs
