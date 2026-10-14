@@ -81,10 +81,7 @@ fn rec<R: TopologyRecords + ?Sized>(
     key: ObjectKey,
     operation: &'static str,
 ) -> Result<Topology> {
-    records
-        .topology(key)
-        .copied()
-        .ok_or(broken_list(operation))
+    records.topology(key).copied().ok_or(broken_list(operation))
 }
 
 fn rec_mut<'r, R: TopologyRecords + ?Sized>(
@@ -390,7 +387,8 @@ impl OwningTopology {
         attribute_id: Option<u64>,
         target: Option<ObjectKey>,
     ) -> Result<Vec<ObjectKey>> {
-        let (items, status) = self.get_all_with_status(records, attributes, attribute_id, target)?;
+        let (items, status) =
+            self.get_all_with_status(records, attributes, attribute_id, target)?;
         status.map(|()| items)
     }
 

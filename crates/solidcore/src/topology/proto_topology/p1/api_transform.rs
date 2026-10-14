@@ -84,7 +84,10 @@ pub fn transform_independent_object(
     match obj {
         TransformObject::Brep => {
             // UNPORTED(topology.brep_p5): SmBrep::Transform
-            Err(SolidError::unported("SmBrep::Transform", "topology.brep_p5"))
+            Err(SolidError::unported(
+                "SmBrep::Transform",
+                "topology.brep_p5",
+            ))
         }
         TransformObject::PolyBrep => {
             // The stable API publishes only positive, non-degenerate PolyBrep scales.

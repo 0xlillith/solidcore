@@ -371,7 +371,10 @@ fn are_connected_edge_face() -> Result<bool> {
 /// `sm_AreConnected(const SmVertex*, const SmEdge*)`.
 fn are_connected_vertex_edge() -> Result<bool> {
     // UNPORTED(topology.edge): SmEdge::GetStartVertex
-    Err(SolidError::unported("SmEdge::GetStartVertex", "topology.edge"))
+    Err(SolidError::unported(
+        "SmEdge::GetStartVertex",
+        "topology.edge",
+    ))
 }
 
 /// Whether two topology objects are neighbours in their B-rep
@@ -507,10 +510,7 @@ pub fn are_overlapping<O: ClassObject>(
     // tolerance
     let zone_tol_3d = zone_tol3d(
         k,
-        max2(
-            src_zone_tol_3d_of(k, Some(classification)),
-            ed.tolerance(k),
-        ),
+        max2(src_zone_tol_3d_of(k, Some(classification)), ed.tolerance(k)),
     );
 
     // Drop ED->Curve Start and End Pts to CI->CurveClassification->Curve
@@ -819,9 +819,19 @@ impl<O: ClassObject> VertexDefinition<O> {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from the classifications.
-    pub fn set_point_parameters(&mut self, k: &Kernel, geometry: &impl ClassGeometry<O>) -> Result<()> {
-        ignore_status(self.pc1.compute_point_parameters(k, geometry, self.position))?;
-        ignore_status(self.pc2.compute_point_parameters(k, geometry, self.position))?;
+    pub fn set_point_parameters(
+        &mut self,
+        k: &Kernel,
+        geometry: &impl ClassGeometry<O>,
+    ) -> Result<()> {
+        ignore_status(
+            self.pc1
+                .compute_point_parameters(k, geometry, self.position),
+        )?;
+        ignore_status(
+            self.pc2
+                .compute_point_parameters(k, geometry, self.position),
+        )?;
         Ok(())
     }
 }
@@ -1092,8 +1102,14 @@ impl<O: ClassObject> EdgeDefinition<O> {
 
         // Caller wants the deriv vector.
         let pt_vec = curve.evaluate(param, 1, true, true)?;
-        let pos = pt_vec.first().copied().ok_or(dangling("evaluation result"))?;
-        let tan = pt_vec.get(1).copied().ok_or(dangling("evaluation result"))?;
+        let pos = pt_vec
+            .first()
+            .copied()
+            .ok_or(dangling("evaluation result"))?;
+        let tan = pt_vec
+            .get(1)
+            .copied()
+            .ok_or(dangling("evaluation result"))?;
         Ok((want_pos.then_some(pos), Some(tan)))
     }
 
@@ -1194,7 +1210,10 @@ impl<O: ClassObject> EdgeDefinition<O> {
             .ok_or(dangling("curve handle is null or unknown"))?;
         c3.edit_parameterization(k, new_domain)?;
 
-        for c in [self.xsect_uv_curve1, self.xsect_uv_curve2].into_iter().flatten() {
+        for c in [self.xsect_uv_curve1, self.xsect_uv_curve2]
+            .into_iter()
+            .flatten()
+        {
             geometry
                 .curve_mut(c)
                 .ok_or(dangling("curve handle is unknown"))?
@@ -1493,7 +1512,11 @@ impl ProtoEdge {
     }
 
     /// Replaces `old_pv` by `new_pv` at either end (`ReplaceProtoVertex`).
-    pub fn replace_proto_vertex(&mut self, old_pv: Option<ProtoVertexId>, new_pv: Option<ProtoVertexId>) {
+    pub fn replace_proto_vertex(
+        &mut self,
+        old_pv: Option<ProtoVertexId>,
+        new_pv: Option<ProtoVertexId>,
+    ) {
         if self.start_pv == old_pv {
             self.start_pv = new_pv;
         }
@@ -1705,7 +1728,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             return deleted;
         };
         for ed in &edge.edge_defs {
-            if let Some(d) = self.edge_def_store.get_mut(ed.0 as usize).and_then(Option::take) {
+            if let Some(d) = self
+                .edge_def_store
+                .get_mut(ed.0 as usize)
+                .and_then(Option::take)
+            {
                 deleted.extend(d.destroy());
             }
         }
@@ -1827,7 +1854,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// The vertex definition `vd`, if it exists.
     #[must_use]
     pub fn vertex_def(&self, vd: VertexDefId) -> Option<&VertexDefinition<O>> {
-        self.vertex_def_store.get(vd.0 as usize).and_then(Option::as_ref)
+        self.vertex_def_store
+            .get(vd.0 as usize)
+            .and_then(Option::as_ref)
     }
 
     /// Mutable access to the vertex definition `vd`.
@@ -1840,7 +1869,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// The edge definition `ed`, if it exists.
     #[must_use]
     pub fn edge_def(&self, ed: EdgeDefId) -> Option<&EdgeDefinition<O>> {
-        self.edge_def_store.get(ed.0 as usize).and_then(Option::as_ref)
+        self.edge_def_store
+            .get(ed.0 as usize)
+            .and_then(Option::as_ref)
     }
 
     /// Mutable access to the edge definition `ed`.
@@ -1858,7 +1889,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
     /// Mutable access to the proto vertex `pv`.
     pub fn proto_vertex_mut(&mut self, pv: ProtoVertexId) -> Option<&mut ProtoVertex> {
-        self.pv_store.get_mut(pv.0 as usize).and_then(Option::as_mut)
+        self.pv_store
+            .get_mut(pv.0 as usize)
+            .and_then(Option::as_mut)
     }
 
     /// The proto edge `pe`, if it exists.
@@ -1869,7 +1902,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
     /// Mutable access to the proto edge `pe`.
     pub fn proto_edge_mut(&mut self, pe: ProtoEdgeId) -> Option<&mut ProtoEdge> {
-        self.pe_store.get_mut(pe.0 as usize).and_then(Option::as_mut)
+        self.pe_store
+            .get_mut(pe.0 as usize)
+            .and_then(Option::as_mut)
     }
 
     /// The proto face `pf`, if it exists.
@@ -1880,15 +1915,19 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
     /// Mutable access to the proto face `pf`.
     pub fn proto_face_mut(&mut self, pf: ProtoFaceId) -> Option<&mut ProtoFace<O>> {
-        self.pf_store.get_mut(pf.0 as usize).and_then(Option::as_mut)
+        self.pf_store
+            .get_mut(pf.0 as usize)
+            .and_then(Option::as_mut)
     }
 
     fn vd(&self, vd: VertexDefId) -> Result<&VertexDefinition<O>> {
-        self.vertex_def(vd).ok_or(dangling("vertex definition is deleted"))
+        self.vertex_def(vd)
+            .ok_or(dangling("vertex definition is deleted"))
     }
 
     fn ed(&self, ed: EdgeDefId) -> Result<&EdgeDefinition<O>> {
-        self.edge_def(ed).ok_or(dangling("edge definition is deleted"))
+        self.edge_def(ed)
+            .ok_or(dangling("edge definition is deleted"))
     }
 
     fn pv(&self, pv: Option<ProtoVertexId>) -> Result<&ProtoVertex> {
@@ -1907,7 +1946,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     }
 
     fn pe_mut(&mut self, pe: ProtoEdgeId) -> Result<&mut ProtoEdge> {
-        self.proto_edge_mut(pe).ok_or(dangling("proto edge is deleted"))
+        self.proto_edge_mut(pe)
+            .ok_or(dangling("proto edge is deleted"))
     }
 
     /// Stores a vertex definition (`new (pOwner) SmVertexDefinition(..)`).
@@ -2232,7 +2272,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         let (start, end) = (pe.start_pv, pe.end_pv);
 
         // First, it would have to have the same two ProtoVertices.
-        let forward = (start == tgt_start && end == tgt_end) || (end == tgt_start && start == tgt_end);
+        let forward =
+            (start == tgt_start && end == tgt_end) || (end == tgt_start && start == tgt_end);
         if !forward {
             return Ok((false, false));
         }
@@ -2348,7 +2389,10 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             };
             if are_connected(brep_topo_ed, Some(vtx))? {
                 // UNPORTED(topology.vertex): SmVertex::GetPoint
-                return Err(SolidError::unported("SmVertex::GetPoint", "topology.vertex"));
+                return Err(SolidError::unported(
+                    "SmVertex::GetPoint",
+                    "topology.vertex",
+                ));
             }
         }
         Ok(None)
@@ -2387,7 +2431,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             self.pe_mut(pe)?.replace_proto_vertex(Some(other), Some(pv));
         }
 
-        self.pv_mut(pv)?.proto_edges.extend_from_slice(&o.proto_edges);
+        self.pv_mut(pv)?
+            .proto_edges
+            .extend_from_slice(&o.proto_edges);
         Ok(())
     }
 
