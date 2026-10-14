@@ -758,7 +758,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** The unbend volume is not ported yet. The harness rejects these chains.
 
-#### UB-78. `SmSurfOfExtrusion::EvaluateSTEP` lets order 5 overrun `sm_CrvDerivs`
+#### UB-80. `SmSurfOfExtrusion::EvaluateSTEP` lets order 5 overrun `sm_CrvDerivs`
 - **Location:** `SmSurfOfExtrusion.cpp:920`-`922` (`EvaluateSTEP`, def. `:897`: `lMaxDeriv = 5; // 5: MAXDER in NLib`), `:959` (`m_pGenCurve->EvaluateSTEP(dU, lHighestUDeriv, ..)`); `SmNurbsCrv.cpp:1281` `sm_CrvDerivs` (see UB-33).
 - **What happens:** The guard allows order 5, but `NL_MAXDER` is 4. A B-spline generator evaluates through `SmBSplineCurve::Evaluate` -> `sm_CrvDerivs`, which writes past its fixed derivative rows: `*** stack smashing detected ***`. Analytic generators (`SmLine`, `SmCircle`, `SmEllipse`) evaluate order 5 fine.
 - **Trigger:** `EvaluateSTEP(uv, 5, 5, ..)` on an extrusion of any `SmBSplineCurve` (degrees 1 to 3 tried).
@@ -767,7 +767,7 @@ by area within each severity.
 - **Severity:** crash/UB (stack buffer overflow).
 - **Rust port:** The B-spline evaluation rejects order 5 and `evaluate_step` returns the error. The harness keeps order 5 of a B-spline generator away from the C++.
 
-#### UB-79. `sm_IntersectGenerators` reads unset offsets and a possibly NULL curve list
+#### UB-81. `sm_IntersectGenerators` reads unset offsets and a possibly NULL curve list
 - **Location:** `SmSurfOfExtrusion.cpp:2978`-`2986` (`sm_IntersectGenerators`, def. `:2658`; arrays declared `:2725`-`:2726`).
 - **What happens:** For a range solution, `pOpt3DCurves->GetSize()` is read before the `pOpt3DCurves != NULL` test, and `pOffsetCurve[jj][k]` / `dOffsetLength[jj][k]` are compared although they are only set when an end of the overlap interval equals one of four bounds exactly (`==` on doubles) and the end overlaps at all.
 - **Trigger:** A range solution of the projected generator intersection whose overlap ends match none of the four bounds, or a caller passing `NULL` curves.
@@ -776,7 +776,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** A missing curve list has size 0; unset offsets compare unequal (the case falls to "too complicated").
 
-#### UB-80. `SmSurfOfExtrusion` constructors and copy constructor trust failed calls
+#### UB-82. `SmSurfOfExtrusion` constructors and copy constructor trust failed calls
 - **Location:** `SmSurfOfExtrusion.cpp:104`-`109` and `:204`-`209` (constructors: `SE(IsOnPlane(..))`, then read `bOnPlane`); `:70`, `:162`, `:170` (`SE` of the generator evaluations whose points are then used); `:252`-`:259` (copy constructor: `SE(SM_ERR)` for a NULL or non-B-spline generator copy, then `m_pGenCurve->SetOwner(this)`).
 - **What happens:** A failed `IsOnPlane` leaves `bOnPlane` uninitialised; a failed evaluation leaves the tolerance point or origin unset; copying a surface without generator dereferences NULL.
 - **Trigger:** Copying the empty I/O surface; a generator whose evaluation fails.
@@ -804,6 +804,15 @@ by area within each severity.
 - **Confirmed:** no.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
+
+#### UB-79. `SmPointClassification` calls `SmObject` virtuals on an `SmPoint3d*`
+- **Location:** `SmPointClass.cpp:668` (`ComputePointParameters`: `SmTol::GetZoneTol3d(m_pObject)`), `:435` (`GetGap3d` with a surface, through `GetObjZoneTol3d`), `:493` (`IsConnectedTo`: `GetType`), `:917` (`MergeIntoObject`: `GetType`).
+- **What happens:** `SM_PC_POINT` classifications store an `SmPoint3d*` cast to `SmObject*` (`SetClassObject`), and these paths call virtual `SmObject` members on it. `SmPoint3d` has no `SmObject` vtable, so the call is undefined behaviour.
+- **Trigger:** `SetClassObject(SM_PC_POINT, (SmObject*)&point)` followed by `ComputePointParameters`, `GetGap3d(surface)`, `IsConnectedTo` or `MergeIntoObject`.
+- **How found:** read during porting.
+- **Confirmed:** no (the harness keeps these calls away from the C++).
+- **Severity:** crash/UB.
+- **Rust port:** Treats a point like any other non-topology object (system zone tolerance, not connected, not mergeable).
 
 ## Hang
 
@@ -1385,7 +1394,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Kept as is.
 
-#### WR-55. `SmSurfOfExtrusion::EvaluateSTEP` / `EvaluateSTEPPoint` clamp a copy they never use
+#### WR-59. `SmSurfOfExtrusion::EvaluateSTEP` / `EvaluateSTEPPoint` clamp a copy they never use
 - **Location:** `SmSurfOfExtrusion.cpp:941`-`955` (`EvaluateSTEP`: clamps `sUV`, evaluates `crUV.x`, `crUV.y`); `:1015`-`1024` (`EvaluateSTEPPoint`, same).
 - **What happens:** "Per SMLib practice clamp input point to surface domain" clamps a local copy, but both evaluate the caller's unclamped parameters. With out-of-bounds evaluation disabled, a v outside the STEP domain still extrapolates along the extrusion, and an analytic generator is evaluated outside its domain.
 - **Trigger:** `EvaluateSTEPPoint((u, vmax + 1))` with out-of-bounds evaluation off.
@@ -1449,6 +1458,15 @@ by area within each severity.
 - **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_span_angle`).
 - **Severity:** wrong result (unit mix-up).
 - **Rust port:** Faithful.
+
+#### WR-58. `SmPointClassification::GetGap3d` returns `SM_ERR` as a distance
+- **Location:** `SmPointClass.cpp:464`, `SmPointClassification::GetGap3d` (def. `:418`).
+- **What happens:** When the object point has no single drop point on the given surface (even at 100x the zone tolerance), the function, which returns a `double` gap, returns `SM_ERR` (1001.0), which callers read as a large gap.
+- **Trigger:** `GetGap3d(pSurface)` for an object point far from `pSurface`.
+- **How found:** read during porting.
+- **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
+- **Severity:** wrong result.
+- **Rust port:** Returns `SM_ERR` as the gap value too.
 
 ## Docs
 
