@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**132 / 261 units ported** (85 green, 47 partial), **172,536 / 387,903 upstream lines (44.5%)**. 18 claimed, 0 blocked, 111 todo.
+**133 / 261 units ported** (87 green, 46 partial), **174,026 / 387,903 upstream lines (44.9%)**. 17 claimed, 0 blocked, 111 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -130,7 +130,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surf_of_extrusion_p2` (1420 lines) — in progress: #57 @bherbruck (ready for review)
@@ -176,7 +175,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `geom.global_solver` (1775 lines) — partial, 620 cases
 - [x] ✅ `geom.pseudo_box` (1508 lines) — green, 3011 cases
 - [ ] 🟡 `geom.tools` (326 lines) — partial, 913 cases
-- [ ] 🟡 `geom.transform` (681 lines) — partial, 3042 cases
+- [x] ✅ `geom.transform` (681 lines) — green, 3042 cases
 - [ ] 🟡 `geom.a_object` (935 lines) — partial, 2040 cases
 - [x] ✅ `geom.point_set` (694 lines) — green, 2029 cases
 
@@ -259,11 +258,11 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 
-### surface (20/40)
+### surface (21/40)
 
 - [ ] 🟡 `surface.volume_p1` (2014 lines) — partial, 2886 cases
 - [x] ✅ `surface.b_spline_volume` (1226 lines) — green, 2333 cases
-- [ ] 🟡 `surface.twist_volume` (649 lines) — partial, 1572 cases
+- [x] ✅ `surface.twist_volume` (649 lines) — green, 1572 cases
 - [ ] 🟡 `surface.surface_p2` (2398 lines) — partial, 869 cases
 - [ ] 🟡 `surface.curve_bounded_surface` (324 lines) — partial, 535 cases
 - [ ] 🟡 `surface.surface_cache_p1` (1944 lines) — partial, 872 cases
@@ -282,7 +281,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ▶️ `surface.cone_p2` (1656 lines) — ready
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
-- [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
+- [ ] 🟡 `surface.volume_p2` (1490 lines) — partial, 11220 cases
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
