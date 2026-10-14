@@ -40,8 +40,7 @@
 //!   passed to [`SurfaceIntersector::evaluate_law_point`]. The curve parameter
 //!   `EvaluateLawPoint` never sets (an uninitialised `double` upstream) is stored as
 //!   `SM_UNDEF_DOUBLE`.
-//! - **Unported callees.** `SmSurface::EvaluateNormal` of a B-spline surface
-//!   (`surface.surface_p7`), `SmSurface::IsSingularity` of a surface that is not a
+//! - **Unported callees.** `SmSurface::IsSingularity` of a surface that is not a
 //!   plane and `SmSurface::LocalPointSolve` (`surface.surface_p5`) and
 //!   `SmSurface::LocalSurfaceSolve` (`surface.surface_p3`) return
 //!   [`SolidError::Unported`], which always propagates (also where upstream ignores
@@ -1498,21 +1497,10 @@ impl SolutionObject for BoundaryCurve {
 
 // ---- unported callees --------------------------------------------------------------------------
 
-/// `crSurface.EvaluateNormal(uv, TRUE, TRUE, ..)`: the plane override, the
-/// curve-bounded surface's (its basis surface's); a B-spline surface runs
-/// `SmSurface::EvaluateNormal`.
+/// `crSurface.EvaluateNormal(uv, TRUE, TRUE, ..)` (virtual: the plane override, the
+/// curve-bounded surface's basis surface, `SmSurface::EvaluateNormal` otherwise).
 fn surface_evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
-    match surface.kind() {
-        SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::CurveBounded(c) => c.evaluate_normal(uv, Side::Left, Side::Left),
-        SurfaceKind::BSpline(_) => {
-            // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
-            Err(SolidError::unported(
-                "SmSurface::EvaluateNormal",
-                "surface.surface_p7",
-            ))
-        }
-    }
+    surface.evaluate_normal(uv, Side::Left, Side::Left)
 }
 
 /// `crSurface.IsSingularity(uv, eSingDir)`: the plane override (none); other kinds
