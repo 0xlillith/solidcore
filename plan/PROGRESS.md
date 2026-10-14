@@ -130,7 +130,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
+- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
@@ -273,7 +273,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p1` (1944 lines) — partial, 872 cases
 - [ ] 🟡 `surface.plane_p1` (1934 lines) — partial, 2705 cases
 - [ ] 🟡 `surface.surf_of_revolution_p1` (1522 lines) — partial, 807 cases
-- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
+- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 621 cases
 - [ ] 🟡 `surface.b_spline_volume_n_lib` (310 lines) — partial, 2420 cases
 - [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
