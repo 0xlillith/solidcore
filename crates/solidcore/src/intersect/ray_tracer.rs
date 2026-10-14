@@ -14,7 +14,9 @@
 //! | [`RayTracer::set_solver_tolerance`]               | `SmRayTracer::SetSolverTolerance`         |
 //! | [`RayTracer::fire_ray`], [`RayHit`]               | `SmRayTracer::FireRay`                    |
 //! | [`RayTracer::add_surface_to_grid`], [`RayTracer::add_surface_with_bbox`] | `SmRayTracer::AddSurfaceToGrid` |
-//! | [`RayObject`]                                     | the `SmObject*` of `SmSolution::m_apObjects` |
+//! | [`RayTracer::add_poly_brep_to_grid`]              | `SmRayTracer::AddPolyBrepToGrid`          |
+//! | [`RayObject`]                                   | the `SmObject*` of `SmSolution::m_apObjects` |
+//! | [`surface_leaf`]                                  | `SmSurfaceGridElement::Init` (the part after the Bezier patch data) |
 //! | `line_plane_intersect` (private)                  | `sm_LinePlaneIntersect`                   |
 //! | `is_point_valid` (private)                        | `sm_IsPointValid`                         |
 //! | `convert_to_parameter_delta` (private)            | `sm_ConvertToParameterDelta`              |
@@ -46,11 +48,11 @@
 //!   ([`SurfaceGridElement`] is co-ported by this unit).
 //! - **Polygon elements.** `sm_FindPolyHit` walks the `SmBrepCache` tree of a
 //!   polygon grid element and tests `SmPolyFace`s: neither exists yet, so a polygon
-//!   element in the ray's path is [`SolidError::Unported`]. `AddPolyBrepToGrid`, the
-//!   `SmPolyBrep` list and the per-context mark locks of `FireRay` (nothing can
-//!   put a poly B-rep in the list) are not ported; `GetMemoryUsed`, `Dump`, the
-//!   drawing blocks and `SmRayRenderer` are unreachable from the upstream tests and
-//!   not ported either.
+//!   element in the ray's path is [`SolidError::Unported`], as is
+//!   [`RayTracer::add_poly_brep_to_grid`], so the `SmPolyBrep` list and the
+//!   per-context mark locks of `FireRay` (nothing can put a poly B-rep in the list)
+//!   are not ported; `GetMemoryUsed`, `Dump`, the drawing blocks and `SmRayRenderer`
+//!   are not reached by the upstream tests and not ported either.
 //! - **Unported callees.** `SmSurface::LocalLineIntersect` (`surface.surface_p8`),
 //!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`), `SmSurface::GetFace`
 //!   (`surface.surface_p1`), `SmFace::PointClassify` (`query.face_p2`), the surface
@@ -73,11 +75,14 @@ use crate::geom::geom_utility::p1::{
     line_plane_intersect_uv, CircleCircle,
 };
 use crate::geom::grid::{ElementId, Grid, GridItem, HierarchyElement, SurfaceGridElement};
+use crate::geom::polar_box::PolarBox;
+use crate::geom::pseudo_box::PseudoBox;
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
 use crate::geom::tree::NodeId;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, PI};
+use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::surface_cache;
 use crate::surface::surface::p7::evaluate_1st_derivatives;
@@ -195,6 +200,64 @@ fn surface_face(_surface: &Surface) -> Result<Option<FaceId>> {
         "SmSurface::GetFace",
         "surface.surface_p1",
     ))
+}
+
+/// The leaf data `SmSurfaceGridElement::Init` derives from the surface once it has the
+/// Bezier patch data (domain, box, pseudo box and polar box): the surface point,
+/// derivatives and unit normal at the middle of the domain. `surface_index` is the
+/// surface's index in the tracer's surface list.
+///
+/// # Errors
+///
+/// Those of the surface's `Evaluate` and `EvaluateNormal` (upstream signals them with
+/// `SE` and carries on with unset values).
+pub fn surface_leaf(
+    surface_index: usize,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    bbox: &Extent3d,
+    pseudo_box: &PseudoBox,
+    polar_box: &PolarBox,
+) -> Result<SurfaceGridElement<usize>> {
+    // Precomputation of derivative information for this little patch
+    let uv_mid = uv_domain.evaluate(0.5, 0.5);
+    let eval = surface.evaluate(
+        uv_mid,
+        1,
+        1,
+        EvaluateFlags {
+            u_side: Side::Left,
+            v_side: Side::Left,
+            only_upper_half: true,
+            non_zero_tangents: true,
+        },
+    )?;
+    let at = |i: usize, j: usize| -> Result<Vec3> {
+        eval.get(i)
+            .and_then(|r| r.get(j))
+            .copied()
+            .ok_or_else(|| SolidError::sm_err("intersect::ray_tracer::surface_leaf"))
+    };
+    let mid_point = at(0, 0)?;
+    let mid_du = at(1, 0)?;
+    let mid_dv = at(0, 1)?;
+    let mut mid_normal = mid_du.cross(mid_dv);
+    if mid_normal.length_squared() > EFF_ZERO {
+        mid_normal = mid_normal.unitize()?;
+    } else {
+        mid_normal = surface.evaluate_normal(uv_mid, Side::Left, Side::Left)?;
+    }
+    Ok(SurfaceGridElement {
+        surface: surface_index,
+        uv_domain: *uv_domain,
+        bbox: *bbox,
+        pseudo_box: *pseudo_box,
+        polar_box: *polar_box,
+        mid_point,
+        mid_du,
+        mid_dv,
+        mid_normal,
+    })
 }
 
 /// `sm_LinePlaneIntersect`: the line against the plane `plane_point + u * plane_u +
@@ -343,8 +406,7 @@ fn find_additional_tangent_guess(
         normal = normal.unitize()?;
         circle1_center = surf_point + normal * (1.0 / normal_curvature);
         circle1_normal = projection_plane_normal;
-        if curve_curvature.abs() < EFF_ZERO
-            || (1.0 / curve_curvature).abs() > 2.0 * circle1_radius
+        if curve_curvature.abs() < EFF_ZERO || (1.0 / curve_curvature).abs() > 2.0 * circle1_radius
         {
             line_point = pv0;
             line_vec = pv1.unitize()?;
@@ -592,13 +654,7 @@ impl Lsi3LocalSolver {
         // when PatchMidPoint/LineVector is large( more than 60) - use Corner Guess Points
         let mut use_corners = dot_norm.abs() < 0.4;
         // get ray/MidTangentPlane intersection
-        match line_plane_intersect(
-            self.line_point,
-            self.line_vector,
-            mid_point,
-            mid_du,
-            mid_dv,
-        ) {
+        match line_plane_intersect(self.line_point, self.line_vector, mid_point, mid_du, mid_dv) {
             Some((p, uv_delta, _t)) => {
                 point_3d = p;
                 uv_point_delta = uv_delta;
@@ -753,12 +809,8 @@ impl Lsi3LocalSolver {
             // guesses. This should pick up any near tangent cases - like ray firing
             // just inside of a silhouette.
             if ii < orig_points {
-                let tmp_line = Curve::from(Line::infinite(
-                    self.line_point,
-                    self.line_vector,
-                    3,
-                    false,
-                ));
+                let tmp_line =
+                    Curve::from(Line::infinite(self.line_point, self.line_vector, 3, false));
                 let guess = find_additional_tangent_guess(
                     surface, uv_domain, &tmp_line, &tmp_ivl, hit.uv, hit.t,
                 )?;
@@ -996,10 +1048,13 @@ impl<'s> RayTracer<'s> {
                 }
 
                 // solve for a ray/GridElementGeometry intersection
-                let surface = *self.surfaces.get(leaf.surface).ok_or(SolidError::InvalidInput {
-                    operation: OP,
-                    reason: "surface grid element refers to an unregistered surface",
-                })?;
+                let surface = *self
+                    .surfaces
+                    .get(leaf.surface)
+                    .ok_or(SolidError::InvalidInput {
+                        operation: OP,
+                        reason: "surface grid element refers to an unregistered surface",
+                    })?;
                 let solved = self.solver.local_solve(surface, &leaf);
                 // (the status is ignored; Unported always propagates)
                 if let Err(e) = &solved.status {
@@ -1079,6 +1134,21 @@ impl<'s> RayTracer<'s> {
         ))
     }
 
+    /// Embeds the faces of a poly B-rep in the grid (`AddPolyBrepToGrid`).
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`]: `SmPolyBrep` and its `SmBrepCache` are not ported
+    /// (`query.poly`), so `P` stands for the poly B-rep type to come.
+    pub fn add_poly_brep_to_grid<P: ?Sized>(
+        &mut self,
+        _poly_brep: &P,
+        _expansion_tolerance: f64,
+    ) -> Result<()> {
+        // UNPORTED(query.poly): SmPolyBrep::Notify
+        Err(SolidError::unported("SmPolyBrep::Notify", "query.poly"))
+    }
+
     /// `AddSurfaceToGrid` from the point where the top node of the surface cache's
     /// tree is known: `top_node_bbox` is that node's box. Lists the surface, adds a
     /// surface hierarchy element for it over the box grown by a twentieth of its
@@ -1134,8 +1204,8 @@ fn find_poly_hit(
 mod tests {
     use super::*;
     use crate::geom::extent3d::Extent3d;
-    use crate::geom::pseudo_box::PseudoBox;
     use crate::geom::polar_box::PolarBox;
+    use crate::geom::pseudo_box::PseudoBox;
 
     fn grid() -> Grid<usize> {
         let bbox = Extent3d::from_bounds(0.0, 0.0, 0.0, 10.0, 10.0, 10.0);
