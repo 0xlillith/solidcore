@@ -2,13 +2,14 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**144 / 261 units ported** (89 green, 55 partial), **190,508 / 387,903 upstream lines (49.1%)**. 16 claimed, 0 blocked, 101 todo.
+**145 / 261 units ported** (89 green, 56 partial), **192,078 / 387,903 upstream lines (49.5%)**. 15 claimed, 0 blocked, 101 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
 - [ ] ▶️ `surface.sphere` (2861 lines) — ready
+- [ ] ▶️ `intersect.surface_intersector_p5` (622 lines) — ready
 
 ## Claimable now, dependencies still missing
 
@@ -30,7 +31,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4`, `intersect.curve_class_p7`
 - [ ] `topology.face_p2` (1827 lines) — missing: `surface.offset_surface`
 - [ ] `intersect.curve_class_p5` (2017 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p6`, `intersect.curve_class_p7`
-- [ ] `intersect.surface_intersector_p5` (622 lines) — missing: `intersect.surface_intersector_p4`
 - [ ] `topology.edgeuse_p2` (600 lines) — missing: `topology.face_p2`
 - [ ] `intersect.curve_class_p8` (1900 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `intersect.curve_class_p9` (1220 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
@@ -128,7 +128,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (draft)
 - [ ] 🔨 `surface.surface_point_solve_p2` (1882 lines) — in progress: #66 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_custom_solver` (1236 lines) — in progress: #78 @bherbruck (ready for review)
@@ -324,7 +323,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.proto_topology_p2` (2091 lines) — waiting
 - [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
 
-### intersect (10/25)
+### intersect (11/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
@@ -345,10 +344,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p3` (1932 lines) — partial, 1527 cases
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
-- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.surface_intersector_p4` (1570 lines) — partial, 1542 cases
 - [ ] 🟡 `intersect.topology_solver_p2` (1391 lines) — partial, 2429 cases
 - [ ] ⏳ `intersect.curve_class_p5` (2017 lines) — waiting
-- [ ] ⏳ `intersect.surface_intersector_p5` (622 lines) — waiting
+- [ ] ▶️ `intersect.surface_intersector_p5` (622 lines) — ready
 - [ ] ⏳ `intersect.curve_class_p8` (1900 lines) — waiting
 - [ ] ⏳ `intersect.curve_class_p9` (1220 lines) — waiting
 
