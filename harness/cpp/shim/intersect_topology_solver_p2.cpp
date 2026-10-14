@@ -154,6 +154,12 @@ SC_EXPORT int32_t sc_intersect_topology_solver_p2_static(const double* in,
             values.push_back(solution.m_vEnd.m_dSolutionValue);
             for (int p=0;p<solution.m_lNumVariables;++p) values.push_back(solution.m_vEnd[p]);
         }
+        // Query/local trees can be temporary in the native static API. Compare
+        // presence without dereferencing or serializing any pointer addresses.
+        // SmSolution has five node slots, distinct from the global solver's
+        // maximum of three simultaneously traversed trees. Serialize all slots.
+        for (auto* node : solution.m_apNodes)
+            values.push_back(node?1.0:0.0);
     }
     if(!curve_consumed) delete curve;
     return sc_copy_out(values.data(),(int64_t)values.size(),out,cap,out_len);

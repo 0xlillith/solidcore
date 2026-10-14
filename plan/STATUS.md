@@ -844,3 +844,17 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
   extend `math.rs`, or re-export from it, rather than create duplicate types, and update
   `rust_module` to match. *Resolved for `Vec2`:* `geom.vector2d` moved `Vec2`/`Point2` into `geom::vector2d`
   and `math` re-exports them; `geom.vector3d` can do the same for `Vec3`.
+
+## Topology traversal and public entrypoints (2026-10-14, PR #60)
+
+`intersect.topology_solver_p2` is partial: 1,349 cases, 1,304 bit-identical,
+zero failures and 45 explicit deferrals; no absolute floors. The shared part-1
+runner now compares 3,248/3,532 cases, clearing all 87 previous part-2 deferrals.
+`geom.tree` remains 611/618 with seven existing cache-data deferrals.
+
+Coverage combines traversal, CurveVertex, real C++ shell-vertex B-rep queries,
+empty shapes, face exclusion, operation rejection, all four result requests and
+zero/tiny tolerances. Forty face cases reach surface/query callees; the other
+five deferrals are topology tolerance/edge access. Nonempty Shape construction,
+full face solving and the native undefined EdgeVertex cast are not certified.
+See the committed reports and findings for the exact owners and scope.

@@ -436,6 +436,11 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
                     flat.push(s.end.solution_value);
                     flat.extend(s.end.parameters.iter().take(s.num_variables).copied());
                 }
+                flat.extend(
+                    s.nodes
+                        .iter()
+                        .map(|node| f64::from(u8::from(node.is_some()))),
+                );
             }
         }
         Err(e) => {

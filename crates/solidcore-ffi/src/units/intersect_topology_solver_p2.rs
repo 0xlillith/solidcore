@@ -107,8 +107,8 @@ pub fn eval_static(input: &[f64]) -> Result<Vec<f64>, FfiError> {
         || operation.fract() != 0.0
         || !(0.0..=18.0).contains(&operation)
         || request.fract() != 0.0
-        || !(0.0..=1.0).contains(&request)
-        || !(1e-6..=1.0).contains(&tolerance)
+        || !(0.0..=3.0).contains(&request)
+        || !(0.0..=1.0).contains(&tolerance)
         || best.abs() > 1e30
         || [n1, n2]
             .iter()
@@ -174,7 +174,7 @@ mod tests {
         for (index, value) in [
             (0, 9.0),
             (1, 19.0),
-            (2, 2.0),
+            (2, 4.0),
             (5, 1e9),
             (5, 1.5),
             (6, -1.0),

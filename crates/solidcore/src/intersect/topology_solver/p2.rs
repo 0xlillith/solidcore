@@ -1,15 +1,40 @@
-//! The topology solver's local traversal and remaining solver operations.
+//! Local topology traversal, face solves and static B-rep/shape queries.
 //!
 //! Upstream: `source/SMLib/src/SmTopologySolver.cpp`, `source/SMLib/inc/SmTopologySolver.h`.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
+//! | [`LocalSolver::new`] (shared in p1) | `SmTLSVertexEdge` / `SmTLSEdgeEdge` constructors |
 //! | [`TopologySolver::local_solve_branch`] | `SmTopologySolver::LocalSolve` |
 //! | `LocalSolver::solve_vertex_face` | `SmTLSVertexFace::SolveIt` |
 //! | `LocalSolver::solve_curve_vertex` | `SmTLSCurveVertex::SolveIt` |
+//! | `LocalSolver::solve_edge_vertex` | `SmTLSEdgeVertex::SolveIt` |
+//! | `LocalSolver::solve_curve_face` | `SmTLSCurveFace::SolveIt` |
+//! | `LocalSolver::solve_edge_face` | `SmTLSEdgeFace::SolveIt` |
+//! | `LocalSolver::solve_face_face` | `SmTLSFaceFace::SolveIt` |
+//! | [`TopologySolver::brep_point_solve`] | `SmTopologySolver::BrepPointSolve` |
+//! | [`TopologySolver::shape_point_solve`] | `SmTopologySolver::ShapePointSolve` |
+//! | [`TopologySolver::brep_curve_solve`] | `SmTopologySolver::BrepCurveSolve` |
+//! | [`TopologySolver::shape_curve_solve`] | `SmTopologySolver::ShapeCurveSolve` |
+//! | [`TopologySolver::solve_two_tree_sets`] | `sm_SolveTwoTrees` |
+//! | [`TopologySolver::brep_brep_solve`] | `SmTopologySolver::BrepBrepSolve` |
 //!
-//! Deviations: topology pointers are typed object handles; the local solver is
-//! temporarily taken from the parent and restored even when its solve fails.
+//! Deviations:
+//! - Topology pointers are adapter handles. [`TopologyTrees`] borrows cache trees;
+//!   the default B-rep cache lookup is explicitly unported. Shape topology keys
+//!   resolve to vertices, edge curves and face surfaces before tree traversal.
+//! - The local solver is taken from its parent and restored even on error.
+//!   The existing global solver and object-list walks supply traversal bounds;
+//!   this unit adds no input-driven recursion.
+//! - Static output arrays become returned [`SolutionArray`] values. On error the
+//!   caller receives the error, not the partial output C++ may have accumulated.
+//! - `SmTLSEdgeVertex::SolveIt` selects the vertex operand as a curve (upstream
+//!   line 1032). Its invalid cast is a controlled `InvalidInput` here; the operand
+//!   is not silently corrected. Native tests probe its class without that cast.
+//! - Range endpoint refinement needs the shared-cache point solver in part 8.
+//!   It must disable point testing on that SAME cache for BOTH endpoint solves.
+//! - Signed B-rep/curve and shape/curve queries test only the start parameter and
+//!   rewrite only start parameters, preserving upstream's `i < 1` behavior.
 
 use super::p1::TopologyObjects;
 use super::p1::{self, best_answer_so_far, CurveRef};
@@ -202,10 +227,13 @@ fn untrimmed_range_endpoints<O: Copy + PartialEq>(
     // on that independent owned copy would not disable trimming in the solver.
     // No endpoint is synthesized while that shared-cache bridge is unavailable.
     let _cache = surface_cache(kernel, surface, Some(surface_handle))?;
-    // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate (cache checkout bridge)
+    // UNPORTED(surface.surface_p8): SmSPGlobalSolver::LocalSolve
+    // The owned-cache factory above is ported. The missing point solver must
+    // accept this same cache with point testing disabled for BOTH endpoints;
+    // disabling a flag on an independent copy would not disable its trimming.
     Err(SolidError::unported(
-        "SmSurface::CacheMakeOrValidate",
-        "surface.surface_p1",
+        "SmSPGlobalSolver::LocalSolve",
+        "surface.surface_p8",
     ))
 }
 
@@ -382,7 +410,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                         let end = curve.curve.evaluate_point(interval.max())?;
                         if let Some((uv_start, uv_end)) = untrimmed_range_endpoints(
                             ts.kernel,
-                            surface,
+                            ts.objects.surface(surface_handle)?,
                             surface_handle,
                             &domain,
                             start,
@@ -534,13 +562,13 @@ impl<O: SolutionObject> ShapeTreeViews<O> {
         Ok(Self {
             vertices: shape
                 .vertex_tree()
-                .map_objects(|key| objects.shape_member_object(ShapeMember::Vertex(key)))?,
+                .map_objects(|key| objects.shape_geometry_object(ShapeMember::Vertex(key)))?,
             curves: shape
                 .curve_tree()
-                .map_objects(|key| objects.shape_member_object(ShapeMember::Edge(key)))?,
+                .map_objects(|key| objects.shape_geometry_object(ShapeMember::Edge(key)))?,
             surfaces: shape
                 .surface_tree()
-                .map_objects(|key| objects.shape_member_object(ShapeMember::Face(key)))?,
+                .map_objects(|key| objects.shape_geometry_object(ShapeMember::Face(key)))?,
         })
     }
     fn views(&self) -> TopologyTrees<'_, O> {
