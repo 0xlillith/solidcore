@@ -152,7 +152,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (draft)
-- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (ready for review)
@@ -354,7 +354,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] ▶️ `intersect.curve_class_p1` (2087 lines) — ready
 - [ ] ⏳ `intersect.surface_drop_lib_p1` (1478 lines) — waiting
-- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (ready for review)
 - [ ] ⏳ `intersect.curve_class_p7` (2248 lines) — waiting
 - [ ] ▶️ `intersect.ray_tracer` (1246 lines) — ready
 - [ ] ⏳ `intersect.surface_drop_curve` (2014 lines) — waiting
