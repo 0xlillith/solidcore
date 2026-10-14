@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 16 claimed, 0 blocked, 105 todo.
+**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 17 claimed, 0 blocked, 104 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -39,7 +39,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.vertexuse` (1429 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`
 - [ ] `topology.vertex` (824 lines) — missing: `topology.edgeuse_p1`, `topology.proto_topology_p1`, `topology.vertexuse`
 - [ ] `topology.loopuse` (892 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`, `topology.vertexuse`
-- [ ] `topology.brep_p8` (1768 lines) — missing: `topology.loopuse`
 - [ ] `topology.edge` (2213 lines) — missing: `topology.edgeuse_p1`, `topology.edgeuse_p2`, `topology.face_p2`, `topology.proto_topology_p1` +1 more
 - [ ] `blend.fillet_custom_solver` (1236 lines) — missing: `topology.edgeuse_p1`
 - [ ] `query.edge` (1025 lines) — missing: `topology.edge`, `topology.edgeuse_p1`
@@ -137,6 +136,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (draft)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
+- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (draft)
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
 
 ## By module
@@ -308,7 +308,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.vertexuse` (1429 lines) — waiting
 - [ ] ⏳ `topology.vertex` (824 lines) — waiting
 - [ ] ⏳ `topology.loopuse` (892 lines) — waiting
-- [ ] ⏳ `topology.brep_p8` (1768 lines) — waiting
+- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (draft)
 - [ ] ⏳ `topology.edge` (2213 lines) — waiting
 - [ ] ⏳ `topology.edgeuse_p3` (2273 lines) — waiting
 - [ ] ⏳ `topology.trimming_tools` (2878 lines) — waiting
