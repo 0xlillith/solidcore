@@ -388,13 +388,9 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         dom.filter(|_| is_bspline)
             .ok_or_else(|| bad("this op needs a B-spline surface"))
     };
-    let solve_surface = |dom: Domain| -> Result<Domain, FfiError> {
-        // B-splines have a domain; planes are bounded by the caller's domain
-        if dom.is_some() && !is_bspline {
-            return Err(bad("this op needs a B-spline surface or a plane"));
-        }
-        Ok(dom)
-    };
+    // curve-bounded surfaces are fine: C++ handles them, and the ones that reach
+    // unported paths are deferred
+    let solve_surface = |dom: Domain| -> Result<Domain, FfiError> { Ok(dom) };
     match op {
         Op::IsSing => {
             uv(&mut rd, dom)?;

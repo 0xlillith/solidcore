@@ -179,7 +179,7 @@ struct SolIn {
 enum OpIn {
     IsSing { uv: [f64; 2], tol: f64, pt_only: bool },
     NormalSing { uv: [f64; 2], tol: f64 },
-    Iso { param: u8, iso: f64, tol: f64, dom: [f64; 4], want_uv: bool },
+    Iso { param: u8, iso: f64, tol: f64, dom: Option<[f64; 4]>, want_uv: bool },
     Lps { dom: [f64; 4], sop: u8, p: [f64; 3], guess: [f64; 2] },
     Lps0 { dom: [f64; 4], sop: u8, p: [f64; 3], guess: [f64; 2] },
     Drop {
@@ -306,8 +306,8 @@ fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
             Op::NormalSing
         }
         OpIn::Iso { param, iso, tol, dom, want_uv } => {
-            o.extend([f64::from(*param), *iso, *tol, 1.0]);
-            o.extend_from_slice(dom);
+            o.extend([f64::from(*param), *iso, *tol, b(dom.is_some())]);
+            o.extend_from_slice(&dom.unwrap_or_else(|| natural(&i.surface)));
             o.push(b(*want_uv));
             Op::Iso
         }
@@ -561,8 +561,8 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             Err(c) => o.push(c),
         },
         OpIn::Iso { param, iso, tol, dom, want_uv } => {
-            let d = dom_of(*dom);
-            match st(s.create_iso_parametric_curve(&k, param_of(*param)?, *iso, *tol, Some(&d), *want_uv))? {
+            let d = dom.map(dom_of);
+            match st(s.create_iso_parametric_curve(&k, param_of(*param)?, *iso, *tol, d.as_ref(), *want_uv))? {
                 Ok(r) => {
                     o.extend([0.0, r.max_gap_3d, b(r.uv_iso_curve.is_some())]);
                     let ivl = r.curve.natural_interval();
@@ -635,7 +635,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         }
         OpIn::Cover { other, tol, merged } => {
             let other = surface_of(other)?;
-            match st(s.cover_other_coincident_surface(&other, *tol, *merged))? {
+            match st(s.cover_other_coincident_surface(&other, *tol, None, None, *merged))? {
                 Ok(r) => {
                     let which = r.covering_is_other.map_or(-1.0, b);
                     o.extend([0.0, which, r.max_dist]);
@@ -919,7 +919,7 @@ fn gen_surface(rng: &mut Rng) -> SrfIn {
 /// The natural domain `[u0, v0, u1, v1]` of a surface input.
 fn natural(s: &SrfIn) -> [f64; 4] {
     match s {
-        SrfIn::Sms(_) => [0.0, 0.0, 1.0, 1.0],
+        SrfIn::Sms(_) => resolve(s).map_or([0.0, 0.0, 1.0, 1.0], |r| natural(&r)),
         SrfIn::Bounded { basis, .. } => natural(basis),
         SrfIn::Bspline(bs) => [
             bs.u.first().copied().unwrap_or(0.0),
@@ -1101,7 +1101,11 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
                 param,
                 iso,
                 tol: if rng.chance(0.5) { 0.0 } else { *rng.choose(&[1e-6, 1e-4, 1e-2]).unwrap_or(&1e-4) },
-                dom: if rng.chance(0.6) { nat } else { gen_dom(rng, s) },
+                dom: match rng.below(3) {
+                    0 => None,
+                    1 => Some(nat),
+                    _ => Some(gen_dom(rng, s)),
+                },
                 want_uv: rng.chance(0.4),
             }
         }

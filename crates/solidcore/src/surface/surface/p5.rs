@@ -22,7 +22,6 @@
 //! | [`filter_solution`]                                 | `sm_FilterSolution` (static)                  |
 //! | [`SpGlobalSolver`]'s and [`LsiGlobalSolver`]'s `identical_solutions` | `SmSPGlobalSolver::IdenticalSolutions`, `SmLSIGlobalSolver::IdenticalSolutions` |
 //! | [`cs_identical_solutions`], [`csi_identical_solutions`] | `SmCSGlobalSolver::IdenticalSolutions`, `SmCSIGlobalSolver::IdenticalSolutions` |
-//! | [`Surface::evaluate_normal_section`] (co-ported)    | `SmSurface::EvaluateNormalSection` (unit `surface.surface_p3`) |
 //!
 //! Deviations:
 //! - **Solver classes without a Rust struct.** `SmCSGlobalSolver` and
@@ -35,7 +34,8 @@
 //!   `surface.surface_p1`) instead of the tree node and Bezier patch.
 //! - **Iso curves** (`SmIsoCurve`) hold a B-spline surface only: planes are queried
 //!   through their NURB, and the iso curve of a curve-bounded surface is
-//!   [`SolidError::Unported`] (`curve.iso_curve`, whose Deviations record the limit).
+//!   [`SolidError::Unported`] (`SmSurface::EvaluateSimple`, `surface.surface_p1`, which its
+//!   evaluation needs; `curve.iso_curve`'s Deviations record the limit).
 //! - **`m_bUseNewPointSolvers`** has no field: its upstream default (`TRUE`) is used and
 //!   the only setter (`SetUseNewPointSolvers`) has no caller. `LocalPointSolve` therefore
 //!   runs `LocalPointSolve_0` only for [`SolverOperation::Maximize`].
@@ -47,7 +47,8 @@
 //! - **Unported callees** (return [`SolidError::Unported`]): `SmSurface::GetFace`,
 //!   `SmFace::GetTolerance`, `LocalPointSolve_1`, `SmFindPSNormalENFO`,
 //!   `SmSurface::GetSingularities`, `sm_GetSurfaceToEvaluate`,
-//!   `SmSurface::CoverCoincidentSurface`, the STEP domain conversions, the surface cache
+//!   `SmSurface::CoverCoincidentSurface`, `SmSurface::EvaluateNormalSection`, the STEP
+//!   domain conversions, the surface cache
 //!   and the surface/surface/surface local solve from UV guesses.
 
 use crate::curve::curve::p1::ApproximateCurveOptions;
@@ -74,7 +75,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 
 use super::p2::{surface_cache, LsiGlobalSolver, SurfaceEval};
-use super::p4::{evaluate_normal_section, is_point_on_normal};
+use super::p4::is_point_on_normal;
 use super::p7::{evaluate_1st_derivatives, good_drop_result, load_guesses, SpGlobalSolver};
 use super::{Surface, SurfaceKind};
 
@@ -82,9 +83,9 @@ const OP_SING: &str = "surface::surface::p5::Surface::is_singularity";
 const OP_LPS: &str = "surface::surface::p5::Surface::local_point_solve";
 const OP_LPS0: &str = "surface::surface::p5::Surface::local_point_solve_0";
 const OP_DROP: &str = "surface::surface::p5::Surface::drop_point";
-const OP_NORMAL_SECTION: &str = "surface::surface::p5::Surface::evaluate_normal_section";
 const OP_SP_LOCAL: &str = "surface::surface::p5::sp_local_solve";
 const OP_FILTER: &str = "surface::surface::p5::filter_solution";
+const OP_COVER: &str = "surface::surface::p5::Surface::cover_other_coincident_surface";
 
 /// `SM_SS_NONE` (`SmTypes.h`): no singular sides.
 pub const SS_NONE: u64 = 0;
@@ -437,45 +438,6 @@ impl Surface {
 
         norm_sum.unitize()
     }
-
-    /// The normal section of the second fundamental form at `uv` (`EvaluateNormalSection`,
-    /// co-ported from unit `surface.surface_p3`): the unit tangent in the direction's
-    /// projection, its curvature and the unit surface normal.
-    ///
-    /// # Errors
-    ///
-    /// Those of the evaluation, `EvaluateNormal` and [`evaluate_normal_section`].
-    pub fn evaluate_normal_section(
-        &self,
-        uv: Point2,
-        u_side: Side,
-        v_side: Side,
-        direction: Vec3,
-    ) -> Result<(Vec3, f64, Vec3)> {
-        // Get SurfacePoint Evaluation (exact tangent values)
-        let m = self.evaluate(uv, 2, 2, upper_flags(u_side, v_side, false))?;
-        let mut pvv = [[Vec3::ZERO; 3]; 3];
-        for (i, row) in pvv.iter_mut().enumerate() {
-            for (j, slot) in row.iter_mut().enumerate() {
-                if i + j <= 2 {
-                    *slot = at(&m, i, j, OP_NORMAL_SECTION)?;
-                }
-            }
-        }
-
-        // get surface Normal
-        let mut surface_normal = pvv[1][0].cross(pvv[0][1]);
-        if surface_normal.length_squared() < EFF_ZERO_SQ {
-            surface_normal = self.evaluate_normal(uv, u_side, v_side)?;
-        } else {
-            surface_normal = surface_normal.unitize()?;
-        }
-
-        // get output TangentPlaneDirection and Curvature
-        pvv[2][2] = surface_normal;
-        let section = evaluate_normal_section(&mut pvv, direction)?;
-        Ok((section.tangent, section.curvature, surface_normal))
-    }
 }
 
 // ---- CreateIsoParametricCurve -----------------------------------------------------------------
@@ -509,10 +471,13 @@ fn iso_curve_of(
             false,
         )),
         SurfaceKind::CurveBounded(_) => {
-            // UNPORTED(curve.iso_curve): SmIsoCurve over an SmCurveBoundedSurface
+            // An SmIsoCurve over an SmCurveBoundedSurface evaluates through the surface's
+            // EvaluateSimple/Evaluate, whose curve-bounded override needs
+            // SmSurface::EvaluateSimple; SmIsoCurve holds B-spline surfaces only.
+            // UNPORTED(surface.surface_p1): SmSurface::EvaluateSimple
             Err(SolidError::unported(
-                "SmIsoCurve::SmIsoCurve(SmCurveBoundedSurface)",
-                "curve.iso_curve",
+                "SmSurface::EvaluateSimple",
+                "surface.surface_p1",
             ))
         }
     }
@@ -592,7 +557,8 @@ impl Surface {
             // adjust param range to match the surface Natural UVDomain or a given domain
             let mut uv_domain = self.natural_uv_domain();
             if let Some(d) = domain {
-                uv_domain = uv_domain.intersect(d)?;
+                // upstream ignores the status: a disjoint domain leaves Init()
+                uv_domain = uv_domain.intersect(d).unwrap_or_else(|_| Extent2d::new());
             }
             let ivl = if param == SurfParamType::U {
                 uv_domain.v_interval()
@@ -600,7 +566,7 @@ impl Surface {
                 uv_domain.u_interval()
             };
             if !ivl.is_degenerate(0.0) {
-                curve.edit_parameterization(&ivl)?;
+                crate::error::ignore_status(curve.edit_parameterization(&ivl))?;
             }
             return Ok(IsoParametricCurve {
                 curve: Curve::from(curve),
@@ -855,18 +821,8 @@ impl Surface {
         test_point: Point3,
         guess_uv: Point2,
     ) -> Result<PointSolve0<O>> {
-        if !matches!(
-            op,
-            SolverOperation::Minimize
-                | SolverOperation::Maximize
-                | SolverOperation::Normalize
-                | SolverOperation::Intersect
-        ) {
-            return Err(SolidError::invalid_input(
-                OP_LPS0,
-                "unsupported solver operation",
-            ));
-        }
+        // (upstream only asserts the operation in debug builds; any other one runs the
+        // Newton branch below)
 
         // for intersections - Repeatedly drop Point to tangent plane to convergence
         if op != SolverOperation::Intersect {
@@ -1346,15 +1302,153 @@ pub struct CoverOtherCoincident {
     /// `pCoveringSurf`: which surface covers the other: `Some(false)` this one,
     /// `Some(true)` the other, `None` when neither can.
     pub covering_is_other: Option<bool>,
-    /// `rdMaxDist`: the largest distance found between the surfaces (`SM_BIG_DOUBLE`
-    /// when none covers).
+    /// `rdMaxDist`: as the last `CoverCoincidentSurface` call left it (`SM_BIG_DOUBLE`
+    /// when none ran or none reported).
     pub max_dist: f64,
+    /// `pOptMergedDomain`: the union of both retained domains in the covering surface's
+    /// final NURBS parameters; only meaningful with a covering surface, and only when a
+    /// merged domain was asked for.
+    pub merged_domain: Option<Extent2d>,
+}
+
+/// What one `SmSurface::CoverCoincidentSurface` call reports.
+struct CoverCoincident {
+    /// `bSuccess`.
+    success: bool,
+    /// `rdMaxDist`.
+    max_dist: f64,
+    /// `pOptSTEPDomain`: the covered domain projected onto the covering surface, in STEP
+    /// coordinates, when asked for.
+    step_domain: Option<Extent2d>,
+}
+
+/// `cover->CoverCoincidentSurface(covered, tol, bSuccess, rdMaxDist, &covered_domain
+/// [, &step_domain])`: whether `cover` covers `covered` and the largest gap; it also
+/// shrinks `covered_domain` to the part that is covered.
+fn cover_coincident_surface(
+    _cover: &Surface,
+    _covered: &Surface,
+    _tol: f64,
+    _covered_domain: &mut Extent2d,
+    _want_step_domain: bool,
+) -> Result<CoverCoincident> {
+    // UNPORTED(surface.surface_p3): SmSurface::CoverCoincidentSurface
+    Err(SolidError::unported(
+        "SmSurface::CoverCoincidentSurface",
+        "surface.surface_p3",
+    ))
+}
+
+/// `ConvertDomainFromNURBSToSTEP(domain, step_domain)`.
+fn convert_domain_nurbs_to_step(_surface: &Surface, _domain: &Extent2d) -> Result<Extent2d> {
+    // UNPORTED(surface.surface_p1): SmSurface::ConvertDomainFromNURBSToSTEP
+    Err(SolidError::unported(
+        "SmSurface::ConvertDomainFromNURBSToSTEP",
+        "surface.surface_p1",
+    ))
+}
+
+/// `ConvertDomainFromSTEPToNURBS(step_domain, domain)`.
+fn convert_domain_step_to_nurbs(_surface: &Surface, _domain: &Extent2d) -> Result<Extent2d> {
+    // UNPORTED(surface.surface_p1): SmSurface::ConvertDomainFromSTEPToNURBS
+    Err(SolidError::unported(
+        "SmSurface::ConvertDomainFromSTEPToNURBS",
+        "surface.surface_p1",
+    ))
+}
+
+/// The state `CoverOtherCoincidentSurface`'s `Cover` lambda updates.
+struct CoverState {
+    /// `sDomain0`: this surface's domain (reduced when it is covered).
+    domain0: Extent2d,
+    /// `sDomain1`: the other surface's domain.
+    domain1: Extent2d,
+    /// `rdMaxDist`.
+    max_dist: f64,
+    /// `*pOptMergedDomain`.
+    merged: Option<Extent2d>,
+}
+
+/// The `Cover` lambda: `cover` covers the other surface; returns `bSuccess && eStat ==
+/// SM_SUCCESS`. A failing `CoverCoincidentSurface` or conversion is no cover; only
+/// [`SolidError::Unported`] propagates.
+fn try_cover(
+    st: &mut CoverState,
+    this: &Surface,
+    other: &Surface,
+    cover_is_other: bool,
+    tol: f64,
+    want_merged: bool,
+) -> Result<bool> {
+    let (cover, covered) = if cover_is_other {
+        (other, this)
+    } else {
+        (this, other)
+    };
+    let cover_domain = if cover_is_other {
+        st.domain1
+    } else {
+        st.domain0
+    };
+    let covered_domain = if cover_is_other {
+        &mut st.domain0
+    } else {
+        &mut st.domain1
+    };
+
+    if !want_merged {
+        return match cover_coincident_surface(cover, covered, tol, covered_domain, false) {
+            Ok(r) => {
+                st.max_dist = r.max_dist;
+                Ok(r.success)
+            }
+            Err(e) if e.is_unported() => Err(e),
+            Err(_) => Ok(false),
+        };
+    }
+
+    // STEP coordinates survive rebuilding an analytic surface's NURBS form. Save the
+    // retained subset before coverage changes the surface, union it with the projected
+    // subset, then map back using the final parameters.
+    let this_step = match convert_domain_nurbs_to_step(cover, &cover_domain) {
+        Ok(d) => d,
+        Err(e) if e.is_unported() => return Err(e),
+        Err(_) => return Ok(false),
+    };
+    let r = match cover_coincident_surface(cover, covered, tol, covered_domain, true) {
+        Ok(r) => r,
+        Err(e) if e.is_unported() => return Err(e),
+        Err(_) => return Ok(false),
+    };
+    st.max_dist = r.max_dist;
+    if !r.success {
+        return Ok(false);
+    }
+    let Some(other_step) = r.step_domain else {
+        return Err(SolidError::invalid_input(
+            OP_COVER,
+            "no STEP domain from CoverCoincidentSurface",
+        ));
+    };
+    let merged_step = this_step.union(&other_step);
+    match convert_domain_step_to_nurbs(cover, &merged_step) {
+        Ok(d) => {
+            st.merged = Some(d);
+            Ok(true)
+        }
+        Err(e) if e.is_unported() => Err(e),
+        Err(_) => Ok(false),
+    }
 }
 
 impl Surface {
     /// Whether this surface or `other` covers the other within `tol` (`CoverOtherCoincidentSurface`):
     /// planes first, then bilinear surfaces, then B-splines, then anything, each trying to
-    /// cover the other with `CoverCoincidentSurface`.
+    /// cover the other with `CoverCoincidentSurface` (a failing try goes on to the next
+    /// candidate). `this_domain` and `other_domain` are subsets in NURBS parameters
+    /// (`None`: the natural domains); the covered domain of a try carries over to later
+    /// tries as upstream's `sDomain0`/`sDomain1`. With `want_merged` the union of both
+    /// retained domains in the covering surface's final NURBS parameters is returned.
     ///
     /// # Errors
     ///
@@ -1365,109 +1459,95 @@ impl Surface {
         &self,
         other: &Self,
         tol: f64,
-        want_merged_domain: bool,
+        this_domain: Option<&Extent2d>,
+        other_domain: Option<&Extent2d>,
+        want_merged: bool,
     ) -> Result<CoverOtherCoincident> {
-        let _ = tol;
-
-        // Cover(pCover, pCovered): with a merged domain wanted, the cover's NURBS domain
-        // is first converted to STEP coordinates
-        let cover = |_cover: &Self, _covered: &Self| -> Result<bool> {
-            if want_merged_domain {
-                // UNPORTED(surface.surface_p1): SmSurface::ConvertDomainFromNURBSToSTEP
-                return Err(SolidError::unported(
-                    "SmSurface::ConvertDomainFromNURBSToSTEP",
-                    "surface.surface_p1",
-                ));
-            }
-            // UNPORTED(surface.surface_p3): SmSurface::CoverCoincidentSurface
-            Err(SolidError::unported(
-                "SmSurface::CoverCoincidentSurface",
-                "surface.surface_p3",
-            ))
+        let mut st = CoverState {
+            domain0: this_domain
+                .copied()
+                .unwrap_or_else(|| self.natural_uv_domain()),
+            domain1: other_domain
+                .copied()
+                .unwrap_or_else(|| other.natural_uv_domain()),
+            max_dist: BIG_DOUBLE,
+            merged: None,
+        };
+        let done = |st: &CoverState, covering_is_other: bool| CoverOtherCoincident {
+            covering_is_other: Some(covering_is_other),
+            max_dist: st.max_dist,
+            merged_domain: st.merged,
         };
 
         let is_plane = |s: &Self| matches!(s.kind(), SurfaceKind::Plane(_));
-        let is_bspline = |s: &Self| matches!(s.kind(), SurfaceKind::BSpline(_));
+        // SM_CAST_PTR(SmBSplineSurface, ..): a plane is one too (tried before)
+        let is_bspline =
+            |s: &Self| matches!(s.kind(), SurfaceKind::BSpline(_) | SurfaceKind::Plane(_));
         let mut tried0 = false;
         let mut tried1 = false;
 
         // Favor SmPlanes:
         if is_plane(self) {
             tried0 = true;
-            if cover(self, other)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(false),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, false, tol, want_merged)? {
+                return Ok(done(&st, false));
             }
         }
         if is_plane(other) {
             tried1 = true;
-            if cover(other, self)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(true),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, true, tol, want_merged)? {
+                return Ok(done(&st, true));
             }
         }
 
         // Next look for bilinear.
         if !tried0 && self.is_bilinear() {
             tried0 = true;
-            if cover(self, other)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(false),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, false, tol, want_merged)? {
+                return Ok(done(&st, false));
             }
         }
         if !tried1 && other.is_bilinear() {
             tried1 = true;
-            if cover(other, self)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(true),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, true, tol, want_merged)? {
+                return Ok(done(&st, true));
             }
         }
 
         // Next, favor SmBSplineSurfaces.
         if !tried0 && is_bspline(self) {
             tried0 = true;
-            if cover(self, other)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(false),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, false, tol, want_merged)? {
+                return Ok(done(&st, false));
             }
         }
         if !tried1 && is_bspline(other) {
             tried1 = true;
-            if cover(other, self)? {
-                return Ok(CoverOtherCoincident {
-                    covering_is_other: Some(true),
-                    max_dist: 0.0,
-                });
+            if try_cover(&mut st, self, other, true, tol, want_merged)? {
+                return Ok(done(&st, true));
             }
         }
 
         // No special cases.
-        if !tried0 && cover(self, other)? {
-            return Ok(CoverOtherCoincident {
-                covering_is_other: Some(false),
-                max_dist: 0.0,
-            });
+        if !tried0 {
+            tried0 = true;
+            if try_cover(&mut st, self, other, false, tol, want_merged)? {
+                return Ok(done(&st, false));
+            }
         }
-        if !tried1 && cover(other, self)? {
-            return Ok(CoverOtherCoincident {
-                covering_is_other: Some(true),
-                max_dist: 0.0,
-            });
+        let _ = tried0;
+        if !tried1 {
+            tried1 = true;
+            if try_cover(&mut st, self, other, true, tol, want_merged)? {
+                return Ok(done(&st, true));
+            }
         }
+        let _ = tried1;
 
         Ok(CoverOtherCoincident {
             covering_is_other: None,
-            max_dist: BIG_DOUBLE,
+            max_dist: st.max_dist,
+            merged_domain: st.merged,
         })
     }
 }
@@ -1651,6 +1731,20 @@ pub fn sp_local_solve<O: SolutionObject>(
 
 // ---- sm_FilterSolution --------------------------------------------------------------------------
 
+/// `SmSurface::EvaluateNormalSection(uv, TRUE, TRUE, direction, ..)`: the curvature of the
+/// normal section in `direction` and the unit surface normal (unit `surface.surface_p3`).
+fn surface_evaluate_normal_section(
+    _surface: &Surface,
+    _uv: Point2,
+    _direction: Vec3,
+) -> Result<(f64, Vec3)> {
+    // UNPORTED(surface.surface_p3): SmSurface::EvaluateNormalSection
+    Err(SolidError::unported(
+        "SmSurface::EvaluateNormalSection",
+        "surface.surface_p3",
+    ))
+}
+
 /// Whether to keep a curve/surface solution found at the end of a subdivided curve
 /// interval or surface domain (`sm_FilterSolution`): solutions good to zero or to a
 /// scaled zero are kept, so are tangent solutions that are minima of the gap, and
@@ -1719,15 +1813,22 @@ pub fn filter_solution<O: SolutionObject>(
         // when the curve is continuous through this solution
         let g1g2 = ct(ContinuityType::G1G2);
         if (c0_curve_min && ct(t_conts[0]) >= g1g2) || (c0_curve_max && ct(t_conts[1]) >= g1g2) {
-            // get the surface's normal section evaluation
-            let (_, surface_curvature, surface_normal) =
-                surface.evaluate_normal_section(uv, Side::Left, Side::Left, curve_tangent)?;
+            // get the surface's normal section evaluation (upstream ignores the status;
+            // outputs keep their default-constructed values)
+            let (surface_curvature, surface_normal) =
+                ignored(surface_evaluate_normal_section(surface, uv, curve_tangent))?
+                    .unwrap_or((0.0, Vec3::UNDEF));
 
-            // compute the curve's position, tangent, curvature, and normal values
-            let frenet = curve_evaluate_geometric(curve, solution.start.param(0)?, 2, true)?;
-            let curv_vec = *frenet
-                .get(2)
-                .ok_or(SolidError::invalid_input(OP_FILTER, "frenet frame"))?;
+            // compute the curve's position, tangent, curvature, and normal values (status
+            // ignored: the frame keeps its default-constructed vectors)
+            let frenet = ignored(curve_evaluate_geometric(
+                curve,
+                solution.start.param(0)?,
+                2,
+                true,
+            ))?
+            .unwrap_or_else(|| vec![Vec3::UNDEF; 3]);
+            let curv_vec = frenet.get(2).copied().unwrap_or(Vec3::UNDEF);
 
             // look for lines
             let mut curve_curvature = curv_vec.length();
@@ -2086,7 +2187,7 @@ mod tests {
     fn cover_needs_the_unported_coverage_test() {
         let a = xy_plane();
         let b = xy_plane();
-        let r = a.cover_other_coincident_surface(&b, 1e-6, false);
+        let r = a.cover_other_coincident_surface(&b, 1e-6, None, None, false);
         assert!(r.unwrap_err().is_unported());
     }
 }
