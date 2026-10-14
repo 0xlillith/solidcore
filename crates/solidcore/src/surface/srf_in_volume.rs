@@ -216,32 +216,42 @@ impl SrfInVolume {
     pub const TYPE: i64 = SRF_IN_VOLUME_TYPE;
 
     /// A surface in `volume` (the constructor). `copy_flag` bit 1 (surface) and
-    /// bit 2 (volume) ask for copies, which upstream then owns: here they set those
-    /// owner bits (the parts are held by value). `owner_flag` is the initial owner
-    /// flag.
-    #[must_use]
+    /// bit 2 (volume) ask for copies (by the virtual `Copy`), which this object then
+    /// owns. `owner_flag` is the initial owner flag.
+    ///
+    /// # Errors
+    ///
+    /// The failure of copying the surface (upstream ignores the status and keeps the
+    /// shared surface; the port propagates it only for [`SolidError::Unported`]),
+    /// [`SolidError::Unported`] from copying an unported volume kind.
     pub fn new(
         surface: Surface,
         in_param_space: bool,
         volume: Volume,
         copy_flag: u64,
         owner_flag: u64,
-    ) -> Self {
+    ) -> Result<Self> {
         let mut owner_flag = owner_flag;
+        let mut surface = surface;
+        let mut volume = volume;
         // When Surface is to be copied - copy it
         if copy_flag == 1 || copy_flag == 3 {
+            if let Some(copy) = ignored(surface.copy())? {
+                surface = copy;
+            }
             owner_flag |= 1;
         }
         // when Volume is to be copied - copy it
         if copy_flag == 2 || copy_flag == 3 {
+            volume = copy_volume(&volume)?;
             owner_flag |= 2;
         }
-        Self {
+        Ok(Self {
             surface: Box::new(surface),
             in_param_space,
             volume,
             owner_flag,
-        }
+        })
     }
 
     /// The copy constructor (`Copy`): copies both parts and sets the owner flag to
@@ -268,8 +278,14 @@ impl SrfInVolume {
         } else {
             self.volume.clone()
         };
+        // copy the Surface when the target owns it
+        let surface = if owns_surface {
+            ignored(self.surface.copy())?.unwrap_or_else(|| (*self.surface).clone())
+        } else {
+            (*self.surface).clone()
+        };
         Ok(Self {
-            surface: self.surface.clone(),
+            surface: Box::new(surface),
             in_param_space: self.in_param_space,
             volume,
             owner_flag,
@@ -421,39 +437,53 @@ impl SrfInVolume {
         Ok(())
     }
 
-    /// `SetBaseSurface`: replaces the base surface. With `copy_surface` the (already
-    /// moved in) surface counts as a copy; `owns_surface` or a copy makes this
-    /// object own it.
+    /// `SetBaseSurface`: replaces the base surface. With `copy_surface` the surface
+    /// is copied (`Copy`, status ignored: a failed copy keeps the surface as is);
+    /// `owns_surface` or a copy makes this object own it.
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] from copying an unported surface kind.
     pub fn set_base_surface(
         &mut self,
         surface: Surface,
         in_param_space: bool,
         copy_surface: bool,
         owns_surface: bool,
-    ) {
+    ) -> Result<()> {
         *self.surface = surface;
         self.in_param_space = in_param_space;
         self.owner_flag &= 2; // clear owns surface bit
         if copy_surface {
+            if let Some(copy) = ignored(self.surface.copy())? {
+                *self.surface = copy;
+            }
             self.owner_flag |= 1;
         }
         // when asked - remember to own this BaseSurface
         if owns_surface {
             self.owner_flag |= 1;
         }
+        Ok(())
     }
 
     /// `SetVolume`: replaces the compounding volume, as [`Self::set_base_surface`].
-    pub fn set_volume(&mut self, volume: Volume, copy_volume: bool, owns_volume: bool) {
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] from copying an unported volume kind.
+    pub fn set_volume(&mut self, volume: Volume, copy: bool, owns_volume: bool) -> Result<()> {
         self.volume = volume;
         self.owner_flag &= 1; // clear owns volume bit
-        if copy_volume {
+        if copy {
+            self.volume = copy_volume(&self.volume)?;
             self.owner_flag |= 2;
         }
         // when asked - remember to own this Volume
         if owns_volume {
             self.owner_flag |= 2;
         }
+        Ok(())
     }
 
     // ---- exact B-spline and mirror --------------------------------------------------
@@ -908,8 +938,8 @@ impl SrfInVolume {
         let (left, right) = self.surface.split_at(param, surf_param)?;
 
         // build left and right split surfaces from the base surface splits
-        let left = Self::new(left, self.in_param_space, self.volume.clone(), 2, 3);
-        let right = Self::new(right, self.in_param_space, self.volume.clone(), 2, 3);
+        let left = Self::new(left, self.in_param_space, self.volume.clone(), 2, 3)?;
+        let right = Self::new(right, self.in_param_space, self.volume.clone(), 2, 3)?;
         Ok((left, right))
     }
 
