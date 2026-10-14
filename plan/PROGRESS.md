@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**117 / 261 units ported** (83 green, 34 partial), **149,920 / 387,903 upstream lines (38.6%)**. 17 claimed, 0 blocked, 127 todo.
+**117 / 261 units ported** (83 green, 34 partial), **149,920 / 387,903 upstream lines (38.6%)**. 18 claimed, 0 blocked, 126 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `intersect.surface_intersector_p2` (1677 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -159,6 +159,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (draft)
 - [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
 ## By module
@@ -367,7 +368,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (draft)
 - [ ] ⏳ `intersect.curve_class_p2` (1928 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p3` (2062 lines) — waiting
-- [ ] ▶️ `intersect.surface_intersector_p2` (1677 lines) — ready
+- [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (draft)
 - [ ] ⏳ `intersect.curve_class_p3` (1986 lines) — waiting
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
 - [ ] ⏳ `intersect.surface_intersector_p3` (1932 lines) — waiting
