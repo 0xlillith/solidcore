@@ -1136,7 +1136,10 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
-            _ => base_global_surface_intersect(
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_) => base_global_surface_intersect(
                 self,
                 uv_domain,
                 other,
