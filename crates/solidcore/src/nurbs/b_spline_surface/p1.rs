@@ -548,12 +548,12 @@ fn global_point_solve(
 }
 
 /// `SmSurface::IsSingularity(uv, dir)`.
-fn is_singularity(_srf: &BSplineSurface, _uv: Point2) -> Result<bool> {
-    // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsSingularity",
-        unit: "surface.surface_p5",
-    })
+fn is_singularity(srf: &BSplineSurface, uv: Point2) -> Result<bool> {
+    // the SmSurface body (surface.surface_p5), on a surface holding a copy
+    let surface = crate::surface::surface::Surface::from(srf.copy());
+    Ok(surface
+        .is_singularity(uv, EFF_ZERO, false)?
+        .singular)
 }
 
 /// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`).

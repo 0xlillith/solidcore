@@ -9,6 +9,7 @@
 
 pub mod p2;
 pub mod p4;
+pub mod p5;
 pub mod p7;
 
 pub use p2::{Surface, SurfaceKind};
