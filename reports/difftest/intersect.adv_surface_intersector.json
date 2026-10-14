@@ -3,6 +3,3190 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_sing_000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#0",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#1",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_002",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#2",
+      "values_compared": 157
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_003",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#3",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_004",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#4",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_005",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#5",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_006",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#6",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_007",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#7",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_008",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#8",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_009",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#9",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#10",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#11",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_012",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#12",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_013",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#13",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_014",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#14",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_015",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#15",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_016",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#16",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_017",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#17",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_018",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#18",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_019",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#19",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_020",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#20",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_021",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#21",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_022",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#22",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_023",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#23",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_024",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#24",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_025",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#25",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_026",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#26",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_027",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#27",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_028",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#28",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_029",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#29",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_030",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#30",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_031",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#31",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_032",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#32",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_033",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#33",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_034",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#34",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_035",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#35",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_036",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#36",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_037",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#37",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_038",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#38",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_039",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#39",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_040",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#40",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_041",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#41",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_042",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#42",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_043",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#43",
+      "values_compared": 157
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_044",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#44",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_045",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#45",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_046",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#46",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_047",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#47",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_048",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#48",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_049",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#49",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_050",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#50",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_051",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#51",
+      "values_compared": 251
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_052",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#52",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_053",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#53",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_054",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#54",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_055",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#55",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_056",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#56",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_057",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#57",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_058",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#58",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_059",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#59",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_060",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#60",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_061",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#61",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_062",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#62",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_063",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#63",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_064",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#64",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_065",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#65",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_066",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#66",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_067",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#67",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_068",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#68",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_069",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#69",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_070",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#70",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_071",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#71",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_072",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#72",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_073",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#73",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_074",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#74",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_075",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#75",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_076",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#76",
+      "values_compared": 239
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_077",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#77",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_078",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#78",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_079",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#79",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_080",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#80",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_081",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#81",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_082",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#82",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_083",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#83",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_084",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#84",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_085",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#85",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_086",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#86",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_087",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#87",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_088",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#88",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_089",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#89",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_090",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#90",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_091",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#91",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_092",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#92",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_093",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#93",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_094",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#94",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_095",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#95",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_096",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#96",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_097",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#97",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_098",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#98",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_099",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#99",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#100",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#101",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_102",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#102",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_103",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#103",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_104",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#104",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_105",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#105",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_106",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#106",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_107",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#107",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_108",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#108",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_109",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#109",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_110",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#110",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#111",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_112",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#112",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_113",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#113",
+      "values_compared": 157
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_114",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#114",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_115",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#115",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_116",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#116",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_118",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#117",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_119",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#118",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_120",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#119",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_121",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#120",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_122",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#121",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#122",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_124",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#123",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_125",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#124",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_126",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#125",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_127",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#126",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_128",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#127",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_129",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#128",
+      "values_compared": 157
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_130",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#129",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_131",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#130",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_132",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#131",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_133",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#132",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_134",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#133",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_135",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#134",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_136",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#135",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_137",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#136",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_138",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#137",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_139",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#138",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_140",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#139",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_141",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#140",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_142",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#141",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_143",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#142",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_144",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#143",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_145",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#144",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_146",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#145",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_147",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#146",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_148",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#147",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_149",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#148",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_150",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#149",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_151",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#150",
+      "values_compared": 251
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_152",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#151",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_153",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#152",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_154",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#153",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_155",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#154",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_156",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#155",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_157",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#156",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_158",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#157",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_159",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#158",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_160",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#159",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_161",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#160",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_162",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#161",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_163",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#162",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_164",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#163",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_165",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#164",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_166",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#165",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_167",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#166",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_168",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#167",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_169",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#168",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_170",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#169",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_171",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#170",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_172",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#171",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_173",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#172",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_174",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#173",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_175",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#174",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_176",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#175",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_177",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#176",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_178",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#177",
+      "values_compared": 245
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_179",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#178",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_180",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#179",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_181",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#180",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_182",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#181",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_183",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#182",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_184",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#183",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_185",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#184",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_186",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#185",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_187",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#186",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_188",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#187",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_189",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#188",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_190",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#189",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_191",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#190",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_192",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#191",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_193",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#192",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_194",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#193",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_195",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#194",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_196",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#195",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_197",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#196",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_198",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#197",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_199",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#198",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_200",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#199",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_201",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#200",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_202",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#201",
+      "values_compared": 157
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_203",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#202",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_204",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#203",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_205",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#204",
+      "values_compared": 251
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_206",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#205",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_207",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#206",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_208",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#207",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_209",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#208",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#209",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_211",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#210",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_212",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#211",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_213",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#212",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_214",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#213",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_215",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#214",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_216",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#215",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_217",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#216",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_218",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#217",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_219",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#218",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_220",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#219",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_221",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#220",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_222",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#221",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_223",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#222",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_224",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#223",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_225",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#224",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_226",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#225",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_227",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#226",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_228",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#227",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_229",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#228",
+      "values_compared": 245
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_230",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#229",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_231",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#230",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_232",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#231",
+      "values_compared": 263
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_233",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#232",
+      "values_compared": 239
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_234",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#233",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_235",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#234",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_236",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#235",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_237",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#236",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_238",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#237",
+      "values_compared": 251
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_239",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#238",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_240",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#239",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_241",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#240",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_242",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#241",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_243",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#242",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_244",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#243",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_245",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#244",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_246",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#245",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_247",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#246",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_248",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#247",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_249",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#248",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_250",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#249",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_251",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#250",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_252",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#251",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_253",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#252",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_254",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#253",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_255",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#254",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_256",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#255",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_257",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#256",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_258",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#257",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_259",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#258",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_260",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#259",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_261",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#260",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_262",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#261",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_263",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#262",
+      "values_compared": 161
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_264",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#263",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_265",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#264",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_266",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#265",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_267",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#266",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_268",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#267",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_269",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#268",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_270",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#269",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_271",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#270",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_272",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#271",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_273",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#272",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_274",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#273",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_275",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#274",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_276",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#275",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_277",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#276",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_278",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#277",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_279",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#278",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_280",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#279",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_281",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#280",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_282",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#281",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_283",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#282",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_284",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#283",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_285",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#284",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_286",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#285",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_287",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#286",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_288",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#287",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_289",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#288",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_290",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#289",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_291",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#290",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_292",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#291",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_293",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#292",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_294",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#293",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_295",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#294",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_296",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#295",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_297",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#296",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_298",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#297",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_299",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#298",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#299",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_301",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#300",
+      "values_compared": 263
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_302",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#301",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_303",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#302",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_304",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#303",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_305",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#304",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_306",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#305",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_307",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#306",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_308",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#307",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_309",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#308",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_310",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#309",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_311",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#310",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_312",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#311",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_313",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#312",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_314",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#313",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_315",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#314",
+      "values_compared": 245
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_316",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#315",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_317",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#316",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_318",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#317",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_319",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#318",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_320",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#319",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_321",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#320",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_322",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#321",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_323",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#322",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_324",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#323",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_325",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#324",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_326",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#325",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_327",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#326",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_328",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#327",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_329",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#328",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_330",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#329",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_331",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#330",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_332",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#331",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_333",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#332",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_334",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#333",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_335",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#334",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_336",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#335",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_337",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#336",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_338",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#337",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_339",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#338",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_340",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#339",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_341",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#340",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_342",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#341",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_343",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#342",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_344",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#343",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_345",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#344",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_346",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#345",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_347",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#346",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_348",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#347",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_349",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#348",
+      "values_compared": 263
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_350",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#349",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_351",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#350",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_353",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#351",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_354",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#352",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_355",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#353",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_356",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#354",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_357",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#355",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_358",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#356",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_359",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#357",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#358",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_361",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#359",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_362",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#360",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_363",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#361",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_364",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#362",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_365",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#363",
+      "values_compared": 181
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_366",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#364",
+      "values_compared": 251
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_367",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#365",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_368",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#366",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_369",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#367",
+      "values_compared": 243
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_370",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#368",
+      "values_compared": 249
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_371",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#369",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_372",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#370",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_373",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#371",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_374",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#372",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_375",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#373",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_376",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#374",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_377",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#375",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_378",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#376",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_379",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#377",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_380",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#378",
+      "values_compared": 183
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_381",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#379",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_382",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#380",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_383",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#381",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_384",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#382",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_385",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#383",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_386",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#384",
+      "values_compared": 263
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_387",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#385",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_388",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#386",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_389",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#387",
+      "values_compared": 159
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_390",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#388",
+      "values_compared": 185
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_391",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#389",
+      "values_compared": 255
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_392",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#390",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_393",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#391",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_394",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#392",
+      "values_compared": 247
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_395",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#393",
+      "values_compared": 167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_396",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#394",
+      "values_compared": 241
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_397",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#395",
+      "values_compared": 171
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_398",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#396",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sing_399",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.adv_surface_intersector/review_adversarial_singular.json#397",
+      "values_compared": 265
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -12333,8 +15517,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 16,
   "cases_failed": 0,
-  "cases_passed": 1517,
-  "cases_total": 1533,
+  "cases_passed": 1915,
+  "cases_total": 1931,
   "deferred_by_unit": {
     "surface.surface_p11": 16
   },
