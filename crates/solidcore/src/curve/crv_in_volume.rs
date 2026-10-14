@@ -1202,7 +1202,7 @@ mod tests {
     }
 
     fn civ(owner: u64) -> CrvInVolume {
-        CrvInVolume::new(base(), true, Volume::new(VolumeKind::Unbend), 0, owner)
+        CrvInVolume::new(base(), true, Volume::new(VolumeKind::Bend), 0, owner)
     }
 
     fn cached(owner: u64) -> CrvInVolume {
@@ -1222,10 +1222,10 @@ mod tests {
 
     #[test]
     fn construct_and_flags() {
-        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Unbend), 3, 0);
+        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Bend), 3, 0);
         assert_eq!(c.owner_flag(), 3);
         assert!(c.owns_curve() && c.owns_volume());
-        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Unbend), 1, 4);
+        let c = CrvInVolume::new(base(), false, Volume::new(VolumeKind::Bend), 1, 4);
         assert_eq!(c.owner_flag(), 5);
         assert!(!c.owns_curve() && !c.owns_volume());
         assert_eq!(c.copy().owner_flag(), 0);

@@ -35,8 +35,9 @@
 //!   box samplers and gap loops, `Evaluate1stDerivatives` for the box bases, the
 //!   steps of `MapPseudoBox`, the nested reads of `ReadFromDB`, ...) the port does
 //!   too: the value keeps what it held (a fresh `SmPoint3d` is [`Vec3::UNDEF`]),
-//!   except that a failed `EvaluatePoint` of a twist with next maps leaves the
-//!   twist's own image, which its `Evaluate` override writes before compounding.
+//!   except that a failed `EvaluatePoint` of a twist or an unbend with next maps
+//!   leaves that map's own image, which its `Evaluate` override writes before
+//!   compounding.
 //!   [`SolidError::Unported`] always propagates.
 //! - **Undefined behaviour** upstream is [`SolidError::Unsupported`] here, which no
 //!   caller ignores: a transform's `EvaluateBoundingBoxSimple` reached without a
@@ -68,6 +69,7 @@ use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_SQRT};
 use crate::surface::b_spline_volume::BSplineVolume;
 use crate::surface::twist_volume::TwistVolume;
+use crate::surface::unbend_volume::UnbendVolume;
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 use super::p1::{
@@ -636,10 +638,11 @@ impl Volume {
             VolumeKind::Twist(t) => {
                 t.evaluate_bounding_box_simple(param_box, proj_box, proj_pseudo_box)
             }
-            VolumeKind::Bend | VolumeKind::Unbend => self.kind_unported(
-                "SmBendVolume::EvaluateBoundingBoxSimple",
-                "SmUnbendVolume::EvaluateBoundingBoxSimple",
-            ),
+            VolumeKind::Unbend(u) => {
+                u.evaluate_bounding_box_simple(self, param_box, proj_box, proj_pseudo_box)
+            }
+            // UNPORTED(surface.bend_volume): SmBendVolume::EvaluateBoundingBoxSimple
+            VolumeKind::Bend => Err(bend_unported("SmBendVolume::EvaluateBoundingBoxSimple")),
             VolumeKind::Base => {
                 // no work - no output
                 if proj_box.is_none() && proj_pseudo_box.is_none() {
@@ -819,8 +822,9 @@ impl Volume {
     }
 
     /// The point `EvaluatePoint` writes when its caller ignores the status: the image
-    /// on success; on failure nothing (`None`), except that a twist's `Evaluate`
-    /// override writes its own (first out-space) image before its next map fails.
+    /// on success; on failure nothing (`None`), except that a twist's or an unbend's
+    /// `Evaluate` override writes its own (first out-space) image before its next map
+    /// fails.
     ///
     /// # Errors
     ///
@@ -834,7 +838,9 @@ impl Volume {
             Ok(q) => Ok(Some(q)),
             Err(e) if e.is_unported() => Err(e),
             Err(_) => match self.kind {
-                VolumeKind::Twist(_) if with_compounding && self.next_map.is_some() => {
+                VolumeKind::Twist(_) | VolumeKind::Unbend(_)
+                    if with_compounding && self.next_map.is_some() =>
+                {
                     ignored(self.evaluate_point(param_point, false))
                 }
                 _ => Ok(None),
@@ -1271,10 +1277,11 @@ impl Volume {
             VolumeKind::Twist(t) => {
                 Ok(t.global_point_solve_simple(proj_point, solutions, param_domain, this))
             }
-            VolumeKind::Bend | VolumeKind::Unbend => self.kind_unported(
-                "SmBendVolume::GlobalPointSolveSimple",
-                "SmUnbendVolume::GlobalPointSolveSimple",
-            ),
+            VolumeKind::Unbend(u) => {
+                u.global_point_solve_simple(self, proj_point, solutions, param_domain, this)
+            }
+            // UNPORTED(surface.bend_volume): SmBendVolume::GlobalPointSolveSimple
+            VolumeKind::Bend => Err(bend_unported("SmBendVolume::GlobalPointSolveSimple")),
             VolumeKind::Base | VolumeKind::BSpline(_) => {
                 // init output
                 let mut found = false;
@@ -1329,10 +1336,11 @@ impl Volume {
             VolumeKind::Twist(t) => {
                 Ok(t.local_point_solve_simple(proj_point, solution, param_domain, this))
             }
-            VolumeKind::Bend | VolumeKind::Unbend => self.kind_unported(
-                "SmBendVolume::LocalPointSolveSimple",
-                "SmUnbendVolume::LocalPointSolveSimple",
-            ),
+            VolumeKind::Unbend(u) => {
+                u.local_point_solve_simple(self, proj_point, solution, param_domain, this)
+            }
+            // UNPORTED(surface.bend_volume): SmBendVolume::LocalPointSolveSimple
+            VolumeKind::Bend => Err(bend_unported("SmBendVolume::LocalPointSolveSimple")),
             VolumeKind::Base | VolumeKind::BSpline(_) => self.base_local_point_solve_simple(
                 proj_point,
                 param_guess,
@@ -1420,16 +1428,6 @@ impl Volume {
             ))
     }
 
-    /// [`SolidError::Unported`] for a bend or unbend volume's override.
-    fn kind_unported<T>(&self, bend: &'static str, unbend: &'static str) -> Result<T> {
-        match self.kind {
-            // UNPORTED(surface.bend_volume): SmBendVolume virtual overrides
-            VolumeKind::Bend => Err(SolidError::unported(bend, "surface.bend_volume")),
-            // UNPORTED(surface.unbend_volume): SmUnbendVolume virtual overrides
-            _ => Err(SolidError::unported(unbend, "surface.unbend_volume")),
-        }
-    }
-
     // ---- persistence ----------------------------------------------------------------
 
     /// Reads a volume of type `volume_type` from a database stream (`ReadFromDB`):
@@ -1462,11 +1460,7 @@ impl Volume {
                 "surface.bend_volume",
             )),
             TRANSFORM_TYPE => Transform::read_from_db(db, version),
-            // UNPORTED(surface.unbend_volume): SmUnbendVolume::ReadFromDB
-            UNBEND_VOLUME_TYPE => Err(SolidError::unported(
-                "SmUnbendVolume::ReadFromDB",
-                "surface.unbend_volume",
-            )),
+            UNBEND_VOLUME_TYPE => UnbendVolume::read_from_db(db, version),
             TWIST_VOLUME_TYPE => TwistVolume::read_from_db(db, version),
             VOLUME_TYPE => Err(unsupported("SmVolume_TYPE without a volume to fill")),
             _ => Err(SolidError::sm_err(OP_READ)),
@@ -1511,6 +1505,11 @@ impl Volume {
         }
         Ok(())
     }
+}
+
+/// [`SolidError::Unported`] for a bend volume's override (unit `surface.bend_volume`).
+fn bend_unported(upstream: &'static str) -> SolidError {
+    SolidError::unported(upstream, "surface.bend_volume")
 }
 
 /// [`SolidError::Unsupported`] marking undefined behaviour upstream in the reader.
@@ -1816,6 +1815,66 @@ mod tests {
         );
         let vol = Volume::read_from_db(TRANSFORM_TYPE, &mut ascii(&text), 30).unwrap();
         assert!(vol.next_map().is_none());
+    }
+
+    #[test]
+    fn reads_unbend_volumes() {
+        let text = format!("2.5\n0.01\n0\n1\nObject Type {TRANSFORM_TYPE}\n1 0 0 0\n0 1 0 0\n0 0 1 0\n1 2 3 1\n0\n0\n");
+        let vol = Volume::read_from_db(UNBEND_VOLUME_TYPE, &mut ascii(&text), 30).unwrap();
+        match vol.kind() {
+            VolumeKind::Unbend(u) => {
+                assert_eq!(u.unbend_neutral_dist(), 2.5);
+                assert_eq!(u.singularity_tol(), 0.01);
+            }
+            k => panic!("not an unbend: {k:?}"),
+        }
+        assert!(vol.next_map().is_none());
+        assert!(close(vol.orient_origin(), v(1.0, 2.0, 3.0)));
+    }
+
+    #[test]
+    fn unbend_overrides_are_dispatched() {
+        let vol = UnbendVolume::create(
+            v(0.0, 0.0, 0.0),
+            v(0.0, 0.0, 1.0),
+            v(1.0, 0.0, 0.0),
+            2.0,
+            0.01,
+        );
+        // the unbend's solvers invert exactly
+        let target = vol.evaluate_point(v(1.5, 0.5, 0.25), true).unwrap();
+        let mut sols = SolutionArray::new();
+        assert!(vol
+            .global_point_solve_simple(target, &mut sols, None, Me)
+            .unwrap());
+        let p = sols.get(0).unwrap().start.parameters;
+        assert!(close(v(p[0], p[1], p[2]), v(1.5, 0.5, 0.25)));
+        // its box covers the mapped corners
+        let mut b = Extent3d::new();
+        vol.evaluate_bounding_box_simple(&unit_box(), None, Some(&mut b), None)
+            .unwrap();
+        assert!(b.contains_point(vol.evaluate_point(v(1.0, 1.0, 1.0), true).unwrap(), 1e-9));
+        // a zero-length box edge is refused (upstream reads a null line)
+        let flat = Extent3d::from_points(v(0.5, 0.5, 0.5), v(0.5, 1.0, 1.0));
+        assert!(vol
+            .evaluate_bounding_box_simple(&flat, None, Some(&mut b), None)
+            .is_err());
+    }
+
+    #[test]
+    fn unbend_leaves_its_own_image_when_the_next_map_fails() {
+        let mut vol = UnbendVolume::create(
+            v(0.0, 0.0, 0.0),
+            v(0.0, 0.0, 1.0),
+            v(1.0, 0.0, 0.0),
+            2.0,
+            0.01,
+        );
+        vol.add_next_map(Volume::new(VolumeKind::Base), 2).unwrap();
+        let p = v(1.5, 0.5, 0.25);
+        assert!(vol.evaluate_point(p, true).is_err());
+        let own = vol.evaluate_point(p, false).unwrap();
+        assert_eq!(vol.evaluate_point_written(p, true).unwrap(), Some(own));
     }
 
     #[test]

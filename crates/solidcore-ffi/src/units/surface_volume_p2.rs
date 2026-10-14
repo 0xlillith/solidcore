@@ -9,7 +9,9 @@
 //! `SmTwistVolume(ctx, origin, axis, mid, period, min)` (eleven numbers; the twist
 //! frame is its orient map), `3` an `SmBSplineVolume` from `l m n p q r`, the knots
 //! `U V W` and the control points `x y z w` (`w` index fastest), `4` a default
-//! `SmUnbendVolume`. `O` becomes the orient map through `SetOrientMap(new
+//! `SmUnbendVolume`, `5` `SmUnbendVolume(ctx, center, axis, mid, neutral, tol)` (eleven
+//! numbers; its frame is its orient map, so no orient flag follows). `O` becomes the
+//! orient map through `SetOrientMap(new
 //! SmTransform, 2)`; map `i > 0` is appended with `AddNextMap(map, 2)`. A box is `min
 //! max` (`SmExtent3d(min, max)`), a pseudo box `X Y Z a0 b0 a1 b1 a2 b2`
 //! (`SmPseudoBox(X, Y, Z, SmExtent1d(a, b) x3)`). Every output starts with the status
@@ -40,16 +42,17 @@
 //! is `success n points[n] n gaps[n]`; a solutions record `found n` then per solution
 //! `type n_vars value u v w n_objects`. A discontinuity set is `has min` then per
 //! direction `unaligned min n_params`. A state is `n` then per map `type [matrix(16) |
-//! period min] has_orient [O(16)] has_inv [I(16)]`. Outputs after a failed status are
-//! omitted.
+//! period min | neutral tol] has_orient [O(16)] has_inv [I(16)]`. Outputs after a failed
+//! status are omitted.
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour (see
 //! [`check`]): finite values of at most [`MAX_COORD`], B-spline records within
-//! [`MAX_CP`] / [`MAX_DEGREE`] with non-decreasing knots, the unbend volume only in
-//! `EvalPoint`, `Eval1st` and `HasDisc`, no call path that hands a transform's
-//! `EvaluateBoundingBoxSimple` a null parameter pseudo box or a twist's an unbounded
-//! box without a box output, and `ReadDb` text in a strict token grammar without
-//! the reader's null or uninitialised cases.
+//! [`MAX_CP`] / [`MAX_DEGREE`] with non-decreasing knots, no call path that hands a
+//! transform's `EvaluateBoundingBoxSimple` a null parameter pseudo box or a twist's an
+//! unbounded box without a box output, no call path that may hand an unbend's
+//! `EvaluateBoundingBoxSimple` a bounded box with a side shorter than [`MIN_SIDE`]
+//! (see [`check`]), and `ReadDb` text in a strict token grammar without the reader's
+//! null or uninitialised cases.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -63,6 +66,10 @@ pub const MAX_DEGREE: usize = 4;
 pub const MAX_COORD: f64 = 1e8;
 /// Longest database text.
 pub const MAX_DATA: usize = 1 << 16;
+/// Shortest side of a bounded box handed to an unbend's `EvaluateBoundingBoxSimple`:
+/// `SmLine::CreateLineSegment` fails on a zero-length box edge and upstream then uses
+/// a null or deleted line (as in unit `surface.unbend_volume`).
+pub const MIN_SIDE: f64 = 1e-9;
 
 /// `SmVolume_TYPE`.
 pub const VOLUME_TYPE: i64 = 22001;
@@ -160,6 +167,12 @@ enum Kind {
     Unbend,
 }
 
+impl Kind {
+    fn is_unbend(self) -> bool {
+        self == Kind::Unbend
+    }
+}
+
 /// One map of a chain: its class and whether it has an orient map.
 #[derive(Debug, Clone, Copy)]
 struct Map {
@@ -208,6 +221,13 @@ impl Reader<'_> {
 
     /// A box; returns whether it has any bounded end (`AnyBounds`).
     fn ext(&mut self) -> Result<bool, FfiError> {
+        Ok(self.ext_flat()?.0)
+    }
+
+    /// A box; returns whether it has any bounded end (`AnyBounds`) and whether it is
+    /// bounded with a side shorter than [`MIN_SIDE`] (an unbend's box edges then
+    /// include a zero-length line).
+    fn ext_flat(&mut self) -> Result<(bool, bool), FfiError> {
         let mut v = [0.0; 6];
         for x in &mut v {
             *x = self.num()?;
@@ -215,7 +235,10 @@ impl Reader<'_> {
         let inf = |x: f64| INFINITE_MARKERS.contains(&x);
         // SmExtent3d(min, max) only swaps; the markers are symmetric
         let (lo, hi) = v.split_at(3);
-        Ok(lo.iter().zip(hi).any(|(&a, &b)| !(inf(a) && inf(b))))
+        let any_bounds = lo.iter().zip(hi).any(|(&a, &b)| !(inf(a) && inf(b)));
+        let bounded = !v.iter().any(|&x| inf(x));
+        let flat = lo.iter().zip(hi).any(|(&a, &b)| (b - a).abs() < MIN_SIDE);
+        Ok((any_bounds, bounded && flat))
     }
 
     fn pbox(&mut self) -> Result<(), FfiError> {
@@ -251,7 +274,8 @@ impl Reader<'_> {
         }
         let mut chain = Vec::with_capacity(n);
         for _ in 0..n {
-            let kind = match self.index(4)? {
+            let code = self.index(5)?;
+            let kind = match code {
                 0 => Kind::Base,
                 1 => {
                     self.nums(12)?;
@@ -265,9 +289,14 @@ impl Reader<'_> {
                     self.bspline()?;
                     Kind::BSpline
                 }
-                _ => Kind::Unbend,
+                4 => Kind::Unbend,
+                _ => {
+                    self.nums(11)?;
+                    Kind::Unbend
+                }
             };
-            let orient = if kind == Kind::Twist {
+            // a twist's and a component unbend's frame is their orient map
+            let orient = if kind == Kind::Twist || code == 5 {
                 true
             } else {
                 let o = self.flag()?;
@@ -399,6 +428,77 @@ fn inv_eval_undefined(chain: &[Map], has_dom: bool, comp: bool) -> bool {
         || inv_map_undefined(chain, 1, has_dom, true)
 }
 
+/// Whether `EvaluateBoundingBox` on map `i` with the out-space outputs `out` and
+/// the in-space outputs `inside` may reach an unbend's `EvaluateBoundingBoxSimple`
+/// with a too-flat box: on map `i` itself with the caller's box (`flat`), on a later
+/// map with a computed box (rejected whatever its size).
+fn ebb_unbend(chain: &[Map], i: usize, (out, inside): (Wants, Wants), comp: bool, flat: bool) -> bool {
+    let Some(m) = chain.get(i) else {
+        return false;
+    };
+    if (!out.any() && !inside.any()) || domain_check(chain, i) == Some(false) {
+        return false;
+    }
+    if out.any() {
+        if m.kind.is_unbend() && flat {
+            return true;
+        }
+        if comp && i + 1 < chain.len() {
+            let next_out = Wants {
+                bx: out.bx,
+                pb: true,
+            };
+            return mpb_unbend(chain, i + 1, next_out, true, false);
+        }
+    }
+    false
+}
+
+/// Whether `MapPseudoBox` on map `i` with the outputs `outs` may reach an unbend's
+/// `EvaluateBoundingBoxSimple`. Its box there is computed from the in-space pseudo
+/// box (sampled through the inverse orient map, or its axis-aligned extent when
+/// trimming), so any such call is rejected.
+fn mpb_unbend(chain: &[Map], i: usize, outs: Wants, comp: bool, trim: bool) -> bool {
+    let Some(m) = chain.get(i) else {
+        return false;
+    };
+    if !trim && domain_check(chain, i) == Some(false) {
+        return false;
+    }
+    let next = comp && i + 1 < chain.len();
+    let has_this = outs.pb || next;
+    let here = m.kind.is_unbend() && (m.orient || (trim && (outs.bx || has_this)));
+    let next_outs = Wants {
+        bx: outs.bx,
+        pb: true,
+    };
+    here || (next && mpb_unbend(chain, i + 1, next_outs, comp, trim))
+}
+
+/// Whether `InvMapPoint` on map `i` may reach an unbend's `EvaluateBoundingBoxSimple`.
+fn inv_map_unbend(chain: &[Map], i: usize, has_dom: bool, comp: bool) -> bool {
+    if !comp || i + 1 >= chain.len() {
+        return false;
+    }
+    (has_dom && mpb_unbend(chain, i, Wants { bx: false, pb: true }, false, true))
+        || inv_map_unbend(chain, i + 1, has_dom, true)
+}
+
+/// Whether `InvEvaluatePoint` / `GlobalPointSolve` on map `0` may reach an unbend's
+/// `EvaluateBoundingBoxSimple` (`flat`: the caller's domain box is too flat).
+fn inv_eval_unbend(chain: &[Map], has_dom: bool, comp: bool, flat: bool) -> bool {
+    if !comp || chain.len() < 2 {
+        return false;
+    }
+    let out = Wants { bx: true, pb: true };
+    let inside = Wants {
+        bx: false,
+        pb: false,
+    };
+    (has_dom && ebb_unbend(chain, 0, (out, inside), false, flat))
+        || inv_map_unbend(chain, 1, has_dom, true)
+}
+
 // ---- database text ----------------------------------------------------------------------
 
 /// A strict tokenizer over the ASCII database text, modelling the `istream`
@@ -516,11 +616,9 @@ impl<'a> Text<'a> {
         }
         let (lines, per_line) = match t {
             TRANSFORM_TYPE => (4, 4),
-            TWIST_VOLUME_TYPE => (2, 1),
+            TWIST_VOLUME_TYPE | UNBEND_VOLUME_TYPE => (2, 1),
             VOLUME_TYPE => return Err(bad("SmVolume_TYPE has no volume to fill upstream")),
-            BEND_VOLUME_TYPE | UNBEND_VOLUME_TYPE => {
-                return Err(bad("bend and unbend volume texts are not accepted"))
-            }
+            BEND_VOLUME_TYPE => return Err(bad("bend volume texts are not accepted")),
             _ => return Ok(false),
         };
         for _ in 0..lines {
@@ -571,7 +669,11 @@ fn check_text(t: i64, data: &[u8]) -> Result<(), FfiError> {
 /// Checks that `input` (and `data` for [`Op::ReadDb`]) is a well-formed record for
 /// `op` that upstream handles without undefined behaviour (see the module docs).
 /// A call path whose undefined step depends on a B-spline map's domain test is
-/// rejected as if the test passed.
+/// rejected as if the test passed. An unbend's `EvaluateBoundingBoxSimple` is
+/// allowed only on the caller's own box (`EvalBBox`, `BBoxSimple`, and the domain box
+/// of `InvEval` / `Global` on map `0`) when that box is unbounded or has every side
+/// at least [`MIN_SIDE`]; a call path that hands it a computed box (a later map, or
+/// `MapPseudoBox`) is rejected whatever that box's size.
 ///
 /// # Errors
 ///
@@ -586,11 +688,6 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
         check_text(t as i64, data)?;
     } else {
         let chain = r.volume()?;
-        if !matches!(op, Op::EvalPoint | Op::Eval1st | Op::HasDisc)
-            && chain.iter().any(|m| m.kind == Kind::Unbend)
-        {
-            return Err(bad("the default unbend volume is accepted only by EvalPoint, Eval1st, HasDisc"));
-        }
         let undefined = match op {
             Op::PtInParam | Op::EvalPoint => {
                 r.nums(3)?;
@@ -613,7 +710,7 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                 false
             }
             Op::EvalBBox => {
-                r.ext()?;
+                let (_, flat) = r.ext_flat()?;
                 let has_ppb = r.flag()?;
                 if has_ppb {
                     r.pbox()?;
@@ -628,6 +725,7 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                 };
                 let comp = r.flag()?;
                 ebb_undefined(&chain, 0, has_ppb, (out, inside), comp)
+                    || ebb_unbend(&chain, 0, (out, inside), comp, flat)
             }
             Op::MapPBox => {
                 r.pbox()?;
@@ -636,7 +734,7 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                     pb: r.flag()?,
                 };
                 let (comp, trim) = (r.flag()?, r.flag()?);
-                mpb_undefined(&chain, 0, outs, comp, trim)
+                mpb_undefined(&chain, 0, outs, comp, trim) || mpb_unbend(&chain, 0, outs, comp, trim)
             }
             Op::Eval1st => {
                 r.nums(3)?;
@@ -649,9 +747,10 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                     r.nums(3)?;
                 }
                 let has_dom = r.flag()?;
+                let mut flat = false;
                 if has_dom {
                     if op == Op::InvEval {
-                        r.ext()?;
+                        flat = r.ext_flat()?.1;
                     } else {
                         r.pbox()?;
                     }
@@ -659,18 +758,22 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                 let comp = r.flag()?;
                 if op == Op::InvEval {
                     inv_eval_undefined(&chain, has_dom, comp)
+                        || inv_eval_unbend(&chain, has_dom, comp, flat)
                 } else {
                     inv_map_undefined(&chain, 0, has_dom, comp)
+                        || inv_map_unbend(&chain, 0, has_dom, comp)
                 }
             }
             Op::Global => {
                 r.nums(3)?;
                 let has_dom = r.flag()?;
+                let mut flat = false;
                 if has_dom {
-                    r.ext()?;
+                    flat = r.ext_flat()?.1;
                 }
                 let comp = r.flag()?;
                 inv_eval_undefined(&chain, has_dom, comp)
+                    || inv_eval_unbend(&chain, has_dom, comp, flat)
             }
             Op::HasDisc => {
                 r.flag()?;
@@ -678,7 +781,7 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                 false
             }
             Op::BBoxSimple => {
-                let any_bounds = r.ext()?;
+                let (any_bounds, flat) = r.ext_flat()?;
                 let has_ppb = r.flag()?;
                 if has_ppb {
                     r.pbox()?;
@@ -687,7 +790,8 @@ pub fn check(op: Op, input: &[f64], data: &[u8]) -> Result<(), FfiError> {
                 let kind = chain.first().map(|m| m.kind);
                 (want_box || want_pb)
                     && ((kind == Some(Kind::Transform) && !has_ppb)
-                        || (kind == Some(Kind::Twist) && !want_box && !any_bounds))
+                        || (kind == Some(Kind::Twist) && !want_box && !any_bounds)
+                        || (kind == Some(Kind::Unbend) && flat))
             }
             Op::PBoxSimple => {
                 r.pbox()?;

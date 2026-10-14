@@ -2,8 +2,9 @@
 // difftest shim for unit `surface.volume_p2`: the SmVolume members owned by the unit
 // (source/SMLib/src/SmVolume.cpp, source/SMLib/inc/SmVolume.h), called on compound volumes
 // built from plain SmVolume, SmTransform, SmTwistVolume (component constructor),
-// SmBSplineVolume (from an sm_AllocateNurbVolume record) and default SmUnbendVolume maps,
-// each optionally oriented by an SmTransform; plus SmVolume::ReadFromDB of ASCII text.
+// SmBSplineVolume (from an sm_AllocateNurbVolume record), default SmUnbendVolume and
+// SmUnbendVolume (component constructor) maps, each but the twist and the component unbend
+// optionally oriented by an SmTransform; plus SmVolume::ReadFromDB of ASCII text.
 //
 // One entry point, sc_surface_volume_p2_eval(op, in, n_in, data, data_len, out, cap, out_len).
 // Layouts are documented in crates/solidcore-ffi/src/units/surface_volume_p2.rs, which
@@ -66,6 +67,7 @@ enum : int64_t
     K_TWIST = 2,
     K_BSPLINE = 3,
     K_UNBEND = 4,
+    K_UNBEND_C = 5,
 };
 
 struct Rd
@@ -170,7 +172,8 @@ SmVolume* read_bspline(Rd& rd, const SmContext& ctx)
     return v;
 }
 
-// `n` maps `kind [data] [has_orient [O(12)]]` (no orient flag for a twist), chained in
+// `n` maps `kind [data] [has_orient [O(12)]]` (no orient flag for a twist or a component
+// unbend), chained in
 // order with AddNextMap(m, 2).
 SmVolume* read_volume(Rd& rd, const SmContext& ctx)
 {
@@ -195,6 +198,16 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
         }
         case K_BSPLINE: v = read_bspline(rd, ctx); break;
         case K_UNBEND: v = new (ctx) SmUnbendVolume(&ctx); break;
+        case K_UNBEND_C:
+        {
+            SmPoint3d c = rd.vec();
+            SmVector3d axis = rd.vec();
+            SmVector3d mid = rd.vec();
+            double neutral = rd.num();
+            double tol = rd.num();
+            v = new (ctx) SmUnbendVolume(ctx, c, axis, mid, neutral, tol);
+            break;
+        }
         default: v = new (ctx) SmVolume(&ctx); break;
         }
         if (v == NULL)
@@ -202,8 +215,9 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
             delete head;
             return NULL;
         }
-        // a twist's frame is its orient map: no orient flag in its block
-        if (kind != K_TWIST && rd.flag())
+        // a twist's or component unbend's frame is its orient map: no orient flag in
+        // its block
+        if (kind != K_TWIST && kind != K_UNBEND_C && rd.flag())
             v->SetOrientMap(read_transform(rd, ctx), 2);
         if (head == NULL)
             head = v;
@@ -234,7 +248,7 @@ SmPseudoBox read_pbox(Rd& rd)
     return SmPseudoBox(x, y, z, i0, i1, i2);
 }
 
-// The chain: `n` then per map `type [matrix(16) | period min] has_orient [O(16)]
+// The chain: `n` then per map `type [matrix(16) | period min | neutral tol] has_orient [O(16)]
 // has_inv [I(16)]`.
 void put_state(std::vector<double>& o, const SmVolume* v)
 {
@@ -251,6 +265,11 @@ void put_state(std::vector<double>& o, const SmVolume* v)
         {
             o.push_back(((const SmTwistVolume*)p)->GetTwistPeriodDist());
             o.push_back(((const SmTwistVolume*)p)->GetPeriodMinDist());
+        }
+        if (p->GetType() == SmUnbendVolume_TYPE)
+        {
+            o.push_back(((const SmUnbendVolume*)p)->GetUnbendNeutralDist());
+            o.push_back(((const SmUnbendVolume*)p)->GetSingularityTol());
         }
         o.push_back(p->GetOrientMap() ? 1.0 : 0.0);
         if (p->GetOrientMap())
