@@ -780,7 +780,7 @@ by area within each severity.
 
 #### UB-78. `ComputeSingularityPoint` can write past `aSingDirections[8]`
 - **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:164` (`SmVector3d aSingDirections[8]`), filled by `sm_AddSingDir` (`:54`) from the Dupin indicatrix intersections at `:616`-`:685`; `aSingUVSurf1/2[8]` and `lInsideIndex[8]` at `:775`-`:776`.
-- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-56), so the count is not bounded by the 4 + 4 of two central conics.
+- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-60), so the count is not bounded by the 4 + 4 of two central conics.
 - **Trigger:** Two non-planar surface points with parallel normals, no shared principal curvature, whose indicatrices meet in more than 8 directions more than 26 degrees apart.
 - **How found:** read during porting.
 - **Confirmed:** no (the difftest shim predicts the count and does not run such inputs; no generated case reached it).
@@ -1432,23 +1432,32 @@ by area within each severity.
 - **Severity:** wrong result (unit mix-up).
 - **Rust port:** Faithful.
 
-#### WR-56. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
-- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
-- **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
-- **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
+#### WR-55. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
+- **Location:** `SmSurface.cpp:12691`, `SmSurface::GetFlatCorners` (def. `:12655`).
+- **What happens:** The optional-output block tests `if(lRtn &= SM_FC_UMIN_VMIN)` (and so on) with `&=`, so asking for the points masks the flags down to at most one bit (usually none), and later corners are evaluated only if all earlier masks kept a bit.
+- **Trigger:** `GetFlatCorners(&points)` on a surface with two or more flat corners.
 - **How found:** read during porting.
-- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: generated `dupin` ops and `edge_dupin_kinds` compare the conics).
+- **Confirmed:** no.
 - **Severity:** wrong result.
-- **Rust port:** Faithful.
+- **Rust port:** Reproduces it (`Surface::flat_corners`; `IsFlatCorner` is not ported yet).
 
-#### WR-57. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
-- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
-- **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
-- **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
+#### WR-56. `sm_GoodDropResult` swaps the guess and result distances
+- **Location:** `SmSurface.cpp:10349`, `sm_GoodDropResult` (file static, def. `:10256`).
+- **What happens:** `dDsqGuess` holds the distance to the result point and `dDsqResult` the distance to the guess point, so the final "result farther than the guess" test rejects drops that improved on the guess. The caller then runs the expensive global solve.
+- **Trigger:** A local drop whose result is closer to the point than the guess, with a small residual that passes the earlier tests.
 - **How found:** read during porting.
-- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
-- **Severity:** wrong result (performance and duplicate start points).
-- **Rust port:** Faithful.
+- **Confirmed:** no.
+- **Severity:** wrong result (performance: an unneeded global solve).
+- **Rust port:** Reproduces it (`good_drop_result`).
+
+#### WR-57. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
+- **Location:** `SmSurface.cpp:6948`, `SmSurface::FindDegenParamForDirection` (def. `:6757`).
+- **What happens:** The "nearly as good and closer to the input" tie-break compares `dThisParam` (a fraction in `[0, 1]` of the sample domain) with `dS` (the actual parameter), so it only means "closer" when the singular parameter runs over `[0, 1]`.
+- **Trigger:** A degenerate boundary whose singular parameter interval is not `[0, 1]`, with two nearly equally good samples.
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** wrong result (start guess of the Newton solve).
+- **Rust port:** Reproduces it.
 
 #### WR-58. `SmPointClassification::GetGap3d` returns `SM_ERR` as a distance
 - **Location:** `SmPointClass.cpp:464`, `SmPointClassification::GetGap3d` (def. `:418`).
@@ -1458,6 +1467,24 @@ by area within each severity.
 - **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
 - **Severity:** wrong result.
 - **Rust port:** Returns `SM_ERR` as the gap value too.
+
+#### WR-60. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
+- **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
+- **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: generated `dupin` ops and `edge_dupin_kinds` compare the conics).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-61. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
+- **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
+- **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
+- **Severity:** wrong result (performance and duplicate start points).
+- **Rust port:** Faithful.
 
 ## Docs
 

@@ -56,10 +56,8 @@
 //! - **Statuses.** Statuses upstream ignores are ignored, except
 //!   [`SolidError::Unported`], which always propagates (also where
 //!   `FindInteriorCurves` skips a node pair whose `ComputePointValues` fails).
-//! - **Unported callees.** `SmSurface::EvaluateNormal` of a non-planar surface
-//!   (`surface.surface_p7`), `SmSurface::LocalSurfaceIntersect`
-//!   (`surface.surface_p11`), `SmSurface::DropPointsToTangentPlane`
-//!   (`surface.surface_p7`), `SmSurfaceIntersector::ComputePointValues` and
+//! - **Unported callees.** `SmSurface::LocalSurfaceIntersect`
+//!   (`surface.surface_p11`), `SmSurfaceIntersector::ComputePointValues` and
 //!   `FlushCurve` (`intersect.surface_intersector_p2`) and `TraceCurve`
 //!   (`intersect.surface_intersector_p4`) return [`SolidError::Unported`].
 //! - **Recursion.** `SolveBranch` nests at most once per tree node; deeper nesting
@@ -87,6 +85,7 @@ use crate::intersect::surface_intersector::p1::{
 };
 use crate::kernel::Kernel;
 use crate::math::{min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT, PI};
+use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::{
     compute_surface_point_type, drop_vectors, evaluate_geometric, LocalSurfaceType, TsectCurveType,
 };
@@ -1452,20 +1451,22 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for AdvSurfaceIntersector<'_
     }
 }
 
-// ---- unported callees ---------------------------------------------------------------------
-
 /// `pSrf->DropPointsToTangentPlane(uv, TRUE, TRUE, n, points, uvs)`.
 fn drop_points_to_tangent_plane(
-    _surface: &Surface,
-    _uv: Point2,
-    _points: &[Point3],
+    surface: &Surface,
+    uv: Point2,
+    points: &[Point3],
 ) -> Result<Vec<Point2>> {
-    // UNPORTED(surface.surface_p7): SmSurface::DropPointsToTangentPlane
-    Err(SolidError::unported(
-        "SmSurface::DropPointsToTangentPlane",
-        "surface.surface_p7",
-    ))
+    crate::surface::surface::p7::drop_points_to_tangent_plane(
+        surface,
+        uv,
+        Side::Left,
+        Side::Left,
+        points,
+    )
 }
+
+// ---- unported callees ---------------------------------------------------------------------
 
 /// `ComputePointValues(uv_pts, *point, NULL)`.
 fn compute_point_values(

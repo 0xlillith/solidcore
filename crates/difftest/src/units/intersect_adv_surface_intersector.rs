@@ -21,11 +21,10 @@
 //! `SM_SO_INTERSECTION_TEST` and `SM_SO_MINIMIZE`, `LocalSolve`, `SolveBranch`,
 //! `FindBestSubdivisionNode`, `BranchIsGaussSeparate`, `FindInteriorCurves`).
 //!
-//! Deferred cases: `LocalSolve` of leaf boxes more than four times apart in size
-//! (`SmSurface::DropPointsToTangentPlane`, `surface.surface_p7`) and
-//! `FindInteriorCurves` with a candidate pair on a B-spline (`SmSurface::EvaluateNormal`,
-//! `surface.surface_p7`) or on planes more than 5 degrees apart
-//! (`SmSurface::LocalSurfaceIntersect`, `surface.surface_p11`).
+//! Deferred cases: those whose Rust side reaches `SmSurface::LocalSurfaceIntersect`
+//! (`surface.surface_p11`), from `LocalSolve` of leaf boxes more than four times apart
+//! in size or `FindInteriorCurves` with a candidate pair on a B-spline or on planes
+//! more than 5 degrees apart.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -1674,6 +1673,7 @@ fn edge_cases() -> Vec<(String, Value)> {
             });
         }
     }
+    out.extend(size_ratio_cases());
     out.push((
         "edge_dupin_kinds".into(),
         inputs_json(&Inputs {
@@ -1687,6 +1687,90 @@ fn edge_cases() -> Vec<(String, Value)> {
             ops,
         }),
     ));
+    out
+}
+
+/// `LocalSolve` (and a full `SolveIt`) on leaf pairs more than four times apart in
+/// size, so the Newton step through `SmSurface::DropPointsToTangentPlane` runs on
+/// either surface: one tree is a single patch, the other is subdivided five times.
+fn size_ratio_cases() -> Vec<(String, Value)> {
+    let mut out = Vec::new();
+    let mut rng = Rng::new(0x5121_e7a7);
+    let x = [1.0, 0.0, 0.0];
+    let y = [0.0, 1.0, 0.0];
+    let z = [0.0, 0.0, 1.0];
+    let pairs: [(&str, SurfaceIn, SurfaceIn); 3] = [
+        (
+            "planes",
+            plane_at([-1.0, -1.0, 0.0], x, y, 2.0),
+            plane_at([-1.0, 0.1, -1.0], x, z, 2.0),
+        ),
+        (
+            "bspline_plane",
+            gen_bspline(&mut rng, 2.0, [0.0, 0.0, 0.0]),
+            plane_at([-1.0, -1.0, 0.0], x, y, 2.0),
+        ),
+        (
+            "bsplines",
+            gen_bspline(&mut rng, 2.0, [0.0, 0.0, 0.0]),
+            gen_bspline(&mut rng, 2.0, [0.1, 0.2, 0.0]),
+        ),
+    ];
+    for (name, a, bsurf) in pairs {
+        let (Ok(ra), Ok(rb)) = (rust_surface(&a), rust_surface(&bsurf)) else {
+            continue;
+        };
+        for (sfx, deep_first) in [("_small_a", true), ("_small_b", false)] {
+            let (da, db) = if deep_first { (5, 0) } else { (0, 5) };
+            let ta = gen_tree(&mut rng, &ra, natural(&a), da);
+            let tb = gen_tree(&mut rng, &rb, natural(&bsurf), db);
+            let leaves = |t: &[NodeIn]| -> Vec<usize> {
+                t.iter()
+                    .enumerate()
+                    .filter(|(_, n)| n.c1 < 0 && n.aux == 3)
+                    .map(|(k, _)| k)
+                    .collect()
+            };
+            let (la, lb) = (leaves(&ta), leaves(&tb));
+            let mut ops = vec![OpIn::Set {
+                dir: 1.0,
+                ang: 0.3,
+                approx: 1e-3,
+                tol: 0.1,
+                sop: 0,
+            }];
+            for &ka in &la {
+                for &kb in &lb {
+                    ops.push(OpIn::Local { a: ka, b: kb });
+                }
+            }
+            ops.push(OpIn::Set {
+                dir: 1.0,
+                ang: 0.3,
+                approx: 1e-3,
+                tol: 1e-3,
+                sop: 0,
+            });
+            ops.push(OpIn::Solve {
+                sop: 0,
+                req: 1,
+                tol: 1e-3,
+                best: BIG,
+            });
+            ops.push(OpIn::State);
+            let i = Inputs {
+                a: a.clone(),
+                b: Some(bsurf.clone()),
+                dom1: natural(&a),
+                dom2: natural(&bsurf),
+                fillet: false,
+                trees: Some((ta, Some(tb))),
+                points: Vec::new(),
+                ops,
+            };
+            out.push((format!("edge_size_ratio_{name}{sfx}"), inputs_json(&i)));
+        }
+    }
     out
 }
 

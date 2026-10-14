@@ -1367,8 +1367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -2007,8 +2007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0249",
@@ -2883,8 +2883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -3175,8 +3175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -3403,8 +3403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0422",
@@ -4327,8 +4327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0537",
@@ -6607,8 +6607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen0821",
@@ -8867,8 +8867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen1103",
@@ -9303,8 +9303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen1157",
@@ -10899,8 +10899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen1356",
@@ -11415,8 +11415,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen1420",
@@ -11863,8 +11863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::EvaluateNormal",
-        "unit": "surface.surface_p7"
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
       },
       "max_rel_err": 0.0,
       "name": "gen1475",
@@ -12275,6 +12275,54 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_size_ratio_planes_small_a",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 743
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_size_ratio_planes_small_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 847
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_size_ratio_bspline_plane_small_a",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 639
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_size_ratio_bspline_plane_small_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 795
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_size_ratio_bsplines_small_a",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 639
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_size_ratio_bsplines_small_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 717
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_dupin_kinds",
       "outcome": "pass",
       "pass": true,
@@ -12285,11 +12333,10 @@
   "cases_both_errored": 0,
   "cases_deferred": 16,
   "cases_failed": 0,
-  "cases_passed": 1511,
-  "cases_total": 1527,
+  "cases_passed": 1517,
+  "cases_total": 1533,
   "deferred_by_unit": {
-    "surface.surface_p11": 4,
-    "surface.surface_p7": 12
+    "surface.surface_p11": 16
   },
   "max_rel_err": 0.0,
   "pass": true,
