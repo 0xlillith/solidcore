@@ -3682,3 +3682,8 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **Back-edges.** p1's GlobalSolve local hook and six local-class dispatches now
   call p2. Its 87 former traversal deferrals clear: 3,248/3,532 compare exactly,
   with 284 remaining genuine foreign-callee deferrals. GeomTree compares 611/618.
+- **Final validation.** With the maintainer's PR #68 dispatch fix, all required
+  local gates pass. Sensitivity detects every non-deferred case in the three
+  affected units (1,304, 3,248 and 611). Full validation evaluates 140 units:
+  88 green, 52 partial, zero failed. Default reports match the full run byte for
+  byte. Report paths and scope limits above remain authoritative.

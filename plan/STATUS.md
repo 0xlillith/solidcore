@@ -876,3 +876,10 @@ zero/tiny tolerances. Forty face cases reach surface/query callees; the other
 five deferrals are topology tolerance/edge access. Nonempty Shape construction,
 full face solving and the native undefined EdgeVertex cast are not certified.
 See the committed reports and findings for the exact owners and scope.
+
+Final local gates pass with the maintainer's revolution-dispatch correction
+(PR #68): formatting, strict plain/C++ Clippy, workspace/native tests, wasm and
+license/source checks. Sensitivity detects 1,304/1,304 part-2 cases,
+3,248/3,248 part-1 cases and 611/611 tree cases. Full differential validation:
+140 units, 88 green, 52 partial, zero failed. The three default reports match
+the full-validation reports byte for byte.
