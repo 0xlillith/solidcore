@@ -2096,7 +2096,7 @@ mod tests {
     }
 
     #[test]
-    fn abstract_solvers_fail() {
+    fn abstract_solver_and_null_face_inputs_fail() {
         let k = Kernel::default();
         let sc = scene();
         let mut ts: TopologySolver<'_, '_, Obj> = TopologySolver::new(
@@ -2111,7 +2111,43 @@ mod tests {
         let mut ls = LocalSolver::new(LocalSolverKind::Curve, false, None);
         assert!(ls.solve_it(&mut ts, None, None).is_err());
         let mut ls = LocalSolver::new(LocalSolverKind::FaceFace, false, None);
-        assert!(ls.solve_it(&mut ts, None, None).unwrap_err().is_unported());
+        assert!(matches!(
+            ls.solve_it(&mut ts, None, None),
+            Err(SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn edge_vertex_rejects_the_upstream_wrong_class_operand() {
+        let kernel = Kernel::default();
+        let objects = scene();
+        for swap in [false, true] {
+            let mut solver = TopologySolver::new(
+                &kernel,
+                &objects,
+                SolverOperation::Intersect,
+                SolutionRequested::All,
+                1e-6,
+                BIG_DOUBLE,
+                &[],
+            );
+            let mut local = LocalSolver::new(LocalSolverKind::EdgeVertex, swap, None);
+            let curve = Obj::Curve(0, Extent1d::from_min_max(0.0, 10.0));
+            let vertex = Obj::Vertex(0);
+            let (first, second) = if swap {
+                (vertex, curve)
+            } else {
+                (curve, vertex)
+            };
+            assert!(matches!(
+                local.solve_it(&mut solver, Some(first), Some(second)),
+                Err(SolidError::InvalidInput { .. })
+            ));
+            assert!(solver.base.solutions.is_empty());
+        }
     }
 
     #[test]

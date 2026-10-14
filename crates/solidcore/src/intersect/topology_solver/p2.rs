@@ -219,10 +219,16 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let vertex = if self.swap_order { object1 } else { object2 }
             .ok_or(SolidError::null_pointer(OP_EV))?;
         // Upstream selects this SAME object as pCurve (SmTopologySolver.cpp:1032):
-        // for a real vertex that cast is invalid. The adapter rejects the wrong
-        // object class instead of Rust reinterpreting memory or silently fixing it.
+        // for a real vertex that cast is invalid. Validate the selected object class
+        // instead of reinterpreting memory or silently correcting the operand.
         let curve_object = if self.swap_order { object1 } else { object2 }
             .ok_or(SolidError::null_pointer(OP_EV))?;
+        if curve_object.kind() != crate::geom::solution_array::ObjectKind::Curve {
+            return Err(SolidError::invalid_input(
+                OP_EV,
+                "upstream selects a vertex as a curve",
+            ));
+        }
         let _ = ts.objects.curve(curve_object)?;
         let edge = ts.objects.curve_edge(curve_object)?;
         if self.in_shape(ts.objects, edge) {

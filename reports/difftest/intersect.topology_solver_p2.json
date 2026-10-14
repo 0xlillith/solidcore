@@ -1455,6 +1455,1446 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "static_0_0_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#0 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_0_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#1 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_0_1_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#2 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_0_1_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#3 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_3_0_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#4 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_3_0_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#5 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_3_1_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#6 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_3_1_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#7 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_4_0_8",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#8 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_4_0_9",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#9 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_4_1_10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#10 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_4_1_11",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#11 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_5_0_12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#12 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_5_0_13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#13 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_5_1_14",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#14 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_0_5_1_15",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#15 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_0_0_16",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#16 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_0_0_17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#17 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_0_1_18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#18 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_0_1_19",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#19 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_3_0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#20 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_3_0_21",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#21 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_3_1_22",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#22 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_3_1_23",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#23 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_4_0_24",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#24 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_4_0_25",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#25 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_4_1_26",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#26 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_4_1_27",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#27 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_5_0_28",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#28 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_5_0_29",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#29 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_5_1_30",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#30 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_1_5_1_31",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#31 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_0_0_32",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#32 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_0_0_33",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#33 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_0_1_34",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#34 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_0_1_35",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#35 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_3_0_36",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#36 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_3_0_37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#37 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_3_1_38",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#38 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_3_1_39",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#39 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_4_0_40",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#40 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_4_0_41",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#41 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_4_1_42",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#42 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_4_1_43",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#43 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_5_0_44",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#44 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_5_0_45",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#45 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_5_1_46",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#46 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_2_5_1_47",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#47 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_0_0_48",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#48 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_0_0_49",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#49 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_0_1_50",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#50 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_0_1_51",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#51 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_3_0_52",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#52 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_3_0_53",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#53 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_3_1_54",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#54 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_3_1_55",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#55 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_4_0_56",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#56 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_4_0_57",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#57 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_4_1_58",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#58 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_4_1_59",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#59 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_5_0_60",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#60 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_5_0_61",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#61 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_5_1_62",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#62 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_3_5_1_63",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#63 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_0_0_64",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#64 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_0_0_65",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#65 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_0_1_66",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#66 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_0_1_67",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#67 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_3_0_68",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#68 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_3_0_69",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#69 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_3_1_70",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#70 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_3_1_71",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#71 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_4_0_72",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#72 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_4_0_73",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#73 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_4_1_74",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#74 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_4_1_75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#75 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_5_0_76",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#76 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_5_0_77",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#77 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_5_1_78",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#78 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "static_4_5_1_79",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#79 (upstream source/SMLib/src/SmTopologySolver.cpp:2046,2181,2296,2485,3271; source/SMLib/src/SmBrepCache.cpp:181 (real MakeShellVertex B-reps; empty shapes only))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#80 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#81 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#82 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_3_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#83 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_4_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#84 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_4_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#85 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#86 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_5_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#87 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_14_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#88 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_5_14_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#89 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#90 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#91 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#92 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_3_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#93 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_4_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#94 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_4_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#95 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#96 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_5_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#97 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_14_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#98 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_6_14_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#99 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#100 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#101 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#102 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_3_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#103 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_4_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#104 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_4_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#105 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#106 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_5_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#107 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_14_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#108 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_7_14_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#109 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#110 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#111 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#112 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_3_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#113 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_4_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#114 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_4_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#115 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#116 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_5_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#117 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_14_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#118 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_excluded_from_shape_8_14_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#119 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface and CreateWireEdgeFromCurve; empty-shape exclusion only, no claim of face solve coverage))",
+      "values_compared": 9
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#120 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#121 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#122 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#123 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_4_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#124 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_4_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#125 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_5_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#126 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_5_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#127 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_14_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#128 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_5_14_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#129 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#130 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#131 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#132 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#133 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_4_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#134 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_4_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#135 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_5_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#136 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_5_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#137 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_14_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#138 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_6_14_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#139 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#140 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#141 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#142 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#143 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_4_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#144 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_4_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#145 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_5_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#146 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_5_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#147 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_14_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#148 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_7_14_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#149 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#150 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#151 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#152 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#153 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_4_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#154 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_4_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#155 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_5_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#156 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSSGlobalSolver::LocalSolve",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_5_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#157 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_14_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#158 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "face_included_without_shape_limit_8_14_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#159 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "trees_point_vertices_minimize",
       "outcome": "pass",
       "pass": true,
@@ -6271,11 +7711,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 3,
+  "cases_deferred": 43,
   "cases_failed": 0,
-  "cases_passed": 779,
-  "cases_total": 782,
+  "cases_passed": 899,
+  "cases_total": 942,
   "deferred_by_unit": {
+    "surface.surface_p11": 20,
+    "surface.surface_p4": 8,
+    "surface.surface_p6": 8,
+    "surface.surface_p8": 4,
     "topology.edge": 3
   },
   "max_rel_err": 0.0,
