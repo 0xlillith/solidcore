@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**121 / 261 units ported** (83 green, 38 partial), **156,055 / 387,903 upstream lines (40.2%)**. 18 claimed, 0 blocked, 122 todo.
+**121 / 261 units ported** (83 green, 38 partial), **156,055 / 387,903 upstream lines (40.2%)**. 19 claimed, 0 blocked, 121 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `surface.surface_p4` (2270 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -148,6 +148,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
+- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (ready for review)
 - [ ] 🔨 `intersect.curve_class_p1` (2087 lines) — in progress: #47 @bherbruck (draft)
 - [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (ready for review)
@@ -296,7 +297,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
-- [ ] ▶️ `surface.surface_p4` (2270 lines) — ready
+- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (draft)
 - [ ] ⏳ `surface.sphere` (2861 lines) — waiting
 - [ ] ⏳ `surface.surf_of_extrusion_p2` (1420 lines) — waiting
 - [ ] ⏳ `surface.surface_p5` (2321 lines) — waiting
