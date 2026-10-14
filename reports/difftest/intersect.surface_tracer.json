@@ -207,8 +207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "do_trace_paraboloid",
@@ -219,8 +219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "do_trace_plane",
@@ -263,8 +263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -287,8 +287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0006",
@@ -475,8 +475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0028",
@@ -635,8 +635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0047",
@@ -767,8 +767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0063",
@@ -827,8 +827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0070",
@@ -871,8 +871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0075",
@@ -963,8 +963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0086",
@@ -1191,8 +1191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0113",
@@ -1443,8 +1443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0144",
@@ -1763,8 +1763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -1815,8 +1815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0189",
@@ -1879,8 +1879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -1899,8 +1899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0198",
@@ -1963,8 +1963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0205",
@@ -1991,8 +1991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0208",
@@ -2011,8 +2011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0210",
@@ -2235,8 +2235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0237",
@@ -2279,8 +2279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0242",
@@ -2467,8 +2467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0264",
@@ -2659,8 +2659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0287",
@@ -2703,8 +2703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -2759,8 +2759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0298",
@@ -3107,8 +3107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -3335,8 +3335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -3355,8 +3355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0369",
@@ -3628,7 +3628,7 @@
   "cases_passed": 376,
   "cases_total": 427,
   "deferred_by_unit": {
-    "surface.surface_p1": 28,
+    "surface.surface_p6": 28,
     "surface.surface_p7": 23
   },
   "max_rel_err": 0.0,
