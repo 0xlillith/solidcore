@@ -76,7 +76,7 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// A solution object handle (the solutions name no objects here).
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Handle;
+pub(crate) struct Handle;
 
 impl SolutionObject for Handle {
     fn kind(&self) -> ObjectKind {
@@ -1080,7 +1080,7 @@ fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
         Some(
             sp2::SurfaceKind::CurveBounded(_)
             | sp2::SurfaceKind::Plane(_)
-            | sp2::SurfaceKind::SurfOfRevolution(_),
+            | sp2::SurfaceKind::SurfOfRevolution(_) | sp2::SurfaceKind::Step(_),
         )
         | None => o.push(0.0),
     }

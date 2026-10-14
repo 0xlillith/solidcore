@@ -460,11 +460,13 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             if let Some(handle) = subdivision_surface {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two
-                // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
+                // (SmSurface::SnapToKnots and SplitAt need the surface behind the
+                // handle, which only SmTessSrfCache puts on nodes)
+                // UNPORTED(query.tess): SmTessSrfCache subdivision surfaces
                 let _ = handle;
                 return Err(SolidError::unported(
-                    "SmSurface::SnapToKnots",
-                    "surface.surface_p1",
+                    "SmTessSrfCache subdivision surfaces",
+                    "query.tess",
                 ));
             }
             // either an SM_AD_BEZIER_SURFACE with a Bezier patch, or embedding an edge use
@@ -490,11 +492,13 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             if let Some(handle) = subdivision_surface {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two
-                // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
+                // (SmSurface::SnapToKnots and SplitAt need the surface behind the
+                // handle, which only SmTessSrfCache puts on nodes)
+                // UNPORTED(query.tess): SmTessSrfCache subdivision surfaces
                 let _ = handle;
                 return Err(SolidError::unported(
-                    "SmSurface::SnapToKnots",
-                    "surface.surface_p1",
+                    "SmTessSrfCache subdivision surfaces",
+                    "query.tess",
                 ));
             }
             self.aux_mut(node1)?.uv_domain =
@@ -717,7 +721,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             SurfaceKind::Plane(p) => Some(p.base_with_nurb()?),
             // (an SmSurfOfRevolution is an SmBSplineSurface; every constructed one has its NURB)
             SurfaceKind::SurfOfRevolution(s) => Some(std::borrow::Cow::Borrowed(s.base())),
-            SurfaceKind::CurveBounded(_) => None,
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
         };
         let (u_count, v_count, beziers) = if let Some(b) = bspline {
             let nurb = b
