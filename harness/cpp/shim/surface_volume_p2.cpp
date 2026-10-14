@@ -2,8 +2,8 @@
 // difftest shim for unit `surface.volume_p2`: the SmVolume members owned by the unit
 // (source/SMLib/src/SmVolume.cpp, source/SMLib/inc/SmVolume.h), called on compound volumes
 // built from plain SmVolume, SmTransform, SmTwistVolume (component constructor),
-// SmBSplineVolume (from an sm_AllocateNurbVolume record), default SmUnbendVolume and
-// SmUnbendVolume (component constructor) maps, each but the twist and the component unbend
+// SmBSplineVolume (from an sm_AllocateNurbVolume record), default and component-constructed
+// SmUnbendVolume and SmBendVolume maps, each but the twist and the component unbend and bend
 // optionally oriented by an SmTransform; plus SmVolume::ReadFromDB of ASCII text.
 //
 // One entry point, sc_surface_volume_p2_eval(op, in, n_in, data, data_len, out, cap, out_len).
@@ -17,6 +17,7 @@
 #include <SmContext.h>
 #include <SmDatabaseIO.h>
 #include <SmExtent1d.h>
+#include <SmBendVolume.h>
 #include <SmExtent3d.h>
 #include <SmMemory.h>
 #include <SmNurbsVol.h>
@@ -68,6 +69,8 @@ enum : int64_t
     K_BSPLINE = 3,
     K_UNBEND = 4,
     K_UNBEND_C = 5,
+    K_BEND = 6,
+    K_BEND_C = 7,
 };
 
 struct Rd
@@ -173,7 +176,7 @@ SmVolume* read_bspline(Rd& rd, const SmContext& ctx)
 }
 
 // `n` maps `kind [data] [has_orient [O(12)]]` (no orient flag for a twist or a component
-// unbend), chained in
+// unbend or bend), chained in
 // order with AddNextMap(m, 2).
 SmVolume* read_volume(Rd& rd, const SmContext& ctx)
 {
@@ -208,6 +211,17 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
             v = new (ctx) SmUnbendVolume(ctx, c, axis, mid, neutral, tol);
             break;
         }
+        case K_BEND: v = new (ctx) SmBendVolume(&ctx); break;
+        case K_BEND_C:
+        {
+            SmPoint3d c = rd.vec();
+            SmVector3d axis = rd.vec();
+            SmVector3d mid = rd.vec();
+            double neutral = rd.num();
+            double tol = rd.num();
+            v = new (ctx) SmBendVolume(ctx, c, axis, mid, neutral, tol);
+            break;
+        }
         default: v = new (ctx) SmVolume(&ctx); break;
         }
         if (v == NULL)
@@ -215,9 +229,9 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
             delete head;
             return NULL;
         }
-        // a twist's or component unbend's frame is its orient map: no orient flag in
-        // its block
-        if (kind != K_TWIST && kind != K_UNBEND_C && rd.flag())
+        // a twist's or component unbend's or bend's frame is its orient map: no orient
+        // flag in its block
+        if (kind != K_TWIST && kind != K_UNBEND_C && kind != K_BEND_C && rd.flag())
             v->SetOrientMap(read_transform(rd, ctx), 2);
         if (head == NULL)
             head = v;
@@ -270,6 +284,11 @@ void put_state(std::vector<double>& o, const SmVolume* v)
         {
             o.push_back(((const SmUnbendVolume*)p)->GetUnbendNeutralDist());
             o.push_back(((const SmUnbendVolume*)p)->GetSingularityTol());
+        }
+        if (p->GetType() == SmBendVolume_TYPE)
+        {
+            o.push_back(((const SmBendVolume*)p)->GetBendNeutralDist());
+            o.push_back(((const SmBendVolume*)p)->GetSingularityTol());
         }
         o.push_back(p->GetOrientMap() ? 1.0 : 0.0);
         if (p->GetOrientMap())

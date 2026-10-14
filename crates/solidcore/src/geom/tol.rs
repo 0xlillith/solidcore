@@ -978,11 +978,11 @@ mod tests {
             scaled_zero_of_volume(&Kernel::default(), &v),
             Ok(100.0 * EFF_ZERO)
         );
-        let t = Volume::new(VolumeKind::Bend);
-        assert!(matches!(
-            scaled_zero_of_volume(&Kernel::default(), &t),
-            Err(SolidError::Unported { .. })
-        ));
+        // the base class's zero natural domain is bounded: the scaled zero of its
+        // (sampled) bounding box
+        let t = Volume::new(VolumeKind::Base);
+        let z = scaled_zero_of_volume(&Kernel::default(), &t).unwrap();
+        assert!(z.is_finite() && z > 0.0, "{z}");
     }
     use crate::kernel::KernelOptions;
 

@@ -170,6 +170,7 @@ use crate::nurbs::crv_fit::p1::ParamMethod;
 use crate::nurbs::knots::Side;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
 use crate::surface::plane::Plane;
+use crate::surface::torus::Torus;
 use crate::topology::database_io::DatabaseReader;
 
 // ---- type codes ---------------------------------------------------------------------
@@ -912,8 +913,14 @@ impl Surface {
                 "SmSphere::ReadFromDB",
                 "surface.sphere",
             )),
-            // UNPORTED(surface.torus): SmTorus::ReadFromDB
-            TORUS_TYPE => Err(SolidError::unported("SmTorus::ReadFromDB", "surface.torus")),
+            // (SmTorus::ReadFromDB reads the torus record, then needs the unported
+            // SmSurfOfRevolution record; the torus is not a SurfaceKind yet)
+            TORUS_TYPE => Err(Torus::read_from_db(db, version).err().unwrap_or_else(|| {
+                SolidError::unported(
+                    "SmSurfOfRevolution::ReadFromDB",
+                    "surface.surf_of_revolution_p3",
+                )
+            })),
             CURVE_BOUNDED_SURFACE_TYPE => Ok(Self::from(CurveBoundedSurface::read_from_db(
                 k, db, version,
             )?)),
@@ -3385,8 +3392,8 @@ pub fn cc_local_solve<O: SolutionObject>(
 /// # Errors
 ///
 /// Those of `SmExtent3d::ComputeConeBoundTo`; [`SolidError::Unported`] once the
-/// patch's polar box is needed (`SmBezierPatch` of a tree node,
-/// `surface.surface_cache_p3`).
+/// patch's polar box is needed (a dispatch gap: the `SmBezierPatch` of a tree node is
+/// held by the surface cache).
 pub fn cs_are_perpen_disjoint<O>(
     curve_tree: &Tree<O>,
     curve_node: &TreeNode<O>,
@@ -3404,13 +3411,13 @@ pub fn cs_are_perpen_disjoint<O>(
         // SmBezierPatch::GetPolarBox is SurfaceCache::polar_box, but the patch data
         // lives in the surface cache, which the tree reaches once the tree
         // construction hands it over.
-        // UNPORTED(surface.surface_cache_p3): SmBezierPatch::GetPolarBox
-        // (then IsDisjointWithCone, and for a curve span node the chord cone test
+        // DISPATCH GAP: SmBezierPatch::GetPolarBox (surface.surface_cache_p1, ported;
+        // no UNPORTED marker: the callee is ported, the tree cannot reach the cache's data yet) (then IsDisjointWithCone, and for a curve span node the chord cone test
         // smgu_ConesAreDisjointPerpen with the span's turning angle plus 3 degrees)
         let _ = (curve_tree, cone_vec);
         return Err(SolidError::unported(
             "SmBezierPatch::GetPolarBox",
-            "surface.surface_cache_p3",
+            "surface.surface_cache_p1",
         ));
     }
 

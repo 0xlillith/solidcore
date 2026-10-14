@@ -35,9 +35,9 @@
 //!   box samplers and gap loops, `Evaluate1stDerivatives` for the box bases, the
 //!   steps of `MapPseudoBox`, the nested reads of `ReadFromDB`, ...) the port does
 //!   too: the value keeps what it held (a fresh `SmPoint3d` is [`Vec3::UNDEF`]),
-//!   except that a failed `EvaluatePoint` of a twist or an unbend with next maps
-//!   leaves that map's own image, which its `Evaluate` override writes before
-//!   compounding.
+//!   except that a failed `EvaluatePoint` of a twist, an unbend or a bend with
+//!   next maps leaves that map's own image, which its `Evaluate` override writes
+//!   before compounding.
 //!   [`SolidError::Unported`] always propagates.
 //! - **Undefined behaviour** upstream is [`SolidError::Unsupported`] here, which no
 //!   caller ignores: a transform's `EvaluateBoundingBoxSimple` reached without a
@@ -70,6 +70,7 @@ use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_SQRT};
 use crate::surface::b_spline_volume::BSplineVolume;
+use crate::surface::bend_volume::BendVolume;
 use crate::surface::twist_volume::TwistVolume;
 use crate::surface::unbend_volume::UnbendVolume;
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream, NESTING_LIMIT_REASON};
@@ -594,8 +595,9 @@ impl Volume {
     /// `proj_box`. The derived classes' failures (see
     /// [`Transform::evaluate_bounding_box_simple`],
     /// [`BSplineVolume::evaluate_bounding_box_simple`],
-    /// [`TwistVolume::evaluate_bounding_box_simple`]); [`SolidError::Unported`] for
-    /// the unported kinds.
+    /// [`TwistVolume::evaluate_bounding_box_simple`],
+    /// [`UnbendVolume::evaluate_bounding_box_simple`]; a bend's analytic box cannot
+    /// fail), including [`SolidError::Unported`] from an unbend's edge boxes.
     pub fn evaluate_bounding_box_simple(
         &self,
         param_box: &Extent3d,
@@ -644,8 +646,10 @@ impl Volume {
             VolumeKind::Unbend(u) => {
                 u.evaluate_bounding_box_simple(self, param_box, proj_box, proj_pseudo_box)
             }
-            // UNPORTED(surface.bend_volume): SmBendVolume::EvaluateBoundingBoxSimple
-            VolumeKind::Bend => Err(bend_unported("SmBendVolume::EvaluateBoundingBoxSimple")),
+            VolumeKind::Bend(b) => {
+                b.evaluate_bounding_box_simple(param_box, proj_box, proj_pseudo_box);
+                Ok(())
+            }
             VolumeKind::Base => {
                 // no work - no output
                 if proj_box.is_none() && proj_pseudo_box.is_none() {
@@ -825,8 +829,8 @@ impl Volume {
     }
 
     /// The point `EvaluatePoint` writes when its caller ignores the status: the image
-    /// on success; on failure nothing (`None`), except that a twist's or an unbend's
-    /// `Evaluate` override writes its own (first out-space) image before its next map
+    /// on success; on failure nothing (`None`), except that a twist's, an unbend's or a
+    /// bend's `Evaluate` override writes its own (first out-space) image before its next map
     /// fails.
     ///
     /// # Errors
@@ -841,7 +845,7 @@ impl Volume {
             Ok(q) => Ok(Some(q)),
             Err(e) if e.is_unported() => Err(e),
             Err(_) => match self.kind {
-                VolumeKind::Twist(_) | VolumeKind::Unbend(_)
+                VolumeKind::Twist(_) | VolumeKind::Unbend(_) | VolumeKind::Bend(_)
                     if with_compounding && self.next_map.is_some() =>
                 {
                     ignored(self.evaluate_point(param_point, false))
@@ -1264,8 +1268,8 @@ impl Volume {
     ///
     /// # Errors
     ///
-    /// A singular transform's `SM_ERR`; the local solves' failures;
-    /// [`SolidError::Unported`] for the unported kinds.
+    /// A singular transform's `SM_ERR`; the local solves' failures (a bend's
+    /// solves cannot fail).
     pub fn global_point_solve_simple<O: SolutionObject>(
         &self,
         proj_point: Point3,
@@ -1283,8 +1287,7 @@ impl Volume {
             VolumeKind::Unbend(u) => {
                 u.global_point_solve_simple(self, proj_point, solutions, param_domain, this)
             }
-            // UNPORTED(surface.bend_volume): SmBendVolume::GlobalPointSolveSimple
-            VolumeKind::Bend => Err(bend_unported("SmBendVolume::GlobalPointSolveSimple")),
+            VolumeKind::Bend(b) => Ok(b.global_point_solve_simple(proj_point, solutions, this)),
             VolumeKind::Base | VolumeKind::BSpline(_) => {
                 // init output
                 let mut found = false;
@@ -1321,8 +1324,8 @@ impl Volume {
     ///
     /// # Errors
     ///
-    /// The solver's and the evaluation's failures; a singular transform's `SM_ERR`;
-    /// [`SolidError::Unported`] for the unported kinds.
+    /// The solver's and the evaluation's failures; a singular transform's `SM_ERR`
+    /// (a bend's solves cannot fail).
     pub fn local_point_solve_simple<O: SolutionObject>(
         &self,
         proj_point: Point3,
@@ -1342,8 +1345,9 @@ impl Volume {
             VolumeKind::Unbend(u) => {
                 u.local_point_solve_simple(self, proj_point, solution, param_domain, this)
             }
-            // UNPORTED(surface.bend_volume): SmBendVolume::LocalPointSolveSimple
-            VolumeKind::Bend => Err(bend_unported("SmBendVolume::LocalPointSolveSimple")),
+            VolumeKind::Bend(b) => {
+                Ok(b.local_point_solve_simple(proj_point, param_guess, solution, this))
+            }
             VolumeKind::Base | VolumeKind::BSpline(_) => self.base_local_point_solve_simple(
                 proj_point,
                 param_guess,
@@ -1442,8 +1446,7 @@ impl Volume {
     /// `SM_ERR` for an unknown type and a B-spline volume (not readable in
     /// upstream's build); the derived readers' failures; [`SolidError::Unsupported`]
     /// for `SmVolume_TYPE` (upstream fills a null volume) and the undefined base
-    /// reads; [`SolidError::InvalidInput`] past the nesting bound;
-    /// [`SolidError::Unported`] for the bend and unbend volumes.
+    /// reads; [`SolidError::InvalidInput`] past the nesting bound.
     pub fn read_from_db(volume_type: i64, db: &mut DatabaseReader, version: u64) -> Result<Self> {
         db.enter_nested(OP_READ)?;
         let r = Self::read_dispatch(volume_type, db, version);
@@ -1457,11 +1460,7 @@ impl Volume {
             B_SPLINE_VOLUME_TYPE => {
                 BSplineVolume::read_from_db(version).map(|b| Self::new(VolumeKind::BSpline(b)))
             }
-            // UNPORTED(surface.bend_volume): SmBendVolume::ReadFromDB
-            BEND_VOLUME_TYPE => Err(SolidError::unported(
-                "SmBendVolume::ReadFromDB",
-                "surface.bend_volume",
-            )),
+            BEND_VOLUME_TYPE => BendVolume::read_from_db(db, version),
             TRANSFORM_TYPE => Transform::read_from_db(db, version),
             UNBEND_VOLUME_TYPE => UnbendVolume::read_from_db(db, version),
             TWIST_VOLUME_TYPE => TwistVolume::read_from_db(db, version),
@@ -1508,11 +1507,6 @@ impl Volume {
         }
         Ok(())
     }
-}
-
-/// [`SolidError::Unported`] for a bend volume's override (unit `surface.bend_volume`).
-fn bend_unported(upstream: &'static str) -> SolidError {
-    SolidError::unported(upstream, "surface.bend_volume")
 }
 
 /// [`SolidError::Unsupported`] marking undefined behaviour upstream in the reader.

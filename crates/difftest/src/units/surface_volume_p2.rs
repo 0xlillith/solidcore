@@ -6,12 +6,14 @@
 //! C++: `solidcore_ffi::units::surface_volume_p2` (upstream
 //! `source/SMLib/src/SmVolume.cpp` on chains of plain `SmVolume`, `SmTransform`,
 //! `SmTwistVolume`, `SmBSplineVolume`, default and component-constructed
-//! `SmUnbendVolume` maps, each but the twist and the component unbend optionally
-//! oriented by an `SmTransform`). Rust: `solidcore::surface::volume`.
+//! `SmUnbendVolume` and `SmBendVolume` maps, each but the twist and the component
+//! unbend and bend optionally oriented by an `SmTransform`). Rust:
+//! `solidcore::surface::volume`.
 //!
 //! A case is a volume (`vol`: maps `{kind, ...}`, kind `0` plain, `1` transform `t =
 //! [origin, X, Y, Z]`, `2` twist `tw`, `3` B-spline `bs`, `4` default unbend, `5`
-//! component unbend `ub`; optional `orient`) and an `op` with its parameters, or a
+//! component unbend `ub`, `6` default bend, `7` component bend `ub`; optional
+//! `orient`) and an `op` with its parameters, or a
 //! `read_db` of ASCII text. Both sides
 //! produce the flat record documented in the ffi module; the runner reports its first
 //! entry as the `status` int (`0` = `SM_SUCCESS`, else the `SmStatus`; `1007` for a
@@ -20,7 +22,8 @@
 //!
 //! Deferred cases: ops reaching unported callees of the unbend volume (its
 //! `IsCurveInParamDomainSimple` needs `SmCurve::HasPlaneCrossings`) or of the curve
-//! bounding boxes its `EvaluateBoundingBoxSimple` computes.
+//! bounding boxes its `EvaluateBoundingBoxSimple` computes, and of the bend volume
+//! (its `IsCurveInParamDomainSimple` needs `SmCurve::IsOnPositiveSideOfPlanes`).
 
 use std::fmt::Write as _;
 
@@ -38,6 +41,7 @@ use solidcore::kernel::Kernel;
 use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::spiral::allocate_nurb_volume;
 use solidcore::surface::b_spline_volume::BSplineVolume;
+use solidcore::surface::bend_volume::BendVolume;
 use solidcore::surface::twist_volume::TwistVolume;
 use solidcore::surface::unbend_volume::UnbendVolume;
 use solidcore::surface::volume::{Discontinuities3d, InvPoints, Volume, VolumeKind};
@@ -74,7 +78,7 @@ struct TwistIn {
     min: f64,
 }
 
-/// An unbend's component constructor.
+/// An unbend's or a bend's component constructor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct UnbendIn {
     c: [f64; 3],
@@ -97,7 +101,7 @@ struct BsIn {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct MapIn {
     /// `0` plain, `1` transform, `2` twist, `3` B-spline, `4` default unbend, `5`
-    /// component unbend.
+    /// component unbend, `6` default bend, `7` component bend.
     kind: u8,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     t: Option<Tf>,
@@ -108,7 +112,7 @@ struct MapIn {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     ub: Option<UnbendIn>,
     /// The orient transform `[origin, X, Y, Z]` (not for a twist or a component
-    /// unbend).
+    /// unbend or bend).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     orient: Option<Tf>,
 }
@@ -309,8 +313,8 @@ fn push_vol(o: &mut Vec<f64>, v: &Vol) -> Result<(), HarnessError> {
                     o.extend(c);
                 }
             }
-            5 => {
-                let u = m.ub.as_ref().ok_or_else(|| harness("unbend map without ub"))?;
+            5 | 7 => {
+                let u = m.ub.as_ref().ok_or_else(|| harness("(un)bend map without ub"))?;
                 o.extend(u.c);
                 o.extend(u.axis);
                 o.extend(u.mid);
@@ -318,7 +322,7 @@ fn push_vol(o: &mut Vec<f64>, v: &Vol) -> Result<(), HarnessError> {
             }
             _ => {}
         }
-        if m.kind != 2 && m.kind != 5 {
+        if m.kind != 2 && m.kind != 5 && m.kind != 7 {
             match &m.orient {
                 Some(t) => {
                     o.push(1.0);
@@ -614,6 +618,11 @@ fn build_map(m: &MapIn) -> Result<Volume, HarnessError> {
             let u = m.ub.as_ref().ok_or_else(|| harness("unbend map without ub"))?;
             UnbendVolume::create(v3(u.c), v3(u.axis), v3(u.mid), u.d, u.tol)
         }
+        6 => Volume::with_maps(VolumeKind::Bend(BendVolume::new()), orient, None),
+        7 => {
+            let u = m.ub.as_ref().ok_or_else(|| harness("bend map without ub"))?;
+            BendVolume::create(v3(u.c), v3(u.axis), v3(u.mid), u.d, u.tol)
+        }
         _ => Volume::with_maps(VolumeKind::Base, orient, None),
     })
 }
@@ -665,6 +674,7 @@ fn put_state(o: &mut Vec<f64>, v: &Volume) {
             VolumeKind::Transform(t) => put_mat(o, t),
             VolumeKind::Twist(t) => o.extend([t.twist_period_dist(), t.period_min_dist()]),
             VolumeKind::Unbend(u) => o.extend([u.unbend_neutral_dist(), u.singularity_tol()]),
+            VolumeKind::Bend(b) => o.extend([b.bend_neutral_dist(), b.singularity_tol()]),
             _ => {}
         }
         for t in [m.orient_map(), m.inv_orient_map()] {
@@ -1138,30 +1148,49 @@ fn gen_unbend(rng: &mut Rng) -> UnbendIn {
     }
 }
 
-/// Kinds weighted towards evaluating maps; unbends only when allowed.
-fn gen_map(rng: &mut Rng, allow_unbend: bool) -> MapIn {
+/// Which bending maps a generated chain may hold.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Bending {
+    None,
+    Unbend,
+    Bend,
+    Both,
+}
+
+/// Kinds weighted towards evaluating maps; unbends and bends only when allowed.
+fn gen_map(rng: &mut Rng, bending: Bending) -> MapIn {
     let roll = rng.below(20);
+    // the default (`4`/`6`) or component (`5`/`7`) constructor of an allowed kind
+    let bend_kind = |rng: &mut Rng, component: bool| -> u8 {
+        let bend = match bending {
+            Bending::Bend => true,
+            Bending::Both => rng.chance(0.5),
+            Bending::None | Bending::Unbend => false,
+        };
+        4 + u8::from(component) + if bend { 2 } else { 0 }
+    };
     let kind = match roll {
         0..=9 => 1,
         10..=13 => 2,
         14..=16 => 3,
-        17 if allow_unbend => 4,
-        18 | 19 if allow_unbend => 5,
+        17 if bending != Bending::None => bend_kind(rng, false),
+        18 | 19 if bending != Bending::None => bend_kind(rng, true),
         _ => 0,
     };
+    let framed = kind == 2 || kind == 5 || kind == 7;
     MapIn {
         kind,
         t: (kind == 1).then(|| gen_transform(rng)),
         tw: (kind == 2).then(|| gen_twist(rng)),
         bs: (kind == 3).then(|| gen_bspline(rng)),
-        ub: (kind == 5).then(|| gen_unbend(rng)),
-        orient: (kind != 2 && kind != 5 && rng.chance(0.4)).then(|| gen_transform(rng)),
+        ub: (kind == 5 || kind == 7).then(|| gen_unbend(rng)),
+        orient: (!framed && rng.chance(0.4)).then(|| gen_transform(rng)),
     }
 }
 
-fn gen_vol(rng: &mut Rng, allow_unbend: bool) -> Vol {
+fn gen_vol(rng: &mut Rng, bending: Bending) -> Vol {
     let n = 1 + rng.below(3) as usize;
-    (0..n).map(|_| gen_map(rng, allow_unbend)).collect()
+    (0..n).map(|_| gen_map(rng, bending)).collect()
 }
 
 fn gen_box(rng: &mut Rng) -> Bx {
@@ -1260,8 +1289,13 @@ fn gen_param_box(rng: &mut Rng, vol: &Vol) -> Bx {
 
 fn gen_case(rng: &mut Rng) -> Inputs {
     let op = rng.below(20);
-    let allow_unbend = rng.chance(0.3);
-    let vol = gen_vol(rng, allow_unbend);
+    let bending = match rng.below(20) {
+        0..=4 => Bending::Unbend,
+        5..=9 => Bending::Bend,
+        10 | 11 => Bending::Both,
+        _ => Bending::None,
+    };
+    let vol = gen_vol(rng, bending);
     let p = gen_param(rng, &vol, 8.0);
     let comp = rng.chance(0.75);
     match op {
@@ -1413,6 +1447,11 @@ fn text_base(rng: &mut Rng, depth: usize, out: &mut String) {
             out.push_str("Object Type 22010\n");
             let _ = write!(out, "{}\n{}\n", rng.uniform(0.0, 10.0), 1e-2);
             text_base(rng, depth + 1, out);
+        } else if rng.chance(0.18) {
+            // a bend next map
+            out.push_str("Object Type 22006\n");
+            let _ = write!(out, "{}\n{}\n", rng.uniform(0.0, 10.0), 1e-2);
+            text_base(rng, depth + 1, out);
         } else if rng.chance(0.1) {
             // a B-spline next map: SM_ERR, nothing read
             out.push_str("Object Type 22004\n");
@@ -1432,7 +1471,7 @@ fn text_base(rng: &mut Rng, depth: usize, out: &mut String) {
 }
 
 fn gen_read(rng: &mut Rng) -> Inputs {
-    let (ty, mut data) = match rng.below(10) {
+    let (ty, mut data) = match rng.below(12) {
         0 => (ffi::TWIST_VOLUME_TYPE, {
             let mut s = format!("{}\n{}\n", rng.uniform(-10.0, 10.0), rng.uniform(0.0, 1.0));
             text_base(rng, 0, &mut s);
@@ -1442,6 +1481,11 @@ fn gen_read(rng: &mut Rng) -> Inputs {
         2 => (12345, String::from("0\n0\n")),
         3 => (ffi::UNBEND_VOLUME_TYPE, {
             let mut s = format!("{}\n{}\n", rng.uniform(0.0, 10.0), rng.uniform(0.0, 0.1));
+            text_base(rng, 0, &mut s);
+            s
+        }),
+        4 | 5 => (ffi::BEND_VOLUME_TYPE, {
+            let mut s = format!("{}\n{}\n", rng.uniform(-1.0, 10.0), rng.uniform(0.0, 0.1));
             text_base(rng, 0, &mut s);
             s
         }),

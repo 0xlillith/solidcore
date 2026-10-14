@@ -10,8 +10,9 @@
 //! frame is its orient map), `3` an `SmBSplineVolume` from `l m n p q r`, the knots
 //! `U V W` and the control points `x y z w` (`w` index fastest), `4` a default
 //! `SmUnbendVolume`, `5` `SmUnbendVolume(ctx, center, axis, mid, neutral, tol)` (eleven
-//! numbers; its frame is its orient map, so no orient flag follows). `O` becomes the
-//! orient map through `SetOrientMap(new
+//! numbers; its frame is its orient map, so no orient flag follows), `6` a default
+//! `SmBendVolume`, `7` `SmBendVolume(ctx, center, axis, mid, neutral, tol)` (eleven
+//! numbers, no orient flag). `O` becomes the orient map through `SetOrientMap(new
 //! SmTransform, 2)`; map `i > 0` is appended with `AddNextMap(map, 2)`. A box is `min
 //! max` (`SmExtent3d(min, max)`), a pseudo box `X Y Z a0 b0 a1 b1 a2 b2`
 //! (`SmPseudoBox(X, Y, Z, SmExtent1d(a, b) x3)`). Every output starts with the status
@@ -168,6 +169,7 @@ enum Kind {
     Twist,
     BSpline,
     Unbend,
+    Bend,
 }
 
 impl Kind {
@@ -277,7 +279,7 @@ impl Reader<'_> {
         }
         let mut chain = Vec::with_capacity(n);
         for _ in 0..n {
-            let code = self.index(5)?;
+            let code = self.index(7)?;
             let kind = match code {
                 0 => Kind::Base,
                 1 => {
@@ -293,13 +295,18 @@ impl Reader<'_> {
                     Kind::BSpline
                 }
                 4 => Kind::Unbend,
-                _ => {
+                5 => {
                     self.nums(11)?;
                     Kind::Unbend
                 }
+                6 => Kind::Bend,
+                _ => {
+                    self.nums(11)?;
+                    Kind::Bend
+                }
             };
-            // a twist's and a component unbend's frame is their orient map
-            let orient = if kind == Kind::Twist || code == 5 {
+            // a twist's and a component unbend's or bend's frame is their orient map
+            let orient = if kind == Kind::Twist || code == 5 || code == 7 {
                 true
             } else {
                 let o = self.flag()?;
@@ -621,9 +628,8 @@ impl<'a> Text<'a> {
         }
         let (lines, per_line) = match t {
             TRANSFORM_TYPE => (4, 4),
-            TWIST_VOLUME_TYPE | UNBEND_VOLUME_TYPE => (2, 1),
+            TWIST_VOLUME_TYPE | UNBEND_VOLUME_TYPE | BEND_VOLUME_TYPE => (2, 1),
             VOLUME_TYPE => return Err(bad("SmVolume_TYPE has no volume to fill upstream")),
-            BEND_VOLUME_TYPE => return Err(bad("bend volume texts are not accepted")),
             _ => return Ok(false),
         };
         for _ in 0..lines {
@@ -655,8 +661,15 @@ impl<'a> Text<'a> {
     }
 }
 
-/// Checks the ASCII text of a `ReadDb` of type `t`.
-fn check_text(t: i64, data: &[u8]) -> Result<(), FfiError> {
+/// Checks the ASCII text of a `ReadFromDB` of type `t` (here `ReadDb`; also the
+/// `ReadDb` guards of `surface.bend_volume` and `surface.unbend_volume`, whose
+/// readers end in the base read): a strict token grammar without the reader's null
+/// or uninitialised cases.
+///
+/// # Errors
+///
+/// [`FfiError::InvalidArgument`] naming the first problem.
+pub fn check_text(t: i64, data: &[u8]) -> Result<(), FfiError> {
     if data.len() > MAX_DATA {
         return Err(bad("database text too long"));
     }
