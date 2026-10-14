@@ -3333,3 +3333,21 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   returns early (no NURB made) when the domains already agree; upstream's state queries
   (`GetGenDirParamExtent`) would make the NURB lazily, so the runner records whether the
   NURB exists, makes it on both sides, then compares the state.
+- **Review (PR #57): `sm_IntersectGenerators` status.** Upstream `IntersectWithCylinder`
+  and `IntersectWithSurfOfExtrusion` ignore the status `sm_IntersectGenerators` returns
+  (keeping whatever outputs and needs-more flag it set); Rust propagates it with `?`. Not
+  reachable today: every failure past the parallel test goes through the unported
+  `GlobalCurveSolve` (`curve.curve_p9`). When `curve.curve_p9` lands, swallow non-`Unported`
+  errors there (keep the partial curves/types and the needs-more flag), which needs
+  `intersect_generators` (`surface.surf_of_extrusion_p1`) to hand back its partial result
+  on failure.
+- **Review (PR #57): generator record coverage.** The FFI `check_record` accepts only
+  generator records of type `SmBSplineCurve` (14033). Upstream `WriteToDB` writes the
+  generator's own type, and `SmLine`, `SmEllipse`, `SmCircle`, `SmHyperbola` and
+  `SmParabola` records are valid too. `ReadFromDB` does not branch on the generator kind and
+  built surfaces cover every kind, so this is a coverage gap only; extending the
+  `topology.brep_data` Sim to line and conic records would close it.
+- **Review (PR #57): self-tagged stub.** The `UNPORTED(surface.surf_of_extrusion_p2)` stub
+  in `Surface::read_from_db` names this (now `partial`) unit, so a back-edge grep will not
+  pick it up again. Its real owner is whoever threads a `Kernel` through the `Surface`
+  dispatchers; raised in `plan/STATUS.md` Open issues for the coordinator to assign.

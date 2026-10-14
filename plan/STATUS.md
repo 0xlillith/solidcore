@@ -837,3 +837,9 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
   extend `math.rs`, or re-export from it, rather than create duplicate types, and update
   `rust_module` to match. *Resolved for `Vec2`:* `geom.vector2d` moved `Vec2`/`Point2` into `geom::vector2d`
   and `math` re-exports them; `geom.vector3d` can do the same for `Vec3`.
+- **`SurfOfExtrusion` as a `SurfaceKind` needs an owner.** `Surface::read_from_db` defers
+  `SURF_OF_EXTRUSION_TYPE` on `UNPORTED(surface.surf_of_extrusion_p2)`, a stub tagged with
+  its own (partial) unit because adding the variant means threading a `Kernel` through the
+  `Surface` dispatchers in `surface::surface::p2` and their callers (cross-unit refactor;
+  `plan/findings.md`, `surface.surf_of_extrusion_p2`). The coordinator should assign it to
+  a unit (or a refactor PR) and retag the stub; 2 `topology.brep_data` cases wait on it.

@@ -273,7 +273,7 @@ enum Inputs {
         #[serde(flatten)]
         src: SrcIn,
         #[serde(flatten)]
-        op: OpIn,
+        op: Box<OpIn>,
     },
 }
 
@@ -553,7 +553,7 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
             ffi::is_nurb(&t, *scale)
         }
         Inputs::Op { src, op } => {
-            let op = match op {
+            let op = match &**op {
                 OpIn::State {} => ffi::Op::State,
                 OpIn::Plane {
                     plane,
@@ -615,12 +615,12 @@ fn to_output(flat: &[f64]) -> Result<Output, HarnessError> {
 
 /// A failed Rust step: deferred (unported) or an `SmStatus` written to the record.
 enum Stop {
-    Deferred(Output),
+    Deferred(Box<Output>),
     Status(f64),
 }
 
 fn stop(e: &solidcore::SolidError) -> Stop {
-    Output::unported(e).map_or_else(|| Stop::Status(status(e)), Stop::Deferred)
+    Output::unported(e).map_or_else(|| Stop::Status(status(e)), |d| Stop::Deferred(Box::new(d)))
 }
 
 /// The surface of a source; `Ok(Err(..))` when it cannot be made.
@@ -965,7 +965,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     let mut o = Vec::new();
     match i {
         Inputs::IsNurb { is_nurb, scale } => match rust_test(&k, is_nurb, &mut o)? {
-            Err(Stop::Deferred(d)) => return Ok(d),
+            Err(Stop::Deferred(d)) => return Ok(*d),
             Err(Stop::Status(_)) => return Err(harness("unexpected status stop")),
             Ok(None) => {}
             Ok(Some(t)) => {
@@ -999,13 +999,13 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             }
         },
         Inputs::Op { src, op } => match rust_src(&k, src)? {
-            Err(Stop::Deferred(d)) => return Ok(d),
+            Err(Stop::Deferred(d)) => return Ok(*d),
             Err(Stop::Status(st)) => o.push(st),
             Ok(mut s) => {
                 o.push(0.0);
                 if let Err(stop) = rust_op(&k, &mut s, op, &mut o)? {
                     match stop {
-                        Stop::Deferred(d) => return Ok(d),
+                        Stop::Deferred(d) => return Ok(*d),
                         Stop::Status(_) => return Err(harness("unexpected status stop")),
                     }
                 }
@@ -1278,7 +1278,7 @@ fn gen_cone(
 }
 
 /// Another built surface swept along `b`'s extrusion (or not).
-fn gen_other_ext(rng: &mut Rng, b: &SurfOfExtrusion, parallel: bool) -> Option<SurfIn> {
+fn gen_other_ext(rng: &mut Rng, b: &SurfOfExtrusion, parallel: bool) -> SurfIn {
     let size = 1.0;
     let f: Frame = frame(rng, size);
     let gen = gen_generator(rng, &f, true, size);
@@ -1289,12 +1289,12 @@ fn gen_other_ext(rng: &mut Rng, b: &SurfOfExtrusion, parallel: bool) -> Option<S
         let (_, _, _, z) = f;
         z
     };
-    Some(SurfIn {
+    SurfIn {
         gen,
         build: BuildIn::Canonical { vec },
         oob: false,
         swap: false,
-    })
+    }
 }
 
 /// A record written from a built surface's data, with varied fields.
@@ -1389,7 +1389,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         let op = OpIn::State {};
         return Some(Inputs::Op {
             src: SrcIn::Record { rec: Box::new(rec) },
-            op,
+            op: Box::new(op),
         });
     }
     if pick < 18 {
@@ -1454,7 +1454,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
             let parallel = rng.chance(0.4);
             OpIn::Extrusion {
                 other: Box::new(SrcIn::Built {
-                    surf: gen_other_ext(rng, &b, parallel)?,
+                    surf: gen_other_ext(rng, &b, parallel),
                 }),
                 tol: gen_tol(rng),
             }
@@ -1475,12 +1475,12 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
                 },
                 3 => TargetIn::Extrusion {
                     other: Box::new(SrcIn::Built {
-                        surf: gen_other_ext(rng, &b, false)?,
+                        surf: gen_other_ext(rng, &b, false),
                     }),
                 },
                 _ => TargetIn::Bspline {
                     other: Box::new(SrcIn::Built {
-                        surf: gen_other_ext(rng, &b, false)?,
+                        surf: gen_other_ext(rng, &b, false),
                     }),
                 },
             };
@@ -1518,7 +1518,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
     };
     Some(Inputs::Op {
         src: SrcIn::Built { surf: s },
-        op,
+        op: Box::new(op),
     })
 }
 
@@ -1569,7 +1569,7 @@ mod tests {
                     SrcIn::Built { .. } => "",
                     _ => "record:",
                 };
-                let o = match op {
+                let o = match &**op {
                     OpIn::State {} => "state".to_string(),
                     OpIn::Plane { .. } => "plane".into(),
                     OpIn::Cylinder { .. } => "cylinder".into(),
@@ -1603,7 +1603,7 @@ mod tests {
         }
         match i {
             Inputs::IsNurb { .. } => format!("{:?}", o.get(..2)),
-            Inputs::Op { op, .. } => match op {
+            Inputs::Op { op, .. } => match &**op {
                 OpIn::Plane { .. } => format!("{:?}", o.get(..3)),
                 OpIn::Cylinder { .. } | OpIn::Extrusion { .. } | OpIn::Global { .. } => {
                     format!("{:?}", o.get(..4))

@@ -854,6 +854,570 @@
       "values_compared": 8
     },
     {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_tangent_tolNone",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#0 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_tangent_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#1 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_tangent_tol1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#2 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_tangent_tol0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#3 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_tangent_tol-0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#4 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_near_tangent_1.9deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#5 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_near_tangent_2.0deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#6 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_near_tangent_2.1deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#7 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_near_tangent_0.5deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#8 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#9 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ellipse_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#10 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ellipse_tangent_minor",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#11 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ellipse_tangent_major_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#12 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_hyperbola_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#13 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_hyperbola_vertex_tangent",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#14 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_parabola_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#15 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_parabola_vertex",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#16 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scale_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#17 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_scale_par_0.0001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#18 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scale_10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#19 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_scale_par_10000.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#20 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scale_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#21 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_scale_par_1000000.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#22 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_antiparallel_normal",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#23 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_antiparallel_normal2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#24 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_snap_top",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#25 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_snap_top_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#26 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_beyond",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#27 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#28 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_par_1e-09",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#29 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#30 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_par_1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#31 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#32 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_par_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#33 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#34 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_par_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#35 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bounded_partial",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#36 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bounded_partial2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#37 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_subdomain_closed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#38 (upstream review adversarial)",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ctor_swap",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#39 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_infinite_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#40 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_infinite_par",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#41 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_oob_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#42 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bspline_closed_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#43 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bspline_closed_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#44 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bspline_rat_cut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#45 (upstream review adversarial)",
+      "values_compared": 56
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurve::GlobalCurveSolve",
+        "unit": "curve.curve_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#46 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_tilt_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#47 (upstream review adversarial)",
+      "values_compared": 9
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurve::GlobalCurveSolve",
+        "unit": "curve.curve_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_1.000000000000001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#48 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_tilt_1.000000000000001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#49 (upstream review adversarial)",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_1.0000000001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#50 (upstream review adversarial)",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_tilt_1.0000000001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#51 (upstream review adversarial)",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isnurb_sweep_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#52 (upstream review adversarial)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isnurb_sweep_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#53 (upstream review adversarial)",
+      "values_compared": 109
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isnurb_sweep_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#54 (upstream review adversarial)",
+      "values_compared": 109
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isnurb_shifted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#55 (upstream review adversarial)",
+      "values_compared": 123
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isnurb_tol_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#56 (upstream review adversarial)",
+      "values_compared": 123
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_outside_far",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#57 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_outside_just",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#58 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::TrimCurveToPlaneDomain",
+        "unit": "surface.plane_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_indep_below_just",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#59 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_indep_snap_box_disjoint",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#60 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_box_disjoint_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#61 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_box_disjoint_antinormal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#62 (upstream review adversarial)",
+      "values_compared": 8
+    },
+    {
       "deferred": {
         "symbol": "SmPlane::IntersectWithPlane",
         "unit": "surface.plane_p2"
@@ -11863,14 +12427,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 373,
+  "cases_deferred": 388,
   "cases_failed": 0,
-  "cases_passed": 923,
-  "cases_total": 1296,
+  "cases_passed": 971,
+  "cases_total": 1359,
   "deferred_by_unit": {
-    "curve.curve_p9": 79,
+    "curve.curve_p9": 81,
     "intersect.adv_surface_intersector": 97,
-    "surface.plane_p2": 197
+    "surface.plane_p2": 210
   },
   "max_rel_err": 0.0,
   "pass": true,
