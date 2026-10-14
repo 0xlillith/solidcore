@@ -3512,6 +3512,13 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   owner's intrusive circular list is a `Vec` in list order from its head, and an edge use's
   `m_pNext` / `m_pLast` are its neighbours there. Their porters extend these (see the
   CO-PORTED notes in `plan/modules.toml`).
+- **Review fixes (PR #55).** FFI guards widened to what the C++ handles: values up to
+  `1e300` (was `1e6`) and `uv` within 100 domain lengths of a B-spline surface's domain
+  (plane `uv` up to `1e6`). Every previously rejected huge-scale or far-out-of-domain case
+  tried (points to `1e200`, nets scaled `1e6`/`1e8`, `uv` 50 domains out) agrees exactly.
+  The Seam case generator copied curve 0's knots onto curve 1 of a different degree
+  (invalid curve; `--seeds 6000` case `gen5286` was a harness error); it now requires
+  equal degrees.
 
 ## surface.surf_of_revolution_p3 merge with surface.torus, surface.cone_p1, surface.surface_p1 (2026-10-14)
 

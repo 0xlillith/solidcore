@@ -38,7 +38,7 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: existing
 //! `.smb` files, well-formed clamped B-splines, planes with a non-zero normal,
-//! parameters within one domain length of a surface's domain, indices inside the
+//! parameters within 100 domain lengths of a surface's domain, indices inside the
 //! B-rep's export (it builds the B-rep once more to count), finite inputs.
 
 use std::path::Path;
@@ -50,7 +50,7 @@ pub const MAX_INDEX: usize = 32;
 /// Largest degree.
 pub const MAX_DEGREE: usize = 5;
 /// Largest coordinate magnitude.
-pub const MAX_COORD: f64 = 1.0e6;
+pub const MAX_COORD: f64 = 1.0e300;
 /// Largest number of curves for `Seam` and of target loops for `FuQuery`.
 pub const MAX_LIST: usize = 64;
 
@@ -301,16 +301,16 @@ fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     check_knots(&knots, p, "curve")
 }
 
-/// A `uv` point within one domain length of `dom` (anywhere bounded for a plane).
+/// A `uv` point within 100 domain lengths of `dom` (anywhere bounded for a plane).
 fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
     let u = rd.finite()?;
     let v = rd.finite()?;
     if let Some([u0, v0, u1, v1]) = dom {
         let (du, dv) = (u1 - u0, v1 - v0);
-        if u < u0 - du || u > u1 + du || v < v0 - dv || v > v1 + dv {
+        if u < u0 - 100.0 * du || u > u1 + 100.0 * du || v < v0 - 100.0 * dv || v > v1 + 100.0 * dv {
             return Err(bad("uv too far outside the domain"));
         }
-    } else if u.abs() > 1e4 || v.abs() > 1e4 {
+    } else if u.abs() > 1e6 || v.abs() > 1e6 {
         return Err(bad("plane uv too large"));
     }
     Ok(())

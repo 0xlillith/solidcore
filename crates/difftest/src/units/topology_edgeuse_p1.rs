@@ -1599,9 +1599,12 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             let n = *rng.choose(&[0usize, 1, 2, 2, 2, 3]).unwrap_or(&2);
             let mut curves: Vec<CrvIn> = (0..n).map(|_| gen_curve(rng, 2, 1.0)).collect();
             if n == 2 && rng.chance(0.5) {
-                let first = curves.first().map(|c| c.u.clone()).unwrap_or_default();
+                // Copy curve 0's knots only onto a curve of the same degree, or the
+                // result has an end multiplicity above degree + 1.
+                let (first, first_p) =
+                    curves.first().map(|c| (c.u.clone(), c.p)).unwrap_or_default();
                 if let Some(c) = curves.get_mut(1) {
-                    if c.u.len() == first.len() {
+                    if c.u.len() == first.len() && c.p == first_p {
                         c.u = first;
                     }
                 }
