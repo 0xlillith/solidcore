@@ -4,6 +4,9 @@ Rust-vs-C++ disagreements, upstream bugs, nondeterminism and other facts later a
 need. Add entries under a heading per unit (or "General"); keep the newest at the end
 of each section.
 
+Upstream C++ defects only (UB, crashes, hangs, nondeterminism, wrong results, wrong docs)
+are also logged, one entry each, in `plan/upstream-issues.md` for the upstream maintainers.
+
 ## General
 
 - **Nondeterministic upstream paths.** `SmFace::GetPointsInFace` (asked for more than one
@@ -2671,6 +2674,90 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `SmBSplineCurve::IsOnPlane` (via `smgu_PlanePointDistance`) fail before writing
   `bOnPlane`, which the constructor then reads uninitialised for a planar non-line
   generator. A zero sweep (empty angular domain) stays rejected by the FFI guard.
+
+## topology.brep_data (`SmBrepData` readers, 2026-10-13)
+
+- **Records start zero-filled.** `SmTArray::SetSize` `calloc`s / `memset`s new elements
+  without running constructors, so every `Sm*Data` record read by `ReadFromDB` starts
+  with all fields `0` (index fields, `UNSURE` flags, extents `[0,0]`, points `(0,0,0)`),
+  not the header's member defaults. It matters where a field is not read (unknown shell,
+  loop or edge use types; the edge interval and face domain when `SetMinMax` refuses
+  `min > max`). The port's `*Data::zeroed()` reproduce it; `Default` is the C++
+  constructor. Confirmed by the `extreme_values_v30` and `unknown_types_*` fixtures.
+- **Tolerance build.** The reference build is `SM_USE_OLDTOL`: zone tolerances are read
+  only for `version <= 43`, the `SM_USE_NEWTOL` fields (`m_bIsSmallTopology`, model size
+  estimate) never.
+- **Statuses.** Every record read and `ReadIndexedAttributesFromDB` status is ignored
+  upstream. A failed ASCII attribute line skip (over 1000 characters, or a `0xFF` byte)
+  keeps the indices read but creates no placeholders; `geom.attribute` gained
+  `read_indexed_attributes_from_db_partial` for that (geom.attribute difftest unchanged).
+- **FFI guard.** `solidcore_ffi::units::topology_brep_data` simulates the whole read and
+  rejects any stream on which an extraction would fail or run short (upstream then reads
+  uninitialised locals, UB-75), counts of `SM_BIG_ULONG` or more, geometry attribute
+  indices past the table after a failed line skip (UB-76), closed composites without
+  segments (UB-77), and geometry kinds it does not model (B-spline curves/surfaces,
+  version <= 32 composites and offsets, type code 1). Upstream test files (`.smb` under
+  `TestFiles/pt_TestFiles`, 186 read with `ReadFromFile`, 170 also with `ReadFromDB`, and
+  the two part files' B-reps at version 32) are trusted past the first unknown kind.
+- **Deferred.** Offset surfaces (`surface.offset_surface`) and, in version 38 files,
+  planes, cones and extrusions (`surface.plane_p2`, `surface.cone_p1`,
+  `surface.surf_of_extrusion_p2`) are `Unported` on the Rust side.
+- **Old composite curves.** Composite curve records of version <= 32 pass `n + 1` gaps
+  (first start gap, then each end gap) to a constructor that reads `n`: the segment gaps
+  come out shifted (WR-54). Ported as is. Their evaluation returns `SM_ERR` on both
+  sides in the fixtures.
+
+## intersect.surface_intersector_p1 (`SmSurfaceIntersector`, part 1, 2026-10-13)
+
+- **Point arena.** `SmTsectPnt`s live in an arena of the Rust `SurfaceIntersector`
+  (`alloc_point`, `TsectId`); the three intrusive `SmTList`s are `Vec<TsectId>`.
+  Linking a point already on a list (undefined upstream: it corrupts both lists) is
+  `InvalidInput` in Rust; the shim does not run such an `Add*`/`Assign` op and both
+  sides report the op status `-2` (`ffi::REJECTED`). Later parts (`_p2` .. `_p5`) reach
+  the lists through the `pub(crate)` fields.
+- **Co-ported `SmSurface::IsClosed`.** The constructor needs `IsClosed(dom, SM_SP_U/V)`
+  (unit `surface.surface_p7`, not ported). It is ported as a private helper
+  (`surface_is_closed`, default tolerance, no continuity) together with the one-line
+  wrappers `EvaluateDirectionalDerivs` / `Evaluate1stDerivatives` (`surface.surface_p1`).
+  Statuses upstream ignores there keep the previous iteration's values (upstream's
+  locals live across the sample loop); a failed `smgu_FrenetFromDerivatives` leaves a
+  zero curvature vector, as upstream's partial write does. Replace the helper with the
+  real `Surface::is_closed` when `surface.surface_p7` lands.
+- **`SER` in boolean methods.** `IsPointOnCurve` / `sm_IsPointOnCurve` return the
+  status of a failing call as `TRUE`; the port returns `Ok(true)` (upstream-issues
+  WR-52). `AddStartPoint`'s "replace" branch is a no-op (WR-50);
+  `IsPointOnStartPoint` compares squared distances with the tolerance (WR-51).
+- **Difftest.** Programs over planes and B-spline surfaces (open patches, rational
+  patches, closed tubes that pass `IsClosed`, self-intersection), sub-, cut, disjoint,
+  degenerate and fillet domains, scales 1e-6 .. 1e5. `TestSpanAccuracy` leaves its
+  deviation unset on an angle rejection; the shim reports `-777` (`ffi::UNSET`) there.
+  Deferred: refinement of crossing/tangent-curve/singular points
+  (`LocalSurfaceIntersect`), `StepBackFromSingularity` (`LocalPointSolve`),
+  `sm_ComputeCurveType` off planes or with parallel normals, `IsPointOnCurve` in its
+  10x-tolerance band (`SmSurface::DropPoint`) and bounded/exact start point pairs
+  (`smsurf_EvaluateNormalSection`). `EvaluateLawPoint` (needs `SmFilletLaw` and
+  `SmOffsetSurface`) has no cases: the shim cannot build an offset-surface intersector
+  the Rust side can mirror.
+
+## surface.b_spline_volume_n_lib
+
+- `SmBSplineVolume::CalculateContinuitiesSimple` with `bCalcGeometric == TRUE` (the
+  default, and what `HasDiscontinuitiesSimple` passes by default) samples iso-parametric
+  curves through `EvaluateIsoParametricCurveSimple`, which is `SM_ERR` without
+  `USE_VOLUMES`; the call fails at the first sample after `rParams` holds the knots,
+  `rConts` is empty and the minimum is `SM_CT_CINFINITY`. `HasDiscontinuitiesSimple`
+  ignores the status, so a B-spline volume reports no discontinuities unless asked for
+  representational ones. The unreachable rest of the loop samples `sKnots2[ii]` (not
+  `[jj]`), reading past `sKnots2` when it has fewer samples than `sKnots1` (stale stack
+  memory); the port returns `InvalidInput` there.
+- Representational continuities (`bCalcGeometric == FALSE`) size `rConts` to the knot
+  count but fill only the first `count - 1` entries; the last stays zero
+  (`SM_CT_UNDEFINED`), and the first (an end knot) is `SM_CT_C0` for clamped knots, so
+  `HasDiscontinuitiesSimple(.., FALSE)` is `TRUE` for every clamped volume.
+- `SmVolume::HasDiscontinuitiesSimple`'s `bCalcGeometric` had been dropped in the Rust
+  dispatch (`Volume::has_discontinuities_simple`); it is now a parameter. The
+  `IsCurveIn*Domain` / `IsLineInParamDomain` volume entry points take a `&Kernel` for the
+  curve bounding boxes the B-spline override computes.
 
 ## intersect.point_class (`SmPointClassification`)
 

@@ -6,3 +6,4 @@
 //! `SM_API/SmApiIntersectors`.
 
 pub mod point_class;
+pub mod surface_intersector;
