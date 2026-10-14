@@ -131,9 +131,11 @@ use crate::surface::volume::Volume;
 // UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&, [const
 // SmVector2d&,] const SmSurface&) and SmTol::GetScaledZero(const SmSurface&) need
 // SmSurface::Evaluate1stDerivatives / GetNaturalUVDomain / ApproximateSize.
-// UNPORTED(intersect.curve_class_p1): SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of
-// SmCurveClassification / SmCurveInterval and SmTol::GetScaledZero(const
-// SmCurveInterval&) need the classification classes.
+// SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of SmCurveClassification / SmCurveInterval
+// and SmTol::GetScaledZero(const SmCurveInterval&) are
+// intersect::curve_class::src_zone_tol_3d_of / interval_obj_zone_tol_3d and the
+// ScaledZero impl of intersect::curve_class::CurveInterval; SmTol::SetZoneTol3d of a
+// classification is CurveClassification::set_src_zone_tol_3d.
 // SmTol::GetSrcZoneTol3d / GetObjZoneTol3d / GetXSectTol3d of SmPointClassification
 // are intersect::point_class::PointClassification::src_zone_tol_3d / obj_zone_tol_3d /
 // xsect_tol_3d.

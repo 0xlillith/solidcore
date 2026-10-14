@@ -5,6 +5,7 @@
 //! `SmPolyIntersector`, `SmSSIData` in `source/SMLib`, and
 //! `SM_API/SmApiIntersectors`.
 
+pub mod curve_class;
 pub mod point_class;
 pub mod surface_intersector;
 pub mod surface_tracer;
