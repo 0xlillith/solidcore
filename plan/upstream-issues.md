@@ -36,7 +36,8 @@ by area within each severity.
 - **How found:** crash in the C++ reference run (geom.object, geom.tools fixtures).
 - **Confirmed:** yes (intermittent; depends on heap layout).
 - **Severity:** crash/UB.
-- **Rust port:** `.smb` B-rep reading is not ported yet. The fixtures build B-reps with `SmApiCreateBox` instead.
+- **Cause:** These files are part files (`ReadPartFromFile`, version 32). Read as version 30 the ASCII extractions fail, the uninitialised section count `lCount` reaches `SetSize` as `SM_BIG_ULONG` or more, `SetSize` refuses it and leaves the array `NULL`, and the record loop calls `ReadFromDB` on `NULL + i` (see UB-75).
+- **Rust port:** `topology.brep_data` reads B-reps without this: unreadable counts are bounded by the input left and return `InvalidInput`. Its difftest reads both files correctly as version 32 (fixtures `part_SmallBox_db_v32`, `part_Platform_db_v32`).
 
 #### UB-2. Readers allocate whatever counts a file header declares [PSIRT]
 - **Location:** `SmBSplineSurface.cpp:6367` `SmBSplineSurface::ReadFromDB`, `SmBSplineCurve.cpp:7237` `SmBSplineCurve::ReadFromDB` and the other `ReadFromDB` readers. Also `SmCompositeCurve.cpp:4169` `SmCompositeCurve::ReadFromDB`: an unreadable ASCII segment count leaves `SM_UNDEF_ULONG` (123456789), which is then `calloc`'d and read with uninitialised locals.
@@ -82,6 +83,33 @@ by area within each severity.
 - **Confirmed:** no.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` for unreadable headers and bounds every count.
+
+#### UB-75. `SmBrepData` readers use uninitialised locals and unchecked `SetSize` [PSIRT]
+- **Location:** `source/SMLib/src/SmBrepData.cpp:2933` `SmBrepData::ReadFromDB` (section count `lCount` uninitialised at `:2942`; every `SetSize(lCount)` unchecked); `:3245` (`lEdgeCount`, `lEdge` uninitialised in the composite edge loop); `:5098` `SmEdgeData::ReadFromDB` (`dMin`, `dMax` uninitialised); `:3613` `SmBrepData::ReadFromFile` (`lDBVersionNumber` uninitialised when the ASCII header extraction stores nothing; the binary `ReadLong` status is ignored); `:5393` `ReadCurveFromDB` composite branch (`lNumSegments`, `lDimension`, `lClosed`, `dGapStart`, `dGapEnd`).
+- **What happens:** After a failed ASCII extraction (stream at its end, or a non-numeric token) these locals keep indeterminate values and drive loops and allocations. `SmTArray::SetSize` refuses sizes of `SM_BIG_ULONG` (99999999) or more and `SM_UNDEF_ULONG` and leaves the array empty or `NULL`, but the record loops still index it up to the count; record `ReadFromDB` statuses are ignored.
+- **Trigger:** A truncated ASCII `.smb`; a section count of `100000000` with a few records after it.
+- **How found:** read during porting (`topology.brep_data`); UB-1 is one instance.
+- **Confirmed:** no (the difftest guard keeps such streams away from the C++ side), except through UB-1.
+- **Severity:** crash/UB.
+- **Rust port:** Uses `0` for the uninitialised locals, rejects counts the remaining input cannot hold (`InvalidInput`), appends records as they are read, and stops a record loop with `InvalidInput` once the stream has failed or hit end of data before the declared count (otherwise each further record would consume no input and the count bound would not cap memory).
+
+#### UB-76. `ReadCurveFromDB` indexes `rAllAttributes` past its end after a failed attribute line skip [PSIRT]
+- **Location:** `source/SMLib/src/SmBrepData.cpp:5480` `SmBrepData::ReadCurveFromDB` and `:5736` `ReadSurfaceFromDB`, after `SmAttribute.cpp:260` (`GOTO_NEXT_ATTLINE` in `SmAttributeData::ReadIndexedAttributesFromDB`).
+- **What happens:** When an ASCII attribute line has more than 1000 characters (or a `0xFF` byte) after its indices, `ReadIndexedAttributesFromDB` returns `SM_ERR` with the indices filled in but before it grows `rAllAttributes` and creates the placeholders. The callers ignore the status and read `rAllAttributes[index]` past the array's end (curves then `NER` a `NULL` slot; surfaces skip it).
+- **Trigger:** A curve record of a version 31+ `.smb` read with attributes whose attribute line is `1 7` followed by 1001 blanks.
+- **How found:** read during porting (`topology.brep_data`).
+- **Confirmed:** no for the geometry readers (guarded). The record readers' behaviour (indices kept, no placeholders) is compared by the fixture `region_attribute_line_too_long_v33`.
+- **Severity:** crash/UB.
+- **Rust port:** Keeps the indices as upstream (`read_indexed_attributes_from_db_partial`), returns `InvalidInput` for an index past the table and `SM_ERR_NULL_POINTER` for an empty slot of a curve.
+
+#### UB-77. Old composite curves: a closed one without segments reads `sGaps[ULONG_MAX]`; nesting is unbounded [PSIRT]
+- **Location:** `source/SMLib/src/SmBrepData.cpp:5456` (`new SmCompositeCurve(lDimension, sCurves, bClosed, &sSenses, &sGaps)`) into `SmCompositeCurve.cpp:1090` (`(*cpGaps)[m_lNumSegments-1]`); recursion at `SmBrepData.cpp:5445`.
+- **What happens:** A version 32 or older composite curve record with segment count 0 and the closed flag set indexes the empty gap array at `ULONG_MAX`. Each nested composite record recurses into `ReadCurveFromDB` with no depth limit.
+- **Trigger:** `Curve Type 14032` / `0 3 1`; or thousands of nested composite records.
+- **How found:** read during porting (`topology.brep_data`).
+- **Confirmed:** no (guarded).
+- **Severity:** crash/UB (out-of-bounds read, stack exhaustion).
+- **Rust port:** `CompositeCurve::with_curves` returns `InvalidInput`; nesting is bounded by `DatabaseReader::enter_nested` (64).
 
 ### NLib: knots and basis functions
 
@@ -423,8 +451,8 @@ by area within each severity.
 - **Location:** `SmTransform.cpp:1224`, `SmTransform::EvaluateBoundingBoxSimple`.
 - **What happens:** When an output box is requested, `AreAligned(*pOptParamPseudoBox, ...)` runs before the `NULL` check.
 - **Trigger:** The default call (`pOptParamPseudoBox = NULL`) with an output box requested.
-- **How found:** read during porting; later a crash in the C++ reference run (UB-75).
-- **Confirmed:** yes (through `SmVolume::InvMapPoint`, UB-75).
+- **How found:** read during porting; later a crash in the C++ reference run (UB-79).
+- **Confirmed:** yes (through `SmVolume::InvMapPoint`, UB-79).
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput`.
 
@@ -739,7 +767,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
 
-#### UB-74. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
+#### UB-78. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
 - **Location:** `SmVolume.cpp:8104`, `SmVolume::ReadFromDB` (the `SmVolume_TYPE` branch).
 - **What happens:** (1) A next map of type `SmVolume_TYPE` recurses with `rpNewVolume->m_pNextMap` (NULL) as the volume to fill, and the branch writes `rpNewVolume->m_pNextMap` through it. A top-level `SmVolume_TYPE` read does the same with the caller's NULL. (2) `rDB.ReadType(lNextType)` / `ReadType(lOrientType)` statuses are ignored; at end of data the type stays uninitialised and is switched on. (3) The orient map read is cast to `SmTransform*` whatever its type, and a failed read leaves it NULL; `RefreshInvOrientMap` then copies, inverts and simplifies it (a NULL or mistyped object). The nested reads' statuses are ignored throughout.
 - **Trigger:** An ASCII transform volume whose base data says `1` then `Object Type 22001` (next map), or `1` then `Object Type 22011` / `22004` (orient map), or ends right after a `1` flag.
@@ -748,7 +776,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `SolidError::Unsupported`, which the derived readers do not ignore. Nested reads are bounded by `DatabaseReader::enter_nested`.
 
-#### UB-75. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
+#### UB-79. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
 - **Location:** `SmVolume.cpp:3907` `InvMapPoint` -> `:2058` `MapPseudoBox` (trim branch: `EvaluateBoundingBoxSimple(sParamBox, NULL, ...)`); `:3411` `InvEvaluatePoint` and `:4512` `GlobalPointSolve` -> `:1692` `EvaluateBoundingBox(*pOptParamDomain, NULL, ...)`.
 - **What happens:** With a search domain and compounding, an unoriented `SmTransform` map with next maps (or, for `EvaluateBoundingBox`, any transform map, and the orient map for in-space boxes) receives a NULL parameter pseudo box, and `SmTransform::EvaluateBoundingBoxSimple` dereferences it (UB-42).
 - **Trigger:** `InvMapPoint(P, NULL, ok, pts, gaps, &domain, TRUE)` on `SmTransform` -> `SmTwistVolume`.
@@ -756,6 +784,17 @@ by area within each severity.
 - **Confirmed:** yes.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `SolidError::Unsupported`; the FFI guard of `surface.volume_p2` models these call paths and rejects them.
+
+### Intersection
+
+#### UB-74. `PointBasedSurfaceIntersect` writes past its 20-point array
+- **Location:** `source/SMLib/src/SmSurface.cpp:30588` `SmSurface::PointBasedSurfaceIntersect` (UV point version).
+- **What happens:** The points go into `SmTsectPnt saTsectPnts[20]`; the size limit and the equal-length check of the two point arrays are `SM_ASSERT`s only, so 20 or more points write past the stack array, and a shorter second array is read past its end.
+- **Trigger:** 20 point pairs, or two UV point arrays of different lengths.
+- **How found:** read during porting (`intersect.surface_intersector_p1`).
+- **Confirmed:** no.
+- **Severity:** crash/UB.
+- **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
 ## Hang
 
@@ -1077,6 +1116,15 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
 
+#### WR-54. Old composite curve records get their segment gaps shifted by one
+- **Location:** `source/SMLib/src/SmBrepData.cpp:5438` (`sGaps` holds the first segment's start gap, then every end gap) passed to `SmCompositeCurve.cpp:1050` (which reads `(*cpGaps)[i]` as segment `i`'s end gap).
+- **What happens:** For a version 32 or older composite curve, segment `i` gets the stored end gap of segment `i - 1` as its end gap (segment 0 gets its own start gap); the last end gap is never used. The branch is marked "untested code" upstream.
+- **Trigger:** A closed two-segment composite record with gaps `0.5 0.25` and `0 3`: segment 0 gets gaps `0.25 / 0.5` instead of `0.5 / 0.25`.
+- **How found:** read during porting (`topology.brep_data`).
+- **Confirmed:** no (gaps are not in the difftest dump).
+- **Severity:** wrong result.
+- **Rust port:** Faithful to the code.
+
 ### NLib
 
 #### WR-22. `ST_surxsdr` returns a stale error number past its recursion limit
@@ -1346,7 +1394,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as written.
 
-#### WR-50. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
+#### WR-55. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
 - **Location:** `SmVolume.cpp:5865` `EvaluateBoundingBoxSimple` and `:6057` `EvaluatePseudoBoxSimple` (sample `EvaluatePoint` and `Evaluate1stDerivatives` with compounding); `:919` `IsPointInParamDomain` (passes the last out-space image to the next map's in-space check); `:6857` `LocalPointSolveSimple` (solution value is the distance to the compound image); `:6665` `InvEvaluatePointSimple` (a failed local solve forces `rbSuccess = FALSE` after a successful global solve); `:3411` `InvEvaluatePoint`, `:3907` `InvMapPoint` (always report success); `:4512` `GlobalPointSolve` (found flag of the last point only).
 - **What happens:** The projection-space boxes of a compound volume are boxes of its last out-space; domain checks and solution values use the wrong space; success flags are lost or always set.
 - **Trigger:** `EvaluatePseudoBoxSimple` of a volume with a next map; `IsPointInParamDomain` of a chain with a plain `SmVolume` second map.
@@ -1354,6 +1402,44 @@ by area within each severity.
 - **Confirmed:** yes (surface.volume_p2 difftest: the Rust port reproduces these and matches the C++ on generated cases and the `twist_then_base_*` fixtures).
 - **Severity:** wrong result.
 - **Rust port:** Ported as written.
+
+### Intersection
+
+#### WR-50. `AddStartPoint` "replaces" a bounded start point by assigning a local pointer
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3901` `SmSurfaceIntersector::AddStartPoint`.
+- **What happens:** For a bounded/exact start point pair whose stored point is the bounded one, the "replace pTSP with rStartTSP" branch only sets the loop variable `pTSP = &rStartTSP` and reports a match. The exact candidate is dropped and the bounded point stays in `m_vStartPoints`, the opposite of what the comment (and the function header) describe.
+- **Trigger:** A bounded start point already in the list, then an exact one within `2 * m_dThisApproxTol3d` with a matching curve tangent.
+- **How found:** read during porting.
+- **Confirmed:** no (the branch needs `smsurf_EvaluateNormalSection`, which the Rust side does not have yet, so those difftest cases are deferred).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (the candidate is not added).
+
+#### WR-51. `IsPointOnStartPoint` compares squared distances with a length tolerance
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:7515` `SmSurfaceIntersector::IsPointOnStartPoint`.
+- **What happens:** `DistanceBetweenSquared(...) < m_dThisApproxTol3d`: the effective tolerance is `sqrt(tol)`, far looser than intended for small tolerances (and tighter above 1).
+- **Trigger:** Any call; e.g. `tol = 1e-6` accepts points 1e-3 apart.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_start_points` and generated `on_start` ops agree with the squared test).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-52. `SER` inside `SmBoolean` functions reports a failure as `TRUE`
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:4195` `sm_IsPointOnCurve` and `:7376`, `:7391` `SmSurfaceIntersector::IsPointOnCurve`.
+- **What happens:** `SER(status)` returns the non-zero `SmStatus` from a function returning `SmBoolean`, so a failing point solve, curve evaluation or curve drop makes the point count as "on the curve".
+- **Trigger:** A curve whose `EvaluatePoint` or `DropPoint` fails, or a failing Hermite point solve.
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** wrong result.
+- **Rust port:** Faithful (`Ok(true)` on such an error).
+
+#### WR-53. `TestSpanAccuracy` compares a tangent length with an angle tolerance
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3448` `SmSurfaceIntersector::TestSpanAccuracy` (upstream's own `GWC_NEEDS_WORK` note).
+- **What happens:** `rNextTSP.CrvDeriv().Length() < m_dSteppingParallelTolRadians` (`SM_EFF_ZERO`): a length is tested against a radian tolerance, so the check only catches (near) zero tangents.
+- **Trigger:** A next point with a tangent shorter than `1e-12`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_span_angle`).
+- **Severity:** wrong result (unit mix-up).
+- **Rust port:** Faithful.
 
 ## Docs
 
