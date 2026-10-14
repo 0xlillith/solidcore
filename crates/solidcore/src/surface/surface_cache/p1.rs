@@ -143,7 +143,7 @@ pub const TYPE: i64 = 15100;
 pub const TYPE_STRING: &str = "SmSurfaceCache_TYPE";
 
 /// `SmFace_TYPE` (`TOPO_BASE_TYPE + 2`).
-const FACE_TYPE: i64 = 16002;
+pub(super) const FACE_TYPE: i64 = 16002;
 
 /// `SM_PB_SAMPLECOUNT`: sample points stored per bounding plane.
 pub const PB_SAMPLE_COUNT: usize = 5;
