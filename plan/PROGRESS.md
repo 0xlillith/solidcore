@@ -135,7 +135,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
-- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (draft)
+- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 
 ## By module
 
@@ -369,7 +369,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
-- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (draft)
+- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p1` (465 lines) — waiting
 - [ ] ⏳ `query.face_p4` (1432 lines) — waiting
 - [ ] ⏳ `query.tess` (838 lines) — waiting
