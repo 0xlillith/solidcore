@@ -7,11 +7,20 @@ use crate::{call_with_buffer, FfiError};
 
 mod sys {
     extern "C" {
-        pub fn sc_intersect_topology_solver_p2_local(input: *const f64, n_in: i64, out: *mut f64, cap: i64, out_len: *mut i64) -> i32;
+        pub fn sc_intersect_topology_solver_p2_local(
+            input: *const f64,
+            n_in: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
         pub fn sc_intersect_topology_solver_p2_point_storage(counts: *mut i64) -> i32;
         pub fn sc_intersect_topology_solver_p2_trees(
-            input: *const f64, n_in: i64, out: *mut f64,
-            cap: i64, out_len: *mut i64,
+            input: *const f64,
+            n_in: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
         ) -> i32;
     }
 }
@@ -26,7 +35,15 @@ pub fn eval_trees(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     call_with_buffer(1024, |out, len| {
         // SAFETY: the complete record is validated by the same parser as the
         // delegated C++ reference; output capacity is enforced by the shim.
-        unsafe { sys::sc_intersect_topology_solver_p2_trees(input.as_ptr(), input.len() as i64, out.as_mut_ptr(), out.len() as i64, &raw mut *len) }
+        unsafe {
+            sys::sc_intersect_topology_solver_p2_trees(
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
     })
 }
 
@@ -52,7 +69,15 @@ pub fn eval_local(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     call_with_buffer(1024, |out, len| {
         // SAFETY: the complete p1-protocol local record is validated above;
         // the delegated reference enforces output capacity.
-        unsafe { sys::sc_intersect_topology_solver_p2_local(input.as_ptr(), input.len() as i64, out.as_mut_ptr(), out.len() as i64, &raw mut *len) }
+        unsafe {
+            sys::sc_intersect_topology_solver_p2_local(
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
     })
 }
 
@@ -64,4 +89,3 @@ mod tests {
         assert_eq!(point_storage_counts().unwrap(), [0, 1]);
     }
 }
-

@@ -186,9 +186,10 @@ fn classified_curve_intervals<O>(
     ))
 }
 
-fn untrimmed_range_endpoints<O>(
+fn untrimmed_range_endpoints<O: Copy + PartialEq>(
+    kernel: &Kernel,
     surface: &Surface,
-    _surface_handle: O,
+    surface_handle: O,
     _face_domain: &Extent2d,
     _start: Point3,
     _end: Point3,
@@ -196,8 +197,11 @@ fn untrimmed_range_endpoints<O>(
 ) -> Result<Option<(Vec2, Vec2)>> {
     // The cache must be checked out and point_test_enabled temporarily disabled
     // around BOTH GlobalPointSolve calls; restore it on success and error.
-    // No endpoint is synthesized while the surface cache store is unavailable.
-    let _cache = surface_cache(surface)?;
+    // get_surface_cache now constructs an owned cache. This operation needs the
+    // shared cache checkout consumed by BOTH point solves, so disabling a flag
+    // on that independent owned copy would not disable trimming in the solver.
+    // No endpoint is synthesized while that shared-cache bridge is unavailable.
+    let _cache = surface_cache(kernel, surface, Some(surface_handle))?;
     // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate (cache checkout bridge)
     Err(SolidError::unported(
         "SmSurface::CacheMakeOrValidate",
@@ -289,8 +293,13 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let face = face.ok_or(SolidError::invalid_input(OP_CF, "surface without a face"))?;
         let curve = self.curve.ok_or(SolidError::null_pointer(OP_CF))?;
         if ts.base.projected_operation {
-            let (curves, uv_curves) =
-                p1::face_silhouettes(ts.objects, face, &ts.base.opt_vectors, ts.base.tolerance_3d)?;
+            let (curves, uv_curves) = p1::face_silhouettes(
+                ts.kernel,
+                ts.objects,
+                face,
+                &ts.base.opt_vectors,
+                ts.base.tolerance_3d,
+            )?;
             for (i, other) in curves.iter().enumerate() {
                 let mut local =
                     LocalSolver::new(LocalSolverKind::CurveCurve, self.swap_order, self.shape);
@@ -366,6 +375,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                         let start = curve.curve.evaluate_point(interval.min())?;
                         let end = curve.curve.evaluate_point(interval.max())?;
                         if let Some((uv_start, uv_end)) = untrimmed_range_endpoints(
+                            ts.kernel,
                             surface,
                             surface_handle,
                             &domain,
@@ -434,6 +444,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let best = best_answer_so_far(&ts.base);
         if ts.base.projected_operation {
             let (curves, uv_curves) = p1::face_silhouettes(
+                ts.kernel,
                 ts.objects,
                 face1,
                 &ts.base.opt_vectors,
