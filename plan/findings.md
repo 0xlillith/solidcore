@@ -2834,6 +2834,37 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   `IsCurveIn*Domain` / `IsLineInParamDomain` volume entry points take a `&Kernel` for the
   curve bounding boxes the B-spline override computes.
 
+## intersect.topology_solver_p1
+
+- Upstream issues UB-80 (`MayContainAnswer` reads uninitialised `IntersectLine`
+  results for a ray shorter than `SM_EFF_ZERO`), UB-81 (edge solvers dereference a free
+  curve's missing edge) and WR-61 (`SmTLSPointVertex::SolveIt` ray firing falls through
+  into the 3D signed case; still unconfirmed against the C++: even single-call fixtures
+  are deferred because `add_sorted_solution` reaches the `SmTol::GetZoneTol3d` stub of
+  `topology.brep_p1` for vertex objects). The port keeps the WR-61 fall-through as
+  written. (Renumbered when other units took the numbers on `main` first: filed as
+  UB-73, UB-74 and WR-48, then UB-77, UB-78 and WR-52, then UB-78, UB-79 and WR-55,
+  then UB-80, UB-81 and WR-59.)
+- The FFI guard refuses an option vector shorter than `1e-6` only where upstream is
+  undefined or unverified: the ray of `MayContainAnswer` (`Op::May` and tree solves with
+  `SM_SO_RAYFIRE`) and every vector the curve solvers hand to
+  `SmCurve::GlobalPointSolve` / `GlobalCurveSolve`. Zero and tiny vectors for the vertex
+  solvers and the other `MayContainAnswer` branches are defined (`smgu_LineClosestPoint`
+  gives `0`, `smgu_PointProjectToPlane` NaN) and match bit for bit
+  (`zero_vectors.json`, 156 cases).
+- Wiring notes for later porters: the `curve_global_curve_solve` stub
+  (`UNPORTED(curve.curve_p9)`) receives both solvers' intervals (`m_vInterval`,
+  `m_vInterval2`, swapped under `m_bSwapOrder`) and the operation, tolerance, best
+  answer, option vectors and `SM_SR_ALL` exactly as upstream passes them; the
+  `face_point_classify` stub must return the class even when `PointClassify` fails
+  (every caller ignores its status); `face_silhouettes` calls `surface_cache`
+  (`surface.surface_p2`) through `TopologyObjects::surface`, and resolving the cache
+  id to `SurfaceCache::has_cached_curves` is left for `surface.surface_p1`.
+- Untested until their callees land: `SmTLSPointFace`, `sm_GetFaceSilhouettes` and
+  every tree case reaching `SmTopologySolver::LocalSolve` (`surface.surface_p4`,
+  `surface.surface_p8`, `intersect.topology_solver_p2`); the upstream tests only reach
+  the curve and vertex paths.
+
 ## sweep.api_surfaces: review fixes (PR #37, 2026-10-13)
 
 - The FFI guard (`crates/solidcore-ffi/src/units/sweep_api_surfaces.rs`) used to reject
@@ -3134,3 +3165,27 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   plane's NURB (`GetGwNurbPointer` on an `SmBSplineSurface`); the port's plane makes its
   NURB lazily, so the test uses `Plane::base_for_query`. Found once the generator put
   planes on aux start nodes (the FFI had rejected them; upstream handles them).
+
+## surface.surface_p1 (`SmSurface` part 1 and `SmSTEPSurface`, 2026-10-14)
+
+- **Shim guard.** The base `GetDomainWithContinuity` dereferences a `NULL` surface cache
+  when none can be built (upstream-issues UB-83). The shim checks
+  `smsurf_GetSurfaceCache` first and reports `SM_ERR`, which is what the Rust port returns
+  (the cache error). The check builds and stores the cache, so the call that follows uses
+  the same cache.
+- **B-spline back-edges.** `SmBSplineSurface::IsDegenerateCurve` and
+  `IsDegeneratePoint` (sub-domains) pass the call to the `SmSurface` base body; the
+  B-spline methods run it on a copy wrapped as a `Surface`, which has no owner (the owner
+  is held by the `Surface` wrapper). `CalculateBoundingBox` grows its boxes by
+  `GetFace() ? face tolerance : SM_ZONE_TOL_3D`: a bare B-spline uses `SM_ZONE_TOL_3D`,
+  and `Surface::calculate_bounding_box` returns `Unported(topology.face_p2)` first for a
+  B-spline or plane with a face.
+- **trim_srf_cache face cases.** They used to defer through the `GetFace` stub of the
+  B-spline bounding box. With it wired, the Rust side ran without a face and returned
+  `SM_ERR_NULL_POINTER` where the C++ side had a brep face. The runner now defers them
+  on `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`), the step the Rust side lacks.
+- **Not wired**, still `UNPORTED(surface.surface_p1)`: `Grid::expand_hierarchy` (needs a
+  surface handle type for the grid elements), the surface cache's
+  `CalculateBoundingBox` of curve-bounded and STEP surfaces (called while that cache is
+  being built), and the `SmIsoCurve` / `SmCrvOnSurf` readers of non-B-spline surfaces
+  (those curves hold an `SmBSplineSurface`).

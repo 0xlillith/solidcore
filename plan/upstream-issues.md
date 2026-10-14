@@ -488,6 +488,24 @@ by area within each severity.
 - **Severity:** crash/UB (use after free).
 - **Rust port:** Identifies callbacks by key, so the case cannot arise.
 
+#### UB-80. `SmTopologySolver::MayContainAnswer` reads uninitialised ray/box results
+- **Location:** `SmTopologySolver.cpp:2909`, `SmTopologySolver::MayContainAnswer` (def. `:2716`), `SM_SO_RAYFIRE` branch.
+- **What happens:** The status of `SmExtent3d::IntersectLine` is ignored. When it fails (`SM_ERR_INVALID_INPUT` for a ray vector shorter than `SM_EFF_ZERO` or an undefined box), `lNumFound`, `dTEnter` and `dTExit` are read uninitialised and decide whether the branch is culled.
+- **Trigger:** A ray-fire topology solve whose option vector is (near) zero.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard keeps a ray vector shorter than `1e-6` from `MayContainAnswer`; zero and tiny option vectors elsewhere are defined upstream and are difftested by `fixtures/intersect.topology_solver_p1/zero_vectors.json`).
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** Returns `InvalidInput`.
+
+#### UB-81. Topology edge solvers dereference a curve's missing edge
+- **Location:** `SmTopologySolver.cpp:557`/`:582` `SmTLSPointEdge::SolveIt`, `:1079`/`:1101` `SmTLSCurveEdge::SolveIt`, `:1359`/`:1380` `SmTLSEdgeEdge::SolveIt`.
+- **What happens:** `pCurve->GetEdge()` is only checked by an `SM_ASSERT_MSG` (compiled out); with no shape (`m_pShape == NULL`) a curve that defines no edge is dereferenced as `NULL->GetInterval()`.
+- **Trigger:** Any of these local solvers called on a free curve (no owning edge) outside a shape solve.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard passes only curves that own an edge).
+- **Severity:** crash/UB (bad argument from calling code).
+- **Rust port:** Returns `InvalidInput`.
+
 ### Curves
 
 #### UB-46. NURB-less curves are dereferenced
@@ -793,6 +811,24 @@ by area within each severity.
 - **Confirmed:** no (the reference build has no `USE_VOLUMES`, so the loop stops at the first sample; see WR-48).
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
+
+#### UB-83. `SmSurface::GetDomainWithContinuity` dereferences a missing surface cache
+- **Location:** `SmSurface.cpp:12056`, `SmSurface::GetDomainWithContinuity` (base body).
+- **What happens:** When `smsurf_GetSurfaceCache` returns `NULL` (neither a trimmed surface cache nor a surface cache can be built), `SE(SM_ERR)` only reports it and the body goes on to call `GetUContinuitiesArray()` through the null pointer.
+- **Trigger:** `GetDomainWithContinuity` on a curve-bounded surface or plane whose cache build fails (generated `surface.surface_p1` `dom_cont` cases).
+- **How found:** crash in the C++ reference run.
+- **Confirmed:** yes (segfault; the `surface.surface_p1` shim now checks the cache first and reports `SM_ERR`).
+- **Severity:** crash/UB.
+- **Rust port:** Returns the cache build error.
+
+#### UB-84. `SmSurface::CalculateBoundingBox` of a polar box recurses without bound
+- **Location:** `SmSurface.cpp:5397`, `SmSurface::CalculateBoundingBox` (base body), with `SmSurfaceCache.cpp:1184`, `SmBezierAux2d::BuildPolarBox`.
+- **What happens:** For a polar box, the base body asks the top node of the surface's own cache for it (`SmBezierAux2d::GetPolarBox`). Building that box calls the node surface's `CalculateBoundingBox`, which for a curve-bounded or STEP surface is the same base body again. Nothing ends the cycle, so the stack overflows.
+- **Trigger:** `CalculateBoundingBox` with `pPolarBox != NULL` on an `SmCurveBoundedSurface` or `SmSTEPSurface` (any surface kind that does not override `CalculateBoundingBox`).
+- **How found:** the maintainer's review of `surface.surface_p1` (PR #43), by printing the polar box in the shim; gdb shows about 58k frames cycling through those three functions.
+- **Confirmed:** yes (stack overflow in the C++ reference build).
+- **Severity:** crash/UB.
+- **Rust port:** `Surface::base_calculate_bounding_box` and the surface caches' `calculate_bounding_box` refuse a polar box of those kinds with `InvalidInput` (bounded on wasm). The `surface.surface_p1` FFI never asks the C++ for it.
 
 #### UB-78. `SmApiCreateSkinFromFaces` with no faces crashes
 - **Location:** `source/SM_API/src/SmApiPrimitives.cpp:1335` `SmApiCreateSkinFromFaces` -> `source/SMLib/src/SmPrimitiveCreation.cpp:6711` `SmPrimitiveCreation::CreateSkinFromFaces` -> `SmBSplineSurfaceNLib.cpp` `SmBSplineSurface::CreateSkinnedSurface`.
@@ -1141,6 +1177,15 @@ by area within each severity.
 - **Confirmed:** yes.
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
+
+#### WR-61. `SmTLSPointVertex::SolveIt` ray firing falls through into the 3D signed case
+- **Location:** `SmTopologySolver.cpp:206-262`, `SmTLSPointVertex::SolveIt` (def. `:116`).
+- **What happens:** The `SM_SO_RAYFIRE` case has no `break`, so the `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE` case runs after it: it recomputes the ray parameter without the rayfire snap to the ray start (`dParam < 0.0 -> 0.0`), overwrites `dDistSq`, and sets the sign from the unsnapped parameter (negated again when the object order is swapped). A vertex just behind the ray start (within `SM_EFF_ZERO` of it) gets a small negative ray distance instead of `0`, and a swapped call returns negated ray distances.
+- **Trigger:** `SM_SO_RAYFIRE` point/vertex solve from `(1, 0, 0)` along `(1, 0, 0)` with a vertex at `(1 - 1e-13, 0, 0)` (fixture `point_vertex_rayfire_behind_start`).
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the C++ runs the fixture, but the Rust side defers it: the solution comparison needs vertex zone tolerances). The review's single-call fixtures `adv_rayfire_behind_start_single_*` are deferred the same way (`add_sorted_solution` reaches the `SmTol::GetZoneTol3d` stub of `topology.brep_p1` for vertex objects).
+- **Severity:** wrong result.
+- **Rust port:** Ported as is (the fall-through kept).
 
 #### WR-54. Old composite curve records get their segment gaps shifted by one
 - **Location:** `source/SMLib/src/SmBrepData.cpp:5438` (`sGaps` holds the first segment's start gap, then every end gap) passed to `SmCompositeCurve.cpp:1050` (which reads `(*cpGaps)[i]` as segment `i`'s end gap).
