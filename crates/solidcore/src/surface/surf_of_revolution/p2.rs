@@ -598,7 +598,8 @@ impl SurfOfRevolution {
         let mut out = SurfaceIntersection::default();
         match other.kind() {
             SurfaceKind::Plane(p) => {
-                let (more, found) = self.intersect_with_plane(p, other_uv_domain, approx_tol_3d)?;
+                let (more, found) =
+                    self.intersect_with_plane(k, p, other_uv_domain, approx_tol_3d)?;
                 need_nurb_intersection = more;
                 out = found;
             }

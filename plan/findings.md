@@ -3359,6 +3359,23 @@ Notes for later agents:
   derivatives; 1e-3 and 1e3 scales. The reviewer's generator made 400; the 398 kept are the
   ones it accepted as defined in the C++. All 398 pass bit-identical.
 
+## surface.plane_p2 (`SmPlane`, part 2, review fixes 2026-10-14)
+
+- **Difftest runners must convert a raw tolerance the way the shim does.** The shims read
+  `IntersectWithPlane` / `GlobalSurfaceIntersect` tolerances into an `SmApproxTol3d`, whose
+  `double` constructor stores `fabs(tol)` and maps `SM_USE_DEFAULT` (9876543.21) to
+  `s_ZoneTol3d / 2` (`SmTol.cpp`). The library functions take an already-converted
+  `SmApproxTol3d` (non-negative by type), so the runner applies
+  `geom::tol::approx_tol3d(k, t)` first. Before this fix, plane z=0 against plane x=1 over
+  [-5,5]x[-3,3] with tol=-1 gave the C++ crossing line (44 values) but no curve in Rust
+  (7 values: `TrimPlaneLineToPlaneDomain` saw a negative tolUV); tol=9876543.21 gave 44 vs
+  34 values. The generator only produced positive tolerances. The same conversion is now
+  applied in the `surface.surf_of_revolution_p1` runner, whose FFI guard used to reject a
+  negative plane tolerance (now accepts any finite value, as the C++ does).
+- **`MakeNewPlaneEllipse` with a zero radius** appends the degenerate line curve to
+  `rCrvs` even when it is `NULL`; the port drops the `None` (documented inline). No input
+  in the difftest reaches it (unreachable in practice).
+
 ## surface.surf_of_extrusion_p1 (`SmSurfOfExtrusion`, part 1, 2026-10-13)
 
 PARTIAL: 973 difftest cases (173 fixture, 800 generated), 880 bit-identical, 93 deferred
@@ -3601,3 +3618,20 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **Zone tolerance.** With surface_p1's bounding box, `IntersectWithSurfOfRevolution`
   without approximation tolerance no longer defers. The NURB has no owner, so no face
   tolerance applies.
+
+## intersect.curve_class_p1 (`SmCurveClassification`, part 1, PR #47 review, 2026-10-14)
+
+- **CI red on clippy with the C++ feature.** `cargo clippy --workspace --all-targets
+  --features difftest/cpp -- -D warnings` reported 11 errors in the runner
+  (`crates/difftest/src/units/intersect_curve_class_p1.rs`: identical match arms in
+  `gen_tol`, needless range loop and unchecked indexing in `gen_script`, `range_plus_one`,
+  `default_trait_access`). A plain `cargo clippy` does not build the `cpp`-gated
+  runner, so run clippy with `--features difftest/cpp` too. Fixed without changing the RNG call order: the
+  generated cases are identical in name, value count and outcome.
+- **UV trim curves only reached by fixtures.** The generator always passes `uvc: []` to
+  `xsect_curve`, so `SetIntersectionCurveThroughPoint` with UV trim curves is covered
+  only by `fixtures/intersect.curve_class_p1/adversarial.json` (75 cases: UV-curve,
+  huge/tiny-scale and out-of-range-UV xsect/apply cases, analytic Line/Circle/Ellipse/
+  Hermite source curves, a container case past `MIN_ARRAY_SIZE`). At unit and huge scale
+  the UV-curve cases defer on `SmSurface::LocalPointSolve` (`surface.surface_p5`, 20
+  cases); only the tiny-scale ones are compared until that unit lands.

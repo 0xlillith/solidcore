@@ -2182,16 +2182,12 @@
       "values_compared": 121
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0000",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950207",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -2242,16 +2238,12 @@
       "values_compared": 231
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950214",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -2279,8 +2271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -2371,8 +2363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0022",
@@ -2467,8 +2459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0033",
@@ -2622,16 +2614,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0051",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950258",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -2715,8 +2703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -2862,16 +2850,12 @@
       "values_compared": 59
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0080",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950287",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -2898,16 +2882,12 @@
       "values_compared": 211
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0084",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950291",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -2975,8 +2955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0093",
@@ -3102,16 +3082,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0108",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950315",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "deferred": {
@@ -3370,16 +3346,12 @@
       "values_compared": 231
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0140",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950347",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -3431,8 +3403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0147",
@@ -3495,8 +3467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0154",
@@ -3578,28 +3550,20 @@
       "values_compared": 205
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0164",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950371",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0165",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950372",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -3683,8 +3647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0176",
@@ -3926,16 +3890,12 @@
       "values_compared": 417
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0205",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950412",
-      "values_compared": 0
+      "values_compared": 109
     },
     {
       "max_rel_err": 0.0,
@@ -4026,16 +3986,12 @@
       "values_compared": 175
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0217",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950424",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -4158,16 +4114,12 @@
       "values_compared": 375
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0233",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950440",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -4270,16 +4222,12 @@
       "values_compared": 197
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0246",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950453",
-      "values_compared": 0
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -4402,16 +4350,12 @@
       "values_compared": 213
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950469",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -4974,16 +4918,12 @@
       "values_compared": 417
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0332",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950539",
-      "values_compared": 0
+      "values_compared": 67
     },
     {
       "max_rel_err": 0.0,
@@ -5051,8 +4991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -5094,16 +5034,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0346",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950553",
-      "values_compared": 0
+      "values_compared": 107
     },
     {
       "max_rel_err": 0.0,
@@ -5255,8 +5191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0364",
@@ -5390,16 +5326,12 @@
       "values_compared": 373
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0380",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950587",
-      "values_compared": 0
+      "values_compared": 67
     },
     {
       "max_rel_err": 0.0,
@@ -5670,16 +5602,12 @@
       "values_compared": 87
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0414",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950621",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -5978,16 +5906,12 @@
       "values_compared": 197
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0451",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950658",
-      "values_compared": 0
+      "values_compared": 107
     },
     {
       "max_rel_err": 0.0,
@@ -6010,16 +5934,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0454",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950661",
-      "values_compared": 0
+      "values_compared": 107
     },
     {
       "max_rel_err": 0.0,
@@ -6130,16 +6050,12 @@
       "values_compared": 373
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0467",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950674",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -6399,8 +6315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0500",
@@ -6410,16 +6326,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0501",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950708",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -6454,21 +6366,17 @@
       "values_compared": 205
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0506",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950713",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0507",
@@ -6558,16 +6466,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0518",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950725",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -6671,8 +6575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0531",
@@ -6946,16 +6850,12 @@
       "values_compared": 385
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0565",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950772",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -7390,28 +7290,20 @@
       "values_compared": 331
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0618",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950825",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0619",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950826",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "max_rel_err": 0.0,
@@ -7538,16 +7430,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0635",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950842",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7679,8 +7567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0652",
@@ -8111,8 +7999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0704",
@@ -8387,8 +8275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0737",
@@ -8622,16 +8510,12 @@
       "values_compared": 247
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0766",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950973",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -8746,16 +8630,12 @@
       "values_compared": 205
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0781",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950988",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -8822,16 +8702,12 @@
       "values_compared": 333
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0790",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950997",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -8875,8 +8751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0796",
@@ -9374,16 +9250,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0856",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722951063",
-      "values_compared": 0
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -9466,16 +9338,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0867",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722951074",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -9510,16 +9378,12 @@
       "values_compared": 159
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0872",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722951079",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -9566,16 +9430,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0878",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722951085",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -9751,13 +9611,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 103,
+  "cases_deferred": 68,
   "cases_failed": 0,
-  "cases_passed": 1064,
+  "cases_passed": 1099,
   "cases_total": 1167,
   "deferred_by_unit": {
-    "intersect.surface_intersector_p5": 34,
-    "surface.plane_p2": 52,
+    "intersect.surface_intersector_p5": 51,
     "surface.surface_p4": 15,
     "surface.surface_p5": 2
   },
