@@ -145,7 +145,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (draft)
-- [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (draft)
 
 ## By module
@@ -357,7 +357,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `intersect.surface_intersector_p2` (1677 lines) — partial, 1660 cases
 - [ ] ⏳ `intersect.curve_class_p3` (1986 lines) — waiting
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
-- [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (ready for review)
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
 - [ ] ⏳ `intersect.surface_intersector_p4` (1570 lines) — waiting
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (draft)
