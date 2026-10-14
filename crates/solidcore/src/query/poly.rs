@@ -102,7 +102,7 @@
 //!   labels. Reaching the objects behind them is outside this unit:
 //!   `SmPolyEdge::IsDegenerate` needs `SmFace::GetSurface` (unit `topology.face_p2`) when
 //!   the back pointers are valid and a face is set; `SetOriginalFace` with attribute
-//!   propagation calls `SmFace::Notify` (unit `topology.face_p2`); the destructor of a
+//!   propagation calls `SmFace::Notify` (unit `topology.face_p3`); the destructor of a
 //!   poly B-rep with valid back pointers clears `SmVertex::m_pPolyVertex`
 //!   (`GetPolyVertex` / `SetPolyVertex`, unit `topology.vertex`). These return
 //!   [`SolidError::Unported`].
@@ -112,6 +112,13 @@
 //!   `plan/upstream-issues.md`).
 //! - `SmCPolyFace::RemovePolyFace` of a face that is not a member removes the first
 //!   member (`FindElement` leaves the index at 0); kept (see `plan/upstream-issues.md`).
+//! - A composite face cannot be a member of a composite face, nor the source of
+//!   [`PolyBrep::add_cpoly_face`] ([`SolidError::InvalidInput`]). Upstream only ever
+//!   adds shell faces (`SmLineSegClass.cpp`), but `AddPolyFace` would accept a composite
+//!   (even itself), and the virtual `GetPolyEdges` / `GetNormal` /
+//!   `CalculateBoundingBox` / `GetOKBackPtrs` of the composite would then recurse
+//!   without bound; refusing nested composites keeps that recursion one level deep
+//!   (WR-70 in `plan/upstream-issues.md`).
 //! - `SmCPolyFace::GetNormal` of a composite without members returns `(1,1,1)` after an
 //!   `SM_ASSERT`; kept.
 //! - `SmPolyBrep::GetPolyEdges` with a common edge use walks each face's loop list as
@@ -576,6 +583,13 @@ const fn dead(operation: &'static str) -> SolidError {
     SolidError::InvalidInput {
         operation,
         reason: "poly object id is unknown or deleted",
+    }
+}
+
+const fn nested_composite(operation: &'static str) -> SolidError {
+    SolidError::InvalidInput {
+        operation,
+        reason: "a composite poly face cannot be a member of a composite poly face",
     }
 }
 
@@ -1164,10 +1178,14 @@ impl PolyBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::InvalidInput`] for an unknown face.
+    /// [`SolidError::InvalidInput`] for an unknown face or a composite `face` (nested
+    /// composites would make the composite queries recurse without bound).
     pub fn add_cpoly_face(&mut self, face: PolyFaceId) -> Result<PolyFaceId> {
         const OP: &str = "query::poly::PolyBrep::add_cpoly_face";
         let f = slot(&self.face_slots, face.0, OP)?;
+        if f.composite.is_some() {
+            return Err(nested_composite(OP));
+        }
         let mut c = Self::blank_face(f.tolerance);
         c.original_face = f.original_face;
         c.normal = f.normal;
@@ -1185,7 +1203,9 @@ impl PolyBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::InvalidInput`] for unknown ids or a `cpoly` that is not composite.
+    /// [`SolidError::InvalidInput`] for unknown ids, a `cpoly` that is not composite or
+    /// a composite `face` (nested composites would make the composite queries recurse
+    /// without bound).
     pub fn cpoly_add_poly_face(
         &mut self,
         cpoly: PolyFaceId,
@@ -1193,7 +1213,9 @@ impl PolyBrep {
         allow_duplicates: bool,
     ) -> Result<()> {
         const OP: &str = "query::poly::PolyBrep::cpoly_add_poly_face";
-        slot(&self.face_slots, face.0, OP)?;
+        if slot(&self.face_slots, face.0, OP)?.composite.is_some() {
+            return Err(nested_composite(OP));
+        }
         let members = slot_mut(&mut self.face_slots, cpoly.0, OP)?
             .composite
             .as_mut()
@@ -2694,7 +2716,7 @@ impl PolyBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] (`topology.face_p2`, `SmFace::Notify`) when a new face is
+    /// [`SolidError::Unported`] (`topology.face_p3`, `SmFace::Notify`) when a new face is
     /// set with `propagate_attribs`; [`SolidError::InvalidInput`] for an unknown face.
     pub fn face_set_original_face(
         &mut self,
@@ -2710,8 +2732,8 @@ impl PolyBrep {
         if x.original_face != original {
             x.original_face = original;
             if original.is_some() && propagate_attribs {
-                // UNPORTED(topology.face_p2): SmFace::Notify (SM_NO_COPY to this face)
-                return Err(SolidError::unported("SmFace::Notify", "topology.face_p2"));
+                // UNPORTED(topology.face_p3): SmFace::Notify (SM_NO_COPY to this face)
+                return Err(SolidError::unported("SmFace::Notify", "topology.face_p3"));
             }
         }
         Ok(())
@@ -3349,6 +3371,21 @@ mod tests {
         b.cpoly_remove_poly_face(c, PolyFaceId::from_index(99))
             .unwrap();
         assert!(b.cpoly_faces_of_composite(c).unwrap().is_empty());
+    }
+
+    #[test]
+    fn nested_composite_rejected() {
+        let k = Kernel::default();
+        let (mut b, f, _, _) = square(&k);
+        let c = b.add_cpoly_face(f).unwrap();
+        // a composite inside itself (or another composite) would recurse without bound
+        assert!(b.cpoly_add_poly_face(c, c, false).is_err());
+        assert!(b.cpoly_add_poly_face(c, c, true).is_err());
+        assert!(b.add_cpoly_face(c).is_err());
+        assert_eq!(b.cpoly_faces_of_composite(c).unwrap(), vec![f]);
+        assert_eq!(b.face_poly_edges(c).unwrap().len(), 4);
+        assert!(b.face_bounding_box(c).is_ok());
+        assert!(b.face_normal(&k, c, true, true).is_ok());
     }
 
     #[test]

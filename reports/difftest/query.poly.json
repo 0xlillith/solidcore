@@ -3,6 +3,478 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_bowtie_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#0",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bowtie_open_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#1",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bowtie_given_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#2",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_collinear_quad_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#3",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_collinear_quad_given",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#4",
+      "values_compared": 76
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_collinear_tri",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#5",
+      "values_compared": 58
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#6",
+      "values_compared": 43
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_one_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#7",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_one_edge_given",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#8",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_hole_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#9",
+      "values_compared": 133
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_hole_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#10",
+      "values_compared": 130
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_vertical_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#11",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_vertical_given_normal_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#12",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_vertical_given_unit_normal_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#13",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_vertical_wrong_normal_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#14",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_contains_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#15",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_normal_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#16",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_sphere_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#17",
+      "values_compared": 78
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_contains_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#18",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_normal_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#19",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_sphere_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#20",
+      "values_compared": 78
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_contains_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#21",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_normal_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#22",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilted_sphere_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#23",
+      "values_compared": 78
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_nonplanar_update_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#24",
+      "values_compared": 117
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_nonplanar_too_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#25",
+      "values_compared": 111
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_nonplanar_equal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#26",
+      "values_compared": 111
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_zero_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#27",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_zero_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#28",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_zero_xy",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#29",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_zero_all",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#30",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#31",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_neg_all",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#32",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_tiny_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#33",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_huge_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#34",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_huge_all",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#35",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_near_identity",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#36",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_undef",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#37",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_x2000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#38",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_neg_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#39",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_skew_axes",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#40",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_identity_scale_only",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#41",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_transform_parallel_axes",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#42",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_degenerate_mix",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#43",
+      "values_compared": 85
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_degenerate_okback_noorig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#44",
+      "values_compared": 85
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_empty_face_sphere",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#45",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_empty_face_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#46",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_empty_face_bbox",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#47",
+      "values_compared": 81
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_no_vertices_bbox",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#48",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbox_zero_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#49",
+      "values_compared": 163
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbox_given_pts",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#50",
+      "values_compared": 160
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbox_one_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#51",
+      "values_compared": 151
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpoly_ops_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#52",
+      "values_compared": 138
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpoly_ops_sphere",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#53",
+      "values_compared": 136
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpoly_ops_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#54",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpoly_ops_bbox",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#55",
+      "values_compared": 240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_strut_contains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#56",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_strut_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#57",
+      "values_compared": 95
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mutate_setpoint_then",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.poly/adversarial.json#58",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "cube_scale_signed",
       "outcome": "pass",
       "pass": true,
@@ -4909,8 +5381,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 2,
   "cases_failed": 0,
-  "cases_passed": 610,
-  "cases_total": 612,
+  "cases_passed": 669,
+  "cases_total": 671,
   "deferred_by_unit": {
     "topology.face_p2": 2
   },

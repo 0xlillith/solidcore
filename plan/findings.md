@@ -3722,6 +3722,20 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **Deferred.** `IsDegenerate` of an edge whose face has an original face while the
   back pointers are valid needs `SmFace::GetSurface` (`topology.face_p2`). The shim
   skips that call because the labels are fake pointers, and the case defers.
+- **Nested composite faces rejected (review fix).** `SmCPolyFace::AddPolyFace` accepts any
+  face, including a composite or the composite itself, and the virtual `GetPolyEdges` /
+  `GetNormal` / `CalculateBoundingBox` / `GetOKBackPtrs` of a composite would then recurse
+  without bound (the Rust port overflowed the stack on `add_cpoly_face(f) -> c;
+  cpoly_add_poly_face(c, c)`; on wasm that corrupts memory). Upstream only ever adds shell
+  faces (`SmLineSegClass.cpp:1879-1883`), and adding a composite would also overwrite that
+  composite's own `m_pCPolyFace`. `add_cpoly_face` and `cpoly_add_poly_face` return
+  `InvalidInput` for a composite `face`; the harness never builds nested composites, so
+  difftest is unaffected.
+- **Adversarial fixtures.** `fixtures/query.poly/adversarial.json` (59 cases: bow-tie,
+  collinear, 1-/2-edge and open loops, given/wrong normals, holes, faces at 1e150/1e8/1e-150
+  scale, struts, non-planar faces at the tolerance limits, degenerate/undefined/skew
+  transforms, degenerate edges with zero/negative tolerances, empty faces and B-reps,
+  composites) all pass bit-identically.
 - **Not compared through FFI.** `sm_IsUniformPositiveScale` and
   `sm_ReportInvalidTransformInput` are in an anonymous namespace of `SmApiGeneral.cpp`;
   they have unit tests only. The `GetTypeString` / `GetClassString` strings are also
