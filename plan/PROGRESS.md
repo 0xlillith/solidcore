@@ -2,21 +2,20 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**131 / 261 units ported** (84 green, 47 partial), **170,916 / 387,903 upstream lines (44.1%)**. 18 claimed, 0 blocked, 112 todo.
+**132 / 261 units ported** (85 green, 47 partial), **172,536 / 387,903 upstream lines (44.5%)**. 17 claimed, 0 blocked, 112 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-_None right now; see the next section._
+- [ ] ▶️ `surface.cone_p2` (1656 lines) — ready
 
 ## Claimable now, dependencies still missing
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `surface.cone_p2` (1656 lines) — missing: `surface.surf_of_revolution_p3`
-- [ ] `surface.sphere` (2861 lines) — missing: `surface.surf_of_revolution_p2`, `surface.surf_of_revolution_p3`
-- [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`, `surface.surf_of_revolution_p3`
+- [ ] `surface.sphere` (2861 lines) — missing: `surface.surf_of_revolution_p2`
+- [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
 - [ ] `surface.surface_p6` (2150 lines) — missing: `surface.surface_p4`, `surface.surface_p5`
 - [ ] `surface.surface_p10` (2172 lines) — missing: `surface.surface_p5`
 - [ ] `intersect.surface_drop_lib_p1` (1478 lines) — missing: `surface.surface_p3`
@@ -131,7 +130,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
-- [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
@@ -261,7 +259,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 
-### surface (19/40)
+### surface (20/40)
 
 - [ ] 🟡 `surface.volume_p1` (2014 lines) — partial, 2886 cases
 - [x] ✅ `surface.b_spline_volume` (1226 lines) — green, 2333 cases
@@ -277,11 +275,11 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
 - [ ] 🟡 `surface.cone_p1` (1835 lines) — partial, 20694 cases
 - [ ] 🟡 `surface.surf_of_extrusion_p1` (1865 lines) — partial, 2055 cases
-- [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
+- [ ] 🟡 `surface.surf_of_revolution_p3` (1620 lines) — partial, 26705 cases
 - [ ] 🟡 `surface.surface_cache_p2` (1245 lines) — partial, 905 cases
-- [ ] 🟡 `surface.torus` (1180 lines) — partial, 563 cases
+- [x] ✅ `surface.torus` (1180 lines) — green, 563 cases
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
-- [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
+- [ ] ▶️ `surface.cone_p2` (1656 lines) — ready
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)

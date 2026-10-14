@@ -163,8 +163,7 @@ pub(crate) fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
 
 /// `EvaluateSTEP(dT, lNumDerivs, TRUE, aDerivs)` of a generator (virtual: the
 /// analytic STEP evaluators, else the NURB evaluation).
-fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
-    let _ = k;
+fn gen_evaluate_step(c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
     match c.kind() {
         CurveKind::Ellipse(e) => e.evaluate_step(t, num_derivs),
         CurveKind::Line(l) => Ok(l.evaluate_step(t, num_derivs)),
@@ -443,7 +442,7 @@ impl SurfOfRevolution {
         let crv_ivl = gen_step_interval(&swept_curve)?;
 
         // SweptCurve start point
-        let mut pnt = first(&gen_evaluate_step(k, &swept_curve, crv_ivl.min(), 0)?)?;
+        let mut pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.min(), 0)?)?;
 
         // Vector from SweptCurve Start to RotAxis point
         let mut x_vec = pnt - axis_point;
@@ -451,12 +450,7 @@ impl SurfOfRevolution {
         // when start point is on rot axis
         if x_vec.length() < EFF_ZERO || x_vec.is_parallel_to(z_vec, 1.0) {
             // try SweptCurve nearMidPoint
-            pnt = first(&gen_evaluate_step(
-                k,
-                &swept_curve,
-                crv_ivl.evaluate(0.45),
-                0,
-            )?)?;
+            pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.evaluate(0.45), 0)?)?;
             x_vec = pnt - axis_point;
         }
 
@@ -1189,6 +1183,13 @@ impl SurfOfRevolution {
     /// `SM_ERR` for orders above 3; `InvalidInput` for unequal orders (upstream asserts
     /// and then indexes as if they were equal); those of the generator evaluation.
     pub fn evaluate_step(&self, k: &Kernel, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
+        let _ = k;
+        self.evaluate_step_at(uv, hu, hv)
+    }
+
+    /// [`Self::evaluate_step`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch (`SmSurface::EvaluateSTEP`, which has no kernel).
+    pub(crate) fn evaluate_step_at(&self, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
         // check input
         if hu > 3 || hv > 3 {
             return Err(SolidError::sm_err(OP_EVAL_STEP));
@@ -1222,7 +1223,7 @@ impl SurfOfRevolution {
         let cos_u = (uv.x * PI / 180.0).cos();
         let sin_u = (uv.x * PI / 180.0).sin();
 
-        let pv_eval = gen_evaluate_step(k, gen, uv.y, min_highest)?;
+        let pv_eval = gen_evaluate_step(gen, uv.y, min_highest)?;
         let pv = |i: usize| pv_eval.get(i).copied().unwrap_or(Vec3::UNDEF);
 
         let p = pv(0) - r_o;
@@ -1333,6 +1334,12 @@ impl SurfOfRevolution {
     /// Those of [`Self::evaluate_step`].
     pub fn evaluate_step_point(&self, k: &Kernel, uv: Point2) -> Result<Point3> {
         first(&self.evaluate_step(k, uv, 0, 0)?)
+    }
+
+    /// [`Self::evaluate_step_point`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch.
+    pub(crate) fn evaluate_step_point_at(&self, uv: Point2) -> Result<Point3> {
+        first(&self.evaluate_step_at(uv, 0, 0)?)
     }
 
     // ---- intersections and points -----------------------------------------------------

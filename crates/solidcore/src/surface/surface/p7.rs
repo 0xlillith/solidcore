@@ -816,6 +816,7 @@ impl Surface {
                 }
                 Ok(planar_of(s, &self.natural_uv_domain())?.is_planar(tol_3d))
             }
+            // SmSurfOfRevolution inherits SmBSplineSurface::CalculateBoundingBox
             SurfaceKind::SurfOfRevolution(s) => {
                 Ok(planar_of(s.base(), &self.natural_uv_domain())?.is_planar(tol_3d))
             }
