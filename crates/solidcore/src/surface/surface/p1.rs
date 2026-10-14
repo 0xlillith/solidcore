@@ -134,6 +134,9 @@ const OP_IVL: &str = "surface::surface::p1::find_uv_curve_ivl_in_domain";
 const OP_DOMAIN: &str = "surface::surface::p1::Surface::convert_domain";
 const OP_BOX: &str = "surface::surface::p1::Surface::calculate_bounding_box";
 
+/// Why a polar box of a curve-bounded or STEP surface is refused.
+pub(crate) const POLAR_RECURSION: &str = "SmSurface::CalculateBoundingBox of a polar box on a curve-bounded or STEP surface recurses without bound upstream (plan/upstream-issues.md UB-81)";
+
 /// The default `d3DTolerance` of `IsDegeneratePoint` and `dOpt3DTol` of
 /// `IsDegenerateCurve` (`SM_ZONE_TOL_3D / 10.0`).
 pub const DEGENERATE_TOL_3D: f64 = crate::geom::tol::ZONE_TOL_3D / 10.0;
@@ -465,10 +468,11 @@ impl StepSurface {
                 knots.push(hi);
             }
             Some(ivl) => {
-                if ivl.contains_value(lo, EFF_ZERO) {
+                // (ContainsValue's default tolerance: 0)
+                if ivl.contains_value(lo, 0.0) {
                     knots.push(lo);
                 }
-                if ivl.contains_value(hi, EFF_ZERO) {
+                if ivl.contains_value(hi, 0.0) {
                     knots.push(hi);
                 }
             }
@@ -1269,26 +1273,19 @@ impl Surface {
                         "topology.face_p2",
                     ));
                 }
-                let plane_base;
-                let bs = match self.kind() {
-                    SurfaceKind::BSpline(s) => s,
-                    SurfaceKind::Plane(p) => {
-                        plane_base = p.base_for_query();
-                        &*plane_base
-                    }
+                let req = crate::nurbs::b_spline_surface::BoundingBoxRequest {
+                    normal: want[0],
+                    pseudo: want[1],
+                    polar: want[2],
+                    pseudo_guess: None,
+                    polar_guess: None,
+                    expand_by_zone_tol: expand_pos_boxes_by_zone_tol_3d,
+                };
+                let r = match self.kind() {
+                    SurfaceKind::BSpline(s) => s.calculate_bounding_box(uv_domain, &req)?,
+                    SurfaceKind::Plane(p) => plane_bounding_box(p, uv_domain, &req)?,
                     _ => unreachable_kind()?,
                 };
-                let r = bs.calculate_bounding_box(
-                    uv_domain,
-                    &crate::nurbs::b_spline_surface::BoundingBoxRequest {
-                        normal: want[0],
-                        pseudo: want[1],
-                        polar: want[2],
-                        pseudo_guess: None,
-                        polar_guess: None,
-                        expand_by_zone_tol: expand_pos_boxes_by_zone_tol_3d,
-                    },
-                )?;
                 Ok(SurfaceBoxes {
                     normal_box: r.normal,
                     pseudo_box: r.pseudo,
@@ -1313,6 +1310,12 @@ impl Surface {
         want: [bool; 3],
         expand_pos_boxes_by_zone_tol_3d: bool,
     ) -> Result<SurfaceBoxes> {
+        // a polar box asks the cache's top node for it, whose build asks this
+        // surface's CalculateBoundingBox again: upstream recurses without bound
+        if want[2] {
+            return Err(SolidError::invalid_input(OP_BOX, POLAR_RECURSION));
+        }
+
         // get or create SurfaceCache with Subdivision Tree containing Bounding boxes
         let mut cache = get_surface_cache::<()>(k, self, None)?;
         let top = cache
@@ -1389,7 +1392,8 @@ impl Surface {
         let uv_mid = dom.evaluate(param, param);
 
         let SurfaceKind::BSpline(bs) = self.kind() else {
-            // UNPORTED(curve.iso_curve): SmIsoCurve over a non-B-spline surface
+            // DISPATCH GAP: SmIsoCurve::SmIsoCurve (curve.iso_curve, ported; no UNPORTED
+            // marker: the ported iso curve holds an SmBSplineSurface, not any surface)
             return Err(SolidError::unported(
                 "SmIsoCurve over a non-B-spline surface",
                 "curve.iso_curve",
@@ -1730,6 +1734,35 @@ fn knot_at(knots: &[f64], i: usize) -> Result<f64> {
         "surface::surface::p1::Surface::domain_with_continuity",
         "fewer knots than continuities",
     ))
+}
+
+/// `SmBSplineSurface::CalculateBoundingBox` on an `SmPlane`: the B-spline body on the
+/// plane's B-spline part for the normal and pseudo boxes; the polar box comes from the
+/// virtual `EvaluateNormal`, the plane's axis (`SmPlane::EvaluateNormal`), so it is the
+/// box of that one vector (planar and analytic: no basis guess).
+///
+/// # Errors
+///
+/// Those of the B-spline body.
+pub(crate) fn plane_bounding_box(
+    plane: &Plane,
+    uv_domain: &Extent2d,
+    req: &crate::nurbs::b_spline_surface::BoundingBoxRequest<'_>,
+) -> Result<crate::nurbs::b_spline_surface::BoundingBoxes> {
+    let base_req = crate::nurbs::b_spline_surface::BoundingBoxRequest {
+        polar: false,
+        polar_guess: None,
+        ..*req
+    };
+    let mut r = plane
+        .base_for_query()
+        .calculate_bounding_box(uv_domain, &base_req)?;
+    if req.polar {
+        let mut pb = PolarBox::new();
+        pb.add_vector(plane.evaluate_normal(), None);
+        r.polar = Some(pb);
+    }
+    Ok(r)
 }
 
 /// The `match` arm that cannot be reached (kinds already narrowed).

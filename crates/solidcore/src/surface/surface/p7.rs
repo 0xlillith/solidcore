@@ -803,6 +803,14 @@ impl Surface {
                 })
             }
             SurfaceKind::BSpline(s) => {
+                // the box expansion uses the owning face's tolerance
+                if self.face()?.is_some() {
+                    // UNPORTED(topology.face_p2): SmFace::GetTolerance
+                    return Err(SolidError::unported(
+                        "SmFace::GetTolerance",
+                        "topology.face_p2",
+                    ));
+                }
                 Ok(planar_of(s, &self.natural_uv_domain())?.is_planar(tol_3d))
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
@@ -2029,8 +2037,8 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
             // SurfaceCache::patch(node) of the surface's cache. DISPATCH GAP: the
             // constructor (SpGlobalSolver::new, surface::surface::p1) takes the trees as
             // upstream does, and a Tree does not reach its cache; handing the caches over
-            // needs them mutable (the polar boxes are built lazily).
-            // UNPORTED(surface.surface_p1): SmSPGlobalSolver::SmSPGlobalSolver
+            // needs them mutable (the polar boxes are built lazily). No UNPORTED marker:
+            // the constructor is ported.
             // (then the point inside the pseudo box, else the polar box of the vectors to
             // its 8 corners against the patch's polar box)
             return Err(SolidError::unported(
@@ -2114,8 +2122,8 @@ impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
                 // two surface caches. DISPATCH GAP: the constructor (SsGlobalSolver::new,
                 // surface::surface::p1) takes the trees as upstream does, and a Tree does
                 // not reach its cache; handing the caches over needs them mutable (the
-                // polar boxes are built lazily).
-                // UNPORTED(surface.surface_p1): SmSSGlobalSolver::SmSSGlobalSolver
+                // polar boxes are built lazily). No UNPORTED marker: the constructor is
+                // ported.
                 // (then sm_IsNodeValid of both nodes, returning SM_SUCCESS = FALSE when
                 // outside, ComputeConeBoundTo and the polar box cone tests)
                 return Err(SolidError::unported(
@@ -2174,8 +2182,8 @@ fn evaluate_step(surface: &Surface, uv: Point2) -> Result<Vec<Vec<Vec3>>> {
 fn is_node_valid<O>(_node: &crate::geom::tree::TreeNode<O>) -> Result<bool> {
     // DISPATCH GAP: sm_IsNodeValid (surface::surface::p1::is_node_valid) reads the
     // point-test state of the surface cache owning the node's tree; a Tree does not
-    // reach its owning cache, so the solver cannot pass it yet.
-    // UNPORTED(surface.surface_p1): sm_IsNodeValid
+    // reach its owning cache, so the solver cannot pass it yet (no UNPORTED marker: the
+    // callee is ported).
     Err(SolidError::unported("sm_IsNodeValid", "surface.surface_p1"))
 }
 
