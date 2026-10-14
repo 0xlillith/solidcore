@@ -9,7 +9,7 @@
 //!
 //! | Rust                                                  | Upstream                                   |
 //! |-------------------------------------------------------|--------------------------------------------|
-//! | [`SurfaceIntersector::find_boundary_start_points`]    | `FindBoundaryStartPoints`                  |
+//! | [`SurfaceIntersector::find_boundary_start_points`], [`SurfaceIntersector::find_boundary_start_points_with_caches`] | `FindBoundaryStartPoints` |
 //! | [`SurfaceIntersector::compute_next_point`], [`NextPoint`] | `ComputeNextPoint`                     |
 //! | [`SurfaceIntersector::update_tsect_point`]            | `sm_UpdateTsectPoint` (static)             |
 //! | [`SurfaceIntersector::test_point`]                    | `TestPoint`                                |
@@ -33,12 +33,15 @@
 //!   `ComputeNextPoint`'s deviation and angle are `None` when upstream leaves them
 //!   unset. `SplitSpan` returns the new point's id. `FindBoundaryStartPoints`'
 //!   output arrays are a [`TsectCurves`] (part 2).
-//! - **Surface caches.** `smsurf_GetSurfaceCache` (`surface.surface_p1`) cannot
-//!   hand out caches yet, so [`SurfaceIntersector::find_boundary_start_points`]
-//!   takes the caches of the surfaces as an argument, as the surface tracer does.
-//!   Their `process_boundary_curves` flags are set for the call and restored on every
-//!   exit (`SmTemporaryChangeValue`). The temporary removal of the other surface's
-//!   owner (point validation) has no counterpart: Rust surfaces have no owner.
+//! - **Surface caches.** `smsurf_GetSurfaceCache` ([`surface_cache`]) builds a
+//!   fresh cache per call (the cache store keeps none), so the one of each surface
+//!   is fetched once per call (once for a self intersection, where upstream gets
+//!   the same cache twice); a surface without one is `SM_ERR_NULL_POINTER` (`NER`).
+//!   Their `process_boundary_curves` flags are set as upstream's
+//!   `SmTemporaryChangeValue`s set them; a callee that fetches its own cache does not
+//!   see them. [`SurfaceIntersector::find_boundary_start_points_with_caches`] takes
+//!   the caches from the caller instead (only their iso boundary curves are read). The temporary removal of the other surface's owner (point validation)
+//!   has no counterpart: Rust surfaces have no owner.
 //! - **Points of `FindBoundaryStartPoints`.** Upstream takes a point from the block
 //!   manager for every solution and leaks those it does not keep; here a solution's
 //!   point is a local [`TsectPnt::zeroed`] value that gets its arena slot when it
@@ -78,6 +81,7 @@ use crate::math::{max2, EFF_ZERO, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::p2::BoundingBoxRequest;
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
+use crate::surface::surface::p2::surface_cache;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::surface_cache::SurfaceCache;
@@ -226,16 +230,46 @@ impl SurfaceIntersector<'_> {
     /// dropped onto both surfaces, kept when within `this_approx_tol_3d` of both, with
     /// its type; start points and crossings on it are then dropped.
     ///
-    /// `caches` are the surface caches (`smsurf_GetSurfaceCache`): `caches[0]` of the
-    /// first surface, `caches[1]` (or `caches[0]` when only one is given, as for a
-    /// self intersection) of the second.
+    /// # Errors
+    ///
+    /// `SM_ERR_NULL_POINTER` for a surface without a surface cache; those of the iso
+    /// curves, the bounding boxes, the evaluations, the trims and the curve solves;
+    /// [`SolidError::Unported`] from unported callees.
+    pub fn find_boundary_start_points(
+        &mut self,
+        k: &Kernel,
+        intersection_box: &Extent3d,
+        out: &mut TsectCurves,
+    ) -> Result<()> {
+        // get surface caches (NER: no cache is SM_ERR_NULL_POINTER)
+        let get = |s: &Surface| match surface_cache::<()>(k, s, None) {
+            Ok(c) => Ok(c),
+            Err(e) if e.is_unported() => Err(e),
+            Err(_) => Err(SolidError::Upstream {
+                operation: OP_FBSP,
+                code: SM_ERR_NULL_POINTER,
+                entity: None,
+            }),
+        };
+        let mut caches = vec![get(self.surface(SrfIndex::First))?];
+        if !self.doing_self_intersection {
+            caches.push(get(self.surface(SrfIndex::Second))?);
+        }
+
+        self.find_boundary_start_points_with_caches(k, &mut caches, intersection_box, out)
+    }
+
+    /// [`SurfaceIntersector::find_boundary_start_points`] with the given surface
+    /// caches: `caches[0]` of the first surface, `caches[1]` (or `caches[0]` when only
+    /// one is given, as for a self intersection) of the second. Only their iso boundary
+    /// curves are used; their `process_boundary_curves` flags are set for the call and
+    /// restored on every exit (`SmTemporaryChangeValue`).
     ///
     /// # Errors
     ///
-    /// `SM_ERR_NULL_POINTER` without a cache; those of the iso curves, the bounding
-    /// boxes, the evaluations, the trims and the curve solves;
-    /// [`SolidError::Unported`] from unported callees.
-    pub fn find_boundary_start_points<O: Copy + PartialEq>(
+    /// `SM_ERR_NULL_POINTER` without a cache; else as
+    /// [`SurfaceIntersector::find_boundary_start_points`].
+    pub fn find_boundary_start_points_with_caches<O: Copy + PartialEq>(
         &mut self,
         k: &Kernel,
         caches: &mut [SurfaceCache<O>],
@@ -1278,7 +1312,7 @@ impl SurfaceIntersector<'_> {
 fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
             Err(SolidError::unported(
                 "SmSurface::IsSingularity",
@@ -1514,14 +1548,25 @@ mod tests {
     }
 
     #[test]
-    fn find_boundary_start_points_needs_a_cache() {
+    fn find_boundary_start_points_with_a_far_box_finds_nothing() {
         let (a, b) = two_planes();
         let mut si = intersector(&a, &b);
+        si.set_use_surface_edges(false, false);
         let k = Kernel::default();
         let mut out = TsectCurves::default();
-        let mut caches: Vec<SurfaceCache<()>> = Vec::new();
+        let far = Extent3d::from_bounds(50.0, 50.0, 50.0, 51.0, 51.0, 51.0);
+        // (the surface cache tree build is not ported: no fetched cache)
+        let mut caches = vec![SurfaceCache::<()>::new(
+            a.clone(),
+            a.natural_uv_domain(),
+            crate::surface::surface_cache::SurfaceCacheOptions::default(),
+        )];
+        si.find_boundary_start_points_with_caches(&k, &mut caches, &far, &mut out)
+            .expect("fbsp");
         assert!(si
-            .find_boundary_start_points(&k, &mut caches, &Extent3d::new(), &mut out)
+            .find_boundary_start_points_with_caches::<()>(&k, &mut [], &far, &mut out)
             .is_err());
+        assert!(out.curves_3d.is_empty());
+        assert!(si.start_points().is_empty());
     }
 }

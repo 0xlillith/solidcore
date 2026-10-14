@@ -20,12 +20,17 @@
 //! curve-bounded surfaces; `FindBoundaryStartPoints` of B-spline bumps and planes with
 //! intersection boxes that miss or meet the boundaries; `SplitSpan`.
 //!
+//! `FindBoundaryStartPoints` of planes and B-spline surfaces runs with fresh surface
+//! caches (`find_boundary_start_points_with_caches`, see `Run::caches`); with a
+//! curve-bounded surface it fetches them (`smsurf_GetSurfaceCache`).
+//!
 //! Deferred cases: `ComputeNextPoint` refining a crossing, tangent-curve or singular
 //! point (`SmSurface::LocalSurfaceIntersect`), `ComputePointValues` on a B-spline or
-//! curve-bounded surface (`SmSurface::IsSingularity`), `FindBoundaryStartPoints` with a
-//! curve-bounded surface (`smsurf_GetSurfaceCache`, see `Run::caches`) or with
-//! a boundary box meeting the intersection box (`SmSurface::GlobalCurveIntersect`) or
-//! on a plane (`SmPlane::CreateIsoParametricCurve`), and `SplitSpan` with a valid plane
+//! curve-bounded surface (`SmSurface::IsSingularity`) or near a tangency
+//! (`SmSurface::LocalSurfaceSolve`), `FindBoundaryStartPoints` with a boundary box
+//! meeting the intersection box (`SmSurface::GlobalCurveIntersect`), on a plane
+//! (`SmPlane::CreateIsoParametricCurve`) or with a curve-bounded surface (the cache
+//! build's `CalculateContinuities`), and `SplitSpan` with a valid plane
 //! (`SmFilletLaw::Evaluate`).
 
 use serde::{Deserialize, Serialize};
@@ -1039,24 +1044,23 @@ struct Run<'a> {
 }
 
 impl Run<'_> {
-    /// The surface caches (made on first use, kept as upstream keeps them on the
-    /// surfaces): `smsurf_GetSurfaceCache` (`surface.surface_p1`, not ported) stood in
-    /// for by a fresh cache of a plane or B-spline surface. For a curve-bounded
-    /// surface upstream builds (and here fails to build) a trimmed-surface cache, which
-    /// has no stand-in: the case is deferred.
-    fn caches(&mut self) -> Result<&mut Vec<SurfaceCache<()>>, Fail> {
+    /// The surface caches for `FindBoundaryStartPoints` of planes and B-spline
+    /// surfaces: fresh caches without a tree (kept as upstream keeps them on the
+    /// surfaces). `smsurf_GetSurfaceCache` builds the tree, which reaches the unported
+    /// `CalculateContinuities` (`surface.surface_p6`), but `FindBoundaryStartPoints`
+    /// reads only the cache's iso boundary curves, which are the same either way.
+    /// `None` (the real `smsurf_GetSurfaceCache`) for a curve-bounded surface, whose
+    /// trimmed-surface cache build fails upstream.
+    fn caches(&mut self) -> Option<&mut Vec<SurfaceCache<()>>> {
         let surfaces = self.surfaces;
         if surfaces
             .iter()
             .any(|s| matches!(s.kind(), SurfaceKind::CurveBounded(_)))
         {
-            return Err(Fail::Deferred(Box::new(Output::deferred(
-                "surface.surface_p1",
-                "smsurf_GetSurfaceCache",
-            ))));
+            return None;
         }
         let same = self.same;
-        Ok(self.caches.get_or_insert_with(|| {
+        Some(self.caches.get_or_insert_with(|| {
             let make = |s: &Surface| {
                 SurfaceCache::new(s.clone(), s.natural_uv_domain(), SurfaceCacheOptions::default())
             };
@@ -1201,16 +1205,12 @@ fn run_op(run: &mut Run<'_>, si: &mut SurfaceIntersector<'_>, op: &OpIn, o: &mut
             let bx = Extent3d::from_bounds(
                 bbox[0][0], bbox[0][1], bbox[0][2], bbox[1][0], bbox[1][1], bbox[1][2],
             );
-            let mut outs = core::mem::take(&mut run.outs);
             let k = Kernel::default();
-            let caches = match run.caches() {
-                Ok(c) => c,
-                Err(e) => {
-                    run.outs = outs;
-                    return Err(e);
-                }
+            let mut outs = core::mem::take(&mut run.outs);
+            let r = match run.caches() {
+                Some(caches) => si.find_boundary_start_points_with_caches(&k, caches, &bx, &mut outs),
+                None => si.find_boundary_start_points(&k, &bx, &mut outs),
             };
-            let r = si.find_boundary_start_points(&k, caches, &bx, &mut outs);
             run.outs = outs;
             st(o, r)?;
             put_outs(o, &run.outs, run.curves.len())?;
