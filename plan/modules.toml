@@ -1596,7 +1596,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "3 fns; largest: SmCSIGlobalSolver::LocalSolve, SmSurface::FindTessellationSplits, SmSurface::CreateIsoBoundaries; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(4), surface.surface_p1(3), surface.surface_p7(2), surface.surface_p4(1), surface.surface_p6(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; Review validation: 744 cases, 692 bit-identical, 0 failed, 52 deferred (intersect.curve_class_p4 50, surface.surface_p1 2); --perturb detected 692/692; max_rel_err=0. CSI body remains unverified behind sm_GetSurfaceToEvaluate; surface_p7 IsClosed and tangent-plane drop are wired; tessellation recursion/allocation bounded
+notes = "3 fns; largest: SmCSIGlobalSolver::LocalSolve, SmSurface::FindTessellationSplits, SmSurface::CreateIsoBoundaries; cycle back-edges (call into later units; stub or co-port): surface.surface_p5(4), surface.surface_p1(3), surface.surface_p7(2), surface.surface_p4(1), surface.surface_p6(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; Review validation: 744 cases, 692 bit-identical, 0 failed, 52 deferred (intersect.curve_class_p4 50, surface.surface_p1 2); --perturb detected 692/692; max_rel_err=0. CSI body remains unverified behind sm_GetSurfaceToEvaluate; surface_p7 IsClosed and tangent-plane drop are wired; tessellation recursion/allocation bounded"
 
 [[unit]]
 id = "surface.trim_srf_cache"
