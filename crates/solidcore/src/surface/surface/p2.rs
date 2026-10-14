@@ -1042,14 +1042,18 @@ impl Surface {
                 Ok(Self::from(SurfOfRevolution::read_from_db(k, db, version)?))
             }
             CONE_TYPE | CYLINDER_TYPE => {
-                // SmCone::ReadFromDB / SmCylinder::ReadFromDB: the cone's own data, then
-                // the surface of revolution (which returns Unported today)
+                // SmCone::ReadFromDB / SmCylinder::ReadFromDB read the whole record.
                 let _cone = Cone::read_from_db(k, db, version, surface_type == CYLINDER_TYPE)?;
-                // UNPORTED(surface.surf_of_revolution_p3): the cone joins SurfaceKind with
-                // the remaining SmSurfOfRevolution overrides (SmSurfOfRevolution::ReadFromDB)
+                // DISPATCH GAP: the cone is not a SurfaceKind yet (no variant with its
+                // SmSurface overrides), so no Surface can hold it (no UNPORTED marker:
+                // the reader is ported; the error names the cone's unit).
                 Err(SolidError::unported(
-                    "SmSurfOfRevolution::ReadFromDB",
-                    "surface.surf_of_revolution_p3",
+                    if surface_type == CYLINDER_TYPE {
+                        "SmCylinder::ReadFromDB"
+                    } else {
+                        "SmCone::ReadFromDB"
+                    },
+                    "surface.cone_p1",
                 ))
             }
             // UNPORTED(surface.sphere): SmSphere::ReadFromDB
@@ -1057,14 +1061,14 @@ impl Surface {
                 "SmSphere::ReadFromDB",
                 "surface.sphere",
             )),
-            // (SmTorus::ReadFromDB reads the torus record, then needs the unported
-            // SmSurfOfRevolution record; the torus is not a SurfaceKind yet)
-            TORUS_TYPE => Err(Torus::read_from_db(db, version).err().unwrap_or_else(|| {
-                SolidError::unported(
-                    "SmSurfOfRevolution::ReadFromDB",
-                    "surface.surf_of_revolution_p3",
-                )
-            })),
+            TORUS_TYPE => {
+                // SmTorus::ReadFromDB reads the whole record.
+                let _torus = Torus::read_from_db(k, db, version)?;
+                // DISPATCH GAP: the torus is not a SurfaceKind yet (no variant with its
+                // SmSurface overrides), so no Surface can hold it (no UNPORTED marker:
+                // the reader is ported; the error names the torus's unit).
+                Err(SolidError::unported("SmTorus::ReadFromDB", "surface.torus"))
+            }
             CURVE_BOUNDED_SURFACE_TYPE => Ok(Self::from(CurveBoundedSurface::read_from_db(
                 k, db, version,
             )?)),
@@ -1132,7 +1136,10 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
-            _ => base_global_surface_intersect(
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_) => base_global_surface_intersect(
                 self,
                 uv_domain,
                 other,

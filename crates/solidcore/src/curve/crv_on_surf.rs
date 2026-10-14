@@ -189,10 +189,9 @@ fn surface_read_from_db(
             "SmSurface virtuals of an SmSTEPSurface",
             "curve.crv_on_surf",
         )),
-        // UNPORTED(surface.surface_p1): SmSurface dispatch for an SmSurfOfRevolution
         SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
             "SmSurface virtuals of an SmSurfOfRevolution",
-            "surface.surface_p1",
+            "curve.crv_on_surf",
         )),
     }
 }
