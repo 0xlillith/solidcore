@@ -276,11 +276,6 @@ fn run_enfo<E: EvalNFunctions>(
         match stat(e.evaluate(x, &mut f, Some(&mut jac)))? {
             Ok(found) => {
                 o.extend([0.0, b(found)]);
-                if found {
-                    // upstream returns early: only the last function value is set
-                    o.push(f.last().copied().unwrap_or(0.0));
-                    continue;
-                }
                 o.extend_from_slice(&f);
                 for r in 0..dim {
                     for c in 0..dim {

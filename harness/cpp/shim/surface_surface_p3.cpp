@@ -601,12 +601,6 @@ void eval_enfo(Enfo& e, int n, const std::vector<double>& x, std::vector<double>
     if (r == SM_SUCCESS)
     {
         o.push_back(flg(found));
-        if (found)
-        {
-            // upstream returns early: only the last function value is set
-            o.push_back(F[n - 1]);
-            return;
-        }
         for (int i = 0; i < n; i++)
             o.push_back(F[i]);
         for (int i = 0; i < n; i++)

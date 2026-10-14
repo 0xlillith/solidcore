@@ -711,7 +711,7 @@ impl Surface {
 
         // We're going to have to expand ourselves right away.
         let big_domain = self.max_analytic_domain()?;
-        if big_domain.is_degenerate(EFF_ZERO) {
+        if big_domain.is_degenerate(0.0) {
             return Ok(failure);
         }
 
@@ -728,6 +728,7 @@ impl Surface {
 
         // upstream ignores the status of the point evaluations
         let mut pt = Vec3::UNDEF;
+        let mut pt2 = Vec3::UNDEF; // keeps its last value when an evaluation fails
         let mut max_dist = -1.0;
 
         // Before even doing corners, just check one point in the middle.  This can rule
@@ -778,7 +779,9 @@ impl Surface {
                 new_domain.add_point(uv_this);
 
                 // Check max distance.
-                let pt2 = self.evaluate_step_point(uv_this)?;
+                if let Some(p) = ignored(self.evaluate_step_point(uv_this))? {
+                    pt2 = p;
+                }
                 let dist = pt.distance(pt2);
                 max_dist = max2(dist, max_dist);
 
@@ -859,7 +862,9 @@ impl Surface {
                 }
 
                 // Check max distance.
-                let pt2 = self.evaluate_step_point(uv_this)?;
+                if let Some(p) = ignored(self.evaluate_step_point(uv_this))? {
+                    pt2 = p;
+                }
                 let dist = pt.distance(pt2);
                 max_dist = max2(dist, max_dist);
 
@@ -946,7 +951,9 @@ impl Surface {
                 }
 
                 // Check max distance.
-                let pt2 = self.evaluate_step_point(drop_uv)?;
+                if let Some(p) = ignored(self.evaluate_step_point(drop_uv))? {
+                    pt2 = p;
+                }
                 let dist = pt.distance(pt2);
                 max_dist = max2(dist, max_dist);
 

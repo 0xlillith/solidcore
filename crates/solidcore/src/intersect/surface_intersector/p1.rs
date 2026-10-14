@@ -71,12 +71,9 @@
 //! - **Surface calls.** `SmSurface::IsClosed`, `SmSurface::EvaluateNormal` and
 //!   `SmSurface::Evaluate1stDerivatives` go through `surface::surface::p7` (the
 //!   last co-ported there from unit `surface.surface_p1`).
-//! - **Unported callees.** `SmSurface::EvaluateGeometric`
-//!   (`surface.surface_p3`), `smsurf_EvaluateNormalSection` (`surface.surface_p1`),
-//!   `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
+//! - **Unported callees.** `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
 //!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
-//!   `SmSurface::LocalPlaneSurfaceIntersect` (`surface.surface_p3`),
 //!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
 //!   `SmOffsetSurface::SetOffsetDistance` (`surface.offset_surface`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are ignored, except
@@ -101,6 +98,7 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::TsectCurveType;
+use crate::surface::surface::p4::evaluate_normal_section as smsurf_evaluate_normal_section;
 use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
 
@@ -1740,12 +1738,9 @@ fn surface_evaluate_geometric(surface: &Surface, uv: Point2) -> Result<Principal
 }
 
 /// `smsurf_EvaluateNormalSection(eval, direction, ..)`: the curvature in `direction`.
-fn evaluate_normal_section(_eval: &[[Vec3; 3]; 3], _direction: Vec3) -> Result<f64> {
-    // UNPORTED(surface.surface_p1): smsurf_EvaluateNormalSection
-    Err(SolidError::unported(
-        "smsurf_EvaluateNormalSection",
-        "surface.surface_p1",
-    ))
+fn evaluate_normal_section(eval: &[[Vec3; 3]; 3], direction: Vec3) -> Result<f64> {
+    let mut eval = *eval;
+    Ok(smsurf_evaluate_normal_section(&mut eval, direction)?.curvature)
 }
 
 /// `crSurface.LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, ..)`: found flag

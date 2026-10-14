@@ -177,7 +177,7 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             guess(&mut rd, dom)?;
             guess(&mut rd, d2)?;
             rd.vec3()?;
-            rd.nonzero3()?;
+            rd.vec3()?; // a zero plane normal is fine: Unitize gives (0, 0, 1)
         }
         Op::LocalSolve => {
             let d2 = surface(&mut rd)?;
