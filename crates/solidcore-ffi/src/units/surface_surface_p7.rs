@@ -45,7 +45,8 @@
 //! domains inside a B-spline's natural domain, solver operations each function supports
 //! (the signed directed ones with a vector, `AT_DISTANCE` with a target), B-spline
 //! surfaces for the global and local solves and the projection, `h <= 4`, location codes
-//! `0..=5`.
+//! `0..=5`. Inputs are finite, except that the projection vector may have a NaN
+//! component (`ZERO_VEC_ER` rejects it first).
 
 use crate::{call_with_buffer, FfiError};
 
@@ -147,6 +148,19 @@ impl Reader<'_> {
 
     fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
         Ok([self.finite()?, self.finite()?, self.finite()?])
+    }
+
+    /// A vector that is finite, or has a NaN component (upstream's `ZERO_VEC_ER`
+    /// then fails before anything reads it).
+    fn finite_or_nan3(&mut self) -> Result<[f64; 3], FfiError> {
+        let v = [self.num()?, self.num()?, self.num()?];
+        if v.iter().any(|c| c.is_nan()) {
+            return Ok(v);
+        }
+        if v.iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+            return Err(bad("non-finite or huge value"));
+        }
+        Ok(v)
     }
 
     fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
@@ -509,7 +523,7 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             let d = bspline_only(dom)?;
             domain_in(&mut rd, Some(d))?;
             curve(&mut rd)?;
-            rd.vec3()?;
+            rd.finite_or_nan3()?;
             if target(&mut rd)? && rd.input.get(rd.at - 1).is_some_and(|&t| t <= 0.0) {
                 return Err(bad("projection distance must be positive"));
             }

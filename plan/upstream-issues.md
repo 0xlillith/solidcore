@@ -778,15 +778,6 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
-#### UB-78. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
-- **Location:** `SmSurface.cpp:22280` (and `:22299`), `SmSurface::IsClosed` (def. `:22157`).
-- **What happens:** The status of `smgu_EvaluateCurveContinuity` is ignored, and the local `eCurveContinuity` it should set is then compared with the running minimum and may be returned through `peOptContinuity`.
-- **Trigger:** `IsClosed(..., &continuity)` on a surface whose boundary derivatives make the continuity evaluation fail.
-- **How found:** read during porting.
-- **Confirmed:** no.
-- **Severity:** crash/UB (uninitialised read).
-- **Rust port:** Propagates the error.
-
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration

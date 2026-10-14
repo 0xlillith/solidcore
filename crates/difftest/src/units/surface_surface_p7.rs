@@ -17,9 +17,9 @@
 //! Deferred cases: the global solves and the parallel projection (surface cache,
 //! `surface.surface_p1` / `surface.surface_cache_p3`), the local curve solve
 //! (`SmCSNormalizeENFO`), the Newton step of `FindDegenParamForDirection`, `GetFlatCorners`
-//! (`IsFlatCorner`), `sm_CheckSeamDrop` on a seam (`EvaluateSTEP`) and `SmPlane::IsClosed`
-//! (`surface.plane_p2`). The solvers' `BranchMayContainAnswers` need surface cache trees and
-//! are not run here.
+//! (`IsFlatCorner`) and `sm_CheckSeamDrop` on a seam (`EvaluateSTEP`). Planes are compared
+//! (`SmPlane::IsClosed` and `EvaluateNormal` overrides). The solvers'
+//! `BranchMayContainAnswers` need surface cache trees and are not run here.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -213,7 +213,13 @@ enum OpIn {
         guess_uv: [f64; 2],
         guess_t: f64,
     },
-    Proj { dom: [f64; 4], curve: CrvIn, vec: [f64; 3], dist: Option<f64> },
+    Proj {
+        dom: [f64; 4],
+        curve: CrvIn,
+        #[serde(with = "non_finite3")]
+        vec: [f64; 3],
+        dist: Option<f64>,
+    },
     LoadGuesses { dom: [f64; 4], p: [f64; 3], sop: u8 },
     PassSc { uv: [f64; 2], curve: CrvIn, t: f64 },
     PassSs { uv: [f64; 2], other: SrfIn, uv2: [f64; 2] },
@@ -232,6 +238,32 @@ enum OpIn {
 struct Inputs {
     surface: SrfIn,
     op: OpIn,
+}
+
+/// A `[f64; 3]` whose entries may be `"NaN"`, `"inf"` or `"-inf"` (JSON has no
+/// non-finite numbers).
+mod non_finite3 {
+    use serde::de::Error;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde_json::Value;
+
+    use crate::json::num;
+
+    pub fn serialize<S: Serializer>(v: &[f64; 3], s: S) -> Result<S::Ok, S::Error> {
+        v.map(num).serialize(s)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<[f64; 3], D::Error> {
+        let float = |v: &Value| match v {
+            Value::Number(n) => n.as_f64().ok_or_else(|| D::Error::custom(format!("bad number {n}"))),
+            Value::String(s) if s == "NaN" => Ok(f64::NAN),
+            Value::String(s) if s == "inf" => Ok(f64::INFINITY),
+            Value::String(s) if s == "-inf" => Ok(f64::NEG_INFINITY),
+            other => Err(D::Error::custom(format!("bad float {other}"))),
+        };
+        let [a, b, c] = <[Value; 3]>::deserialize(d)?;
+        Ok([float(&a)?, float(&b)?, float(&c)?])
+    }
 }
 
 // ---- C++ side -----------------------------------------------------------------------
@@ -1477,7 +1509,13 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
         35 if !is_plane => OpIn::Proj {
             dom: gen_dom(rng, s),
             curve: gen_curve(rng),
-            vec: if rng.chance(0.7) { [0.0; 3] } else { [0.0, 0.0, 1.0] },
+            // a NaN vector fails ZERO_VEC_ER like a zero one (an infinite one would
+            // reach the upstream intersector with NaN geometry)
+            vec: match rng.below(10) {
+                0..=5 => [0.0; 3],
+                6 | 7 => [0.0, f64::NAN, 1.0],
+                _ => [0.0, 0.0, 1.0],
+            },
             dist: None,
         },
         36 => OpIn::LoadGuesses {

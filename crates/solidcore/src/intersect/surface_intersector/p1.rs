@@ -68,14 +68,10 @@
 //! - **`AddStartPoint`** keeps upstream's "replace a bounded start point by the exact
 //!   one" branch, which only reassigns a local pointer: the exact candidate is
 //!   dropped and the bounded point stays.
-//! - **Co-ported callees.** `SmSurface::IsClosed` (unit `surface.surface_p7`) is
-//!   ported here for the call the constructor makes (default tolerance, no
-//!   continuity): the `SmPlane` override, else the base body. Its callees
-//!   `SmSurface::EvaluateDirectionalDerivs` and `SmSurface::Evaluate1stDerivatives`
-//!   (unit `surface.surface_p1`) are one-line wrappers of the virtual `Evaluate`
-//!   and are ported here as well.
-//! - **Unported callees.** `SmSurface::EvaluateNormal` of a surface that is not a
-//!   plane (`surface.surface_p7`), `SmSurface::EvaluateGeometric`
+//! - **Surface calls.** `SmSurface::IsClosed`, `SmSurface::EvaluateNormal` and
+//!   `SmSurface::Evaluate1stDerivatives` go through `surface::surface::p7` (the
+//!   last co-ported there from unit `surface.surface_p1`).
+//! - **Unported callees.** `SmSurface::EvaluateGeometric`
 //!   (`surface.surface_p3`), `smsurf_EvaluateNormalSection` (`surface.surface_p1`),
 //!   `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),

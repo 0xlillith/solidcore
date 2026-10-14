@@ -2779,17 +2779,14 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `intersect.surface_intersector_p1`, PR #33, which this unit's functions replace).
 - **Mislabelled stub.** `b_spline_surface::p1::is_closed` was marked
   `UNPORTED(surface.surface_p5)` for `SmSurface::IsClosed`, which is this unit's; wired.
-  `b_spline_surface::p1::owner_zone_tolerance` is commented `GetFace` (`surface.surface_p1`)
-  but returns `SmSurface::IsSingularity` / `surface.surface_p5`; left as is (not this unit's),
-  but note that it is why `IsPlanar` of a B-spline defers on `GetFace`.
+  `IsPlanar` of a B-spline defers on `SmSurface::GetFace` (`surface.surface_p1`), reached
+  through `b_spline_surface::p1::owner_zone_tolerance`.
 - **Upstream quirks kept.** `GetFlatCorners` masks its return with `&=` while filling the
   points; `SmSSGlobalSolver::BranchMayContainAnswers` returns `SM_SUCCESS` (`FALSE`) for a
   node outside its face and `NER`'s status (`TRUE`) for a missing patch; `sm_GoodDropResult`
   swaps the guess/result distance names; `FindDegenParamForDirection` compares a sample
   fraction with the parameter `dS`, and on Newton failure returns `SM_ERR` with `rUV` moved
-  (the port returns `DegenParam { converged: false }`). `IsClosed` ignores the status of
-  `smgu_EvaluateCurveContinuity` and reads its uninitialised output on failure; the port
-  propagates the error instead (no generated or fixture case reaches it).
+  (the port returns `DegenParam { converged: false }`).
 - **Not difftested.** `SmSPGlobalSolver` / `SmSSGlobalSolver::BranchMayContainAnswers` need
   surface cache trees with Bezier patch data (`surface.surface_cache_p3`); their non-normalize
   path is the green base `SmGlobalSolver::BranchMayContainAnswers`. The shim's
