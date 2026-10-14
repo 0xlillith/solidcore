@@ -82,7 +82,6 @@ use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT, UNDEF_DOUBLE};
-use crate::nurbs::b_spline_surface::p2::IsoCurveOptions;
 use crate::nurbs::b_spline_surface::BSplineSurface;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::math::CPoint;
@@ -1885,50 +1884,19 @@ impl<'s> SurfPtSolveStepper<'s> {
         _param_on_crease: f64,
     ) -> Result<bool> {
         let b = &self.base;
-        // The iso curve (no curve: FALSE).
-        let iso_curve: Curve = match b.surface.kind() {
-            SurfaceKind::BSpline(s) => {
-                match s.create_iso_parametric_curve(
-                    k,
-                    which_param,
-                    crease_param_val,
-                    IsoCurveOptions::default(),
-                ) {
-                    Ok(r) => Curve::from(r.curve),
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::Plane(p) => {
-                match p.create_iso_parametric_curve(which_param, crease_param_val, None, false) {
-                    Ok(r) => Curve::from(r.curve),
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::SurfOfRevolution(s) => {
-                match s.create_iso_parametric_curve(k, which_param, crease_param_val, None) {
-                    Ok(r) => r.curve,
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                // the SmSurface body (surface.surface_p5), with the loose tolerance as
-                // upstream's approximation tolerance
-                match b.surface.create_iso_parametric_curve(
-                    k,
-                    which_param,
-                    crease_param_val,
-                    b.loose_tol,
-                    None,
-                    false,
-                ) {
-                    Ok(r) => r.curve,
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
+        // The iso curve (no curve: FALSE): the surface's CreateIsoParametricCurve, with
+        // the loose tolerance as the approximation tolerance of the base body.
+        let iso_curve: Curve = match b.surface.create_iso_parametric_curve(
+            k,
+            which_param,
+            crease_param_val,
+            b.loose_tol,
+            None,
+            false,
+        ) {
+            Ok(r) => r.curve,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Ok(false),
         };
 
         let domain = if which_param == SurfParamType::U {

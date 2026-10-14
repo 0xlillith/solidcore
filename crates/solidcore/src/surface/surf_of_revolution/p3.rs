@@ -172,17 +172,16 @@ impl SolutionObject for GenHandle {
 /// `SmSurface::LocalPointSolve(domain, operation, point, guess, ..)`: whether an answer
 /// was found and the solution.
 fn surface_local_point_solve<O: Copy>(
-    _surface: &SurfOfRevolution,
-    _domain: &Extent2d,
-    _operation: SolverOperation,
-    _point: Point3,
-    _guess: Point2,
+    surface: &SurfOfRevolution,
+    domain: &Extent2d,
+    operation: SolverOperation,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    // the SmSurface body (surface.surface_p5), on a Surface holding a copy
+    let surface = crate::surface::surface::Surface::from(surface.clone());
+    let r = surface.local_point_solve::<O>(domain, operation, point, guess)?;
+    Ok((r.found, r.solution))
 }
 
 /// `SmIsoCurve::LocalPropertyAnalysis(ivl, SM_CP_POINT_INVERSION, guess, NULL, &point,

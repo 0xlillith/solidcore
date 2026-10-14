@@ -5891,8 +5891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CreateIsoParametricCurve",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0583",
@@ -7399,8 +7399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CreateIsoParametricCurve",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0767",
@@ -8524,9 +8524,8 @@
   "cases_passed": 976,
   "cases_total": 1035,
   "deferred_by_unit": {
-    "surface.surface_p3": 30,
-    "surface.surface_p4": 27,
-    "surface.surface_p5": 2
+    "surface.surface_p3": 32,
+    "surface.surface_p4": 27
   },
   "max_rel_err": 0.0,
   "pass": true,
