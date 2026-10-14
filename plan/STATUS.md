@@ -844,6 +844,12 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
   extend `math.rs`, or re-export from it, rather than create duplicate types, and update
   `rust_module` to match. *Resolved for `Vec2`:* `geom.vector2d` moved `Vec2`/`Point2` into `geom::vector2d`
   and `math` re-exports them; `geom.vector3d` can do the same for `Vec3`.
+- **`SurfOfExtrusion` as a `SurfaceKind` needs an owner.** `Surface::read_from_db` reads
+  `SURF_OF_EXTRUSION_TYPE` records but defers them (a `DISPATCH GAP` whose error names the
+  partial unit `surface.surf_of_extrusion_p2`), because adding the variant means threading a `Kernel` through the
+  `Surface` dispatchers in `surface::surface::p2` and their callers (cross-unit refactor;
+  `plan/findings.md`, `surface.surf_of_extrusion_p2`). The coordinator should assign it to
+  a unit (or a refactor PR); 2 `topology.brep_data` cases wait on it.
 
 ## Surface tessellation and iso boundaries (2026-10-14, PR #6 review)
 
@@ -877,9 +883,8 @@ five deferrals are topology tolerance/edge access. Nonempty Shape construction,
 full face solving and the native undefined EdgeVertex cast are not certified.
 See the committed reports and findings for the exact owners and scope.
 
-Final local gates pass with the maintainer's revolution-dispatch correction
-(PR #68): formatting, strict plain/C++ Clippy, workspace/native tests, wasm and
+Final local gates pass with current official main's shared solver corrections: formatting, strict plain/C++ Clippy, workspace/native tests, wasm and
 license/source checks. Sensitivity detects 1,304/1,304 part-2 cases,
 3,248/3,248 part-1 cases and 611/611 tree cases. Full differential validation:
-140 units, 88 green, 52 partial, zero failed. The three default reports match
+141 units, 88 green, 53 partial, zero failed. The three default reports match
 the full-validation reports byte for byte.
