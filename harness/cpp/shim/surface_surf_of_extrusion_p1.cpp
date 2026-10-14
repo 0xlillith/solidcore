@@ -27,9 +27,11 @@
 #include <SmExtent1d.h>
 #include <SmExtent2d.h>
 #include <SmGeomUtility.h>
+#include <SmHyperbola.h>
 #include <SmLine.h>
 #include <SmNurbsCrv.h>
 #include <SmNurbsSrf.h>
+#include <SmParabola.h>
 #include <SmSolutionArray.h>
 #include <SmSurfOfExtrusion.h>
 #include <SmSurface.h>
@@ -69,6 +71,8 @@ enum : int32_t
     GK_LINE = 1,
     GK_CIRCLE = 2,
     GK_ELLIPSE = 3,
+    GK_HYPERBOLA = 4,
+    GK_PARABOLA = 5,
 };
 
 // Construction modes.
@@ -387,7 +391,8 @@ SmBSplineCurve* read_bspline(Rd& rd, const SmContext& ctx)
 }
 
 // A generator block `kind ...`: a B-spline curve, a line `a[3] b[3]` (its NURB made), a
-// circle `c[3] x[3] y[3] d0 d1 r` or an ellipse `c[3] x[3] y[3] d0 d1 rx ry`.
+// circle `c[3] x[3] y[3] d0 d1 r`, an ellipse `c[3] x[3] y[3] d0 d1 rx ry`, a hyperbola
+// `c[3] x[3] y[3] d0 d1 a b` or a parabola `c[3] x[3] y[3] d0 d1 f`.
 SmBSplineCurve* read_gen(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx();
@@ -422,6 +427,27 @@ SmBSplineCurve* read_gen(Rd& rd, const SmContext& ctx)
         double rx = rd.num();
         double ry = rd.num();
         return new (ctx) SmEllipse(c, x, y, SmExtent1d(d0, d1), rx, ry, 3, &ctx);
+    }
+    case GK_HYPERBOLA:
+    {
+        SmPoint3d c = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        double d0 = rd.num();
+        double d1 = rd.num();
+        double a = rd.num();
+        double b = rd.num();
+        return new (ctx) SmHyperbola(c, x, y, SmExtent1d(d0, d1), a, b, 3, &ctx);
+    }
+    case GK_PARABOLA:
+    {
+        SmPoint3d c = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        double d0 = rd.num();
+        double d1 = rd.num();
+        double f = rd.num();
+        return new (ctx) SmParabola(c, x, y, SmExtent1d(d0, d1), f, 3, &ctx);
     }
     default: return NULL;
     }

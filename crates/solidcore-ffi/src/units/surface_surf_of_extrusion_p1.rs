@@ -26,7 +26,9 @@
 //! positive weights or all non-rational, non-decreasing knots with end multiplicity
 //! `p + 1` and interior multiplicity at most `p`), non-degenerate lines, circles and
 //! ellipses with positive radii, independent axes and an angular domain inside `[-360,
-//! 360]` at most 360 long, finite vectors and points, constructor domains with `u0 <
+//! 360]` at most 360 long, hyperbolas (STEP domain inside `[-10, 10]`) and parabolas
+//! (inside `[-1000, 1000]`) with positive semi axes / focal distance, independent axes and
+//! an ordered domain, finite vectors and points, constructor domains with `u0 <
 //! u1` and `v0 < v1` (`MakeNurb` builds the V knots `{v0, v0, v1, v1}`), edit domains
 //! ordered with positive extents, independent placement axes, finite parameters and
 //! tolerances, derivative orders up to [`MAX_ORDER`] (above 5 upstream fails before
@@ -111,6 +113,34 @@ pub enum Gen {
         rx: f64,
         /// Radius along Y.
         ry: f64,
+    },
+    /// `SmHyperbola(c, x, y, [d0, d1], a, b, 3)`.
+    Hyperbola {
+        /// Centre.
+        c: [f64; 3],
+        /// X axis.
+        x: [f64; 3],
+        /// Y axis.
+        y: [f64; 3],
+        /// STEP domain (`|t| <= 10`).
+        d: [f64; 2],
+        /// Semi axis.
+        a: f64,
+        /// Semi imaginary axis.
+        b: f64,
+    },
+    /// `SmParabola(c, x, y, [d0, d1], f, 3)`.
+    Parabola {
+        /// Apex.
+        c: [f64; 3],
+        /// X axis.
+        x: [f64; 3],
+        /// Y axis.
+        y: [f64; 3],
+        /// STEP domain (`|t| <= 1000`).
+        d: [f64; 2],
+        /// Focal distance.
+        f: f64,
     },
 }
 
@@ -469,6 +499,40 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             o.extend_from_slice(y);
             o.extend([d0, d1, *rx, *ry]);
         }
+        Gen::Hyperbola { c, x, y, d, a, b } => {
+            finite(c, "hyperbola")?;
+            axes(*x, *y, "hyperbola")?;
+            let [d0, d1] = *d;
+            finite(&[d0, d1], "hyperbola")?;
+            if !(d0 < d1 && d0 >= -10.0 && d1 <= 10.0) {
+                return Err(bad("hyperbola: domain"));
+            }
+            if !(a.is_finite() && *a > 1e-6 && b.is_finite() && *b > 1e-6) {
+                return Err(bad("hyperbola: semi axes"));
+            }
+            o.push(4.0);
+            o.extend_from_slice(c);
+            o.extend_from_slice(x);
+            o.extend_from_slice(y);
+            o.extend([d0, d1, *a, *b]);
+        }
+        Gen::Parabola { c, x, y, d, f } => {
+            finite(c, "parabola")?;
+            axes(*x, *y, "parabola")?;
+            let [d0, d1] = *d;
+            finite(&[d0, d1], "parabola")?;
+            if !(d0 < d1 && d0 >= -1000.0 && d1 <= 1000.0) {
+                return Err(bad("parabola: domain"));
+            }
+            if !(f.is_finite() && *f > 1e-6) {
+                return Err(bad("parabola: focal distance"));
+            }
+            o.push(5.0);
+            o.extend_from_slice(c);
+            o.extend_from_slice(x);
+            o.extend_from_slice(y);
+            o.extend([d0, d1, *f]);
+        }
     }
     Ok(())
 }
@@ -605,7 +669,7 @@ fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         // SAFETY: input is valid for input.len() reads and holds exactly what the shim
         // reads for `op` (built and validated above: well-formed clamped 3D curves,
         // bounded counts and orders, finite values, non-degenerate axes, lines, circles,
-        // ellipses and domains); buf is valid for buf.len() writes and the shim honours
+        // ellipses, hyperbolas, parabolas and domains); buf is valid for buf.len() writes and the shim honours
         // the capacity; len is valid.
         unsafe {
             sys::sc_surface_surf_of_extrusion_p1_eval(

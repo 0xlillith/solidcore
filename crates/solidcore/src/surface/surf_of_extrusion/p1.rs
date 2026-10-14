@@ -48,15 +48,19 @@
 //!   rejected (`InvalidInput`) where upstream casts. It is `None` only for the empty
 //!   I/O surface. Its owner is not set (a free surface has no
 //!   [`crate::geom::object::ObjectRef`] to give it). The one place where upstream's
-//!   owner matters for these methods, an `SmLine` generator whose `MakeNurb` (run by
-//!   `AdjustSTEPInterval` when its interval changes) reparameterises its NURB to the
-//!   owner's [`SurfOfExtrusion::gen_dir_param_extent`], is done here by the surface
+//!   owner matters for these methods, an `SmLine`, `SmHyperbola` or `SmParabola`
+//!   generator whose `MakeNurb` (run by `AdjustSTEPInterval` when its interval
+//!   changes) reparameterises its NURB to the owner's
+//!   [`SurfOfExtrusion::gen_dir_param_extent`], is done here by the surface
 //!   (see `adjust_gen_step_interval`). An ellipse generator's owner step is
 //!   overwritten by `AdjustSTEPInterval`'s own reparameterisation upstream, so it is
 //!   not repeated (the knots then agree within rounding, not bit for bit).
 //! - **Lazy NURB.** Upstream's `const` methods make a missing NURB through
-//!   `GetOrCreateGwNurbPointer`; the `&self` methods here read the NURB as it is
-//!   (`(0, 0, 0, 0)` domain without one). `Reparameterize` makes it.
+//!   `GetOrCreateGwNurbPointer`; the `&self` methods here cannot. The parameter
+//!   conversions and `DropPointFast` return `SM_ERR` without a NURB (call
+//!   [`SurfOfExtrusion::make_nurb`] first) instead of reading a `(0, 0, 0, 0)` domain;
+//!   [`SurfOfExtrusion::gen_dir_param_extent`] reads the NURB as it is (an empty
+//!   interval without one). `Reparameterize` makes it.
 //! - **Out-of-bounds evaluation.** `SmTemporaryChangeValue` gives the generator the
 //!   surface's out-of-bounds flag for the evaluation / drop; only a B-spline generator
 //!   reads it, so only that kind is copied with the flag changed. `STEPInversion`
@@ -119,6 +123,7 @@ const OP_STEP_INV: &str = "surface::surf_of_extrusion::p1::SurfOfExtrusion::step
 const OP_EVAL_STEP: &str = "surface::surf_of_extrusion::p1::SurfOfExtrusion::evaluate_step";
 const OP_DIRECTRIX: &str =
     "surface::surf_of_extrusion::p1::SurfOfExtrusion::create_directrix_from_point";
+const OP_CONVERT: &str = "surface::surf_of_extrusion::p1::SurfOfExtrusion::convert_uv";
 const OP_DROP: &str = "surface::surf_of_extrusion::p1::SurfOfExtrusion::drop_point_fast";
 const OP_XFORM: &str = "surface::surf_of_extrusion::p1::SurfOfExtrusion::transform";
 const OP_GENERATORS: &str = "surface::surf_of_extrusion::p1::intersect_generators";
@@ -591,9 +596,10 @@ impl SurfOfExtrusion {
         Ok(())
     }
 
-    /// `AdjustSTEPInterval` of the generator, plus the step upstream's `SmLine` takes
-    /// for an owning extrusion: when the line rebuilds its NURB (its interval changes
-    /// and it has one), the NURB is reparameterised to the surface's
+    /// `AdjustSTEPInterval` of the generator, plus the step upstream's `SmLine`,
+    /// `SmHyperbola` and `SmParabola` `MakeNurb` take for an owning extrusion: when the
+    /// curve rebuilds its NURB (its interval changes; a line only when it has one), the
+    /// NURB is reparameterised to the surface's
     /// [`Self::gen_dir_param_extent`] (status ignored; skipped while the surface has
     /// no NURB, where upstream's owner call builds the surface from the line itself and
     /// reparameterises it to its own interval).
@@ -610,8 +616,33 @@ impl SurfOfExtrusion {
         match gen.kind_mut() {
             CurveKind::BSpline(b) => b.adjust_step_interval(k, ivl),
             CurveKind::Ellipse(e) => e.adjust_step_interval(k, ivl, None),
-            CurveKind::Hyperbola(h) => h.adjust_step_interval(ivl, None),
-            CurveKind::Parabola(p) => p.adjust_step_interval(ivl, None),
+            CurveKind::Hyperbola(h) => {
+                let anal = h.step_interval();
+                let no_work =
+                    ivl.is_contained_by(&anal, EFF_ZERO) && anal.is_contained_by(ivl, EFF_ZERO);
+                h.adjust_step_interval(ivl, None)?;
+                if !no_work {
+                    if let Some(nurb_ivl) = owner_ivl {
+                        // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
+                        // (status ignored)
+                        ignore_status(h.base.edit_parameterization(&nurb_ivl))?;
+                    }
+                }
+                Ok(())
+            }
+            CurveKind::Parabola(p) => {
+                let anal = p.step_interval();
+                let no_work = ivl.is_contained_by(&anal, 0.0) && anal.is_contained_by(ivl, 0.0);
+                p.adjust_step_interval(ivl, None)?;
+                if !no_work {
+                    if let Some(nurb_ivl) = owner_ivl {
+                        // MakeNurb's owner step: EditParameterization(sNURBIvl, FALSE)
+                        // (status ignored)
+                        ignore_status(p.base_mut().edit_parameterization(&nurb_ivl))?;
+                    }
+                }
+                Ok(())
+            }
             CurveKind::Line(l) => {
                 let anal = l.step_interval();
                 let no_work =
@@ -979,6 +1010,15 @@ impl SurfOfExtrusion {
 
     // ---- parameter conversions --------------------------------------------------------
 
+    /// The NURB's natural UV domain (`GetNaturalUVDomain`); `SM_ERR` without NURB, where
+    /// upstream's `const` method would make it.
+    fn nurb_uv_domain(&self, op: &'static str) -> Result<Extent2d> {
+        if self.base.gw_nurb().is_none() {
+            return Err(SolidError::sm_err(op));
+        }
+        Ok(self.base.natural_uv_domain())
+    }
+
     /// The NURB parameters of the STEP parameters `step_uv`
     /// (`ConvertUVFromSTEPToNURBS`): the generator's conversion in its direction, the
     /// linear map of the STEP V interval onto the NURB extrusion interval in the
@@ -986,10 +1026,11 @@ impl SurfOfExtrusion {
     ///
     /// # Errors
     ///
-    /// `SM_ERR_NULL_POINTER` without generator; those of the generator's conversion.
+    /// `SM_ERR` without NURB (upstream makes it); `SM_ERR_NULL_POINTER` without
+    /// generator; those of the generator's conversion.
     pub fn convert_uv_from_step_to_nurbs(&self, step_uv: Point2) -> Result<Point2> {
         // locals
-        let natural_uv_domain = self.base.natural_uv_domain();
+        let natural_uv_domain = self.nurb_uv_domain(OP_CONVERT)?;
         let step_uv_domain = self.anal_uv_domain;
 
         // Map the STEP u-param to Nurbs u:
@@ -1018,7 +1059,8 @@ impl SurfOfExtrusion {
     ///
     /// # Errors
     ///
-    /// `SM_ERR_NULL_POINTER` without generator; those of the generator's conversion.
+    /// `SM_ERR` without NURB (upstream makes it); `SM_ERR_NULL_POINTER` without
+    /// generator; those of the generator's conversion.
     pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
         // locals
         let mut s_nurbs_uv = nurbs_uv;
@@ -1034,10 +1076,11 @@ impl SurfOfExtrusion {
 
         // STEP v-param: linear mapping:
         let step_uv_domain = self.anal_uv_domain.v_interval();
+        let natural_uv_domain = self.nurb_uv_domain(OP_CONVERT)?;
         let nurb_uv_domain = if self.swap_uv {
-            self.base.natural_uv_domain().u_interval()
+            natural_uv_domain.u_interval()
         } else {
-            self.base.natural_uv_domain().v_interval()
+            natural_uv_domain.v_interval()
         };
         let fraction = (s_nurbs_uv.y - nurb_uv_domain.min()) / nurb_uv_domain.length();
         step_uv.y = step_uv_domain.evaluate(fraction);
@@ -1234,9 +1277,9 @@ impl SurfOfExtrusion {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` for any other orientation (the caller then drops generally);
-    /// `SM_ERR_NULL_POINTER` without generator; those of the generator's solve and the
-    /// evaluations.
+    /// `SM_ERR` for any other orientation (the caller then drops generally) and
+    /// without NURB (upstream makes it); `SM_ERR_NULL_POINTER` without generator; those
+    /// of the generator's solve and the evaluations.
     #[allow(clippy::too_many_arguments)] // upstream's DropPointFast signature
     pub fn drop_point_fast<O: SolutionObject>(
         &self,
@@ -1259,7 +1302,7 @@ impl SurfOfExtrusion {
         let mut out: SolutionArray<O> = SolutionArray::new();
 
         // locals
-        let nat_domain = self.base.natural_uv_domain();
+        let nat_domain = self.nurb_uv_domain(OP_DROP)?;
         let line_vec = self.anal_uv_domain.y_length() * self.extrusion_vec;
         let line_origin = self.origin + self.anal_uv_domain.min().y * self.extrusion_vec;
         let ivl = if self.swap_uv {
@@ -2012,6 +2055,30 @@ mod tests {
         let back = s.convert_uv_from_nurbs_to_step(&k, n).unwrap();
         assert!((back.x - 0.25).abs() < 1e-12 && (back.y - 1.5).abs() < 1e-12);
         assert!(s.approx_eq(&s.copy().unwrap()).unwrap());
+    }
+
+    #[test]
+    fn conversions_need_the_nurb() {
+        let k = Kernel::default();
+        let mut s = SurfOfExtrusion::new(
+            &k,
+            arc_gen(),
+            Point3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 1.0),
+            Extent2d::from_bounds(0.0, 0.0, 1.0, 3.0),
+            false,
+        )
+        .unwrap();
+        assert!(s
+            .convert_uv_from_step_to_nurbs(Point2::new(0.25, 1.5))
+            .is_err());
+        assert!(s
+            .convert_uv_from_nurbs_to_step(&k, Point2::new(0.25, 1.5))
+            .is_err());
+        s.make_nurb(&k).unwrap();
+        assert!(s
+            .convert_uv_from_step_to_nurbs(Point2::new(0.25, 1.5))
+            .is_ok());
     }
 
     #[test]

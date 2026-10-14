@@ -25,6 +25,8 @@ use serde_json::Value;
 
 use solidcore::curve::curve::{Curve, CurveKind};
 use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
+use solidcore::curve::hyperbola::Hyperbola;
+use solidcore::curve::parabola::Parabola;
 use solidcore::curve::line::Line;
 use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
@@ -92,6 +94,21 @@ enum GenIn {
         d: [f64; 2],
         rx: f64,
         ry: f64,
+    },
+    Hyperbola {
+        c: [f64; 3],
+        x: [f64; 3],
+        y: [f64; 3],
+        d: [f64; 2],
+        a: f64,
+        b: f64,
+    },
+    Parabola {
+        c: [f64; 3],
+        x: [f64; 3],
+        y: [f64; 3],
+        d: [f64; 2],
+        f: f64,
     },
 }
 
@@ -238,6 +255,21 @@ fn ffi_gen(g: &GenIn) -> Result<ffi::Gen, HarnessError> {
             rx: *rx,
             ry: *ry,
         },
+        GenIn::Hyperbola { c, x, y, d, a, b } => ffi::Gen::Hyperbola {
+            c: *c,
+            x: *x,
+            y: *y,
+            d: *d,
+            a: *a,
+            b: *b,
+        },
+        GenIn::Parabola { c, x, y, d, f } => ffi::Gen::Parabola {
+            c: *c,
+            x: *x,
+            y: *y,
+            d: *d,
+            f: *f,
+        },
     })
 }
 
@@ -379,6 +411,7 @@ fn dom4(d: [f64; 4]) -> Extent2d {
 /// The `SmStatus` of a Rust error; `-1` for one upstream cannot return.
 fn status(e: &SolidError) -> f64 {
     match e {
+        SolidError::InvalidInput { .. } => 1007.0,
         SolidError::Upstream { code, .. } => f64::from(*code),
         _ => -1.0,
     }
@@ -438,6 +471,29 @@ fn rust_gen(k: &Kernel, g: &GenIn) -> Result<Curve, HarnessError> {
             )
             .map_err(|e| harness(format!("ellipse: {e}")))?;
             Curve::from(e)
+        }
+        GenIn::Hyperbola { c, x, y, d, a, b } => {
+            let [d0, d1] = *d;
+            Curve::from(Hyperbola::new(
+                v3(*c),
+                v3(*x),
+                v3(*y),
+                Extent1d::from_min_max(d0, d1),
+                *a,
+                *b,
+                3,
+            ))
+        }
+        GenIn::Parabola { c, x, y, d, f } => {
+            let [d0, d1] = *d;
+            Curve::from(Parabola::new(
+                v3(*c),
+                v3(*x),
+                v3(*y),
+                Extent1d::from_min_max(d0, d1),
+                *f,
+                3,
+            ))
         }
     })
 }
@@ -831,7 +887,7 @@ fn gen_generator(rng: &mut Rng, f: &Frame, planar: bool, size: f64) -> GenIn {
             rng.uniform(-1.0, 1.0) * size
         }
     };
-    match rng.below(12) {
+    match rng.below(14) {
         0..=6 => {
             let p = 1 + rng.below(3) as usize;
             let n = p + rng.below(5) as usize;
@@ -882,6 +938,29 @@ fn gen_generator(rng: &mut Rng, f: &Frame, planar: bool, size: f64) -> GenIn {
                 r: rng.uniform(0.3, 2.0) * size,
             }
         }
+        12 => {
+            let (o, x, y, _) = f;
+            let d0 = rng.uniform(-2.0, 1.0);
+            GenIn::Hyperbola {
+                c: *o,
+                x: *x,
+                y: *y,
+                d: [d0, d0 + rng.uniform(0.3, 2.5)],
+                a: rng.uniform(0.3, 2.0) * size,
+                b: rng.uniform(0.3, 2.0) * size,
+            }
+        }
+        13 => {
+            let (o, x, y, _) = f;
+            let d0 = rng.uniform(-3.0, 1.0);
+            GenIn::Parabola {
+                c: *o,
+                x: *x,
+                y: *y,
+                d: [d0, d0 + rng.uniform(0.5, 4.0)],
+                f: rng.uniform(0.2, 2.0) * size,
+            }
+        }
         _ => {
             let (o, x, y, _) = f;
             let d0 = rng.uniform(-90.0, 90.0);
@@ -905,7 +984,10 @@ fn gen_step_ivl(g: &GenIn) -> [f64; 2] {
             c.u.last().copied().unwrap_or(1.0),
         ],
         GenIn::Line { .. } => [0.0, 1.0],
-        GenIn::Circle { d, .. } | GenIn::Ellipse { d, .. } => *d,
+        GenIn::Circle { d, .. }
+        | GenIn::Ellipse { d, .. }
+        | GenIn::Hyperbola { d, .. }
+        | GenIn::Parabola { d, .. } => *d,
     }
 }
 
