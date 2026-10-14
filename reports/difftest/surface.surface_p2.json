@@ -575,8 +575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gssi_crossing_planes",
@@ -7280,7 +7280,7 @@
   "cases_passed": 789,
   "cases_total": 869,
   "deferred_by_unit": {
-    "intersect.adv_surface_intersector": 1,
+    "intersect.surface_intersector_p5": 1,
     "surface.plane_p2": 11,
     "surface.surface_p1": 13,
     "surface.surface_p5": 36,

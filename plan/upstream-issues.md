@@ -750,6 +750,15 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
+#### UB-75. `ComputeSingularityPoint` can write past `aSingDirections[8]`
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:164` (`SmVector3d aSingDirections[8]`), filled by `sm_AddSingDir` (`:54`) from the Dupin indicatrix intersections at `:616`-`:685`; `aSingUVSurf1/2[8]` and `lInsideIndex[8]` at `:775`-`:776`.
+- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-54), so the count is not bounded by the 4 + 4 of two central conics.
+- **Trigger:** Two non-planar surface points with parallel normals, no shared principal curvature, whose indicatrices meet in more than 8 directions more than 26 degrees apart.
+- **How found:** read during porting.
+- **Confirmed:** no (the difftest shim predicts the count and does not run such inputs; no generated case reached it).
+- **Severity:** crash/UB.
+- **Rust port:** the array keeps 8 slots; a ninth direction is `InvalidInput`.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1375,6 +1384,24 @@ by area within each severity.
 - **How found:** read during porting.
 - **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_span_angle`).
 - **Severity:** wrong result (unit mix-up).
+- **Rust port:** Faithful.
+
+#### WR-54. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
+- **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
+- **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: generated `dupin` ops and `edge_dupin_kinds` compare the conics).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-55. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
+- **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
+- **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
+- **Severity:** wrong result (performance and duplicate start points).
 - **Rust port:** Faithful.
 
 ## Docs
