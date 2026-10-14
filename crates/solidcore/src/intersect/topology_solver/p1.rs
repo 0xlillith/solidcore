@@ -69,7 +69,8 @@
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`), the face point
 //!   classifications (`query.face_p1`, `query.face_p2`), the vertex zone tolerance
 //!   (`topology.brep_p1`) and the surface cache behind the face silhouettes
-//!   (`surface.surface_p1`) return [`SolidError::Unported`] (see the `UNPORTED`
+//!   (`smsurf_GetSurfaceCache`, ported as `surface_cache` but reaching
+//!   `SmSurface::CacheMakeOrValidate` of `surface.surface_p1`) return [`SolidError::Unported`] (see the `UNPORTED`
 //!   markers). The face-silhouette loop names its temporary curves by no handle.
 
 use crate::curve::curve::p1::GlobalPointSolveOptions;
@@ -93,6 +94,7 @@ use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt;
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
+use crate::surface::surface::p2::{surface_cache, Surface};
 use crate::surface::trim_srf_cache::POINT_CLASS_UNKNOWN;
 
 const OP_MAY: &str = "intersect::topology_solver::p1::TopologySolver::may_contain_answer";
@@ -145,6 +147,10 @@ pub trait TopologyObjects<O> {
 
     /// `SmFace::GetSurface`.
     fn face_surface(&self, face: O) -> Result<O>;
+
+    /// The surface a surface handle refers to (the `SmSurface*` of a face's
+    /// `GetSurface`).
+    fn surface(&self, surface: O) -> Result<&Surface>;
 
     /// `SmFace::GetUVDomain`.
     fn face_uv_domain(&self, face: O) -> Result<Extent2d>;
@@ -1625,7 +1631,23 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 },
             )?
         } else {
-            curve_global_curve_solve(this, other, target)?
+            curve_global_curve_solve(
+                this,
+                this_interval,
+                other,
+                other_interval,
+                &CurveSolveArgs {
+                    operation: op,
+                    tolerance_3d: s.tolerance_3d,
+                    best_answer: target,
+                    opt_vectors: if s.opt_vectors.is_empty() {
+                        None
+                    } else {
+                        Some(&s.opt_vectors)
+                    },
+                    requested: SolutionRequested::All,
+                },
+            )?
         };
 
         for found in solutions.as_slice() {
@@ -1705,18 +1727,21 @@ fn face_silhouettes<O>(
     _tolerance_3d: f64,
 ) -> Result<(Vec<Curve>, Vec<Curve>)> {
     // locals and temporaries
-    let _surface = objects.face_surface(face)?;
+    let surface = objects.face_surface(face)?;
+    let _cache = surface_cache(objects.surface(surface)?)?;
     // (approximation tolerance tolerance_3d * 10, angle tolerance 20 degrees)
 
-    // smsurf_GetSurfaceCache makes the surface cache through
-    // SmSurface::CacheMakeOrValidate:
-    // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
-    // (then SmSurfaceCache::HasCachedCurves(SM_AS_TRIMMED_SILHOUETTE, ..), and when
-    // not cached SmBSplineSurface::CreateSilhouetteCurves over the face's UV domain,
-    // SmFace::CreateCurvesByTrimming, SmSurfaceCache::AddCurvesToCache and
-    // HasCachedCurves again)
+    // smsurf_GetSurfaceCache (`surface_cache`, unit surface.surface_p2) makes the
+    // cache through SmSurface::CacheMakeOrValidate and returns Unported until
+    // surface.surface_p1 lands. The rest needs the cache that call makes:
+    // SmSurfaceCache::HasCachedCurves(SM_AS_TRIMMED_SILHOUETTE, ..) on it (ported
+    // as SurfaceCache::has_cached_curves, reached through the kernel's cache store
+    // by the cache id), and when not cached SmBSplineSurface::CreateSilhouetteCurves
+    // over the face's UV domain, SmFace::CreateCurvesByTrimming,
+    // SmSurfaceCache::AddCurvesToCache and HasCachedCurves again.
+    // UNPORTED(surface.surface_p1): SmBSplineSurface::CreateSilhouetteCurves
     Err(SolidError::unported(
-        "SmSurface::CacheMakeOrValidate",
+        "SmBSplineSurface::CreateSilhouetteCurves",
         "surface.surface_p1",
     ))
 }
@@ -1755,14 +1780,38 @@ fn surface_global_point_solve<O>(
     ))
 }
 
-/// `SmCurve::GlobalCurveSolve` of `this` against `other` over their intervals for
-/// the solver's operation, tolerance and optional vectors, limited by
-/// `best_answer`, keeping every solution.
+/// The arguments of `SmCurve::GlobalCurveSolve` after the two curves and their
+/// intervals.
+struct CurveSolveArgs<'v> {
+    /// `eSolverOperation` (`m_eSolverOperation`).
+    operation: SolverOperation,
+    /// `d3dTolerance` (`m_d3dTolerance`).
+    tolerance_3d: f64,
+    /// `pdBestAnswer` (`NULL` is `None`), already multiplied by the swap sign.
+    best_answer: Option<f64>,
+    /// `cpOptVectors` (`m_cpOptVectors`, `NULL` is `None`).
+    opt_vectors: Option<&'v [Vec3]>,
+    /// `eSolutionRequested` (always `SM_SR_ALL` here).
+    requested: SolutionRequested,
+}
+
+/// `this->GlobalCurveSolve(this_interval, *other, other_interval, op, tol,
+/// pdBestAnswer, cpOptVectors, SM_SR_ALL, solutions)`.
 fn curve_global_curve_solve<O>(
     _this: CurveRef<'_, O>,
+    _this_interval: &Extent1d,
     _other: CurveRef<'_, O>,
-    _best_answer: Option<f64>,
+    _other_interval: &Extent1d,
+    args: &CurveSolveArgs<'_>,
 ) -> Result<SolutionArray<O>> {
+    // (every argument is for the call that replaces this stub)
+    let _ = (
+        args.operation,
+        args.tolerance_3d,
+        args.best_answer,
+        args.opt_vectors,
+        args.requested,
+    );
     // UNPORTED(curve.curve_p9): SmCurve::GlobalCurveSolve
     Err(SolidError::unported(
         "SmCurve::GlobalCurveSolve",
@@ -1782,6 +1831,13 @@ fn object_zone_tol_3d<O>(_vertex: Option<O>) -> Result<f64> {
 /// `pFace->PointClassify(uv, src_zone_tol, do_boundaries, use_uv, point_class)`
 /// with a fresh `SmPointClassification(src_zone_tol, context)`: the point class
 /// code (`SM_PC_*`).
+///
+/// Contract for the call that replaces this stub: every caller (the
+/// `SmTLSPointFace::SolveIt` paths) ignores `PointClassify`'s status and reads only
+/// `GetPointClass()`, so a failing `PointClassify` must still return `Ok` with the
+/// class the classification holds afterwards (`SM_PC_UNKNOWN` when it set none).
+/// `Err` is only for [`SolidError::Unported`] (and other harness-level failures
+/// upstream cannot have); the callers propagate it with `?`.
 fn face_point_classify<O>(
     _face: O,
     _uv: Vec2,
@@ -1897,6 +1953,9 @@ mod tests {
         }
         fn face_surface(&self, _face: Obj) -> Result<Obj> {
             Err(SolidError::sm_err("face"))
+        }
+        fn surface(&self, _surface: Obj) -> Result<&Surface> {
+            Err(SolidError::sm_err("surface"))
         }
         fn face_uv_domain(&self, _face: Obj) -> Result<Extent2d> {
             Err(SolidError::sm_err("face"))

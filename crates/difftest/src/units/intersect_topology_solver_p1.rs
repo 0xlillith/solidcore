@@ -52,6 +52,7 @@ use solidcore::kernel::Kernel;
 use solidcore::math::Point3;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
+use solidcore::surface::surface::p2::Surface;
 use solidcore::SolidError;
 use solidcore_ffi::units::intersect_topology_solver_p1::{self as ffi, Op};
 
@@ -682,6 +683,10 @@ impl TopologyObjects<Obj> for Scene {
         Err(not_found("no faces in the scene"))
     }
 
+    fn surface(&self, _surface: Obj) -> solidcore::Result<&Surface> {
+        Err(not_found("no surfaces in the scene"))
+    }
+
     fn face_uv_domain(&self, _face: Obj) -> solidcore::Result<Extent2d> {
         Err(not_found("no faces in the scene"))
     }
@@ -1030,7 +1035,7 @@ fn gen_solver(rng: &mut Rng, ops: &[i32], s: f64, d: f64) -> SolverIn {
     let nv = vectors_needed(op).max(if rng.chance(0.3) { 3 } else { 0 });
     SolverIn {
         op,
-        req: if rng.chance(0.2) { 0 } else { 1 },
+        req: i32::from(!rng.chance(0.2)),
         tol: gen_tol(rng, s),
         best: gen_best(rng, d, signed),
         at: if op == 6 || rng.chance(0.1) {
@@ -1280,7 +1285,7 @@ fn gen_vertex_case(rng: &mut Rng) -> OpIn {
         }
     }
     let mut calls = Vec::new();
-    for _ in 0..1 + rng.below(4) {
+    for _ in 0..=rng.below(4) {
         let a = rng.below(nv as u64) as i64;
         let c = rng.below(nv as u64) as i64;
         // vertex vertex: the point vertex comes first (second when swapped)
@@ -1367,7 +1372,7 @@ fn gen_point_curve_case(rng: &mut Rng) -> OpIn {
     } else {
         None
     };
-    for _ in 0..1 + rng.below(3) {
+    for _ in 0..=rng.below(3) {
         let c = if kind == 4 { c0 } else { rng.below(nc as u64) as usize } as i64;
         let other = if kind == 6 { vtx } else { -1 };
         calls.push(if swap { [c, other] } else { [other, c] });
@@ -1474,8 +1479,8 @@ fn gen_may_case(rng: &mut Rng) -> OpIn {
             // a nearby box
             let off = scale3(rp(rng, 1.0), 0.6 * s);
             let mut b2 = b1;
-            for (i, v) in b2.iter_mut().enumerate() {
-                *v += off[i % 3];
+            for (v, o) in b2.iter_mut().zip(off.iter().cycle()) {
+                *v += *o;
             }
             b2
         } else {

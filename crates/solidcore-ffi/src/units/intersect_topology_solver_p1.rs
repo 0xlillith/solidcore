@@ -37,7 +37,8 @@
 //! [`eval`] accepts only what upstream handles without undefined behaviour or runaway
 //! work: well-formed curve blocks (as unit `curve.curve_p5`), finite bounded values,
 //! non-negative tolerances, option vectors wherever upstream reads them without a `NULL`
-//! check (non-zero for the ray in `MayContainAnswer`), objects of the class each solver
+//! check (longer than `1e-6` for the ray of `MayContainAnswer` and for every vector of
+//! the curve solvers; zero or tiny elsewhere, where upstream is defined for them), objects of the class each solver
 //! casts them to (a vertex, a curve, a curve with an edge; `NULL` only where upstream
 //! checks it), intervals within the curves' ranges, and the operations
 //! `SmCurve::GlobalPointSolve` / `GlobalCurveIntersect` / `GlobalCurveSolve` accept for
@@ -444,8 +445,41 @@ enum Entry {
     Edge,
 }
 
-/// The solver header; returns the operation code and the number of option vectors.
-fn header(rd: &mut Reader<'_>) -> Result<(usize, usize), FfiError> {
+/// The validated solver header.
+#[derive(Debug, Clone, Copy)]
+struct Header {
+    /// `eSolverOperation` code.
+    op: usize,
+    /// Number of option vectors.
+    nvec: usize,
+    /// Whether the first option vector is shorter than `1e-6` (or there is none).
+    short_first: bool,
+    /// Whether any option vector is shorter than `1e-6`.
+    any_short: bool,
+}
+
+impl Header {
+    /// `MayContainAnswer`'s `SM_SO_RAYFIRE` branch intersects the box with the ray
+    /// `cpOptVectors[0]` through `SmExtent3d::IntersectLine`, which fails for a ray
+    /// shorter than `SM_EFF_ZERO` and leaves the results it is read for
+    /// uninitialised. Every other read of the vectors in this unit is defined for a
+    /// zero or tiny vector (`smgu_LineClosestPoint` gives `0`,
+    /// `smgu_PointProjectToPlane` NaN), so only this one is refused (with a margin).
+    fn short_ray(&self) -> bool {
+        self.op == RAYFIRE && self.short_first
+    }
+}
+
+/// `SM_SO_RAYFIRE`.
+const RAYFIRE: usize = 8;
+
+/// Whether `v` is shorter than `1e-6`.
+fn is_short(v: [f64; 3]) -> bool {
+    v.iter().map(|c| c * c).sum::<f64>() < 1e-12
+}
+
+/// The solver header.
+fn header(rd: &mut Reader<'_>) -> Result<Header, FfiError> {
     let op = rd.index(24)?;
     rd.index(3)?;
     let tol = rd.finite()?;
@@ -459,10 +493,21 @@ fn header(rd: &mut Reader<'_>) -> Result<(usize, usize), FfiError> {
     rd.flag()?;
     rd.finite()?;
     let nvec = rd.index(3)?;
-    for _ in 0..nvec {
-        rd.nonzero3()?;
+    let mut short_first = true;
+    let mut any_short = false;
+    for i in 0..nvec {
+        let short = is_short(rd.vec3()?);
+        if i == 0 {
+            short_first = short;
+        }
+        any_short |= short;
     }
-    Ok((op, nvec))
+    Ok(Header {
+        op,
+        nvec,
+        short_first,
+        any_short,
+    })
 }
 
 /// Option vectors `MayContainAnswer` and the local solvers read for `op` (the
@@ -548,7 +593,8 @@ struct Spec {
     interval: Option<(f64, f64)>,
 }
 
-fn solver(rd: &mut Reader<'_>, objs: &[Entry], op: usize, nvec: usize) -> Result<Spec, FfiError> {
+fn solver(rd: &mut Reader<'_>, objs: &[Entry], hd: Header) -> Result<Spec, FfiError> {
+    let (op, nvec) = (hd.op, hd.nvec);
     let kind = LocalKind::from_code(rd.index(9)?).ok_or_else(|| bad("solver kind"))?;
     let swap = rd.flag()?;
     rd.vec3()?;
@@ -574,6 +620,11 @@ fn solver(rd: &mut Reader<'_>, objs: &[Entry], op: usize, nvec: usize) -> Result
     );
     if point_curve && !point_curve_op(op) {
         return Err(bad("operation not accepted by GlobalPointSolve"));
+    }
+    // the curve solvers hand the vectors to SmCurve::GlobalPointSolve /
+    // GlobalCurveSolve, whose behaviour for a zero or tiny vector is not established
+    if (point_curve || matches!(kind, LocalKind::CurveEdge | LocalKind::EdgeEdge)) && hd.any_short {
+        return Err(bad("option vector too short for the curve solvers"));
     }
     let curve_curve = matches!(kind, LocalKind::CurveEdge | LocalKind::EdgeEdge);
     if curve_curve && !curve_curve_op(op) {
@@ -686,12 +737,16 @@ fn tree(rd: &mut Reader<'_>, objs: &[Entry], spec: Spec, first: bool) -> Result<
 }
 
 fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
-    let (sop, nvec) = header(rd)?;
+    let hd = header(rd)?;
+    let (sop, nvec) = (hd.op, hd.nvec);
     match op {
         Op::Ctor => {}
         Op::May => {
             if nvec < vectors_needed(sop) {
                 return Err(bad("operation needs more option vectors"));
+            }
+            if hd.short_ray() {
+                return Err(bad("ray shorter than 1e-6 in MayContainAnswer"));
             }
             let n = rd.index(MAX_BOXES)?;
             for _ in 0..n {
@@ -701,7 +756,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         }
         Op::Local => {
             let objs = objects(rd)?;
-            let spec = solver(rd, &objs, sop, nvec)?;
+            let spec = solver(rd, &objs, hd)?;
             let k = rd.index(MAX_CALLS)?;
             for _ in 0..k {
                 let o1 = rd.object(objs.len())?;
@@ -711,7 +766,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         }
         Op::Trees => {
             let objs = objects(rd)?;
-            let spec = solver(rd, &objs, sop, nvec)?;
+            let spec = solver(rd, &objs, hd)?;
             if spec.swap
                 || !matches!(
                     spec.kind,
@@ -722,6 +777,10 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
                 )
             {
                 return Err(bad("tree solves only for unswapped point, curve and edge solvers"));
+            }
+            // SolveTrees reaches MayContainAnswer
+            if hd.short_ray() {
+                return Err(bad("ray shorter than 1e-6 in MayContainAnswer"));
             }
             tree(rd, &objs, spec, true)?;
             tree(rd, &objs, spec, false)?;
