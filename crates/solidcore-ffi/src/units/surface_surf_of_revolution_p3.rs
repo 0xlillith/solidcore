@@ -27,7 +27,7 @@
 //! `SM_SO_INTERSECT`; the others read option vectors the drop passes as `NULL`) and
 //! requests (`SM_SR_SINGLE`, `SM_SR_ALL`), non-negative tolerances, cones with
 //! non-negative radii (not both zero) and a positive height, spheres with a positive
-//! radius, independent frame axes, scales with every component away from zero, and
+//! radius, independent frame axes, finite scales (zero, tiny and negative ones included), and
 //! for `read_db` only the exact bytes [`write_db`] gives for the same surface (an
 //! ASCII reader at the end of its stream leaves counts uninitialised).
 
@@ -255,10 +255,10 @@ fn push_frame(o: &mut Vec<f64>, f: &Frame, what: &str) -> Result<(), FfiError> {
     o.extend_from_slice(&f.y);
     match f.scale {
         Some(s) => {
+            // any finite scale is valid upstream: `Transform` rejects a non-uniform
+            // scale or one below SM_EFF_ZERO itself, and the B-spline transform of
+            // the rebuild edit accepts zero and negative components
             finite(&s, what)?;
-            if s.iter().any(|c| c.abs() < 1e-6) {
-                return Err(bad(format!("{what}: scale component near zero")));
-            }
             o.push(1.0);
             o.extend_from_slice(&s);
         }

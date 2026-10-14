@@ -106,6 +106,8 @@ const OP_REBUILD: &str =
     "surface::surf_of_revolution::p3::SurfOfRevolution::rebuild_step_from_nurb_parameters";
 const OP_XFORM: &str = "surface::surf_of_revolution::p3::SurfOfRevolution::transform";
 const OP_READ: &str = "surface::surf_of_revolution::p3::SurfOfRevolution::read_from_db";
+const OP_ISECT: &str =
+    "surface::surf_of_revolution::p3::SurfOfRevolution::intersect_with_surf_of_revolution";
 
 /// `ANALYTIC_TOL_SCALE` (`SmConfig.h`).
 const ANALYTIC_TOL_SCALE: f64 = 100.0;
@@ -839,7 +841,7 @@ impl SurfOfRevolution {
                     ..BoundingBoxRequest::default()
                 };
                 let boxes = self.base.calculate_bounding_box(uv_domain, &req)?;
-                let bbox = boxes.normal.ok_or(SolidError::null_pointer(OP_GEN))?;
+                let bbox = boxes.normal.ok_or(SolidError::null_pointer(OP_ISECT))?;
                 let size = bbox.size().length();
                 EFF_ZERO_SQRT * (1.0 + size)
             }
