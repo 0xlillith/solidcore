@@ -2423,8 +2423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0028",
@@ -2611,8 +2611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0050",
@@ -3011,8 +3011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -3151,8 +3151,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0113",
@@ -3483,8 +3483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -3695,8 +3695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0177",
@@ -3763,8 +3763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -4179,8 +4179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0235",
@@ -4783,8 +4783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -4915,8 +4915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -5139,8 +5139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -5167,8 +5167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0354",
@@ -5315,8 +5315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0371",
@@ -5803,8 +5803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0430",
@@ -5823,8 +5823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0432",
@@ -5999,8 +5999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0453",
@@ -6031,8 +6031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -6083,8 +6083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0462",
@@ -6095,8 +6095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0463",
@@ -6627,8 +6627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0526",
@@ -7079,8 +7079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0581",
@@ -7091,8 +7091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0582",
@@ -7175,8 +7175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0592",
@@ -7243,8 +7243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0600",
@@ -7527,8 +7527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0634",
@@ -7787,8 +7787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0665",
@@ -7807,8 +7807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0667",
@@ -7843,8 +7843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0671",
@@ -8155,8 +8155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0709",
@@ -8183,8 +8183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0712",
@@ -9047,8 +9047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0817",
@@ -9295,8 +9295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0847",
@@ -9531,8 +9531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0874",
@@ -9587,8 +9587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-        "unit": "intersect.adv_surface_intersector"
+        "symbol": "SmSurfaceIntersector::DoIntersection",
+        "unit": "intersect.surface_intersector_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0880",
@@ -9756,7 +9756,7 @@
   "cases_passed": 1064,
   "cases_total": 1167,
   "deferred_by_unit": {
-    "intersect.adv_surface_intersector": 34,
+    "intersect.surface_intersector_p5": 34,
     "surface.plane_p2": 52,
     "surface.surface_p4": 15,
     "surface.surface_p5": 2
