@@ -1333,8 +1333,10 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the surface cache and of the polar box; `SM_ERR_NULL_POINTER`
-    /// (`InvalidInput`) for a top node without surface data.
+    /// `SM_ERR_NULL_POINTER` when no surface cache can be made (upstream's `NER` on
+    /// `smsurf_GetSurfaceCache`; [`SolidError::Unported`] from it passes through); those
+    /// of the polar box; `SM_ERR_NULL_POINTER` (`InvalidInput`) for a top node without
+    /// surface data.
     pub fn base_calculate_bounding_box(
         &self,
         k: &Kernel,
@@ -1342,13 +1344,27 @@ impl Surface {
         expand_pos_boxes_by_zone_tol_3d: bool,
     ) -> Result<SurfaceBoxes> {
         // a polar box asks the cache's top node for it, whose build asks this
-        // surface's CalculateBoundingBox again: upstream recurses without bound
-        if want[2] {
+        // surface's CalculateBoundingBox again: upstream recurses without bound when
+        // that is this base body (curve-bounded and STEP surfaces), or for an offset
+        // surface whose natural (extended) domain reaches past its base domain (its
+        // override then runs this body again for the nodes outside)
+        let recurses = match self.kind() {
+            SurfaceKind::OffsetSurface(s) => !self
+                .natural_uv_domain()
+                .is_contained_by(&s.base_surface().natural_uv_domain(), EFF_ZERO),
+            _ => true,
+        };
+        if want[2] && recurses {
             return Err(SolidError::invalid_input(OP_BOX, POLAR_RECURSION));
         }
 
         // get or create SurfaceCache with Subdivision Tree containing Bounding boxes
-        let mut cache = get_surface_cache::<()>(k, self, None)?;
+        // (smsurf_GetSurfaceCache returns NULL when no cache can be made: NER)
+        let mut cache = match get_surface_cache::<()>(k, self, None) {
+            Ok(c) => c,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Err(SolidError::null_pointer(OP_BOX)),
+        };
         let top = cache
             .get_tree(k)?
             .top_node()
