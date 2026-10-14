@@ -422,15 +422,12 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     let mut o = Vec::new();
     if let OpIn::IsNurb { test, scale } = &i.op {
         let at = o.len();
-        match rust_is_nurb(&k, test, *scale, &mut o)? {
-            Err(e) => {
-                if let Some(out) = Output::unported(&e) {
-                    return Ok(out);
-                }
-                o.truncate(at + usize::from(has_build(&i.op)));
-                o.push(status(&e));
+        if let Err(e) = rust_is_nurb(&k, test, *scale, &mut o)? {
+            if let Some(out) = Output::unported(&e) {
+                return Ok(out);
             }
-            Ok(()) => {}
+            o.truncate(at + usize::from(has_build(&i.op)));
+            o.push(status(&e));
         }
         return to_output(i, &o);
     }
