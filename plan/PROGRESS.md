@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**145 / 261 units ported** (89 green, 56 partial), **192,078 / 387,903 upstream lines (49.5%)**. 15 claimed, 0 blocked, 101 todo.
+**145 / 261 units ported** (89 green, 56 partial), **192,078 / 387,903 upstream lines (49.5%)**. 16 claimed, 0 blocked, 100 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -95,7 +95,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +6 more
 - [ ] `boolean.merge_p3` (1152 lines) — missing: `boolean.merge_p2`, `boolean.merge_p4`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +2 more
 - [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +9 more
-- [ ] `boolean.api_brep` (410 lines) — missing: `boolean.merge_p3`
 - [ ] `primitive.primitive_creation_p2` (2258 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p3`, `topology.brep_p1`, `topology.brep_p4` +3 more
 - [ ] `blend.fillet_corner_p1` (1971 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +3 more
 - [ ] `blend.fillet_solver_p2` (1939 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge` +1 more
@@ -132,6 +131,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_custom_solver` (1236 lines) — in progress: #78 @bherbruck (ready for review)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
+- [ ] 🔨 `boolean.api_brep` (410 lines) — in progress: #81 @bherbruck (draft)
 
 ## By module
 
@@ -410,7 +410,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `boolean.merge_p5` (475 lines) — waiting
 - [ ] ⏳ `boolean.merge_p4` (2590 lines) — waiting
 - [ ] ⏳ `boolean.merge_p3` (1152 lines) — waiting
-- [ ] ⏳ `boolean.api_brep` (410 lines) — waiting
+- [ ] 🔨 `boolean.api_brep` (410 lines) — in progress: #81 @bherbruck (draft)
 
 ### blend (0/22)
 
