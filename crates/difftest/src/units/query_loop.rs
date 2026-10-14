@@ -679,7 +679,8 @@ fn push_segment(
         // a trim (and edge curve) extended beyond both ends, the edge interval its
         // sub-range from `a` to `b`
         let e = rng.uniform(0.05, 0.5);
-        let (s0, s1) = ([cpts[0][0], cpts[0][1]], [cpts[1][0], cpts[1][1]]);
+        let (c0, c1) = (*cpts.first()?, *cpts.get(1)?);
+        let (s0, s1) = ([c0[0], c0[1]], [c1[0], c1[1]]);
         let p0 = lerp2(s0, s1, -e);
         let p1 = lerp2(s0, s1, 1.0 + e);
         let t0 = rng.uniform(-2.0, 2.0);
@@ -714,7 +715,7 @@ fn push_segment(
     // the edge curve and its parameter domain
     let (curve, dom) = if arc && plane && rng.chance(0.7) {
         // a true circle through the arc's 3D end points (centre from the UV arc)
-        let (s0, m, s1) = (cpts[0], cpts[1], cpts[2]);
+        let (s0, m, s1) = (*cpts.first()?, *cpts.get(1)?, *cpts.get(2)?);
         let (pa, pb) = ([s0[0], s0[1]], [s1[0], s1[1]]);
         let apex = [m[0] / m[2], m[1] / m[2]];
         let mid = lerp2(pa, pb, 0.5);
@@ -753,8 +754,9 @@ fn push_segment(
         let d = rust_curve(k, &ci).ok()?.natural_interval();
         (ci, [d.min(), d.max()])
     } else if linear2 && rng.chance(0.6) {
-        let a3 = srf_pt(s, [cpts[0][0], cpts[0][1]])?;
-        let b3 = srf_pt(s, [cpts[1][0], cpts[1][1]])?;
+        let (c0, c1) = (*cpts.first()?, *cpts.get(1)?);
+        let a3 = srf_pt(s, [c0[0], c0[1]])?;
+        let b3 = srf_pt(s, [c1[0], c1[1]])?;
         let c = CurveIn::Line { a: a3, b: b3 };
         let d = rust_curve(k, &c).ok()?.natural_interval();
         (c, [d.min(), d.max()])
@@ -960,7 +962,9 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
             }
             if nv % 2 == 1 && rng.chance(0.12) {
                 // a star polygon {nv/2}: it winds twice around its centre
-                let star: Vec<P2> = (0..nv).map(|i| verts[(2 * i) % nv]).collect();
+                let star: Vec<P2> = (0..nv)
+                    .map(|i| verts.get((2 * i) % nv).copied())
+                    .collect::<Option<_>>()?;
                 verts = star;
             }
             if rng.chance(0.1) {
@@ -977,8 +981,8 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         }
         let tol = gen_tol(rng, gs);
         for i in 0..verts.len() {
-            let a = verts[i];
-            let b = verts[(i + 1) % verts.len()];
+            let a = *verts.get(i)?;
+            let b = *verts.get((i + 1) % verts.len())?;
             let t = if rng.chance(0.3) { gen_tol(rng, gs) } else { tol };
             push_segment(rng, &k, &surface, plane, &mut built, a, b, t)?;
         }
@@ -1016,7 +1020,7 @@ impl UnitDiff for Runner {
             // differently)
             match ffi::contains(&ffi_case(&i)) {
                 Ok(a) if a.build == 0 => return serde_json::to_value(i).ok(),
-                _ => continue,
+                _ => {}
             }
         }
         None
