@@ -3359,6 +3359,23 @@ Notes for later agents:
   derivatives; 1e-3 and 1e3 scales. The reviewer's generator made 400; the 398 kept are the
   ones it accepted as defined in the C++. All 398 pass bit-identical.
 
+## surface.plane_p2 (`SmPlane`, part 2, review fixes 2026-10-14)
+
+- **Difftest runners must convert a raw tolerance the way the shim does.** The shims read
+  `IntersectWithPlane` / `GlobalSurfaceIntersect` tolerances into an `SmApproxTol3d`, whose
+  `double` constructor stores `fabs(tol)` and maps `SM_USE_DEFAULT` (9876543.21) to
+  `s_ZoneTol3d / 2` (`SmTol.cpp`). The library functions take an already-converted
+  `SmApproxTol3d` (non-negative by type), so the runner applies
+  `geom::tol::approx_tol3d(k, t)` first. Before this fix, plane z=0 against plane x=1 over
+  [-5,5]x[-3,3] with tol=-1 gave the C++ crossing line (44 values) but no curve in Rust
+  (7 values: `TrimPlaneLineToPlaneDomain` saw a negative tolUV); tol=9876543.21 gave 44 vs
+  34 values. The generator only produced positive tolerances. The same conversion is now
+  applied in the `surface.surf_of_revolution_p1` runner, whose FFI guard used to reject a
+  negative plane tolerance (now accepts any finite value, as the C++ does).
+- **`MakeNewPlaneEllipse` with a zero radius** appends the degenerate line curve to
+  `rCrvs` even when it is `NULL`; the port drops the `None` (documented inline). No input
+  in the difftest reaches it (unreachable in practice).
+
 ## surface.surf_of_extrusion_p1 (`SmSurfOfExtrusion`, part 1, 2026-10-13)
 
 PARTIAL: 973 difftest cases (173 fixture, 800 generated), 880 bit-identical, 93 deferred
@@ -3570,6 +3587,66 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   `CalculateBoundingBox` of curve-bounded and STEP surfaces (called while that cache is
   being built), and the `SmIsoCurve` / `SmCrvOnSurf` readers of non-B-spline surfaces
   (those curves hold an `SmBSplineSurface`).
+
+## surface.surf_of_extrusion_p2 (`SmSurfOfExtrusion`, part 2, 2026-10-14)
+
+- **Not a `SurfaceKind` yet.** `SurfOfExtrusion` does not join
+  `surface::surface::SurfaceKind`: every `SmSurfOfExtrusion` override of a `SmSurface`
+  virtual (`AdjustSTEPUVDomain`, `Reparameterize`, `Transform`, `TrimWithDomain`,
+  `STEPInversion`, `DropPointFast`, the UV conversions, `MakeNurb`) needs a `&Kernel`
+  (generator edits and solves), and the `Surface` dispatchers in `surface::surface::p2`
+  take none. Adding the variant means threading a `Kernel` through those dispatchers and
+  their callers (a cross-unit refactor), so this unit ports `GlobalSurfaceIntersect` with
+  an explicit `IntersectTarget` (plane, cone, surface of extrusion, or any `Surface`)
+  and `Surface::read_from_db` reads the whole `SmSurfOfExtrusion` record
+  (`SurfOfExtrusion::read_from_db`, stream consumed and errors as upstream) and then
+  returns `Unported { upstream: "SurfaceKind::SurfOfExtrusion", unit:
+  "surface.surf_of_extrusion_p2" }` (a `DISPATCH GAP`, no `UNPORTED` marker); the
+  2 `topology.brep_data` cases reading `Fillet/eg1_srf1.smb` and
+  `Fillet/blade_fillet_fails.smb` stay deferred on it. Whoever threads the `Kernel`
+  through the `Surface` dispatchers should add the variant (B-spline queries go to
+  `SurfOfExtrusion::base`, the overrides above to the p1/p2 methods) and wire that stub.
+- **Pass a curve handle to `GlobalPropertyAnalysis`.** The global solver's duplicate test
+  (`IdenticalSolutions`) widens its parameter tolerance by `1e-4` of the objects' natural
+  intervals. With `PropertyAnalysisOptions::handle = None` the solutions name no object,
+  the interval term is 0, and near-duplicate hits upstream merges (a few `1e-9` apart in
+  the parameter) all survive: `IntersectWithPlane` then made extra directrices. Callers
+  must pass a handle whose `SolutionObject::natural_interval` is the curve's interval
+  (here `GenHandle`).
+- **`IntersectWithCylinder` and unbounded cylinders.** Upstream makes the other generator
+  with `CreateIsoCircleFromPoint` at the bottom of the cylinder's heights; for an
+  unbounded cylinder (or a zero tolerance) the cone's STEP inversion leaves its outputs
+  unset and upstream reads them (`plan/upstream-issues.md` UB-93). The shim replays the
+  inversion (as the `surface.cone_p1` shim does) and refuses those inputs; the generator
+  only makes bounded `SmCone`s with tolerances it can meet. `GlobalSurfaceIntersect` only
+  special-cases `SmCone_TYPE`, so an `SmCylinder` always goes to the general intersector.
+- **`GlobalSurfaceIntersect` difftest.** When the special case needs more (or the other
+  surface has none) upstream runs `SmAdvSurfaceIntersector`; the shim does not run it
+  (the Rust side is deferred on `intersect.adv_surface_intersector`) and answers `-3`.
+- **State of a found `IsNurbSurfaceSurfOfExtrusion` surface.** Its `Reparameterize`
+  returns early (no NURB made) when the domains already agree; upstream's state queries
+  (`GetGenDirParamExtent`) would make the NURB lazily, so the runner records whether the
+  NURB exists, makes it on both sides, then compares the state.
+- **Review (PR #57): `sm_IntersectGenerators` status.** Upstream `IntersectWithCylinder`
+  and `IntersectWithSurfOfExtrusion` ignore the status `sm_IntersectGenerators` returns
+  (keeping whatever outputs and needs-more flag it set); Rust propagates it with `?`. Not
+  reachable today: every failure past the parallel test goes through the unported
+  `GlobalCurveSolve` (`curve.curve_p9`). When `curve.curve_p9` lands, swallow non-`Unported`
+  errors there (keep the partial curves/types and the needs-more flag), which needs
+  `intersect_generators` (`surface.surf_of_extrusion_p1`) to hand back its partial result
+  on failure.
+- **Review (PR #57): generator record coverage.** The FFI `check_record` accepts only
+  generator records of type `SmBSplineCurve` (14033). Upstream `WriteToDB` writes the
+  generator's own type, and `SmLine`, `SmEllipse`, `SmCircle`, `SmHyperbola` and
+  `SmParabola` records are valid too. `ReadFromDB` does not branch on the generator kind and
+  built surfaces cover every kind, so this is a coverage gap only; extending the
+  `topology.brep_data` Sim to line and conic records would close it.
+- **Review (PR #57): self-tagged stub.** The `UNPORTED(surface.surf_of_extrusion_p2)` stub
+  in `Surface::read_from_db` named this (now `partial`) unit, so a back-edge grep would
+  never pick it up again. It is now a `DISPATCH GAP` (as for `SmCone` / `SmTorus`, the
+  reader is ported and the error still names this unit, so the 2 `topology.brep_data`
+  cases stay deferred). Its real owner is whoever threads a `Kernel` through the
+  `Surface` dispatchers; raised in `plan/STATUS.md` Open issues for the coordinator.
 
 ## surface.surf_of_revolution_p3 merge with surface.torus, surface.cone_p1, surface.surface_p1 (2026-10-14)
 
