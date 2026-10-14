@@ -730,7 +730,16 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** The unbend volume is not ported yet. The harness rejects these chains.
 
-#### UB-73. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
+#### UB-73. `SmBSplineVolume::CalculateContinuitiesSimple` samples `sKnots2[ii]` past its end
+- **Location:** `source/SMLib/src/SmBSplineVolumeNLib.cpp:602` and `:635` (`SmBSplineVolume::CalculateContinuitiesSimple`, def. `:456`); also `:667` (`rConts[kk]`).
+- **What happens:** The inner sampling loop over `jj` reads `sKnots2[ii]` (the outer index) instead of `sKnots2[jj]`, so it samples one iso-curve per `ii` repeatedly and reads past the end of `sKnots2` (into its 256-entry stack buffer: stale or uninitialised values) whenever `sKnots1` has more samples than `sKnots2`. `rConts[kk]` likewise assumes every iso-curve has as many knots as the first one classified.
+- **Trigger:** `CalculateContinuitiesSimple(.., bCalcGeometric = TRUE)` on a volume whose two other directions have different sample counts (e.g. 5 and 3), in a build where `EvaluateIsoParametricCurveSimple` succeeds (`USE_VOLUMES`).
+- **How found:** read during porting.
+- **Confirmed:** no (the reference build has no `USE_VOLUMES`, so the loop stops at the first sample; see WR-48).
+- **Severity:** crash/UB.
+- **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
+
+#### UB-74. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
 - **Location:** `SmSurface.cpp:22280` (and `:22299`), `SmSurface::IsClosed` (def. `:22157`).
 - **What happens:** The status of `smgu_EvaluateCurveContinuity` is ignored, and the local `eCurveContinuity` it should set is then compared with the running minimum and may be returned through `peOptContinuity`.
 - **Trigger:** `IsClosed(..., &continuity)` on a surface whose boundary derivatives make the continuity evaluation fail.
@@ -1310,7 +1319,25 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Kept as is.
 
-#### WR-48. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
+#### WR-48. `SmBSplineVolume::HasDiscontinuitiesSimple` never reports geometric discontinuities
+- **Location:** `source/SMLib/src/SmBSplineVolumeNLib.cpp:242` (`HasDiscontinuitiesSimple`, def. `:226`) -> `:606` (`CalculateContinuitiesSimple`) -> `source/SMLib/src/SmBSplineVolume.cpp:2364` (`EvaluateIsoParametricCurveSimple`, `SM_ERR` in its `#else` branch).
+- **What happens:** With the default `bCalcGeometric = TRUE`, `CalculateContinuitiesSimple` fails at its first iso-curve (no `USE_VOLUMES`), leaving the knots in `rParams`, `rConts` empty and the minimum `SM_CT_CINFINITY`. `HasDiscontinuitiesSimple` ignores the status and returns `FALSE` with empty continuity lists, even for a volume with `C0` knot planes.
+- **Trigger:** `HasDiscontinuitiesSimple(&d)` on any `SmBSplineVolume`, e.g. one with a cubic `U` knot vector holding a triple interior knot.
+- **How found:** adversarial / edge-case fixture.
+- **Confirmed:** yes (fixtures `hasdisc_*_geom`, `conts_*_e3_geom` of `surface.b_spline_volume_n_lib`).
+- **Severity:** wrong result.
+- **Rust port:** Ported as written.
+
+#### WR-49. Representational volume continuities leave the last knot `SM_CT_UNDEFINED`
+- **Location:** `source/SMLib/src/SmBSplineVolumeNLib.cpp:505`-`:518` (`SmBSplineVolume::CalculateContinuitiesSimple`, `bCalcGeometric == FALSE`).
+- **What happens:** `rConts` is sized to the knot count but the loop fills only the first `count - 1` entries, so the last knot's continuity is the zero fill `SM_CT_UNDEFINED`, while the first (an end knot) gets a degree-minus-multiplicity value (`SM_CT_C0` when clamped) instead of the documented `SM_CT_DISCONTINUOUS`. The minimum therefore includes the start knot but not the end knot, and `HasDiscontinuitiesSimple(.., FALSE)` is `TRUE` for every clamped volume.
+- **Trigger:** `CalculateContinuitiesSimple(SM_VP_U, .., FALSE)` on a trilinear unit cube volume: conts `[C0, UNDEFINED]`.
+- **How found:** adversarial / edge-case fixture.
+- **Confirmed:** yes (fixtures `conts_*_rep` of `surface.b_spline_volume_n_lib`).
+- **Severity:** wrong result.
+- **Rust port:** Ported as written.
+
+#### WR-50. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
 - **Location:** `SmSurface.cpp:12691`, `SmSurface::GetFlatCorners` (def. `:12655`).
 - **What happens:** The optional-output block tests `if(lRtn &= SM_FC_UMIN_VMIN)` (and so on) with `&=`, so asking for the points masks the flags down to at most one bit (usually none), and later corners are evaluated only if all earlier masks kept a bit.
 - **Trigger:** `GetFlatCorners(&points)` on a surface with two or more flat corners.
@@ -1319,7 +1346,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`Surface::flat_corners`; `IsFlatCorner` is not ported yet).
 
-#### WR-49. `sm_GoodDropResult` swaps the guess and result distances
+#### WR-51. `sm_GoodDropResult` swaps the guess and result distances
 - **Location:** `SmSurface.cpp:10349`, `sm_GoodDropResult` (file static, def. `:10256`).
 - **What happens:** `dDsqGuess` holds the distance to the result point and `dDsqResult` the distance to the guess point, so the final "result farther than the guess" test rejects drops that improved on the guess. The caller then runs the expensive global solve.
 - **Trigger:** A local drop whose result is closer to the point than the guess, with a small residual that passes the earlier tests.
@@ -1328,7 +1355,7 @@ by area within each severity.
 - **Severity:** wrong result (performance: an unneeded global solve).
 - **Rust port:** Reproduces it (`good_drop_result`).
 
-#### WR-50. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
+#### WR-52. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
 - **Location:** `SmSurface.cpp:6948`, `SmSurface::FindDegenParamForDirection` (def. `:6757`).
 - **What happens:** The "nearly as good and closer to the input" tie-break compares `dThisParam` (a fraction in `[0, 1]` of the sample domain) with `dS` (the actual parameter), so it only means "closer" when the singular parameter runs over `[0, 1]`.
 - **Trigger:** A degenerate boundary whose singular parameter interval is not `[0, 1]`, with two nearly equally good samples.
