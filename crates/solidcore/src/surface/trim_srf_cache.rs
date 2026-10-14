@@ -852,8 +852,8 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     ///
     /// # Errors
     ///
-    /// Those of the tree; [`SolidError::Unported`]: `Evaluate1stDerivatives`
-    /// (`surface.surface_p1`), `GetSingularities` (`surface.surface_p3`),
+    /// Those of the tree and of `Evaluate1stDerivatives`; [`SolidError::Unported`]:
+    /// `GetSingularities` (`surface.surface_p3`),
     /// `FindUVNodes` (`surface.surface_cache_p3`).
     pub fn implant_vertexuse(
         &mut self,
@@ -1019,12 +1019,13 @@ fn surface_singularities(_surface: &Surface) -> Result<u64> {
 ///
 /// When wiring, keep upstream's flag arguments exactly: `(uv, TRUE, TRUE, ..)`
 /// (`SmTrimSrfCache.cpp:856`).
-fn evaluate_1st_derivatives(_surface: &Surface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)
-    Err(SolidError::unported(
-        "SmSurface::Evaluate1stDerivatives",
-        "surface.surface_p1",
-    ))
+fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    crate::surface::surface::p7::evaluate_1st_derivatives(
+        surface,
+        uv,
+        crate::nurbs::knots::Side::Left,
+        crate::nurbs::knots::Side::Left,
+    )
 }
 
 /// `SmTol::MapTo2d(tol, uv, dir, surface)`.
@@ -1046,17 +1047,18 @@ fn face_zone_tol_3d<O>(_face: O) -> Result<f64> {
 /// `SmPointClassification`: its class and object.
 ///
 /// When wiring, keep upstream's flag arguments exactly: `(.., FALSE, TRUE, ..)`
-/// (`SmTrimSrfCache.cpp:91` and `:1089`).
+/// (`SmTrimSrfCache.cpp:91` and `:1089`). The classification is
+/// `intersect::point_class::PointClassification::new(src_zone_tol_3d)`; its
+/// `point_class()` and `object()` are the results.
 fn face_point_classify<O>(
     _face: O,
     _uv: Point2,
     _src_zone_tol_3d: f64,
 ) -> Result<(i32, Option<O>)> {
-    // UNPORTED(intersect.point_class): SmPointClassification::SmPointClassification
     // UNPORTED(query.face_p2): SmFace::PointClassify(uv, tol, FALSE, TRUE, sPC)
     Err(SolidError::unported(
-        "SmPointClassification::SmPointClassification",
-        "intersect.point_class",
+        "SmFace::PointClassify",
+        "query.face_p2",
     ))
 }
 
@@ -1300,12 +1302,11 @@ mod tests {
             uv_point: Point2::new(0.4, 0.4),
             vertex_tolerance: 0.001,
         };
+        // past Evaluate1stDerivatives (surface::surface::p7): the singularities or the
+        // UV node search are unported
         assert!(matches!(
             c.implant_vertexuse(&k, vu, &mut ext),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p1",
-                ..
-            })
+            Err(SolidError::Unported { .. })
         ));
         assert_eq!(ext, before);
         let surface = plane();

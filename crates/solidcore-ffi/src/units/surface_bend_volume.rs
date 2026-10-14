@@ -32,8 +32,7 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: finite
 //! values within [`MAX_COORD`], derivative orders that fit the shim's arrays (`n <= 5`;
-//! upstream rejects `n > 3` before writing), `CurveIn` lines longer than
-//! [`MIN_LINE`], and byte values for `ReadDb`.
+//! upstream rejects `n > 3` before writing), and byte values for `ReadDb`.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -43,9 +42,6 @@ pub const MAX_N: usize = 5;
 pub const MAX_COORD: f64 = 1e8;
 /// Longest database stream.
 pub const MAX_BYTES: usize = 4096;
-/// Shortest `CurveIn` line (a degenerate `SmLine` is not a curve the plane
-/// classification is meant for).
-pub const MIN_LINE: f64 = 1e-6;
 
 /// Shim operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -185,20 +181,8 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             r.flag()?;
             r.flag()?;
         }
-        Op::Trim => {
+        Op::Trim | Op::CurveIn => {
             r.vecs(2)?;
-        }
-        Op::CurveIn => {
-            let c = r.vecs(2)?;
-            let len_sq: f64 = (0..3)
-                .map(|k| match (c.get(k), c.get(k + 3)) {
-                    (Some(a), Some(b)) => (b - a) * (b - a),
-                    _ => 0.0,
-                })
-                .sum();
-            if len_sq < MIN_LINE * MIN_LINE {
-                return Err(bad("degenerate CurveIn line"));
-            }
         }
         Op::InvGuess => {
             r.vecs(1)?;
@@ -247,8 +231,8 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     call_with_buffer(1024, |buf, len| {
         // SAFETY: input is valid for input.len() reads and holds exactly what the shim
         // reads for `op` (validated above: finite values, a bend block of a known
-        // kind, derivative orders within the shim's arrays, non-degenerate lines,
-        // byte values for streams); buf is valid for buf.len() writes and the shim
+        // kind, derivative orders within the shim's arrays, byte values for
+        // streams); buf is valid for buf.len() writes and the shim
         // honours the capacity; len is valid.
         unsafe {
             sys::sc_surface_bend_volume_eval(

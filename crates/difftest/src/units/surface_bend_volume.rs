@@ -30,6 +30,7 @@ use solidcore::geom::pseudo_box::PseudoBox;
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use solidcore::geom::transform::Transform;
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::surface::bend_volume::BendVolume;
 use solidcore::surface::volume::{EvalOptions, Volume, VolumeKind};
 use solidcore::topology::database_io::{DatabaseReader, FileType};
@@ -584,7 +585,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         }
         Inputs::CurveIn { a, b, .. } => {
             let line = Curve::from(Line::from_points(v3(*a), v3(*b), 3));
-            let in_curve = tri!(o, need()?.is_curve_in_param_domain_simple(&line));
+            let in_curve = tri!(o, need()?.is_curve_in_param_domain_simple(&Kernel::default(), &line));
             o.push(0.0);
             o.push(fl(in_curve));
         }
@@ -662,6 +663,7 @@ fn gen_ctor(rng: &mut Rng) -> Ctor {
         2 => rng.uniform(-1.0, -0.1),
         3 => rng.uniform(20.0, 200.0),
         4 => 1.0,
+        5 => rng.uniform(1e3, 1e4),
         _ => rng.uniform(0.2, 5.0),
     };
     let tol = match rng.below(7) {
@@ -713,6 +715,20 @@ fn neutral_of(b: &BendIn) -> f64 {
 /// A parameter point: random, on or near the singular axis, at the singularity
 /// tolerance, or on or near the period ends `v = +-pi d`.
 fn gen_point(rng: &mut Rng, d: f64) -> [f64; 3] {
+    let p = gen_point_unscaled(rng, d);
+    scaled(rng, p)
+}
+
+/// `p` scaled by `1e4` or `1e-4` now and then (huge and tiny scales).
+fn scaled(rng: &mut Rng, p: [f64; 3]) -> [f64; 3] {
+    match rng.below(25) {
+        0 => p.map(|c| c * 1e4),
+        1 => p.map(|c| c * 1e-4),
+        _ => p,
+    }
+}
+
+fn gen_point_unscaled(rng: &mut Rng, d: f64) -> [f64; 3] {
     let pi = core::f64::consts::PI;
     let z = rng.uniform(-3.0, 3.0);
     match rng.below(12) {
@@ -737,7 +753,7 @@ fn gen_point(rng: &mut Rng, d: f64) -> [f64; 3] {
 /// (also with a signed zero).
 fn gen_proj_point(rng: &mut Rng) -> [f64; 3] {
     let z = rng.uniform(-3.0, 3.0);
-    match rng.below(10) {
+    let p = match rng.below(10) {
         0 => [0.0, 0.0, z],
         1 => [rng.uniform(-1e-2, 1e-2), rng.uniform(-1e-2, 1e-2), z],
         2 => [rng.uniform(-4.0, -0.1), 0.0, z],
@@ -745,7 +761,8 @@ fn gen_proj_point(rng: &mut Rng) -> [f64; 3] {
         4 => [rng.uniform(-4.0, -0.1), rng.uniform(-1e-14, 1e-14), z],
         5 => [0.01, 0.0, z],
         _ => coord(rng, 6.0),
-    }
+    };
+    scaled(rng, p)
 }
 
 /// A parameter box: random, in the half space, spanning the angles `0`, `+-pi/2`,
@@ -822,6 +839,17 @@ fn gen_box(rng: &mut Rng, d: f64) -> ([f64; 3], [f64; 3]) {
             }
         }
         _ => {}
+    }
+    // huge and tiny scales (the unbounded markers stay)
+    let factor = match rng.below(25) {
+        0 => 1e4,
+        1 => 1e-4,
+        _ => 1.0,
+    };
+    for c in a.iter_mut().chain(b.iter_mut()) {
+        if c.abs() != INF {
+            *c *= factor;
+        }
     }
     (a, b)
 }

@@ -31180,6 +31180,120 @@
    }
   },
   {
+   "name": "curve_in_degenerate",
+   "upstream_ref": "source/SMLib/src/SmBendVolume.cpp (no upstream test builds an SmBendVolume; unit edge case)",
+   "inputs": {
+    "op": "curve_in",
+    "bend": {
+     "ctor": {
+      "c": [
+       0,
+       0,
+       0
+      ],
+      "axis": [
+       0,
+       0,
+       1
+      ],
+      "mid": [
+       1,
+       0,
+       0
+      ],
+      "neutral": 1.0,
+      "tol": 0.01
+     }
+    },
+    "a": [
+     1,
+     1,
+     0
+    ],
+    "b": [
+     1,
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "name": "curve_in_degenerate_axis",
+   "upstream_ref": "source/SMLib/src/SmBendVolume.cpp (no upstream test builds an SmBendVolume; unit edge case)",
+   "inputs": {
+    "op": "curve_in",
+    "bend": {
+     "ctor": {
+      "c": [
+       0,
+       0,
+       0
+      ],
+      "axis": [
+       0,
+       0,
+       1
+      ],
+      "mid": [
+       1,
+       0,
+       0
+      ],
+      "neutral": 1.0,
+      "tol": 0.01
+     }
+    },
+    "a": [
+     0,
+     0,
+     0
+    ],
+    "b": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "curve_in_degenerate_out",
+   "upstream_ref": "source/SMLib/src/SmBendVolume.cpp (no upstream test builds an SmBendVolume; unit edge case)",
+   "inputs": {
+    "op": "curve_in",
+    "bend": {
+     "ctor": {
+      "c": [
+       0,
+       0,
+       0
+      ],
+      "axis": [
+       0,
+       0,
+       1
+      ],
+      "mid": [
+       1,
+       0,
+       0
+      ],
+      "neutral": 1.0,
+      "tol": 0.01
+     }
+    },
+    "a": [
+     -1,
+     5,
+     2
+    ],
+    "b": [
+     -1,
+     5,
+     2
+    ]
+   }
+  },
+  {
    "name": "copy_unit_full",
    "upstream_ref": "source/SMLib/src/SmBendVolume.cpp (no upstream test builds an SmBendVolume; unit edge case)",
    "inputs": {
