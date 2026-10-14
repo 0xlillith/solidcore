@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 17 claimed, 0 blocked, 104 todo.
+**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 18 claimed, 0 blocked, 103 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -51,7 +51,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.face_p3` (1881 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.edgeuse_p3`, `topology.face_p2` +3 more
 - [ ] `topology.topology_traverser` (784 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.face_p2`, `topology.vertex` +1 more
 - [ ] `query.face_p3` (1620 lines) — missing: `query.face_p2`, `topology.edge`, `topology.edgeuse_p1`, `topology.face_p2` +2 more
-- [ ] `query.poly` (2119 lines) — missing: `topology.proto_topology_p1`
 - [ ] `topology.brep_p7` (2503 lines) — missing: `topology.brep_p10`, `topology.edge`, `topology.edgeuse_p1`, `topology.face_p2` +2 more
 - [ ] `topology.face_p1` (2171 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`, `topology.face_p3`, `topology.face_p4` +2 more
 - [ ] `query.face_p1` (465 lines) — missing: `query.face_p2`, `query.face_p3`, `topology.edge`, `topology.edgeuse_p1` +3 more
@@ -138,6 +137,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
+- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (draft)
 
 ## By module
 
@@ -371,7 +371,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
-- [ ] ⏳ `query.poly` (2119 lines) — waiting
+- [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (draft)
 - [ ] ⏳ `query.face_p1` (465 lines) — waiting
 - [ ] ⏳ `query.face_p4` (1432 lines) — waiting
 - [ ] ⏳ `query.tess` (838 lines) — waiting
