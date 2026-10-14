@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 15 claimed, 0 blocked, 106 todo.
+**140 / 261 units ported** (88 green, 52 partial), **185,761 / 387,903 upstream lines (47.9%)**. 16 claimed, 0 blocked, 105 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `surface.cone_p2` (1656 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -123,6 +123,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
@@ -271,7 +272,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p2` (1245 lines) — partial, 905 cases
 - [x] ✅ `surface.torus` (1180 lines) — green, 563 cases
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
-- [ ] ▶️ `surface.cone_p2` (1656 lines) — ready
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
 - [ ] 🟡 `surface.volume_p2` (1490 lines) — partial, 11220 cases
