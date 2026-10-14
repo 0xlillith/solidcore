@@ -988,11 +988,25 @@ pub fn get_or_create_object_cache(
             }
             Err(e) => Err(e),
         },
-        // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
-        CacheMaker::Surface => Err(SolidError::Unported {
-            upstream: "SmSurface::CacheMakeOrValidate",
-            unit: "surface.surface_p1",
-        }),
+        CacheMaker::Surface => {
+            // The face state of an old trimmed cache (m_bFaceWasModified, the B-rep's
+            // m_bEditingEnabled) is not known here: an old cache is always reused. A
+            // caller holding the cache and its face must pass that state to
+            // validate_surface_cache itself (no caller yet).
+            match crate::surface::surface::p1::validate_surface_cache(cache_type, old, false, false)
+            {
+                Ok(Some(old)) => Ok(Some(old)),
+                // a new surface cache needs the surface: built with make_trim_srf_cache /
+                // make_surface_cache
+                Ok(None) => {
+                    return Err(SolidError::invalid_input(
+                        "geom::a_object::get_or_create_object_cache",
+                        "a new surface cache is built from the surface (make_surface_cache)",
+                    ))
+                }
+                Err(e) => Err(e),
+            }
+        }
     };
     match made {
         Ok(cache) => Ok(cache),

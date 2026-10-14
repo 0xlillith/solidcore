@@ -17,20 +17,19 @@
 //! | [`Surface::is_on_seam`], [`SeamInfo`]             | `SmSurface::IsOnSeam`                            |
 //! | [`Surface::global_point_solve`], [`global_point_solve_starts`], [`NoObject`] | `SmSurface::GlobalPointSolve` |
 //! | [`classify_curve_surface_xsect_point`], [`XsectClassification`] | `sm_ClassifyCurveSurfaceXSectPoint` (static) |
-//! | [`CsIntersect`]                                   | `SmCSIntersectENFO` (constructor, `Evaluate`)    |
-//! | [`CsNormalize`]                                   | `SmCSNormalizeENFO` (constructor, `Evaluate`)    |
-//! | [`SspIntersect`]                                  | `SmSSPIntersectENFO` (constructor, `Evaluate`)   |
-//! | [`SsiNormalize`]                                  | `SmSSINormalizeENFO` (constructor, `Evaluate`)   |
-//! | [`SsNormalize`]                                   | `SmSSNormalizeENFO` (constructor, `Evaluate`)    |
-//! | [`evaluate_normal_section`], [`NormalSection`] (co-ported) | `smsurf_EvaluateNormalSection` (unit `surface.surface_p1`) |
+//! | [`CsIntersectEnfo`] (`EvalNFunctions`)           | `SmCSIntersectENFO::Evaluate` (struct: `surface.surface_p1`) |
+//! | [`CsNormalizeEnfo`] (`EvalNFunctions`)            | `SmCSNormalizeENFO::Evaluate` (struct: `surface.surface_p1`) |
+//! | [`SspIntersectEnfo`] (`EvalNFunctions`)           | `SmSSPIntersectENFO::Evaluate` (struct: `surface.surface_p1`) |
+//! | [`SsiNormalizeEnfo`] (`EvalNFunctions`)           | `SmSSINormalizeENFO::Evaluate` (struct: `surface.surface_p1`) |
+//! | [`SsNormalizeEnfo`] (`EvalNFunctions`)            | `SmSSNormalizeENFO::Evaluate` (struct: `surface.surface_p1`) |
 //! | [`is_point_on_normal`], [`PointOnNormal`], [`NormalTestReason`] (co-ported) | `smsurf_IsPointOnNormal` (unit `surface.surface_p3`) |
 //! | [`SurfaceEval::eval_normal`] (co-ported)          | `SmSurfaceEval::EvalNormal` (unit `surface.surface_p3`) |
 //!
 //! Deviations:
-//! - **Equation sets.** Each `Sm*ENFO` class is a struct implementing [`EvalNFunctions`]
-//!   (its constructor is `new`); the unused tolerance arguments of the constructors are
-//!   dropped. `SmCSIntersectENFO` keeps its call count, last gap and minimize flag in the
-//!   struct, as upstream. The finite-difference Jacobian `SmSSINormalizeENFO` computes after
+//! - **Equation sets.** Each `Sm*ENFO` class is a struct of unit `surface.surface_p1`
+//!   (`surface::surface::p1::*Enfo`, with its constructor); this unit implements
+//!   [`EvalNFunctions`] for them. `SmCSIntersectENFO` keeps its call count, last gap and
+//!   minimize flag in the struct, as upstream. The finite-difference Jacobian `SmSSINormalizeENFO` computes after
 //!   its analytic one is the only one that reaches the caller, so the analytic one is not
 //!   built. In the `sN2U` fallback `SmSSINormalizeENFO` evaluates the
 //!   second point's normal on the *first* surface, as upstream does (kept, since the difftest
@@ -40,11 +39,11 @@
 //!   returns `InvalidInput` for a plane (its base is not a stored B-spline surface here).
 //! - **Owner checks.** Only an owner of type `SmFace` (surface) or `SmEdge` (curve) takes
 //!   the topology path, as upstream's `SM_CAST_PTR`.
-//! - **Co-ported callees.** `smsurf_EvaluateNormalSection`, `smsurf_IsPointOnNormal` and
-//!   `SmSurfaceEval::EvalNormal` are small callees owned by units `surface.surface_p1` and
-//!   `surface.surface_p3` that this unit's functions need to run at all; they are ported
-//!   here (recorded as `CO-PORTED` in the plan notes). `Normal` fails with the status of a
-//!   failed evaluation where upstream asserts and returns the stale matrix entry.
+//! - **Co-ported callees.** `smsurf_IsPointOnNormal` and `SmSurfaceEval::EvalNormal` are
+//!   small callees owned by unit `surface.surface_p3` that this unit's functions need to
+//!   run at all; they are ported here (recorded as `CO-PORTED` in the plan notes).
+//!   `smsurf_EvaluateNormalSection` is `surface::surface::p1::evaluate_normal_section`.
+//!   `Normal` fails with the status of a failed evaluation where upstream asserts and returns the stale matrix entry.
 //! - **Statuses.** `smsurf_IsPointOnNormal` returns its `SmStatus` reasons as
 //!   [`NormalTestReason`] and always succeeds, as upstream; its deviation output is `0` when
 //!   the surface could not be evaluated (upstream leaves it unset).
@@ -56,13 +55,13 @@
 //!   upstream. `SmCurve::EvaluateGeometric` failing with `SM_ERR` marks the point touching
 //!   (other failures propagate; upstream would read uninitialised vectors). The shape
 //!   variables only read on paths where they were set start at zero.
-//! - **Unported callees** (return [`SolidError::Unported`]): `SmSurface::IsOnBoundary` and the
-//!   tolerance branch of `IsInDomain` (`SmTol::MapTo2d`: `surface.surface_p1`), the zone
-//!   tolerance of a surface (`topology.edgeuse_p1`), `GlobalPointSolve_1`
-//!   (`surface.surface_point_solve_p3`), the surface cache (`smsurf_GetSurfaceCache`), the
-//!   trim containment of a face's surface (`SmFace::PointClassify`, `query.face_p2`) and the
-//!   edge and face tolerances of owned curves and surfaces (`topology.edge`,
-//!   `topology.face_p2`).
+//! - **Kernel.** `is_on_seam` and `global_point_solve` (and `global_point_solve_starts`)
+//!   take the [`Kernel`] that the tolerance, drop and cache callees now need.
+//! - **Unported callees** (return [`SolidError::Unported`]): the zone tolerance of a face's
+//!   surface (`SmFace::GetTolerance`, `topology.face_p2`), `GlobalPointSolve_1`
+//!   (`surface.surface_point_solve_p3`), the trim containment of a face's surface
+//!   (`SmFace::PointClassify`, `query.face_p2`) and the edge and face tolerances of owned
+//!   curves and surfaces (`topology.edge`, `topology.face_p2`).
 
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::evaluate_geometric as curve_evaluate_geometric;
@@ -91,18 +90,22 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
 
+use super::p1::{
+    evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
+    evaluate_normal_section, map_to_2d_dir, zone_tol_3d, CsIntersectEnfo, CsNormalizeEnfo,
+    SsNormalizeEnfo, SsiNormalizeEnfo, SspIntersectEnfo,
+};
 use super::p2::{
     convert_to_parameter_delta, evaluate_geometric, surface_cache, LocalSurfaceType, SurfaceEval,
     TsectCurveType,
 };
-use super::p7::{evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs};
 use super::{Surface, SurfaceKind};
 
-const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersect::evaluate";
-const OP_CS_NORMALIZE: &str = "surface::surface::p4::CsNormalize::evaluate";
-const OP_SSP_INTERSECT: &str = "surface::surface::p4::SspIntersect::evaluate";
-const OP_SSI_NORMALIZE: &str = "surface::surface::p4::SsiNormalize::evaluate";
-const OP_SS_NORMALIZE: &str = "surface::surface::p4::SsNormalize::evaluate";
+const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersectEnfo::evaluate";
+const OP_CS_NORMALIZE: &str = "surface::surface::p4::CsNormalizeEnfo::evaluate";
+const OP_SSP_INTERSECT: &str = "surface::surface::p4::SspIntersectEnfo::evaluate";
+const OP_SSI_NORMALIZE: &str = "surface::surface::p4::SsiNormalizeEnfo::evaluate";
+const OP_SS_NORMALIZE: &str = "surface::surface::p4::SsNormalizeEnfo::evaluate";
 const OP_EVAL_NORMAL: &str = "surface::surface::p4::SurfaceEval::eval_normal";
 const OP_SEAM: &str = "surface::surface::p4::Surface::create_seam_curve";
 const OP_CLASSIFY: &str = "surface::surface::p4::classify_curve_surface_xsect_point";
@@ -133,34 +136,7 @@ fn set_all(f: &mut [f64], values: &[f64]) {
     }
 }
 
-/// Newton equations of a curve/surface intersection (`SmCSIntersectENFO`):
-/// `F = S(u, v) - C(t)`; after slow convergence near a tangency it switches to the
-/// normalize equations. Holds the call count, last gap and the switch flag.
-#[derive(Debug)]
-pub struct CsIntersect<'a> {
-    curve: &'a Curve,
-    surface: &'a Surface,
-    count: u64,
-    last_sum: f64,
-    do_minimize: bool,
-}
-
-impl<'a> CsIntersect<'a> {
-    /// The equations for `curve` against `surface` (the constructor; the squared
-    /// tolerance argument is unused upstream).
-    #[must_use]
-    pub const fn new(curve: &'a Curve, surface: &'a Surface) -> Self {
-        Self {
-            curve,
-            surface,
-            count: 0,
-            last_sum: 0.0,
-            do_minimize: false,
-        }
-    }
-}
-
-impl EvalNFunctions for CsIntersect<'_> {
+impl EvalNFunctions for CsIntersectEnfo<'_> {
     /// `Evaluate`: `x = [t u v]`; never reports an answer found.
     fn evaluate(
         &mut self,
@@ -273,37 +249,7 @@ impl EvalNFunctions for CsIntersect<'_> {
     }
 }
 
-/// Newton equations of the curve/surface normalize, minimize and maximize solves, and
-/// of the 3D signed directed minimize (`SmCSNormalizeENFO`).
-#[derive(Debug)]
-pub struct CsNormalize<'a> {
-    curve: &'a Curve,
-    surface: &'a Surface,
-    operation: SolverOperation,
-    opt_vectors: &'a [Vec3],
-}
-
-impl<'a> CsNormalize<'a> {
-    /// The equations for `curve` against `surface` (the constructor; the distance
-    /// and squared tolerances are unused upstream). `opt_vectors[0]` is the
-    /// direction of a signed directed minimize.
-    #[must_use]
-    pub const fn new(
-        curve: &'a Curve,
-        surface: &'a Surface,
-        operation: SolverOperation,
-        opt_vectors: &'a [Vec3],
-    ) -> Self {
-        Self {
-            curve,
-            surface,
-            operation,
-            opt_vectors,
-        }
-    }
-}
-
-impl EvalNFunctions for CsNormalize<'_> {
+impl EvalNFunctions for CsNormalizeEnfo<'_> {
     /// `Evaluate`: `x = [t u v]` (and `w` for the signed directed minimize); never
     /// reports an answer found.
     fn evaluate(
@@ -312,7 +258,7 @@ impl EvalNFunctions for CsNormalize<'_> {
         f: &mut [f64],
         mut jacobian: Option<&mut Matrix>,
     ) -> Result<bool> {
-        let directed = self.operation == SolverOperation::Signed3dDirectedMinimize;
+        let directed = self.solver_operation == SolverOperation::Signed3dDirectedMinimize;
         let count = if directed { 4 } else { 3 };
         check_len(x, f, count, OP_CS_NORMALIZE)?;
         let (Some(&t), Some(&u), Some(&v)) = (x.first(), x.get(1), x.get(2)) else {
@@ -346,7 +292,7 @@ impl EvalNFunctions for CsNormalize<'_> {
         // Translate the surface point by its normal when the gap gets very small.
         if gap.length_squared() < scaled_zero {
             let norm = if directed {
-                nth(self.opt_vectors, 0, OP_CS_NORMALIZE)?
+                nth(self.opt_vectors.unwrap_or(&[]), 0, OP_CS_NORMALIZE)?
             } else {
                 self.surface.evaluate_normal(uv, Side::Left, Side::Left)?
             };
@@ -362,10 +308,10 @@ impl EvalNFunctions for CsNormalize<'_> {
         let ct_unit_t = ct.unitized_derivative(ctt);
 
         if directed {
-            if self.opt_vectors.is_empty() {
+            if self.opt_vectors.unwrap_or(&[]).is_empty() {
                 return Err(SolidError::null_pointer(OP_CS_NORMALIZE));
             }
-            let dir = nth(self.opt_vectors, 0, OP_CS_NORMALIZE)?;
+            let dir = nth(self.opt_vectors.unwrap_or(&[]), 0, OP_CS_NORMALIZE)?;
 
             // Surface Normal, unit, and derivatives
             let cross = su.cross(sv);
@@ -433,38 +379,7 @@ impl EvalNFunctions for CsNormalize<'_> {
     }
 }
 
-/// Newton equations of the surface/surface/plane intersection by tangent planes
-/// (`SmSSPIntersectENFO`): `x = [u1 v1 u2 v2]`. With `steepest_descent` the plane of
-/// each evaluation passes through the middle of the two surface points with the
-/// cross product of the surface normals as its normal; otherwise it is `plane`.
-#[derive(Debug)]
-pub struct SspIntersect<'a> {
-    surface: &'a Surface,
-    other_surface: &'a Surface,
-    steepest_descent: bool,
-    plane: Option<&'a Plane>,
-}
-
-impl<'a> SspIntersect<'a> {
-    /// The equations for `surface` against `other_surface` (the constructor; the
-    /// squared tolerance is unused upstream).
-    #[must_use]
-    pub const fn new(
-        surface: &'a Surface,
-        other_surface: &'a Surface,
-        steepest_descent: bool,
-        plane: Option<&'a Plane>,
-    ) -> Self {
-        Self {
-            surface,
-            other_surface,
-            steepest_descent,
-            plane,
-        }
-    }
-}
-
-impl EvalNFunctions for SspIntersect<'_> {
+impl EvalNFunctions for SspIntersectEnfo<'_> {
     /// `Evaluate`: true when both surface points lie on the plane and coincide.
     fn evaluate(
         &mut self,
@@ -588,37 +503,7 @@ impl EvalNFunctions for SspIntersect<'_> {
     }
 }
 
-/// Newton equations of the surface/surface intersection on a given plane
-/// (`SmSSINormalizeENFO`): `x = [u1 v1 u2 v2]`, the plane `N . p + D = 0`.
-#[derive(Debug)]
-pub struct SsiNormalize<'a> {
-    surface: &'a Surface,
-    other_surface: &'a Surface,
-    plane_normal: Vec3,
-    plane_d: f64,
-}
-
-impl<'a> SsiNormalize<'a> {
-    /// The equations for `surface` against `other_surface` on the plane with normal
-    /// `plane_normal` and offset `plane_d` (the constructor; the squared tolerance
-    /// is unused upstream).
-    #[must_use]
-    pub const fn new(
-        surface: &'a Surface,
-        other_surface: &'a Surface,
-        plane_normal: Vec3,
-        plane_d: f64,
-    ) -> Self {
-        Self {
-            surface,
-            other_surface,
-            plane_normal,
-            plane_d,
-        }
-    }
-}
-
-impl EvalNFunctions for SsiNormalize<'_> {
+impl EvalNFunctions for SsiNormalizeEnfo<'_> {
     /// `Evaluate`: never reports an answer found; the Jacobian is the finite
     /// difference one (upstream replaces its analytic one).
     fn evaluate(
@@ -739,38 +624,7 @@ impl EvalNFunctions for SsiNormalize<'_> {
     }
 }
 
-/// Newton equations of the surface/surface normalize, minimize and maximize solves,
-/// and of the 3D signed directed minimize (`SmSSNormalizeENFO`): `x = [u1 v1 u2 v2]`
-/// (and `w` for the signed directed minimize).
-#[derive(Debug)]
-pub struct SsNormalize<'a> {
-    surface: &'a Surface,
-    other_surface: &'a Surface,
-    operation: SolverOperation,
-    opt_vectors: &'a [Vec3],
-}
-
-impl<'a> SsNormalize<'a> {
-    /// The equations for `surface` against `other_surface` (the constructor; the
-    /// squared tolerance is unused upstream). `opt_vectors[0]` is the direction of
-    /// a signed directed minimize.
-    #[must_use]
-    pub const fn new(
-        surface: &'a Surface,
-        other_surface: &'a Surface,
-        operation: SolverOperation,
-        opt_vectors: &'a [Vec3],
-    ) -> Self {
-        Self {
-            surface,
-            other_surface,
-            operation,
-            opt_vectors,
-        }
-    }
-}
-
-impl EvalNFunctions for SsNormalize<'_> {
+impl EvalNFunctions for SsNormalizeEnfo<'_> {
     /// `Evaluate`: never reports an answer found.
     fn evaluate(
         &mut self,
@@ -778,7 +632,7 @@ impl EvalNFunctions for SsNormalize<'_> {
         f: &mut [f64],
         mut jacobian: Option<&mut Matrix>,
     ) -> Result<bool> {
-        let directed = self.operation == SolverOperation::Signed3dDirectedMinimize;
+        let directed = self.solver_operation == SolverOperation::Signed3dDirectedMinimize;
         let count = if directed { 5 } else { 4 };
         check_len(x, f, count, OP_SS_NORMALIZE)?;
         let (Some(&u1), Some(&v1), Some(&u2), Some(&v2)) =
@@ -810,7 +664,7 @@ impl EvalNFunctions for SsNormalize<'_> {
         if gap.length_squared() < tol {
             // translate one surface point by its normal and solve a little better
             let norm = if directed {
-                nth(self.opt_vectors, 0, OP_SS_NORMALIZE)?
+                nth(self.opt_vectors.unwrap_or(&[]), 0, OP_SS_NORMALIZE)?
             } else {
                 self.surface.evaluate_normal(uv1, Side::Left, Side::Left)?
             };
@@ -830,10 +684,10 @@ impl EvalNFunctions for SsNormalize<'_> {
         let s1v_unit_v = s1v.unitized_derivative(s1vv);
 
         if directed {
-            if self.opt_vectors.is_empty() {
+            if self.opt_vectors.unwrap_or(&[]).is_empty() {
                 return Err(SolidError::null_pointer(OP_SS_NORMALIZE));
             }
-            let dir = nth(self.opt_vectors, 0, OP_SS_NORMALIZE)?;
+            let dir = nth(self.opt_vectors.unwrap_or(&[]), 0, OP_SS_NORMALIZE)?;
 
             // Surf2 unit Normal and Normal derivatives
             let cross2 = s2u.cross(s2v);
@@ -930,72 +784,7 @@ impl EvalNFunctions for SsNormalize<'_> {
     }
 }
 
-// ---- co-ported callees (units surface.surface_p1 and surface.surface_p3) -------------------
-
-/// The cross-section of a surface point in a direction ([`evaluate_normal_section`]).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct NormalSection {
-    /// `rTangentPlaneDirection`: the unit tangent in the cross-section direction (zero
-    /// when the direction is degenerate).
-    pub tangent: Vec3,
-    /// `rdCurvatureValue`: the curvature in the cross-section direction.
-    pub curvature: f64,
-}
-
-/// The unit surface tangent and the curvature in the direction `direction` (non-unit is
-/// fine) from an evaluation matrix (`smsurf_EvaluateNormalSection`, co-ported from unit
-/// `surface.surface_p1`): `eval` as for [`evaluate_geometric`], which may rebuild a
-/// vanishing first derivative in place.
-///
-/// # Errors
-///
-/// Those of [`evaluate_geometric`] and of unitizing a principal direction.
-pub fn evaluate_normal_section(
-    eval: &mut [[Vec3; 3]; 3],
-    direction: Vec3,
-) -> Result<NormalSection> {
-    // compute SurfacePoint Properties from parametric evaluation
-    let props = evaluate_geometric(eval)?;
-    let mut k1 = props.principle_curvature_vector1;
-    let mut k2 = props.principle_curvature_vector2;
-
-    // unitize surfaceTangents in principle curvature directions
-    if k1.length_squared() > EFF_ZERO_SQ {
-        k1 = k1.unitize()?;
-    }
-    if k2.length_squared() > EFF_ZERO_SQ {
-        k2 = k2.unitize()?;
-    }
-
-    // get tangentVector in crDirection
-    let plane_proj = k1 * k1.dot(direction) + k2 * k2.dot(direction);
-
-    // when tangentVector is degenerate - quit
-    if plane_proj.length_squared() < EFF_ZERO_SQ {
-        return Ok(NormalSection {
-            tangent: Vec3::ZERO,
-            curvature: 0.0,
-        });
-    }
-
-    // unitize and output the tangentVector
-    let plane_proj = plane_proj.unitize()?;
-
-    // Euler's theorem: only the sine and cosine to the first principal direction
-    let cos_theta = plane_proj.dot(k1);
-    let sin_theta = if cos_theta >= 1.0 || cos_theta <= -1.0 {
-        0.0 // can happen, due to noise
-    } else {
-        sm_sqrt(1.0 - cos_theta * cos_theta)
-    };
-    let curvature = props.principle_curvature1 * cos_theta * cos_theta
-        + props.principle_curvature2 * sin_theta * sin_theta;
-
-    Ok(NormalSection {
-        tangent: plane_proj,
-        curvature,
-    })
-}
+// ---- co-ported callees (unit surface.surface_p3) ------------------------------------------
 
 impl SurfaceEval<'_> {
     /// Evaluates the unit normal into the matrix entry `[2][2]` unless done already
@@ -1081,7 +870,7 @@ impl SurfaceEval<'_> {
     ///
     /// # Errors
     ///
-    /// Those of [`evaluate_normal_section`]; [`SolidError::Unported`] from the
+    /// Those of [`evaluate_normal_section`] (`surface.surface_p1`); [`SolidError::Unported`] from the
     /// evaluations.
     pub fn eval_normal_section(&mut self) -> Result<()> {
         if *self.state_mut().sect_dir_set {
@@ -1095,9 +884,9 @@ impl SurfaceEval<'_> {
         let dir = self.sect_dir();
         let st = self.state_mut();
         match evaluate_normal_section(st.pvv, dir) {
-            Ok(section) => {
-                *st.sect_tangent = section.tangent;
-                *st.sect_curvature = section.curvature;
+            Ok((tangent, curvature)) => {
+                *st.sect_tangent = tangent;
+                *st.sect_curvature = curvature;
                 *st.sect_dir_set = true;
                 Ok(())
             }
@@ -1275,51 +1064,6 @@ pub fn is_point_on_normal(
 
 // ---- callees in units not ported yet -------------------------------------------------------
 
-/// `SmSurface::IsOnBoundary(domain, uv, side, NULL, &otherU, &otherV)`: whether `uv`
-/// is on a boundary of `uv_domain` within the natural domain, and which boundary(ies).
-fn is_on_boundary(
-    _surface: &Surface,
-    _uv_domain: &Extent2d,
-    _uv: Point2,
-    _opt_tol_3d: Option<f64>,
-) -> Result<(bool, SurfParamType, f64, f64)> {
-    // UNPORTED(surface.surface_p1): SmSurface::IsOnBoundary
-    Err(SolidError::unported(
-        "SmSurface::IsOnBoundary",
-        "surface.surface_p1",
-    ))
-}
-
-/// `SmSurface::IsInDomain(domain, uv, NULL)`: the quick test (inside the domain to
-/// `SM_EFF_ZERO`) is ported; the tolerance based one needs `SmTol::MapTo2d`.
-fn is_in_domain(surface: &Surface, uv_domain: &Extent2d, uv: Point2, tol_3d: f64) -> Result<bool> {
-    // low work - inside to numerical tolerance - a simple test, before getting into
-    // tolerances.
-    if uv_domain.contains_point(uv, EFF_ZERO) {
-        return Ok(true);
-    }
-    let _ = (surface, tol_3d);
-    // UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&,
-    // const SmVector2d&, const SmSurface&)
-    Err(SolidError::unported("SmTol::MapTo2d", "surface.surface_p1"))
-}
-
-/// `SmTol::GetZoneTol3d(const SmObject*)` of a surface.
-fn zone_tol_3d_of(_surface: &Surface) -> Result<f64> {
-    // UNPORTED(topology.edgeuse_p1): SmTol::GetZoneTol3d(const SmObject*)
-    Err(SolidError::unported(
-        "SmTol::GetZoneTol3d",
-        "topology.edgeuse_p1",
-    ))
-}
-
-/// `SmTol::MapTo2d(tol3d, uv, dir, surface)`: the 2d tolerance along `dir`.
-fn map_to_2d(_tol_3d: f64, _uv: Point2, _dir: Vec2, _surface: &Surface) -> Result<f64> {
-    // UNPORTED(surface.surface_p1): SmTol::MapTo2d(const SmTol3d&, const SmVector2d&,
-    // const SmVector2d&, const SmSurface&)
-    Err(SolidError::unported("SmTol::MapTo2d", "surface.surface_p1"))
-}
-
 /// `SmSurface::GlobalPointSolve_1`.
 fn global_point_solve_1<O: SolutionObject>() -> Result<SolutionArray<O>> {
     // UNPORTED(surface.surface_point_solve_p3): SmSurface::GlobalPointSolve_1
@@ -1417,10 +1161,9 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::IsOnBoundary`, `SmTol::MapTo2d`
-    /// (`surface.surface_p1`) and the zone tolerance of the surface; those of
-    /// [`Surface::is_closed`].
-    pub fn is_on_seam(&self, uv: Point2, opt_tol_3d: Option<f64>) -> Result<SeamInfo> {
+    /// [`SolidError::Unported`]: the zone tolerance of a face's surface; those of
+    /// [`Surface::is_on_boundary`], the tolerances and [`Surface::is_closed`].
+    pub fn is_on_seam(&self, k: &Kernel, uv: Point2, opt_tol_3d: Option<f64>) -> Result<SeamInfo> {
         // locals
         let domain = self.natural_uv_domain();
 
@@ -1433,7 +1176,11 @@ impl Surface {
 
         // when point is not on boundary
         let (on_boundary, point_param, other_u, other_v) =
-            is_on_boundary(self, &domain, uv, opt_tol_3d)?;
+            self.is_on_boundary(k, &domain, uv, opt_tol_3d)?;
+        let (other_u, other_v) = (
+            other_u.unwrap_or(UNDEF_DOUBLE),
+            other_v.unwrap_or(UNDEF_DOUBLE),
+        );
         if !on_boundary {
             // point can't be on a seam
             return Ok(info);
@@ -1442,11 +1189,11 @@ impl Surface {
         // pick a tolerance
         let tol_3d = match opt_tol_3d {
             Some(t) => t,
-            None => zone_tol_3d_of(self)?,
+            None => zone_tol_3d(k, self)?,
         };
 
-        let tol_2d_u = map_to_2d(tol_3d, uv, Vec2::new(1.0, 0.0), self)?;
-        let tol_2d_v = map_to_2d(tol_3d, uv, Vec2::new(0.0, 1.0), self)?;
+        let tol_2d_u = map_to_2d_dir(tol_3d, uv, Vec2::new(1.0, 0.0), self)?;
+        let tol_2d_v = map_to_2d_dir(tol_3d, uv, Vec2::new(0.0, 1.0), self)?;
 
         // see if surface is closed across point's boundary
         let mut closed_u = false;
@@ -1506,12 +1253,12 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the point-in-domain tolerance test, the trim
-    /// containment of a face's surface, `GlobalPointSolve_1`
-    /// (`surface.surface_point_solve_p3`) and the surface cache; those of
+    /// [`SolidError::Unported`]: the trim containment of a face's surface,
+    /// `GlobalPointSolve_1` (`surface.surface_point_solve_p3`); those of
     /// [`Surface::global_point_solve_0`] for maximize.
     pub fn global_point_solve<O: SolutionObject>(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         op: SolverOperation,
         test_point: Point3,
@@ -1524,6 +1271,7 @@ impl Surface {
         if op == SolverOperation::Intersect || op == SolverOperation::Minimize {
             // upstream ignores a failing status and tries the solvers
             let fast = ignored(self.drop_point_fast::<O>(
+                k,
                 uv_domain,
                 op,
                 test_point,
@@ -1545,7 +1293,7 @@ impl Surface {
                             s.start.parameters.get(1).copied().unwrap_or(0.0),
                         )
                     });
-                    if is_in_domain(self, uv_domain, uv, src_zone_tol_3d)? {
+                    if self.is_in_domain(k, uv_domain, uv, Some(src_zone_tol_3d))? {
                         i += 1;
                     } else {
                         solutions.remove_at(i, 1);
@@ -1556,7 +1304,7 @@ impl Surface {
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
                 if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
-                    surface_cache(self)?;
+                    surface_cache::<NoObject>(k, self, None)?;
                     // UNPORTED(query.face_p2): SmFace::PointClassify
                     return Err(SolidError::unported(
                         "SmFace::PointClassify",
@@ -1707,9 +1455,8 @@ pub fn classify_curve_surface_xsect_point(
     // Evaluate Surface Position and NormalSection in direction of CurveTangent.  This
     // should give us two circles or a line and a circle to intersect.
     let surface_point = surface.evaluate_point(current_uv)?;
-    let section = evaluate_normal_section(&mut pvv, curve_tan)?;
-    let surface_section_tangent = section.tangent;
-    let surface_section_curvature = section.curvature;
+    let (surface_section_tangent, surface_section_curvature) =
+        evaluate_normal_section(&mut pvv, curve_tan)?;
     let props = evaluate_geometric(&mut pvv)?;
     let (gaussian, normal_curv, k1, k2) = (
         props.gaussian_curvature,
@@ -2130,6 +1877,7 @@ impl SolutionObject for NoObject {
 ///
 /// Those of [`Surface::global_point_solve`].
 pub fn global_point_solve_starts(
+    k: &Kernel,
     surface: &Surface,
     uv_domain: &Extent2d,
     op: SolverOperation,
@@ -2138,6 +1886,7 @@ pub fn global_point_solve_starts(
     requested: SolutionRequested,
 ) -> Result<Vec<SolutionEnd>> {
     let solutions = surface.global_point_solve::<NoObject>(
+        k,
         uv_domain,
         op,
         point,
@@ -2241,8 +1990,9 @@ mod tests {
             }
         }
         pvv[2][2] = Vec3::new(0.0, 0.0, 1.0);
-        let sec = evaluate_normal_section(&mut pvv, Vec3::new(1.0, 1.0, 0.0)).unwrap();
-        assert!(sec.curvature.abs() < 1e-12);
-        assert!((sec.tangent.length() - 1.0).abs() < 1e-12);
+        let (tangent, curvature) =
+            evaluate_normal_section(&mut pvv, Vec3::new(1.0, 1.0, 0.0)).unwrap();
+        assert!(curvature.abs() < 1e-12);
+        assert!((tangent.length() - 1.0).abs() < 1e-12);
     }
 }
