@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**133 / 261 units ported** (87 green, 46 partial), **174,026 / 387,903 upstream lines (44.9%)**. 17 claimed, 0 blocked, 111 todo.
+**133 / 261 units ported** (87 green, 46 partial), **174,026 / 387,903 upstream lines (44.9%)**. 18 claimed, 0 blocked, 110 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -50,7 +50,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`, `topology.edgeuse_p1`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`, `topology.loopuse`
 - [ ] `heal.gap` (1475 lines) — missing: `topology.edgeuse_p1`, `topology.vertexuse`
-- [ ] `query.loop` (830 lines) — missing: `topology.loopuse`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p7`, `topology.edgeuse_p1`, `topology.face_p2` +3 more
 - [ ] `query.face_p2` (1161 lines) — missing: `intersect.curve_class_p1`, `topology.face_p2`, `topology.face_p4`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.proto_topology_p1`, `topology.shell` +1 more
@@ -144,6 +143,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (draft)
+- [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (draft)
 
 ## By module
 
@@ -374,7 +374,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### query (0/10)
 
 - [ ] ⏳ `query.edge` (1025 lines) — waiting
-- [ ] ⏳ `query.loop` (830 lines) — waiting
+- [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (draft)
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] ⏳ `query.poly` (2119 lines) — waiting
