@@ -2031,7 +2031,7 @@ mod tests {
         assert_eq!(ders.len(), 9);
         assert_eq!(ders[1], Vec3::new(0.0, 0.0, 2.0));
         assert!(s.evaluate_step(&k, Point2::new(0.5, 1.0), 6, 6).is_err());
-        // order 5 of a B-spline generator: upstream overruns NL_MAXDER (UB-73)
+        // order 5 of a B-spline generator: upstream overruns NL_MAXDER (UB-78)
         assert!(s.evaluate_step(&k, Point2::new(0.5, 1.0), 5, 5).is_err());
     }
 

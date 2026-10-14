@@ -4,3 +4,6 @@
 //! Upstream: `SmSurfaceIntersector`, `SmSurfaceTracer`, `SmTopologyIntersector`,
 //! `SmPolyIntersector`, `SmSSIData` in `source/SMLib`, and
 //! `SM_API/SmApiIntersectors`.
+
+pub mod surface_intersector;
+pub mod surface_tracer;
