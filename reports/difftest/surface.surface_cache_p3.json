@@ -87,7 +87,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824785",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -143,15 +143,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824791",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0016",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824792",
-      "values_compared": 66
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -162,12 +166,16 @@
       "values_compared": 13593
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824794",
-      "values_compared": 66
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -231,7 +239,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "symbol": "SmBSplineSurface::CalculateBoundingBox",
         "unit": "surface.plane_p1"
       },
       "max_rel_err": 0.0,
@@ -287,7 +295,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824807",
-      "values_compared": 385
+      "values_compared": 247
     },
     {
       "max_rel_err": 0.0,
@@ -387,7 +395,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824818",
-      "values_compared": 172
+      "values_compared": 276
     },
     {
       "max_rel_err": 0.0,
@@ -447,7 +455,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824825",
-      "values_compared": 384
+      "values_compared": 126
     },
     {
       "max_rel_err": 0.0,
@@ -502,12 +510,16 @@
       "values_compared": 246
     },
     {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CalculateBoundingBox",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0056",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824832",
-      "values_compared": 86491
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -571,7 +583,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824840",
-      "values_compared": 384
+      "values_compared": 154
     },
     {
       "deferred": {
@@ -627,7 +639,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824846",
-      "values_compared": 384
+      "values_compared": 126
     },
     {
       "max_rel_err": 0.0,
@@ -683,7 +695,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824852",
-      "values_compared": 221
+      "values_compared": 142
     },
     {
       "deferred": {
@@ -731,7 +743,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824857",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -767,15 +779,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824861",
-      "values_compared": 642
+      "values_compared": 697
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0086",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824862",
-      "values_compared": 1206
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -847,7 +863,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824870",
-      "values_compared": 403
+      "values_compared": 818
     },
     {
       "max_rel_err": 0.0,
@@ -963,7 +979,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824883",
-      "values_compared": 131
+      "values_compared": 95
     },
     {
       "max_rel_err": 0.0,
@@ -1103,7 +1119,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824898",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -1143,7 +1159,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824903",
-      "values_compared": 133
+      "values_compared": 230
     },
     {
       "max_rel_err": 0.0,
@@ -1263,7 +1279,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824916",
-      "values_compared": 131
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -1279,15 +1295,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824918",
-      "values_compared": 384
+      "values_compared": 246
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0143",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824919",
-      "values_compared": 66
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1295,7 +1315,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824920",
-      "values_compared": 1407
+      "values_compared": 221
     },
     {
       "max_rel_err": 0.0,
@@ -1367,7 +1387,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824928",
-      "values_compared": 1155
+      "values_compared": 234
     },
     {
       "max_rel_err": 0.0,
@@ -1394,24 +1414,24 @@
       "values_compared": 367
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0156",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=17500105236801824932",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0157",
       "outcome": "pass",
       "pass": true,
+      "source": "generated:seed=17500105236801824932",
+      "values_compared": 162
+    },
+    {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0157",
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824933",
-      "values_compared": 1244
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1511,7 +1531,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824945",
-      "values_compared": 897
+      "values_compared": 434
     },
     {
       "max_rel_err": 0.0,
@@ -1774,16 +1794,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0200",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824976",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "deferred": {
@@ -1819,7 +1835,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824980",
-      "values_compared": 384
+      "values_compared": 136
     },
     {
       "max_rel_err": 0.0,
@@ -1930,16 +1946,12 @@
       "values_compared": 384
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0217",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824993",
-      "values_compared": 0
+      "values_compared": 501
     },
     {
       "deferred": {
@@ -1991,7 +2003,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801824998",
-      "values_compared": 384
+      "values_compared": 288
     },
     {
       "max_rel_err": 0.0,
@@ -2007,7 +2019,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825000",
-      "values_compared": 172
+      "values_compared": 276
     },
     {
       "deferred": {
@@ -2139,7 +2151,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825015",
-      "values_compared": 390
+      "values_compared": 554
     },
     {
       "max_rel_err": 0.0,
@@ -2206,16 +2218,12 @@
       "values_compared": 288
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0248",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825024",
-      "values_compared": 0
+      "values_compared": 136
     },
     {
       "deferred": {
@@ -2271,7 +2279,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825030",
-      "values_compared": 3941
+      "values_compared": 277
     },
     {
       "max_rel_err": 0.0,
@@ -2526,16 +2534,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0282",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825058",
-      "values_compared": 0
+      "values_compared": 18109
     },
     {
       "deferred": {
@@ -2619,7 +2623,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825067",
-      "values_compared": 384
+      "values_compared": 136
     },
     {
       "deferred": {
@@ -2655,15 +2659,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825071",
-      "values_compared": 1407
+      "values_compared": 647
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0296",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825072",
-      "values_compared": 66
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2687,7 +2695,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825075",
-      "values_compared": 734
+      "values_compared": 936
     },
     {
       "deferred": {
@@ -2743,7 +2751,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825081",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -2751,7 +2759,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825082",
-      "values_compared": 897
+      "values_compared": 712
     },
     {
       "max_rel_err": 0.0,
@@ -2782,16 +2790,12 @@
       "values_compared": 247
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0310",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825086",
-      "values_compared": 0
+      "values_compared": 26
     },
     {
       "deferred": {
@@ -2879,7 +2883,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825096",
-      "values_compared": 131
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -2903,7 +2907,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825099",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -3039,7 +3043,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825115",
-      "values_compared": 143387
+      "values_compared": 18109
     },
     {
       "max_rel_err": 0.0,
@@ -3139,7 +3143,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825126",
-      "values_compared": 384
+      "values_compared": 246
     },
     {
       "deferred": {
@@ -3183,7 +3187,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825130",
-      "values_compared": 384
+      "values_compared": 216
     },
     {
       "max_rel_err": 0.0,
@@ -3263,7 +3267,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825139",
-      "values_compared": 384
+      "values_compared": 126
     },
     {
       "max_rel_err": 0.0,
@@ -3271,7 +3275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825140",
-      "values_compared": 172
+      "values_compared": 330
     },
     {
       "deferred": {
@@ -3327,7 +3331,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825146",
-      "values_compared": 384
+      "values_compared": 246
     },
     {
       "deferred": {
@@ -3355,7 +3359,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825149",
-      "values_compared": 384
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -3366,12 +3370,16 @@
       "values_compared": 246
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0375",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825151",
-      "values_compared": 66
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3467,7 +3475,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825162",
-      "values_compared": 72
+      "values_compared": 158
     },
     {
       "max_rel_err": 0.0,
@@ -3574,12 +3582,16 @@
       "values_compared": 66
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0398",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825174",
-      "values_compared": 1413
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3759,7 +3771,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825194",
-      "values_compared": 207
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -3770,12 +3782,16 @@
       "values_compared": 985
     },
     {
+      "deferred": {
+        "symbol": "SmTessSrfCache subdivision surfaces",
+        "unit": "query.tess"
+      },
       "max_rel_err": 0.0,
       "name": "gen0420",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825196",
-      "values_compared": 202
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3807,7 +3823,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825200",
-      "values_compared": 133
+      "values_compared": 747
     },
     {
       "max_rel_err": 0.0,
@@ -3927,7 +3943,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825213",
-      "values_compared": 162
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -3959,7 +3975,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825217",
-      "values_compared": 384
+      "values_compared": 246
     },
     {
       "max_rel_err": 0.0,
@@ -3967,7 +3983,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825218",
-      "values_compared": 441075
+      "values_compared": 34857
     },
     {
       "max_rel_err": 0.0,
@@ -4079,7 +4095,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825231",
-      "values_compared": 385
+      "values_compared": 62521
     },
     {
       "max_rel_err": 0.0,
@@ -4127,7 +4143,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825237",
-      "values_compared": 870
+      "values_compared": 133
     },
     {
       "deferred": {
@@ -4279,7 +4295,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825253",
-      "values_compared": 1251
+      "values_compared": 221
     },
     {
       "max_rel_err": 0.0,
@@ -4307,7 +4323,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825256",
-      "values_compared": 942
+      "values_compared": 814
     },
     {
       "max_rel_err": 0.0,
@@ -4359,7 +4375,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825262",
-      "values_compared": 1206
+      "values_compared": 202
     },
     {
       "deferred": {
@@ -4435,7 +4451,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825270",
-      "values_compared": 131
+      "values_compared": 95
     },
     {
       "deferred": {
@@ -4463,7 +4479,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825273",
-      "values_compared": 172
+      "values_compared": 216
     },
     {
       "max_rel_err": 0.0,
@@ -4471,7 +4487,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825274",
-      "values_compared": 5719
+      "values_compared": 247
     },
     {
       "max_rel_err": 0.0,
@@ -4563,15 +4579,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825284",
-      "values_compared": 384
+      "values_compared": 140
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0509",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825285",
-      "values_compared": 647
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4691,7 +4711,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825299",
-      "values_compared": 384
+      "values_compared": 136
     },
     {
       "deferred": {
@@ -4711,7 +4731,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825301",
-      "values_compared": 4957
+      "values_compared": 3001
     },
     {
       "deferred": {
@@ -4779,7 +4799,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825308",
-      "values_compared": 390
+      "values_compared": 202
     },
     {
       "deferred": {
@@ -4871,7 +4891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825318",
-      "values_compared": 129671
+      "values_compared": 733
     },
     {
       "deferred": {
@@ -5023,7 +5043,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825335",
-      "values_compared": 774
+      "values_compared": 250
     },
     {
       "max_rel_err": 0.0,
@@ -5050,12 +5070,16 @@
       "values_compared": 82867
     },
     {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CalculateBoundingBox",
+        "unit": "surface.plane_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0563",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825339",
-      "values_compared": 26039
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5263,7 +5287,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825362",
-      "values_compared": 1497
+      "values_compared": 1122
     },
     {
       "deferred": {
@@ -5303,7 +5327,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825366",
-      "values_compared": 290
+      "values_compared": 329
     },
     {
       "max_rel_err": 0.0,
@@ -5351,7 +5375,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=17500105236801825371",
-      "values_compared": 172
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -5395,14 +5419,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 148,
+  "cases_deferred": 154,
   "cases_failed": 0,
-  "cases_passed": 452,
+  "cases_passed": 446,
   "cases_total": 600,
   "deferred_by_unit": {
-    "query.tess": 32,
-    "surface.plane_p1": 12,
-    "surface.surface_p3": 14,
+    "query.tess": 38,
+    "surface.plane_p1": 11,
+    "surface.surface_p3": 15,
     "surface.surface_p5": 32,
     "surface.surface_p6": 57,
     "surface.surface_p9": 1
