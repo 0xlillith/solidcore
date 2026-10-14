@@ -196,7 +196,9 @@ fn offset_evaluate_2nd(_s: &OffsetSurface, _uv: Point2) -> Result<[Vec3; 6]> {
 }
 
 /// `SmSurface::ComputeInwardVector` of an offset surface (it evaluates the offset
-/// surface).
+/// surface). `ComputeInwardVector` itself is ported (`surface::surface::p7::
+/// compute_inward_vector`); only the offset surface's evaluation is missing, so the
+/// porter of `surface.offset_surface` wires this through that function.
 fn offset_compute_inward_vector(_s: &OffsetSurface, _uv: Point2) -> Result<Vec3> {
     // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate (from SmSurface::ComputeInwardVector)
     Err(SolidError::Unported {

@@ -36,7 +36,9 @@
 //! non-negative tolerance, at most [`MAX_POINTS`] fillet points and rails over the same
 //! interval (the skinning re-intersects rail 2 at `pIntersectionsWithRails[k..2k]`,
 //! past the `k` parameters `CreateSurface` passes, when synchronising the rails changes
-//! rail 2's interval); `Jac*` needs every `crX` read (the UV offsets the upstream
+//! rail 2's interval), except for two non-rational 2-point degree-1 rails whose
+//! directions agree to well inside upstream's `SM_EFF_ZERO_SQRT` angle (they always
+//! take the ruled-surface branch, which never skins); `Jac*` needs every `crX` read (the UV offsets the upstream
 //! index logic picks, plus one) inside `x`, `nf >= ne + 3`, and a Jacobian with
 //! `ne + 3` rows and room for both offsets' columns; `Init*` needs rail `0` or `1`, a
 //! non-`NULL` first surface and, with `do2`, the guess and interval indices it reads
@@ -212,8 +214,15 @@ fn points(rd: &mut Reader<'_>, k: usize) -> Result<Vec<[f64; 4]>, FfiError> {
         .collect()
 }
 
-/// Reads and validates a curve `n p m cpts knots`; returns its natural interval.
-fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
+/// A validated rail: its natural interval and, for a non-rational 2-point degree-1
+/// curve, the vector from its first to its last control point (`IsLine`'s direction).
+struct Rail {
+    ivl: (f64, f64),
+    line: Option<[f64; 3]>,
+}
+
+/// Reads and validates a curve `n p m cpts knots`.
+fn curve(rd: &mut Reader<'_>) -> Result<Rail, FfiError> {
     let n = rd.index(MAX_INDEX)?;
     let p = rd.index(MAX_DEGREE)?;
     let m = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
@@ -226,7 +235,35 @@ fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     check_knots(&knots, p, "curve")?;
     let a = knots.first().copied().unwrap_or(0.0);
     let b = knots.last().copied().unwrap_or(0.0);
-    Ok((a, b))
+    let line = match (p, pts.as_slice()) {
+        (1, [[x0, y0, z0, w0], [x1, y1, z1, _]]) if *w0 == NOW => {
+            Some([x1 - x0, y1 - y0, z1 - z0])
+        }
+        _ => None,
+    };
+    Ok(Rail { ivl: (a, b), line })
+}
+
+/// Whether two rails certainly take `CreateSurface`'s ruled-surface branch: both are
+/// non-rational 2-point lines (`IsLine` returns their end-to-end vector) at least
+/// `1e-7` long (`IsLine`'s zero-length test is `1e-8`), and the angle between them is
+/// below `5e-7`, half of upstream's `SM_EFF_ZERO_SQRT` test.
+fn certainly_ruled(r1: &Rail, r2: &Rail) -> bool {
+    let (Some(a), Some(b)) = (r1.line, r2.line) else {
+        return false;
+    };
+    let dot = |u: [f64; 3], v: [f64; 3]| u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+    let (la, lb) = (dot(a, a).sqrt(), dot(b, b).sqrt());
+    if !(la >= 1e-7 && lb >= 1e-7 && la.is_finite() && lb.is_finite()) {
+        return false;
+    }
+    let cross = [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ];
+    let sin = dot(cross, cross).sqrt() / (la * lb);
+    dot(a, b) > 0.0 && sin < 5e-7
 }
 
 /// Reads and validates a surface `n m p q r s cpts u v`.
@@ -256,9 +293,9 @@ fn validate_create(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     if tol < 0.0 {
         return Err(bad("create: negative tolerance"));
     }
-    let ivl1 = curve(rd)?;
-    let ivl2 = curve(rd)?;
-    if ivl1 != ivl2 {
+    let rail1 = curve(rd)?;
+    let rail2 = curve(rd)?;
+    if rail1.ivl != rail2.ivl && !certainly_ruled(&rail1, &rail2) {
         return Err(bad("create: rails over different intervals"));
     }
     let k = rd.index(MAX_POINTS)?;

@@ -195,6 +195,214 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "adv_antiparallel_lines",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#22",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_identical_line_rails_point_sections",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#23",
+      "values_compared": 64
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_identical_freeform_rails_point_sections",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#24",
+      "values_compared": 202
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_zero_radius_p1_on_rail",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#25",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_p2_equals_p1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#26",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_collinear_p1_s1_s2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#27",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_large_ccw_angle",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#28",
+      "values_compared": 164
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rational_freeform_rails",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#29",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_double_interior_knot_cubic",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#30",
+      "values_compared": 97
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_polyline_rails",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#31",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_quadratic_lines",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#32",
+      "values_compared": 104
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_lines_interval_2_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#33",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_nearly_parallel_lines_below",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#34",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_nearly_parallel_lines_above",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#35",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tol_equals_gap",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#36",
+      "values_compared": 92
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_r2_larger_than_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#37",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_alpha_beyond_pi",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#38",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_arc_and_line_rails",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#39",
+      "values_compared": 65
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_non_coaxial_arcs",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#40",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reversed_arc_rail2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#41",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_half_circle_arcs_two_spans",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#42",
+      "values_compared": 188
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_arcs_meeting_at_start",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#43",
+      "values_compared": 65
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_arc_rails_tol_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#44",
+      "values_compared": 126
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_lines_different_intervals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#45",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_lines_rail2_interval_wider",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#46",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_lines_rail2_interval_disjoint",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_custom_solver/cases.json#47",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -3737,8 +3945,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 89,
   "cases_failed": 0,
-  "cases_passed": 333,
-  "cases_total": 422,
+  "cases_passed": 359,
+  "cases_total": 448,
   "deferred_by_unit": {
     "surface.offset_surface": 89
   },

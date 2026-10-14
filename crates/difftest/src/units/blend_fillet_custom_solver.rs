@@ -443,7 +443,7 @@ fn surface_of(s: &InlineSrf) -> Result<Surface, HarnessError> {
     Ok(Surface::from(BSplineSurface::from_nurb(nurb, false)))
 }
 
-/// The SmStatus of a Rust error; `-1` for one upstream cannot return.
+/// The `SmStatus` of a Rust error; `-1` for one upstream cannot return.
 fn status(e: &SolidError) -> f64 {
     match e {
         SolidError::InvalidInput { .. } => 1007.0,
@@ -1046,8 +1046,8 @@ fn gen_create(rng: &mut Rng) -> Inputs {
             let mut p1 = s1 + e_a * p1_2d[0] + e_b * p1_2d[1];
             let mut p2 = s1 + e_a * c2_2d[0] + e_b * c2_2d[1];
             if jitter {
-                p1 = p1 + unit_vec(rng) * (1e-3 * r1);
-                p2 = p2 + unit_vec(rng) * (1e-3 * r1);
+                p1 += unit_vec(rng) * (1e-3 * r1);
+                p2 += unit_vec(rng) * (1e-3 * r1);
             }
             [v3(p1), v3(p2)]
         })
