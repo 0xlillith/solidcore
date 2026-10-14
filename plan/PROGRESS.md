@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**122 / 261 units ported** (83 green, 39 partial), **157,758 / 387,903 upstream lines (40.7%)**. 22 claimed, 0 blocked, 117 todo.
+**124 / 261 units ported** (83 green, 41 partial), **159,084 / 387,903 upstream lines (41.0%)**. 20 claimed, 0 blocked, 117 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -130,13 +130,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +5 more
 - [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +6 more
 - [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1` +3 more
-- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `boolean.api_brep` +16 more
+- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `boolean.api_brep` +15 more
 
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
-- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
@@ -155,7 +154,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (ready for review)
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
 ## By module
 
@@ -270,7 +268,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 
-### surface (14/40)
+### surface (15/40)
 
 - [ ] 🟡 `surface.volume_p1` (2014 lines) — partial, 2886 cases
 - [x] ✅ `surface.b_spline_volume` (1226 lines) — green, 2333 cases
@@ -283,7 +281,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 621 cases
 - [ ] 🟡 `surface.b_spline_volume_n_lib` (310 lines) — partial, 2420 cases
-- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (ready for review)
+- [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
@@ -400,13 +398,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] ⏳ `mass.integrator` (1031 lines) — waiting
 
-### sweep (0/5)
+### sweep (1/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
 - [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
+- [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
 ### heal (0/7)
 
