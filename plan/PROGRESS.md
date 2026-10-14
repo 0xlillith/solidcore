@@ -2,28 +2,24 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**121 / 261 units ported** (83 green, 38 partial), **156,055 / 387,903 upstream lines (40.2%)**. 18 claimed, 0 blocked, 122 todo.
+**126 / 261 units ported** (83 green, 43 partial), **161,740 / 387,903 upstream lines (41.7%)**. 18 claimed, 0 blocked, 117 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `surface.surface_p4` (2270 lines) — ready
+- [ ] ▶️ `intersect.surface_intersector_p3` (1932 lines) — ready
 
 ## Claimable now, dependencies still missing
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
 - [ ] `surface.cone_p2` (1656 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p3`
-- [ ] `surface.surf_of_revolution_p2` (1369 lines) — missing: `surface.surf_of_revolution_p3`
 - [ ] `surface.sphere` (2861 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p2`, `surface.surf_of_revolution_p3`
 - [ ] `surface.surf_of_extrusion_p2` (1420 lines) — missing: `surface.cone_p1`, `surface.surf_of_extrusion_p1`
-- [ ] `surface.surface_p5` (2321 lines) — missing: `surface.surface_p4`
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p1`, `surface.cone_p2`, `surface.surf_of_revolution_p3`
 - [ ] `surface.surface_p6` (2150 lines) — missing: `surface.surface_p4`, `surface.surface_p5`
-- [ ] `surface.srf_in_volume` (779 lines) — missing: `surface.surface_p1`, `surface.volume_p2`
 - [ ] `surface.surface_p10` (2172 lines) — missing: `surface.surface_p1`, `surface.surface_p5`
-- [ ] `surface.surface_p3` (1794 lines) — missing: `surface.surface_p1`
 - [ ] `intersect.surface_drop_lib_p1` (1478 lines) — missing: `surface.surface_p1`, `surface.surface_p3`
 - [ ] `surface.offset_surface` (1787 lines) — missing: `surface.surface_p1`, `surface.surface_p3`
 - [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p1`, `surface.surface_p3`, `surface.surface_p5`, `surface.surface_p6` +1 more
@@ -39,14 +35,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p1` (1157 lines) — missing: `topology.proto_topology_p1`
 - [ ] `intersect.curve_class_p3` (1986 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p4` (2022 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p2`, `intersect.curve_class_p7`
-- [ ] `intersect.surface_intersector_p3` (1932 lines) — missing: `intersect.surface_intersector_p2`
 - [ ] `surface.surface_point_solve_p3` (1282 lines) — missing: `surface.surface_p1`, `surface.surface_p4`, `surface.surface_point_solve_p1`, `surface.surface_point_solve_p2`
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4` +1 more
-- [ ] `intersect.surface_intersector_p4` (1570 lines) — missing: `intersect.surface_intersector_p2`, `intersect.surface_intersector_p3`
+- [ ] `intersect.surface_intersector_p4` (1570 lines) — missing: `intersect.surface_intersector_p3`
 - [ ] `intersect.topology_solver_p2` (1391 lines) — missing: `intersect.curve_class_p1`, `intersect.topology_solver_p1`
 - [ ] `topology.face_p2` (1827 lines) — missing: `intersect.curve_class_p1`, `surface.offset_surface`, `topology.edgeuse_p1`
 - [ ] `intersect.curve_class_p5` (2017 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p6` +1 more
-- [ ] `intersect.surface_intersector_p5` (622 lines) — missing: `intersect.surface_intersector_p2`, `intersect.surface_intersector_p3`, `intersect.surface_intersector_p4`
+- [ ] `intersect.surface_intersector_p5` (622 lines) — missing: `intersect.surface_intersector_p3`, `intersect.surface_intersector_p4`
 - [ ] `topology.edgeuse_p2` (600 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`
 - [ ] `topology.shell` (750 lines) — missing: `topology.edgeuse_p1`, `topology.proto_topology_p1`
 - [ ] `intersect.curve_class_p8` (1900 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p3`, `intersect.curve_class_p5`
@@ -73,7 +68,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.face_p1` (2171 lines) — missing: `intersect.curve_class_p1`, `surface.surface_p1`, `topology.edgeuse_p1`, `topology.face_p2` +4 more
 - [ ] `query.face_p1` (465 lines) — missing: `query.face_p2`, `query.face_p3`, `topology.edge`, `topology.edgeuse_p1` +3 more
 - [ ] `query.face_p4` (1432 lines) — missing: `intersect.curve_class_p1`, `query.face_p3`, `topology.face_p2`, `topology.loopuse`
-- [ ] `query.tess` (838 lines) — missing: `query.poly`, `surface.surface_cache_p3`
+- [ ] `query.tess` (838 lines) — missing: `query.poly`
 - [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.edgeuse_p3`, `topology.face_p2` +5 more
 - [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.edgeuse_p2`, `topology.edgeuse_p3` +6 more
 - [ ] `heal.face_props` (1410 lines) — missing: `intersect.curve_class_p1`, `topology.face_p2`, `topology.loopuse`
@@ -134,28 +129,28 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +5 more
 - [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +6 more
 - [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1` +3 more
-- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `boolean.api_brep` +16 more
+- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `boolean.api_brep` +14 more
 
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
-- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
+- [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
-- [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (draft)
+- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (ready for review)
+- [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (draft)
+- [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `intersect.curve_class_p1` (2087 lines) — in progress: #47 @bherbruck (draft)
-- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (draft)
+- [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (ready for review)
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
 ## By module
 
@@ -270,7 +265,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 
-### surface (13/40)
+### surface (15/40)
 
 - [ ] 🟡 `surface.volume_p1` (2014 lines) — partial, 2886 cases
 - [x] ✅ `surface.b_spline_volume` (1226 lines) — green, 2333 cases
@@ -281,9 +276,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.plane_p1` (1934 lines) — partial, 2705 cases
 - [ ] 🟡 `surface.surf_of_revolution_p1` (1522 lines) — partial, 807 cases
 - [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
-- [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 620 cases
+- [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 621 cases
 - [ ] 🟡 `surface.b_spline_volume_n_lib` (310 lines) — partial, 2420 cases
-- [ ] 🔨 `surface.bend_volume` (945 lines) — in progress: #22 @froglemonade2 (ready for review)
+- [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
 - [ ] 🔨 `surface.cone_p1` (1835 lines) — in progress: #31 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
@@ -291,21 +286,21 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
 - [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
-- [ ] ⏳ `surface.surf_of_revolution_p2` (1369 lines) — waiting
-- [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
+- [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
+- [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
-- [ ] ▶️ `surface.surface_p4` (2270 lines) — ready
+- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.sphere` (2861 lines) — waiting
 - [ ] ⏳ `surface.surf_of_extrusion_p2` (1420 lines) — waiting
-- [ ] ⏳ `surface.surface_p5` (2321 lines) — waiting
+- [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p3` (1939 lines) — waiting
-- [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (draft)
+- [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (ready for review)
 - [ ] ⏳ `surface.surface_p6` (2150 lines) — waiting
-- [ ] ⏳ `surface.srf_in_volume` (779 lines) — waiting
+- [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (draft)
 - [ ] ⏳ `surface.surface_p10` (2172 lines) — waiting
-- [ ] ⏳ `surface.surface_p3` (1794 lines) — waiting
+- [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.offset_surface` (1787 lines) — waiting
 - [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
 - [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
@@ -347,15 +342,15 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.proto_topology_p2` (2091 lines) — waiting
 - [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
 
-### intersect (3/25)
+### intersect (5/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] 🔨 `intersect.curve_class_p1` (2087 lines) — in progress: #47 @bherbruck (draft)
 - [ ] ⏳ `intersect.surface_drop_lib_p1` (1478 lines) — waiting
-- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.surface_silhouette` (979 lines) — partial, 709 cases
 - [ ] ⏳ `intersect.curve_class_p7` (2248 lines) — waiting
-- [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (draft)
+- [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] ⏳ `intersect.surface_drop_curve` (2014 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p2` (1080 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p1` (1816 lines) — partial, 1510 cases
@@ -363,10 +358,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] ⏳ `intersect.curve_class_p2` (1928 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p3` (2062 lines) — waiting
-- [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.surface_intersector_p2` (1677 lines) — partial, 1660 cases
 - [ ] ⏳ `intersect.curve_class_p3` (1986 lines) — waiting
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
-- [ ] ⏳ `intersect.surface_intersector_p3` (1932 lines) — waiting
+- [ ] ▶️ `intersect.surface_intersector_p3` (1932 lines) — ready
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
 - [ ] ⏳ `intersect.surface_intersector_p4` (1570 lines) — waiting
 - [ ] ⏳ `intersect.topology_solver_p2` (1391 lines) — waiting
@@ -400,13 +395,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] ⏳ `mass.integrator` (1031 lines) — waiting
 
-### sweep (0/5)
+### sweep (1/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
 - [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
+- [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
 ### heal (0/7)
 

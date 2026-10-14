@@ -8,4 +8,5 @@
 pub mod point_class;
 pub mod ray_tracer;
 pub mod surface_intersector;
+pub mod surface_silhouette;
 pub mod surface_tracer;
