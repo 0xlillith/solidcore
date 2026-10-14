@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**128 / 261 units ported** (83 green, 45 partial), **164,785 / 387,903 upstream lines (42.5%)**. 19 claimed, 0 blocked, 114 todo.
+**128 / 261 units ported** (83 green, 45 partial), **164,785 / 387,903 upstream lines (42.5%)**. 20 claimed, 0 blocked, 113 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -26,7 +26,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `intersect.curve_class_p7` (2248 lines) — missing: `intersect.curve_class_p1`
 - [ ] `intersect.surface_drop_curve` (2014 lines) — missing: `surface.surface_p1`, `surface.surface_p5`
 - [ ] `intersect.surface_drop_lib_p2` (1080 lines) — missing: `intersect.surface_drop_lib_p1`, `surface.surface_p1`, `surface.surface_p5`
-- [ ] `surface.surface_point_solve_p1` (1771 lines) — missing: `surface.surface_p1`
 - [ ] `topology.proto_topology_p1` (2746 lines) — missing: `intersect.curve_class_p1`
 - [ ] `intersect.curve_class_p2` (1928 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p7`
 - [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p1`, `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p1` +3 more
@@ -147,6 +146,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p1` (2087 lines) — in progress: #47 @bherbruck (draft)
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
+- [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (draft)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (draft)
 - [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (draft)
@@ -303,7 +303,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `surface.offset_surface` (1787 lines) — waiting
 - [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
 - [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
-- [ ] ⏳ `surface.surface_point_solve_p1` (1771 lines) — waiting
+- [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (draft)
 - [ ] ⏳ `surface.surface_point_solve_p2` (1882 lines) — waiting
 - [ ] ⏳ `surface.surface_point_solve_p3` (1282 lines) — waiting
 
