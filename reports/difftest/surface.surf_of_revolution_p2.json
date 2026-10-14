@@ -2158,6 +2158,30 @@
       "values_compared": 2
     },
     {
+      "max_rel_err": 0.0,
+      "name": "review_offset_axis_crossing_merge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p2/cases.json#264 (upstream PR #51 review (adversarial difftest))",
+      "values_compared": 1217
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_offset_tiny_radius_sweep_scale",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p2/cases.json#265 (upstream PR #51 review (adversarial difftest))",
+      "values_compared": 205
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_trim_tiny_sweep_polar_weights",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p2/cases.json#266 (upstream PR #51 review (adversarial difftest))",
+      "values_compared": 121
+    },
+    {
       "deferred": {
         "symbol": "SmSurface::GetFace",
         "unit": "surface.surface_p1"
@@ -9765,8 +9789,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 112,
   "cases_failed": 0,
-  "cases_passed": 1052,
-  "cases_total": 1164,
+  "cases_passed": 1055,
+  "cases_total": 1167,
   "deferred_by_unit": {
     "intersect.adv_surface_intersector": 34,
     "surface.surface_p1": 78
