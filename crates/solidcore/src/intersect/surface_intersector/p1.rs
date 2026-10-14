@@ -1891,7 +1891,9 @@ fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Ve
 fn surface_evaluate_normal(surface: &Surface, _uv: Point2) -> Result<Vec3> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_) => {
             // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
             Err(SolidError::unported(
                 "SmSurface::EvaluateNormal",

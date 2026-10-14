@@ -744,7 +744,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_rect_nth",
@@ -804,7 +804,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_hexagon_nth",
@@ -864,7 +864,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "plane_far_thin_nth",
@@ -1244,7 +1244,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0035",
@@ -1280,7 +1280,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -1308,7 +1308,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -1344,7 +1344,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0046",
@@ -1588,7 +1588,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0073",
@@ -1820,7 +1820,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0100",
@@ -2048,7 +2048,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0126",
@@ -2108,7 +2108,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0133",
@@ -2224,7 +2224,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -2296,7 +2296,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -2556,7 +2556,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -2584,7 +2584,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0188",
@@ -2988,7 +2988,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0235",
@@ -3140,7 +3140,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0252",
@@ -3232,7 +3232,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0262",
@@ -3296,7 +3296,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0269",
@@ -3348,7 +3348,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -3948,7 +3948,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -4056,7 +4056,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -4076,7 +4076,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -4496,7 +4496,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0406",
@@ -4960,7 +4960,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -4972,7 +4972,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0460",
@@ -5372,7 +5372,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0506",
@@ -5460,7 +5460,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -5512,7 +5512,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0521",
@@ -5684,7 +5684,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0542",
@@ -5696,7 +5696,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0543",
@@ -5764,7 +5764,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0551",
@@ -5860,7 +5860,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0562",
@@ -5888,7 +5888,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0565",
@@ -6172,7 +6172,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0596",
@@ -6184,7 +6184,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0597",
@@ -6204,7 +6204,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0599",
@@ -6340,7 +6340,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0614",
@@ -6360,7 +6360,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0616",
@@ -6468,7 +6468,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -6600,7 +6600,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0645",
@@ -6612,7 +6612,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0646",
@@ -6752,7 +6752,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0662",
@@ -6860,7 +6860,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0674",
@@ -7040,7 +7040,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0694",
@@ -7052,7 +7052,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0695",
@@ -7096,7 +7096,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0699",
@@ -7132,7 +7132,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0703",
@@ -7224,7 +7224,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0713",
@@ -7356,7 +7356,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0728",
@@ -7676,7 +7676,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -7688,7 +7688,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0767",
@@ -7896,7 +7896,7 @@
     {
       "deferred": {
         "symbol": "SmPlane::CreateIsoParametricCurve",
-        "unit": "surface.plane_p1"
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0791",
@@ -7984,7 +7984,7 @@
   "cases_passed": 721,
   "cases_total": 905,
   "deferred_by_unit": {
-    "surface.plane_p1": 53,
+    "surface.surface_cache_p1": 53,
     "surface.surface_p1": 47,
     "surface.surface_p5": 43,
     "surface.surface_p7": 28,
