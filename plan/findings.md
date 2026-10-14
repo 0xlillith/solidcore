@@ -2693,8 +2693,8 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   real `Surface::is_closed` when `surface.surface_p7` lands.
 - **`SER` in boolean methods.** `IsPointOnCurve` / `sm_IsPointOnCurve` return the
   status of a failing call as `TRUE`; the port returns `Ok(true)` (upstream-issues
-  WR-50). `AddStartPoint`'s "replace" branch is a no-op (WR-48);
-  `IsPointOnStartPoint` compares squared distances with the tolerance (WR-49).
+  WR-52). `AddStartPoint`'s "replace" branch is a no-op (WR-50);
+  `IsPointOnStartPoint` compares squared distances with the tolerance (WR-51).
 - **Difftest.** Programs over planes and B-spline surfaces (open patches, rational
   patches, closed tubes that pass `IsClosed`, self-intersection), sub-, cut, disjoint,
   degenerate and fillet domains, scales 1e-6 .. 1e5. `TestSpanAccuracy` leaves its
@@ -2706,3 +2706,23 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   (`smsurf_EvaluateNormalSection`). `EvaluateLawPoint` (needs `SmFilletLaw` and
   `SmOffsetSurface`) has no cases: the shim cannot build an offset-surface intersector
   the Rust side can mirror.
+
+## surface.b_spline_volume_n_lib
+
+- `SmBSplineVolume::CalculateContinuitiesSimple` with `bCalcGeometric == TRUE` (the
+  default, and what `HasDiscontinuitiesSimple` passes by default) samples iso-parametric
+  curves through `EvaluateIsoParametricCurveSimple`, which is `SM_ERR` without
+  `USE_VOLUMES`; the call fails at the first sample after `rParams` holds the knots,
+  `rConts` is empty and the minimum is `SM_CT_CINFINITY`. `HasDiscontinuitiesSimple`
+  ignores the status, so a B-spline volume reports no discontinuities unless asked for
+  representational ones. The unreachable rest of the loop samples `sKnots2[ii]` (not
+  `[jj]`), reading past `sKnots2` when it has fewer samples than `sKnots1` (stale stack
+  memory); the port returns `InvalidInput` there.
+- Representational continuities (`bCalcGeometric == FALSE`) size `rConts` to the knot
+  count but fill only the first `count - 1` entries; the last stays zero
+  (`SM_CT_UNDEFINED`), and the first (an end knot) is `SM_CT_C0` for clamped knots, so
+  `HasDiscontinuitiesSimple(.., FALSE)` is `TRUE` for every clamped volume.
+- `SmVolume::HasDiscontinuitiesSimple`'s `bCalcGeometric` had been dropped in the Rust
+  dispatch (`Volume::has_discontinuities_simple`); it is now a parameter. The
+  `IsCurveIn*Domain` / `IsLineInParamDomain` volume entry points take a `&Kernel` for the
+  curve bounding boxes the B-spline override computes.
