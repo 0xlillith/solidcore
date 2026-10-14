@@ -2862,9 +2862,9 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   rebuilds the polar converter through the virtual `CreateIsoParametricCurve`, i.e.
   `SmCone::CreateIsoParametricCurve` (a circle averaged from three iso-curve points), not
   the surface-of-revolution one. `SurfOfRevolution` now takes the iso curve as a hook
-  (`make_nurb_with_sweep_params_with`, `rebuild_polar_converter_with`); `Cone::make_nurb`
-  passes the cone's. Units porting the other derived classes (`SmSphere`, `SmTorus`) need
-  the same.
+  (`make_nurb_with_sweep_params_using`, `rebuild_polar_converter(k, iso)`, shared with
+  `surface.torus`, which added the same hook on `main`); `Cone::make_nurb`
+  passes the cone's. A unit porting `SmSphere` needs the same.
 - **Owner re-entrancy in the unbounded constructor.** `pNewLine->AdjustSTEPInterval(apex,
   INF)` runs after `SetOwner(this)`: the line's `MakeNurb` asks the cone for
   `GetGenDirParamExtent`, whose `GetNaturalUVDomain` makes the cone's NURB (virtual

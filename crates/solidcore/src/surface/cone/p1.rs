@@ -738,7 +738,7 @@ impl Cone {
     pub fn make_nurb(&mut self, k: &Kernel) -> Result<()> {
         let inside_out = self.inside_out;
         self.rev
-            .make_nurb_with_sweep_params_with(k, None, &|s, k, p, t| {
+            .make_nurb_with_sweep_params_using(k, None, &|s, k, p, t| {
                 Ok(cone_iso_curve(s, inside_out, k, p, t, None, false)?.curve)
             })
     }
