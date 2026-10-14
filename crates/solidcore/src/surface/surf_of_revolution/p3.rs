@@ -34,6 +34,10 @@
 //!   and are not ported yet; the intersections take the other surface through the
 //!   [`Revolved`] trait (its `SmSurfOfRevolution` part and its virtual
 //!   `ConvertDomainFromNURBSToSTEP`), which those kinds implement when ported.
+//! - **Virtual iso curves.** The polar-converter rebuilds reach upstream's virtual
+//!   `CreateIsoParametricCurve` through a `SweepIsoFn` (as in `p1`): `Transform` has
+//!   a crate-private `transform_using` that a derived class (`SmTorus`) calls with
+//!   its override.
 //! - **Generator owner.** As in `p1`, the generator has no owner: its owner-driven
 //!   reparameterisation (`AdjustSTEPInterval` of an analytic generator making its NURB
 //!   on `GetGenDirParamExtent`) is not applied in `UpdateAnalyticalDomain`, and
@@ -95,7 +99,7 @@ use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 use super::p1::{
     gen_adjust_step_interval, gen_base, gen_base_mut, gen_with_out_of_bounds, not_b_spline,
-    SurfOfRevolution, OP_GEN,
+    SurfOfRevolution, SweepIsoFn, OP_GEN,
 };
 
 const OP_REPARAM: &str = "surface::surf_of_revolution::p3::SurfOfRevolution::reparameterize";
@@ -274,7 +278,7 @@ impl SurfOfRevolution {
         }
 
         // Rule 5: Set PolarConverter from Nurb midPoint rotation isoParamCurve
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 
@@ -293,6 +297,19 @@ impl SurfOfRevolution {
         k: &Kernel,
         rotate_n_move: &Axis2Placement,
         scale: Option<Vec3>,
+    ) -> Result<()> {
+        self.transform_using(k, rotate_n_move, scale, &Self::own_sweep_iso)
+    }
+
+    /// [`Self::transform`] with the polar converter rebuilt from the sweep iso curves
+    /// of `iso` (upstream's virtual `CreateIsoParametricCurve`: a derived class such
+    /// as `SmTorus` passes its override).
+    pub(crate) fn transform_using(
+        &mut self,
+        k: &Kernel,
+        rotate_n_move: &Axis2Placement,
+        scale: Option<Vec3>,
+        iso: SweepIsoFn<'_>,
     ) -> Result<()> {
         let identity_scale = Vec3::new(1.0, 1.0, 1.0);
 
@@ -335,7 +352,7 @@ impl SurfOfRevolution {
         }
 
         // update PolarConverter
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, iso))?;
         Ok(())
     }
 
@@ -1188,7 +1205,7 @@ impl SurfOfRevolution {
         );
 
         // Set PolarConverter from Nurb midPoint rotation isoParamCurve (status ignored)
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
         Ok(())
     }
 
