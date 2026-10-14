@@ -436,9 +436,9 @@ fn iso_curve_of(
     from_left: bool,
 ) -> Result<IsoCurve> {
     match surface.kind() {
-        SurfaceKind::BSpline(b) => Ok(IsoCurve::new(b.copy(), param, iso, from_left, false)),
+        SurfaceKind::BSpline(b) => Ok(IsoCurve::new(b.clone_exact(), param, iso, from_left, false)),
         SurfaceKind::Plane(p) => Ok(IsoCurve::new(
-            p.base_for_query().into_owned(),
+            p.base_for_query().clone_exact(),
             param,
             iso,
             from_left,

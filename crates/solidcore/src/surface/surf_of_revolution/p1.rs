@@ -358,6 +358,16 @@ impl SurfOfRevolution {
     /// `SmSurfOfRevolution_TYPE` (`SURF_BASE_TYPE + 20`).
     pub const TYPE: i64 = SURF_OF_REVOLUTION_TYPE;
 
+    /// A copy whose B-spline base is kept exactly ([`BSplineSurface::clone_exact`]):
+    /// `Clone` goes through [`BSplineSurface::copy`], which fixes the knots up.
+    #[must_use]
+    pub fn clone_exact(&self) -> Self {
+        Self {
+            base: self.base.clone_exact(),
+            ..self.clone()
+        }
+    }
+
     // ---- construction ---------------------------------------------------------------
 
     /// The empty surface `ReadFromDB` fills (`SmSurfOfRevolution()`): no generator, no
@@ -1103,8 +1113,8 @@ impl SurfOfRevolution {
     /// # Errors
     ///
     /// `SM_ERR` when the clamped point does not map to the STEP domain; those of the
-    /// conversions; [`SolidError::Unported`] without exact polar conversion (the local
-    /// solve on `SmSTEPSurface`, unit `surface.surface_p1`).
+    /// conversions; [`SolidError::Unported`] from the local solve on the
+    /// `SmSTEPSurface` of this surface (without exact polar conversion).
     pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
         let mut written = Point2::new(0.0, 0.0);
         self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written)
@@ -1185,7 +1195,7 @@ impl SurfOfRevolution {
             let anal_guess = step_uv;
             let step_surface = crate::surface::surface::Surface::from(
                 crate::surface::surface::p1::StepSurface::new(
-                    crate::surface::surface::Surface::from(self.clone()),
+                    crate::surface::surface::Surface::from(self.clone_exact()),
                     false,
                 ),
             );
