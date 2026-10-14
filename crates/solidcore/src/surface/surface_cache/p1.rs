@@ -293,9 +293,9 @@ pub(super) fn calculate_bounding_box(
 fn is_singularity(surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => Ok(surface
-            .is_singularity(uv, EFF_ZERO, false)?
-            .singular),
+        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+            Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
+        }
     }
 }
 

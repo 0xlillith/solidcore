@@ -551,9 +551,7 @@ fn global_point_solve(
 fn is_singularity(srf: &BSplineSurface, uv: Point2) -> Result<bool> {
     // the SmSurface body (surface.surface_p5), on a surface holding a copy
     let surface = crate::surface::surface::Surface::from(srf.copy());
-    Ok(surface
-        .is_singularity(uv, EFF_ZERO, false)?
-        .singular)
+    Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
 }
 
 /// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`).

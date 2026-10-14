@@ -67,26 +67,18 @@ use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, Solut
 use crate::geom::tol::{are_same, ZONE_TOL_3D};
 use crate::geom::vector2d::Vec2;
 use crate::kernel::Kernel;
-use crate::math::{
-    max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT,
-};
+use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 
-use super::p2::{
-    surface_cache, LsiGlobalSolver, SurfaceEval,
-};
+use super::p2::{surface_cache, LsiGlobalSolver, SurfaceEval};
 use super::p4::{evaluate_normal_section, is_point_on_normal};
-use super::p7::{
-    evaluate_1st_derivatives, good_drop_result, load_guesses,
-    SpGlobalSolver,
-};
+use super::p7::{evaluate_1st_derivatives, good_drop_result, load_guesses, SpGlobalSolver};
 use super::{Surface, SurfaceKind};
 
 const OP_SING: &str = "surface::surface::p5::Surface::is_singularity";
-const OP_NORMAL_SING: &str = "surface::surface::p5::Surface::evaluate_normal_at_singularity";
 const OP_LPS: &str = "surface::surface::p5::Surface::local_point_solve";
 const OP_LPS0: &str = "surface::surface::p5::Surface::local_point_solve_0";
 const OP_DROP: &str = "surface::surface::p5::Surface::drop_point";
@@ -278,12 +270,12 @@ impl Surface {
                 if mag_su < mag_sv * ratio_limit || mag_su < abs_limit {
                     // Further tests still: use the regular evaluator with the flag set
                     // to return non-zero derivatives.
-                    let m3 = match self.evaluate(uv, 2, 2, upper_flags(Side::Left, Side::Left, true))
-                    {
-                        Ok(m) => m,
-                        Err(e) if e.is_unported() => return Err(e),
-                        Err(_) => return Ok(failed),
-                    };
+                    let m3 =
+                        match self.evaluate(uv, 2, 2, upper_flags(Side::Left, Side::Left, true)) {
+                            Ok(m) => m,
+                            Err(e) if e.is_unported() => return Err(e),
+                            Err(_) => return Ok(failed),
+                        };
                     let su_unit = at(&m3, 1, 0, OP_SING)?.unitize_or_z();
                     let suv = at(&m3, 1, 1, OP_SING)?;
                     let mag_su_v = su_unit.dot(suv);
@@ -314,12 +306,12 @@ impl Surface {
 
                 // when TangentV is much less than TangentU
                 if mag_sv < mag_su * ratio_limit || mag_sv < abs_limit {
-                    let m3 = match self.evaluate(uv, 2, 2, upper_flags(Side::Left, Side::Left, true))
-                    {
-                        Ok(m) => m,
-                        Err(e) if e.is_unported() => return Err(e),
-                        Err(_) => return Ok(failed),
-                    };
+                    let m3 =
+                        match self.evaluate(uv, 2, 2, upper_flags(Side::Left, Side::Left, true)) {
+                            Ok(m) => m,
+                            Err(e) if e.is_unported() => return Err(e),
+                            Err(_) => return Ok(failed),
+                        };
                     let sv_unit = at(&m3, 0, 1, OP_SING)?.unitize_or_z();
                     let suv = at(&m3, 1, 1, OP_SING)?;
                     let mag_sv_u = sv_unit.dot(suv);
@@ -361,10 +353,10 @@ impl Surface {
             if sides != SS_NONE {
                 let srf_point = ignored(self.evaluate_point(uv))?.unwrap_or(Vec3::UNDEF);
                 let pole = |i: usize| -> Result<Point3> {
-                    poles
-                        .get(i)
-                        .copied()
-                        .ok_or(SolidError::invalid_input(OP_SING, "fewer than 4 pole points"))
+                    poles.get(i).copied().ok_or(SolidError::invalid_input(
+                        OP_SING,
+                        "fewer than 4 pole points",
+                    ))
                 };
 
                 if (sides & SS_UMIN) != 0 && srf_point.closer_than(d3d_tol, pole(0)?) {
@@ -425,7 +417,7 @@ impl Surface {
                 let mut uv_pnt = uv_domain.evaluate(norm_param, norm_param);
                 uv_pnt.x = stepoff_u;
                 let norm = self.evaluate_normal(uv_pnt, Side::Left, Side::Left)?;
-                norm_sum = norm_sum + norm;
+                norm_sum += norm;
             }
         }
         if sing.direction == SurfParamType::U {
@@ -439,13 +431,11 @@ impl Surface {
                 let mut uv_pnt = uv_domain.evaluate(norm_param, norm_param);
                 uv_pnt.y = stepoff_v;
                 let norm = self.evaluate_normal(uv_pnt, Side::Left, Side::Left)?;
-                norm_sum = norm_sum + norm;
+                norm_sum += norm;
             }
         }
 
-        norm_sum
-            .unitize()
-            .map_err(|_| SolidError::sm_err(OP_NORMAL_SING))
+        norm_sum.unitize()
     }
 
     /// The normal section of the second fundamental form at `uv` (`EvaluateNormalSection`,
@@ -565,12 +555,8 @@ impl Surface {
                 });
             }
             SurfaceKind::Plane(p) => {
-                let r = p.create_iso_parametric_curve(
-                    param,
-                    iso_parameter,
-                    domain,
-                    want_uv_iso_curve,
-                )?;
+                let r =
+                    p.create_iso_parametric_curve(param, iso_parameter, domain, want_uv_iso_curve)?;
                 return Ok(IsoParametricCurve {
                     curve: Curve::from(r.curve),
                     max_gap_3d: r.max_gap_3d,
@@ -628,7 +614,8 @@ impl Surface {
         let iso = iso?;
         if approx_tol == 0.0 {
             let iso_curve = Curve::from(iso.clone());
-            let (length, _) = iso_curve.approximate_length(&iso_curve.natural_interval(), 5, false)?;
+            let (length, _) =
+                iso_curve.approximate_length(&iso_curve.natural_interval(), 5, false)?;
             approx_tol = length * EFF_ZERO_SQRT * 100.0;
         }
 
@@ -781,14 +768,19 @@ fn finish_ps_solve<O: Copy>(
         let on_normal = is_point_on_normal(surface, None, uv, test_point, None, EFF_ZERO * 100.0)?;
         out.found = on_normal.good_point;
 
-        let d = ignored(evaluate_1st_derivatives(surface, uv, Side::Right, Side::Right))?
-            .unwrap_or((Vec3::UNDEF, Vec3::UNDEF, Vec3::UNDEF));
+        let d = ignored(evaluate_1st_derivatives(
+            surface,
+            uv,
+            Side::Right,
+            Side::Right,
+        ))?
+        .unwrap_or((Vec3::UNDEF, Vec3::UNDEF, Vec3::UNDEF));
         let (pnt1, du, dv) = d;
         let mut gap = pnt1 - test_point;
         let len_sq = gap.length_squared();
         if len_sq > EFF_ZERO {
             // if same point, we're ok.
-            gap = gap / crate::geom::vector3d::sqrt(len_sq);
+            gap /= crate::geom::vector3d::sqrt(len_sq);
             let mut f_val = gap.dot(du).abs();
             f_val += gap.dot(dv).abs();
             let tighter_tol = EFF_ZERO_SQRT * 100.0;
@@ -827,8 +819,8 @@ impl Surface {
         guess_uv: Point2,
     ) -> Result<PointSolve<O>> {
         // Don't use new solvers for MAXIMIZE, but always use them for DIRECTED
-        let use_new = op != SolverOperation::Maximize
-            || op == SolverOperation::Signed3dDirectedMaximize;
+        let use_new =
+            op != SolverOperation::Maximize || op == SolverOperation::Signed3dDirectedMaximize;
 
         if use_new {
             // UNPORTED(intersect.surface_intersector_p3): SmSurface::LocalPointSolve_1
@@ -870,7 +862,10 @@ impl Surface {
                 | SolverOperation::Normalize
                 | SolverOperation::Intersect
         ) {
-            return Err(SolidError::invalid_input(OP_LPS0, "unsupported solver operation"));
+            return Err(SolidError::invalid_input(
+                OP_LPS0,
+                "unsupported solver operation",
+            ));
         }
 
         // for intersections - Repeatedly drop Point to tangent plane to convergence
@@ -994,9 +989,9 @@ pub struct DropPoint<O> {
     pub gap: f64,
     /// `rbIsMultivalued`.
     pub is_multivalued: bool,
-    /// `pOptSolutionArray`: the solutions before a best one was picked, when asked for
-    /// and any.
-    pub solutions: Option<SolutionArray<O>>,
+    /// The solution array as upstream leaves it (`pOptSolutionArray`, or its local array):
+    /// the solutions before a best one was picked.
+    pub solutions: SolutionArray<O>,
 }
 
 impl Surface {
@@ -1123,7 +1118,7 @@ impl Surface {
                     result_uv,
                     gap,
                     is_multivalued,
-                    solutions: Some(solutions),
+                    solutions,
                 });
             }
 
@@ -1167,7 +1162,9 @@ impl Surface {
                         let on_edge = |t: ExtentPointType| {
                             matches!(
                                 t,
-                                ExtentPointType::Start | ExtentPointType::End | ExtentPointType::Both
+                                ExtentPointType::Start
+                                    | ExtentPointType::End
+                                    | ExtentPointType::Both
                             )
                         };
 
@@ -1175,9 +1172,17 @@ impl Surface {
                         // the best matching SurfTangent
                         if on_edge(u_type) || on_edge(v_type) {
                             // evaluate Surf(sThisUV) - eval with NonZero tangents
-                            let (_, du, dv) =
-                                ignored(evaluate_1st_derivatives(self, this_uv, Side::Left, Side::Left))?
-                                    .unwrap_or((Vec3::UNDEF, Vec3::UNDEF, Vec3::UNDEF));
+                            let (_, du, dv) = ignored(evaluate_1st_derivatives(
+                                self,
+                                this_uv,
+                                Side::Left,
+                                Side::Left,
+                            ))?
+                            .unwrap_or((
+                                Vec3::UNDEF,
+                                Vec3::UNDEF,
+                                Vec3::UNDEF,
+                            ));
                             let du = du.unitize_or_z();
                             let dv = dv.unitize_or_z();
 
@@ -1227,7 +1232,7 @@ impl Surface {
             result_uv,
             gap,
             is_multivalued,
-            solutions: (opts.want_solutions && answer_in_array).then_some(solutions),
+            solutions,
         })
     }
 }
@@ -1282,36 +1287,34 @@ impl Surface {
         surface_cache(surface3)?;
 
         // nearest point of each surface (statuses ignored)
-        let nearest = |s: &Self,
-                       domain: &Extent2d,
-                       fallback_domain: &Extent2d|
-         -> Result<Option<Point2>> {
-            let mut sols = ignored(s.global_point_solve::<O>(
-                domain,
-                SolverOperation::Minimize,
-                xyz_guess1,
-                new_tol,
-                None,
-                SolutionRequested::Single,
-            ))?
-            .unwrap_or_default();
-            if sols.is_empty() {
-                if let Some(g2) = opt_xyz_guess2 {
-                    sols = ignored(s.global_point_solve::<O>(
-                        fallback_domain,
-                        SolverOperation::Minimize,
-                        g2,
-                        new_tol,
-                        None,
-                        SolutionRequested::Single,
-                    ))?
-                    .unwrap_or_default();
+        let nearest =
+            |s: &Self, domain: &Extent2d, fallback_domain: &Extent2d| -> Result<Option<Point2>> {
+                let mut sols = ignored(s.global_point_solve::<O>(
+                    domain,
+                    SolverOperation::Minimize,
+                    xyz_guess1,
+                    new_tol,
+                    None,
+                    SolutionRequested::Single,
+                ))?
+                .unwrap_or_default();
+                if sols.is_empty() {
+                    if let Some(g2) = opt_xyz_guess2 {
+                        sols = ignored(s.global_point_solve::<O>(
+                            fallback_domain,
+                            SolverOperation::Minimize,
+                            g2,
+                            new_tol,
+                            None,
+                            SolutionRequested::Single,
+                        ))?
+                        .unwrap_or_default();
+                    }
                 }
-            }
-            sols.get(0)
-                .map(|f| Ok(Point2::new(f.start.param(0)?, f.start.param(1)?)))
-                .transpose()
-        };
+                sols.get(0)
+                    .map(|f| Ok(Point2::new(f.start.param(0)?, f.start.param(1)?)))
+                    .transpose()
+            };
 
         // (upstream passes the first surface's domain to the second guess of surfaces
         // two and three)
@@ -1502,7 +1505,10 @@ pub fn sp_local_solve<O: SolutionObject>(
             | SolverOperation::Normalize
             | SolverOperation::Intersect
     ) {
-        return Err(SolidError::invalid_input(OP_SP_LOCAL, "unsupported solver operation"));
+        return Err(SolidError::invalid_input(
+            OP_SP_LOCAL,
+            "unsupported solver operation",
+        ));
     }
 
     // init output
@@ -1520,7 +1526,9 @@ pub fn sp_local_solve<O: SolutionObject>(
             let mut solution = r.solution;
 
             // skip intersection solutions larger than d3dTolerance
-            if found && op == SolverOperation::Intersect && solution.start.solution_value > tolerance
+            if found
+                && op == SolverOperation::Intersect
+                && solution.start.solution_value > tolerance
             {
                 found = false;
             }
@@ -1583,14 +1591,22 @@ pub fn sp_local_solve<O: SolutionObject>(
                     } else {
                         uv_domain.max().x
                     };
-                    (v, Extent1d::from_min_max(uv_domain.min().y, uv_domain.max().y), kk == 0)
+                    (
+                        v,
+                        Extent1d::from_min_max(uv_domain.min().y, uv_domain.max().y),
+                        kk == 0,
+                    )
                 } else {
                     let v = if kk == 0 {
                         uv_domain.min().y
                     } else {
                         uv_domain.max().y
                     };
-                    (v, Extent1d::from_min_max(uv_domain.min().x, uv_domain.max().x), kk == 0)
+                    (
+                        v,
+                        Extent1d::from_min_max(uv_domain.min().x, uv_domain.max().x),
+                        kk == 0,
+                    )
                 };
                 let iso = Curve::from(iso_curve_of(surface, dir, param_value, from_left)?);
 
@@ -1671,9 +1687,8 @@ pub fn filter_solution<O: SolutionObject>(
     let random_point = surface.evaluate_point(uv_domain.evaluate(0.456, 0.6789))?;
 
     // Scale Zero to current size.
-    let scaled_zero = 10.0
-        * EFF_ZERO
-        * (1.0 + max2(curve_point.max_dimension(), random_point.max_dimension()));
+    let scaled_zero =
+        10.0 * EFF_ZERO * (1.0 + max2(curve_point.max_dimension(), random_point.max_dimension()));
 
     // keep answers good to scaledZero
     if solution.start.solution_value < scaled_zero {
@@ -1724,7 +1739,8 @@ pub fn filter_solution<O: SolutionObject>(
                 return Ok(true);
             } else if is_curve_line {
                 // keep solutions when surf is bending away from curve
-                return Ok(!((surface_curvature * diff.dot(surface_normal)) > 0.0));
+                let bending_toward = (surface_curvature * diff.dot(surface_normal)) > 0.0;
+                return Ok(!bending_toward);
             } else if is_surface_line {
                 // keep solutions when curve is bending away from surface
                 return Ok(diff.dot(curv_vec) > 0.0);
@@ -1794,13 +1810,19 @@ pub fn filter_solution<O: SolutionObject>(
     // Can't use passed-in interval, it's just a cache subset.
     let srf_domain = surface.natural_uv_domain();
     if keep && surf_u_save {
-        if surface.is_closed(&srf_domain, SurfParamType::U, None, false)?.0 {
+        if surface
+            .is_closed(&srf_domain, SurfParamType::U, None, false)?
+            .0
+        {
             surf_u_save = false;
         }
         keep = curve_save || surf_u_save || surf_v_save;
     }
     if keep && surf_v_save {
-        if surface.is_closed(&srf_domain, SurfParamType::V, None, false)?.0 {
+        if surface
+            .is_closed(&srf_domain, SurfParamType::V, None, false)?
+            .0
+        {
             surf_v_save = false;
         }
         keep = curve_save || surf_u_save || surf_v_save;
@@ -1943,3 +1965,128 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::curve::line::Line;
+    use crate::geom::solution_array::ObjectKind;
+    use crate::surface::plane::Plane;
+
+    /// A solution object for the tests.
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    struct Obj;
+
+    impl SolutionObject for Obj {
+        fn kind(&self) -> ObjectKind {
+            ObjectKind::Surface
+        }
+    }
+
+    fn xy_plane() -> Surface {
+        Surface::from(Plane::from_normal(Vec3::ZERO, Vec3::new(0.0, 0.0, 1.0)))
+    }
+
+    #[test]
+    fn plane_has_no_singularity() {
+        let s = xy_plane();
+        let r = s
+            .is_singularity(Point2::new(0.5, 0.5), EFF_ZERO, false)
+            .unwrap();
+        assert!(!r.singular);
+        assert_eq!(r.direction, SurfParamType::Neither);
+    }
+
+    #[test]
+    fn normal_off_a_singularity_is_the_surface_normal() {
+        let s = xy_plane();
+        let n = s
+            .evaluate_normal_at_singularity(Point2::new(0.25, 0.75), EFF_ZERO)
+            .unwrap();
+        assert_eq!(n, Vec3::new(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn intersect_drop_converges_on_a_plane() {
+        let s = xy_plane();
+        let dom = s.natural_uv_domain();
+        let p = Vec3::new(0.3, 0.4, 2.0);
+        let r = s
+            .local_point_solve_0::<Obj>(&dom, SolverOperation::Intersect, p, Point2::new(0.0, 0.0))
+            .unwrap();
+        assert!(r.found);
+        assert!((r.solution.start.solution_value - 2.0).abs() < 1e-9);
+        assert_eq!(r.reason, TerminationReason::FoundAnswerConverged);
+    }
+
+    #[test]
+    fn new_point_solvers_are_not_ported() {
+        let s = xy_plane();
+        let dom = s.natural_uv_domain();
+        let r = s.local_point_solve::<Obj>(
+            &dom,
+            SolverOperation::Minimize,
+            Vec3::new(0.0, 0.0, 1.0),
+            Point2::new(0.0, 0.0),
+        );
+        assert!(r.unwrap_err().is_unported());
+        // a maximise solve runs LocalPointSolve_0, whose Newton solve is not ported
+        let r = s.local_point_solve::<Obj>(
+            &dom,
+            SolverOperation::Maximize,
+            Vec3::new(0.0, 0.0, 1.0),
+            Point2::new(0.0, 0.0),
+        );
+        assert!(r.unwrap_err().is_unported());
+    }
+
+    #[test]
+    fn drop_point_uses_the_fast_drop_of_a_plane() {
+        let s = xy_plane();
+        let dom = s.natural_uv_domain();
+        let c = dom.evaluate(0.5, 0.5);
+        let p = s.evaluate_point(c).unwrap() + Vec3::new(0.0, 0.0, 1.5);
+        let opts = DropPointOptions {
+            operation: SolverOperation::Normalize,
+            ..DropPointOptions::default()
+        };
+        let r = s.drop_point::<Obj>(p, &dom, &opts).unwrap();
+        assert!(r.success);
+        assert!((r.gap - 1.5).abs() < 1e-9);
+        assert!((r.result_uv.x - c.x).abs() < 1e-9 && (r.result_uv.y - c.y).abs() < 1e-9);
+    }
+
+    #[test]
+    fn filter_keeps_exact_solutions() {
+        let s = xy_plane();
+        let dom = s.natural_uv_domain();
+        let line =
+            Line::create_line_segment(3, Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), None)
+                .unwrap();
+        let curve = Curve::from(line);
+        let mut sol = Solution::<Obj>::new();
+        sol.solution_type = SolutionType::SingleValue;
+        sol.num_variables = 3;
+        sol.start.solution_value = 0.0;
+        let conts = [ContinuityType::C0; 2];
+        let keep = filter_solution(
+            &s,
+            &dom,
+            &curve,
+            &Extent1d::from_min_max(0.0, 1.0),
+            conts,
+            conts,
+            conts,
+            &sol,
+        )
+        .unwrap();
+        assert!(keep);
+    }
+
+    #[test]
+    fn cover_needs_the_unported_coverage_test() {
+        let a = xy_plane();
+        let b = xy_plane();
+        let r = a.cover_other_coincident_surface(&b, 1e-6, false);
+        assert!(r.unwrap_err().is_unported());
+    }
+}
