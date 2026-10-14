@@ -814,6 +814,10 @@ impl Surface {
             SurfaceKind::CurveBounded(_) => base_edit(),
             SurfaceKind::Plane(s) => s.reverse(param),
             SurfaceKind::SurfOfRevolution(s) => {
+                // Upstream reaches the NURB through the virtual GetOrCreateGwNurbPointer,
+                // which would call SmSurfOfRevolution::MakeNurb for a surface without
+                // one; every constructed surface of revolution has its NURB, so the
+                // stored base is used directly.
                 s.base_mut().reverse(param)?;
                 ignore_status(s.rebuild_step_from_nurb_parameters(k))
             }
@@ -847,6 +851,7 @@ impl Surface {
             SurfaceKind::CurveBounded(_) => base_edit(),
             SurfaceKind::Plane(s) => s.swap_uv(),
             SurfaceKind::SurfOfRevolution(s) => {
+                // As in `reverse`: the stored NURB stands for GetOrCreateGwNurbPointer.
                 s.base_mut().swap_uv()?;
                 s.toggle_swap_uv_bit();
                 ignore_status(s.rebuild_step_from_nurb_parameters(k))

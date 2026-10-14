@@ -2688,8 +2688,11 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 - **Surface cache iso curves.** `SmSurfaceCache` reaches the virtual
   `CreateIsoParametricCurve`, which makes an `SmCircle` in the sweep direction of a
   surface of revolution; the cache stores its iso curves as `BSplineCurve`, so that call
-  stays an `UNPORTED(surface.surf_of_revolution_p1)` stub (as the plane's `SmLine` iso
-  curves do) until the cache stores `Curve`s.
+  stays an `UNPORTED(surface.surface_cache_p1)` stub (as the plane's `SmLine` iso
+  curves do, retagged from `surface.plane_p1` in the review fixes) until the cache stores
+  `Curve`s. Both are tagged with the unit that owns that storage
+  (`SmSurfaceCache::GetIsoBoundaryCurves`), not with the already-partial units that
+  ported the overrides, so whoever changes the storage finds them by grep.
 - **Polar converter records.** A surface of revolution's `SmPolarConversion` owns its
   sweep circle, so `WriteToDB` stores it (`bHasCurve`); it is read by
   `PolarConversion::read_from_db_with_curve` (curve.ellipse_p1).
@@ -2701,3 +2704,24 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `DropPointFast` with an inexact angle need `SmSurface::LocalPointSolve`
   (`surface.surface_p5`); no generated surface reaches them (the sweep circles always
   convert exactly).
+- **Review fixes (PR #29).** The FFI wrappers rejected valid inputs: zero-width drop,
+  intersection and update domains, and zero drop / intersection tolerances. Upstream
+  handles both without undefined behaviour (198 such cases: C++ does not crash, Rust is
+  bit-identical), so those domains now need only be ordered and tolerances only `>= 0`;
+  `Reparameterize` keeps strictly positive extents (a zero-width reparameterisation
+  divides by zero in NLib). Fixtures `review_adversarial_zero_width.json` (144) and
+  `review_adversarial_zero_tol.json` (54). `review_adversarial.json` (3497 cases) is a
+  subset of the reviewer's 6125-case adversarial set (every non-drop case, every third
+  drop case; all 6125 were bit-identical or deferred): torus / cylinder / cone / sphere /
+  partial-sweep / Bezier generators, swapped and at 1e-4 and 1e5 scale, drops on the
+  axis and seams, coaxial / tangent / coincident / disjoint / wrapping intersections,
+  non-uniform and negative-scale transforms, rebuilds, reverse / swap / update /
+  reparameterize. Its deferred cases are the `tol = None` path (`surface.surface_p1`).
+- **Not reachable today.** (1) `Surface::reverse` / `swap_uv` of a surface of revolution
+  use the stored NURB; upstream calls the virtual `GetOrCreateGwNurbPointer`, which would
+  run `SmSurfOfRevolution::MakeNurb` for a surface without one (none exists: every
+  constructed surface has its NURB). (2) `convert_uv_from_*_or_written` (callers that
+  ignore the status, e.g. `UpdateAnalyticalDomain`) model `rSTEPUV` as written only after
+  `Point2dMapToDomain` / `ConvertToPolarParameter` succeed; if either C++ call wrote its
+  out-parameter partway before failing, such a caller would see a different value. No
+  input found reaches a failure there.

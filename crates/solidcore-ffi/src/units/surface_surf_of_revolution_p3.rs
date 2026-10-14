@@ -20,11 +20,12 @@
 //! * `write_db`: the status, then the bytes. `read_db`: the status, then the state.
 //!
 //! The wrappers accept only what upstream handles without undefined behaviour: the
-//! surface blocks of the `p1` module, finite parameters, ordered domains with positive
-//! extents (a zero-width reparameterisation divides by zero in NLib), the documented
+//! surface blocks of the `p1` module, finite parameters, ordered domains (with positive
+//! extents for `Reparameterize`: a zero-width reparameterisation divides by zero in
+//! NLib; the drop, intersection and update domains may be zero-width), the documented
 //! drop operations (`SM_SO_MINIMIZE`, `SM_SO_MAXIMIZE`, `SM_SO_NORMALIZE`,
 //! `SM_SO_INTERSECT`; the others read option vectors the drop passes as `NULL`) and
-//! requests (`SM_SR_SINGLE`, `SM_SR_ALL`), positive tolerances, cones with
+//! requests (`SM_SR_SINGLE`, `SM_SR_ALL`), non-negative tolerances, cones with
 //! non-negative radii (not both zero) and a positive height, spheres with a positive
 //! radius, independent frame axes, scales with every component away from zero, and
 //! for `read_db` only the exact bytes [`write_db`] gives for the same surface (an
@@ -233,7 +234,12 @@ fn push_dom(o: &mut Vec<f64>, d: Dom, what: &str) -> Result<(), FfiError> {
     match d {
         Dom::Natural => o.extend([1.0, 0.0, 0.0, 1.0, 1.0]),
         Dom::Explicit(b) => {
-            bounds(b, what)?;
+            // zero-width drop, intersection and update domains are valid upstream
+            finite(&b, what)?;
+            let [a, v0, c, v1] = b;
+            if !(a <= c && v0 <= v1) {
+                return Err(bad(format!("{what}: domain not ordered")));
+            }
             o.push(0.0);
             o.extend_from_slice(&b);
         }
@@ -262,8 +268,8 @@ fn push_frame(o: &mut Vec<f64>, f: &Frame, what: &str) -> Result<(), FfiError> {
 }
 
 fn tolerance(t: f64, what: &str) -> Result<(), FfiError> {
-    if !(t.is_finite() && t > 0.0) {
-        return Err(bad(format!("{what}: tolerance must be positive")));
+    if !(t.is_finite() && t >= 0.0) {
+        return Err(bad(format!("{what}: tolerance must not be negative")));
     }
     Ok(())
 }
@@ -381,7 +387,7 @@ fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     call_with_buffer(4096, |buf, len| {
         // SAFETY: input is valid for input.len() reads and holds exactly what the shim
         // reads for `op` (built and validated above: well-formed surface blocks, bounded
-        // counts, finite values, ordered domains, non-degenerate axes, positive
+        // counts, finite values, ordered domains, non-degenerate axes, non-negative
         // tolerances, documented operation codes); buf is valid for buf.len() writes and
         // the shim honours the capacity; len is valid.
         unsafe {

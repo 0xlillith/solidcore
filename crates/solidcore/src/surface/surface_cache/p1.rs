@@ -182,11 +182,14 @@ fn invalid(operation: &'static str, reason: &'static str) -> SolidError {
 /// `SmPlane::CreateIsoParametricCurve` (virtual, reached through an `SmSurface` or
 /// an `SmBSplineSurface` pointer): not wired into the cache.
 const fn plane_iso_unported() -> SolidError {
-    // UNPORTED(surface.plane_p1): SmPlane::CreateIsoParametricCurve. Ported as
-    // Plane::create_iso_parametric_curve, but it makes an SmLine and this cache holds
-    // its iso curves as BSplineCurve, which would drop the SmLine overrides (evaluation,
-    // length); wiring it needs Curve storage here.
-    SolidError::unported("SmPlane::CreateIsoParametricCurve", "surface.plane_p1")
+    // UNPORTED(surface.surface_cache_p1): SmPlane::CreateIsoParametricCurve. Ported as
+    // Plane::create_iso_parametric_curve (surface.plane_p1), but it makes an SmLine and
+    // this cache holds its iso curves as BSplineCurve, which would drop the SmLine
+    // overrides (evaluation, length); wiring it needs Curve storage here.
+    SolidError::unported(
+        "SmPlane::CreateIsoParametricCurve",
+        "surface.surface_cache_p1",
+    )
 }
 
 /// `SM_CAST_PTR(SmBSplineSurface, surface)` for callers that run only non-virtual
@@ -233,14 +236,14 @@ fn create_iso_parametric_curve(
     match surface.kind() {
         SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
         SurfaceKind::Plane(_) => Err(plane_iso_unported()),
-        // UNPORTED(surface.surf_of_revolution_p1): SmSurfOfRevolution::CreateIsoParametricCurve.
-        // Ported as SurfOfRevolution::create_iso_parametric_curve, but it makes an
-        // SmCircle in the sweep direction and this cache holds its iso curves as
-        // BSplineCurve, which would drop the SmEllipse overrides; wiring it needs Curve
-        // storage here.
+        // UNPORTED(surface.surface_cache_p1): SmSurfOfRevolution::CreateIsoParametricCurve.
+        // Ported as SurfOfRevolution::create_iso_parametric_curve
+        // (surface.surf_of_revolution_p1), but it makes an SmCircle in the sweep
+        // direction and this cache holds its iso curves as BSplineCurve, which would drop
+        // the SmEllipse overrides; wiring it needs Curve storage here.
         SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
-            "surface.surf_of_revolution_p1",
+            "surface.surface_cache_p1",
         )),
         SurfaceKind::CurveBounded(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
