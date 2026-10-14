@@ -75,7 +75,6 @@ use super::{Surface, SurfaceKind};
 
 const OP_FIND_PS_NORMAL: &str = "surface::surface::p3::FindPsNormal::evaluate";
 const OP_SSS_INTERSECT: &str = "surface::surface::p3::SssIntersect::evaluate";
-const OP_SHAPE_MATCH: &str = "surface::surface::p3::check_shape_match";
 const OP_LOCAL_SOLVE: &str = "surface::surface::p3::Surface::local_surface_solve";
 const OP_PVV: &str = "surface::surface::p3::evaluate_pvv";
 
@@ -314,7 +313,7 @@ fn crossed_seam_or_pole(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for a vanishing normal; [`SolidError::Unported`] from the evaluations.
+/// `SM_ERR_INVALID_INPUT` (zero-length vector) for a vanishing normal; [`SolidError::Unported`] from the evaluations.
 pub fn check_shape_match(
     pvv0: &mut [[Vec3; 3]; 3],
     pvv1: &mut [[Vec3; 3]; 3],
@@ -334,14 +333,8 @@ pub fn check_shape_match(
     }
 
     // Next check normals (order 1).
-    let norm0 = p10
-        .cross(p01)
-        .unitize()
-        .map_err(|_| SolidError::sm_err(OP_SHAPE_MATCH))?;
-    let norm1 = q10
-        .cross(q01)
-        .unitize()
-        .map_err(|_| SolidError::sm_err(OP_SHAPE_MATCH))?;
+    let norm0 = p10.cross(p01).unitize()?;
+    let norm1 = q10.cross(q01).unitize()?;
 
     if !norm1.is_parallel_to(norm0, rad_to_deg(ang_tol_rad)) {
         return Ok(false);
@@ -413,7 +406,7 @@ pub fn evaluate_geometric_of<S: SurfaceEvaluate + ?Sized>(
 ///
 /// # Errors
 ///
-/// Those of the evaluations, `SM_ERR` for a vanishing normal and those of
+/// Those of the evaluations, the zero-length-vector status for a vanishing normal and those of
 /// `smsurf_EvaluateNormalSection`.
 pub fn evaluate_normal_section_of<S: SurfaceEvaluate + ?Sized>(
     surface: &S,
@@ -430,9 +423,7 @@ pub fn evaluate_normal_section_of<S: SurfaceEvaluate + ?Sized>(
     if surface_normal.length_squared() < EFF_ZERO_SQ {
         surface_normal = surface.evaluate_normal(uv, u_side, v_side)?;
     } else {
-        surface_normal = surface_normal
-            .unitize()
-            .map_err(|_| SolidError::sm_err("surface::surface::p3::evaluate_normal_section_of"))?;
+        surface_normal = surface_normal.unitize()?;
     }
 
     // get output TangentPlaneDirection and Curvature
@@ -466,7 +457,7 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the evaluations, `SM_ERR` for a vanishing normal and those of
+    /// Those of the evaluations, the zero-length-vector status for a vanishing normal and those of
     /// `smsurf_EvaluateNormalSection`.
     pub fn evaluate_normal_section(
         &self,
