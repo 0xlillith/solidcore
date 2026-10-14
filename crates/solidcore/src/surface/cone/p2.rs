@@ -407,6 +407,12 @@ fn detect_cone(
 }
 
 impl Cone {
+    /// Mutable inherited NURB base. Call `rebuild_step_from_nurb_parameters`
+    /// after geometry edits to update the analytic and generator data.
+    pub fn base_mut(&mut self) -> &mut BSplineSurface {
+        &mut self.rev.base
+    }
+
     /// Recognize a rational line/circle NURB as a cone (`IsNurbSurfaceCone`).
     /// The analytic object owns its regenerated NURB, with the input domain.
     ///

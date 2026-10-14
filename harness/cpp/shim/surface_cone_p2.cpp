@@ -422,3 +422,100 @@ SC_EXPORT int32_t sc_surface_cone_p2_trim(const double* in,int64_t n_in,
     return sc_copy_out(values.data(),(int64_t)values.size(),out,cap,out_len);
     SC_CATCH
 }
+
+// Independent native construction and full geometric state for the remaining
+// three owned functions. The input cone is never replaced by a generic surface.
+#include <SmCylinder.h>
+#include <SmBSplineSurface.h>
+#include <SmCurve.h>
+#include <nurbs.h>
+
+namespace {
+struct ConeStateAccess : SmCone {
+    static SmPolarConversion SmSurfOfRevolution::*polar() {return &ConeStateAccess::m_vPolarConverter;}
+};
+void cone_vec(std::vector<double>& out,const SmVector3d& p) {
+    out.push_back(p.x);out.push_back(p.y);out.push_back(p.z);
+}
+bool cone_state(std::vector<double>& out,const SmCone& cone) {
+    SmAxis2Placement position;double radius=0,semi=0;SmBoolean swap=FALSE,inside=FALSE;
+    if(cone.GetCanonical(position,radius,semi,&swap,&inside)!=SM_SUCCESS) return false;
+    out.insert(out.end(),{(double)cone.GetType(),radius,semi,(double)swap,(double)inside});
+    cone_vec(out,position.GetOriginRef());cone_vec(out,position.GetXAxisRef());cone_vec(out,position.GetYAxisRef());
+    for(const auto& domain:{cone.GetSTEPUVDomain(),cone.GetNaturalUVDomain()})
+        out.insert(out.end(),{domain.GetMin().x,domain.GetMin().y,domain.GetMax().x,domain.GetMax().y});
+    out.insert(out.end(),{cone.GetBotRadius(),cone.GetTopRadius(),cone.GetHeight()});
+    const SmBSplineCurve* generator=cone.GetGenCurve();
+    if(!generator) return false;
+    const SmExtent1d step=generator->GetSTEPInterval(),nurb=generator->GetNaturalInterval();
+    out.insert(out.end(),{(double)generator->GetType(),step.GetMin(),step.GetMax(),nurb.GetMin(),nurb.GetMax()});
+    for(double fraction:{0.0,0.4,1.0}) {
+        SmPoint3d point;
+        if(generator->EvaluatePoint(nurb.Evaluate(fraction),point)!=SM_SUCCESS) return false;
+        cone_vec(out,point);
+    }
+    const SmPolarConversion& polar=cone.*ConeStateAccess::polar();
+    const ULONG count=polar.GetAngleCount();
+    out.insert(out.end(),{cone.HavePolarConversion()?1.0:0.0,(double)count});
+    if(count) out.insert(out.end(),{polar.GetFirstAngle(),polar.GetLastAngle()});
+    const gw_SURFACE* surface=cone.GetGwNurbPointer();
+    out.push_back(surface?1.0:0.0);
+    if(!surface) return true;
+    out.insert(out.end(),{(double)surface->p,(double)surface->q,(double)(surface->net->n+1),(double)(surface->net->m+1)});
+    for(gw_INDEX i=0;i<=surface->net->n;++i) for(gw_INDEX j=0;j<=surface->net->m;++j) {
+        const auto& p=surface->net->Pw[i][j];out.insert(out.end(),{p.x,p.y,p.z,p.w});
+    }
+    out.push_back((double)(surface->knu->m+1));
+    for(gw_INDEX i=0;i<=surface->knu->m;++i) out.push_back(surface->knu->U[i]);
+    out.push_back((double)(surface->knv->m+1));
+    for(gw_INDEX i=0;i<=surface->knv->m;++i) out.push_back(surface->knv->U[i]);
+    return true;
+}
+void cone_mutate(SmCone& cone,int mutation) {
+    if(!mutation) return;
+    gw_SURFACE* surface=cone.GetGwNurbPointer();
+    const bool swap=cone.GetSwapUV()!=FALSE;
+    const double angle=0.05,cosine=std::cos(angle),sine=std::sin(angle);
+    for(gw_INDEX i=0;i<=surface->net->n;++i) for(gw_INDEX j=0;j<=surface->net->m;++j) {
+        if(swap ? i!=surface->net->n : j!=surface->net->m) continue;
+        auto& p=surface->net->Pw[i][j];
+        if(mutation==1) {double x=p.x,y=p.y;p.x=cosine*x-sine*y;p.y=sine*x+cosine*y;}
+        else {p.x*=2.0;p.y*=2.0;p.z*=2.0;p.w*=2.0;}
+    }
+}
+}
+
+// op 1 recognition, 2 rebuild, 3 offset; kind 0 actual SmCone, 1 SmCylinder.
+SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mutation,
+    double scale,double distance,double tolerance,const double* in,int64_t n_in,
+    double* out,int64_t cap,int64_t* out_len)
+{
+    SC_TRY
+    if(n_in!=18) return SC_ERR_ARG;
+    SmContext context;
+    std::unique_ptr<SmCone> input(kind ? static_cast<SmCone*>(new(context) SmCylinder(
+        SmPoint3d(0,0,0),SmVector3d(1,0,0),SmVector3d(0,1,0),in[0],in[3],in[4],in[2],
+        in[5]?TRUE:FALSE,in[6]?TRUE:FALSE,FALSE,&context))
+        : static_cast<SmCone*>(new(context) TrimCone(in[0],in[1],in[3],in[4],in[2],in[5]?TRUE:FALSE,in[6]?TRUE:FALSE)));
+    if(input->MakeNurb()!=SM_SUCCESS) return SC_ERR_ARG;
+    cone_mutate(*input,mutation);
+    std::unique_ptr<SmCone> result;
+    const SmCone* selected=NULL;double status=0;
+    if(op==1) {
+        std::unique_ptr<SmBSplineSurface> pure(new(context) SmBSplineSurface(*input));
+        SmCone* recognized=NULL;
+        status=(double)SmCone::IsNurbSurfaceCone(context,pure.get(),recognized,scale);
+        result.reset(recognized);selected=result.get();
+    } else if(op==2) {
+        status=(double)input->RebuildSTEPFromNURBParameters();selected=input.get();
+    } else if(op==3) {
+        SmSurface* offset=NULL;
+        status=(double)input->CreateOffsetSurface(context,distance,tolerance,offset);
+        if(offset && !offset->IsKindOf(SmCone_TYPE)) {delete offset;return SC_ERR_ARG;}
+        result.reset(static_cast<SmCone*>(offset));selected=result.get();
+    } else return SC_ERR_ARG;
+    std::vector<double> values{status,selected?1.0:0.0};
+    if(selected && !cone_state(values,*selected)) return SC_ERR_ARG;
+    return sc_copy_out(values.data(),(int64_t)values.size(),out,cap,out_len);
+    SC_CATCH
+}
