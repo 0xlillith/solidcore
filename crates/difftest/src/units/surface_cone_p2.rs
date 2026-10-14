@@ -33,7 +33,7 @@ impl UnitDiff for Runner {
         )
     }
     fn generate(&self, rng: &mut crate::Rng) -> Option<Value> {
-        generated_analytic(rng)
+        Some(generated_analytic(rng))
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         if case
@@ -224,10 +224,10 @@ fn mutate_cone(cone: &mut Cone, mutation: i32) -> solidcore::Result<()> {
                     if point.w != NOW {
                         point.x /= point.w;
                         point.y /= point.w;
-                        point.z = if point.z != NOZ {
-                            point.z / point.w
-                        } else {
+                        point.z = if point.z == NOZ {
                             0.0
+                        } else {
+                            point.z / point.w
                         };
                     }
                     point.w = NOW;
@@ -477,7 +477,7 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
     Ok(Output::new().values("state", out))
 }
 
-fn generated_analytic(rng: &mut crate::Rng) -> Option<Value> {
+fn generated_analytic(rng: &mut crate::Rng) -> Value {
     let scale = match rng.below(3) {
         0 => 1e-7,
         1 => 1.0,
@@ -528,9 +528,7 @@ fn generated_analytic(rng: &mut crate::Rng) -> Option<Value> {
         3 => 0.25 * bottom,
         _ => bottom,
     };
-    Some(
-        serde_json::json!({"op":op,"kind":kind,"mutation":mutation,"scale":1.0,
+    serde_json::json!({"op":op,"kind":kind,"mutation":mutation,"scale":1.0,
         "distance":distance,"tolerance":tolerance,
-        "trim":[bottom,top,height,start,end,swap,inside,0.0,height/2.0,scale,scale,0.0,360.0,0.0,0.0,1.0,1.0,1e-7*scale]}),
-    )
+        "trim":[bottom,top,height,start,end,swap,inside,0.0,height/2.0,scale,scale,0.0,360.0,0.0,0.0,1.0,1.0,1e-7*scale]})
 }
