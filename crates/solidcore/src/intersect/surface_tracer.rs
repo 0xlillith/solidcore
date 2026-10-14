@@ -1437,9 +1437,27 @@ fn flush_crv(
     Ok(())
 }
 
+<<<<<<< HEAD
 /// `SmSurface::EvaluateNormal(uv, FALSE, FALSE, ..)` (virtual).
 fn evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
     surface.evaluate_normal(uv, Side::Right, Side::Right)
+=======
+/// `SmSurface::EvaluateNormal(uv, FALSE, FALSE, ..)`: the plane override; other
+/// kinds run `SmSurface::EvaluateNormal`.
+fn evaluate_normal(surface: &Surface, _uv: Point2) -> Result<Vec3> {
+    match surface.kind() {
+        SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_) => {
+            // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
+            Err(SolidError::unported(
+                "SmSurface::EvaluateNormal",
+                "surface.surface_p7",
+            ))
+        }
+    }
+>>>>>>> 6b376a580aa9614294f64bfc918182d79cbd0952
 }
 
 /// `SmSurfaceTracer::FlushCurve`: empties the curve points and appends the curve
@@ -1637,7 +1655,9 @@ fn surface_drop_curve(
             let r = p.drop_curve(k, uv_domain, curve, interval, approx_tol, true, false)?;
             Ok((r.max_drop_to_surf, r.max_approx_dev, r.uv_curves))
         }
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_) => {
             // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve
             Err(SolidError::unported(
                 "SmSurface::DropCurve",
