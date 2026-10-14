@@ -488,7 +488,7 @@ by area within each severity.
 - **Severity:** crash/UB (use after free).
 - **Rust port:** Identifies callbacks by key, so the case cannot arise.
 
-#### UB-78. `SmTopologySolver::MayContainAnswer` reads uninitialised ray/box results
+#### UB-80. `SmTopologySolver::MayContainAnswer` reads uninitialised ray/box results
 - **Location:** `SmTopologySolver.cpp:2909`, `SmTopologySolver::MayContainAnswer` (def. `:2716`), `SM_SO_RAYFIRE` branch.
 - **What happens:** The status of `SmExtent3d::IntersectLine` is ignored. When it fails (`SM_ERR_INVALID_INPUT` for a ray vector shorter than `SM_EFF_ZERO` or an undefined box), `lNumFound`, `dTEnter` and `dTExit` are read uninitialised and decide whether the branch is culled.
 - **Trigger:** A ray-fire topology solve whose option vector is (near) zero.
@@ -497,7 +497,7 @@ by area within each severity.
 - **Severity:** crash/UB (uninitialised read).
 - **Rust port:** Returns `InvalidInput`.
 
-#### UB-79. Topology edge solvers dereference a curve's missing edge
+#### UB-81. Topology edge solvers dereference a curve's missing edge
 - **Location:** `SmTopologySolver.cpp:557`/`:582` `SmTLSPointEdge::SolveIt`, `:1079`/`:1101` `SmTLSCurveEdge::SolveIt`, `:1359`/`:1380` `SmTLSEdgeEdge::SolveIt`.
 - **What happens:** `pCurve->GetEdge()` is only checked by an `SM_ASSERT_MSG` (compiled out); with no shape (`m_pShape == NULL`) a curve that defines no edge is dereferenced as `NULL->GetInterval()`.
 - **Trigger:** Any of these local solvers called on a free curve (no owning edge) outside a shape solve.
@@ -795,6 +795,15 @@ by area within each severity.
 - **Confirmed:** no.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
+
+#### UB-79. `SmPointClassification` calls `SmObject` virtuals on an `SmPoint3d*`
+- **Location:** `SmPointClass.cpp:668` (`ComputePointParameters`: `SmTol::GetZoneTol3d(m_pObject)`), `:435` (`GetGap3d` with a surface, through `GetObjZoneTol3d`), `:493` (`IsConnectedTo`: `GetType`), `:917` (`MergeIntoObject`: `GetType`).
+- **What happens:** `SM_PC_POINT` classifications store an `SmPoint3d*` cast to `SmObject*` (`SetClassObject`), and these paths call virtual `SmObject` members on it. `SmPoint3d` has no `SmObject` vtable, so the call is undefined behaviour.
+- **Trigger:** `SetClassObject(SM_PC_POINT, (SmObject*)&point)` followed by `ComputePointParameters`, `GetGap3d(surface)`, `IsConnectedTo` or `MergeIntoObject`.
+- **How found:** read during porting.
+- **Confirmed:** no (the harness keeps these calls away from the C++).
+- **Severity:** crash/UB.
+- **Rust port:** Treats a point like any other non-topology object (system zone tolerance, not connected, not mergeable).
 
 ## Hang
 
@@ -1116,7 +1125,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
 
-#### WR-55. `SmTLSPointVertex::SolveIt` ray firing falls through into the 3D signed case
+#### WR-59. `SmTLSPointVertex::SolveIt` ray firing falls through into the 3D signed case
 - **Location:** `SmTopologySolver.cpp:206-262`, `SmTLSPointVertex::SolveIt` (def. `:116`).
 - **What happens:** The `SM_SO_RAYFIRE` case has no `break`, so the `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE` case runs after it: it recomputes the ray parameter without the rayfire snap to the ray start (`dParam < 0.0 -> 0.0`), overwrites `dDistSq`, and sets the sign from the unsnapped parameter (negated again when the object order is swapped). A vertex just behind the ray start (within `SM_EFF_ZERO` of it) gets a small negative ray distance instead of `0`, and a swapped call returns negated ray distances.
 - **Trigger:** `SM_SO_RAYFIRE` point/vertex solve from `(1, 0, 0)` along `(1, 0, 0)` with a vertex at `(1 - 1e-13, 0, 0)` (fixture `point_vertex_rayfire_behind_start`).
@@ -1440,6 +1449,15 @@ by area within each severity.
 - **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_span_angle`).
 - **Severity:** wrong result (unit mix-up).
 - **Rust port:** Faithful.
+
+#### WR-58. `SmPointClassification::GetGap3d` returns `SM_ERR` as a distance
+- **Location:** `SmPointClass.cpp:464`, `SmPointClassification::GetGap3d` (def. `:418`).
+- **What happens:** When the object point has no single drop point on the given surface (even at 100x the zone tolerance), the function, which returns a `double` gap, returns `SM_ERR` (1001.0), which callers read as a large gap.
+- **Trigger:** `GetGap3d(pSurface)` for an object point far from `pSurface`.
+- **How found:** read during porting.
+- **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
+- **Severity:** wrong result.
+- **Rust port:** Returns `SM_ERR` as the gap value too.
 
 ## Docs
 

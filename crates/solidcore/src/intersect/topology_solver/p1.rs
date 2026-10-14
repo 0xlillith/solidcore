@@ -1845,11 +1845,13 @@ fn face_point_classify<O>(
     _do_boundaries: bool,
     _use_uv: bool,
 ) -> Result<i32> {
-    // UNPORTED(intersect.point_class): SmPointClassification::SmPointClassification
-    // (then UNPORTED(query.face_p2): SmFace::PointClassify)
+    // The classification is `PointClassification::new(src_zone_tol)`
+    // (`intersect::point_class`); build it and read `point_class()` after the call
+    // below once `SmFace::PointClassify` is ported.
+    // UNPORTED(query.face_p2): SmFace::PointClassify
     Err(SolidError::unported(
-        "SmPointClassification::SmPointClassification",
-        "intersect.point_class",
+        "SmFace::PointClassify",
+        "query.face_p2",
     ))
 }
 
