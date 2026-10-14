@@ -8,8 +8,11 @@
 //! `SmBSplineSurface(gw_SURFACE*, FALSE, NULL)`, or `1 O[3] N[3]`: `SmPlane(O, N)`), a
 //! volume block (`n` maps, each `kind [T[12]] has_orient [O[12]]` with kind `0` a plain
 //! `SmVolume`, `1` an `SmTransform(ctx, origin, X, Y, &Z)` from the twelve numbers `T`,
-//! `2` a default `SmTwistVolume`, `3` a default `SmUnbendVolume`; `O` becomes the orient
-//! map; maps are chained with `AddNextMap(map, 2)`, as unit `surface.volume_p1`), then
+//! `2` a default `SmTwistVolume`, `3` a default `SmUnbendVolume`, `4` a default
+//! `SmBendVolume`, `5` / `6` / `7` the component constructors of `SmTwistVolume`
+//! (`origin axis mid period min_dist`), `SmUnbendVolume` and `SmBendVolume` (`center axis
+//! mid neutral_dist singularity_tol`), their eleven numbers `C` following the kind; `O`
+//! becomes the orient map (not for the component kinds, which build their own); maps are chained with `AddNextMap(map, 2)`, as unit `surface.volume_p1`), then
 //! `in_param copy_flag owner_flag` (the constructor's arguments). Every output starts
 //! with the status (`0` = `SM_SUCCESS`, else the `SmStatus`); the rest:
 //!
@@ -38,14 +41,14 @@
 //!
 //! `uv` is two numbers, `dom` `u0 v0 u1 v1`, `ul vl oh nz` flags. A state is
 //! `owner_flag in_param` the base surface (`type has_nurb [n m p q r s cpts knots]`)
-//! and the volume chain (`n` then per map `type [matrix(16) if a transform] has_orient
-//! [O(16)] has_inv [I(16)]`).
+//! and the volume chain (`n` then per map `type [matrix(16) if a transform | two members
+//! if a twist, unbend or bend volume] has_orient [O(16)] has_inv [I(16)]`).
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: finite
 //! values, well-formed clamped B-splines, planes with a non-zero normal, derivative
 //! orders up to 3 (upstream's fixed arrays), a plain `SmVolume` head map only where
 //! nothing copies the volume (its `Copy` fails and the copy would share it),
-//! `STEPInversion` and `Transform` only through transform maps, domains and split
+//! `STEPInversion` only through transform maps, domains and split
 //! parameters inside the base B-spline's domain, and placements with independent axes.
 
 use crate::{call_with_buffer, FfiError};
@@ -130,8 +133,6 @@ struct Block {
     head_base: bool,
     /// Every map is an `SmTransform`.
     all_transforms: bool,
-    /// The last map is an `SmTransform`.
-    last_transform: bool,
     /// The constructor copies the volume.
     copies_volume: bool,
 }
@@ -302,39 +303,49 @@ fn surface(rd: &mut Reader<'_>) -> Result<Option<[f64; 4]>, FfiError> {
     Ok(Some([u0, v0, u1, v1]))
 }
 
-/// A volume block; returns (head is a plain volume, all maps transforms, last map
-/// transform).
-fn volume(rd: &mut Reader<'_>) -> Result<(bool, bool, bool), FfiError> {
+/// A volume block; returns (head is a plain volume, all maps transforms).
+fn volume(rd: &mut Reader<'_>) -> Result<(bool, bool), FfiError> {
     let n = rd.index(MAX_MAPS)?;
     if n == 0 {
         return Err(bad("volume without maps"));
     }
-    let (mut head_base, mut all_transforms, mut last_transform) = (false, true, false);
+    let (mut head_base, mut all_transforms) = (false, true);
     for i in 0..n {
-        let kind = rd.index(3)?;
+        let kind = rd.index(7)?;
         if kind == 1 {
             for _ in 0..4 {
                 rd.vec3()?;
             }
         }
+        let component = kind >= 5;
+        if component {
+            // origin / center, axis and mid direction (non-zero), then two numbers
+            rd.vec3()?;
+            rd.nonzero3()?;
+            rd.nonzero3()?;
+            rd.finite()?;
+            rd.finite()?;
+        }
         if i == 0 {
             head_base = kind == 0;
         }
         all_transforms &= kind == 1;
-        last_transform = kind == 1;
         if rd.flag()? {
+            if component {
+                return Err(bad("component volume with an orient map"));
+            }
             for _ in 0..4 {
                 rd.vec3()?;
             }
         }
     }
-    Ok((head_base, all_transforms, last_transform))
+    Ok((head_base, all_transforms))
 }
 
 /// An object block (see the module docs).
 fn object_block(rd: &mut Reader<'_>) -> Result<Block, FfiError> {
     let domain = surface(rd)?;
-    let (head_base, all_transforms, last_transform) = volume(rd)?;
+    let (head_base, all_transforms) = volume(rd)?;
     rd.flag()?;
     let copy_flag = rd.index(3)?;
     rd.index(3)?;
@@ -346,7 +357,6 @@ fn object_block(rd: &mut Reader<'_>) -> Result<Block, FfiError> {
         domain,
         head_base,
         all_transforms,
-        last_transform,
         copies_volume,
     })
 }
@@ -426,9 +436,6 @@ fn validate_op(op: Op, rd: &mut Reader<'_>, c: &Block) -> Result<(), FfiError> {
             }
         }
         Op::Transform => {
-            if !c.last_transform {
-                return Err(bad("transform: the last map must be a transform"));
-            }
             rd.placement()?;
             rd.flag()?;
             rd.vec3()?;

@@ -23,7 +23,13 @@ stay in `plan/findings.md`. Behaviour that is odd but plausibly intended is left
   `SM_DEBUG_CODE`, `SM_USE_OLDTOL`) with `-ffp-contract=off`, on x86-64 Linux / LP64.
 
 Severity order: crash/UB, hang, nondeterminism, wrong result, docs. Entries are grouped
-by area within each severity.
+by area within each severity, so IDs are in order within each area but not across a
+whole severity.
+
+**Numbering.** A new entry takes the next free number in its series (`UB-`, `HANG-`,
+`ND-`, `WR-`, `DOC-`) at the moment its PR merges. If another PR took that number in the
+meantime, whoever merges renumbers the new entry and every reference to it (here, in
+`plan/findings.md`, `plan/modules.toml` and code comments). Numbers are not reused.
 
 ## Crash / undefined behaviour
 
@@ -110,6 +116,24 @@ by area within each severity.
 - **Confirmed:** no (guarded).
 - **Severity:** crash/UB (out-of-bounds read, stack exhaustion).
 - **Rust port:** `CompositeCurve::with_curves` returns `InvalidInput`; nesting is bounded by `DatabaseReader::enter_nested` (64).
+
+#### UB-91. `SmSurfOfExtrusion::ReadFromDB` reads an uninitialised generator type from a failed ASCII stream [PSIRT]
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:4560` `SmSurfOfExtrusion::ReadFromDB` (def. `:4480`), through `SmDatabaseIO::ReadType` (`SmDatabaseIO.cpp:400`); also the locals `eOrientation` and `bSwapUV` (`:4506`-`:4507`).
+- **What happens:** The ASCII branch extracts the record without checking the stream. Once an extraction fails, every later `>>` leaves its (uninitialised) local untouched, and the ASCII `ReadType` returns `SM_SUCCESS` without writing `lGenCurveType`, which then selects the curve reader.
+- **Trigger:** An ASCII `SmSurfOfExtrusion` record cut short, or with a non-numeric field, before its generator's `Object Type` line.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The FFI guard only passes records the strict stream simulator of `topology.brep_data` reads completely.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** `read_type` reports the unread type and `read_from_db` returns `InvalidInput`.
+
+#### UB-92. `SmSurfOfExtrusion::ReadFromDB` casts any curve kind to `SmBSplineCurve` [PSIRT]
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:4562`-`4565` `SmSurfOfExtrusion::ReadFromDB`.
+- **What happens:** The generator read by `SmCurve::ReadFromDB` is only checked with `SM_ASSERT_MSG(pGenCurve->IsKindOf(SmBSplineCurve_TYPE))` (compiled out in release) and then stored as `SmBSplineCurve*`. A composite (or other non-B-spline) curve record makes every later generator call use the wrong class layout.
+- **Trigger:** An `SmSurfOfExtrusion` record whose generator is an `SmCompositeCurve` record.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The FFI guard only passes `SmBSplineCurve` generator records; the shim also refuses a read generator that is not one.
+- **Severity:** crash/UB (type confusion).
+- **Rust port:** Returns `InvalidInput`.
 
 ### NLib: knots and basis functions
 
@@ -488,6 +512,24 @@ by area within each severity.
 - **Severity:** crash/UB (use after free).
 - **Rust port:** Identifies callbacks by key, so the case cannot arise.
 
+#### UB-85. `SmTopologySolver::MayContainAnswer` reads uninitialised ray/box results
+- **Location:** `SmTopologySolver.cpp:2909`, `SmTopologySolver::MayContainAnswer` (def. `:2716`), `SM_SO_RAYFIRE` branch.
+- **What happens:** The status of `SmExtent3d::IntersectLine` is ignored. When it fails (`SM_ERR_INVALID_INPUT` for a ray vector shorter than `SM_EFF_ZERO` or an undefined box), `lNumFound`, `dTEnter` and `dTExit` are read uninitialised and decide whether the branch is culled.
+- **Trigger:** A ray-fire topology solve whose option vector is (near) zero.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard keeps a ray vector shorter than `1e-6` from `MayContainAnswer`; zero and tiny option vectors elsewhere are defined upstream and are difftested by `fixtures/intersect.topology_solver_p1/zero_vectors.json`).
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** Returns `InvalidInput`.
+
+#### UB-86. Topology edge solvers dereference a curve's missing edge
+- **Location:** `SmTopologySolver.cpp:557`/`:582` `SmTLSPointEdge::SolveIt`, `:1079`/`:1101` `SmTLSCurveEdge::SolveIt`, `:1359`/`:1380` `SmTLSEdgeEdge::SolveIt`.
+- **What happens:** `pCurve->GetEdge()` is only checked by an `SM_ASSERT_MSG` (compiled out); with no shape (`m_pShape == NULL`) a curve that defines no edge is dereferenced as `NULL->GetInterval()`.
+- **Trigger:** Any of these local solvers called on a free curve (no owning edge) outside a shape solve.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard passes only curves that own an edge).
+- **Severity:** crash/UB (bad argument from calling code).
+- **Rust port:** Returns `InvalidInput`.
+
 ### Curves
 
 #### UB-46. NURB-less curves are dereferenced
@@ -767,7 +809,97 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
 
+#### UB-78. `SmApiCreateSkinFromFaces` with no faces crashes
+- **Location:** `source/SM_API/src/SmApiPrimitives.cpp:1335` `SmApiCreateSkinFromFaces` -> `source/SMLib/src/SmPrimitiveCreation.cpp:6711` `SmPrimitiveCreation::CreateSkinFromFaces` -> `SmBSplineSurfaceNLib.cpp` `SmBSplineSurface::CreateSkinnedSurface`.
+- **What happens:** With an empty face array (and no curves, which the API always passes), `CreateSkinFromFaces` still runs one layer and calls `CreateSkinnedSurface` with zero cross sections, which has no check for that and segfaults.
+- **Trigger:** `SmApiCreateSkinFromFaces` with an empty `rFaces`.
+- **How found:** crash in the C++ reference run (`sweep.api_surfaces` probe case).
+- **Confirmed:** yes.
+- **Severity:** crash/UB.
+- **Rust port:** `create_skin_from_faces` is a stub until `primitive.primitive_creation_p3` lands; `BSplineSurface::create_skinned_surface` returns `InvalidInput` for no cross sections. The harness passes at least one face.
+
+#### UB-80. `SmSurfOfExtrusion::EvaluateSTEP` lets order 5 overrun `sm_CrvDerivs`
+- **Location:** `SmSurfOfExtrusion.cpp:920`-`922` (`EvaluateSTEP`, def. `:897`: `lMaxDeriv = 5; // 5: MAXDER in NLib`), `:959` (`m_pGenCurve->EvaluateSTEP(dU, lHighestUDeriv, ..)`); `SmNurbsCrv.cpp:1281` `sm_CrvDerivs` (see UB-33).
+- **What happens:** The guard allows order 5, but `NL_MAXDER` is 4. A B-spline generator evaluates through `SmBSplineCurve::Evaluate` -> `sm_CrvDerivs`, which writes past its fixed derivative rows: `*** stack smashing detected ***`. Analytic generators (`SmLine`, `SmCircle`, `SmEllipse`) evaluate order 5 fine.
+- **Trigger:** `EvaluateSTEP(uv, 5, 5, ..)` on an extrusion of any `SmBSplineCurve` (degrees 1 to 3 tried).
+- **How found:** crash in the C++ reference run (`surface.surf_of_extrusion_p1` generated cases).
+- **Confirmed:** yes.
+- **Severity:** crash/UB (stack buffer overflow).
+- **Rust port:** The B-spline evaluation rejects order 5 and `evaluate_step` returns the error. The harness keeps order 5 of a B-spline generator away from the C++.
+
+#### UB-81. `sm_IntersectGenerators` reads unset offsets and a possibly NULL curve list
+- **Location:** `SmSurfOfExtrusion.cpp:2978`-`2986` (`sm_IntersectGenerators`, def. `:2658`; arrays declared `:2725`-`:2726`).
+- **What happens:** For a range solution, `pOpt3DCurves->GetSize()` is read before the `pOpt3DCurves != NULL` test, and `pOffsetCurve[jj][k]` / `dOffsetLength[jj][k]` are compared although they are only set when an end of the overlap interval equals one of four bounds exactly (`==` on doubles) and the end overlaps at all.
+- **Trigger:** A range solution of the projected generator intersection whose overlap ends match none of the four bounds, or a caller passing `NULL` curves.
+- **How found:** read during porting.
+- **Confirmed:** no (its projected solve, `SmCurve::GlobalCurveSolve`, is not ported yet, so no range case is compared).
+- **Severity:** crash/UB.
+- **Rust port:** A missing curve list has size 0; unset offsets compare unequal (the case falls to "too complicated").
+
+#### UB-82. `SmSurfOfExtrusion` constructors and copy constructor trust failed calls
+- **Location:** `SmSurfOfExtrusion.cpp:104`-`109` and `:204`-`209` (constructors: `SE(IsOnPlane(..))`, then read `bOnPlane`); `:70`, `:162`, `:170` (`SE` of the generator evaluations whose points are then used); `:252`-`:259` (copy constructor: `SE(SM_ERR)` for a NULL or non-B-spline generator copy, then `m_pGenCurve->SetOwner(this)`).
+- **What happens:** A failed `IsOnPlane` leaves `bOnPlane` uninitialised; a failed evaluation leaves the tolerance point or origin unset; copying a surface without generator dereferences NULL.
+- **Trigger:** Copying the empty I/O surface; a generator whose evaluation fails.
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** crash/UB.
+- **Rust port:** Returns the error (`SM_ERR_NULL_POINTER` for the copy).
+
+#### UB-83. `SmSurface::GetDomainWithContinuity` dereferences a missing surface cache
+- **Location:** `SmSurface.cpp:12056`, `SmSurface::GetDomainWithContinuity` (base body).
+- **What happens:** When `smsurf_GetSurfaceCache` returns `NULL` (neither a trimmed surface cache nor a surface cache can be built), `SE(SM_ERR)` only reports it and the body goes on to call `GetUContinuitiesArray()` through the null pointer.
+- **Trigger:** `GetDomainWithContinuity` on a curve-bounded surface or plane whose cache build fails (generated `surface.surface_p1` `dom_cont` cases).
+- **How found:** crash in the C++ reference run.
+- **Confirmed:** yes (segfault; the `surface.surface_p1` shim now checks the cache first and reports `SM_ERR`).
+- **Severity:** crash/UB.
+- **Rust port:** Returns the cache build error.
+
+#### UB-84. `SmSurface::CalculateBoundingBox` of a polar box recurses without bound
+- **Location:** `SmSurface.cpp:5397`, `SmSurface::CalculateBoundingBox` (base body), with `SmSurfaceCache.cpp:1184`, `SmBezierAux2d::BuildPolarBox`.
+- **What happens:** For a polar box, the base body asks the top node of the surface's own cache for it (`SmBezierAux2d::GetPolarBox`). Building that box calls the node surface's `CalculateBoundingBox`, which for a curve-bounded or STEP surface is the same base body again. Nothing ends the cycle, so the stack overflows.
+- **Trigger:** `CalculateBoundingBox` with `pPolarBox != NULL` on an `SmCurveBoundedSurface` or `SmSTEPSurface` (any surface kind that does not override `CalculateBoundingBox`).
+- **How found:** the maintainer's review of `surface.surface_p1` (PR #43), by printing the polar box in the shim; gdb shows about 58k frames cycling through those three functions.
+- **Confirmed:** yes (stack overflow in the C++ reference build).
+- **Severity:** crash/UB.
+- **Rust port:** `Surface::base_calculate_bounding_box` and the surface caches' `calculate_bounding_box` refuse a polar box of those kinds with `InvalidInput` (bounded on wasm). The `surface.surface_p1` FFI never asks the C++ for it.
+
+#### UB-87. `SmCone::CreateIsoCircleFromPoint` and `GetHeight` read uninitialised parameters
+- **Location:** `SmCone.cpp:1679`-`1682` `SmCone::CreateIsoCircleFromPoint` (def. `:1620`); `SmCone.cpp:2265`-`2266` `SmCone::GetHeight` (def. `:2251`).
+- **What happens:** `CreateIsoCircleFromPoint` ignores the statuses of `STEPInversion` and `ConvertUVFromSTEPToNURBS`; when the generator drop in `SmSurfOfRevolution::STEPInversion` finds no solution the height of `sStepUV` is never written and is used anyway. `GetHeight` ignores `EvaluatePoint`'s status and subtracts uninitialised points when the conversion fails (no polar curve).
+- **Trigger:** `CreateIsoCircleFromPoint` with a reference point just outside the height interval of a steep bounded cone and a tolerance below the in-plane gap the clamp leaves; `CreateIsoCircleFromPoint` on `SmCone::CreateCanonical(O, 1, 5e-11 deg, NULL)` (no `bSwapUV`) at `(-1, 1e-13, 0.7)`, where the polar conversion fails and `sNurbUV.y` (a defaulted `SmVector2d`) is used unset; `GetHeight` of the cone of UB-81.
+- **How found:** read during porting (`surface.cone_p1`).
+- **Confirmed:** no. The shim replays the inversion and refuses those inputs.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** Returns the error.
+
+#### UB-88. `SmCone` STEP-to-NURB conversion dereferences a missing polar curve
+- **Location:** `source/SMLib/src/SmEllipse.cpp:489`, `SmPolarConversion::ConvertToNURBSParameter` (def. `:467`), reached from `SmCone.cpp:1808` `SmCone::ConvertUVFromSTEPToNURBS` and `:1682` `SmCone::CreateIsoCircleFromPoint`.
+- **What happens:** `m_cpCurve->GetSTEPInterval()` is called without the `NER(m_cpCurve)` check that `ConvertToPolarParameter` has. A cone whose polar converter could not be set up has no curve; `SmSurfOfRevolution::MakeNurbWithSweepParams` ignores `RebuildPolarConverter`'s status, so `CreateCanonical` still succeeds.
+- **Trigger:** `new SmCylinder(O, X, Y, -1.8, 0, 360, 4.3, FALSE, FALSE, FALSE)` (a negative radius) and `MakeNurb()`, which succeeds without polar curve, then `ConvertUVFromSTEPToNURBS`.
+- **How found:** read during porting (`surface.cone_p1`).
+- **Confirmed:** no. The shim refuses the op for a cone without polar curve.
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Returns `InvalidInput`.
+
 ### Intersection
+
+#### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
+- **Location:** `SmVolume.cpp:8104`, `SmVolume::ReadFromDB` (the `SmVolume_TYPE` branch).
+- **What happens:** (1) A next map of type `SmVolume_TYPE` recurses with `rpNewVolume->m_pNextMap` (NULL) as the volume to fill, and the branch writes `rpNewVolume->m_pNextMap` through it. A top-level `SmVolume_TYPE` read does the same with the caller's NULL. (2) `rDB.ReadType(lNextType)` / `ReadType(lOrientType)` statuses are ignored; at end of data the type stays uninitialised and is switched on. (3) The orient map read is cast to `SmTransform*` whatever its type, and a failed read leaves it NULL; `RefreshInvOrientMap` then copies, inverts and simplifies it (a NULL or mistyped object). The nested reads' statuses are ignored throughout.
+- **Trigger:** An ASCII transform volume whose base data says `1` then `Object Type 22001` (next map), or `1` then `Object Type 22011` / `22004` (orient map), or ends right after a `1` flag.
+- **How found:** read during porting.
+- **Confirmed:** no. The harness's strict text grammar rejects these inputs.
+- **Severity:** crash/UB.
+- **Rust port:** Returns `SolidError::Unsupported`, which the derived readers do not ignore. Nested reads are bounded by `DatabaseReader::enter_nested`.
+
+#### UB-90. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
+- **Location:** `SmVolume.cpp:3907` `InvMapPoint` -> `:2058` `MapPseudoBox` (trim branch: `EvaluateBoundingBoxSimple(sParamBox, NULL, ...)`); `:3411` `InvEvaluatePoint` and `:4512` `GlobalPointSolve` -> `:1692` `EvaluateBoundingBox(*pOptParamDomain, NULL, ...)`.
+- **What happens:** With a search domain and compounding, an unoriented `SmTransform` map with next maps (or, for `EvaluateBoundingBox`, any transform map, and the orient map for in-space boxes) receives a NULL parameter pseudo box, and `SmTransform::EvaluateBoundingBoxSimple` dereferences it (UB-42).
+- **Trigger:** `InvMapPoint(P, NULL, ok, pts, gaps, &domain, TRUE)` on `SmTransform` -> `SmTwistVolume`.
+- **How found:** crash in the C++ reference run (segfault in `SmPseudoBox::AreAligned` under `InvMapPoint` -> `MapPseudoBox`).
+- **Confirmed:** yes.
+- **Severity:** crash/UB.
+- **Rust port:** Returns `SolidError::Unsupported`; the FFI guard of `surface.volume_p2` models these call paths and rejects them.
 
 #### UB-74. `PointBasedSurfaceIntersect` writes past its 20-point array
 - **Location:** `source/SMLib/src/SmSurface.cpp:30588` `SmSurface::PointBasedSurfaceIntersect` (UV point version).
@@ -778,6 +910,15 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
+#### UB-78. `ComputeSingularityPoint` can write past `aSingDirections[8]`
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:164` (`SmVector3d aSingDirections[8]`), filled by `sm_AddSingDir` (`:54`) from the Dupin indicatrix intersections at `:616`-`:685`; `aSingUVSurf1/2[8]` and `lInsideIndex[8]` at `:775`-`:776`.
+- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-60), so the count is not bounded by the 4 + 4 of two central conics.
+- **Trigger:** Two non-planar surface points with parallel normals, no shared principal curvature, whose indicatrices meet in more than 8 directions more than 26 degrees apart.
+- **How found:** read during porting.
+- **Confirmed:** no (the difftest shim predicts the count and does not run such inputs; no generated case reached it).
+- **Severity:** crash/UB.
+- **Rust port:** the array keeps 8 slots; a ninth direction is `InvalidInput`.
+
 #### UB-79. `SmPointClassification` calls `SmObject` virtuals on an `SmPoint3d*`
 - **Location:** `SmPointClass.cpp:668` (`ComputePointParameters`: `SmTol::GetZoneTol3d(m_pObject)`), `:435` (`GetGap3d` with a surface, through `GetObjZoneTol3d`), `:493` (`IsConnectedTo`: `GetType`), `:917` (`MergeIntoObject`: `GetType`).
 - **What happens:** `SM_PC_POINT` classifications store an `SmPoint3d*` cast to `SmObject*` (`SetClassObject`), and these paths call virtual `SmObject` members on it. `SmPoint3d` has no `SmObject` vtable, so the call is undefined behaviour.
@@ -786,6 +927,42 @@ by area within each severity.
 - **Confirmed:** no (the harness keeps these calls away from the C++).
 - **Severity:** crash/UB.
 - **Rust port:** Treats a point like any other non-topology object (system zone tolerance, not connected, not mergeable).
+
+#### UB-93. `SmSurfOfExtrusion::IntersectWithCylinder` makes the iso circle of an unbounded cylinder from unset values
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:3223` `SmSurfOfExtrusion::IntersectWithCylinder` (def. `:3164`), then `:3255` `sm_IntersectGenerators(*this, dTol, *pOtherGenCurve, ...)`.
+- **What happens:** The other generator is `CreateIsoCircleFromPoint` at the bottom of the cylinder's height interval, whose status is ignored. For an unbounded cylinder that point lies at `-SM_INFINITE_PARAMETER` on the axis, where the cone's STEP inversion leaves its outputs unset and `CreateIsoCircleFromPoint` reads them (UB-80); a tolerance of `0` does the same for bounded cylinders. When the circle stays `NULL` and the extrusion is parallel to the axis, `sm_IntersectGenerators` dereferences it.
+- **Trigger:** `IntersectWithCylinder` with `SmCylinder::CreateCanonical(O, 0.6)`, or with a bounded `SmCone` of equal radii and `pdOptApproxTol3d = 0`.
+- **How found:** generated difftest cases (`surface.surf_of_extrusion_p2`: the shim's replay of the inversion rejected the generated unbounded cylinders and zero tolerances; the generator now avoids them).
+- **Confirmed:** yes (the replayed `STEPInversion` left its outputs unset).
+- **Severity:** crash/UB (uninitialised read, null dereference).
+- **Rust port:** A failed iso circle is `None`; the generators' intersection returns `SM_ERR_NULL_POINTER` where upstream dereferences it.
+
+#### UB-94. `SmSurfOfExtrusion` intersections dereference the optional 3D curve array
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:2506` (`IntersectWithPlane`), `:3272` (`IntersectWithCylinder`), `:3400` (`IntersectWithSurfOfExtrusion`).
+- **What happens:** `pOpt3DCurves` is documented as "NULL to ignore", but the closing loops call `pOpt3DCurves->GetSize()` unconditionally (and `sm_IntersectGenerators` does the same for range solutions).
+- **Trigger:** Any of the three with `pOpt3DCurves = NULL` that reaches its closing loop (e.g. `IntersectWithPlane` of a plane parallel to the extrusion).
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The shim always passes every output array.
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Always produces every output.
+
+#### UB-95. `SmSurfOfExtrusion::IntersectWithPlane` compares with an uninitialised first point
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:2348` (`sFirstCrvPt`), `:2454` (`IntersectWithPlane`).
+- **What happens:** `sFirstCrvPt` is only set when the first plane intersection solution makes a curve. When it does not (no directrix, or the directrix misses the plane domain), a later solution on a closed generator compares its point with the uninitialised `sFirstCrvPt`, and may then `RemoveAt(0)` from an empty curve array.
+- **Trigger:** A plane parallel to the extrusion of a closed generator, bounded so that the directrix at the first hit misses the plane domain while a later one hits it.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** The comparison is false without a first point.
+
+#### UB-96. `SmTLSEdgeVertex::SolveIt` treats its vertex operand as a curve
+- **Location:** `source/SMLib/src/SmTopologySolver.cpp:1014`-`1037`, specifically the `pCurve` assignments at `:1032`-`:1033`.
+- **What happens:** After selecting the vertex from pObj2 (normal order) or pObj1 (swapped), the method casts that SAME object to SmCurve and calls GetEdge. A SmVertex is not a SmCurve, so this is an invalid downcast/member access, regardless of the caller's otherwise correct curve/vertex argument order.
+- **Trigger:** `SmTLSEdgeVertex::SolveIt` with a real edge curve and vertex, in either argument order.
+- **How found:** read during porting `intersect.topology_solver_p2` (PR #60).
+- **Confirmed:** no. SolveIt is deliberately not executed. The C++ reference runtime-type probe `sc_intersect_topology_solver_p2_edge_vertex_operand` constructs a real shell vertex and confirms `IsKindOf(SmCurve_TYPE)` is false. The undefined SolveIt cast itself is deliberately NOT executed; no particular crash or numeric outcome is claimed.
+- **Severity:** undefined behavior.
+- **Rust port:** validates the selected operand's class and returns InvalidInput. Separate native class-probe and Rust regressions cover both orders; there is no fabricated native solver answer.
 
 ## Hang
 
@@ -878,6 +1055,15 @@ by area within each severity.
 - **Confirmed:** no. Unbounded recursion was not observed.
 - **Severity:** hang (potential stack exhaustion).
 - **Rust port:** Stops at 200 nested splits with `InvalidInput`.
+
+#### HANG-11. `SmCone::AdjustSTEPUVDomain` never returns for a reversed sweep interval
+- **Location:** `SmCone.cpp:458` `SmCone::AdjustSTEPUVDomain` -> `SmSurfOfRevolution.cpp:300` `SmSurfOfRevolution::AdjustSTEPUVDomain` (`Reparameterize`, then `MakeNurb`).
+- **What happens:** The C++ reference run did not finish within 7 minutes. The domain is stored and the NURB rebuilt without checking `start <= end`. Which loop spins was not located.
+- **Trigger:** `SmCone::CreateCanonical(O, 1, 2, 3, cone)`, then `AdjustSTEPUVDomain(SmExtent2d(90, 0, 10, 1))`.
+- **How found:** adversarial / edge-case fixture (`surface.cone_p1`).
+- **Confirmed:** yes.
+- **Severity:** hang.
+- **Rust port:** `SmSurfOfRevolution::AdjustSTEPUVDomain` is not ported yet (`Unported`); the FFI rejects a reversed sweep.
 
 ## Nondeterminism
 
@@ -1115,6 +1301,15 @@ by area within each severity.
 - **Confirmed:** no (gaps are not in the difftest dump).
 - **Severity:** wrong result.
 - **Rust port:** Faithful to the code.
+
+#### WR-62. `SmTLSPointVertex::SolveIt` ray firing falls through into the 3D signed case
+- **Location:** `SmTopologySolver.cpp:206-262`, `SmTLSPointVertex::SolveIt` (def. `:116`).
+- **What happens:** The `SM_SO_RAYFIRE` case has no `break`, so the `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE` case runs after it: it recomputes the ray parameter without the rayfire snap to the ray start (`dParam < 0.0 -> 0.0`), overwrites `dDistSq`, and sets the sign from the unsnapped parameter (negated again when the object order is swapped). A vertex just behind the ray start (within `SM_EFF_ZERO` of it) gets a small negative ray distance instead of `0`, and a swapped call returns negated ray distances.
+- **Trigger:** `SM_SO_RAYFIRE` point/vertex solve from `(1, 0, 0)` along `(1, 0, 0)` with a vertex at `(1 - 1e-13, 0, 0)` (fixture `point_vertex_rayfire_behind_start`).
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the C++ runs the fixture, but the Rust side defers it: the solution comparison needs vertex zone tolerances). The review's single-call fixtures `adv_rayfire_behind_start_single_*` are deferred the same way (`add_sorted_solution` reaches the `SmTol::GetZoneTol3d` stub of `topology.brep_p1` for vertex objects).
+- **Severity:** wrong result.
+- **Rust port:** Ported as is (the fall-through kept).
 
 ### NLib
 
@@ -1403,7 +1598,59 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as written.
 
+#### WR-61. `SmSurfOfExtrusion::EvaluateSTEP` / `EvaluateSTEPPoint` clamp a copy they never use
+- **Location:** `SmSurfOfExtrusion.cpp:941`-`955` (`EvaluateSTEP`: clamps `sUV`, evaluates `crUV.x`, `crUV.y`); `:1015`-`1024` (`EvaluateSTEPPoint`, same).
+- **What happens:** "Per SMLib practice clamp input point to surface domain" clamps a local copy, but both evaluate the caller's unclamped parameters. With out-of-bounds evaluation disabled, a v outside the STEP domain still extrapolates along the extrusion, and an analytic generator is evaluated outside its domain.
+- **Trigger:** `EvaluateSTEPPoint((u, vmax + 1))` with out-of-bounds evaluation off.
+- **How found:** read during porting; generated difftest cases evaluate outside the domain on both sides.
+- **Confirmed:** yes (`surface.surf_of_extrusion_p1` generated `eval_step` cases outside the domain agree with the unclamped port).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (evaluates the unclamped parameters).
+
+#### WR-63. `SmCone::CreateCanonical` overloads misuse their arguments
+- **Location:** `SmCone.cpp:341`-`348` `SmCone::CreateCanonical(Origin, BotRadius, SemiAngleDeg, pOptHeight, bSwapUV, bInsideOut)` (def. `:308`); `SmCone.cpp:392`-`400` `SmCone::CreateCanonical(Origin, BotRadius, TopRadius, Height, ...)` (def. `:375`).
+- **What happens:** With a height, the first overload passes `FALSE` as the bounded constructor's `bInsideOut` and the caller's `bInsideOut` as `bMakeNurbGenCurve`, so an inside-out request is dropped. For `Height <= 0` the second overload builds the infinite cone with `TopRadius` as the semi-angle in degrees.
+- **Trigger:** `CreateCanonical(O, 1.0, 30.0, &h, cone, FALSE, TRUE)` gives `GetInsideOut() == FALSE`; `CreateCanonical(O, 1.0, 30.0, 0.0, cone)` gives a 30 degree cone.
+- **How found:** read during porting; compared by fixtures `canonical_semi_with_height_inside_is_mngc`, `canonical_height_zero_top_is_semi` (`surface.cone_p1`).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces both.
+
+#### WR-64. `sm_TotalCoincidenceChecker` misses reversed coincident lines and returns `FALSE` as a status
+- **Location:** `SmCone.cpp:2501` and `:2508`, `sm_TotalCoincidenceChecker` (file static, def. `:2454`).
+- **What happens:** For lines, the reversed test computes `dDist_E_S` from `sPt01` and `sPt11` (the end of this line and the start of the other, instead of `sPt10`), so reversed coincident lines are never found. The function then returns `FALSE` (0), which is not `SM_SUCCESS`; callers' `SER` turn it into an error return.
+- **Trigger:** Lines `(0,0,0)-(1,2,3)` and `(1,2,3)-(0,0,0)`.
+- **How found:** read during porting; compared by fixture `coinc_reversed_line` (`surface.cone_p1`, a verbatim copy of the static in the shim).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`SmStatus` 0 error).
+
+#### WR-63. `SmSurfPtSolveStepper::DropToIsoCurve` passes the same variable as guess and output of `DropPoint`
+- **Location:** `SmSurfacePointSolve.cpp:4733` (`pIsoCurve->DropPoint(.., &dGuessParam, bGotThisDrop, dGuessParam, dDist)`), `SmCurve::DropPoint` at `SmCurve.cpp:3290`.
+- **What happens:** `DropPoint` zeroes its output parameter before it reads the guess, so the guess (the crease parameter clamped to the section) is always `0`.
+- **Trigger:** Any call (the method is not used upstream).
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** wrong result (a poorer guess for the local solve).
+- **Rust port:** Passes `Some(0.0)`, as upstream's code ends up doing.
+
+#### WR-64. The directed-maximise `SmSurfacePointSolver` ignores a failed `CalculateBoundingBox`
+- **Location:** `SmSurfacePointSolve.cpp:463` (`m_pSrf->CalculateBoundingBox(m_sDomain, &sBBox, NULL, NULL)`), constructor at `:406`.
+- **What happens:** The status is not checked. When the box cannot be built (for example a curve-bounded surface without boundary curves, whose surface cache fails on the base `SmSurface::GetKnots`), the box stays in its inside-out `Init()` state and the test point becomes a corner of it, near `±SM_BIG_DOUBLE`.
+- **Trigger:** `SM_SO_3D_SIGNED_DIRECTED_MAXIMIZE` on a surface whose cache cannot be built.
+- **How found:** generated difftest case (`surface.surface_point_solve_p1`, curve-bounded surfaces).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (the box stays `Extent3d::new()`); `SolidError::Unported` still propagates.
+
 ### Intersection
+
+#### WR-65. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
+- **Location:** `SmVolume.cpp:5865` `EvaluateBoundingBoxSimple` and `:6057` `EvaluatePseudoBoxSimple` (sample `EvaluatePoint` and `Evaluate1stDerivatives` with compounding); `:919` `IsPointInParamDomain` (passes the last out-space image to the next map's in-space check); `:6857` `LocalPointSolveSimple` (solution value is the distance to the compound image); `:6665` `InvEvaluatePointSimple` (a failed local solve forces `rbSuccess = FALSE` after a successful global solve); `:3411` `InvEvaluatePoint`, `:3907` `InvMapPoint` (always report success); `:4512` `GlobalPointSolve` (found flag of the last point only).
+- **What happens:** The projection-space boxes of a compound volume are boxes of its last out-space; domain checks and solution values use the wrong space; success flags are lost or always set.
+- **Trigger:** `EvaluatePseudoBoxSimple` of a volume with a next map; `IsPointInParamDomain` of a chain with a plain `SmVolume` second map.
+- **How found:** read during porting.
+- **Confirmed:** yes (surface.volume_p2 difftest: the Rust port reproduces these and matches the C++ on generated cases and the `twist_then_base_*` fixtures).
 
 #### WR-50. `AddStartPoint` "replaces" a bounded start point by assigning a local pointer
 - **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3901` `SmSurfaceIntersector::AddStartPoint`.
@@ -1476,6 +1723,51 @@ by area within each severity.
 - **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
 - **Severity:** wrong result.
 - **Rust port:** Returns `SM_ERR` as the gap value too.
+
+#### WR-66. `SmSurfOfExtrusion::IsNurbSurfaceSurfOfExtrusion` returns a failing status as `TRUE`
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:3520`, `:3534`, `:3539` (`SER` in `IsNurbSurfaceSurfOfExtrusion`, def. `:3447`, which returns `SmBoolean`).
+- **What happens:** `SER` returns the failing `SmStatus` (a non-zero value) from a function returning `SmBoolean`, so a failed iso curve or control polygon reports "is an extrusion" with `rpSurfOfExtrusion == NULL`.
+- **Trigger:** A test surface whose iso curve extraction fails.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no.
+- **Severity:** wrong result.
+- **Rust port:** Returns the error (`Err`); the shim reports the raw value.
+
+#### WR-60. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
+- **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
+- **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: generated `dupin` ops and `edge_dupin_kinds` compare the conics).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-61. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
+- **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
+- **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
+- **Severity:** wrong result (performance and duplicate start points).
+- **Rust port:** Faithful.
+
+#### WR-67. `SmBSplineCurve::GetControlPolygon` zeroes the weights array of a non-rational curve it was asked to fill
+- **Location:** `SmBSplineCurve.cpp` (`GetControlPolygon`); read by `SmPolarConversion::SetUpPolarConversion` (`SmCircle` / `SmEllipse`).
+- **What happens:** For a non-rational NURB the function sizes the weights array and then `ReSet()`s it, which zeroes the buffer and sets the size to 0. `SetUpPolarConversion` still indexes the buffer (`sWeights[ii*2-2 ..]`), reads `0.0` for every span, and so classifies every span as having constant weights (an exact conversion) and ends with `m_bPolarConversionPossible = TRUE`.
+- **Trigger:** `SmSurfOfRevolution::TrimWithDomain` to a very short sweep, line generator `(0.5,0,1)-(3,0,1)` about Z, `swap`, trimmed to `[0, 0.5, 1, 0.5000001]`: the polar circle keeps the given NURB (knots `[0.5,0.5,0.5,0.5000001 x3]`, weights `NL_NOW`) instead of being rebuilt.
+- **How found:** PR #51 review (adversarial difftest of `surface.surf_of_revolution_p2`).
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (a differently parameterised polar circle; the geometry is the same).
+- **Rust port:** `surface::...::ellipse::p2::set_up_polar_conversion` uses `0.0` weights for a non-rational NURB, as upstream reads them.
+
+#### WR-68. `IsNurbSurfaceSurfOfRevolution` returns a failure status as `TRUE` with a NULL surface
+- **Location:** `SmSurfOfRevolution.cpp:4659`, `:4676` (`SER(sm_TestForIsoCircles(..))` in a function returning `SmBoolean`). Same family as WR-52.
+- **What happens:** `SER` returns the status (`SM_ERR` = 1001), which is truthy, so a failed iso-circle test is reported as "found" while `rpSurfOfRevolution` stays `NULL`. Callers that test the return value dereference or trust a missing surface.
+- **Trigger:** a rational net whose generator lies on the rotation axis.
+- **How found:** PR #51 review.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result.
+- **Rust port:** returns `Err(SM_ERR)` from `test_for_iso_circles`; the difftest shim records the C++ return value as is.
 
 ## Docs
 

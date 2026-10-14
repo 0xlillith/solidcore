@@ -12,6 +12,7 @@
 
 #include "StdAfx.h"
 #include <SmAxis2Placement.h>
+#include <SmBendVolume.h>
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
 #include <SmExtent1d.h>
@@ -29,6 +30,7 @@
 #include <SmVolume.h>
 #include <nurbs.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace
@@ -64,6 +66,10 @@ enum : int64_t
     K_TRANSFORM = 1,
     K_TWIST = 2,
     K_UNBEND = 3,
+    K_BEND = 4,
+    K_TWIST_C = 5,  // SmTwistVolume(ctx, origin, axis, mid, period, min)
+    K_UNBEND_C = 6, // SmUnbendVolume(ctx, center, axis, mid, neutral, tol)
+    K_BEND_C = 7,   // SmBendVolume(ctx, center, axis, mid, neutral, tol)
 };
 
 // Read access to the protected members of any SmSrfInVolume.
@@ -141,7 +147,9 @@ SmTransform* read_transform(Rd& rd, const SmContext& ctx)
     return new (ctx) SmTransform(&ctx, o, x, y, &z);
 }
 
-// `n` maps `kind [T(12)] has_orient [O(12)]`, chained in order with AddNextMap(m, 2).
+// `n` maps `kind [T(12) | C(11)] has_orient [O(12)]` (kinds 5-7 are the component constructors
+// with `C` = `p0 axis mid a b`, and never have an orient map here), chained in order with
+// AddNextMap(m, 2).
 SmVolume* read_volume(Rd& rd, const SmContext& ctx)
 {
     int64_t n = rd.idx();
@@ -155,6 +163,24 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
         case K_TRANSFORM: v = read_transform(rd, ctx); break;
         case K_TWIST: v = new (ctx) SmTwistVolume(&ctx); break;
         case K_UNBEND: v = new (ctx) SmUnbendVolume(&ctx); break;
+        case K_BEND: v = new (ctx) SmBendVolume(&ctx); break;
+        case K_TWIST_C:
+        case K_UNBEND_C:
+        case K_BEND_C:
+        {
+            SmPoint3d p0 = rd.vec();
+            SmVector3d axis = rd.vec();
+            SmVector3d mid = rd.vec();
+            double a = rd.num();
+            double b = rd.num();
+            if (kind == K_TWIST_C)
+                v = new (ctx) SmTwistVolume(ctx, p0, axis, mid, a, b);
+            else if (kind == K_UNBEND_C)
+                v = new (ctx) SmUnbendVolume(ctx, p0, axis, mid, a, b);
+            else
+                v = new (ctx) SmBendVolume(ctx, p0, axis, mid, a, b);
+            break;
+        }
         default: v = new (ctx) SmVolume(&ctx); break;
         }
         if (rd.flag())
@@ -167,7 +193,9 @@ SmVolume* read_volume(Rd& rd, const SmContext& ctx)
     return head;
 }
 
-// The chain: `n` then per map `type [T(16)] has_orient [O(16)] has_inv [I(16)]`.
+// The chain: `n` then per map `type [T(16) | m0 m1] has_orient [O(16)] has_inv [I(16)]` (the
+// members of a twist, unbend or bend map: period and minimum, or neutral distance and
+// singularity tolerance).
 void put_volume(std::vector<double>& o, const SmVolume* v)
 {
     int64_t n = 0;
@@ -179,6 +207,21 @@ void put_volume(std::vector<double>& o, const SmVolume* v)
         o.push_back((double)p->GetType());
         if (p->GetType() == SmTransform_TYPE)
             put_mat(o, *(const SmTransform*)p);
+        else if (p->GetType() == SmTwistVolume_TYPE)
+        {
+            o.push_back(((const SmTwistVolume*)p)->GetTwistPeriodDist());
+            o.push_back(((const SmTwistVolume*)p)->GetPeriodMinDist());
+        }
+        else if (p->GetType() == SmUnbendVolume_TYPE)
+        {
+            o.push_back(((const SmUnbendVolume*)p)->GetUnbendNeutralDist());
+            o.push_back(((const SmUnbendVolume*)p)->GetSingularityTol());
+        }
+        else if (p->GetType() == SmBendVolume_TYPE)
+        {
+            o.push_back(((const SmBendVolume*)p)->GetBendNeutralDist());
+            o.push_back(((const SmBendVolume*)p)->GetSingularityTol());
+        }
         o.push_back(p->GetOrientMap() ? 1.0 : 0.0);
         if (p->GetOrientMap())
             put_mat(o, *p->GetOrientMap());
@@ -371,7 +414,9 @@ void siv_op(int32_t op, Rd& rd, const SmContext& ctx, Built& bb, std::vector<dou
         ULONG hv = (ULONG)rd.idx();
         SmBoolean ul = rd.bflag(), vl = rd.bflag(), oh = rd.bflag();
         SmBoolean nz = op == OP_EVAL ? rd.bflag() : FALSE;
-        std::vector<SmVector3d> d((hu + 1) * (hv + 1));
+        // SmSrfInVolume::Evaluate also writes Duv one slot past a (0, 0) request with
+        // bOnlyUpperHalf == FALSE (the caller's array must hold it): size the buffer for it
+        std::vector<SmVector3d> d(std::max<size_t>((hu + 1) * (hv + 1), 32));
         SmStatus s = op == OP_EVAL ? c->Evaluate(uv, hu, hv, ul, vl, oh, d.data(), nz)
                                    : c->EvaluateSimple(uv, hu, hv, ul, vl, oh, d.data());
         o.push_back(st(s));

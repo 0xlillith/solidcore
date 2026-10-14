@@ -36,9 +36,7 @@
 //! - **Volumes.** The volume is a [`Volume`] (unit `surface.volume_p1`).
 //!   `SmVolume::InvEvaluatePoint`, `InvMapPoint`, `Mirror`,
 //!   `MakeExactBSplineOutSurfaceFrom{Param,In}Space` and `ReadFromDB` (unit
-//!   `surface.volume_p2`) return [`SolidError::Unported`]. `SmSurface::operator==`
-//!   (unit `surface.surface_p1`) too, so [`SrfInVolume::approx_eq`] only answers for
-//!   the same object.
+//!   `surface.volume_p2`) return [`SolidError::Unported`].
 //! - **Ownership.** The base surface and the volume are held by value (the surface
 //!   boxed: it is itself a [`Surface`]). Upstream either shares them with the caller
 //!   or owns (and maybe copies) them, as the copy and owner flags say; here the copy
@@ -57,6 +55,10 @@
 //!   parameter is clamped into the base surface's domain. Orders above 3 overrun
 //!   upstream's fixed arrays: the port returns [`SolidError::InvalidInput`].
 //!   Entries upstream leaves unwritten are [`Vec3::UNDEF`] (the default constructor).
+//!   `Evaluate(uv, 0, 0, .., bOnlyUpperHalf = FALSE)` also takes the two-derivative
+//!   branch and writes `Duv` one slot past the single entry requested (the caller's
+//!   array must be at least that long); the port skips that write and returns
+//!   success with `D`, as upstream does.
 //! - **Not in this unit.** `GetMemoryUsed`, `Draw`, `DrawUV`, `Dump`, `WriteToDB`
 //!   and `AssertValid` are out of scope (no counterpart, as for `SmCrvInVolume`).
 //! - **`ReadFromDB`** always builds a new object (the "fill the surface passed in"
@@ -155,13 +157,10 @@ fn volume_read_from_db(
     ))
 }
 
-/// `SmSurface::operator==` (the base comparison: type, ...).
-fn base_surface_eq(_a: &SrfInVolume, _b: &SrfInVolume) -> Result<bool> {
-    // UNPORTED(surface.surface_p1): SmSurface::operator==
-    Err(SolidError::unported(
-        "SmSurface::operator==",
-        "surface.surface_p1",
-    ))
+/// `SmSurface::operator==` (the base comparison: the same type; the same-object test
+/// is the caller's).
+fn base_surface_eq(a: &SrfInVolume, b: &SrfInVolume) -> bool {
+    a.type_code() == b.type_code()
 }
 
 // ---- helpers ------------------------------------------------------------------------
@@ -383,30 +382,44 @@ impl SrfInVolume {
     }
 
     /// `ConvertUVFromSTEPToNURBS`: the base surface's.
-    #[must_use]
-    pub fn convert_uv_from_step_to_nurbs(&self, step_uv: Point2) -> Point2 {
-        self.surface.convert_uv_from_step_to_nurbs(step_uv)
-    }
-
-    /// `ConvertUVFromNURBSToSTEP`: the base surface's.
-    #[must_use]
-    pub fn convert_uv_from_nurbs_to_step(&self, nurbs_uv: Point2) -> Point2 {
-        self.surface.convert_uv_from_nurbs_to_step(nurbs_uv)
-    }
-
-    /// `operator==`: same parameter-space flag, equal base surfaces and equal
-    /// volumes, after the base comparison.
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::operator==` (`surface.surface_p1`),
-    /// except for the same object.
+    /// Those of the base surface's conversion.
+    pub fn convert_uv_from_step_to_nurbs(&self, k: &Kernel, step_uv: Point2) -> Result<Point2> {
+        self.surface.convert_uv_from_step_to_nurbs(k, step_uv)
+    }
+
+    /// `ConvertUVFromNURBSToSTEP`: the base surface's.
+    ///
+    /// # Errors
+    ///
+    /// Those of the base surface's conversion.
+    pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
+        self.surface.convert_uv_from_nurbs_to_step(k, nurbs_uv)
+    }
+
+    /// `operator==`: after the base comparison, the same parameter-space flag, equal
+    /// base surfaces and equal volumes.
+    ///
+    /// # Errors
+    ///
+    /// Those of the base surface's and the volume's `operator==`.
     pub fn approx_eq(&self, other: &Self) -> Result<bool> {
         // low work
         if core::ptr::eq(self, other) {
             return Ok(true);
         }
-        base_surface_eq(self, other)
+
+        // first check the base
+        if !base_surface_eq(self, other) {
+            return Ok(false);
+        }
+
+        // check equivalence of these objects
+        Ok(self.in_param_space == other.in_param_space
+            && self.surface.approx_eq(&other.surface)?
+            && self.volume.approx_eq(&other.volume)?)
     }
 
     // ---- owners and parts -----------------------------------------------------------
@@ -687,8 +700,13 @@ impl SrfInVolume {
             // When managing the special cases move results from temporary memory to
             // output memory
             if n_eval != n_temp {
-                // copy the final DUV derivative to the output
-                put(&mut out, ovs + 1, at(&temp, stride + 1))?;
+                // copy the final DUV derivative to the output (for (0, 0) with
+                // bOnlyUpperHalf == FALSE the slot lies past the requested matrix:
+                // upstream writes into the caller's oversized array, the port skips
+                // the copy and still succeeds)
+                if let Some(slot) = out.get_mut(ovs + 1) {
+                    *slot = at(&temp, stride + 1);
+                }
             } else if hu != hv {
                 if hu > 1 {
                     put(&mut out, 2 * ovs, at(&temp, 2 * stride))?;
@@ -840,6 +858,7 @@ impl SrfInVolume {
     /// the base surface's inversion.
     pub fn step_inversion(
         &self,
+        k: &Kernel,
         anal_domain: &Extent2d,
         point_on_surf: Point3,
         distance_tolerance: f64,
@@ -857,7 +876,7 @@ impl SrfInVolume {
 
         // Project the inverted volume point back through the base surface
         self.surface
-            .step_inversion(anal_domain, first, distance_tolerance, None)
+            .step_inversion(k, anal_domain, first, distance_tolerance, None)
     }
 
     // ---- edits ----------------------------------------------------------------------
@@ -869,10 +888,10 @@ impl SrfInVolume {
     ///
     /// `SM_ERR` when this object does not own the surface; those of the base
     /// surface's `Reverse`.
-    pub fn reverse(&mut self, param: SurfParamType) -> Result<()> {
+    pub fn reverse(&mut self, k: &Kernel, param: SurfParamType) -> Result<()> {
         // check input - Can not Reverse an unowned surface
         self.require_owned_surface()?;
-        self.surface.reverse(param)
+        self.surface.reverse(k, param)
     }
 
     /// Swaps the base surface's `u` and `v` directions (`SwapUV`).
@@ -881,10 +900,10 @@ impl SrfInVolume {
     ///
     /// `SM_ERR` when this object does not own the surface; those of the base
     /// surface's `SwapUV`.
-    pub fn swap_uv(&mut self) -> Result<()> {
+    pub fn swap_uv(&mut self, k: &Kernel) -> Result<()> {
         // check input - Can not swap UV on an unowned surface
         self.require_owned_surface()?;
-        self.surface.swap_uv()
+        self.surface.swap_uv(k)
     }
 
     /// Trims the base surface to `trim_domain` when possible (`TrimWithDomain`).
@@ -893,10 +912,10 @@ impl SrfInVolume {
     ///
     /// `SM_ERR` when this object does not own the surface; those of the base
     /// surface's `TrimWithDomain`.
-    pub fn trim_with_domain(&mut self, trim_domain: &mut Extent2d) -> Result<()> {
+    pub fn trim_with_domain(&mut self, k: &Kernel, trim_domain: &mut Extent2d) -> Result<()> {
         // check input - Can not trim an unowned surface
         self.require_owned_surface()?;
-        self.surface.trim_with_domain(trim_domain)
+        self.surface.trim_with_domain(k, trim_domain)
     }
 
     /// `SM_ERR` unless this object owns its base surface.
@@ -995,5 +1014,35 @@ impl SrfInVolume {
             volume,
             owner_flag: 3,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::surface::plane::Plane;
+    use crate::surface::twist_volume::TwistVolume;
+
+    /// `Evaluate(uv, 0, 0, .., bOnlyUpperHalf = FALSE)` runs the second-derivative
+    /// branch, writes `Duv` past the requested matrix (skipped here) and succeeds.
+    #[test]
+    fn point_evaluation_without_upper_half_succeeds() {
+        let plane = Plane::from_normal(Vec3::ZERO, Vec3::new(0.0, 0.0, 1.0));
+        let volume = TwistVolume::create(
+            Vec3::ZERO,
+            Vec3::new(0.0, 0.0, 1.0),
+            Vec3::new(1.0, 0.0, 0.0),
+            4.0,
+            1e-3,
+        );
+        let siv = SrfInVolume::new(Surface::from(plane), true, volume, 0, 3).unwrap();
+        let uv = Point2::new(0.3, 0.7);
+        let flags = EvaluateFlags {
+            only_upper_half: false,
+            ..EvaluateFlags::default()
+        };
+        let d = siv.evaluate(uv, 0, 0, flags).unwrap();
+        let p = siv.evaluate_point(uv).unwrap();
+        assert_eq!(d.first().and_then(|r| r.first()).copied(), Some(p));
     }
 }

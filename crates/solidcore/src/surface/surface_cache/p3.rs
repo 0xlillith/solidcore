@@ -460,11 +460,13 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             if let Some(handle) = subdivision_surface {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two
-                // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
+                // (SmSurface::SnapToKnots and SplitAt need the surface behind the
+                // handle, which only SmTessSrfCache puts on nodes)
+                // UNPORTED(query.tess): SmTessSrfCache subdivision surfaces
                 let _ = handle;
                 return Err(SolidError::unported(
-                    "SmSurface::SnapToKnots",
-                    "surface.surface_p1",
+                    "SmTessSrfCache subdivision surfaces",
+                    "query.tess",
                 ));
             }
             // either an SM_AD_BEZIER_SURFACE with a Bezier patch, or embedding an edge use
@@ -490,11 +492,13 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             if let Some(handle) = subdivision_surface {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two
-                // UNPORTED(surface.surface_p1): SmSurface::SnapToKnots
+                // (SmSurface::SnapToKnots and SplitAt need the surface behind the
+                // handle, which only SmTessSrfCache puts on nodes)
+                // UNPORTED(query.tess): SmTessSrfCache subdivision surfaces
                 let _ = handle;
                 return Err(SolidError::unported(
-                    "SmSurface::SnapToKnots",
-                    "surface.surface_p1",
+                    "SmTessSrfCache subdivision surfaces",
+                    "query.tess",
                 ));
             }
             self.aux_mut(node1)?.uv_domain =
@@ -644,7 +648,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             && node_surface.is_some()
         {
             // tessellate this node completely in a single pass
-            self.subdivide_by_block(node)?;
+            self.subdivide_by_block(k, node)?;
             self.switch_to_fast_subdivision = false;
             return Ok(());
         }
@@ -710,12 +714,24 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         self.set_tree(Some(tree));
 
         // first, decompose the surface into starter Bezier patches
-        // (an SmPlane is an SmBSplineSurface; its NURB is made when it has none, as
-        // GetOrCreateGwNurbPointer)
+        // (an SmPlane or SmSurfOfRevolution is an SmBSplineSurface; its NURB is made
+        // when it has none, as GetOrCreateGwNurbPointer)
         let bspline: Option<std::borrow::Cow<'_, BSplineSurface>> = match self.surface().kind() {
             SurfaceKind::BSpline(b) => Some(std::borrow::Cow::Borrowed(b)),
             SurfaceKind::Plane(p) => Some(p.base_with_nurb()?),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::SrfInVolume(_) => None,
+            // GetOrCreateGwNurbPointer: SmSurfOfRevolution::MakeNurb when it has none
+            SurfaceKind::SurfOfRevolution(s) => {
+                if s.base().gw_nurb().is_some() {
+                    Some(std::borrow::Cow::Borrowed(s.base()))
+                } else {
+                    let mut tmp = (**s).clone();
+                    tmp.make_nurb(k)?;
+                    Some(std::borrow::Cow::Owned(tmp.base().clone()))
+                }
+            }
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                None
+            }
         };
         let (u_count, v_count, beziers) = if let Some(b) = bspline {
             let nurb = b
