@@ -910,9 +910,9 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
-#### UB-78. `ComputeSingularityPoint` can write past `aSingDirections[8]`
+#### UB-97. `ComputeSingularityPoint` can write past `aSingDirections[8]`
 - **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:164` (`SmVector3d aSingDirections[8]`), filled by `sm_AddSingDir` (`:54`) from the Dupin indicatrix intersections at `:616`-`:685`; `aSingUVSurf1/2[8]` and `lInsideIndex[8]` at `:775`-`:776`.
-- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-60), so the count is not bounded by the 4 + 4 of two central conics.
+- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-69), so the count is not bounded by the 4 + 4 of two central conics.
 - **Trigger:** Two non-planar surface points with parallel normals, no shared principal curvature, whose indicatrices meet in more than 8 directions more than 26 degrees apart.
 - **How found:** read during porting.
 - **Confirmed:** no (the difftest shim predicts the count and does not run such inputs; no generated case reached it).
@@ -954,6 +954,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no.
 - **Severity:** crash/UB (uninitialised read).
 - **Rust port:** The comparison is false without a first point.
+
+#### UB-96. `SmTLSEdgeVertex::SolveIt` treats its vertex operand as a curve
+- **Location:** `source/SMLib/src/SmTopologySolver.cpp:1014`-`1037`, specifically the `pCurve` assignments at `:1032`-`:1033`.
+- **What happens:** After selecting the vertex from pObj2 (normal order) or pObj1 (swapped), the method casts that SAME object to SmCurve and calls GetEdge. A SmVertex is not a SmCurve, so this is an invalid downcast/member access, regardless of the caller's otherwise correct curve/vertex argument order.
+- **Trigger:** `SmTLSEdgeVertex::SolveIt` with a real edge curve and vertex, in either argument order.
+- **How found:** read during porting `intersect.topology_solver_p2` (PR #60).
+- **Confirmed:** no. SolveIt is deliberately not executed. The C++ reference runtime-type probe `sc_intersect_topology_solver_p2_edge_vertex_operand` constructs a real shell vertex and confirms `IsKindOf(SmCurve_TYPE)` is false. The undefined SolveIt cast itself is deliberately NOT executed; no particular crash or numeric outcome is claimed.
+- **Severity:** undefined behavior.
+- **Rust port:** validates the selected operand's class and returns InvalidInput. Separate native class-probe and Rust regressions cover both orders; there is no fabricated native solver answer.
 
 ## Hang
 
@@ -1616,7 +1625,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`SmStatus` 0 error).
 
-#### WR-63. `SmSurfPtSolveStepper::DropToIsoCurve` passes the same variable as guess and output of `DropPoint`
+#### WR-71. `SmSurfPtSolveStepper::DropToIsoCurve` passes the same variable as guess and output of `DropPoint`
 - **Location:** `SmSurfacePointSolve.cpp:4733` (`pIsoCurve->DropPoint(.., &dGuessParam, bGotThisDrop, dGuessParam, dDist)`), `SmCurve::DropPoint` at `SmCurve.cpp:3290`.
 - **What happens:** `DropPoint` zeroes its output parameter before it reads the guess, so the guess (the crease parameter clamped to the section) is always `0`.
 - **Trigger:** Any call (the method is not used upstream).
@@ -1625,7 +1634,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result (a poorer guess for the local solve).
 - **Rust port:** Passes `Some(0.0)`, as upstream's code ends up doing.
 
-#### WR-64. The directed-maximise `SmSurfacePointSolver` ignores a failed `CalculateBoundingBox`
+#### WR-72. The directed-maximise `SmSurfacePointSolver` ignores a failed `CalculateBoundingBox`
 - **Location:** `SmSurfacePointSolve.cpp:463` (`m_pSrf->CalculateBoundingBox(m_sDomain, &sBBox, NULL, NULL)`), constructor at `:406`.
 - **What happens:** The status is not checked. When the box cannot be built (for example a curve-bounded surface without boundary curves, whose surface cache fails on the base `SmSurface::GetKnots`), the box stays in its inside-out `Init()` state and the test point becomes a corner of it, near `±SM_BIG_DOUBLE`.
 - **Trigger:** `SM_SO_3D_SIGNED_DIRECTED_MAXIMIZE` on a surface whose cache cannot be built.
@@ -1724,7 +1733,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Returns the error (`Err`); the shim reports the raw value.
 
-#### WR-60. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
+#### WR-69. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
 - **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
 - **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
 - **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
@@ -1733,7 +1742,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Faithful.
 
-#### WR-61. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
+#### WR-70. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
 - **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
 - **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
 - **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
@@ -1741,6 +1750,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
 - **Severity:** wrong result (performance and duplicate start points).
 - **Rust port:** Faithful.
+
+#### WR-67. `SmBSplineCurve::GetControlPolygon` zeroes the weights array of a non-rational curve it was asked to fill
+- **Location:** `SmBSplineCurve.cpp` (`GetControlPolygon`); read by `SmPolarConversion::SetUpPolarConversion` (`SmCircle` / `SmEllipse`).
+- **What happens:** For a non-rational NURB the function sizes the weights array and then `ReSet()`s it, which zeroes the buffer and sets the size to 0. `SetUpPolarConversion` still indexes the buffer (`sWeights[ii*2-2 ..]`), reads `0.0` for every span, and so classifies every span as having constant weights (an exact conversion) and ends with `m_bPolarConversionPossible = TRUE`.
+- **Trigger:** `SmSurfOfRevolution::TrimWithDomain` to a very short sweep, line generator `(0.5,0,1)-(3,0,1)` about Z, `swap`, trimmed to `[0, 0.5, 1, 0.5000001]`: the polar circle keeps the given NURB (knots `[0.5,0.5,0.5,0.5000001 x3]`, weights `NL_NOW`) instead of being rebuilt.
+- **How found:** PR #51 review (adversarial difftest of `surface.surf_of_revolution_p2`).
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (a differently parameterised polar circle; the geometry is the same).
+- **Rust port:** `surface::...::ellipse::p2::set_up_polar_conversion` uses `0.0` weights for a non-rational NURB, as upstream reads them.
+
+#### WR-68. `IsNurbSurfaceSurfOfRevolution` returns a failure status as `TRUE` with a NULL surface
+- **Location:** `SmSurfOfRevolution.cpp:4659`, `:4676` (`SER(sm_TestForIsoCircles(..))` in a function returning `SmBoolean`). Same family as WR-52.
+- **What happens:** `SER` returns the status (`SM_ERR` = 1001), which is truthy, so a failed iso-circle test is reported as "found" while `rpSurfOfRevolution` stays `NULL`. Callers that test the return value dereference or trust a missing surface.
+- **Trigger:** a rational net whose generator lies on the rotation axis.
+- **How found:** PR #51 review.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result.
+- **Rust port:** returns `Err(SM_ERR)` from `test_for_iso_circles`; the difftest shim records the C++ return value as is.
 
 ## Docs
 
