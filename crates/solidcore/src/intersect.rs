@@ -7,3 +7,4 @@
 
 pub mod adv_surface_intersector;
 pub mod surface_intersector;
+pub mod surface_tracer;
