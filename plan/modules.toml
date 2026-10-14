@@ -2237,10 +2237,10 @@ soft_depends_on = ["curve.curve_p8", "geom.extent3d", "geom.object", "geom.tol",
 est_lines = 1677
 layer = 33
 tests = ["prog_test:my_test_parallel_projection", "prog_test:my_test_tsurf_projection", "prog_test:my_test_surface_interface", "prog_test:my_test_ssi", "prog_test:my_test_tsurf_section", "prog_test:my_test_planar_section"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "6 fns; largest: SmSurfaceIntersector::ClassifyBoundaryStartPointIntersection, SmSurfaceIntersector::ComputePointValues, SmSurfaceIntersector::DoBoundaryPlaneTest, SmSurfaceIntersector::FlushCurve; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit"
+notes = "6 fns; largest: SmSurfaceIntersector::ClassifyBoundaryStartPointIntersection, SmSurfaceIntersector::ComputePointValues, SmSurfaceIntersector::DoBoundaryPlaneTest, SmSurfaceIntersector::FlushCurve; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit; difftest PR #42: 1517 cases (1314 pass, 203 deferred: blend.fillet_executive_p1(10), surface.surface_p3(34), surface.surface_p5(82), surface.surface_p7(77)); shim covers SmPlane, SmBSplineSurface, SmCurveBoundedSurface; fixtures from my_test_planar_section (shovel.srf)"
 
 [[unit]]
 id = "surface.surface_point_solve_p2"

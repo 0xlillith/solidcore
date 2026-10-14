@@ -3,8 +3,8 @@
 //! `DoBoundaryPlaneTest`, `ComputeLawPointValues`, `sm_IsPointUnique`).
 //!
 //! C++: `solidcore_ffi::units::intersect_surface_intersector_p2` (a real
-//! `SmSurfaceIntersector` on `SmPlane` / `SmBSplineSurface` objects). Rust:
-//! `solidcore::intersect::surface_intersector::p2`.
+//! `SmSurfaceIntersector` on `SmPlane` / `SmBSplineSurface` / `SmCurveBoundedSurface`
+//! objects). Rust: `solidcore::intersect::surface_intersector::p2`.
 //!
 //! A case is two surfaces (B may be A itself), their domains, the fillet flag, some
 //! curves, a point arena and a program of operations; both sides produce the record
@@ -43,6 +43,7 @@ use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
+use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::surface_cache::PatchBoundaryBoundingPlanes;
@@ -84,6 +85,11 @@ enum SurfaceIn {
         net: Vec<Vec<[Option<f64>; 4]>>,
         u: Vec<f64>,
         v: Vec<f64>,
+    },
+    /// An `SmCurveBoundedSurface` (implicit outer, no boundary curves) over a plane or
+    /// B-spline basis.
+    CurveBounded {
+        basis: Box<SurfaceIn>,
     },
 }
 
@@ -209,6 +215,9 @@ fn ffi_surface(s: &SurfaceIn) -> ffi::SurfaceIn {
             u: u.clone(),
             v: v.clone(),
         },
+        SurfaceIn::CurveBounded { basis } => {
+            ffi::SurfaceIn::CurveBounded(Box::new(ffi_surface(basis)))
+        }
     }
 }
 
@@ -395,6 +404,12 @@ fn rust_surface(s: &SurfaceIn) -> Result<Surface, Fail> {
                 .map_err(|e| harness(format!("surface: {e}")))?;
             Ok(Surface::from(BSplineSurface::from_nurb(sur, false)))
         }
+        SurfaceIn::CurveBounded { basis } => Ok(Surface::from(CurveBoundedSurface::new(
+            rust_surface(basis)?,
+            Vec::new(),
+            Vec::new(),
+            true,
+        ))),
     }
 }
 
@@ -1030,7 +1045,13 @@ fn natural(s: &SurfaceIn) -> [f64; 4] {
             u.last().copied().unwrap_or(1.0),
             v.last().copied().unwrap_or(1.0),
         ],
+        SurfaceIn::CurveBounded { basis } => natural(basis),
     }
+}
+
+/// Wraps `s` in a curve-bounded surface.
+fn bounded(s: SurfaceIn) -> SurfaceIn {
+    SurfaceIn::CurveBounded { basis: Box::new(s) }
 }
 
 fn gen_domain(rng: &mut Rng, nat: [f64; 4]) -> [f64; 4] {
@@ -1353,6 +1374,12 @@ fn gen_bpt_case(rng: &mut Rng) -> Option<Inputs> {
         hh.reverse();
         bump_bspline(s, 2.0 * s + gap, deg, &hh, true, r2)
     };
+    // a curve-bounded surface is not an SmBSplineSurface: SM_BR_UNKNOWN
+    let (a, b) = match rng.below(10) {
+        0 => (bounded(a), b),
+        1 => (a, bounded(b)),
+        _ => (a, b),
+    };
     let na = natural(&a);
     let nb = natural(&b);
     let dom1 = if rng.chance(0.85) { na } else { gen_domain(rng, na) };
@@ -1426,6 +1453,13 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         14..=16 => (gen_bspline(rng, s, false), Some(gen_plane(rng, s, None))),
         17 => (gen_bspline(rng, s, true), Some(gen_bspline(rng, s, false))),
         _ => (gen_bspline(rng, s, false), Some(gen_bspline(rng, s, false))),
+    };
+    // curve-bounded surfaces over either kind (their basis answers every query)
+    let (a, b) = match rng.below(8) {
+        0 => (bounded(a), b),
+        1 => (a, b.map(bounded)),
+        2 => (bounded(a), b.map(bounded)),
+        _ => (a, b),
     };
     let na = natural(&a);
     let nb = natural(b.as_ref().unwrap_or(&a));

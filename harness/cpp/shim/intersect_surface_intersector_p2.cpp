@@ -3,7 +3,8 @@
 // ComputePointValues, ClassifyBoundaryStartPointIntersection, FlushCurve, DoBoundaryPlaneTest
 // and ComputeLawPointValues, and the file function sm_IsPointUnique
 // (source/SMLib/src/SmSurfaceIntersector.cpp), run on a real SmSurfaceIntersector over
-// SmPlane / SmBSplineSurface objects (a derived class only exposes the protected state).
+// SmPlane / SmBSplineSurface / SmCurveBoundedSurface objects (a derived class only exposes the
+// protected state).
 //
 // One entry point, sc_intersect_surface_intersector_p2_run(in, n_in, out, cap, out_len). `in` is
 // a program (layout in crates/solidcore-ffi/src/units/intersect_surface_intersector_p2.rs);
@@ -16,6 +17,7 @@
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
 #include <SmCurve.h>
+#include <SmCurveBoundedSurface.h>
 #include <SmExtent1d.h>
 #include <SmExtent2d.h>
 #include <SmExtent3d.h>
@@ -133,7 +135,7 @@ void put_uv(std::vector<double>& o, const SmVector2d& v)
 }
 
 // `0 o x y scale dom` (SmPlane) or `1 p q nu nv net(x y z w) u v` (SmBSplineSurface).
-SmSurface* read_surface(Rd& rd, const SmContext& ctx)
+SmSurface* read_basic_surface(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx(0, 1);
     if (kind == 0)
@@ -173,6 +175,20 @@ SmSurface* read_surface(Rd& rd, const SmContext& ctx)
     for (gw_INDEX i = 0; i <= s; i++)
         sur->knv->U[i] = v[k++];
     return new (ctx) SmBSplineSurface(sur, FALSE, &ctx);
+}
+
+// A basic surface (`0 ..` / `1 ..`) or `3 basic`: an SmCurveBoundedSurface (implicit outer, no
+// boundary curves) over it, which owns (deletes) its basis. (`2` marks B = A.)
+SmSurface* read_surface(Rd& rd, const SmContext& ctx)
+{
+    if (rd.at < rd.n && rd.in[rd.at] == 3.0)
+    {
+        rd.at++;
+        SmSurface* basis = read_basic_surface(rd, ctx);
+        SmTArray<SmCurve*> c3d(ctx), cuv(ctx);
+        return new (ctx) SmCurveBoundedSurface(*basis, &c3d, &cuv, TRUE);
+    }
+    return read_basic_surface(rd, ctx);
 }
 
 // `0 a b` (SmLine::CreateLineSegment, dim 3) or `1 dim p ncp cpts(x y z w) knots`.

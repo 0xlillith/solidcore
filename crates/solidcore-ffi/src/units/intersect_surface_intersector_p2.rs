@@ -6,7 +6,8 @@
 //! `ClassifyBoundaryStartPointIntersection`, `FlushCurve`, `DoBoundaryPlaneTest`,
 //! `ComputeLawPointValues`, `sm_IsPointUnique`).
 //!
-//! [`run`] builds surfaces A and B (B may be A itself), the intersector
+//! [`run`] builds surfaces A and B (planes, B-splines or curve-bounded surfaces over
+//! either; B may be A itself), the intersector
 //! `SmSurfaceIntersector(A, dom1, B, dom2, fillet)` (its context set as
 //! `DoIntersection` does), the program's curves and its points (a point arena; each op
 //! names points by index), then runs the [`Op`]s in order. The `FlushCurve` output
@@ -102,6 +103,9 @@ pub enum SurfaceIn {
         /// v knots.
         v: Vec<f64>,
     },
+    /// `SmCurveBoundedSurface(basis, {}, {}, TRUE)` over a plane or B-spline surface
+    /// (implicit outer, no boundary curves).
+    CurveBounded(Box<SurfaceIn>),
 }
 
 /// A curve.
@@ -364,6 +368,13 @@ impl Enc {
                 }
                 self.nums(u)?;
                 self.nums(v)
+            }
+            SurfaceIn::CurveBounded(basis) => {
+                if matches!(**basis, SurfaceIn::CurveBounded(_)) {
+                    return Err(bad("nested curve-bounded surface"));
+                }
+                self.int(3);
+                self.surface(basis)
             }
         }
     }
