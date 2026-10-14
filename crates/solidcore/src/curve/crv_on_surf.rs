@@ -186,6 +186,11 @@ fn surface_read_from_db(
             "SmSurface virtuals of an SmPlane",
             "surface.surface_p1",
         )),
+        // UNPORTED(surface.surface_p1): SmSurface dispatch for an SmSrfInVolume
+        SurfaceKind::SrfInVolume(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmSrfInVolume",
+            "surface.surface_p1",
+        )),
     }
 }
 

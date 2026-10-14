@@ -11,6 +11,7 @@ pub mod b_spline_volume;
 pub mod b_spline_volume_n_lib;
 pub mod curve_bounded_surface;
 pub mod plane;
+pub mod srf_in_volume;
 pub mod surf_of_revolution;
 #[allow(clippy::module_inception)]
 pub mod surface;
