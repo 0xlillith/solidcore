@@ -855,7 +855,9 @@ impl Surface {
     /// Only [`SolidError::Unported`].
     pub fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         match self.kind() {
-            SurfaceKind::BSpline(_) => base_evaluate_normal(self, uv, u_side, v_side),
+            SurfaceKind::BSpline(_) | SurfaceKind::SurfOfRevolution(_) => {
+                base_evaluate_normal(self, uv, u_side, v_side)
+            }
             SurfaceKind::CurveBounded(s) => s.evaluate_normal(uv, u_side, v_side),
             SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
         }
@@ -880,7 +882,9 @@ impl Surface {
                 let (closed, continuity) = p.is_closed();
                 Ok((closed, want_continuity.then_some(continuity)))
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::SurfOfRevolution(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
             }
         }
@@ -907,6 +911,9 @@ impl Surface {
             }
             SurfaceKind::BSpline(s) => {
                 Ok(planar_of(s, &self.natural_uv_domain())?.is_planar(tol_3d))
+            }
+            SurfaceKind::SurfOfRevolution(s) => {
+                Ok(planar_of(s.base(), &self.natural_uv_domain())?.is_planar(tol_3d))
             }
             SurfaceKind::CurveBounded(_) => {
                 // UNPORTED(surface.surface_p1): SmSurface::CalculateBoundingBox

@@ -173,7 +173,7 @@ fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result
 }
 
 /// `GetMaxAnalyticDomain` of a generator.
-fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => b.max_analytic_domain(),
         CurveKind::Ellipse(e) => Ok(e.max_analytic_domain()),
