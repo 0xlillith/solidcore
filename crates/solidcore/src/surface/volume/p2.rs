@@ -51,7 +51,9 @@
 //!   private handle.
 //! - **Recursion.** The next-map chain is walked recursively as upstream (one level
 //!   per map; chains are built by the caller). `ReadFromDB` recursion is input
-//!   driven and bounded by [`DatabaseReader::enter_nested`].
+//!   driven and bounded by [`DatabaseReader::enter_nested`] (64 levels); past the
+//!   bound the read fails with [`SolidError::InvalidInput`], which the nested reads
+//!   whose statuses upstream ignores propagate rather than drop.
 //! - **Contexts** and `bCalcGeometric` (unused by the ported simple maps) are dropped.
 
 use crate::error::{ignore_status, ignored, Result, SolidError};
@@ -70,7 +72,7 @@ use crate::math::{EFF_ZERO, EFF_ZERO_SQRT};
 use crate::surface::b_spline_volume::BSplineVolume;
 use crate::surface::twist_volume::TwistVolume;
 use crate::surface::unbend_volume::UnbendVolume;
-use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
+use crate::topology::database_io::{DatabaseReader, FileType, InputStream, NESTING_LIMIT_REASON};
 
 use super::p1::{
     Discontinuities3d, EvalOptions, FindPvIntersect, Volume, VolumeKind, BEND_VOLUME_TYPE,
@@ -608,9 +610,10 @@ impl Volume {
                     "transform box without a parameter pseudo box (upstream dereferences null)",
                 ))
             }
-            // Only reachable through this simple entry point: a twist always has an
-            // orient map (its component constructor installs one), so the compound
-            // entry points always request a projection box for it.
+            // Reached through this simple entry point, and through the compound entry
+            // points for a twist without an orient map (the component constructor
+            // installs one, but a twist read by ReadFromDB with orient flag 0 has
+            // none), which hand it a null box output.
             VolumeKind::Twist(_) if has_out && proj_box.is_none() && !param_box.any_bounds() => {
                 return Err(undefined_box(
                     "unbounded twist box without a box output (upstream dereferences null)",
@@ -1521,12 +1524,16 @@ const fn unsupported(reason: &'static str) -> SolidError {
 }
 
 /// The result of a read whose status upstream ignores: `None` on failure, but
-/// [`SolidError::Unported`] and the undefined cases ([`SolidError::Unsupported`])
-/// propagate.
+/// [`SolidError::Unported`], the undefined cases ([`SolidError::Unsupported`]) and
+/// the nesting bound of [`DatabaseReader::enter_nested`] (not upstream: swallowing
+/// it would return a shorter chain instead of an error) propagate.
 pub(crate) fn ignore_read<T>(r: Result<T>) -> Result<Option<T>> {
     match r {
         Ok(v) => Ok(Some(v)),
         Err(e @ (SolidError::Unported { .. } | SolidError::Unsupported { .. })) => Err(e),
+        Err(e @ SolidError::InvalidInput { reason, .. }) if reason == NESTING_LIMIT_REASON => {
+            Err(e)
+        }
         Err(_) => Ok(None),
     }
 }
@@ -1875,6 +1882,33 @@ mod tests {
         assert!(vol.evaluate_point(p, true).is_err());
         let own = vol.evaluate_point(p, false).unwrap();
         assert_eq!(vol.evaluate_point_written(p, true).unwrap(), Some(own));
+    }
+
+    #[test]
+    fn nesting_bound_is_not_an_ignored_status() {
+        // 65 twists chained by next maps, one past the bound; the twist data and
+        // base flags are zeros, so a swallowed bound error would leave a stream that
+        // still reads as a shorter (64-map) chain
+        let twist = format!("0\n0\n1\nObject Type {TWIST_VOLUME_TYPE}\n");
+        let mut text = twist.repeat(64);
+        text.push_str("0\n0\n0\n0\n");
+        text.push_str(&"0\n".repeat(64));
+        assert!(matches!(
+            Volume::read_from_db(TWIST_VOLUME_TYPE, &mut ascii(&text), 30),
+            Err(SolidError::InvalidInput { reason, .. }) if reason == NESTING_LIMIT_REASON
+        ));
+        // 64 maps read
+        let mut text = twist.repeat(63);
+        text.push_str("0\n0\n0\n0\n");
+        text.push_str(&"0\n".repeat(63));
+        let vol = Volume::read_from_db(TWIST_VOLUME_TYPE, &mut ascii(&text), 30).unwrap();
+        let mut n = 0;
+        let mut p = Some(&vol);
+        while let Some(q) = p {
+            n += 1;
+            p = q.next_map();
+        }
+        assert_eq!(n, 64);
     }
 
     #[test]
