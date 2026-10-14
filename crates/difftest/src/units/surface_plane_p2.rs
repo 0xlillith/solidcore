@@ -810,6 +810,7 @@ fn rust_op(k: &Kernel, i: &Inputs, o: &mut Vec<f64>) -> Result<(), Fail> {
                 };
                 let other_ref = other.as_ref().unwrap_or(&sa);
                 let r = sa.global_surface_intersect(
+                    k,
                     &ext(*da),
                     other_ref,
                     &ext(*db),

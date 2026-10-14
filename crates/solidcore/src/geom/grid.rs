@@ -654,10 +654,11 @@ impl<O: Copy> Grid<O> {
                 // cache, which a tree node reaches once the tree construction hands it
                 // over (SmSurfaceGridElement::Init also needs SmPseudoBox/SmPolarBox
                 // copies, SmSurface::Evaluate and SmSurface::EvaluateNormal)
-                // UNPORTED(surface.surface_cache_p3): SmBezierPatch::GetPseudoBox
+                // DISPATCH GAP: SmBezierPatch::GetPseudoBox (surface.surface_cache_p1,
+                // ported; no UNPORTED marker: the callee is ported, the tree cannot reach the cache's data yet)
                 return Err(SolidError::Unported {
                     upstream: "SmBezierPatch::GetPseudoBox",
-                    unit: "surface.surface_cache_p3",
+                    unit: "surface.surface_cache_p1",
                 });
             }
             ElementSource::PolyBrep(node) => GridElement::polygon(node),
@@ -688,17 +689,17 @@ impl<O: Copy> Grid<O> {
         if element.surface.is_none() {
             return Err(SolidError::sm_err(OP));
         }
-        // smsurf_GetSurfaceCache (surface::surface::p2::surface_cache) needs the
-        // surface caches:
-        // SmCacheMgr::GetOrCreateObjectCache makes surface caches through
-        // SmSurface::CacheMakeOrValidate:
-        // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
+        // DISPATCH GAP: smsurf_GetSurfaceCache (surface::surface::p2::surface_cache,
+        // unit surface.surface_p2 per harness/callgraph/units.json, ported over
+        // surface::surface::p1::get_surface_cache; no UNPORTED marker: the element holds
+        // a surface handle, and no store turns it into the Surface the cache is built
+        // from)
         // (then SmSurfaceCache::GetTree, SmTree::GetAllTreeNodes, and for every
         // lowest SM_AD_BEZIER_SURFACE node not classified outside:
         // AddElement(node, SM_GE_SURFACE, node box grown by the expansion tolerance))
         Err(SolidError::Unported {
-            upstream: "SmSurface::CacheMakeOrValidate",
-            unit: "surface.surface_p1",
+            upstream: "smsurf_GetSurfaceCache",
+            unit: "surface.surface_p2",
         })
     }
 

@@ -38,7 +38,10 @@
 //! - **Derived class.** `SmSurfOfRevolution` derives from `SmBSplineSurface`; the base
 //!   object is the [`SurfOfRevolution::base`] field. The surface joins
 //!   [`crate::surface::surface::SurfaceKind`] with the units porting its remaining
-//!   virtual overrides (`_p2`, `_p3`).
+//!   virtual overrides (`_p2`, `_p3`). The NURB and polar-converter rebuilds reach
+//!   `CreateIsoParametricCurve` through a `SweepIsoFn` so that a derived class
+//!   (`SmTorus`, [`crate::surface::torus`]; `SmCone`, [`crate::surface::cone`])
+//!   supplies its override, as upstream's virtual call does.
 //! - **Generator.** `m_pGenCurve` is a [`Curve`] of a kind derived from
 //!   `SmBSplineCurve` (B-spline, ellipse, line, hyperbola, parabola); the other kinds
 //!   are rejected (`InvalidInput`) where upstream casts. It is only `None` for the
@@ -107,7 +110,7 @@ use crate::surface::surface::p2::{
     scale_step_angular_derivatives, SurfaceIntersection, TsectCurveType, SURF_OF_REVOLUTION_TYPE,
 };
 
-const OP_GEN: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::gen_curve";
+pub(crate) const OP_GEN: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::gen_curve";
 const OP_CANONICAL: &str = "surface::surf_of_revolution::p1::SurfOfRevolution::create_canonical";
 const OP_REBUILD: &str =
     "surface::surf_of_revolution::p1::SurfOfRevolution::rebuild_polar_converter";
@@ -138,7 +141,7 @@ const ANALYTIC_TOL_SCALE: f64 = 100.0;
 // ---- the generator (a curve derived from SmBSplineCurve) -------------------------------
 
 /// The `SmBSplineCurve` base object of a generator.
-fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
+pub(crate) fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(b),
         CurveKind::Ellipse(e) => Ok(e.base()),
@@ -151,7 +154,7 @@ fn gen_base(c: &Curve) -> Result<&BSplineCurve> {
 
 /// The `SmBSplineCurve` base object of a generator, mutably (`None` for a kind not
 /// derived from `SmBSplineCurve`).
-fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
+pub(crate) fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
     match c.kind_mut() {
         CurveKind::BSpline(b) => Some(b),
         CurveKind::Ellipse(e) => Some(&mut e.base),
@@ -162,12 +165,12 @@ fn gen_base_mut(c: &mut Curve) -> Option<&mut BSplineCurve> {
     }
 }
 
-const fn not_b_spline() -> SolidError {
+pub(crate) const fn not_b_spline() -> SolidError {
     SolidError::invalid_input(OP_GEN, "generator is not derived from SmBSplineCurve")
 }
 
 /// `GetSTEPInterval` of a generator.
-fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(b.step_interval()),
         CurveKind::Ellipse(e) => Ok(e.step_interval()),
@@ -180,8 +183,7 @@ fn gen_step_interval(c: &Curve) -> Result<Extent1d> {
 
 /// `EvaluateSTEP(dT, lNumDerivs, TRUE, aDerivs)` of a generator (virtual: the
 /// analytic STEP evaluators, else the NURB evaluation).
-fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
-    let _ = k;
+fn gen_evaluate_step(c: &Curve, t: f64, num_derivs: usize) -> Result<Vec<Vec3>> {
     match c.kind() {
         CurveKind::Ellipse(e) => e.evaluate_step(t, num_derivs),
         CurveKind::Line(l) => Ok(l.evaluate_step(t, num_derivs)),
@@ -193,7 +195,7 @@ fn gen_evaluate_step(k: &Kernel, c: &Curve, t: f64, num_derivs: usize) -> Result
 }
 
 /// `GetMaxAnalyticDomain` of a generator.
-fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
+pub(crate) fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
     match c.kind() {
         CurveKind::BSpline(b) => b.max_analytic_domain(),
         CurveKind::Ellipse(e) => Ok(e.max_analytic_domain()),
@@ -205,7 +207,7 @@ fn gen_max_analytic_domain(c: &Curve) -> Result<Extent1d> {
 }
 
 /// `AdjustSTEPInterval` of a generator (without owner, see the module notes).
-fn gen_adjust_step_interval(k: &Kernel, c: &mut Curve, ivl: &Extent1d) -> Result<()> {
+pub(crate) fn gen_adjust_step_interval(k: &Kernel, c: &mut Curve, ivl: &Extent1d) -> Result<()> {
     match c.kind_mut() {
         CurveKind::BSpline(b) => b.adjust_step_interval(k, ivl),
         CurveKind::Ellipse(e) => e.adjust_step_interval(k, ivl, None),
@@ -252,7 +254,7 @@ fn gen_ensure_nurb(k: &Kernel, c: &mut Curve) -> Result<()> {
 /// The generator `c` with the out-of-bounds flag `enabled`
 /// (`SmTemporaryChangeValue<SmBoolean>(m_pGenCurve->GetOutOfBoundsEnabled(), ..)`):
 /// only the B-spline evaluation reads the flag, so only that kind is copied.
-fn gen_with_out_of_bounds(c: &Curve, enabled: bool) -> Option<Curve> {
+pub(crate) fn gen_with_out_of_bounds(c: &Curve, enabled: bool) -> Option<Curve> {
     match c.kind() {
         CurveKind::BSpline(b) if b.is_out_of_bounds_enabled() != enabled => {
             let mut b = b.clone();
@@ -262,6 +264,12 @@ fn gen_with_out_of_bounds(c: &Curve, enabled: bool) -> Option<Curve> {
         _ => None,
     }
 }
+
+/// The sweep iso-curve maker of the NURB and polar-converter rebuilds: upstream's
+/// virtual `CreateIsoParametricCurve(.., eSurfParam, dIsoParameter, ..)` without trim
+/// domain, of [`SurfOfRevolution`] or of a derived class (`SmTorus`).
+pub(crate) type SweepIsoFn<'a> =
+    &'a dyn Fn(&SurfOfRevolution, &Kernel, SurfParamType, f64) -> Result<Curve>;
 
 // ---- results ---------------------------------------------------------------------------
 
@@ -454,7 +462,7 @@ impl SurfOfRevolution {
         let crv_ivl = gen_step_interval(&swept_curve)?;
 
         // SweptCurve start point
-        let mut pnt = first(&gen_evaluate_step(k, &swept_curve, crv_ivl.min(), 0)?)?;
+        let mut pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.min(), 0)?)?;
 
         // Vector from SweptCurve Start to RotAxis point
         let mut x_vec = pnt - axis_point;
@@ -462,12 +470,7 @@ impl SurfOfRevolution {
         // when start point is on rot axis
         if x_vec.length() < EFF_ZERO || x_vec.is_parallel_to(z_vec, 1.0) {
             // try SweptCurve nearMidPoint
-            pnt = first(&gen_evaluate_step(
-                k,
-                &swept_curve,
-                crv_ivl.evaluate(0.45),
-                0,
-            )?)?;
+            pnt = first(&gen_evaluate_step(&swept_curve, crv_ivl.evaluate(0.45), 0)?)?;
             x_vec = pnt - axis_point;
         }
 
@@ -528,6 +531,18 @@ impl SurfOfRevolution {
         k: &Kernel,
         opt_sweep_curve: Option<&Curve>,
     ) -> Result<()> {
+        self.make_nurb_with_sweep_params_using(k, opt_sweep_curve, &Self::own_sweep_iso)
+    }
+
+    /// [`Self::make_nurb_with_sweep_params`] with the polar converter rebuilt from the
+    /// sweep iso curves of `iso` (upstream's virtual `CreateIsoParametricCurve`: a
+    /// derived class such as `SmTorus` passes its override).
+    pub(crate) fn make_nurb_with_sweep_params_using(
+        &mut self,
+        k: &Kernel,
+        opt_sweep_curve: Option<&Curve>,
+        iso: SweepIsoFn<'_>,
+    ) -> Result<()> {
         // locals
         let surf_sweep_step_ivl = self.anal_uv_domain.u_interval();
         let surf_gen_step_ivl = self.anal_uv_domain.v_interval();
@@ -572,20 +587,38 @@ impl SurfOfRevolution {
         self.base.nurb = tmp.nurb;
 
         // Set up the Polar conversion - create a sweep isoParametric curve
-        ignore_status(self.rebuild_polar_converter(k))?;
+        ignore_status(self.rebuild_polar_converter(k, iso))?;
         Ok(())
+    }
+
+    /// This class's `CreateIsoParametricCurve` without trim domain, as a [`SweepIsoFn`].
+    pub(crate) fn own_sweep_iso(
+        &self,
+        k: &Kernel,
+        surf_param: SurfParamType,
+        iso_parameter: f64,
+    ) -> Result<Curve> {
+        Ok(self
+            .create_iso_parametric_curve(k, surf_param, iso_parameter, None)?
+            .curve)
     }
 
     /// Rebuilds the polar converter from the sweep iso curve at the NURB domain's
     /// generator-direction start (or, when that circle is degenerate, at 45% of the
-    /// domain) (`RebuildPolarConverter`).
+    /// domain) (`RebuildPolarConverter`), the iso curves made by `iso` (upstream's
+    /// virtual `CreateIsoParametricCurve`: this class's
+    /// [`Self::create_iso_parametric_curve`] or a derived class's override).
     ///
     /// # Errors
     ///
     /// `SM_ERR` when both iso curves are degenerate; those of the iso curves (upstream
     /// then dereferences a null curve) and of the table set-up; `InvalidInput` when the
     /// iso curve is not a circle (upstream casts it).
-    pub(crate) fn rebuild_polar_converter(&mut self, k: &Kernel) -> Result<()> {
+    pub(crate) fn rebuild_polar_converter(
+        &mut self,
+        k: &Kernel,
+        iso: SweepIsoFn<'_>,
+    ) -> Result<()> {
         // Try the beginning of the curve if possible
         let nurb_domain = self.base.natural_uv_domain();
         let nurb_min_uv = nurb_domain.min();
@@ -596,9 +629,7 @@ impl SurfOfRevolution {
         } else {
             (SurfParamType::V, nurb_min_uv.y)
         };
-        let mut sweep_iso = self
-            .create_iso_parametric_curve(k, param, sweep_param, None)?
-            .curve;
+        let mut sweep_iso = iso(self, k, param, sweep_param)?;
         let mut iso_degenerate = sweep_iso.is_degenerate(EFF_ZERO, None)?;
 
         if iso_degenerate {
@@ -611,9 +642,7 @@ impl SurfOfRevolution {
             } else {
                 nurb_mid_uv.y
             };
-            sweep_iso = self
-                .create_iso_parametric_curve(k, param, sweep_param, None)?
-                .curve;
+            sweep_iso = iso(self, k, param, sweep_param)?;
             iso_degenerate = sweep_iso.is_degenerate(EFF_ZERO, None)?;
         }
 
@@ -640,7 +669,7 @@ impl SurfOfRevolution {
         &self.base
     }
 
-    fn gen(&self) -> Result<&Curve> {
+    pub(crate) fn gen(&self) -> Result<&Curve> {
         self.gen_curve
             .as_ref()
             .ok_or(SolidError::null_pointer(OP_GEN))
@@ -1077,6 +1106,45 @@ impl SurfOfRevolution {
     /// conversions; [`SolidError::Unported`] without exact polar conversion (the local
     /// solve on `SmSTEPSurface`, unit `surface.surface_p1`).
     pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
+        let mut written = Point2::new(0.0, 0.0);
+        self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written)
+    }
+
+    /// [`Self::convert_uv_from_nurbs_to_step`] for a caller that ignores its status:
+    /// the STEP parameters, or after a failure the value upstream had written to
+    /// `rSTEPUV` by then (it starts as the swapped input).
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::Unported`] only.
+    pub(crate) fn convert_uv_from_nurbs_to_step_or_written(
+        &self,
+        k: &Kernel,
+        nurbs_uv: Point2,
+    ) -> Result<Point2> {
+        let mut written = Point2::new(0.0, 0.0);
+        match self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written) {
+            Ok(p) => Ok(p),
+            Err(e) if e.is_unported() => Err(e),
+            Err(_) => Ok(written),
+        }
+    }
+
+    /// The body of [`Self::convert_uv_from_nurbs_to_step`]; `written` follows
+    /// upstream's writes to the out-parameter `rSTEPUV`.
+    fn convert_uv_from_nurbs_to_step_into(
+        &self,
+        k: &Kernel,
+        nurbs_uv: Point2,
+        written: &mut Point2,
+    ) -> Result<Point2> {
+        // init output to something in case of failure
+        *written = if self.swap_uv {
+            Point2::new(nurbs_uv.y, nurbs_uv.x)
+        } else {
+            nurbs_uv
+        };
+
         // get approximate NURB to Step MAP using a linear approximation
         let nat_domain = self.base.natural_uv_domain();
 
@@ -1084,6 +1152,7 @@ impl SurfOfRevolution {
         let clamped_nurbs_uv = nat_domain.clamp_point(nurbs_uv);
         let mut step_uv =
             nat_domain.point_map_to_domain(clamped_nurbs_uv, &self.anal_uv_domain, self.swap_uv)?;
+        *written = step_uv;
 
         // swap the NURB point coordinates when needed
         let swapped = if self.swap_uv {
@@ -1103,16 +1172,20 @@ impl SurfOfRevolution {
                 .polar
                 .convert_to_polar_parameter(k, circle, swapped.x)?;
             step_uv.x = x;
+            written.x = x;
             exact_conversion = exact;
             step_uv.y = self.gen()?.convert_t_from_nurbs_to_step(k, swapped.y)?;
+            written.y = step_uv.y;
         }
 
         // when conversion was not exact - use solution as input to a local solve
         if !exact_conversion {
-            // UNPORTED(surface.surface_p1): SmSTEPSurface::SmSTEPSurface
+            // (an SmSTEPSurface of this surface, then a local point solve on it; the
+            // surface of revolution is not a Surface kind yet)
+            // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
             return Err(SolidError::unported(
-                "SmSTEPSurface::SmSTEPSurface",
-                "surface.surface_p1",
+                "SmSurface::LocalPointSolve",
+                "surface.surface_p5",
             ));
         }
         Ok(step_uv)
@@ -1129,6 +1202,13 @@ impl SurfOfRevolution {
     /// `SM_ERR` for orders above 3; `InvalidInput` for unequal orders (upstream asserts
     /// and then indexes as if they were equal); those of the generator evaluation.
     pub fn evaluate_step(&self, k: &Kernel, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
+        let _ = k;
+        self.evaluate_step_at(uv, hu, hv)
+    }
+
+    /// [`Self::evaluate_step`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch (`SmSurface::EvaluateSTEP`, which has no kernel).
+    pub(crate) fn evaluate_step_at(&self, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
         // check input
         if hu > 3 || hv > 3 {
             return Err(SolidError::sm_err(OP_EVAL_STEP));
@@ -1162,7 +1242,7 @@ impl SurfOfRevolution {
         let cos_u = (uv.x * PI / 180.0).cos();
         let sin_u = (uv.x * PI / 180.0).sin();
 
-        let pv_eval = gen_evaluate_step(k, gen, uv.y, min_highest)?;
+        let pv_eval = gen_evaluate_step(gen, uv.y, min_highest)?;
         let pv = |i: usize| pv_eval.get(i).copied().unwrap_or(Vec3::UNDEF);
 
         let p = pv(0) - r_o;
@@ -1273,6 +1353,12 @@ impl SurfOfRevolution {
     /// Those of [`Self::evaluate_step`].
     pub fn evaluate_step_point(&self, k: &Kernel, uv: Point2) -> Result<Point3> {
         first(&self.evaluate_step(k, uv, 0, 0)?)
+    }
+
+    /// [`Self::evaluate_step_point`] without the (unused) kernel, for the [`Surface`]
+    /// dispatch.
+    pub(crate) fn evaluate_step_point_at(&self, uv: Point2) -> Result<Point3> {
+        first(&self.evaluate_step_at(uv, 0, 0)?)
     }
 
     // ---- intersections and points -----------------------------------------------------
@@ -1507,7 +1593,7 @@ impl SurfOfRevolution {
 }
 
 /// The first entry of an evaluation.
-fn first(v: &[Vec3]) -> Result<Vec3> {
+pub(crate) fn first(v: &[Vec3]) -> Result<Vec3> {
     v.first()
         .copied()
         .ok_or(SolidError::invalid_input(OP_EVAL_STEP, "empty evaluation"))

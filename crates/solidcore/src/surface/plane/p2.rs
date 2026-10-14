@@ -26,10 +26,11 @@
 //!   marks `NotUsed` (`CreateOffsetSurface`'s tolerance, `IntersectWithPlane`'s edge
 //!   flags and angle tolerance, `ReadFromDB`'s type) are dropped.
 //! - **Zone tolerance.** The plane boxes of `IntersectWithPlane` are expanded by the
-//!   zone tolerance of the plane's face or B-rep (`SmSurface::GetFace`, unit
-//!   `surface.surface_p1`). A bare [`Plane`] has no owner (the owner lives on
-//!   [`Surface`]), so it uses `SM_ZONE_TOL_3D`; through [`Surface::global_surface_intersect`]
-//!   an owned plane returns [`SolidError::Unported`] there.
+//!   tolerance of the plane's face ([`Surface::face`], `SmSurface::GetFace`), else
+//!   `SM_ZONE_TOL_3D`. A bare [`Plane`] has no owner (the owner lives on [`Surface`]), so
+//!   it uses `SM_ZONE_TOL_3D`; through [`Surface::global_surface_intersect`] a plane with
+//!   a face returns [`SolidError::Unported`] there (`SmFace::GetTolerance`, unit
+//!   `topology.face_p2`).
 //! - **NURB.** `IntersectWithPlane`'s parallel case tests whether both planes hold a
 //!   NURB (`m_pNurb`), as upstream; the boxes are computed on a NURB made on a copy
 //!   when the plane has none (upstream makes it in place, a `const_cast`).
@@ -71,10 +72,11 @@ use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::{BSplineSurface, BoundingBoxRequest};
 use crate::nurbs::knots::Side;
+use crate::surface::surface::p1::evaluate_1st_derivatives;
 use crate::surface::surface::p2::{
     base_global_surface_intersect, SurfaceIntersection, TsectCurveType,
 };
-use crate::surface::surface::p7::{base_evaluate_normal, evaluate_1st_derivatives};
+use crate::surface::surface::p7::base_evaluate_normal;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
@@ -102,14 +104,15 @@ impl SolutionObject for CurveHandle {
     }
 }
 
-/// The zone tolerance of a plane's face or B-rep, else `SM_ZONE_TOL_3D` (the
-/// `bExpandPosBoxesByZoneTol3d` expansion of `CalculateBoundingBox`).
+/// The tolerance of a plane's face (`GetFace()->GetTolerance()`, when `owned`: the
+/// plane has a face), else `SM_ZONE_TOL_3D` (the `bExpandPosBoxesByZoneTol3d`
+/// expansion of `CalculateBoundingBox`).
 fn zone_tolerance(owned: bool) -> Result<f64> {
     if owned {
-        // UNPORTED(surface.surface_p1): SmSurface::GetFace
+        // UNPORTED(topology.face_p2): SmFace::GetTolerance
         return Err(SolidError::unported(
-            "SmSurface::GetFace",
-            "surface.surface_p1",
+            "SmFace::GetTolerance",
+            "topology.face_p2",
         ));
     }
     Ok(ZONE_TOL_3D)
@@ -1331,6 +1334,7 @@ impl Plane {
 /// Those of [`Plane::intersect_with_plane`]; [`SolidError::Unported`] from the general
 /// intersector.
 pub(crate) fn global_surface_intersect(
+    k: &Kernel,
     this: &Surface,
     plane: &Plane,
     uv_domain: &Extent2d,
@@ -1348,7 +1352,8 @@ pub(crate) fn global_surface_intersect(
     match other.kind() {
         // plane/plane special case intersection
         SurfaceKind::Plane(other_plane) => {
-            let owned = [this.owner().is_some(), other.owner().is_some()];
+            // (whether each plane has a face: SmSurface::GetFace)
+            let owned = [this.face()?.is_some(), other.face()?.is_some()];
             (need_nurb_intersection, out) = plane.intersect_with_plane_owned(
                 uv_domain,
                 other_plane,
@@ -1357,9 +1362,22 @@ pub(crate) fn global_surface_intersect(
                 owned,
             )?;
         }
-        // (the cone, cylinder, sphere, extrusion and revolution special cases need
-        // surface kinds that are not ported yet)
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {}
+        // SurfOfRevolution/plane special case intersection: the orders and the UV
+        // curves are swapped (the surface of revolution's edge flags and angle
+        // tolerance are not used by it)
+        SurfaceKind::SurfOfRevolution(rev) => {
+            // the plane's boxes take its face's tolerance (taken as without owner
+            // there; see the module header)
+            if this.face()?.is_some() {
+                zone_tolerance(true)?;
+            }
+            let (need, mut x) = rev.intersect_with_plane(k, plane, uv_domain, approx_tol_3d)?;
+            core::mem::swap(&mut x.surface1_uv_curves, &mut x.surface2_uv_curves);
+            (need_nurb_intersection, out) = (need, x);
+        }
+        // (the cone, cylinder, sphere and extrusion special cases need surface kinds
+        // that are not ported yet)
+        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
     }
 
     // If we're here, then analytic intersection were not found - do general intersection

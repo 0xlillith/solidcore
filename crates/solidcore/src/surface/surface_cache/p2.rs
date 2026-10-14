@@ -493,11 +493,15 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         if aux_type == AuxDataType::AuxData {
             force_angle_test = true;
             let node_surface = self.node_surface(fields.surface)?;
-            // (upstream casts unchecked; a NURB-less surface gives a null pSur)
-            sur = bspline_of(node_surface)
-                .ok_or_else(|| invalid(OP_TEST, "node surface is not a B-spline"))?
-                .gw_nurb()
-                .cloned();
+            // (upstream casts unchecked; a NURB-less surface gives a null pSur; a plane
+            // has its NURB, made here on a copy when the port has not made it yet)
+            sur = match node_surface.kind() {
+                SurfaceKind::Plane(p) => p.base_for_query().gw_nurb().cloned(),
+                _ => bspline_of(node_surface)
+                    .ok_or_else(|| invalid(OP_TEST, "node surface is not a B-spline"))?
+                    .gw_nurb()
+                    .cloned(),
+            };
             if both_satisfied {
                 pseudo_box = PseudoBox::new();
             } else {
@@ -532,8 +536,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         // node's subdomain.
         let cache_surface = self.surface().clone();
         let surface_to_test: Option<&Surface> = match cache_surface.kind() {
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) => None,
-            SurfaceKind::CurveBounded(_) => Some(&cache_surface),
+            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
+                None
+            }
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Some(&cache_surface),
         };
 
         let mut subdivide = false;
@@ -909,7 +915,8 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 let patch = match surface.kind() {
                     SurfaceKind::BSpline(b) => b.copy_sub_patch(&node_uv),
                     SurfaceKind::Plane(p) => p.base().copy_sub_patch(&node_uv),
-                    SurfaceKind::CurveBounded(_) => {
+                    SurfaceKind::SurfOfRevolution(s) => s.base().copy_sub_patch(&node_uv),
+                    SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
                         return Err(invalid(OP_BLOCK, "node surface is not a B-spline"))
                     }
                 };
