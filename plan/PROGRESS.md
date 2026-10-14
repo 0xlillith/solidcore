@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**143 / 261 units ported** (89 green, 54 partial), **189,678 / 387,903 upstream lines (48.9%)**. 15 claimed, 0 blocked, 103 todo.
+**144 / 261 units ported** (89 green, 55 partial), **190,508 / 387,903 upstream lines (49.1%)**. 15 claimed, 0 blocked, 102 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -43,7 +43,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.face_p2`, `topology.loopuse`
 - [ ] `heal.gap` (1475 lines) — missing: `topology.vertexuse`
-- [ ] `query.loop` (830 lines) — missing: `topology.loopuse`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`, `topology.face_p2`, `topology.loopuse`, `topology.vertex` +1 more
 - [ ] `query.face_p2` (1161 lines) — missing: `topology.face_p2`, `topology.face_p4`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.proto_topology_p1`, `topology.shell`, `topology.vertex`
@@ -361,10 +360,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `primitive.primitive_creation_p2` (2258 lines) — waiting
 - [ ] ⏳ `primitive.api_primitives` (885 lines) — waiting
 
-### query (0/10)
+### query (1/10)
 
 - [ ] ⏳ `query.edge` (1025 lines) — waiting
-- [ ] ⏳ `query.loop` (830 lines) — waiting
+- [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
