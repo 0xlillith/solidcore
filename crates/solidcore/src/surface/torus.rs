@@ -41,8 +41,9 @@
 //!   [`Torus::read_from_db`] set it.
 //! - **Arguments.** Out-params become return values; `SmContext` arguments and the
 //!   arguments upstream marks `NotUsed` (`EvaluateSTEP`'s side flags,
-//!   `CreateIsoParametricCurve`'s approximation tolerance and UV iso line,
-//!   `ReadFromDB`'s type) are dropped. `EvaluateSTEP` entries it does not write are
+//!   `CreateIsoParametricCurve`'s approximation tolerance, `ReadFromDB`'s type) are
+//!   dropped. `CreateIsoParametricCurve`'s optional UV iso line is forwarded to the
+//!   B-spline surface but always requested as `false` (no caller can ask for it yet). `EvaluateSTEP` entries it does not write are
 //!   `0`. `CreateOffsetSurface` returns `None` where upstream succeeds without a surface
 //!   (a new minor radius below the approximation tolerance).
 //! - **Statuses.** Calls whose status upstream ignores keep upstream's values, except

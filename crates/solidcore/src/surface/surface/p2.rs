@@ -915,13 +915,12 @@ impl Surface {
             )),
             // (SmTorus::ReadFromDB reads the torus record, then needs the unported
             // SmSurfOfRevolution record; the torus is not a SurfaceKind yet)
-            TORUS_TYPE => Torus::read_from_db(db, version).and_then(|_| {
-                // UNPORTED(surface.surf_of_revolution_p3): SmSurfOfRevolution::ReadFromDB
-                Err(SolidError::unported(
+            TORUS_TYPE => Err(Torus::read_from_db(db, version).err().unwrap_or_else(|| {
+                SolidError::unported(
                     "SmSurfOfRevolution::ReadFromDB",
                     "surface.surf_of_revolution_p3",
-                ))
-            }),
+                )
+            })),
             CURVE_BOUNDED_SURFACE_TYPE => Ok(Self::from(CurveBoundedSurface::read_from_db(
                 k, db, version,
             )?)),
