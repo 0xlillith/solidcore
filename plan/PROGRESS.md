@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**118 / 261 units ported** (83 green, 35 partial), **151,820 / 387,903 upstream lines (39.1%)**. 18 claimed, 0 blocked, 125 todo.
+**118 / 261 units ported** (83 green, 35 partial), **151,820 / 387,903 upstream lines (39.1%)**. 19 claimed, 0 blocked, 124 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `intersect.surface_silhouette` (979 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -155,6 +155,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (draft)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
+- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (draft)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p2` (1677 lines) — in progress: #42 @bherbruck (draft)
@@ -356,7 +357,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] ⏳ `intersect.curve_class_p1` (2087 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p1` (1478 lines) — waiting
-- [ ] ▶️ `intersect.surface_silhouette` (979 lines) — ready
+- [ ] 🔨 `intersect.surface_silhouette` (979 lines) — in progress: #45 @bherbruck (draft)
 - [ ] ⏳ `intersect.curve_class_p7` (2248 lines) — waiting
 - [ ] ⏳ `intersect.ray_tracer` (1246 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_curve` (2014 lines) — waiting
