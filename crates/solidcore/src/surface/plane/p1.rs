@@ -77,8 +77,8 @@
 //!   virtual `Evaluate` and are ported here over [`Surface::evaluate`];
 //!   `SmTol::MapTo2d(SmTol3d, SmVector2d, SmSurface)` (unit `geom.tol`, waiting on
 //!   those wrappers) is ported here for a plane (the only surface it is called with).
-//! - **Unported callees.** `SmSurface::IsPlanar` / `EvaluateNormal` of a surface
-//!   that is not a plane (`surface.surface_p7`), `CreateNaturalUVTrimCurves`
+//! - **Unported callees.** `IsPlanar` of a curve-bounded surface (its base
+//!   `CalculateBoundingBox`, `surface.surface_p1`), `CreateNaturalUVTrimCurves`
 //!   (`surface.surface_p6`), `DropPoint` (`surface.surface_p5`), the general
 //!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) and the general
 //!   `SmSurface::GlobalLineIntersect` (`surface.surface_p8`) return
@@ -1510,9 +1510,9 @@ impl Plane {
     ///
     /// # Errors
     ///
-    /// Those of the evaluations of `other`; [`SolidError::Unported`] for a surface
-    /// that is not a plane (`SmSurface::IsPlanar`, `surface.surface_p7`) and the
-    /// unported callees of the overlap test.
+    /// Those of the evaluations of `other`; [`SolidError::Unported`] from `IsPlanar` of
+    /// `other` (see [`Surface::is_planar`]) and the unported callees of the overlap
+    /// test.
     pub fn coincidence_check(
         &self,
         k: &Kernel,
@@ -2091,32 +2091,14 @@ fn transpose<T: Copy>(a: &mut [T], num_rows: usize) {
 // ---- unported callees ---------------------------------------------------------------------
 
 /// `crOther.IsPlanar(tol)`: a plane is planar; other kinds run `SmSurface::IsPlanar`.
-fn surface_is_planar(s: &Surface, _tol: f64) -> Result<bool> {
-    match s.kind() {
-        SurfaceKind::Plane(_) => Ok(true),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
-            // UNPORTED(surface.surface_p7): SmSurface::IsPlanar
-            Err(SolidError::unported(
-                "SmSurface::IsPlanar",
-                "surface.surface_p7",
-            ))
-        }
-    }
+fn surface_is_planar(s: &Surface, tol: f64) -> Result<bool> {
+    Ok(s.is_planar(tol)?.is_planar)
 }
 
 /// `crOther.EvaluateNormal(uv, TRUE, TRUE, ..)`: the plane override; other kinds run
 /// `SmSurface::EvaluateNormal`.
-fn surface_evaluate_normal(s: &Surface, _uv: Point2) -> Result<Vec3> {
-    match s.kind() {
-        SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
-            // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
-            Err(SolidError::unported(
-                "SmSurface::EvaluateNormal",
-                "surface.surface_p7",
-            ))
-        }
-    }
+fn surface_evaluate_normal(s: &Surface, uv: Point2) -> Result<Vec3> {
+    s.evaluate_normal(uv, Side::Left, Side::Left)
 }
 
 /// `SmSurface::CreateNaturalUVTrimCurves(ctx, domain, SM_SP_V, FALSE, ..)`: the 3D
