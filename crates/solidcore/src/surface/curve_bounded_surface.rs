@@ -349,8 +349,9 @@ impl CurveBoundedSurface {
             .basis
             .evaluate_normal_section(uv, u_side, v_side, direction)?;
         Ok(NormalSection {
-            tangent: section.tangent,
+            tangent_plane_direction: section.tangent,
             curvature: section.curvature,
+            normal: section.normal,
         })
     }
 
