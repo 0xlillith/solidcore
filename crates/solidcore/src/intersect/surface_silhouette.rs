@@ -132,9 +132,10 @@ fn evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
 fn evaluate_geometric_at(surface: &Surface, uv: Point2) -> Result<GeometricProperties> {
     match surface.kind() {
         SurfaceKind::CurveBounded(s) => s.evaluate_geometric(uv, Side::Left, Side::Left),
-        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) => {
-            surface.evaluate_geometric(uv, Side::Left, Side::Left)
-        }
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::Plane(_)
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_) => surface.evaluate_geometric(uv, Side::Left, Side::Left),
     }
 }
 
@@ -149,7 +150,10 @@ fn evaluate_normal_section(
         SurfaceKind::CurveBounded(s) => {
             s.evaluate_normal_section(uv, Side::Left, Side::Left, direction)
         }
-        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::Plane(_)
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_) => {
             let n = surface.evaluate_normal_section(uv, Side::Left, Side::Left, direction)?;
             Ok(NormalSection {
                 tangent_plane_direction: n.tangent,

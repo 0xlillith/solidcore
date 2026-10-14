@@ -27,7 +27,9 @@ use solidcore::kernel::{Kernel, KernelOptions};
 use solidcore::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use solidcore::nurbs::knots::Side;
 use solidcore::surface::surface::p2::GeometricProperties;
-use solidcore::surface::surface::p3::{check_shape_match, FindPsNormal, SssIntersect};
+use solidcore::geom::global_solver::SolverOperation;
+use solidcore::surface::surface::p1::{FindPsNormalEnfo, SssIntersectEnfo};
+use solidcore::surface::surface::p3::check_shape_match;
 use solidcore::surface::surface::Surface;
 use solidcore_ffi::units::surface_surface_p3::{self as ffi, Op};
 
@@ -357,7 +359,8 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         OpIn::Cover { other, tol, dom } => {
             let other = surface_of(other)?;
             let d = dom.map(dom_of);
-            match stat(s.cover_coincident_surface(&other, *tol, d.as_ref()))? {
+            let k = Kernel::new(&KernelOptions::default());
+            match stat(s.cover_coincident_surface(&k, &other, *tol, d.as_ref()))? {
                 Ok(r) => {
                     o.extend([0.0, b(r.success), r.max_dist]);
                     if let Some(c) = r.covered_step_domain.filter(|_| r.success) {
@@ -385,11 +388,11 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             }
         }
         OpIn::FindPsNormal { p, sq_tol, pts } => {
-            run_enfo(&mut FindPsNormal::new(v3(*p), &s, *sq_tol), 2, pts, &mut o)?;
+            run_enfo(&mut FindPsNormalEnfo::new(v3(*p), &s, *sq_tol, SolverOperation::Minimize), 2, pts, &mut o)?;
         }
         OpIn::SssIntersect { s2, s3, pts } => {
             let (s2, s3) = (surface_of(s2)?, surface_of(s3)?);
-            run_enfo(&mut SssIntersect::new(&s, &s2, &s3), 6, pts, &mut o)?;
+            run_enfo(&mut SssIntersectEnfo::new(&s, &s2, &s3, 0.0), 6, pts, &mut o)?;
         }
         OpIn::LocalPlane { other, dom1, dom2, tol, g1, g2, po, pn } => {
             let s2 = surface_of(other)?;
@@ -634,7 +637,8 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
                 g1,
                 g2,
                 po,
-                pn: gen_signed_dir(rng),
+                // a zero normal exercises Unitize -> (0, 0, 1)
+                pn: if rng.chance(0.12) { [0.0; 3] } else { gen_signed_dir(rng) },
             }
         }
         39..=44 => {
