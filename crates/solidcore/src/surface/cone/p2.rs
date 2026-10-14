@@ -1,14 +1,18 @@
-//! Cone offsets and recognition, part 2: ellipse intervals inside cone trims.
+//! Cone offsets, NURB recognition and rebuilding, and ellipse trim intervals.
 //!
 //! Upstream: `source/SMLib/src/SmCone.cpp:5282`, `source/SMLib/inc/SmCone.h`.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
 //! | [`ellipse_trim_intervals`] | `sm_GetEllipseTrimIntervals` |
+//! | [`Cone::create_offset_surface`] | `SmCone::CreateOffsetSurface` |
+//! | [`Cone::is_nurb_surface_cone`] | `SmCone::IsNurbSurfaceCone` |
+//! | [`Cone::rebuild_step_from_nurb_parameters`] | `SmCone::RebuildSTEPFromNURBParameters` |
 //!
 //! Deviations: returns intervals instead of an output array. A failed primitive
 //! intersection/evaluation is returned where upstream ignores its status and may
-//! read unset output. The six-transition limit is checked; there is no recursion.
+//! read unset output. A STEP classification actually written before an error is
+//! retained because this helper reads only that classification. The six-transition limit is checked; there is no recursion.
 //! Cone STEP inversion deliberately uses the cone's own analytic domain, as its
 //! native override ignores the domain argument passed by this helper.
 
@@ -30,6 +34,31 @@ enum Membership {
     Outside,
     Inside,
     Unknown,
+}
+
+// The native helper reads only eLoc and ignores STEPInversion's status.
+// Preserve a classification actually written before a generator error, while
+// keeping missing callees and failures before classification explicit.
+fn trim_point_location(
+    kernel: &Kernel,
+    cone: &Cone,
+    point: crate::math::Point3,
+    tolerance: f64,
+) -> Result<LocationType> {
+    let positive = cone.positive_point(kernel, point)?;
+    let mut location = None;
+    match cone.rev.step_inversion_tracking_location(
+        kernel,
+        &cone.rev.anal_uv_domain,
+        positive.point,
+        tolerance,
+        None,
+        &mut location,
+    ) {
+        Ok(inversion) => Ok(inversion.location),
+        Err(error) if !error.is_unported() => location.ok_or(error),
+        Err(error) => Err(error),
+    }
 }
 
 fn push_angle(angles: &mut Vec<f64>, value: f64) -> Result<()> {
@@ -127,9 +156,7 @@ pub fn ellipse_trim_intervals(
         if let CurveIntersection::Points(points) = hits {
             if points.len() == 2 {
                 for point in points {
-                    let location = cone
-                        .step_inversion(kernel, *point, tolerance, None)?
-                        .location;
+                    let location = trim_point_location(kernel, cone, *point, tolerance)?;
                     if location == LocationType::Interior {
                         push_angle(
                             &mut angles,
@@ -170,9 +197,7 @@ pub fn ellipse_trim_intervals(
             continue;
         }
         let midpoint = full.evaluate_step_point((end + start) / 2.0)?;
-        let location = cone
-            .step_inversion(kernel, midpoint, tolerance, None)?
-            .location;
+        let location = trim_point_location(kernel, cone, midpoint, tolerance)?;
         membership.push(if location == LocationType::Exterior {
             Membership::Outside
         } else {
@@ -198,4 +223,476 @@ pub fn ellipse_trim_intervals(
         }
     }
     Ok(result)
+}
+
+// SmCone.cpp:4305 and :4695 share endpoint analysis, but only recognition
+// checks the knot multiplicities and middle circle. Rebuild must not gain
+// those extra filters, and uses the top frame's x-axis even when not inside-out.
+use crate::geom::axis2_placement::Axis2Placement;
+use crate::math::EFF_ZERO_SQRT;
+use crate::nurbs::b_spline_curve::BSplineCurve;
+use crate::nurbs::b_spline_surface::p2::IsoCurveOptions;
+use crate::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
+
+#[derive(Clone, Copy)]
+struct ConeCircle {
+    frame: Axis2Placement,
+    radius: f64,
+    start: f64,
+    end: f64,
+}
+
+struct ConeDetection {
+    top: ConeCircle,
+    bottom: ConeCircle,
+    height: f64,
+    axis: crate::math::Vec3,
+    inside_out: bool,
+    swap_uv: bool,
+    linear_interval: Extent1d,
+}
+
+fn circle_data(curve: &BSplineCurve, tolerance: f64) -> Result<Option<ConeCircle>> {
+    Ok(crate::curve::curve::p5::is_arc_base(
+        curve,
+        |c, tol| c.is_degenerate(tol, None),
+        5,
+        tolerance,
+    )?
+    .map(|(frame, radius, start, end)| ConeCircle {
+        frame,
+        radius,
+        start,
+        end,
+    }))
+}
+
+fn detect_cone(
+    kernel: &Kernel,
+    surface: &BSplineSurface,
+    scale: f64,
+    strict: bool,
+) -> Result<Option<ConeDetection>> {
+    let degree_u = surface.degree(SurfParamType::U);
+    let degree_v = surface.degree(SurfParamType::V);
+    let domain = surface.natural_uv_domain();
+    let direction = if degree_u == 1 && surface.number_control_points(SurfParamType::U) == 2 {
+        SurfParamType::V
+    } else if degree_v == 1 && surface.number_control_points(SurfParamType::V) == 2 {
+        SurfParamType::U
+    } else {
+        SurfParamType::Neither
+    };
+    if degree_u + degree_v != 3 || !surface.is_rational() || direction == SurfParamType::Neither {
+        return Ok(None);
+    }
+    let linear_interval = if direction == SurfParamType::V {
+        domain.u_interval()
+    } else {
+        domain.v_interval()
+    };
+    if strict {
+        let (_, multiplicities) = surface.knots(direction, None)?;
+        if multiplicities.first() != Some(&3)
+            || multiplicities.last() != Some(&3)
+            || multiplicities
+                .iter()
+                .skip(1)
+                .take(multiplicities.len().saturating_sub(2))
+                .any(|m| *m != 2)
+        {
+            return Ok(None);
+        }
+    }
+    let min = surface.evaluate_point(domain.min())?;
+    let max = surface.evaluate_point(domain.max())?;
+    let angle_tolerance = scale * EFF_ZERO_SQRT;
+    let zero = scale * 100.0 * EFF_ZERO * (1.0 + min.max_dimension() + max.max_dimension());
+    let (swap_uv, sweep, bottom_parameter, top_parameter) = if degree_u == 1 {
+        (true, SurfParamType::U, domain.min().x, domain.max().x)
+    } else {
+        (false, SurfParamType::V, domain.min().y, domain.max().y)
+    };
+    let top_curve = surface
+        .create_iso_parametric_curve(kernel, sweep, top_parameter, IsoCurveOptions::default())?
+        .curve;
+    let bottom_curve = surface
+        .create_iso_parametric_curve(kernel, sweep, bottom_parameter, IsoCurveOptions::default())?
+        .curve;
+    let top_degenerate = top_curve.is_degenerate(zero, None)?;
+    let bottom_degenerate = bottom_curve.is_degenerate(zero, None)?;
+    let mut top = if top_degenerate {
+        None
+    } else {
+        circle_data(&top_curve, zero)?
+    };
+    let mut bottom = if bottom_degenerate {
+        None
+    } else {
+        circle_data(&bottom_curve, zero)?
+    };
+    if let Some(circle) = top.filter(|_| bottom_degenerate) {
+        let center = bottom_curve.evaluate_point(bottom_curve.natural_interval().mid())?;
+        bottom = Some(ConeCircle {
+            frame: Axis2Placement::new(center, circle.frame.x_axis(), circle.frame.y_axis()),
+            radius: 0.0,
+            ..circle
+        });
+    } else if let Some(circle) = bottom.filter(|_| top_degenerate) {
+        let center = top_curve.evaluate_point(top_curve.natural_interval().mid())?;
+        top = Some(ConeCircle {
+            frame: Axis2Placement::new(center, circle.frame.x_axis(), circle.frame.y_axis()),
+            radius: 0.0,
+            ..circle
+        });
+    }
+    let (Some(mut top), Some(bottom)) = (top, bottom) else {
+        return Ok(None);
+    };
+    let twist = top.frame.x_axis().angle_between(bottom.frame.x_axis())?;
+    if (top.start - bottom.start).abs() > angle_tolerance
+        || (top.end - bottom.end).abs() > angle_tolerance
+        || twist.abs() > angle_tolerance
+    {
+        return Ok(None);
+    }
+    let axis = top.frame.origin() - bottom.frame.origin();
+    let height = axis.length();
+    if height < EFF_ZERO_SQRT {
+        return Ok(None);
+    }
+    let axis = axis.unitize()?;
+    if !axis.is_parallel_to(bottom.frame.z_axis(), angle_tolerance) {
+        return Ok(None);
+    }
+    if strict {
+        let middle_curve = surface
+            .create_iso_parametric_curve(
+                kernel,
+                sweep,
+                (bottom_parameter + top_parameter) / 2.0,
+                IsoCurveOptions::default(),
+            )?
+            .curve;
+        let Some(middle) = circle_data(&middle_curve, zero)? else {
+            return Ok(None);
+        };
+        if ((bottom.radius + top.radius) / 2.0 - middle.radius).abs() > zero
+            || !middle.frame.z_axis().is_parallel_to(axis, angle_tolerance)
+        {
+            return Ok(None);
+        }
+        let (distance, _) = crate::geom::geom_utility::p1::line_point_distance(
+            top.frame.origin(),
+            axis,
+            middle.frame.origin(),
+        );
+        if distance > zero {
+            return Ok(None);
+        }
+    }
+    let inside_out = axis.dot(bottom.frame.z_axis()) < 0.0;
+    if (bottom.radius - top.radius).abs() < EFF_ZERO * (1.0 + bottom.radius) {
+        top.radius = bottom.radius;
+    }
+    Ok(Some(ConeDetection {
+        top,
+        bottom,
+        height,
+        axis,
+        inside_out,
+        swap_uv,
+        linear_interval,
+    }))
+}
+
+impl Cone {
+    /// Recognize a rational line/circle NURB as a cone (`IsNurbSurfaceCone`).
+    /// The analytic object owns its regenerated NURB, with the input domain.
+    ///
+    /// # Errors
+    /// Invalid NURB data, iso extraction/evaluation or reconstruction errors.
+    pub fn is_nurb_surface_cone(
+        kernel: &Kernel,
+        surface: &BSplineSurface,
+        tolerance_scale: f64,
+    ) -> Result<Option<Self>> {
+        let Some(detection) = detect_cone(kernel, surface, tolerance_scale, true)? else {
+            return Ok(None);
+        };
+        let d = detection;
+        let x_axis = if d.inside_out {
+            d.top.frame.x_axis()
+        } else {
+            d.bottom.frame.x_axis()
+        };
+        let z_axis = if d.inside_out { -d.axis } else { d.axis };
+        let mut cone = Self::new_bounded(
+            if d.inside_out {
+                d.top.frame.origin()
+            } else {
+                d.bottom.frame.origin()
+            },
+            x_axis,
+            z_axis.cross(x_axis),
+            if d.inside_out {
+                d.top.radius
+            } else {
+                d.bottom.radius
+            },
+            if d.inside_out {
+                d.bottom.radius
+            } else {
+                d.top.radius
+            },
+            d.top.start,
+            d.top.end,
+            d.height,
+            d.swap_uv,
+            d.inside_out,
+            false,
+        );
+        cone.make_nurb(kernel)?;
+        crate::error::ignore_status(cone.reparameterize(kernel, &surface.natural_uv_domain()))?;
+        // Notify(SM_NO_COPY) copies attributes; the geometric base does not model them.
+        Ok(Some(cone))
+    }
+
+    /// Reparameterize the inherited NURB with this cone's virtual iso curves.
+    ///
+    /// # Errors
+    /// NURB or generator reparameterization and polar-converter errors.
+    pub fn reparameterize(&mut self, kernel: &Kernel, domain: &Extent2d) -> Result<()> {
+        if self.rev.base.gw_nurb().is_none() {
+            self.make_nurb(kernel)?;
+        }
+        let inside_out = self.inside_out;
+        self.rev
+            .reparameterize_using(kernel, domain, &|rev, k, p, t| {
+                Ok(super::p1::cone_iso_curve(rev, inside_out, k, p, t, None, false)?.curve)
+            })
+    }
+}
+
+impl Cone {
+    /// Rebuild analytic and generator data from the current NURB
+    /// (`RebuildSTEPFromNURBParameters`). Unlike recognition, this does not add
+    /// a midpoint-circle or knot-multiplicity test.
+    ///
+    /// # Errors
+    /// A NURB that no longer represents the required line/circle surface,
+    /// extraction/evaluation, generator or polar-converter errors.
+    pub fn rebuild_step_from_nurb_parameters(&mut self, kernel: &Kernel) -> Result<()> {
+        use crate::curve::curve::Curve;
+        use crate::curve::line::{BoundedLineOptions, Line};
+        let Some(d) = detect_cone(kernel, &self.rev.base, 1000.0, false)? else {
+            return Err(SolidError::sm_err(
+                "surface::cone::p2::Cone::rebuild_step_from_nurb_parameters",
+            ));
+        };
+        let radius_difference = if d.inside_out {
+            d.bottom.radius - d.top.radius
+        } else {
+            d.top.radius - d.bottom.radius
+        };
+        // Upstream leaves the previous semi-angle untouched for equal radii.
+        if radius_difference.abs() > EFF_ZERO {
+            self.semi_angle_deg = radius_difference.atan2(d.height) * 180.0 / std::f64::consts::PI;
+        }
+        self.base_radius = if d.inside_out {
+            d.top.radius
+        } else {
+            d.bottom.radius
+        };
+        self.inside_out = d.inside_out;
+        self.rev.planar_generator = true;
+        // In the native rebuild this is a frame copy, not a new frame made
+        // from the independently computed cone axis and top x-axis.
+        self.rev.position = if d.inside_out {
+            d.top.frame
+        } else {
+            d.bottom.frame
+        };
+        self.rev.swap_uv = d.swap_uv;
+        self.rev.anal_uv_domain = Extent2d::from_bounds(d.top.start, 0.0, d.top.end, d.height);
+        let point = self.rev.position.origin() + self.base_radius * self.rev.position.x_axis();
+        let vector = d.height * self.rev.position.z_axis()
+            + (self.radius(d.height) - self.base_radius) * self.rev.position.x_axis();
+        let length = vector.length();
+        let mut line = Line::bounded(
+            point,
+            vector,
+            &Extent1d::from_min_max(0.0, d.height),
+            &BoundedLineOptions {
+                scale: length / d.height,
+                dim: 3,
+                nurb: None,
+                inside_out: d.inside_out,
+            },
+        );
+        crate::error::ignore_status(line.edit_parameterization(&d.linear_interval))?;
+        // The native order rebuilds the polar converter BEFORE replacing the
+        // old generator. Keep this order, including the virtual cone iso call.
+        let inside_out = self.inside_out;
+        crate::error::ignore_status(self.rev.rebuild_polar_converter(kernel, &|rev, k, p, t| {
+            Ok(super::p1::cone_iso_curve(rev, inside_out, k, p, t, None, false)?.curve)
+        }))?;
+        self.rev.gen_curve = Some(Curve::from(line));
+        Ok(())
+    }
+}
+
+impl Cone {
+    /// Analytic cone offset (`CreateOffsetSurface`), including apex truncation.
+    /// `None` is the upstream successful empty result when both radii shrink
+    /// below the approximation tolerance.
+    ///
+    /// # Errors
+    /// Invalid geometry, canonical construction, missing generator, NURB access
+    /// or unported callees. Ordinary statuses ignored by upstream stay ignored.
+    pub fn create_offset_surface(
+        &self,
+        kernel: &Kernel,
+        distance: f64,
+        tolerance: f64,
+    ) -> Result<Option<Self>> {
+        use crate::error::ignore_status;
+        let sign = 1.0
+            * (if self.rev.swap_uv { -1.0 } else { 1.0 })
+            * (if self.inside_out { -1.0 } else { 1.0 });
+        let origin = self.rev.position.origin();
+        let x_axis = self.rev.position.x_axis();
+        let y_axis = self.rev.position.y_axis();
+        let z_axis = self.rev.position.z_axis();
+        let height = self.height(kernel)?;
+        let domain = self.rev.base.natural_uv_domain();
+        let mut sin = (self.semi_angle_deg * std::f64::consts::PI / 180.0).sin();
+        let mut cos = (self.semi_angle_deg * std::f64::consts::PI / 180.0).cos();
+        let normal = (cos * x_axis - sin * z_axis).unitize()?;
+        let offset = sign * distance * normal;
+        let offset_z = -sin * sign * distance;
+        let offset_radius = cos * sign * distance;
+        let old_bottom = self.bot_radius();
+        let old_top = self.top_radius();
+        let mut new_bottom = old_bottom + offset_radius;
+        let mut new_top = old_top + offset_radius;
+        if new_bottom < tolerance && new_top < tolerance {
+            return Ok(None);
+        }
+        if new_bottom < tolerance || new_top < tolerance {
+            let (new_height, bottom_origin) = if new_bottom < tolerance {
+                let tangent = height / old_top;
+                let new_height = new_top * tangent;
+                new_bottom = 0.0;
+                (
+                    new_height,
+                    origin + (height + offset_z - new_height) * z_axis,
+                )
+            } else {
+                let tangent = height / old_bottom;
+                let new_height = new_bottom * tangent;
+                new_top = 0.0;
+                (new_height, origin + offset_z * z_axis)
+            };
+            let placement = Axis2Placement::new(bottom_origin, x_axis, y_axis);
+            let mut cone = Self::create_canonical(
+                kernel,
+                &placement,
+                new_bottom,
+                new_top,
+                new_height,
+                self.rev.swap_uv,
+                self.inside_out,
+            )?;
+            // Preserve the native formula: it multiplies the input MAXIMUM,
+            // rather than the input span, even for a nonzero domain minimum.
+            let target = if self.rev.swap_uv {
+                Extent2d::from_bounds(
+                    domain.min().x,
+                    domain.min().y,
+                    domain.min().x + new_height / height * domain.max().x,
+                    domain.max().y,
+                )
+            } else {
+                Extent2d::from_bounds(
+                    domain.min().x,
+                    domain.min().y,
+                    domain.max().x,
+                    domain.min().y + new_height / height * domain.max().y,
+                )
+            };
+            ignore_status(cone.rev.base.reparameterize(&target))?;
+            let generator_interval = if self.rev.swap_uv {
+                target.u_interval()
+            } else {
+                target.v_interval()
+            };
+            let generator = cone.rev.gen_curve.as_mut().ok_or(SolidError::null_pointer(
+                "surface::cone::p2::Cone::create_offset_surface",
+            ))?;
+            ignore_status(generator.edit_parameterization(kernel, &generator_interval))?;
+            let inside_out = cone.inside_out;
+            ignore_status(cone.rev.rebuild_polar_converter(kernel, &|rev, k, p, t| {
+                Ok(super::p1::cone_iso_curve(rev, inside_out, k, p, t, None, false)?.curve)
+            }))?;
+            return Ok(Some(cone));
+        }
+        let mut cone = self.clone();
+        cone.base_radius = self.base_radius + offset_radius;
+        ignore_status(
+            cone.rev
+                .position
+                .set_canonical(origin + offset_z * z_axis, x_axis, y_axis),
+        )?;
+        if let Some(nurb) = cone.rev.base.nurb.as_mut() {
+            let (outer, inner) = if self.rev.swap_uv {
+                (nurb.m(), nurb.n())
+            } else {
+                (nurb.n(), nurb.m())
+            };
+            for i in 0..=outer {
+                let (u, v) = if self.rev.swap_uv { (0, i) } else { (i, 0) };
+                let first = nurb.cpt(u, v)?.to_euclid();
+                let z_distance = (first.x - origin.x) * z_axis.x
+                    + (first.y - origin.y) * z_axis.y
+                    + (first.z - origin.z) * z_axis.z;
+                let center = origin + z_distance * z_axis;
+                let radial = first - center;
+                let radius = self.radius(z_distance);
+                let movement = if crate::geom::tol::is_zero(radius) {
+                    let (u, v) = if self.rev.swap_uv { (1, i) } else { (i, 1) };
+                    let next = nurb.cpt(u, v)?.to_euclid();
+                    let next_vector = next - origin;
+                    let next_height = next_vector.dot(z_axis);
+                    let radial = next_vector - next_height * z_axis;
+                    let actual_radius = radial.length();
+                    let height_radius = self.radius(next_height);
+                    let unit = radial / actual_radius;
+                    cos = unit.dot(x_axis);
+                    sin = unit.dot(y_axis);
+                    actual_radius / height_radius * offset_radius * (cos * x_axis + sin * y_axis)
+                        + offset_z * z_axis
+                } else {
+                    let scale = (radius + offset_radius) / radius;
+                    radial * (scale - 1.0) + offset_z * z_axis
+                };
+                for j in 0..=inner {
+                    let (u, v) = if self.rev.swap_uv { (j, i) } else { (i, j) };
+                    let euclidean = nurb.cpt(u, v)?.to_euclid();
+                    let point = nurb.cpt_mut(u, v)?;
+                    // The native code multiplies these coordinates by w.
+                    point.x = (euclidean.x + movement.x) * point.w;
+                    point.y = (euclidean.y + movement.y) * point.w;
+                    point.z = (euclidean.z + movement.z) * point.w;
+                }
+            }
+        }
+        let mut translation = Axis2Placement::IDENTITY;
+        translation.translate(offset);
+        let generator = cone.rev.gen_curve.as_mut().ok_or(SolidError::null_pointer(
+            "surface::cone::p2::Cone::create_offset_surface",
+        ))?;
+        ignore_status(generator.transform(kernel, &translation, None))?;
+        Ok(Some(cone))
+    }
 }

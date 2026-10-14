@@ -272,6 +272,29 @@ impl SurfOfRevolution {
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<StepInversionOutputs> {
+        self.step_inversion_tracking_location(
+            k,
+            anal_domain,
+            point_on_surf,
+            tol_3d,
+            uv_guess,
+            &mut None,
+        )
+    }
+
+    /// Preserve the classification written before a later generator solve fails.
+    /// Internal callers such as the cone trim helper read that output even when
+    /// upstream `STEPInversion` returns an error; no unset UV value is synthesized.
+    pub(crate) fn step_inversion_tracking_location(
+        &self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+        point_on_surf: Point3,
+        tol_3d: f64,
+        uv_guess: Option<Point2>,
+        location_output: &mut Option<LocationType>,
+    ) -> Result<StepInversionOutputs> {
+        *location_output = None;
         // pass call along for nonPlanar generator curves
         if !self.planar_generator {
             // Not planar, must use the general solver.
@@ -291,6 +314,7 @@ impl SurfOfRevolution {
             let (nurbs_parameter, location) =
                 self.base
                     .step_inversion(&nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
+            *location_output = Some(location);
             let step = self.convert_uv_from_nurbs_to_step(k, nurbs_parameter)?;
             return Ok(StepInversionOutputs {
                 uv: step,
@@ -300,6 +324,9 @@ impl SurfOfRevolution {
         }
 
         // Generator curve is planar, so we can solve it analytically.
+
+        // Upstream initializes classification before attempting the rotation.
+        *location_output = Some(LocationType::Exterior);
 
         // Rotate Point to StartPlane
         let sp = self.transform_point_to_start_plane(point_on_surf, tol_3d, false)?;
@@ -335,6 +362,8 @@ impl SurfOfRevolution {
             LocationType::Exterior
         };
 
+        *location_output = Some(location);
+
         // If a guess was given and we're on the seam, set u-parameter to what's closer
         // to the guess.
         if location == LocationType::USeam {
@@ -369,6 +398,7 @@ impl SurfOfRevolution {
 
         // error - rotated point not on GenCurve
         let Some(first) = solutions.first() else {
+            *location_output = Some(LocationType::Exterior);
             return Err(SolidError::sm_err(OP_STEP_INV));
         };
 
@@ -397,6 +427,7 @@ impl SurfOfRevolution {
         }
 
         // all done
+        *location_output = Some(location);
         Ok(StepInversionOutputs {
             uv: Point2::new(u, v),
             location,

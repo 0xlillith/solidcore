@@ -1,0 +1,6868 @@
+{
+  "cases": [
+    {
+      "name": "horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_0_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_0_1_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_0_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_0_1_1_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_0_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_0_1_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_0_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_0_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_15_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.3_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.3_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          1.2,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.5_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_0.5_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          2.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_1.0_0",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "horizontal_1_1_1_40_1.0_20",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real bounded cone; horizontal section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.0,
+          4.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.2_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.6_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_0_0.9_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.2_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.6_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          0,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          0,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_0_1_0.9_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          0,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.2_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.6_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_0_0.9_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          0,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.2,
+          1.2,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.2_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.2,
+          2.0,
+          2.0406776898823855,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.6,
+          1.2,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.6_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.6,
+          2.0,
+          2.423256629024633,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_0_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_0_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0,
+          360,
+          1,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_15_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_15_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          15,
+          250,
+          1,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_40_0.3",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.9,
+          1.2,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "tilted_cylindrical_1_1_0.9_40_0.5",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:5282 (real equal-radius cone; tilted section ellipse)",
+      "inputs": {
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          40,
+          100,
+          1,
+          1,
+          0.9,
+          2.0,
+          3.2174516209320996,
+          2.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    }
+  ]
+}
