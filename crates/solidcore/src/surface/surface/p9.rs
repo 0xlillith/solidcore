@@ -51,6 +51,7 @@ fn bss(surface: &Surface) -> Result<Cow<'_, BSplineSurface>> {
     match surface.kind() {
         SurfaceKind::BSpline(s) => Ok(Cow::Borrowed(s)),
         SurfaceKind::Plane(p) => Ok(p.base_for_query()),
+        SurfaceKind::SurfOfRevolution(s) => Ok(Cow::Borrowed(s.base())),
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
@@ -73,6 +74,17 @@ fn iso_curve(
             .curve
             .base_with_nurb()?
             .into_owned());
+    }
+    if let SurfaceKind::SurfOfRevolution(s) = surface.kind() {
+        let iso = s.create_iso_parametric_curve(k, direction, value, None)?;
+        return match iso.curve.kind() {
+            crate::curve::curve::CurveKind::BSpline(c) => Ok(c.copy()),
+            crate::curve::curve::CurveKind::Ellipse(c) => Ok(c.base().copy()),
+            _ => Err(SolidError::invalid_input(
+                OP,
+                "unexpected revolution iso curve kind",
+            )),
+        };
     }
     Ok(bss(surface)?
         .create_iso_parametric_curve(k, direction, value, IsoCurveOptions::default())?

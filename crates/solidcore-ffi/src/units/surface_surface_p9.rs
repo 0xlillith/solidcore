@@ -39,8 +39,37 @@ pub fn eval(
     diagonals: bool,
     line: [[f64; 3]; 2],
 ) -> Result<Vec<f64>, FfiError> {
+    eval_surface_kind(
+        op,
+        i32::from(analytic_plane),
+        net,
+        domain,
+        direction,
+        controls,
+        diagonals,
+        line,
+    )
+}
+
+/// Evaluates a surface kind: 0 quadratic B-spline, 1 plane, 2 canonical revolution.
+/// Revolution fixtures cover splits and iso boundaries; CSI uses kind 0 only.
+///
+/// # Errors
+/// Invalid bounded records or C++ setup failures.
+pub fn eval_surface_kind(
+    op: i32,
+    surface_kind: i32,
+    net: &[[f64; 3]; 9],
+    domain: [f64; 4],
+    direction: i32,
+    controls: [f64; 3],
+    diagonals: bool,
+    line: [[f64; 3]; 2],
+) -> Result<Vec<f64>, FfiError> {
     let invalid = || FfiError::InvalidArgument("unsafe surface p9 input".into());
-    if !(0..=2).contains(&op)
+    if !(0..=2).contains(&surface_kind)
+        || (surface_kind == 2 && op == 2)
+        || !(0..=2).contains(&op)
         || !(0..=9).contains(&direction)
         || net
             .iter()
@@ -76,7 +105,7 @@ pub fn eval(
         unsafe {
             sys::sc_surface_surface_p9_eval(
                 op,
-                i32::from(analytic_plane),
+                surface_kind,
                 xyz.as_ptr(),
                 domain.as_ptr(),
                 direction,
@@ -100,9 +129,34 @@ mod tests {
     fn rejects_only_the_undefined_all_degenerate_count() {
         let net = [[0.0; 3]; 9];
         let line = [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]];
-        assert!(matches!(eval(0, false, &net, [0.0, 0.0, 1.0, 1.0], 0, [0.02, 15.0, 0.5], false, line), Err(FfiError::Status(_))));
+        assert!(matches!(
+            eval(
+                0,
+                false,
+                &net,
+                [0.0, 0.0, 1.0, 1.0],
+                0,
+                [0.02, 15.0, 0.5],
+                false,
+                line
+            ),
+            Err(FfiError::Status(_))
+        ));
         for max_side in [1.0, 2.0, -0.5] {
-            assert_eq!(eval(0, false, &net, [0.0, 0.0, 1.0, 1.0], 0, [0.02, 15.0, max_side], false, line).unwrap(), vec![0.0, 0.0, 1.0]);
+            assert_eq!(
+                eval(
+                    0,
+                    false,
+                    &net,
+                    [0.0, 0.0, 1.0, 1.0],
+                    0,
+                    [0.02, 15.0, max_side],
+                    false,
+                    line
+                )
+                .unwrap(),
+                vec![0.0, 0.0, 1.0]
+            );
         }
     }
 }

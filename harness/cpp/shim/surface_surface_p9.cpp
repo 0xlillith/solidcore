@@ -5,6 +5,7 @@
 #include "StdAfx.h"
 #include <SmBSplineSurface.h>
 #include <SmPlane.h>
+#include <SmSurfOfRevolution.h>
 #include <SmBSplineCurve.h>
 #include <SmContext.h>
 #include <SmCurveCache.h>
@@ -26,7 +27,15 @@ public:
     virtual SmSolutionPairType IdenticalSolutions(const SmSolution&, const SmSolution&, const SmSolution*&) const;
 };
 
-SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, int32_t analytic_plane, const double* xyz, const double* bounds,
+// The reference constructor is protected; expose it without changing its body.
+class ScP9Revolution : public SmSurfOfRevolution {
+public:
+    explicit ScP9Revolution(SmBSplineCurve* generator)
+        : SmSurfOfRevolution(generator, SmPoint3d(0,0,0), SmVector3d(1,0,0),
+            SmVector3d(0,1,0), SmExtent2d(0,0,360,1), FALSE) {}
+};
+
+SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, int32_t surface_kind, const double* xyz, const double* bounds,
     int32_t direction, double chord, double angle, double max_side, int32_t diagonals,
     const double* line, double* output, int64_t cap, int64_t* out_len) {
     SC_TRY
@@ -37,9 +46,19 @@ SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, int32_t analytic_plane,
         p.x=xyz[at];p.y=xyz[at+1];p.z=xyz[at+2];p.w=NL_NOW;
     }
     double knots[6]={0,0,0,1,1,1};
-    SmSurface* surface = analytic_plane
-        ? static_cast<SmSurface*>(new(context) SmPlane(SmPoint3d(0,0,0), SmVector3d(1,0,0), SmVector3d(0,1,0), SmVector2d(1,1), SmExtent2d(0,0,1,1), &context))
-        : static_cast<SmSurface*>(new(context) SmBSplineSurface(2,2,2,2,5,5,rows,knots,knots));
+    SmSurface* surface = NULL;
+    if (surface_kind == 2) {
+        gw_CPOINT cp[2]={{1,0,0,NL_NOW},{1,0,1,NL_NOW}};
+        double ck[4]={0,0,1,1};
+        SmBSplineCurve* generator = new(context) SmBSplineCurve(3,1,3,1,cp,ck);
+        ScP9Revolution* revolution = new(context) ScP9Revolution(generator);
+        if (revolution->MakeNurb() != SM_SUCCESS) { delete revolution; return SC_ERR_ARG; }
+        surface = revolution;
+    } else if (surface_kind == 1) {
+        surface = new(context) SmPlane(SmPoint3d(0,0,0), SmVector3d(1,0,0), SmVector3d(0,1,0), SmVector2d(1,1), SmExtent2d(0,0,1,1), &context);
+    } else {
+        surface = new(context) SmBSplineSurface(2,2,2,2,5,5,rows,knots,knots);
+    }
     SmExtent2d domain(bounds[0],bounds[1],bounds[2],bounds[3]);
     std::vector<double> out;
     auto status=[](SmStatus r){return r==SM_SUCCESS ? 0.0 : (double)r;};

@@ -339,6 +339,150 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "analytic_revolution_iso_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#0 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_iso_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#1 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_0_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#2 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_0_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#3 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_0_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#4 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_0_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#5 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_1_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#6 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_1_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#7 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_1_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#8 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_0_1_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#9 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_0_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#10 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 34
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_0_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#11 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_0_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#12 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 34
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_0_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#13 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 34
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_1_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#14 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_1_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#15 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 20
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_1_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#16 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_splits_1_1_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-revolution.json#17 (upstream source/SMLib/src/SmSurface.cpp:11644,14877; source/SMLib/src/SmSurfOfRevolution.cpp (canonical cylinder, real virtual iso curves))",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "plane_splits_0_0",
       "outcome": "pass",
       "pass": true,
@@ -6289,8 +6433,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 51,
   "cases_failed": 0,
-  "cases_passed": 709,
-  "cases_total": 760,
+  "cases_passed": 727,
+  "cases_total": 778,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 50,
     "surface.surface_p6": 1

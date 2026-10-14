@@ -819,6 +819,13 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
   covered by Rust unit tests only.
 - **Misleading `seeds` field.** The difftest report's `seeds` field shows the CLI value, not
   the number of cases a runner actually generated.
+- **Self-tagged iso curve stubs.** `surface/surface_cache/p1.rs` keeps
+  `UNPORTED(surface.surface_cache_p1)` stubs for `SmPlane::CreateIsoParametricCurve` and
+  `SmSurfOfRevolution::CreateIsoParametricCurve`, although that unit and the units that
+  ported both overrides (`surface.plane_p1`, `surface.surf_of_revolution_p1`) are partial.
+  The cache stores iso curves as `BSplineCurve`, so the `SmLine` / `SmCircle` results
+  cannot be stored. Whoever changes `SurfaceCache` iso curve storage to `Curve` must wire
+  them (grep the tag). No difftest case reaches them today.
 
 ## Wave 0 verification (independent check, 2026-10-12)
 
@@ -840,8 +847,8 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
 
 ## Surface tessellation and iso boundaries (2026-10-14, PR #6 review)
 
-`surface.surface_p9` is partial: 760 cases (160 fixtures and 600 generated),
-709 bit-identical, zero failed and 51 deferred (`intersect.curve_class_p4`: 50;
+`surface.surface_p9` is partial: 778 cases (178 fixtures and 600 generated),
+727 bit-identical, zero failed and 51 deferred (`intersect.curve_class_p4`: 50;
 `surface.surface_p6`: 1), with no absolute floors. All 96 review regressions
 and all 16 explicit analytic-plane cases without diagonals pass. The regression
 corpus reproduced 32 failures before the degeneracy/max-side fixes.
@@ -851,5 +858,7 @@ surface/node/point helpers call the ported p1 implementations. The disjoint CSI
 fixture now passes; crossing reaches `surface.surface_p6`. End-to-end CSI is
 still unverified. `FindTessellationSplits` is wired into block subdivision:
 cache p2 compares 808/905 cases (97 deferred), cache p3 450/600 (150 deferred).
-The committed reports give the current deferral owners; earlier tables above
+The latest-main revolution surface also has 18 direct C++ comparisons (canonical
+cylinder, virtual iso curves), all bit-identical. The committed reports give the
+current deferral owners; earlier tables above
 are historical snapshots.

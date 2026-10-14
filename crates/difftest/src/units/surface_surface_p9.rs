@@ -51,6 +51,8 @@ struct Inputs {
     op: i32,
     #[serde(default)]
     analytic_plane: bool,
+    #[serde(default)]
+    analytic_revolution: bool,
     net: [[f64; 3]; 9],
     #[serde(default = "domain")]
     domain: [f64; 4],
@@ -70,11 +72,41 @@ fn line() -> [[f64; 3]; 2] {
 fn harness(e: impl std::fmt::Display) -> HarnessError {
     HarnessError::new(e.to_string())
 }
-fn surface(i: &Inputs) -> Result<Surface, HarnessError> {
+fn surface(k: &Kernel, i: &Inputs) -> Result<Surface, HarnessError> {
+    if i.analytic_revolution {
+        let generator = Curve::from(BSplineCurve::from_nurb(
+            NlCurve::new(
+                vec![
+                    CPoint::new(1.0, 0.0, 0.0, NOW),
+                    CPoint::new(1.0, 0.0, 1.0, NOW),
+                ],
+                1,
+                vec![0.0, 0.0, 1.0, 1.0],
+            )
+            .map_err(harness)?,
+            3,
+            false,
+        ));
+        let mut revolution = solidcore::surface::surf_of_revolution::SurfOfRevolution::new(
+            k,
+            generator,
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            Extent2d::from_bounds(0.0, 0.0, 360.0, 1.0),
+            false,
+        )
+        .map_err(harness)?;
+        revolution.make_nurb(k).map_err(harness)?;
+        return Ok(Surface::from(revolution));
+    }
     if i.analytic_plane {
         return Ok(Surface::from(solidcore::surface::plane::Plane::new(
-            Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), Vec3::new(0.0, 1.0, 0.0),
-            solidcore::geom::vector2d::Vec2::new(1.0, 1.0), &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            solidcore::geom::vector2d::Vec2::new(1.0, 1.0),
+            &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
         )));
     }
     let net = i
@@ -99,7 +131,7 @@ fn output(flat: Vec<f64>) -> Output {
 }
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let k = Kernel::default();
-    let surface = surface(i)?;
+    let surface = surface(&k, i)?;
     let direction =
         SurfParamType::from_code(i.direction as u64).ok_or_else(|| harness("direction"))?;
     let domain = Extent2d::from_bounds(i.domain[0], i.domain[1], i.domain[2], i.domain[3]);
@@ -205,7 +237,12 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                 base.operation = SolverOperation::Intersect;
                 base.tolerance_3d = 1e-6;
                 let mut solver = CsiGlobalSolver::new(
-                    curve_tree, tree, Some(cache.surface()), false, interval, domain,
+                    curve_tree,
+                    tree,
+                    Some(cache.surface()),
+                    false,
+                    interval,
+                    domain,
                 );
                 solver.base = base;
                 solver.curve = Some(&curve);
@@ -274,9 +311,13 @@ impl UnitDiff for Runner {
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        ffi::eval(
+        ffi::eval_surface_kind(
             i.op,
-            i.analytic_plane,
+            if i.analytic_revolution {
+                2
+            } else {
+                i32::from(i.analytic_plane)
+            },
             &i.net,
             i.domain,
             i.direction,
@@ -307,13 +348,26 @@ impl UnitDiff for Runner {
             ];
         }
         if rng.chance(0.15) {
-            for p in net.iter_mut().take(3) { *p = [0.0, 0.0, 0.0]; }
+            for p in net.iter_mut().take(3) {
+                *p = [0.0, 0.0, 0.0];
+            }
         }
         if rng.chance(0.1) {
-            for p in &mut net { for v in p { *v *= 1e-7; } }
+            for p in &mut net {
+                for v in p {
+                    *v *= 1e-7;
+                }
+            }
         }
-        let domain = if rng.chance(0.25) { domain() } else {
-            [rng.uniform(0.0, 0.2), rng.uniform(0.0, 0.2), rng.uniform(0.8, 1.0), rng.uniform(0.8, 1.0)]
+        let domain = if rng.chance(0.25) {
+            domain()
+        } else {
+            [
+                rng.uniform(0.0, 0.2),
+                rng.uniform(0.0, 0.2),
+                rng.uniform(0.8, 1.0),
+                rng.uniform(0.8, 1.0),
+            ]
         };
         let direction = rng.below(2) as i32;
         let (op, controls, diagonals) = if rng.chance(0.25) {
@@ -347,6 +401,7 @@ impl UnitDiff for Runner {
         serde_json::to_value(Inputs {
             op,
             analytic_plane: rng.chance(0.1),
+            analytic_revolution: false,
             net,
             direction,
             domain,
