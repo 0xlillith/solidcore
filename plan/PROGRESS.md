@@ -162,7 +162,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.surface_intersector_p1` (1816 lines) — in progress: #33 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (draft)
+- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
 ## By module
 
@@ -413,7 +413,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
 - [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
-- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (draft)
+- [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
 ### heal (0/7)
 
