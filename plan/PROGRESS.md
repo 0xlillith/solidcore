@@ -136,7 +136,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (draft)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
-- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
 
 ## By module
@@ -308,7 +308,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.vertexuse` (1429 lines) — waiting
 - [ ] ⏳ `topology.vertex` (824 lines) — waiting
 - [ ] ⏳ `topology.loopuse` (892 lines) — waiting
-- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] ⏳ `topology.edge` (2213 lines) — waiting
 - [ ] ⏳ `topology.edgeuse_p3` (2273 lines) — waiting
 - [ ] ⏳ `topology.trimming_tools` (2878 lines) — waiting
