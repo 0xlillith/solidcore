@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**121 / 261 units ported** (83 green, 38 partial), **156,055 / 387,903 upstream lines (40.2%)**. 20 claimed, 0 blocked, 120 todo.
+**121 / 261 units ported** (83 green, 38 partial), **156,055 / 387,903 upstream lines (40.2%)**. 21 claimed, 0 blocked, 119 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -15,7 +15,6 @@ _None right now; see the next section._
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
 - [ ] `surface.cone_p2` (1656 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p3`
-- [ ] `surface.surf_of_revolution_p2` (1369 lines) — missing: `surface.surf_of_revolution_p3`
 - [ ] `surface.sphere` (2861 lines) — missing: `surface.cone_p1`, `surface.surf_of_revolution_p2`, `surface.surf_of_revolution_p3`
 - [ ] `surface.surf_of_extrusion_p2` (1420 lines) — missing: `surface.cone_p1`, `surface.surf_of_extrusion_p1`
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p1`, `surface.cone_p2`, `surface.surf_of_revolution_p3`
@@ -144,6 +143,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surf_of_extrusion_p1` (1865 lines) — in progress: #28 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p3` (1620 lines) — in progress: #29 @bherbruck (ready for review)
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
@@ -292,7 +292,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.torus` (1180 lines) — in progress: #23 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
 - [ ] ⏳ `surface.cone_p2` (1656 lines) — waiting
-- [ ] ⏳ `surface.surf_of_revolution_p2` (1369 lines) — waiting
+- [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
