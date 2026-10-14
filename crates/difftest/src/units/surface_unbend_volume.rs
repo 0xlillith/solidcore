@@ -29,6 +29,7 @@ use solidcore::geom::pseudo_box::PseudoBox;
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use solidcore::geom::transform::Transform;
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::surface::unbend_volume::UnbendVolume;
 use solidcore::surface::volume::{EvalOptions, Volume, VolumeKind};
 use solidcore::topology::database_io::{DatabaseReader, FileType};
@@ -603,7 +604,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         }
         Inputs::CurveIn { a, b, .. } => {
             let line = Curve::from(Line::from_points(v3(*a), v3(*b), 3));
-            let in_curve = tri!(o, need()?.is_curve_in_param_domain_simple(&line));
+            let in_curve = tri!(o, need()?.is_curve_in_param_domain_simple(&Kernel::default(), &line));
             o.push(0.0);
             o.push(fl(in_curve));
         }
