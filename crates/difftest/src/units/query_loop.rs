@@ -675,6 +675,42 @@ fn push_segment(
     let n = cpts.len() - 1;
     let linear2 = p == 1 && n == 1;
 
+    if linear2 && rng.chance(0.15) {
+        // a trim (and edge curve) extended beyond both ends, the edge interval its
+        // sub-range from `a` to `b`
+        let e = rng.uniform(0.05, 0.5);
+        let (s0, s1) = ([cpts[0][0], cpts[0][1]], [cpts[1][0], cpts[1][1]]);
+        let p0 = lerp2(s0, s1, -e);
+        let p1 = lerp2(s0, s1, 1.0 + e);
+        let t0 = rng.uniform(-2.0, 2.0);
+        let t1 = t0 + rng.uniform(0.5, 4.0);
+        let a3 = srf_pt(s, p0)?;
+        let b3 = srf_pt(s, p1)?;
+        let iv = [
+            t0 + (t1 - t0) * e / (1.0 + 2.0 * e),
+            t0 + (t1 - t0) * (1.0 + e) / (1.0 + 2.0 * e),
+        ];
+        out.edges.push(EdgeIn {
+            curve: CurveIn::Bspline(NurbIn {
+                cpts: vec![[a3[0], a3[1], a3[2], NOW], [b3[0], b3[1], b3[2], NOW]],
+                p: 1,
+                u: vec![t0, t0, t1, t1],
+            }),
+            interval: iv,
+            tol,
+        });
+        out.edgeuses.push(EdgeuseIn {
+            edge: out.edges.len() - 1,
+            same,
+            trim: NurbIn {
+                cpts: vec![[p0[0], p0[1], 0.0, NOW], [p1[0], p1[1], 0.0, NOW]],
+                p: 1,
+                u: vec![t0, t0, t1, t1],
+            },
+        });
+        return Some(());
+    }
+
     // the edge curve and its parameter domain
     let (curve, dom) = if arc && plane && rng.chance(0.7) {
         // a true circle through the arc's 3D end points (centre from the UV arc)
