@@ -2912,7 +2912,9 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `adv_graze_nan`), so the generator no longer excludes it.
 - **Input bound.** The FFI accepts finite inputs up to `MAX_COORD = 1e9` (as other
   units do), so huge-scale inputs beyond 1e9 are not compared.
-- **Over-deferral (not a disagreement).** `surface_evaluate_normal` and `is_singularity`
-  return `Unported` for a curve-bounded surface over a plane, though upstream forwards
-  these to the basis plane. Revisit when `surface.surface_p5` / `surface.surface_p7`
-  land; those cases then move from deferred to compared.
+- **EvaluateNormal wired.** With `surface.surface_p7` partial on `main`,
+  `surface_evaluate_normal` now calls `Surface::evaluate_normal` (B-spline, plane and
+  curve-bounded over either basis); the 77 cases previously deferred on it are compared
+  and pass. `SmCurveBoundedSurface` does not override `IsSingularity`, so a curve-bounded
+  surface runs the base `SmSurface::IsSingularity` and stays deferred on
+  `surface.surface_p5` (correctly, not an over-deferral).
