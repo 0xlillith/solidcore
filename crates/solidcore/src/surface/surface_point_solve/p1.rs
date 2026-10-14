@@ -1282,8 +1282,8 @@ fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_on_seam().0),
         SurfaceKind::BSpline(_)
-        | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p4): SmSurface::IsOnSeam
             Err(SolidError::unported(
