@@ -62,10 +62,7 @@
 //! - **Unported callees.** `IntersectWithPlane` of a linear or coplanar generator
 //!   intersects the generator's plane with the plane (`SmPlane::IntersectWithPlane`,
 //!   unit `surface.plane_p2`) and classifies the line on this surface
-//!   (`SmCurveClassification`, unit `intersect.curve_class_p1`); for a plane parallel
-//!   to a perpendicular or independent generator's plane whose pseudo box meets the
-//!   projected generator's, it trims that curve to the plane domain
-//!   (`SmPlane::TrimCurveToPlaneDomain`, `surface.plane_p2`). The general intersection
+//!   (`SmCurveClassification`, unit `intersect.curve_class_p1`). The general intersection
 //!   `GlobalSurfaceIntersect` falls back to needs `SmAdvSurfaceIntersector`
 //!   (`intersect.adv_surface_intersector`); parallel extrusions reach
 //!   `SmCurve::GlobalCurveSolve` (`curve.curve_p9`) through [`intersect_generators`].
@@ -312,8 +309,7 @@ impl SurfOfExtrusion {
     /// `SM_ERR_NULL_POINTER` without generator; those of the generator's plane
     /// intersection, evaluations, closed and degenerate tests;
     /// [`SolidError::Unported`]: the first case (`SmPlane::IntersectWithPlane`, unit
-    /// `surface.plane_p2`), the second when the plane's and the projected generator's
-    /// pseudo boxes meet (`SmPlane::TrimCurveToPlaneDomain`, unit `surface.plane_p2`).
+    /// `surface.plane_p2`).
     #[allow(clippy::too_many_lines)] // one upstream function
     pub fn intersect_with_plane(
         &self,
@@ -439,13 +435,14 @@ impl SurfOfExtrusion {
             // only use curves intersecting plane domain
             plane_pbox.expand_absolute(tol);
             if !plane_pbox.are_disjoint(&curve_pbox, None) {
-                // trim curves to plane domain and add them to the output
-                let _ = other_uv_domain;
-                // UNPORTED(surface.plane_p2): SmPlane::TrimCurveToPlaneDomain
-                return Err(SolidError::unported(
-                    "SmPlane::TrimCurveToPlaneDomain",
-                    "surface.plane_p2",
-                ));
+                // trim curves to plane domain (status ignored upstream)
+                let proj = Curve::from(proj_curve);
+                let curves_3d =
+                    ignored(plane.trim_curve_to_plane_domain(k, other_uv_domain, &proj, tol))?
+                        .unwrap_or_default();
+
+                // add trim curves to output
+                out.curves_3d.extend(curves_3d);
             }
         }
         // when extrusion vec is perpendicular to plane normal

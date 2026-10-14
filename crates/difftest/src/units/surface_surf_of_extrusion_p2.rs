@@ -16,9 +16,7 @@
 //! Rust side for an error upstream cannot produce.
 //!
 //! Deferred cases: `IntersectWithPlane` of a linear or coplanar generator
-//! (`SmPlane::IntersectWithPlane`, `surface.plane_p2`), and of a plane parallel to a
-//! planar generator inside the extrusion whose box meets the projected generator
-//! (`SmPlane::TrimCurveToPlaneDomain`, `surface.plane_p2`);
+//! (`SmPlane::IntersectWithPlane`, `surface.plane_p2`);
 //! parallel extrusions / cylinder axes (`SmCurve::GlobalCurveSolve`, `curve.curve_p9`);
 //! `GlobalSurfaceIntersect` needing the general intersector
 //! (`intersect.adv_surface_intersector`).

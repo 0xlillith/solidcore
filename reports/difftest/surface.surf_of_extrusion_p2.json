@@ -130,28 +130,20 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "file_eg1_plane_inside",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#16 (upstream TestFiles/pt_TestFiles/Fillet/eg1_srf1.smb:400 (SmSurfOfExtrusion record, read by SmBrep::ReadFromFile in upstream tests))",
-      "values_compared": 0
+      "values_compared": 239
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "file_eg1_plane_top_snapped",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#17 (upstream TestFiles/pt_TestFiles/Fillet/eg1_srf1.smb:400 (SmSurfOfExtrusion record, read by SmBrep::ReadFromFile in upstream tests))",
-      "values_compared": 0
+      "values_compared": 239
     },
     {
       "max_rel_err": 0.0,
@@ -206,16 +198,12 @@
       "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "file_blade_plane_inside_param",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#24 (upstream TestFiles/pt_TestFiles/Fillet/blade_fillet_fails.smb:12143 (SmSurfOfExtrusion record, read by SmBrep::ReadFromFile in upstream tests))",
-      "values_compared": 0
+      "values_compared": 90
     },
     {
       "max_rel_err": 0.0,
@@ -338,40 +326,28 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "circle_plane_parallel_inside",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#40 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "circle_plane_parallel_outside",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#41 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "circle_plane_parallel_base_tol_zero",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#42 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -390,28 +366,20 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "independent_plane_parallel_outside",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#45 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "independent_plane_parallel_inside",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#46 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -770,16 +738,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "finite_circle_plane_parallel_top_snap",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#87 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -798,16 +762,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "finite_circle_plane_parallel_bottom_exact_tol0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#90 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -834,16 +794,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "finite_circle_plane_parallel_near_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/cases.json#94 (upstream edge case)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -998,16 +954,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_scale_par_0.0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#18 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1018,16 +970,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_scale_par_10000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#20 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1038,76 +986,52 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_scale_par_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#22 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_antiparallel_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#23 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_antiparallel_normal2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#24 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_snap_top",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#25 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_snap_top_tol",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#26 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_beyond",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#27 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1118,16 +1042,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_tilt_par_1e-09",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#29 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1218,16 +1138,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_infinite_par",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#41 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1358,40 +1274,28 @@
       "values_compared": 123
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_outside_far",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#57 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_outside_just",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#58 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "adv_indep_below_just",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surf_of_extrusion_p2/review_adversarial.json#59 (upstream review adversarial)",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -1554,16 +1458,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0015",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222584",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -1634,16 +1534,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0024",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222593",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "deferred": {
@@ -1886,16 +1782,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0051",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222620",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -1954,16 +1846,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0059",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222628",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -2114,16 +2002,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0076",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222645",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -2394,16 +2278,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0107",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222676",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -3114,16 +2994,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0187",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222756",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "deferred": {
@@ -3402,16 +3278,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0217",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222786",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -3626,16 +3498,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0243",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222812",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "deferred": {
@@ -3754,16 +3622,12 @@
       "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0257",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222826",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -3890,16 +3754,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222839",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -4102,16 +3962,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0293",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222862",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -4170,16 +4026,12 @@
       "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0300",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222869",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -4518,16 +4370,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0340",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222909",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -4674,16 +4522,12 @@
       "values_compared": 137
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222926",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -5022,16 +4866,12 @@
       "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0394",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222963",
-      "values_compared": 0
+      "values_compared": 44
     },
     {
       "deferred": {
@@ -5150,16 +4990,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0406",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036222975",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -5450,16 +5286,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0439",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223008",
-      "values_compared": 0
+      "values_compared": 39
     },
     {
       "max_rel_err": 0.0,
@@ -5614,16 +5446,12 @@
       "values_compared": 146
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0456",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223025",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -6158,16 +5986,12 @@
       "values_compared": 136
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0516",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223085",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -6266,16 +6090,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0529",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223098",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -6322,16 +6142,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0535",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223104",
-      "values_compared": 0
+      "values_compared": 39
     },
     {
       "max_rel_err": 0.0,
@@ -6470,28 +6286,20 @@
       "values_compared": 80
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0551",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223120",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0552",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223121",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -6518,16 +6326,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0556",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223125",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -6654,16 +6458,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0572",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223141",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -6826,16 +6626,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0591",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223160",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "deferred": {
@@ -6954,16 +6750,12 @@
       "values_compared": 110
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0604",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223173",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -7174,16 +6966,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0628",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223197",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -7246,16 +7034,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0636",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223205",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7478,16 +7262,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0659",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223228",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -7562,16 +7342,12 @@
       "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0669",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223238",
-      "values_compared": 0
+      "values_compared": 39
     },
     {
       "deferred": {
@@ -7966,16 +7742,12 @@
       "values_compared": 138
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0716",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223285",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8774,16 +8546,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0807",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223376",
-      "values_compared": 0
+      "values_compared": 43
     },
     {
       "max_rel_err": 0.0,
@@ -8962,16 +8730,12 @@
       "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0827",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223396",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -9306,16 +9070,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0865",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223434",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -9354,16 +9114,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0870",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223439",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -9618,16 +9374,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0898",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223467",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "max_rel_err": 0.0,
@@ -9830,16 +9582,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0921",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223490",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "deferred": {
@@ -9962,16 +9710,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0936",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223505",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
@@ -10126,16 +9870,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0953",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223522",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "max_rel_err": 0.0,
@@ -10294,16 +10034,12 @@
       "values_compared": 194
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0972",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223541",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "deferred": {
@@ -10478,28 +10214,20 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0991",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223560",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0992",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223561",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -10618,16 +10346,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223576",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -11018,16 +10742,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1051",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223620",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "deferred": {
@@ -11370,16 +11090,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1089",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223658",
-      "values_compared": 0
+      "values_compared": 38
     },
     {
       "max_rel_err": 0.0,
@@ -11450,16 +11166,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1098",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223667",
-      "values_compared": 0
+      "values_compared": 68
     },
     {
       "deferred": {
@@ -11886,16 +11598,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1144",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223713",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -11958,16 +11666,12 @@
       "values_compared": 141
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1151",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223720",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -12150,16 +11854,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1171",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223740",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
@@ -12198,16 +11898,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1176",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223745",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "max_rel_err": 0.0,
@@ -12414,27 +12110,23 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmPlane::TrimCurveToPlaneDomain",
-        "unit": "surface.plane_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1199",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=488064524036223768",
-      "values_compared": 0
+      "values_compared": 44
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 388,
+  "cases_deferred": 311,
   "cases_failed": 0,
-  "cases_passed": 971,
+  "cases_passed": 1048,
   "cases_total": 1359,
   "deferred_by_unit": {
     "curve.curve_p9": 81,
     "intersect.adv_surface_intersector": 97,
-    "surface.plane_p2": 210
+    "surface.plane_p2": 133
   },
   "max_rel_err": 0.0,
   "pass": true,
