@@ -43,6 +43,14 @@
 //!   children, the port returns [`SolidError::InvalidInput`]. `SubdivideToTolerances`
 //!   reads `mBA_pSurface` through an `SmBezierAux2d` cast of any node data, which every
 //!   surface node has: the same field here.
+//! - **Patch boxes.** The boxes of the construction Bezier patches are computed on
+//!   B-spline surfaces made from bare patches (`SmBSplineSurface(pBezier, TRUE, ..)`),
+//!   which have no owner: `CalculateBoundingBox` expands them by `SM_ZONE_TOL_3D`
+//!   (`GetFace()` and `GetBrep()` are NULL). The port computes them unexpanded and expands
+//!   them by [`ZONE_TOL_3D`] itself, since the B-spline port cannot ask
+//!   `SmSurface::GetFace` (unported) whether a surface has an owner.
+//! - **Surface kinds.** `IsKindOf(SmBSplineSurface_TYPE)` holds for planes too (an
+//!   `SmPlane` is an `SmBSplineSurface`), as in part 1.
 //! - **Ignored statuses** stay ignored (`CalculateBoundingBox` of the u split halves,
 //!   `ImplantPolyEdge`, `ImplantEdgeuse`, `sm_ComputeBezierApproximation`), except
 //!   [`SolidError::Unported`], which is always propagated.
@@ -57,6 +65,7 @@ use crate::geom::tree::{
     AuxDataType, NodeClass, NodeData, NodeGeomType, NodeId, SplitDir, SurfaceAux, Tree, TreeNode,
     TreeOwner,
 };
+use crate::geom::tol::ZONE_TOL_3D;
 use crate::kernel::Kernel;
 use crate::math::Point2;
 use crate::nurbs::b_spline_surface::{BSplineSurface, BoundingBoxRequest, SurfParamType};
@@ -103,6 +112,31 @@ pub struct TreeBase {
 /// `SmBSplineSurface sBSS(pBezier, TRUE, ..)`: a borrowed B-spline over a Bezier patch.
 fn bss_of(bezier: &NurbSurface) -> BSplineSurface {
     BSplineSurface::from_nurb(bezier.clone(), true)
+}
+
+/// `sBSS.CalculateBoundingBox(sBSS.GetNaturalUVDomain(), &box, &pseudo, NULL, guess)` of a
+/// B-spline over a bare Bezier patch: the normal and pseudo boxes, expanded by the zone
+/// tolerance. The surface has no owner, so `GetFace()` and `GetBrep()` are NULL and the
+/// tolerance is `SM_ZONE_TOL_3D` (see the module deviations).
+fn patch_boxes(
+    bss: &BSplineSurface,
+    pseudo_guess: Option<&crate::geom::pseudo_box::PseudoBox>,
+    op: &'static str,
+) -> Result<(crate::geom::extent3d::Extent3d, crate::geom::pseudo_box::PseudoBox)> {
+    let req = BoundingBoxRequest {
+        normal: true,
+        pseudo: true,
+        polar: false,
+        pseudo_guess,
+        polar_guess: None,
+        expand_by_zone_tol: false,
+    };
+    let boxes = bss.calculate_bounding_box(&bss.natural_uv_domain(), &req)?;
+    let mut bbox = boxes.normal.ok_or_else(|| invalid(op, "no bounding box"))?;
+    let mut pseudo = boxes.pseudo.ok_or_else(|| invalid(op, "no pseudo box"))?;
+    bbox.expand_absolute(ZONE_TOL_3D);
+    pseudo.expand_absolute(ZONE_TOL_3D);
+    Ok((bbox, pseudo))
 }
 
 impl<O: Copy + PartialEq> SurfaceCache<O> {
@@ -436,7 +470,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 .bezier
                 .clone()
                 .ok_or_else(|| invalid(OP_NODE, "patch node without its Bezier"))?;
-            let (bez1, bez2) = if matches!(self.surface().kind(), SurfaceKind::BSpline(_)) {
+            let (bez1, bez2) = if bspline_of(self.surface()).is_some() {
                 // build child Beziers = split parent Bezier patch
                 split_srf(&parent_bezier, split_param, dir)
                     .map_err(SolidError::nl_ser(OP_NODE))?
@@ -456,18 +490,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
 
             // get and store child 1 and 2 bounding and pseudo boxes
             for (child, slot, bez) in [(node1, slot1, bez1), (node2, slot2, bez2)] {
-                let bss = bss_of(&bez);
-                let req = BoundingBoxRequest {
-                    normal: true,
-                    pseudo: true,
-                    polar: false,
-                    pseudo_guess: Some(&parent_pseudo),
-                    polar_guess: None,
-                    expand_by_zone_tol: true,
-                };
-                let boxes = bss.calculate_bounding_box(&bss.natural_uv_domain(), &req)?;
-                let bbox = boxes.normal.ok_or_else(|| invalid(OP_NODE, "no bounding box"))?;
-                let pseudo = boxes.pseudo.ok_or_else(|| invalid(OP_NODE, "no pseudo box"))?;
+                let (bbox, pseudo) = patch_boxes(&bss_of(&bez), Some(&parent_pseudo), OP_NODE)?;
                 self.tree_mut_or(OP_NODE)?.node_mut(child)?.bbox = bbox;
                 let p = self.patch_mut_slot(slot)?;
                 p.pseudo_box = pseudo;
@@ -592,7 +615,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         // when Bezier patch approximations are being made for non B-spline surfaces
         let aux_type = self.tree_or(OP_TOL)?.node(node)?.aux_type;
         if aux_type == AuxDataType::BezierSurface
-            && !matches!(self.surface().kind(), SurfaceKind::BSpline(_))
+            && bspline_of(self.surface()).is_none()
         {
             // parent pseudo box = union of the child pseudo boxes in the parent's basis
             let p1 = self.patch(c1)?.pseudo_box;
@@ -628,7 +651,14 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         self.set_tree(Some(tree));
 
         // first, decompose the surface into starter Bezier patches
-        let (u_count, v_count, beziers) = if let Some(b) = bspline_of(self.surface()) {
+        // (an SmPlane is an SmBSplineSurface; its NURB is made when it has none, as
+        // GetOrCreateGwNurbPointer)
+        let bspline: Option<std::borrow::Cow<'_, BSplineSurface>> = match self.surface().kind() {
+            SurfaceKind::BSpline(b) => Some(std::borrow::Cow::Borrowed(b)),
+            SurfaceKind::Plane(p) => Some(p.base_with_nurb()?),
+            SurfaceKind::CurveBounded(_) => None,
+        };
+        let (u_count, v_count, beziers) = if let Some(b) = bspline {
             let nurb = b
                 .gw_nurb()
                 .ok_or_else(|| invalid(OP_BASE, "B-spline surface without NURB"))?;
@@ -701,17 +731,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 let domain = bss.natural_uv_domain();
 
                 // compute and store the node's bounding box and the patch's pseudo box
-                let req = BoundingBoxRequest {
-                    normal: true,
-                    pseudo: true,
-                    polar: false,
-                    pseudo_guess: None,
-                    polar_guess: None,
-                    expand_by_zone_tol: true,
-                };
-                let boxes = bss.calculate_bounding_box(&domain, &req)?;
-                let bbox = boxes.normal.ok_or_else(|| invalid(OP_BASE, "no bounding box"))?;
-                let pseudo = boxes.pseudo.ok_or_else(|| invalid(OP_BASE, "no pseudo box"))?;
+                let (bbox, pseudo) = patch_boxes(&bss, None, OP_BASE)?;
                 self.tree_mut_or(OP_BASE)?.node_mut(node)?.bbox = bbox;
 
                 let (vc0, uc0, vc1, uc1) = (
@@ -841,3 +861,4 @@ fn ignore<T>(r: Result<T>) -> Result<Option<T>> {
         Err(_) => Ok(None),
     }
 }
+
