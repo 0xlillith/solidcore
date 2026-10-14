@@ -29,7 +29,9 @@
 //! (upstream dereferences it unchecked); without it the shim answers `SC_ERR_ARG`
 //! (-1002) for those ops and leaves the height out. `IsoCircle` also answers
 //! `SC_ERR_ARG` when the STEP inversion `CreateIsoCircleFromPoint` makes leaves the
-//! height unset (upstream then reads it uninitialised).
+//! height unset, or when the NURB conversion of its result fails and leaves the NURB
+//! parameter it then uses unset (always without `swap_uv`; with it, when the polar
+//! converter wrote nothing): upstream then reads it uninitialised.
 //!
 //! The wrappers accept only what upstream handles without undefined behaviour: finite
 //! values (any placement, radii, angles, heights: upstream returns statuses or

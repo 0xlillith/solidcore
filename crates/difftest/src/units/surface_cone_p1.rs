@@ -755,7 +755,9 @@ fn side(left: bool) -> Side {
 }
 
 /// The shim's test before `CreateIsoCircleFromPoint`: the STEP inversion it makes
-/// leaves the parameters unset.
+/// leaves the parameters unset, or the NURB conversion of those parameters fails and
+/// leaves the NURB parameter it then uses unset (always without `swap_uv`; with it,
+/// when the polar converter wrote nothing).
 fn iso_circle_inversion_fails(k: &Kernel, s: &Cone, p: Vec3, tol: f64) -> solidcore::Result<bool> {
     let pos = s.rev().position();
     let origin = pos.origin();
@@ -773,10 +775,24 @@ fn iso_circle_inversion_fails(k: &Kernel, s: &Cone, p: Vec3, tol: f64) -> solidc
     }
     let vec = vec.unitize_or_z();
     let point_on_surface = center + radius * vec;
-    match s.step_inversion(k, point_on_surface, tol, None) {
+    let inv = match s.step_inversion(k, point_on_surface, tol, None) {
+        Ok(inv) => inv,
+        Err(e) if e.is_unported() => return Err(e),
+        Err(_) => return Ok(true),
+    };
+    match s.convert_uv_from_step_to_nurbs(k, inv.uv) {
         Ok(_) => Ok(false),
         Err(e) if e.is_unported() => Err(e),
-        Err(_) => Ok(true),
+        Err(_) if !s.rev().swap_uv() => Ok(true),
+        Err(_) => {
+            let Some(circle) = s.rev().polar_curve() else {
+                return Ok(true);
+            };
+            Ok(s.rev()
+                .polar_converter()
+                .convert_to_nurbs_parameter_or_written(circle, inv.uv.x, 0.0)?
+                .is_none())
+        }
     }
 }
 

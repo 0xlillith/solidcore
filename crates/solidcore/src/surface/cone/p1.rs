@@ -75,10 +75,17 @@
 //!   dereferences `NULL`) is `InvalidInput`. The unbounded constructor propagates an
 //!   error from `GetApex` (upstream ignores its status and then reads an
 //!   uninitialised `dApexParam`); a cylinder's apex is not an error here.
-//!   `CreateIsoCircleFromPoint` propagates an error from `ConvertUVFromSTEPToNURBS`;
-//!   upstream ignores that status and, with `swap_uv`, uses the `x` value the polar
-//!   converter already wrote. This needs the polar inversion to fail on a valid polar
-//!   curve, which no difftest case reaches.
+//!   [`Cone::apex`] propagates an error from the generator's STEP inversion of the
+//!   apex, whereas `GetPositivePoint` and `STEPInversion` upstream ignore `GetApex`'s
+//!   status and still use the apex point it wrote. This differs only for a generator
+//!   whose inversion fails (e.g. a `MakeNurb` B-spline generator); no difftest case
+//!   reaches it.
+//!   `CreateIsoCircleFromPoint` ignores the status of `ConvertUVFromSTEPToNURBS` as
+//!   upstream does when `swap_uv` is set and the polar converter already wrote the
+//!   `x` value it then uses; otherwise (upstream reads an unset value) the error is
+//!   returned. Both happen for unbounded cones with a semi-angle just above the
+//!   cylinder test (e.g. `5e-11` degrees), whose polar circle lies far below the
+//!   origin.
 //! - **`STEPInversion` out of bounds.** Upstream's `const` `STEPInversion` calls
 //!   `m_pGenCurve->SetOutOfBoundsEnabled(TRUE)`, changing the generator for good; here
 //!   the inversion turns it on in a clone of the generator. Results are the same:
@@ -110,7 +117,7 @@ use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::{line_closest_point, line_point_distance};
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::solution_array::{ObjectKind, SolutionObject};
-use crate::geom::tol::{are_same, are_same_to_tol, is_zero};
+use crate::geom::tol::{approx_tol3d, are_same, are_same_to_tol, is_zero};
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
@@ -1201,8 +1208,9 @@ impl Cone {
     /// # Errors
     ///
     /// Those of [`Self::step_inversion`] that leave no parameters (status ignored
-    /// upstream), [`Self::convert_uv_from_step_to_nurbs`] and
-    /// [`Self::create_iso_parametric_curve`].
+    /// upstream), [`Self::convert_uv_from_step_to_nurbs`] (status ignored upstream;
+    /// returned unless `swap_uv` is set and the polar converter wrote the value used)
+    /// and [`Self::create_iso_parametric_curve`].
     pub fn create_iso_circle_from_point(
         &self,
         k: &Kernel,
@@ -1234,15 +1242,19 @@ impl Cone {
         // map Point to StepUV (status ignored)
         let inv = self.step_inversion(k, point_on_surface, tol_3d, None)?;
 
-        // map StepUV to NurbUV (status ignored)
-        let nurb_uv = self.convert_uv_from_step_to_nurbs(k, inv.uv)?;
+        // map StepUV to NurbUV (status ignored: after a failed polar conversion
+        // rNURBSUV.x holds what the converter wrote and rNURBSUV.y is unset)
+        let (param_type, iso) = match self.convert_uv_from_step_to_nurbs(k, inv.uv) {
+            Ok(nurb_uv) if self.rev.swap_uv => (SurfParamType::U, nurb_uv.x),
+            Ok(nurb_uv) => (SurfParamType::V, nurb_uv.y),
+            Err(e) if e.is_unported() || !self.rev.swap_uv => return Err(e),
+            Err(e) => match self.sweep_nurbs_param_written(inv.uv.x)? {
+                Some(x) => (SurfParamType::U, x),
+                None => return Err(e),
+            },
+        };
 
         // build and return the isoParametercurve
-        let (param_type, iso) = if self.rev.swap_uv {
-            (SurfParamType::U, nurb_uv.x)
-        } else {
-            (SurfParamType::V, nurb_uv.y)
-        };
         Ok(Some(
             self.create_iso_parametric_curve(k, param_type, iso, None, false)?
                 .curve,
@@ -1305,6 +1317,28 @@ impl Cone {
             nurbs_uv = Point2::new(nurbs_uv.y, nurbs_uv.x);
         }
         Ok(nurbs_uv)
+    }
+
+    /// The sweep NURB parameter `ConvertUVFromSTEPToNURBS` leaves in `rNURBSUV.x` for
+    /// the STEP angle `step_u` when a caller ignores its status: the converted value,
+    /// or after a failed conversion the value the polar converter had already written
+    /// (`None`: nothing written, an uninitialised value upstream).
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` without polar curve; [`SolidError::Unported`].
+    fn sweep_nurbs_param_written(&self, step_u: f64) -> Result<Option<f64>> {
+        let circle = self
+            .rev
+            .polar_curve
+            .as_ref()
+            .ok_or(SolidError::invalid_input(
+                OP_TO_NURBS,
+                "polar converter has no curve",
+            ))?;
+        self.rev
+            .polar
+            .convert_to_nurbs_parameter_or_written(circle, step_u, 0.0)
     }
 
     /// The STEP parameters of the NURB parameters `nurbs_uv`
@@ -1844,7 +1878,9 @@ impl Cone {
 // ---- sm_TotalCoincidenceChecker ------------------------------------------------------
 
 /// Whether two lines or two circles coincide over the given domains
-/// (`sm_TotalCoincidenceChecker`): equal curves are coincident and not reversed;
+/// (`sm_TotalCoincidenceChecker`; `tol` is converted as upstream's `SmApproxTol3d`
+/// parameter: its magnitude, `SM_USE_DEFAULT` half the zone tolerance): equal curves
+/// are coincident and not reversed;
 /// curves of different types are not coincident. Lines coincide when their ends match
 /// within `tol` in the same or the opposite order. Circles must match at both ends
 /// (closed curves: the first derivatives decide the sense) and at the middle (dropped
@@ -1863,6 +1899,10 @@ pub fn total_coincidence_checker(
     other_domain: &Extent1d,
     tol: f64,
 ) -> Result<Coincidence> {
+    // the `const SmApproxTol3d` parameter (callers pass a double: `fabs`, and
+    // `SM_USE_DEFAULT` becomes half the zone tolerance)
+    let tol = approx_tol3d(k, tol);
+
     // Init return flags for no coincidence.
     let none = Coincidence {
         coincident: false,

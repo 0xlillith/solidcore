@@ -663,6 +663,16 @@ void cone_op(int32_t op, Rd& rd, const SmContext& ctx, SmCone* s, std::vector<do
                     o.push_back((double)SC_ERR_ARG);
                     break;
                 }
+                // ConvertUVFromSTEPToNURBS's status is ignored too: after a failed polar
+                // conversion rNURBSUV.y is unset and rNURBSUV.x holds only what the
+                // converter wrote; the iso parameter used is .y (.x with swap_uv)
+                SmPoint2d nuv(nan, nan);
+                if (s->ConvertUVFromSTEPToNURBS(suv, nuv) != SM_SUCCESS &&
+                    (!s->GetSwapUV() || std::isnan(nuv.x)))
+                {
+                    o.push_back((double)SC_ERR_ARG);
+                    break;
+                }
             }
         }
         SmBSplineCurve* c = NULL;

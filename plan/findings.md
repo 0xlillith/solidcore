@@ -2887,6 +2887,23 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   transforms, cross-mode equality, partial/reversed circle coincidence at 1e-5..1e5 radii,
   near-coincident lines). Difftest: 12894 cases, 12426 pass bit-identically, 0 failed,
   468 deferred (`surface.surf_of_revolution_p2` 403, `_p3` 65); perturbation 12426/12426.
+- **Fourth review fixes.** `sm_TotalCoincidenceChecker` takes its tolerance as a
+  `const SmApproxTol3d` (callers pass a `double`): the conversion takes `fabs` and maps
+  `SM_USE_DEFAULT` to half the zone tolerance; `total_coincidence_checker` now applies
+  `approx_tol3d`. `CreateIsoCircleFromPoint`'s ignored `ConvertUVFromSTEPToNURBS` status
+  is reachable: unbounded cones with a semi-angle just above the cylinder test (`5e-11`
+  degrees) have their polar circle ~5e11 below the origin and the polar conversion
+  fails. With `swap_uv` upstream then uses the sweep value the converter wrote (now
+  ported); without it (or with nothing written) it reads an unset value (UB-80): the
+  shim and runner refuse those inputs. The fourth adversarial set is
+  `fixtures/surface.cone_p1/review4.json` (7800 cases, pruned from 35,138 run against
+  the C++: tiny/negative semi-angles with every swap/inside-out, zero/over-long/negative
+  sweeps, zero heights, apex-crossing cones, negative and `SM_USE_DEFAULT` coincidence
+  tolerances, sub-domain and closed-vs-arc circle and line coincidences). `Cone::apex`
+  propagates a failed generator inversion where upstream's `GetPositivePoint` and
+  `STEPInversion` ignore `GetApex`'s status (deviation noted; no case reaches it).
+  Difftest: 20694 cases, 20173 pass bit-identically, 0 failed, 521 deferred
+  (`surface.surf_of_revolution_p2` 456, `_p3` 65); perturbation 20173/20173.
 
 ## surface.surface_p7 (`SmSurface`, part 7)
 
