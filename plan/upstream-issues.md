@@ -778,7 +778,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
 
-#### UB-75. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
+#### UB-78. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
 - **Location:** `SmSurface.cpp:22280` (and `:22299`), `SmSurface::IsClosed` (def. `:22157`).
 - **What happens:** The status of `smgu_EvaluateCurveContinuity` is ignored, and the local `eCurveContinuity` it should set is then compared with the running minimum and may be returned through `peOptContinuity`.
 - **Trigger:** `IsClosed(..., &continuity)` on a surface whose boundary derivatives make the continuity evaluation fail.
@@ -1423,7 +1423,7 @@ by area within each severity.
 - **Severity:** wrong result (unit mix-up).
 - **Rust port:** Faithful.
 
-#### WR-54. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
+#### WR-55. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
 - **Location:** `SmSurface.cpp:12691`, `SmSurface::GetFlatCorners` (def. `:12655`).
 - **What happens:** The optional-output block tests `if(lRtn &= SM_FC_UMIN_VMIN)` (and so on) with `&=`, so asking for the points masks the flags down to at most one bit (usually none), and later corners are evaluated only if all earlier masks kept a bit.
 - **Trigger:** `GetFlatCorners(&points)` on a surface with two or more flat corners.
@@ -1432,7 +1432,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`Surface::flat_corners`; `IsFlatCorner` is not ported yet).
 
-#### WR-55. `sm_GoodDropResult` swaps the guess and result distances
+#### WR-56. `sm_GoodDropResult` swaps the guess and result distances
 - **Location:** `SmSurface.cpp:10349`, `sm_GoodDropResult` (file static, def. `:10256`).
 - **What happens:** `dDsqGuess` holds the distance to the result point and `dDsqResult` the distance to the guess point, so the final "result farther than the guess" test rejects drops that improved on the guess. The caller then runs the expensive global solve.
 - **Trigger:** A local drop whose result is closer to the point than the guess, with a small residual that passes the earlier tests.
@@ -1441,7 +1441,7 @@ by area within each severity.
 - **Severity:** wrong result (performance: an unneeded global solve).
 - **Rust port:** Reproduces it (`good_drop_result`).
 
-#### WR-56. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
+#### WR-57. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
 - **Location:** `SmSurface.cpp:6948`, `SmSurface::FindDegenParamForDirection` (def. `:6757`).
 - **What happens:** The "nearly as good and closer to the input" tie-break compares `dThisParam` (a fraction in `[0, 1]` of the sample domain) with `dS` (the actual parameter), so it only means "closer" when the singular parameter runs over `[0, 1]`.
 - **Trigger:** A degenerate boundary whose singular parameter interval is not `[0, 1]`, with two nearly equally good samples.
