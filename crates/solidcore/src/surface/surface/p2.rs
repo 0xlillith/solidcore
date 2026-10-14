@@ -1091,6 +1091,7 @@ impl Surface {
     ) -> Result<SurfaceIntersection> {
         match &self.kind {
             SurfaceKind::SurfOfRevolution(s) => s.global_surface_intersect(
+                self,
                 k,
                 uv_domain,
                 other,
@@ -1099,7 +1100,8 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
-            _ => Self::global_surface_intersect_base(
+            _ => base_global_surface_intersect(
+                self,
                 uv_domain,
                 other,
                 other_uv_domain,
@@ -1108,28 +1110,6 @@ impl Surface {
                 ang_tol_rad,
             ),
         }
-    }
-
-    /// `SmSurface::GlobalSurfaceIntersect` itself (the general intersection of the
-    /// kinds without an override, and the fall-back of the overrides).
-    ///
-    /// # Errors
-    ///
-    /// [`SolidError::Unported`]: `SmAdvSurfaceIntersector`
-    /// (`intersect.adv_surface_intersector`).
-    pub fn global_surface_intersect_base(
-        _uv_domain: &Extent2d,
-        _other: &Self,
-        _other_uv_domain: &Extent2d,
-        _use_surface_edges: [bool; 2],
-        _approx_tol_3d: Option<f64>,
-        _ang_tol_rad: Option<f64>,
-    ) -> Result<SurfaceIntersection> {
-        // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::SmAdvSurfaceIntersector
-        Err(SolidError::unported(
-            "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-            "intersect.adv_surface_intersector",
-        ))
     }
 
     /// The intersection curve of this surface with `other` through the given pairs
@@ -1437,6 +1417,31 @@ pub const fn base_degree() -> usize {
 #[must_use]
 pub const fn base_number_control_points() -> usize {
     0
+}
+
+/// `SmSurface::GlobalSurfaceIntersect`: the intersection curves of `this` over
+/// `uv_domain` with `other` over `other_uv_domain`, through `SmAdvSurfaceIntersector`
+/// (the general intersection of the kinds without an override, and the fall-back of the
+/// overrides).
+///
+/// # Errors
+///
+/// [`SolidError::Unported`]: `SmAdvSurfaceIntersector`
+/// (`intersect.adv_surface_intersector`).
+pub fn base_global_surface_intersect(
+    _this: &Surface,
+    _uv_domain: &Extent2d,
+    _other: &Surface,
+    _other_uv_domain: &Extent2d,
+    _use_surface_edges: [bool; 2],
+    _approx_tol_3d: Option<f64>,
+    _ang_tol_rad: Option<f64>,
+) -> Result<SurfaceIntersection> {
+    // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::SmAdvSurfaceIntersector
+    Err(SolidError::unported(
+        "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
+        "intersect.adv_surface_intersector",
+    ))
 }
 
 /// `SmSurface::GetMaxAnalyticDomain`: reports `SM_ERR` and returns an initialised

@@ -42,6 +42,7 @@ use crate::curve::curve::p8::CurveIntersectOptions;
 use crate::curve::curve::{Curve, CurveKind};
 use crate::curve::line::Line;
 use crate::error::{ignore_status, ignored, Result, SolidError};
+use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::line_point_distance;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
@@ -55,7 +56,7 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::p1::LocationType;
 use crate::nurbs::b_spline_surface::{BSplineSurface, IsoCurveOptions, SurfParamType};
 use crate::surface::surface::p2::{
-    Surface, SurfaceIntersection, SurfaceKind, B_SPLINE_SURFACE_TYPE,
+    base_global_surface_intersect, Surface, SurfaceIntersection, SurfaceKind, B_SPLINE_SURFACE_TYPE,
 };
 
 use super::p1::{
@@ -80,6 +81,21 @@ struct NoHandle;
 impl SolutionObject for NoHandle {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Curve
+    }
+}
+
+/// A curve named by the solutions of a curve intersection: its natural interval (the
+/// solvers' duplicate tests read it through the object, as upstream does).
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct CurveHandle(Extent1d);
+
+impl SolutionObject for CurveHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.0)
     }
 }
 
@@ -445,13 +461,17 @@ impl SurfOfRevolution {
             None,
         )?);
         let axis_ivl = axis_line.natural_interval();
-        let solutions = ignored(off_curve.global_curve_intersect::<NoHandle>(
+        let opts = CurveIntersectOptions {
+            handles: [Some(CurveHandle(domain)), Some(CurveHandle(axis_ivl))],
+            ..CurveIntersectOptions::default()
+        };
+        let solutions = ignored(off_curve.global_curve_intersect::<CurveHandle>(
             k,
             &domain,
             &axis_line,
             &axis_ivl,
             approx_tol_3d,
-            &CurveIntersectOptions::default(),
+            &opts,
         ))?;
         if let Some(sols) = solutions {
             if sols.len() == 1 {
@@ -500,7 +520,7 @@ impl SurfOfRevolution {
     /// `other_uv_domain` (`GlobalSurfaceIntersect`): the special cases of a plane or
     /// another surface of revolution ([`Self::intersect_with_plane`],
     /// [`Self::intersect_with_surf_of_revolution`]) and, where they need more, the
-    /// general surface intersection ([`Surface::global_surface_intersect_base`]) whose
+    /// general surface intersection ([`base_global_surface_intersect`]) whose
     /// curves follow the special cases' (upstream appends to the same arrays).
     ///
     /// # Errors
@@ -509,6 +529,7 @@ impl SurfOfRevolution {
     /// intersection (`SmAdvSurfaceIntersector`).
     pub fn global_surface_intersect(
         &self,
+        this: &Surface,
         k: &Kernel,
         uv_domain: &Extent2d,
         other: &Surface,
@@ -542,7 +563,8 @@ impl SurfOfRevolution {
 
         // If we're here, then analytic intersections were not found
         if need_nurb_intersection {
-            let more = Surface::global_surface_intersect_base(
+            let more = base_global_surface_intersect(
+                this,
                 uv_domain,
                 other,
                 other_uv_domain,
