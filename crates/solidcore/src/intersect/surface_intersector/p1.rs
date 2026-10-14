@@ -1714,24 +1714,8 @@ fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Ve
 
 /// `crSurface.EvaluateNormal(uv, TRUE, TRUE, ..)`: the plane override; other kinds
 /// run `SmSurface::EvaluateNormal`.
-<<<<<<< HEAD
 fn surface_evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
     surface.evaluate_normal(uv, Side::Left, Side::Left)
-=======
-fn surface_evaluate_normal(surface: &Surface, _uv: Point2) -> Result<Vec3> {
-    match surface.kind() {
-        SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
-        SurfaceKind::BSpline(_)
-        | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_) => {
-            // UNPORTED(surface.surface_p7): SmSurface::EvaluateNormal
-            Err(SolidError::unported(
-                "SmSurface::EvaluateNormal",
-                "surface.surface_p7",
-            ))
-        }
-    }
->>>>>>> 6b376a580aa9614294f64bfc918182d79cbd0952
 }
 
 /// The principal curvatures and directions of `SmSurface::EvaluateGeometric`.
