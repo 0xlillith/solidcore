@@ -2812,8 +2812,8 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `surface.surf_of_revolution_p2` / `_p3` (deferred). `ReadFromDB` is unit-tested only:
   the `surface.surface_p2` shim dumps B-spline surfaces only. The `SmSurface::ReadFromDB`
   dispatch now reads the cone data and defers on `surface.surf_of_revolution_p3`.
-- **Review fixes.** Upstream-issue ids renumbered to UB-78, UB-79, WR-55, WR-56 (UB-73 to
-  UB-77 and WR-48 to WR-54 were taken by units merged first). Deviations now also note:
+- **Review fixes.** Upstream-issue ids renumbered to UB-78, UB-80, WR-55, WR-56 (UB-73 to
+  UB-77, UB-79 and WR-48 to WR-54 were taken by units merged first). Deviations now also note:
   `Cone::new_unbounded` propagates an error from `GetApex` (upstream ignores its status
   and reads an uninitialised `dApexParam`); the inversion enables out-of-bounds on a clone
   of the generator where upstream's `const` `STEPInversion` sets it on the generator for
@@ -2824,6 +2824,19 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   cases are in `fixtures/surface.cone_p1/review.json` (3167, pruned from 3607 by keeping
   one status-only off-surface inversion per point and cone instead of one per tolerance
   and guess); all pass bit-identically.
+- **Second review fixes.** The cone's uninitialised-read issue is UB-80 (main took UB-79
+  for `intersect.point_class`). Deviations now also note that `CreateIsoCircleFromPoint`
+  propagates an error from `ConvertUVFromSTEPToNURBS`, where upstream ignores the status
+  and, with `swap_uv`, uses the `x` value the polar converter already wrote; it needs a
+  polar-inversion failure on a valid polar curve, which no case reaches. The second
+  adversarial set is `fixtures/surface.cone_p1/review2.json` (3875 cases, pruned from
+  82,910 run against the C++ with 0 failures): semi-angles -30, 89, 89.9, 90 and 120
+  degrees, bounded cones with a zero radius (inside-out, swap), `make_nurb_gen`
+  generators, near-cylinders, negative and 1e-6 heights, far/tiny/rotated/skewed/non-unit
+  placements, seam/apex/past-apex inversions, iso circles 1e-7 off the surface,
+  derivative orders up to 4, cross-class equality and reversed/partial/ellipse
+  coincidence pairs. Difftest: 8794 cases, 8446 pass bit-identically, 0 failed, 348
+  deferred (`surface.surf_of_revolution_p2` 283, `_p3` 65); perturbation 8446/8446.
 
 ## intersect.point_class (`SmPointClassification`)
 

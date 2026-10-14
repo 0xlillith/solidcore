@@ -75,6 +75,10 @@
 //!   dereferences `NULL`) is `InvalidInput`. The unbounded constructor propagates an
 //!   error from `GetApex` (upstream ignores its status and then reads an
 //!   uninitialised `dApexParam`); a cylinder's apex is not an error here.
+//!   `CreateIsoCircleFromPoint` propagates an error from `ConvertUVFromSTEPToNURBS`;
+//!   upstream ignores that status and, with `swap_uv`, uses the `x` value the polar
+//!   converter already wrote. This needs the polar inversion to fail on a valid polar
+//!   curve, which no difftest case reaches.
 //! - **`STEPInversion` out of bounds.** Upstream's `const` `STEPInversion` calls
 //!   `m_pGenCurve->SetOutOfBoundsEnabled(TRUE)`, changing the generator for good; here
 //!   the inversion turns it on in a clone of the generator. Results are the same:
