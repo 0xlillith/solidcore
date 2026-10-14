@@ -15,8 +15,9 @@
 //! `intersect`, the other surface's construction status), `status` (the op status)
 //! and `out` (the rest). `read_db` has no construction status: its bytes are the
 //! upstream `WriteToDB` record of `surf` (written by the C++ side when the case is
-//! generated). Statuses are `0` (`SM_SUCCESS`) or the `SmStatus`; `-1` on the Rust
-//! side for an error upstream cannot produce.
+//! generated). Statuses are `0` (`SM_SUCCESS`) or the `SmStatus` (`InvalidInput` is
+//! `1007`, `SM_ERR_INVALID_INPUT`); `-1` on the Rust side for an error upstream cannot
+//! produce.
 //!
 //! Deferred cases: `ConvertUVFromSTEPToNURBS` without polar conversion and
 //! `DropPointFast` with an inexact angle (`SmSurface::LocalPointSolve`,
@@ -44,7 +45,7 @@ use solidcore_ffi::units::surface_surf_of_revolution_p3 as ffi;
 
 use super::surface_surf_of_revolution_p1::{
     add, cross3, ffi_surf, flag, frame, gen_generator, gen_surf, normalize, param_of, put_curve,
-    put_state, rust_surf, status, unit_vec, v3, BuildIn, GenIn, SurfIn, SC_ERR_ARG,
+    put_state, rust_surf, unit_vec, v3, BuildIn, GenIn, SurfIn, SC_ERR_ARG,
 };
 use crate::case::CaseContext;
 use crate::runner::default_cases;
@@ -290,6 +291,16 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
 }
 
 // ---- Rust side ------------------------------------------------------------------------
+
+/// The `SmStatus` of a Rust error: the upstream code, `1007` (`SM_ERR_INVALID_INPUT`)
+/// for `InvalidInput` (e.g. `SmBSplineCurve::Trim` of an interval shorter than
+/// `SM_EFF_ZERO`, reached by `UpdateAnalyticalDomain`), else `-1`.
+fn status(e: &solidcore::SolidError) -> f64 {
+    match e {
+        solidcore::SolidError::InvalidInput { .. } => 1007.0,
+        _ => super::surface_surf_of_revolution_p1::status(e),
+    }
+}
 
 /// The surface named by the drop's solutions: a surface with the given natural domain.
 #[derive(Debug, Clone, Copy, PartialEq)]

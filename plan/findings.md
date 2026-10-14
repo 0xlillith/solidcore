@@ -2786,6 +2786,35 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   (stubbed to `surface.surface_p3`, as for a B-spline surface), and `BuildTreeBase` in
   `surface.surface_cache_p3` decomposes the surface's NURB (`GetOrCreateGwNurbPointer`:
   `MakeNurb` on a copy when it has none).
+- **Review fixes, round 3 (PR #29).** The runner reused p1's `status()`, which reports
+  every Rust error other than `Upstream` as `-1`. `UpdateAnalyticalDomain` on a swapped
+  surface with a B-spline generator and a zero-width U domain (`[0.5, 0, 0.5, 1]`)
+  reaches `SmBSplineCurve::Trim` through `AdjustSTEPInterval`, which returns
+  `SM_ERR_INVALID_INPUT` (1007, "trim points too close together"); Rust returns
+  `SolidError::InvalidInput` (faithful), but the case was reported as a failure. The p3
+  runner now maps `InvalidInput` to 1007, as the `nurbs.b_spline_curve_p2` and
+  `intersect.surface_tracer` runners do. Fixtures: `review3_update_bspline_generator.json`
+  (240 update cases), `review3_adversarial.json` (5829: coaxial cone / cylinder / sphere /
+  torus / disk / axis-line intersections at tolerances None, 0, 1e-15, 1e-9, 1e-3 and 10,
+  off-axis and tilt sweeps up to 1e-5, 1e8 scale, transform scales at the `SM_EFF_ZERO`
+  boundary, seam / axis / pole drops) and `review3b_adversarial.json` (10240: B-spline and
+  arc generators on five sweeps, swapped and unswapped, every op including `read_db`
+  ascii / binary v30 / v33; the 240 cases duplicated in the update fixture were dropped).
+  All are bit-identical or deferred.
+- **Self-tagged iso-curve stubs.** The `UNPORTED(surface.surface_cache_p1)` stubs for
+  `SmPlane` / `SmSurfOfRevolution::CreateIsoParametricCurve` name a unit that is already
+  `partial`, against AGENTS 4a. This is deliberate (see "Surface cache iso curves"
+  above): the cache stores iso curves as `BSplineCurve`, so the `SmLine` / `SmCircle`
+  results cannot be stored until it stores `Curve`s. Whoever changes that storage must
+  wire both stubs.
+- **Not reachable today (3).** `SwapUV` of a surface of revolution toggles the swap bit
+  after the inherited base swap; upstream toggles it between `GetCanonical` and
+  `SetCanonical`. These differ only if `SetCanonical` fails, which is not modelled.
+- **Tiny-scale coverage (follow-up for `surface.surf_of_revolution_p1`).** p1's FFI guard
+  rejects generator lines shorter than `1e-6` and circles with radius `<= 1e-6`
+  (absolute thresholds), so no surface below about `1e-6` model scale can be compared
+  (the reviewer's `1e-8` scale cases were rejected). If upstream handles such inputs
+  without undefined behaviour, the thresholds should become relative.
 
 ## surface.bend_volume (`SmBendVolume`)
 
