@@ -42,10 +42,14 @@
 //!   `SmBoolean` (`SER`): upstream's "`TRUE` without plane" is an `Err` here.
 //!   `SmMatrix::SolveLinearSystem`'s near-singular warning, which upstream returns
 //!   through `SER`, is [`SolidError::Upstream`] with `SM_ERR_WARNING`.
-//! - **Recognisers** after the plane in `GlobalSurfaceIntersect` (cone, cylinder, sphere,
-//!   extrusion, revolution) need surface kinds not in [`SurfaceKind`] yet; the general
-//!   `SmSurface::GlobalSurfaceIntersect` returns [`SolidError::Unported`]
-//!   (`intersect.adv_surface_intersector`).
+//! - **Recognisers** after the plane in `GlobalSurfaceIntersect`: the surface of
+//!   revolution's special case runs; the cone, cylinder, sphere and extrusion need
+//!   surface kinds not in [`SurfaceKind`] yet. Against a surface of revolution, a plane
+//!   with a face returns [`SolidError::Unported`] (`SmFace::GetTolerance`) even where
+//!   the special case would not reach the plane's box. The general
+//!   `SmSurface::GlobalSurfaceIntersect` returns [`SolidError::Unported`] after building
+//!   the intersector (`SmSurfaceIntersector::DoIntersection`,
+//!   `intersect.surface_intersector_p5`).
 
 use crate::curve::curve::p8::CurveIntersectOptions;
 use crate::curve::curve::Curve;

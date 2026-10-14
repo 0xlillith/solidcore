@@ -865,6 +865,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Intersection
 
+#### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
+- **Location:** `SmVolume.cpp:8104`, `SmVolume::ReadFromDB` (the `SmVolume_TYPE` branch).
+- **What happens:** (1) A next map of type `SmVolume_TYPE` recurses with `rpNewVolume->m_pNextMap` (NULL) as the volume to fill, and the branch writes `rpNewVolume->m_pNextMap` through it. A top-level `SmVolume_TYPE` read does the same with the caller's NULL. (2) `rDB.ReadType(lNextType)` / `ReadType(lOrientType)` statuses are ignored; at end of data the type stays uninitialised and is switched on. (3) The orient map read is cast to `SmTransform*` whatever its type, and a failed read leaves it NULL; `RefreshInvOrientMap` then copies, inverts and simplifies it (a NULL or mistyped object). The nested reads' statuses are ignored throughout.
+- **Trigger:** An ASCII transform volume whose base data says `1` then `Object Type 22001` (next map), or `1` then `Object Type 22011` / `22004` (orient map), or ends right after a `1` flag.
+- **How found:** read during porting.
+- **Confirmed:** no. The harness's strict text grammar rejects these inputs.
+- **Severity:** crash/UB.
+- **Rust port:** Returns `SolidError::Unsupported`, which the derived readers do not ignore. Nested reads are bounded by `DatabaseReader::enter_nested`.
+
+#### UB-90. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
+- **Location:** `SmVolume.cpp:3907` `InvMapPoint` -> `:2058` `MapPseudoBox` (trim branch: `EvaluateBoundingBoxSimple(sParamBox, NULL, ...)`); `:3411` `InvEvaluatePoint` and `:4512` `GlobalPointSolve` -> `:1692` `EvaluateBoundingBox(*pOptParamDomain, NULL, ...)`.
+- **What happens:** With a search domain and compounding, an unoriented `SmTransform` map with next maps (or, for `EvaluateBoundingBox`, any transform map, and the orient map for in-space boxes) receives a NULL parameter pseudo box, and `SmTransform::EvaluateBoundingBoxSimple` dereferences it (UB-42).
+- **Trigger:** `InvMapPoint(P, NULL, ok, pts, gaps, &domain, TRUE)` on `SmTransform` -> `SmTwistVolume`.
+- **How found:** crash in the C++ reference run (segfault in `SmPseudoBox::AreAligned` under `InvMapPoint` -> `MapPseudoBox`).
+- **Confirmed:** yes.
+- **Severity:** crash/UB.
+- **Rust port:** Returns `SolidError::Unsupported`; the FFI guard of `surface.volume_p2` models these call paths and rejects them.
+
 #### UB-74. `PointBasedSurfaceIntersect` writes past its 20-point array
 - **Location:** `source/SMLib/src/SmSurface.cpp:30588` `SmSurface::PointBasedSurfaceIntersect` (UV point version).
 - **What happens:** The points go into `SmTsectPnt saTsectPnts[20]`; the size limit and the equal-length check of the two point arrays are `SM_ASSERT`s only, so 20 or more points write past the stack array, and a shorter second array is read past its end.
@@ -873,6 +891,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no.
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
+
+#### UB-78. `ComputeSingularityPoint` can write past `aSingDirections[8]`
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:164` (`SmVector3d aSingDirections[8]`), filled by `sm_AddSingDir` (`:54`) from the Dupin indicatrix intersections at `:616`-`:685`; `aSingUVSurf1/2[8]` and `lInsideIndex[8]` at `:775`-`:776`.
+- **What happens:** Every intersection of the above (and below) indicatrix curves of the two surfaces adds a direction unless one within `acos(0.9)` (about 26 degrees) is stored already. Up to 13 directions pass that test, but the array holds 8 and `sm_AddSingDir` does not check the count (upstream's own comment: "we have experienced examples with 8 vectors"). Saddle points generate four hyperbolas per surface, two of which are different conics (see WR-60), so the count is not bounded by the 4 + 4 of two central conics.
+- **Trigger:** Two non-planar surface points with parallel normals, no shared principal curvature, whose indicatrices meet in more than 8 directions more than 26 degrees apart.
+- **How found:** read during porting.
+- **Confirmed:** no (the difftest shim predicts the count and does not run such inputs; no generated case reached it).
+- **Severity:** crash/UB.
+- **Rust port:** the array keeps 8 slots; a ninth direction is `InvalidInput`.
 
 #### UB-79. `SmPointClassification` calls `SmObject` virtuals on an `SmPoint3d*`
 - **Location:** `SmPointClass.cpp:668` (`ComputePointParameters`: `SmTol::GetZoneTol3d(m_pObject)`), `:435` (`GetGap3d` with a surface, through `GetObjZoneTol3d`), `:493` (`IsConnectedTo`: `GetType`), `:917` (`MergeIntoObject`: `GetType`).
@@ -1546,6 +1573,13 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Intersection
 
+#### WR-65. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
+- **Location:** `SmVolume.cpp:5865` `EvaluateBoundingBoxSimple` and `:6057` `EvaluatePseudoBoxSimple` (sample `EvaluatePoint` and `Evaluate1stDerivatives` with compounding); `:919` `IsPointInParamDomain` (passes the last out-space image to the next map's in-space check); `:6857` `LocalPointSolveSimple` (solution value is the distance to the compound image); `:6665` `InvEvaluatePointSimple` (a failed local solve forces `rbSuccess = FALSE` after a successful global solve); `:3411` `InvEvaluatePoint`, `:3907` `InvMapPoint` (always report success); `:4512` `GlobalPointSolve` (found flag of the last point only).
+- **What happens:** The projection-space boxes of a compound volume are boxes of its last out-space; domain checks and solution values use the wrong space; success flags are lost or always set.
+- **Trigger:** `EvaluatePseudoBoxSimple` of a volume with a next map; `IsPointInParamDomain` of a chain with a plain `SmVolume` second map.
+- **How found:** read during porting.
+- **Confirmed:** yes (surface.volume_p2 difftest: the Rust port reproduces these and matches the C++ on generated cases and the `twist_then_base_*` fixtures).
+
 #### WR-50. `AddStartPoint` "replaces" a bounded start point by assigning a local pointer
 - **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3901` `SmSurfaceIntersector::AddStartPoint`.
 - **What happens:** For a bounded/exact start point pair whose stored point is the bounded one, the "replace pTSP with rStartTSP" branch only sets the loop variable `pTSP = &rStartTSP` and reports a match. The exact candidate is dropped and the bounded point stays in `m_vStartPoints`, the opposite of what the comment (and the function header) describe.
@@ -1617,6 +1651,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
 - **Severity:** wrong result.
 - **Rust port:** Returns `SM_ERR` as the gap value too.
+
+#### WR-60. `MakeDupin`'s bottom hyperbola uses `k2` for both axes
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1120`-`1122` `SmAdvSurfaceIntersector::MakeDupin`.
+- **What happens:** The four hyperbolas of a saddle point should be one indicatrix branch pair `(1/sqrt|k1|, 1/sqrt|k2|)` and its conjugate pair `(1/sqrt|k2|, 1/sqrt|k1|)`. The top hyperbola uses the latter, the bottom one `(1/sqrt|k2|, 1/sqrt|k2|)`, so the bottom curve is a different conic and the singular directions found from it are wrong unless `|k1| == |k2|`.
+- **Trigger:** `MakeDupin` (or `ComputeSingularityPoint`) at a hyperbolic point with `|k1| != |k2|`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: generated `dupin` ops and `edge_dupin_kinds` compare the conics).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-61. `SmAdvSurfaceIntersector::SolveBranch` never tests Gauss map separation
+- **Location:** `source/SMLib/src/SmAdvSurfaceIntersector.cpp:1383` and `:1401` `SmAdvSurfaceIntersector::SolveBranch`.
+- **What happens:** The method sets `m_bSeperateGaussMaps = TRUE` on entry and then calls `BranchIsGaussSeparate` only `if (!m_bSeperateGaussMaps)`, so the polar box test and the whole "separable" branch (one start point per separable sub-tree pair, the documented purpose of the class) are dead code: every intersecting leaf pair gives its own candidate.
+- **Trigger:** Any `SolveIt(SM_SO_INTERSECT, ..)` on an `SmAdvSurfaceIntersector`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.adv_surface_intersector` difftest: `solve` and `solve_branch` ops agree on one solution per intersecting leaf pair).
+- **Severity:** wrong result (performance and duplicate start points).
+- **Rust port:** Faithful.
 
 ## Docs
 
