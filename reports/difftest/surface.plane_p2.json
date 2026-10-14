@@ -3,6 +3,734 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_pp_ang_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#0",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_inf_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#1",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#2",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_inf_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#3",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#4",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_inf_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#5",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#6",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_inf_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#7",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#8",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_ang_inf_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#9",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_scaled_uv",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#10",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_parallel_one_nurb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#11",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_coincident_flipped",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#12",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_coincident_tol_given",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#13",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_parallel_tol_given",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#14",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_parallel_boxes_disjoint",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#15",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_bounded_touch_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#16",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_bounded_gap",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#17",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_zero_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#18",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_huge_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#19",
+      "values_compared": 34
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_global_parallel_nonurb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#20",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_far",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#21",
+      "values_compared": 34
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_canonical_both",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#22",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_c0_kink_flat",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#23",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_c0_fold",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#24",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_c0_fold_mid",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#25",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_degenerate_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#26",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_collapsed_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#27",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#28",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_huge_offset",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#29",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_skew_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#30",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_isp_reverse_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#31",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_neg_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#32",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_iso_neg_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#33",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_near_identity",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#34",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_huge_scale",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#35",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_tiny_scale",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#36",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_nearly_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#37",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xf_normal_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#38",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#39",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#40",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_normal_nonurb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#41",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdom_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#42",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdom_degenerate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#43",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdom_eps_out",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#44",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdom_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#45",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdom_normal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#46",
+      "values_compared": 54
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_bspline_c0_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#47",
+      "values_compared": 30
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_bspline_dim2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#48",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_segment_along_edge_part",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#49",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_segment_on_edge_exact",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#50",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_segment_diag_corner_touch",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#51",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_segment_end_on_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#52",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_segment_inside_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#53",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_circle_partial_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#54",
+      "values_compared": 55
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_ellipse_offplane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#55",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_circle_corner_pass",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#56",
+      "values_compared": 94
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_bspline_rational_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#57",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_big_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#58",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_scaled_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#59",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_along_edge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#60",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_through_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#61",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#62",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_tangent_two_sides",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#63",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_tangent_two_sides_c",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#64",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_ivl_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#65",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_ivl_over360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#66",
+      "values_compared": 108
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_ivl_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#67",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_rx_lt_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#68",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_ry_lt_tol_rect",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#69",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_big_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#70",
+      "values_compared": 141
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_cross_corner_only",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#71",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_rot_axes_opp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#72",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_nonunit_axes",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#73",
+      "values_compared": 141
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_nonperp_axes",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#74",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_scaled_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#75",
+      "values_compared": 174
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_partial_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#76",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_tangent_inside_partial",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#77",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_two_in_one_side_close",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#78",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#79",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_zero_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#80",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_zero_tol_circle",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#81",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_zero_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#82",
+      "values_compared": 141
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#83",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e_zero_ry_zero_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#84",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#85",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_dom_degenerate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#86",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tc_dom_degenerate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#87",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_use_default_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#88",
+      "values_compared": 44
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_global_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#89",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pp_neg_tol_coincident",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.plane_p2/adv.json#90",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "pp_infinite_perp",
       "outcome": "pass",
       "pass": true,
@@ -17057,8 +17785,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 9,
   "cases_failed": 0,
-  "cases_passed": 2118,
-  "cases_total": 2127,
+  "cases_passed": 2209,
+  "cases_total": 2218,
   "deferred_by_unit": {
     "intersect.adv_surface_intersector": 9
   },

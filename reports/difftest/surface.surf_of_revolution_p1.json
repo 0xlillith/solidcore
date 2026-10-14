@@ -3,6 +3,414 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#0",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#1",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#2",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#3",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#4",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#5",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#6",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#7",
+      "values_compared": 100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#8",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#9",
+      "values_compared": 60
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#10",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#11",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#12",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#13",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#14",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#15",
+      "values_compared": 60
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#16",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#17",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#18",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#19",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#20",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#21",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#22",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#23",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#24",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#25",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#26",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#27",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#28",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_bsp_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#29",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#30",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#31",
+      "values_compared": 100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#32",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#33",
+      "values_compared": 60
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#34",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_swap_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#35",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_axial_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#36",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_axial_tilted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#37",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_normal_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#38",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_normal_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#39",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_normal_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#40",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_oob_axial_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#41",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_top_tangent",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#42",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_top_tangent_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#43",
+      "values_compared": 32
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_torus_equator",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#44",
+      "values_compared": 80
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_flat_on",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#45",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_offset_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#46",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_half_axial_neg_side",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#47",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_use_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#48",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_neg_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#49",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sor_line_axial_neg_tol_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surf_of_revolution_p1/adv.json#50",
+      "values_compared": 48
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "general_bezier_build",
       "outcome": "pass",
       "pass": true,
@@ -6461,8 +6869,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 807,
-  "cases_total": 807,
+  "cases_passed": 858,
+  "cases_total": 858,
   "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,

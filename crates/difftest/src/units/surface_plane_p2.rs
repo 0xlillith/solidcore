@@ -18,6 +18,7 @@ use solidcore::curve::line::Line;
 use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
+use solidcore::geom::tol::approx_tol3d;
 use solidcore::geom::vector2d::Vec2;
 use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
@@ -797,6 +798,8 @@ fn rust_op(k: &Kernel, i: &Inputs, o: &mut Vec<f64>) -> Result<(), Fail> {
             db,
             tol,
         } => {
+            // the shim passes `SmApproxTol3d(tol)`: |tol|, SM_USE_DEFAULT -> zone tol / 2
+            let tol = tol.map(|t| approx_tol3d(k, t));
             let a = rust_plane(a)?;
             if *global {
                 let sa = Surface::from(a);
@@ -811,7 +814,7 @@ fn rust_op(k: &Kernel, i: &Inputs, o: &mut Vec<f64>) -> Result<(), Fail> {
                     other_ref,
                     &ext(*db),
                     [true, true],
-                    *tol,
+                    tol,
                     None,
                 );
                 if let Some(x) = st(o, r)? {
@@ -826,7 +829,7 @@ fn rust_op(k: &Kernel, i: &Inputs, o: &mut Vec<f64>) -> Result<(), Fail> {
                     }
                 };
                 let other_ref = other.as_ref().unwrap_or(&a);
-                let r = a.intersect_with_plane(&ext(*da), other_ref, &ext(*db), *tol);
+                let r = a.intersect_with_plane(&ext(*da), other_ref, &ext(*db), tol);
                 if let Some((more, x)) = st(o, r)? {
                     o.push(fl(more));
                     put_intersection(o, &x)?;
@@ -1035,9 +1038,12 @@ fn gen_plane(rng: &mut Rng, s: f64) -> PlaneIn {
     }
 }
 
+/// Origin, X, Y, scale and domain of a plane input.
+type PlaneData = ([f64; 3], [f64; 3], [f64; 3], [f64; 2], [f64; 4]);
+
 /// Origin, X, Y, scale and domain of a plane input (for points on it); an infinite
 /// plane gets a finite stand-in domain.
-fn plane_data(p: &PlaneIn) -> ([f64; 3], [f64; 3], [f64; 3], [f64; 2], [f64; 4]) {
+fn plane_data(p: &PlaneIn) -> PlaneData {
     match &p.make {
         MakeIn::Bounded {
             o,
