@@ -973,7 +973,10 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
 
 /// `SmSurfaceCache::BuildTree(&sBezierBlock)` (base class tree construction for a derived
 /// cache, which finishes it).
-fn surface_cache_build_tree<O: Copy + PartialEq>(cache: &mut SurfaceCache<O>, k: &Kernel) -> Result<()> {
+fn surface_cache_build_tree<O: Copy + PartialEq>(
+    cache: &mut SurfaceCache<O>,
+    k: &Kernel,
+) -> Result<()> {
     cache.build_tree(k, true)
 }
 

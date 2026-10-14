@@ -2726,3 +2726,36 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   dispatch (`Volume::has_discontinuities_simple`); it is now a parameter. The
   `IsCurveIn*Domain` / `IsLineInParamDomain` volume entry points take a `&Kernel` for the
   curve bounding boxes the B-spline override computes.
+
+## surface.surface_cache_p3 (`SmSurfaceCache`, part 3: tree build and subdivision, 2026-10-14)
+
+- **Patch boxes of ownerless surfaces.** The construction Bezier patches get their
+  boxes from `SmBSplineSurface(pBezier, TRUE, ..)` surfaces that have no face or brep,
+  so `CalculateBoundingBox` expands them by `SM_ZONE_TOL_3D`. The B-spline port cannot
+  ask `SmSurface::GetFace` (unported) and would defer every case; p3 computes the boxes
+  unexpanded and expands them by `ZONE_TOL_3D` itself (`patch_boxes`). When
+  `surface.surface_p1` ports `GetFace`, this can go back to the plain call.
+- **Planes are B-splines.** `IsKindOf(SmBSplineSurface_TYPE)` holds for `SmPlane`;
+  `BuildTreeBase` takes the plane's NURB (`Plane::base_with_nurb`), and `bspline_of`
+  (part 1) answers the kind test for both. Treating planes as non-B-spline gave
+  bicubic approximations where upstream splits the plane's own NURB.
+- **Shim crash.** `SubdivideToTolerances` on an aux-data start node without a surface
+  dereferences a null `mBA_pSurface` in `TestAgainstTolerances` (segfault); the FFI
+  rejects such start nodes (aux type 6 needs the surface flag and a B-spline).
+- **Recursion.** `SubdivideToTolerances` recurses into both children without a bound;
+  the port stops past `MAX_SUBDIVISION_DEPTH` (512) with `InvalidInput`. Generated
+  tolerances are size-relative (chord >= 1e-3 size, side >= 1e-2 size, angle >= 0.05)
+  so the C++ side terminates too.
+- **`BuildTree` flags.** `BuildTree` turns point testing off and marks face
+  containment as under construction for the build (against recursion back into
+  `BuildTree`), restoring both afterwards; `build_tree` does the same around its body.
+- **Wired back-edges:** `trim_srf_cache` (`BuildTree`, `FindUVNodes`, `SubdivideNode`)
+  and part 1's `GetTree` (the `existing_tree` stand-in is gone; `mark_face_containment`
+  calls `get_tree`).
+- **Not wired (needs a design):** `geom.tree` `GetFirstBezierPatch`
+  (`SmBezierPatch::GetBezierPtr`, `SmBSplineSurface::GetGwNurbPointer`), `geom.grid`
+  `SmSurfaceGridElement::Init` (`GetPseudoBox`) and `surface.surface_p2`
+  (`GetPolarBox`) read patch data from a bare `Tree`, but the patches live in the
+  surface cache (`BezierPatchRef` is an empty enum). A hand-over like the curve cache's
+  `set_curve_data` would close them; the stubs keep their `surface.surface_cache_p3` tag
+  until then.
