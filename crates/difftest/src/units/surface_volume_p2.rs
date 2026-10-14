@@ -18,6 +18,8 @@
 //!
 //! Deferred cases: ops reaching the unbend volume (unit `surface.unbend_volume`).
 
+use std::fmt::Write as _;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -981,15 +983,15 @@ fn gen_transform(rng: &mut Rng) -> Tf {
         }
         6 => {
             // axis permutation (aligned, negated)
-            let axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
-            let k = rng.below(3) as usize;
+            let [x, y, z] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+            // (axes[(k + 1) % 3], axes[(k + 2) % 3], axes[k])
+            let (u, v, w) = match rng.below(3) {
+                0 => (y, z, x),
+                1 => (z, x, y),
+                _ => (x, y, z),
+            };
             let sgn = if rng.chance(0.5) { -1.0 } else { 1.0 };
-            [
-                coord(rng, 5.0),
-                axes[(k + 1) % 3].map(|c| c * sgn),
-                axes[(k + 2) % 3],
-                axes[k],
-            ]
+            [coord(rng, 5.0), u.map(|c| c * sgn), v, w]
         }
         _ => [coord(rng, 5.0), coord(rng, 2.0), coord(rng, 2.0), coord(rng, 2.0)],
     }
@@ -1101,8 +1103,10 @@ fn gen_box(rng: &mut Rng) -> Bx {
             let mut a = coord(rng, 3.0);
             let mut e = coord(rng, 3.0);
             let k = rng.below(3) as usize;
-            a[k] = -INF;
-            e[k] = INF;
+            if let (Some(ak), Some(ek)) = (a.get_mut(k), e.get_mut(k)) {
+                *ak = -INF;
+                *ek = INF;
+            }
             [a, e]
         }
         2 => {
@@ -1156,8 +1160,11 @@ fn head_domain(vol: &Vol) -> Option<[[f64; 2]; 3]> {
     let r = vol.first()?.bs.as_ref()?;
     let mut d = [[0.0; 2]; 3];
     for (k, slot) in d.iter_mut().enumerate() {
-        let knots = &r.knots[k];
-        *slot = [*knots.get(r.deg[k])?, *knots.get(r.hi[k] + 1)?];
+        let knots = r.knots.get(k)?;
+        *slot = [
+            *knots.get(*r.deg.get(k)?)?,
+            *knots.get(*r.hi.get(k)? + 1)?,
+        ];
     }
     Some(d)
 }
@@ -1317,7 +1324,8 @@ fn text_transform(rng: &mut Rng, depth: usize, out: &mut String) {
     let t = gen_transform(rng);
     let [o, x, y, z] = t;
     for (row, w) in [(x, 0.0), (y, 0.0), (z, 0.0), (o, 1.0)] {
-        out.push_str(&format!("{} {} {} {w}\n", row[0], row[1], row[2]));
+        let [a, b, c] = row;
+        let _ = writeln!(out, "{a} {b} {c} {w}");
     }
     text_base(rng, depth, out);
 }
@@ -1329,7 +1337,7 @@ fn text_base(rng: &mut Rng, depth: usize, out: &mut String) {
         if rng.chance(0.2) {
             // a twist next map
             out.push_str("Object Type 22011\n");
-            out.push_str(&format!("{}\n{}\n", rng.uniform(1.0, 20.0), 1e-3));
+            let _ = write!(out, "{}\n{}\n", rng.uniform(1.0, 20.0), 1e-3);
             text_base(rng, depth + 1, out);
         } else if rng.chance(0.1) {
             // a B-spline next map: SM_ERR, nothing read
