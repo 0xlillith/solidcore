@@ -90,6 +90,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
 
+use super::p1::get_surface_cache;
 use super::p1::{
     evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
     evaluate_normal_section, map_to_2d_dir, zone_tol_3d, CsIntersectEnfo, CsNormalizeEnfo,
@@ -1303,7 +1304,7 @@ impl Surface {
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
                 if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
-                    surface_cache::<NoObject>(k, self, None)?;
+                    get_surface_cache(k, self, None::<NoObject>)?;
                     // UNPORTED(query.face_p2): SmFace::PointClassify
                     return Err(SolidError::unported(
                         "SmFace::PointClassify",
