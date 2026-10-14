@@ -428,13 +428,14 @@ impl SurfOfRevolution {
             let nurbs_guess = mapped;
             let pnt = self.evaluate_step_point(k, step_uv)?;
             // (status ignored upstream: the solution is always used)
-            let (_found, sol): (bool, Solution<()>) = surface_local_point_solve(
+            let sol: Solution<()> = ignored(surface_local_point_solve(
                 self,
                 &nat_domain,
                 SolverOperation::Minimize,
                 pnt,
                 nurbs_guess,
-            )?;
+            ))?
+            .map_or_else(Solution::new, |(_found, sol)| sol);
             return Ok(Point2::new(sol.start.param(0)?, sol.start.param(1)?));
         }
 

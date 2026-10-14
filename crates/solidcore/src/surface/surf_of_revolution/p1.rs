@@ -1180,13 +1180,30 @@ impl SurfOfRevolution {
 
         // when conversion was not exact - use solution as input to a local solve
         if !exact_conversion {
-            // (an SmSTEPSurface of this surface, then a local point solve on it; the
-            // surface of revolution is not a Surface kind yet)
-            // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-            return Err(SolidError::unported(
-                "SmSurface::LocalPointSolve",
-                "surface.surface_p5",
-            ));
+            // Use numerical techniques to convert to polar coordinates: a local point
+            // solve on an SmSTEPSurface of this surface.
+            let anal_guess = step_uv;
+            let step_surface = crate::surface::surface::Surface::from(
+                crate::surface::surface::p1::StepSurface::new(
+                    crate::surface::surface::Surface::from(self.clone()),
+                    false,
+                ),
+            );
+            let point_3d = self.base.evaluate_point(nurbs_uv)?;
+            let domain = step_surface.natural_uv_domain();
+            // Always set output (the status is ignored): LocalPointSolve leaves a default
+            // solution when it fails.
+            let (u, v) = match ignored(step_surface.local_point_solve::<()>(
+                &domain,
+                crate::geom::global_solver::SolverOperation::Intersect,
+                point_3d,
+                anal_guess,
+            ))? {
+                Some(r) => (r.solution.start.param(0)?, r.solution.start.param(1)?),
+                None => (0.0, 0.0),
+            };
+            step_uv = Point2::new(u, v);
+            *written = step_uv;
         }
         Ok(step_uv)
     }

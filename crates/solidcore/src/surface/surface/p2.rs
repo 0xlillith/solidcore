@@ -1299,6 +1299,45 @@ impl Surface {
 /// by [`Surface`] and by the ported kinds, so a [`BSplineSurface`] can be used
 /// without wrapping it).
 pub trait SurfaceEvaluate {
+    /// `LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, found, sol)`: whether an
+    /// answer was found, the solution value and the parameters of its start (`0` when
+    /// none).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Surface::local_point_solve`]; [`SolidError::Unported`] by default.
+    fn local_point_solve_minimize(
+        &self,
+        _domain: &Extent2d,
+        _point: Point3,
+        _guess: Point2,
+    ) -> Result<(bool, f64, Point2)> {
+        // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve (not on this kind)
+        Err(SolidError::unported(
+            "SmSurface::LocalPointSolve",
+            "surface.surface_p5",
+        ))
+    }
+
+    /// `DropPoint(point, domain, guess, ..)` with the default operation: the parameters
+    /// and distance of the drop, `None` when it failed.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Surface::drop_point`]; [`SolidError::Unported`] by default.
+    fn drop_point_minimize(
+        &self,
+        _point: Point3,
+        _domain: &Extent2d,
+        _guess: Option<Point2>,
+    ) -> Result<Option<(Point2, f64)>> {
+        // UNPORTED(surface.surface_p5): SmSurface::DropPoint (not on this kind)
+        Err(SolidError::unported(
+            "SmSurface::DropPoint",
+            "surface.surface_p5",
+        ))
+    }
+
     /// `GetNaturalUVDomain`.
     fn natural_uv_domain(&self) -> Extent2d;
 
@@ -1378,6 +1417,39 @@ pub trait SurfaceEvaluate {
 }
 
 impl SurfaceEvaluate for Surface {
+    fn local_point_solve_minimize(
+        &self,
+        domain: &Extent2d,
+        point: Point3,
+        guess: Point2,
+    ) -> Result<(bool, f64, Point2)> {
+        let r = self.local_point_solve::<super::p4::NoObject>(
+            domain,
+            SolverOperation::Minimize,
+            point,
+            guess,
+        )?;
+        Ok((
+            r.found,
+            r.solution.start.solution_value,
+            Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
+        ))
+    }
+
+    fn drop_point_minimize(
+        &self,
+        point: Point3,
+        domain: &Extent2d,
+        guess: Option<Point2>,
+    ) -> Result<Option<(Point2, f64)>> {
+        let opts = super::p5::DropPointOptions {
+            guess_uv: guess,
+            ..Default::default()
+        };
+        let r = self.drop_point::<super::p4::NoObject>(point, domain, &opts)?;
+        Ok(r.success.then_some((r.result_uv, r.gap)))
+    }
+
     fn surface_approx_eq(&self, other: &Self) -> Result<bool> {
         self.approx_eq(other)
     }
@@ -1440,6 +1512,25 @@ impl SurfaceEvaluate for Surface {
 }
 
 impl SurfaceEvaluate for BSplineSurface {
+    fn local_point_solve_minimize(
+        &self,
+        domain: &Extent2d,
+        point: Point3,
+        guess: Point2,
+    ) -> Result<(bool, f64, Point2)> {
+        // the SmSurface body, on a Surface holding a copy
+        Surface::from(self.clone()).local_point_solve_minimize(domain, point, guess)
+    }
+
+    fn drop_point_minimize(
+        &self,
+        point: Point3,
+        domain: &Extent2d,
+        guess: Option<Point2>,
+    ) -> Result<Option<(Point2, f64)>> {
+        Surface::from(self.clone()).drop_point_minimize(point, domain, guess)
+    }
+
     fn surface_approx_eq(&self, other: &Self) -> Result<bool> {
         // SmBSplineSurface::operator== (two B-splines: SmSurface::operator== holds)
         Ok(self.approx_eq(other))
