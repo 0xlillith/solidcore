@@ -61,7 +61,7 @@ use crate::surface::surface::p2::{
 
 use super::p1::{
     gen_adjust_step_interval, gen_base, gen_base_mut, gen_max_analytic_domain, gen_step_interval,
-    not_b_spline, SurfOfRevolution,
+    not_b_spline, SurfOfRevolution, SweepIsoFn,
 };
 
 const OP_ADJUST: &str = "surface::surf_of_revolution::p2::SurfOfRevolution::adjust_step_uv_domain";
@@ -82,6 +82,17 @@ impl SolutionObject for NoHandle {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Curve
     }
+}
+
+/// The outputs of [`SurfOfRevolution::step_inversion_with_outputs`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) struct StepInversionOutputs {
+    /// STEP parameters: angle in degrees, generator parameter (`rdAnalUVParameter`).
+    pub(crate) uv: Point2,
+    /// The point's location (`reLocation`).
+    pub(crate) location: LocationType,
+    /// The point is in the sweep interval (upstream returns `SM_ERR` otherwise).
+    pub(crate) inside: bool,
 }
 
 /// A curve named by the solutions of a curve intersection: its natural interval (the
@@ -116,6 +127,23 @@ impl SurfOfRevolution {
         k: &Kernel,
         new_step_uv_domain: &Extent2d,
     ) -> Result<()> {
+        self.adjust_step_uv_domain_using(k, new_step_uv_domain, &Self::own_sweep_iso)
+    }
+
+    /// [`Self::adjust_step_uv_domain`] with the polar converter rebuilt from the sweep
+    /// iso curves of `iso` (upstream's virtual `Reparameterize` / `MakeNurb` /
+    /// `CreateIsoParametricCurve`: a derived class such as `SmCone` passes its
+    /// override).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::adjust_step_uv_domain`].
+    pub(crate) fn adjust_step_uv_domain_using(
+        &mut self,
+        k: &Kernel,
+        new_step_uv_domain: &Extent2d,
+        iso: SweepIsoFn<'_>,
+    ) -> Result<()> {
         // no work - input domain = current domain
         if new_step_uv_domain.is_contained_by(&self.anal_uv_domain, EFF_ZERO)
             && self
@@ -143,10 +171,10 @@ impl SurfOfRevolution {
         }
 
         // set Surface and GenCurve nurb domain (status ignored)
-        ignore_status(self.reparameterize(k, &nurb_domain))?;
+        ignore_status(self.reparameterize_using(k, &nurb_domain, iso))?;
 
         // rebuild the associated m_pNurb and PolarConverter
-        self.make_nurb(k)?;
+        self.make_nurb_with_sweep_params_using(k, None, iso)?;
         Ok(())
     }
 
@@ -220,6 +248,30 @@ impl SurfOfRevolution {
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<(Point2, LocationType)> {
+        let r =
+            self.step_inversion_with_outputs(k, anal_domain, point_on_surf, tol_3d, uv_guess)?;
+        if r.inside {
+            Ok((r.uv, r.location))
+        } else {
+            Err(SolidError::sm_err(OP_STEP_INV))
+        }
+    }
+
+    /// [`Self::step_inversion`] with the outputs upstream writes before returning
+    /// `SM_ERR` for a point outside the sweep interval (`inside` is `false` then),
+    /// for derived classes that read them (`SmCone`).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::step_inversion`] except the outside-the-sweep `SM_ERR`.
+    pub(crate) fn step_inversion_with_outputs(
+        &self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+        point_on_surf: Point3,
+        tol_3d: f64,
+        uv_guess: Option<Point2>,
+    ) -> Result<StepInversionOutputs> {
         // pass call along for nonPlanar generator curves
         if !self.planar_generator {
             // Not planar, must use the general solver.
@@ -240,7 +292,11 @@ impl SurfOfRevolution {
                 self.base
                     .step_inversion(&nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
             let step = self.convert_uv_from_nurbs_to_step(k, nurbs_parameter)?;
-            return Ok((step, location));
+            return Ok(StepInversionOutputs {
+                uv: step,
+                location,
+                inside: true,
+            });
         }
 
         // Generator curve is planar, so we can solve it analytically.
@@ -341,11 +397,11 @@ impl SurfOfRevolution {
         }
 
         // all done
-        if sp.inside {
-            Ok((Point2::new(u, v), location))
-        } else {
-            Err(SolidError::sm_err(OP_STEP_INV))
-        }
+        Ok(StepInversionOutputs {
+            uv: Point2::new(u, v),
+            location,
+            inside: sp.inside,
+        })
     }
 
     // ---- offsets --------------------------------------------------------------------

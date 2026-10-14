@@ -95,7 +95,7 @@ use crate::topology::database_io::{DatabaseReader, FileType, InputStream};
 
 use super::p1::{
     gen_adjust_step_interval, gen_base, gen_base_mut, gen_with_out_of_bounds, not_b_spline,
-    SurfOfRevolution, OP_GEN,
+    SurfOfRevolution, SweepIsoFn, OP_GEN,
 };
 
 const OP_REPARAM: &str = "surface::surf_of_revolution::p3::SurfOfRevolution::reparameterize";
@@ -239,6 +239,22 @@ impl SurfOfRevolution {
     /// `SM_ERR_NULL_POINTER` without NURB; `InvalidInput` where NLib would write outside
     /// its knot arrays (upstream ignores its status).
     pub fn reparameterize(&mut self, k: &Kernel, trim_domain: &Extent2d) -> Result<()> {
+        self.reparameterize_using(k, trim_domain, &Self::own_sweep_iso)
+    }
+
+    /// [`Self::reparameterize`] with the polar converter rebuilt from the sweep iso
+    /// curves of `iso` (upstream's virtual `CreateIsoParametricCurve`: a derived class
+    /// such as `SmCone` passes its override).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::reparameterize`].
+    pub(crate) fn reparameterize_using(
+        &mut self,
+        k: &Kernel,
+        trim_domain: &Extent2d,
+        iso: SweepIsoFn<'_>,
+    ) -> Result<()> {
         // new NURB locals
         let r = Rectangle::new(
             trim_domain.min().x,
@@ -272,7 +288,7 @@ impl SurfOfRevolution {
         }
 
         // Rule 5: Set PolarConverter from Nurb midPoint rotation isoParamCurve
-        ignore_status(self.rebuild_polar_converter(k, &Self::own_sweep_iso))?;
+        ignore_status(self.rebuild_polar_converter(k, iso))?;
         Ok(())
     }
 
