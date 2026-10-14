@@ -14,7 +14,8 @@
 // One entry point, sc_surface_surface_p7_eval(op, in, n_in, out, cap, out_len). Layouts are
 // documented in crates/solidcore-ffi/src/units/surface_surface_p7.rs, which validates every
 // input. A surface block is `0 oob form n m p q r s cpts(x y z w) u v` (an
-// SmBSplineSurface(gw_SURFACE*, FALSE, NULL)) or `1 O[3] N[3]` (SmPlane(O, N)); a curve block
+// SmBSplineSurface(gw_SURFACE*, FALSE, NULL)), `1 O[3] N[3]` (SmPlane(O, N)) or `2 basis implicit`
+// (an SmCurveBoundedSurface without boundary curves over a basis block); a curve block
 // is `dim n p m cpts(x y z w) knots` (SmBSplineCurve(gw_CURVE*, dim, FALSE)). `out` receives
 // the op status (0 = SM_SUCCESS, else the SmStatus value) and the op's outputs.
 #include "sc_shim.h"
@@ -24,6 +25,7 @@
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
 #include <SmCurve.h>
+#include <SmCurveBoundedSurface.h>
 #include <SmExtent1d.h>
 #include <SmExtent2d.h>
 #include <SmNurbsCrv.h>
@@ -606,6 +608,14 @@ const SmContext& the_context()
 SmSurface* read_surface(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx();
+    if (kind == 2)
+    {
+        // a curve-bounded surface without boundary curves over a basis surface block
+        SmSurface* basis = read_surface(rd, ctx);
+        bool implicit = rd.flag();
+        SmTArray<SmCurve*> c3d, cuv;
+        return new (ctx) SmCurveBoundedSurface(*basis, &c3d, &cuv, implicit ? TRUE : FALSE);
+    }
     if (kind == 1)
     {
         SmPoint3d o = rd.vec();

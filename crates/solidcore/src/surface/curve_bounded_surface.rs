@@ -600,10 +600,12 @@ mod tests {
             surface_p2::base_degree()
         );
         assert!(s.copy().is_err());
-        assert!(c
-            .evaluate_normal(uv, Side::Left, Side::Left)
-            .unwrap_err()
-            .is_unported());
+        assert_eq!(
+            c.evaluate_normal(uv, Side::Left, Side::Left).unwrap(),
+            Surface::from(b.clone())
+                .evaluate_normal(uv, Side::Left, Side::Left)
+                .unwrap()
+        );
         assert!(c.evaluate_step_point(uv).unwrap_err().is_unported());
     }
 

@@ -2707,6 +2707,14 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   path is the green base `SmGlobalSolver::BranchMayContainAnswers`. The shim's
   `sm_LoadGuesses` copy takes the owner surface directly (two lines marked `ADAPTED`):
   reaching it through a tree node needs a real `SmSurfaceCache`.
+- **Slow upstream solves.** `GlobalSurfaceSolve` (minimize) between two random surfaces
+  that intersect runs for minutes in the C++ (a continuum of zero-distance answers along
+  the intersection curve), and the global solves on 1e-4-scale surfaces with a 1e-6
+  tolerance take tens of seconds. These ops always defer on the Rust side, so the
+  generator keeps them at unit scale, drops `SM_SO_NORMALIZE` for `GlobalCurveSolve`, and
+  covers `GlobalSurfaceSolve` with fixtures on separated surfaces only.
+- **Curve-bounded surfaces** (without boundary curves) are generated too, so the
+  `EvaluateNormal` / `IsClosed` dispatch of that kind is compared.
 - **Generator note.** Ordinary random nets almost never reach `EvaluateNormal`'s fall-backs
   (zero-corrected first derivatives keep the cross product alive); the runner adds poles,
   exactly folded nets and pinched corners and samples boundaries, and the fixtures hit each

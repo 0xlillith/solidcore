@@ -2190,16 +2190,14 @@ mod tests {
         assert!(s
             .calculate_bounding_box(&s.natural_uv_domain(), &req)
             .is_ok());
-        // the polar box needs SmSurface::EvaluateNormal (surface::surface::p7) and the
-        // zone tolerance (SmSurface::GetFace, unported)
+        // the polar box uses SmSurface::EvaluateNormal (surface::surface::p7)
         let req = BoundingBoxRequest {
             polar: true,
             ..BoundingBoxRequest::default()
         };
-        assert!(matches!(
-            s.calculate_bounding_box(&s.natural_uv_domain(), &req),
-            Err(SolidError::Unported { .. })
-        ));
+        assert!(s
+            .calculate_bounding_box(&s.natural_uv_domain(), &req)
+            .is_ok());
         assert!(s.is_parallel_to_vector(Vec3::new(0.0, 0.0, 0.0)).unwrap());
     }
 

@@ -4,8 +4,9 @@
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`.
 //!
 //! Every input starts with a surface block: `0 oob form n m p q r s cpts(x y z w) u v` (an
-//! `SmBSplineSurface(gw_SURFACE*, FALSE, NULL)`, as unit `surface.surface_p2`) or `1 O[3]
-//! N[3]` (`SmPlane(O, N)`). A curve block is `dim n p m cpts(x y z w) knots` (an
+//! `SmBSplineSurface(gw_SURFACE*, FALSE, NULL)`, as unit `surface.surface_p2`), `1 O[3]
+//! N[3]` (`SmPlane(O, N)`) or `2 basis implicit` (an `SmCurveBoundedSurface` without
+//! boundary curves over a B-spline or plane basis block). A curve block is `dim n p m cpts(x y z w) knots` (an
 //! `SmBSplineCurve(gw_CURVE*, dim, FALSE)`). A domain is `u0 v0 u1 v1`; `ul vl` are the
 //! `bUFromLeft` / `bVFromLeft` flags; `vecs` is `n` then `n` vectors; `tgt` is `has value`
 //! (an optional target distance). Every output starts with the status (`0` =
@@ -252,32 +253,47 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
 /// The parameter domain `[u0, v0, u1, v1]` of a surface block, `None` for a plane.
 type Domain = Option<[f64; 4]>;
 
-/// A surface block.
-fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
-    if rd.index(1)? == 1 {
+/// A surface block (no nested curve-bounded surfaces): its domain (`None` for a plane
+/// basis) and whether it is a plain B-spline.
+fn surface_kind(rd: &mut Reader<'_>, nested: bool) -> Result<(Domain, bool), FfiError> {
+    let kind = rd.index(2)?;
+    if kind == 2 {
+        if nested {
+            return Err(bad("nested curve-bounded surface"));
+        }
+        let (dom, _) = surface_kind(rd, true)?;
+        rd.flag()?;
+        return Ok((dom, false));
+    }
+    if kind == 1 {
         rd.vec3()?;
         rd.nonzero3()?;
-        return Ok(None);
+        return Ok((None, false));
     }
-        rd.flag()?;
-        rd.index(11)?;
-        let n = rd.index(MAX_INDEX)?;
-        let m = rd.index(MAX_INDEX)?;
-        let p = rd.index(MAX_DEGREE)?;
-        let q = rd.index(MAX_DEGREE)?;
-        let r = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
-        let s = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
-        if p == 0 || p > n || q == 0 || q > m || r != n + p + 1 || s != m + q + 1 {
-            return Err(bad(
-                "surface: need 1 <= p <= n, 1 <= q <= m, r = n+p+1, s = m+q+1",
-            ));
-        }
-        check_points(rd, (n + 1) * (m + 1), false, "surface")?;
-        let u = rd.finites(r + 1)?;
-        let v = rd.finites(s + 1)?;
-        let (u0, u1) = check_knots(&u, p, "surface u")?;
-        let (v0, v1) = check_knots(&v, q, "surface v")?;
-        Ok(Some([u0, v0, u1, v1]))
+    rd.flag()?;
+    rd.index(11)?;
+    let n = rd.index(MAX_INDEX)?;
+    let m = rd.index(MAX_INDEX)?;
+    let p = rd.index(MAX_DEGREE)?;
+    let q = rd.index(MAX_DEGREE)?;
+    let r = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
+    let s = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
+    if p == 0 || p > n || q == 0 || q > m || r != n + p + 1 || s != m + q + 1 {
+        return Err(bad(
+            "surface: need 1 <= p <= n, 1 <= q <= m, r = n+p+1, s = m+q+1",
+        ));
+    }
+    check_points(rd, (n + 1) * (m + 1), false, "surface")?;
+    let u = rd.finites(r + 1)?;
+    let v = rd.finites(s + 1)?;
+    let (u0, u1) = check_knots(&u, p, "surface u")?;
+    let (v0, v1) = check_knots(&v, q, "surface v")?;
+    Ok((Some([u0, v0, u1, v1]), true))
+}
+
+/// A surface block; returns its parameter domain (`None` for a plane basis).
+fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
+    Ok(surface_kind(rd, false)?.0)
 }
 
 /// A B-spline curve block; returns its parameter range.
@@ -365,10 +381,6 @@ const SO_NORMALIZE: usize = 5;
 const SO_AT_DISTANCE: usize = 6;
 const SO_SIGNED_MIN: usize = 9;
 
-fn bspline_only(dom: Domain) -> Result<[f64; 4], FfiError> {
-    dom.ok_or_else(|| bad("this op needs a B-spline surface"))
-}
-
 /// Checks `input` for `op` (see the module docs).
 ///
 /// # Errors
@@ -376,7 +388,11 @@ fn bspline_only(dom: Domain) -> Result<[f64; 4], FfiError> {
 /// [`FfiError::InvalidArgument`] for anything the shim must not see.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
     let mut rd = Reader { input, at: 0 };
-    let dom = surface(&mut rd)?;
+    let (dom, is_bspline) = surface_kind(&mut rd, false)?;
+    let bspline_only = |dom: Domain| {
+        dom.filter(|_| is_bspline)
+            .ok_or_else(|| bad("this op needs a B-spline surface"))
+    };
     match op {
         Op::Eval1 | Op::Eval2 => {
             uv(&mut rd, dom)?;
@@ -401,12 +417,12 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             domain_in(&mut rd, dom)?;
             rd.index(3)?;
             rd.flag()?;
-            rd.positive("tolerance")?;
+            rd.finite()?;
             rd.flag()?;
             rd.flag()?;
         }
         Op::IsPlanar => {
-            rd.positive("tolerance")?;
+            rd.finite()?;
             rd.flag()?;
         }
         Op::ApproxLen => domain_in(&mut rd, dom)?,
@@ -478,7 +494,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         Op::Gss => {
             let d = bspline_only(dom)?;
             domain_in(&mut rd, Some(d))?;
-            let d2 = bspline_only(surface(&mut rd)?)?;
+            let (d2, b2) = surface_kind(&mut rd, false)?;
+            let d2 = d2
+                .filter(|_| b2)
+                .ok_or_else(|| bad("this op needs a B-spline surface"))?;
             domain_in(&mut rd, Some(d2))?;
             sop(&mut rd, &[SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE])?;
             rd.positive("tolerance")?;

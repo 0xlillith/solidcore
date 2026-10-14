@@ -578,10 +578,8 @@ mod tests {
         let d = tf.evaluate(1.0, 1).unwrap();
         assert_eq!(d[1], Vec3::new(0.0, 0.0, 0.0));
         assert!(tf.evaluate(0.0, 2).is_err());
-        assert!(matches!(
-            tf.evaluate_point(0.5),
-            Err(SolidError::Unported { .. })
-        ));
+        // inside the interval: the surface normal (surface::surface::p7) is available
+        assert!(tf.evaluate_point(0.5).is_ok());
         // without a domain: the surface's natural UV domain
         let n = TangentField::new(&uv, &srf, TangentDirType::Interpolate, s, e, None).unwrap();
         assert_eq!(n.evaluate_point(0.0).unwrap(), s);

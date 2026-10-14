@@ -60,6 +60,8 @@
 //!   when the Newton solve fails), `LocalCurveSolve` returns `None` for "no answer".
 //!   `sm_LoadGuesses` returns its one guess, and takes the surface (upstream's
 //!   `pSurfaceNode->GetOwnerObject()`) instead of the node and the unused patch.
+//!   `LocalCurveSolve`'s `cpdOptTargetDistance` (`NotUsed` upstream) and
+//!   `CreateParallelProjectionCurves`' context are dropped.
 //! - **Debug-only work** compiled out of the release build (drawing, dumps, the
 //!   `SM_ASSERT`s, `FindDegenParamForDirection`'s angle bookkeeping, `EvaluateNormal`'s
 //!   static list of bad surfaces) is not ported.
@@ -866,12 +868,9 @@ impl Surface {
         want_continuity: bool,
     ) -> Result<(bool, Option<ContinuityType>)> {
         match self.kind() {
-            SurfaceKind::Plane(_) => {
-                // UNPORTED(surface.plane_p2): SmPlane::IsClosed
-                Err(SolidError::unported(
-                    "SmPlane::IsClosed",
-                    "surface.plane_p2",
-                ))
+            SurfaceKind::Plane(p) => {
+                let (closed, continuity) = p.is_closed();
+                Ok((closed, want_continuity.then_some(continuity)))
             }
             SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
@@ -1311,6 +1310,8 @@ impl Surface {
         curve: &BSplineCurve,
         projection_vector: Vec3,
         opt_projection_distance: Option<f64>,
+        opt_approx_tol_3d: Option<f64>,
+        opt_angle_tol_rad: Option<f64>,
     ) -> Result<(Vec<Curve>, Vec<Curve>)> {
         // check input
         if projection_vector.length_squared() < EFF_ZERO_SQ {
@@ -1319,8 +1320,17 @@ impl Surface {
 
         // check state - internal surface continuities are better than C0
         let _cache = surface_cache(self)?;
-        let _ = (uv_domain, curve, opt_projection_distance);
-        // UNPORTED(surface.surface_cache_p1): SmSurfaceCache::GetSurfaceContinuity
+        let _ = (
+            uv_domain,
+            curve,
+            opt_projection_distance,
+            opt_approx_tol_3d,
+            opt_angle_tol_rad,
+        );
+        // then: the cache's SurfaceCache::surface_continuity (only reported), the curve's
+        // CalculateContinuities (only reported), the projection distance (given, or 4x the
+        // largest box distance), the curve's linear sweep along the unit vector times the
+        // distance (translated back by half when not given), and:
         // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::DoIntersection
         Err(SolidError::unported(
             "SmAdvSurfaceIntersector::DoIntersection",
