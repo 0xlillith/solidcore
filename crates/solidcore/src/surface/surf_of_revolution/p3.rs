@@ -1494,8 +1494,8 @@ mod tests {
             )
             .unwrap();
         assert!(more);
-        // no tolerance: the bounding box needs the face's zone tolerance
-        assert!(c
+        // no tolerance: the bounding box takes the surface's zone tolerance
+        let (more, x) = c
             .intersect_with_surf_of_revolution(
                 &k,
                 &c.base().natural_uv_domain(),
@@ -1503,8 +1503,9 @@ mod tests {
                 &d.base().natural_uv_domain(),
                 None,
             )
-            .unwrap_err()
-            .is_unported());
+            .unwrap();
+        assert!(!more);
+        assert_eq!(x.curve_types, vec![TsectCurveType::Crossing]);
     }
 
     #[test]

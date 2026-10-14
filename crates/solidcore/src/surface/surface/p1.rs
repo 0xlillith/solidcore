@@ -952,7 +952,10 @@ impl Surface {
                 s.basis()
                     .evaluate_step(uv, highest_u_deriv, highest_v_deriv, flags)
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::SurfOfRevolution(_)
+            | SurfaceKind::Step(_) => {
                 // pass the call along
                 self.evaluate(
                     uv,
@@ -976,9 +979,10 @@ impl Surface {
     pub fn evaluate_step_point(&self, uv: Point2) -> Result<Point3> {
         match self.kind() {
             SurfaceKind::CurveBounded(s) => s.basis().evaluate_step_point(uv),
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
-                self.evaluate_point(uv)
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::SurfOfRevolution(_)
+            | SurfaceKind::Step(_) => self.evaluate_point(uv),
         }
     }
 
@@ -998,6 +1002,14 @@ impl Surface {
     ) -> Result<Vec<Vec<Vec3>>> {
         match self.kind() {
             SurfaceKind::BSpline(s) => s.evaluate_simple(
+                uv,
+                highest_u_deriv,
+                highest_v_deriv,
+                flags.u_side == Side::Left,
+                flags.v_side == Side::Left,
+                flags.only_upper_half,
+            ),
+            SurfaceKind::SurfOfRevolution(s) => s.base().evaluate_simple(
                 uv,
                 highest_u_deriv,
                 highest_v_deriv,
@@ -1201,9 +1213,13 @@ impl Surface {
     /// # Errors
     ///
     /// Those of `SetMinMax`.
-    pub fn convert_domain_from_step_to_nurbs(&self, anal_domain: &Extent2d) -> Result<Extent2d> {
-        let min_nurb_uv = self.convert_uv_from_step_to_nurbs(anal_domain.min());
-        let max_nurb_uv = self.convert_uv_from_step_to_nurbs(anal_domain.max());
+    pub fn convert_domain_from_step_to_nurbs(
+        &self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+    ) -> Result<Extent2d> {
+        let min_nurb_uv = self.convert_uv_from_step_to_nurbs(k, anal_domain.min())?;
+        let max_nurb_uv = self.convert_uv_from_step_to_nurbs(k, anal_domain.max())?;
 
         // InsideOut reverses the generator direction. With SwapUV that direction is U,
         // not V, so order the converted endpoints in both coordinates.
@@ -1224,9 +1240,13 @@ impl Surface {
     ///
     /// `SetMinMax`'s error (a reversed `u` interval); upstream then also sets the
     /// output to `nurb_domain`.
-    pub fn convert_domain_from_nurbs_to_step(&self, nurb_domain: &Extent2d) -> Result<Extent2d> {
-        let min_step_uv = self.convert_uv_from_nurbs_to_step(nurb_domain.min());
-        let max_step_uv = self.convert_uv_from_nurbs_to_step(nurb_domain.max());
+    pub fn convert_domain_from_nurbs_to_step(
+        &self,
+        k: &Kernel,
+        nurb_domain: &Extent2d,
+    ) -> Result<Extent2d> {
+        let min_step_uv = self.convert_uv_from_nurbs_to_step(k, nurb_domain.min())?;
+        let max_step_uv = self.convert_uv_from_nurbs_to_step(k, nurb_domain.max())?;
 
         // set output - InsideOut swaps the GenCurve min to max traversal direction
         let mut d = Extent2d::new();
@@ -1262,7 +1282,7 @@ impl Surface {
         expand_pos_boxes_by_zone_tol_3d: bool,
     ) -> Result<SurfaceBoxes> {
         match self.kind() {
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) => {
+            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
                 // the B-spline override expands by its face's tolerance (GetFace()):
                 // the owner is held here, not by the B-spline
                 if expand_pos_boxes_by_zone_tol_3d && (want[0] || want[1]) && self.face()?.is_some()
@@ -1283,6 +1303,9 @@ impl Surface {
                 };
                 let r = match self.kind() {
                     SurfaceKind::BSpline(s) => s.calculate_bounding_box(uv_domain, &req)?,
+                    SurfaceKind::SurfOfRevolution(s) => {
+                        s.base().calculate_bounding_box(uv_domain, &req)?
+                    }
                     SurfaceKind::Plane(p) => plane_bounding_box(p, uv_domain, &req)?,
                     _ => unreachable_kind()?,
                 };
@@ -1546,6 +1569,7 @@ impl Surface {
     pub fn is_degenerate_point(&self, tol_3d: f64, uv_domain: Option<&Extent2d>) -> Result<bool> {
         match self.kind() {
             SurfaceKind::BSpline(s) => s.is_degenerate_point(tol_3d, uv_domain),
+            SurfaceKind::SurfOfRevolution(s) => s.base().is_degenerate_point(tol_3d, uv_domain),
             SurfaceKind::Plane(p) => p.base_for_query().is_degenerate_point(tol_3d, uv_domain),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
                 base_is_degenerate_point(self, tol_3d, uv_domain)
@@ -1568,6 +1592,10 @@ impl Surface {
     ) -> Result<bool> {
         match self.kind() {
             SurfaceKind::BSpline(s) => s.is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol),
+            SurfaceKind::SurfOfRevolution(s) => {
+                s.base()
+                    .is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol)
+            }
             SurfaceKind::Plane(p) => {
                 p.base_for_query()
                     .is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol)
@@ -2139,6 +2167,12 @@ pub fn crossed_seam_or_pole(
     match surface.kind() {
         SurfaceKind::Plane(_) => return false,
         SurfaceKind::BSpline(b) => {
+            if b.degree(SurfParamType::U) == 1 && b.degree(SurfParamType::V) == 1 {
+                return false;
+            }
+        }
+        SurfaceKind::SurfOfRevolution(s) => {
+            let b = s.base();
             if b.degree(SurfParamType::U) == 1 && b.degree(SurfParamType::V) == 1 {
                 return false;
             }

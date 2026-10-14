@@ -248,7 +248,6 @@ fn create_iso_parametric_curve(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
             "surface.surface_cache_p1",
         )),
-        SurfaceKind::CurveBounded(_) => {
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
@@ -314,7 +313,8 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_) | SurfaceKind::Step(_) => {
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
             Err(SolidError::unported(
                 "SmSurface::IsSingularity",

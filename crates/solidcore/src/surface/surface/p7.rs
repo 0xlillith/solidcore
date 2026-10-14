@@ -779,7 +779,8 @@ impl Surface {
             }
             SurfaceKind::BSpline(_)
             | SurfaceKind::CurveBounded(_)
-            | SurfaceKind::SurfOfRevolution(_) | SurfaceKind::Step(_) => {
+            | SurfaceKind::SurfOfRevolution(_)
+            | SurfaceKind::Step(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
             }
         }
