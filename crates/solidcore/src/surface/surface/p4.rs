@@ -17,7 +17,6 @@
 //! | [`Surface::is_on_seam`], [`SeamInfo`]             | `SmSurface::IsOnSeam`                            |
 //! | [`Surface::global_point_solve`], [`global_point_solve_starts`], [`NoObject`] | `SmSurface::GlobalPointSolve` |
 //! | [`classify_curve_surface_xsect_point`], [`XsectClassification`] | `sm_ClassifyCurveSurfaceXSectPoint` (static) |
-//! | `convert_to_parameter_delta` (private)            | `sm_ConvertToParameterDelta` (static)            |
 //! | [`CsIntersect`]                                   | `SmCSIntersectENFO` (constructor, `Evaluate`)    |
 //! | [`CsNormalize`]                                   | `SmCSNormalizeENFO` (constructor, `Evaluate`)    |
 //! | [`SspIntersect`]                                  | `SmSSPIntersectENFO` (constructor, `Evaluate`)   |
@@ -33,8 +32,14 @@
 //!   dropped. `SmCSIntersectENFO` keeps its call count, last gap and minimize flag in the
 //!   struct, as upstream. The finite-difference Jacobian `SmSSINormalizeENFO` computes after
 //!   its analytic one is the only one that reaches the caller, so the analytic one is not
-//!   built. `SmSSINormalizeENFO` evaluates the *second* surface's normal on the *first*
-//!   surface, as upstream does (kept, since the difftest compares it).
+//!   built. In the `sN2U` fallback `SmSSINormalizeENFO` evaluates the
+//!   second point's normal on the *first* surface, as upstream does (kept, since the difftest
+//!   compares it); the small-gap branch uses the other surface.
+//! - **Seam curves of planes.** `SmPlane` is an `SmBSplineSurface` upstream, so with
+//!   `known_closed` the C++ builds a seam curve for it; [`Surface::create_seam_curve`]
+//!   returns `InvalidInput` for a plane (its base is not a stored B-spline surface here).
+//! - **Owner checks.** Only an owner of type `SmFace` (surface) or `SmEdge` (curve) takes
+//!   the topology path, as upstream's `SM_CAST_PTR`.
 //! - **Co-ported callees.** `smsurf_EvaluateNormalSection`, `smsurf_IsPointOnNormal` and
 //!   `SmSurfaceEval::EvalNormal` are small callees owned by units `surface.surface_p1` and
 //!   `surface.surface_p3` that this unit's functions need to run at all; they are ported
@@ -64,6 +69,7 @@ use crate::curve::curve::p2::evaluate_geometric as curve_evaluate_geometric;
 use crate::curve::curve::Curve;
 use crate::curve::line::Line;
 use crate::error::{ignore_status, ignored, Result, SolidError, SM_ERR};
+use crate::geom::assert_array::labels::{EDGE_TYPE, FACE_TYPE};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::{
@@ -87,7 +93,9 @@ use crate::surface::plane::Plane;
 
 use super::p1::get_surface_cache;
 use super::p1::{evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs};
-use super::p2::{evaluate_geometric, LocalSurfaceType, SurfaceEval, TsectCurveType};
+use super::p2::{
+    convert_to_parameter_delta, evaluate_geometric, LocalSurfaceType, SurfaceEval, TsectCurveType,
+};
 use super::{Surface, SurfaceKind};
 
 const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersect::evaluate";
@@ -653,8 +661,9 @@ impl EvalNFunctions for SsiNormalize<'_> {
         if gap.length_squared() < tol {
             // translate one surface point by its normal and solve a little better
             let norm = self.surface.evaluate_normal(uv, Side::Left, Side::Left)?;
-            // (upstream evaluates the second normal on the *first* surface)
-            let norm2 = self.surface.evaluate_normal(uv2, Side::Left, Side::Left)?;
+            let norm2 = self
+                .other_surface
+                .evaluate_normal(uv2, Side::Left, Side::Left)?;
             let ave_norm = if norm.dot(norm2) < 0.0 {
                 (norm - norm2) / 2.0
             } else {
@@ -1546,7 +1555,7 @@ impl Surface {
                 // If this surface belongs to a face, then check whether the returned UV
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
-                if self.owner().is_some() {
+                if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
                     get_surface_cache(&Kernel::default(), self, None::<NoObject>)?;
                     // UNPORTED(query.face_p2): SmFace::PointClassify
                     return Err(SolidError::unported(
@@ -1593,18 +1602,6 @@ pub struct XsectClassification {
     pub new_t_guess: f64,
     /// `rePointType`: touching, crossing, tangent, coincident or near tangent.
     pub point_type: TsectCurveType,
-}
-
-/// The parameter step along `tangent` that moves the evaluation by the projection of
-/// `delta` (`sm_ConvertToParameterDelta`).
-fn convert_to_parameter_delta(tangent: Vec3, delta: Vec3) -> f64 {
-    let tan_len = tangent.length();
-    if tan_len < EFF_ZERO {
-        return 0.0;
-    }
-    let unit_tan = tangent / tan_len;
-    let dot = unit_tan.dot(delta);
-    dot / tan_len
 }
 
 /// `smos_Sgn`: `+1` for positive or zero values, else `-1`.
@@ -1867,7 +1864,7 @@ pub fn classify_curve_surface_xsect_point(
     // heuristics.
     let mut curve_tol = EFF_ZERO_SQRT; // default values, if nothing else to use.
     let mut surface_tol = EFF_ZERO_SQRT;
-    if curve.owner().is_some() {
+    if curve.owner().is_some_and(|o| o.type_code == EDGE_TYPE) {
         // UNPORTED(topology.edge): SmEdge::GetTolerance
         let _ = curve_tol;
         return Err(SolidError::unported(
@@ -1877,7 +1874,7 @@ pub fn classify_curve_surface_xsect_point(
     } else if !curve_line {
         curve_tol = curve_radius / 1000.0;
     }
-    if surface.owner().is_some() {
+    if surface.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
         // UNPORTED(topology.face_p2): SmFace::GetTolerance
         let _ = surface_tol;
         return Err(SolidError::unported(

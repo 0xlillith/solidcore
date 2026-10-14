@@ -743,8 +743,28 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
         }
         37..=39 => {
             let same = rng.chance(0.25);
-            let other = if same { s.clone() } else { gen_surface(rng) };
-            let pts = gen_pts4(rng, s, &other, same);
+            // two different planes through a common point reach the small-gap branch,
+            // which evaluates the second normal on the other surface
+            let crossing = match s {
+                SrfIn::Plane { o, .. } if !same && rng.chance(0.3) => {
+                    let mut n = gen_unit_vec(rng);
+                    if rng.chance(0.5) {
+                        n = [0.0, 1.0, 0.0];
+                    }
+                    Some(SrfIn::Plane { o: *o, n })
+                }
+                _ => None,
+            };
+            let other = match &crossing {
+                Some(p) => p.clone(),
+                None if same => s.clone(),
+                None => gen_surface(rng),
+            };
+            let pts = if crossing.is_some() {
+                vec![vec![0.0; 4]]
+            } else {
+                gen_pts4(rng, s, &other, same)
+            };
             OpIn::SsiNormalize { other, n: gen_unit_vec(rng), d: rng.uniform(-2.0, 2.0), pts }
         }
         40..=42 => {
