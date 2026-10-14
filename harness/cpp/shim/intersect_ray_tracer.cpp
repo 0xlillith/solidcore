@@ -16,6 +16,7 @@
 // is included.
 #include "sc_shim.h"
 
+#include <SmAxis2Placement.h>
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
 #include <SmExtent1d.h>
@@ -53,6 +54,11 @@ enum : int32_t
     OP_FIRE = 3,
     OP_LOCAL = 4,
     OP_ADD_SURFACE = 5,
+    OP_RENDERER = 6,
+    OP_LIGHT = 7,
+    OP_DO_RENDER = 8,
+    OP_RENDER_PIXEL = 9,
+    OP_RENDER_RAY = 10,
 };
 
 struct Bad : std::runtime_error
@@ -185,6 +191,7 @@ int32_t run(const double* p, int64_t n, std::vector<double>& o)
     SmContext sCtx;
     std::vector<SmSurface*> surfs;
     SmRayTracer* rt = nullptr;
+    SmRayRenderer* renderer = nullptr;
     std::vector<SmSurfaceGridElement*> leaves;
     int32_t rc = SC_OK;
     try
@@ -204,7 +211,7 @@ int32_t run(const double* p, int64_t n, std::vector<double>& o)
         int64_t nops = rd.idx(0, 64);
         for (int64_t k = 0; k < nops; k++)
         {
-            int op = (int)rd.idx(1, 5);
+            int op = (int)rd.idx(1, 10);
             switch (op)
             {
             case OP_SOLVER_TOL:
@@ -332,6 +339,69 @@ int32_t run(const double* p, int64_t n, std::vector<double>& o)
                 // needs the surface cache; the Rust side is deferred, nothing to compare
                 rd.idx(0, nsurf - 1);
                 break;
+            case OP_RENDERER:
+            {
+                if (renderer != nullptr)
+                    throw Bad();
+                SmPoint3d o = rd.vec();
+                SmVector3d x = rd.vec();
+                SmVector3d y = rd.vec();
+                SmAxis2Placement place(o, x, y);
+                SmExtent3d view = rd.ext6();
+                ULONG nx = (ULONG)rd.idx(1, 8);
+                ULONG ny = (ULONG)rd.idx(1, 8);
+                ULONG rate = (ULONG)rd.idx(1, 3);
+                renderer = new (sCtx) SmRayRenderer(rt, place, view, nx, ny);
+                renderer->SetSampleRate(rate);
+                break;
+            }
+            case OP_LIGHT:
+            {
+                if (renderer == nullptr)
+                    throw Bad();
+                SmVector3d v = rd.vec();
+                bool pt = rd.flag();
+                renderer->AddLightSource(new (sCtx) SmLightSource(v, pt));
+                break;
+            }
+            case OP_DO_RENDER:
+            {
+                if (renderer == nullptr)
+                    throw Bad();
+                bool shadows = rd.flag();
+                SmVector3d bg = rd.vec();
+                SmVector3d obj = rd.vec();
+                SmStatus s = renderer->DoRender(shadows, bg, obj);
+                o.push_back(st(s));
+                o.push_back((double)renderer->GetPixelsShaded());
+                break;
+            }
+            case OP_RENDER_PIXEL:
+            {
+                if (renderer == nullptr)
+                    throw Bad();
+                ULONG px = (ULONG)rd.idx(0, 7);
+                ULONG py = (ULONG)rd.idx(0, 7);
+                SmVector3d c;
+                SmStatus s = renderer->RenderPixel(px, py, c);
+                o.push_back(st(s));
+                put3(o, c);
+                o.push_back((double)renderer->GetPixelsShaded());
+                break;
+            }
+            case OP_RENDER_RAY:
+            {
+                if (renderer == nullptr)
+                    throw Bad();
+                SmVector3d rp = rd.vec();
+                SmVector3d rv = rd.vec();
+                SmVector3d c;
+                SmStatus s = renderer->RenderRay(rp, rv, c);
+                o.push_back(st(s));
+                put3(o, c);
+                o.push_back((double)renderer->GetPixelsShaded());
+                break;
+            }
             default:
                 throw Bad();
             }
@@ -341,7 +411,10 @@ int32_t run(const double* p, int64_t n, std::vector<double>& o)
     {
         rc = SC_ERR_ARG;
     }
-    delete rt; // deletes the grid, not the surfaces
+    if (renderer != nullptr)
+        delete renderer; // deletes the tracer and the lights
+    else
+        delete rt; // deletes the grid, not the surfaces
     for (SmSurface* s : surfs)
         delete s;
     return rc;

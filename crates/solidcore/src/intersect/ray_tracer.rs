@@ -15,6 +15,10 @@
 //! | [`RayTracer::fire_ray`], [`RayHit`]               | `SmRayTracer::FireRay`                    |
 //! | [`RayTracer::add_surface_to_grid`], [`RayTracer::add_surface_with_bbox`] | `SmRayTracer::AddSurfaceToGrid` |
 //! | [`RayTracer::add_poly_brep_to_grid`]              | `SmRayTracer::AddPolyBrepToGrid`          |
+//! | [`RayRenderer`], [`RayRenderer::new`]               | `SmRayRenderer`, `SmRayRenderer::SmRayRenderer` |
+//! | `Drop` (implicit)                                 | `~SmRayRenderer`                          |
+//! | [`RayRenderer::do_render`], [`RayRenderer::render_pixel`], [`RayRenderer::render_ray`] | `SmRayRenderer::DoRender`, `RenderPixel`, `RenderRay` |
+//! | [`RayRenderer::set_sample_rate`], [`RayRenderer::add_light_source`], [`RayRenderer::pixels_shaded`] | `SetSampleRate`, `AddLightSource`, `GetPixelsShaded` |
 //! | [`RayObject`]                                   | the `SmObject*` of `SmSolution::m_apObjects` |
 //! | [`surface_leaf`]                                  | `SmSurfaceGridElement::Init` (the part after the Bezier patch data) |
 //! | `line_plane_intersect` (private)                  | `sm_LinePlaneIntersect`                   |
@@ -51,8 +55,14 @@
 //!   element in the ray's path is [`SolidError::Unported`], as is
 //!   [`RayTracer::add_poly_brep_to_grid`], so the `SmPolyBrep` list and the
 //!   per-context mark locks of `FireRay` (nothing can put a poly B-rep in the list)
-//!   are not ported; `GetMemoryUsed`, `Dump`, the drawing blocks and `SmRayRenderer`
-//!   are not reached by the upstream tests and not ported either.
+//!   are not ported; `GetMemoryUsed`, `Dump` and the drawing blocks are not reached
+//!   by the upstream tests and not ported either.
+//! - **Renderer.** [`RayRenderer`] owns its tracer and light sources by value.
+//!   `DoRender` returns the pixel colours (upstream keeps one row in a local and prints
+//!   a progress line per row with `smos_WriteBuffer`, which is dropped); the colours
+//!   upstream leaves unset before `DoRender` are black; the hit node `RenderRay`
+//!   passes as the skip element is `m_apNodes[0]`, which `FireRay` always clears, so
+//!   no element is skipped; unsigned products wrap as upstream's `ULONG`.
 //! - **Unported callees.** `SmSurface::LocalLineIntersect` (`surface.surface_p8`),
 //!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`), `SmSurface::GetFace`
 //!   (`surface.surface_p1`), `SmFace::PointClassify` (`query.face_p2`), the surface
@@ -67,6 +77,7 @@ use crate::curve::curve::p2::evaluate_geometric;
 use crate::curve::curve::Curve;
 use crate::curve::line::Line;
 use crate::error::{Result, SolidError};
+use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
@@ -1180,6 +1191,250 @@ impl<'s> RayTracer<'s> {
         // Expand the hierarchy element to avoid recomputing the surface cache a 2nd
         // time
         self.grid.expand_hierarchy(id)
+    }
+}
+
+/// The image renderer (`SmRayRenderer`): fires one ray per pixel sample into a
+/// [`RayTracer`] and shades the hits from the light sources. The view looks along
+/// the z axis of the inverse geometry transform into the unit square of `view_volume`.
+#[derive(Debug)]
+pub struct RayRenderer<'s> {
+    /// `m_pRayTracer`: owned, as upstream.
+    ray_tracer: RayTracer<'s>,
+    /// `m_vInvTransform`: the inverse of the view transformation.
+    inv_transform: Axis2Placement,
+    /// `m_vViewVolume`.
+    view_volume: Extent3d,
+    /// `m_lNumXPixels`.
+    num_x_pixels: u64,
+    /// `m_lNumYPixels`.
+    num_y_pixels: u64,
+    /// `m_lSampleRate`: samples per pixel in one direction.
+    sample_rate: u64,
+    /// `m_vLightSources`.
+    light_sources: Vec<LightSource>,
+    /// `m_bDoShadows`.
+    do_shadows: bool,
+    /// `m_vBackgroundColor`.
+    background_color: Vec3,
+    /// `m_vDefaultObjectColor`.
+    default_object_color: Vec3,
+    /// `m_vDefaultAmbientColor`.
+    default_ambient_color: Vec3,
+    /// `m_lPixelsShaded`.
+    pixels_shaded: u64,
+}
+
+impl<'s> RayRenderer<'s> {
+    /// `SmRayRenderer(pRayTracer, crGeometryTransform, crViewVolume, lNumXPixels,
+    /// lNumYPixels)`: takes ownership of the tracer. The colours upstream leaves
+    /// unset until `DoRender` are black.
+    #[must_use]
+    pub fn new(
+        ray_tracer: RayTracer<'s>,
+        geometry_transform: &Axis2Placement,
+        view_volume: &Extent3d,
+        num_x_pixels: u64,
+        num_y_pixels: u64,
+    ) -> Self {
+        Self {
+            ray_tracer,
+            inv_transform: geometry_transform.invert(),
+            view_volume: *view_volume,
+            num_x_pixels,
+            num_y_pixels,
+            sample_rate: 1,
+            light_sources: Vec::new(),
+            do_shadows: false,
+            background_color: Vec3::new(0.0, 0.0, 0.0),
+            default_object_color: Vec3::new(0.0, 0.0, 0.0),
+            default_ambient_color: Vec3::new(0.0, 0.0, 0.0),
+            pixels_shaded: 0,
+        }
+    }
+
+    /// The ray tracer (`m_pRayTracer`).
+    #[must_use]
+    pub const fn ray_tracer(&self) -> &RayTracer<'s> {
+        &self.ray_tracer
+    }
+
+    /// The ray tracer, mutably.
+    pub fn ray_tracer_mut(&mut self) -> &mut RayTracer<'s> {
+        &mut self.ray_tracer
+    }
+
+    /// `GetPixelsShaded`.
+    #[must_use]
+    pub const fn pixels_shaded(&self) -> u64 {
+        self.pixels_shaded
+    }
+
+    /// `SetSampleRate`.
+    pub fn set_sample_rate(&mut self, sample_rate: u64) {
+        self.sample_rate = sample_rate;
+    }
+
+    /// `AddLightSource`.
+    pub fn add_light_source(&mut self, light: LightSource) {
+        self.light_sources.push(light);
+    }
+
+    /// Renders the whole image (`DoRender`): sets the colours and renders every
+    /// pixel row by row. Returns the pixel colours in row-major order (upstream
+    /// keeps one row in a local and prints a progress line per row).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`RayRenderer::render_pixel`].
+    pub fn do_render(
+        &mut self,
+        do_shadows: bool,
+        background_color: Vec3,
+        default_object_color: Vec3,
+    ) -> Result<Vec<Vec3>> {
+        self.do_shadows = do_shadows;
+        self.background_color = background_color;
+        self.default_object_color = default_object_color;
+        self.default_ambient_color = default_object_color / 10.0;
+
+        let mut image = Vec::new();
+        for iy in 0..self.num_y_pixels {
+            for ix in 0..self.num_x_pixels {
+                // Here we are working on pixel ix,iy as measured from the upper left
+                // hand corner.
+                image.push(self.render_pixel(ix, iy)?);
+            }
+        }
+        Ok(image)
+    }
+
+    /// The colour of one pixel (`RenderPixel`): the average colour of
+    /// `sample_rate`² rays from within the pixel.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`RayRenderer::render_ray`].
+    pub fn render_pixel(&mut self, pixel_x: u64, pixel_y: u64) -> Result<Vec3> {
+        // init output
+        let mut pixel_color = Vec3::new(0.0, 0.0, 0.0);
+
+        // Get Ray direction
+        let ray_vector = self.inv_transform.z_axis();
+
+        // get lower corner parameter value for this pixel
+        let x = (pixel_x as f64 * 1.0) / self.num_x_pixels as f64;
+        let y = (pixel_y as f64 * 1.0) / self.num_y_pixels as f64;
+
+        // figure the sample stepping size for one pixel assuming all pixels sit in a
+        // 1x1 unit square.
+        let size_x = 1.0 / self.num_x_pixels.wrapping_mul(self.sample_rate) as f64;
+        let size_y = 1.0 / self.num_y_pixels.wrapping_mul(self.sample_rate) as f64;
+
+        // for every sample point within the pixel
+        for ixs in 0..self.sample_rate {
+            for iys in 0..self.sample_rate {
+                // pick a pixel start point
+                let eval_x = x + ixs as f64 * size_x;
+                let eval_y = y + iys as f64 * size_y;
+                let ray_point = self.view_volume.evaluate(eval_x, eval_y, 1.0);
+
+                // fire ray into model and pick an associated color
+                let ray_color = self.render_ray(ray_point, ray_vector)?;
+
+                // accumulate sample point color values
+                pixel_color += ray_color;
+            }
+        }
+
+        // set output color = average of all sample point colors
+        Ok(pixel_color / self.sample_rate.wrapping_mul(self.sample_rate) as f64)
+    }
+
+    /// The colour of a ray (`RenderRay`): the background when it hits nothing, else
+    /// the ambient colour plus the object colour weighted by the cosine to every
+    /// light that is not shadowed, clamped to 1.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`RayTracer::fire_ray`].
+    pub fn render_ray(&mut self, ray_point: Point3, ray_vector: Vec3) -> Result<Vec3> {
+        // init state for upcoming Ray intersection
+        self.ray_tracer.hit_any_thing = false; // Only take closest hit
+        self.ray_tracer.skip_element = None;
+
+        // intersect ray with shapes stored within m_pRayTracer
+        let hit = self
+            .ray_tracer
+            .fire_ray(ray_point, ray_vector, BIG_DOUBLE)?;
+
+        // when nothing was hit - set output color to Background color
+        if !hit.hits_something {
+            return Ok(self.background_color);
+        }
+
+        // arrive here when input ray hits something
+
+        // get local hit data
+        self.pixels_shaded += 1;
+        let param = |i: usize| hit.solution.start.parameters.get(i).copied().unwrap_or(0.0);
+        let point = Vec3::new(param(3), param(4), param(5));
+        let normal = Vec3::new(param(6), param(7), param(8));
+
+        // init output color to Ambient
+        let mut ray_color = self.default_ambient_color;
+
+        // for every light source
+        for light in &self.light_sources {
+            // get angle between lightSource and hitNormal directions
+            let mut dot = light.direction_or_origin.dot(normal);
+
+            // when doing shadows - trace a ray towards the light. If it hits anything,
+            // this point is in shadow and won't get any of this light's color added to
+            // it.
+            if self.do_shadows {
+                let shadow_vec = light.direction_or_origin;
+
+                // (the hit node, which upstream would skip when the shadow vector is not
+                // near 90 degrees to the normal, is the null `m_apNodes[0]`: no skip)
+                self.ray_tracer.skip_element = None;
+
+                // start the ray just beyond the current hit point
+                let shadow_point = point + 0.0001 * shadow_vec;
+
+                // save a little time - look for any hit not just the closest hit
+                self.ray_tracer.hit_any_thing = true;
+
+                // shoot the ray to the light - see if anything else is hit
+                let shadow = self
+                    .ray_tracer
+                    .fire_ray(shadow_point, shadow_vec, BIG_DOUBLE)?;
+
+                // something was hit - set dDot to zero to remember this point is in
+                // shadow
+                if shadow.hits_something {
+                    dot = 0.0;
+                }
+            }
+
+            // add Default Object Color to current ambient light
+            if dot > 0.0 {
+                ray_color += dot * self.default_object_color;
+            }
+        }
+
+        // Clamp colors to 1.0
+        if ray_color.x > 1.0 {
+            ray_color.x = 1.0;
+        }
+        if ray_color.y > 1.0 {
+            ray_color.y = 1.0;
+        }
+        if ray_color.z > 1.0 {
+            ray_color.z = 1.0;
+        }
+
+        Ok(ray_color)
     }
 }
 

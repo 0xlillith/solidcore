@@ -30,7 +30,10 @@ use solidcore::geom::pseudo_box::PseudoBox;
 use solidcore::geom::solution_array::Solution;
 use solidcore::geom::vector2d::Vec2;
 use solidcore::geom::vector3d::Vec3;
-use solidcore::intersect::ray_tracer::{surface_leaf, Lsi3LocalSolver, RayObject, RayTracer};
+use solidcore::geom::axis2_placement::Axis2Placement;
+use solidcore::intersect::ray_tracer::{
+    surface_leaf, LightSource, Lsi3LocalSolver, RayObject, RayRenderer, RayTracer,
+};
 use solidcore::math::BIG_DOUBLE;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::knots::Side;
@@ -124,6 +127,32 @@ enum OpIn {
     },
     AddSurface {
         surface: usize,
+    },
+    Renderer {
+        origin: P3,
+        x: P3,
+        y: P3,
+        view: E6,
+        nx: usize,
+        ny: usize,
+        rate: usize,
+    },
+    Light {
+        v: P3,
+        point: bool,
+    },
+    DoRender {
+        shadows: bool,
+        background: P3,
+        object: P3,
+    },
+    RenderPixel {
+        x: usize,
+        y: usize,
+    },
+    RenderRay {
+        p: P3,
+        v: P3,
     },
 }
 
@@ -227,6 +256,38 @@ fn ffi_program(i: &Inputs) -> ffi::Program {
                     interval: *interval,
                 }),
                 OpIn::AddSurface { surface } => ffi::Op::AddSurface(*surface),
+                OpIn::Renderer {
+                    origin,
+                    x,
+                    y,
+                    view,
+                    nx,
+                    ny,
+                    rate,
+                } => ffi::Op::Renderer(ffi::RendererIn {
+                    origin: *origin,
+                    x: *x,
+                    y: *y,
+                    view: *view,
+                    nx: *nx,
+                    ny: *ny,
+                    rate: *rate,
+                }),
+                OpIn::Light { v, point } => ffi::Op::Light {
+                    vector: *v,
+                    is_point: *point,
+                },
+                OpIn::DoRender {
+                    shadows,
+                    background,
+                    object,
+                } => ffi::Op::DoRender {
+                    shadows: *shadows,
+                    background: *background,
+                    object: *object,
+                },
+                OpIn::RenderPixel { x, y } => ffi::Op::RenderPixel(*x, *y),
+                OpIn::RenderRay { p, v } => ffi::Op::RenderRay(*p, *v),
             })
             .collect(),
     }
@@ -313,6 +374,26 @@ fn put_solution(o: &mut Vec<f64>, s: &Solution<RayObject>) {
     });
 }
 
+fn put_color(
+    rec: &mut Vec<f64>,
+    res: solidcore::Result<Vec3>,
+    shaded: u64,
+) -> solidcore::Result<()> {
+    match res {
+        Ok(c) => {
+            rec.push(0.0);
+            rec.extend([c.x, c.y, c.z]);
+        }
+        Err(e @ SolidError::Unported { .. }) => return Err(e),
+        Err(e) => {
+            rec.push(status_of(&e));
+            rec.extend([0.0; 3]);
+        }
+    }
+    rec.push(shaded as f64);
+    Ok(())
+}
+
 /// Coverage counters of a Rust run (used by the generator test).
 #[derive(Debug, Default)]
 struct Stats {
@@ -336,9 +417,27 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
         })
         .collect::<Result<_, _>>()?;
     let grid = Grid::new(&ext3(i.grid.bbox), i.grid.size)?;
-    let mut tracer = RayTracer::new(grid, i.grid.ray_tol, i.grid.ray_acc);
-    for s in &surfaces {
-        tracer.register_surface(s);
+    let mut tracer_slot = Some(RayTracer::new(grid, i.grid.ray_tol, i.grid.ray_acc));
+    let mut renderer: Option<RayRenderer> = None;
+    if let Some(t) = tracer_slot.as_mut() {
+        for s in &surfaces {
+            t.register_surface(s);
+        }
+    }
+    // the tracer lives in the renderer once there is one
+    macro_rules! tracer {
+        () => {
+            match (tracer_slot.as_mut(), renderer.as_mut()) {
+                (Some(t), _) => t,
+                (None, Some(r)) => r.ray_tracer_mut(),
+                (None, None) => {
+                    return Err(SolidError::InvalidInput {
+                        operation: "difftest::intersect_ray_tracer",
+                        reason: "tracer",
+                    })
+                }
+            }
+        };
     }
     let mut leaves: Vec<SurfaceGridElement<usize>> = Vec::new();
     let mut rec: Vec<f64> = Vec::new();
@@ -348,7 +447,7 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
     };
     for op in &i.ops {
         match op {
-            OpIn::SolverTol { tol } => tracer.set_solver_tolerance(*tol),
+            OpIn::SolverTol { tol } => tracer!().set_solver_tolerance(*tol),
             OpIn::AddLeaf {
                 surface,
                 uv,
@@ -372,7 +471,7 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
                     &PseudoBox::from_extent3d(&ext3(*pseudo)),
                     &polar_box,
                 )?;
-                tracer
+                tracer!()
                     .grid_mut()
                     .add_surface_element(leaf, &ext3(*elem_box))?;
                 leaves.push(leaf);
@@ -384,6 +483,7 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
                 hit_any,
                 skip,
             } => {
+                let tracer = tracer!();
                 tracer.hit_any_thing = *hit_any;
                 tracer.skip_element = skip.map(ElementId);
                 st.fires += 1;
@@ -456,7 +556,50 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
             }
             OpIn::AddSurface { surface } => {
                 let surf = surfaces.get(*surface).ok_or_else(|| bad_index("surface"))?;
-                tracer.add_surface_to_grid(surf)?;
+                tracer!().add_surface_to_grid(surf)?;
+            }
+            OpIn::Renderer {
+                origin,
+                x,
+                y,
+                view,
+                nx,
+                ny,
+                rate,
+            } => {
+                let t = tracer_slot.take().ok_or_else(|| bad_index("renderer"))?;
+                let place = Axis2Placement::new(v3(*origin), v3(*x), v3(*y));
+                let mut r = RayRenderer::new(t, &place, &ext3(*view), *nx as u64, *ny as u64);
+                r.set_sample_rate(*rate as u64);
+                renderer = Some(r);
+            }
+            OpIn::Light { v, point } => {
+                let r = renderer.as_mut().ok_or_else(|| bad_index("renderer"))?;
+                r.add_light_source(LightSource::new(v3(*v), *point));
+            }
+            OpIn::DoRender {
+                shadows,
+                background,
+                object,
+            } => {
+                let r = renderer.as_mut().ok_or_else(|| bad_index("renderer"))?;
+                let res = r.do_render(*shadows, v3(*background), v3(*object));
+                match res {
+                    Ok(_) => rec.push(0.0),
+                    Err(e @ SolidError::Unported { .. }) => return Err(e),
+                    Err(e) => rec.push(status_of(&e)),
+                }
+                rec.push(r.pixels_shaded() as f64);
+            }
+            OpIn::RenderPixel { x, y } => {
+                let r = renderer.as_mut().ok_or_else(|| bad_index("renderer"))?;
+                let res = r.render_pixel(*x as u64, *y as u64);
+                put_color(&mut rec, res, r.pixels_shaded())?;
+            }
+            OpIn::RenderRay { p, v } => {
+                let r = renderer.as_mut().ok_or_else(|| bad_index("renderer"))?;
+                let res = r.render_ray(v3(*p), v3(*v));
+                put_color(&mut rec, res, r.pixels_shaded())?;
             }
         }
     }
@@ -841,6 +984,38 @@ fn gen_case(rng: &mut Rng, safe: bool) -> Inputs {
                 },
             });
         }
+    }
+    if rng.chance(0.15) {
+        // look down +z from below the grid, over a random part of its xy extent
+        let (x0, x1) = (rng.uniform(gbox[0], gbox[3]), rng.uniform(gbox[0], gbox[3]));
+        let (y0, y1) = (rng.uniform(gbox[1], gbox[4]), rng.uniform(gbox[1], gbox[4]));
+        let z = gbox[2] - 0.1 * diag;
+        ops.push(OpIn::Renderer {
+            origin: [0.0, 0.0, 0.0],
+            x: [1.0, 0.0, 0.0],
+            y: [0.0, 1.0, 0.0],
+            view: [x0.min(x1), y0.min(y1), z, x0.max(x1), y0.max(y1), z],
+            nx: rng.range_i64(1, 3) as usize,
+            ny: rng.range_i64(1, 3) as usize,
+            rate: rng.range_i64(1, 2) as usize,
+        });
+        for _ in 0..rng.range_i64(0, 2) {
+            ops.push(OpIn::Light {
+                v: unit_dir(rng),
+                point: rng.chance(0.3),
+            });
+        }
+        let shadows = rng.chance(0.5);
+        ops.push(OpIn::DoRender {
+            shadows,
+            background: [0.1, 0.2, 0.3],
+            object: [rng.unit(), rng.unit(), rng.unit()],
+        });
+        ops.push(OpIn::RenderPixel { x: 0, y: 0 });
+        ops.push(OpIn::RenderRay {
+            p: center,
+            v: unit_dir(rng),
+        });
     }
     if !safe && rng.chance(0.1) && !surfaces.is_empty() {
         ops.push(OpIn::AddSurface { surface: 0 });

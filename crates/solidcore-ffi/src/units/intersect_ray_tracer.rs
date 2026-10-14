@@ -177,6 +177,48 @@ pub enum Op {
     Local(LocalIn),
     /// `AddSurfaceToGrid` of a surface index (not run).
     AddSurface(usize),
+    /// `SmRayRenderer(tracer, SmAxis2Placement(origin, x, y), view, nx, ny)` taking over the
+    /// tracer, then `SetSampleRate`; once per program.
+    Renderer(RendererIn),
+    /// `AddLightSource(new SmLightSource(vector, is_point))`.
+    Light {
+        /// Direction or origin.
+        vector: [f64; 3],
+        /// Point source.
+        is_point: bool,
+    },
+    /// `DoRender(shadows, background, object colour)`: record `status pixels_shaded`.
+    DoRender {
+        /// Cast shadows.
+        shadows: bool,
+        /// Background colour.
+        background: [f64; 3],
+        /// Object colour.
+        object: [f64; 3],
+    },
+    /// `RenderPixel(x, y)` (after `DoRender`): record `status r g b pixels_shaded`.
+    RenderPixel(usize, usize),
+    /// `RenderRay(point, vector)` (after `DoRender`): record `status r g b pixels_shaded`.
+    RenderRay([f64; 3], [f64; 3]),
+}
+
+/// The renderer constructor arguments.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RendererIn {
+    /// Origin of the geometry transform.
+    pub origin: [f64; 3],
+    /// Unit X axis.
+    pub x: [f64; 3],
+    /// Unit Y axis, perpendicular to X.
+    pub y: [f64; 3],
+    /// The view volume box.
+    pub view: [f64; 6],
+    /// Pixels in x (1..=8).
+    pub nx: usize,
+    /// Pixels in y (1..=8).
+    pub ny: usize,
+    /// Samples per pixel direction (1..=3).
+    pub rate: usize,
 }
 
 /// A whole case.
@@ -317,6 +359,14 @@ impl Enc {
     }
 }
 
+/// How far the renderer ops of a program have got.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Render {
+    None,
+    Built,
+    Done,
+}
+
 fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
     let mut e = Enc(Vec::new());
     let ns = prog.surfaces.len();
@@ -352,6 +402,7 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
     }
     e.int(prog.ops.len());
     let mut leaves = 0_usize;
+    let mut rendered = Render::None;
     for op in &prog.ops {
         match op {
             Op::SolverTol(t) => {
@@ -437,6 +488,65 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
                 }
                 e.int(5);
                 e.int(*s);
+            }
+            Op::Renderer(r) => {
+                if rendered != Render::None {
+                    return Err(bad("one renderer per program"));
+                }
+                rendered = Render::Built;
+                let dot = r.x[0] * r.y[0] + r.x[1] * r.y[1] + r.x[2] * r.y[2];
+                if (norm(r.x) - 1.0).abs() > 1e-9 || (norm(r.y) - 1.0).abs() > 1e-9 || dot.abs() > 1e-9 {
+                    return Err(bad("renderer axes must be orthonormal"));
+                }
+                if !(1..=8).contains(&r.nx) || !(1..=8).contains(&r.ny) || !(1..=3).contains(&r.rate) {
+                    return Err(bad("renderer size"));
+                }
+                e.int(6);
+                e.nums(&r.origin)?;
+                e.nums(&r.x)?;
+                e.nums(&r.y)?;
+                e.bbox(&r.view)?;
+                e.int(r.nx);
+                e.int(r.ny);
+                e.int(r.rate);
+            }
+            Op::Light { vector, is_point } => {
+                if rendered == Render::None {
+                    return Err(bad("light before renderer"));
+                }
+                e.int(7);
+                e.nums(vector)?;
+                e.flag(*is_point);
+            }
+            Op::DoRender {
+                shadows,
+                background,
+                object,
+            } => {
+                if rendered == Render::None {
+                    return Err(bad("render before renderer"));
+                }
+                rendered = Render::Done;
+                e.int(8);
+                e.flag(*shadows);
+                e.nums(background)?;
+                e.nums(object)?;
+            }
+            Op::RenderPixel(x, y) => {
+                if rendered != Render::Done || *x > 7 || *y > 7 {
+                    return Err(bad("pixel render needs DoRender first"));
+                }
+                e.int(9);
+                e.int(*x);
+                e.int(*y);
+            }
+            Op::RenderRay(p, v) => {
+                if rendered != Render::Done {
+                    return Err(bad("ray render needs DoRender first"));
+                }
+                e.int(10);
+                e.nums(p)?;
+                e.nums(v)?;
             }
         }
     }
