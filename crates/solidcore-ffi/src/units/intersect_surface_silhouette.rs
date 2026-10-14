@@ -28,8 +28,10 @@
 //! [`run`] accepts only finite inputs of magnitude at most [`MAX_COORD`]; well-formed clamped
 //! B-splines (at most [`MAX_INDEX`] + 1 control points per surface direction, 33 per curve,
 //! degree at most [`MAX_DEGREE`], positive weights or none); planes with independent axes and
-//! positive scales; a domain with positive extent inside the surface's natural domain;
-//! `Cpv`/`OnCurve` points inside the natural domain (upstream evaluates them unclamped);
+//! positive scales; a domain with positive extent, inside the surface's natural domain for a
+//! B-spline; for a B-spline, `Cpv`/`OnCurve` points inside the natural domain (upstream
+//! evaluates them unclamped; a plane is linear and defined everywhere, so plane points and
+//! tracer domains may lie outside its extent);
 //! boundary intervals `a < b` inside the curve's knot range; at most [`MAX_OPS`] ops. Trees
 //! have 1 to [`MAX_NODES`] nodes (node 0 the top), acyclic parent links, node domains of
 //! positive extent inside the natural domain, and a null patch pointer only on a node no other
@@ -279,19 +281,26 @@ fn norm(a: [f64; 3]) -> f64 {
     (a[0] * a[0] + a[1] * a[1] + a[2] * a[2]).sqrt()
 }
 
-/// `d` has positive extent inside `nat` (both `umin vmin umax vmax`).
-fn check_domain(d: [f64; 4], nat: [f64; 4]) -> Result<(), FfiError> {
+/// `d` has positive extent (and, unless `nat` is `None`, lies inside `nat`; both
+/// `umin vmin umax vmax`).
+fn check_domain(d: [f64; 4], nat: Option<[f64; 4]>) -> Result<(), FfiError> {
     if !(d[0] < d[2] && d[1] < d[3]) {
         return Err(bad("domain extent"));
     }
+    let Some(nat) = nat else {
+        return Ok(());
+    };
     if d[0] < nat[0] || d[1] < nat[1] || d[2] > nat[2] || d[3] > nat[3] {
         return Err(bad("domain outside the surface domain"));
     }
     Ok(())
 }
 
-/// `uv` inside `nat` (closed).
-fn check_uv(uv: [f64; 2], nat: [f64; 4]) -> Result<(), FfiError> {
+/// `uv` inside `nat` (closed); anything finite when `nat` is `None`.
+fn check_uv(uv: [f64; 2], nat: Option<[f64; 4]>) -> Result<(), FfiError> {
+    let Some(nat) = nat else {
+        return Ok(());
+    };
     if uv[0] < nat[0] || uv[0] > nat[2] || uv[1] < nat[1] || uv[1] > nat[3] {
         return Err(bad("point outside the surface domain"));
     }
@@ -316,7 +325,7 @@ fn check_tree(nodes: &[NodeIn], nat: [f64; 4]) -> Result<(), FfiError> {
         if nd.aux > MAX_AUX_TYPE {
             return Err(bad("aux type"));
         }
-        check_domain(nd.domain, nat)?;
+        check_domain(nd.domain, Some(nat))?;
         if nd.polar.as_ref().is_some_and(|v| v.len() > MAX_NODES) {
             return Err(bad("too many polar vectors"));
         }
@@ -502,7 +511,12 @@ impl Enc {
 fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
     let mut e = Enc(Vec::new());
     let nat = e.surface(&prog.surface)?;
-    check_domain(prog.domain, nat)?;
+    // A plane evaluates linearly anywhere, so only B-spline points and domains are bounded.
+    let bound = match prog.surface {
+        SurfaceIn::BSpline(_) => Some(nat),
+        SurfaceIn::Plane { .. } => None,
+    };
+    check_domain(prog.domain, bound)?;
     e.nums(&prog.domain)?;
     e.flag(prog.perspective);
     e.nums(&prog.eye)?;
@@ -526,7 +540,7 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
                 if *kind > 4 {
                     return Err(bad("point type"));
                 }
-                check_uv(*uv, nat)?;
+                check_uv(*uv, bound)?;
                 e.int(1);
                 e.num(*dir)?;
                 e.flag(*use_prev);
@@ -539,7 +553,7 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
                 e.nums(guess)?;
             }
             Op::OnCurve { refine, uv } => {
-                check_uv(*uv, nat)?;
+                check_uv(*uv, bound)?;
                 e.int(3);
                 e.flag(*refine);
                 e.nums(uv)?;

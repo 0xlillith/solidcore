@@ -3,6 +3,314 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_plane_prev_axis_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#0 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_axis_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#1 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_axis_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#2 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_axis_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#3 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::EvaluateGeometric",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_near_x",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#4 (upstream review: adversarial)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::EvaluateGeometric",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_near_x",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#5 (upstream review: adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_near_x2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#6 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_near_x2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#7 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_diag",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#8 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_diag",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#9 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_neg_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#10 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_neg_x",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#11 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_tilt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#12 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_prev_ang_tilt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#13 (upstream review: adversarial)",
+      "values_compared": 71
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_persp_in_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#14 (upstream review: adversarial)",
+      "values_compared": 137
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_persp_on_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#15 (upstream review: adversarial)",
+      "values_compared": 105
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_persp_above",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#16 (upstream review: adversarial)",
+      "values_compared": 133
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_persp_in_plane_diag",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#17 (upstream review: adversarial)",
+      "values_compared": 137
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_persp_near",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#18 (upstream review: adversarial)",
+      "values_compared": 105
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#19 (upstream review: adversarial)",
+      "values_compared": 81
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_scale_persp_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#20 (upstream review: adversarial)",
+      "values_compared": 86
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#21 (upstream review: adversarial)",
+      "values_compared": 81
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_scale_persp_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#22 (upstream review: adversarial)",
+      "values_compared": 86
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pcyl_along_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#23 (upstream review: adversarial)",
+      "values_compared": 207
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pcyl_along_y_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#24 (upstream review: adversarial)",
+      "values_compared": 207
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pcyl_eye_far_y",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#25 (upstream review: adversarial)",
+      "values_compared": 207
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::EvaluateGeometric",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_pcyl_along_y_tilt",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#26 (upstream review: adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_saddle_chain_ang_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#27 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_saddle_chain_ang_0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#28 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_saddle_chain_ang_1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#29 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_saddle_chain_ang_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#30 (upstream review: adversarial)",
+      "values_compared": 173
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_par_in",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#31 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 125
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_par_wider",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#32 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 125
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_persp_in",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#33 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 125
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_persp_wider",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#34 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 125
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_persp_above_in",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#35 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 121
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "advx_plane_outside_persp_above_wider",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_silhouette/adversarial_cases.json#36 (upstream review: adversarial (plane outside its extent))",
+      "values_compared": 121
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "prog_test_view_z_cpv_along_u",
       "outcome": "pass",
       "pass": true,
@@ -6411,13 +6719,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 258,
+  "cases_deferred": 261,
   "cases_failed": 0,
-  "cases_passed": 414,
-  "cases_total": 672,
+  "cases_passed": 448,
+  "cases_total": 709,
   "deferred_by_unit": {
     "surface.plane_p1": 6,
-    "surface.surface_p3": 132,
+    "surface.surface_p3": 135,
     "surface.surface_p7": 120
   },
   "max_rel_err": 0.0,

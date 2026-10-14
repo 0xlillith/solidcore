@@ -2016,7 +2016,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "partial (PR #45): difftest 672 cases, 414 pass, 258 deferred (surface.surface_p3 132: SmSurface::EvaluateNormalSection; surface.surface_p7 120: SmSurface::EvaluateNormal; surface.plane_p1 6: SmBSplineSurface::CalculateBoundingBox). 8 fns; largest: SmSurfaceSilhouette::ComputePointValues, SmSurfaceSilhouette::LocalPointSolve, SmFindSilSingEFO::Evaluate, SmSurfaceSilhouette::BranchMayContainAnswers; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "partial (PR #45): difftest 709 cases (incl. 37 review adversarial fixtures), 448 pass, 261 deferred (surface.surface_p3 135: SmSurface::EvaluateNormalSection; surface.surface_p7 120: SmSurface::EvaluateNormal; surface.plane_p1 6: SmBSplineSurface::CalculateBoundingBox, a stale stub in surface_cache/p1.rs, see findings). 8 fns; largest: SmSurfaceSilhouette::ComputePointValues, SmSurfaceSilhouette::LocalPointSolve, SmFindSilSingEFO::Evaluate, SmSurfaceSilhouette::BranchMayContainAnswers; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.offset_surface"

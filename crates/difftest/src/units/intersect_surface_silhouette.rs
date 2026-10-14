@@ -394,8 +394,9 @@ fn put_point(o: &mut Vec<f64>, p: &TracePoint) {
     put_vec(o, p.curve_3d[1]);
     put_uv(o, p.curve_uv[0]);
     put_uv(o, p.curve_uv[1]);
-    for (i, j) in [(0, 0), (1, 0), (0, 1), (1, 1), (2, 0), (0, 2), (2, 2)] {
-        put_vec(o, p.surface[i][j]);
+    let s = &p.surface;
+    for v in [s[0][0], s[1][0], s[0][1], s[1][1], s[2][0], s[0][2], s[2][2]] {
+        put_vec(o, v);
     }
 }
 
@@ -723,7 +724,7 @@ fn quarter_cylinder(scale: f64) -> SurfData {
     let row = |x: f64, z: f64, wt: f64| -> Vec<[f64; 4]> {
         (0..3)
             .map(|j| {
-                let y = -1.0 + j as f64;
+                let y = -1.0 + f64::from(j);
                 [x * scale, y * scale, z * scale, wt]
             })
             .collect()
@@ -1058,7 +1059,7 @@ fn gen_chain(rng: &mut Rng, domain: [f64; 4], ops: &mut Vec<OpIn>) {
     }
 }
 
-fn gen_inputs(rng: &mut Rng) -> Option<Inputs> {
+fn gen_inputs(rng: &mut Rng) -> Inputs {
     let scale = pick(rng, &[1.0, 1.0, 1.0, 1.0, 1e-3, 1e3, 1e-6, 1e5], 1.0);
     let surface = gen_surface(rng, scale);
     let nat = natural(&surface);
@@ -1078,14 +1079,14 @@ fn gen_inputs(rng: &mut Rng) -> Option<Inputs> {
     match rng.below(10) {
         0..=3 => gen_chain(rng, domain, &mut ops),
         4 | 5 => {
-            for _ in 0..1 + rng.below(3) {
+            for _ in 0..=rng.below(3) {
                 ops.push(OpIn::Lps {
                     uv: guess_in(rng, domain),
                 });
             }
         }
         6 => {
-            for _ in 0..1 + rng.below(3) {
+            for _ in 0..=rng.below(3) {
                 ops.push(OpIn::OnCurve {
                     refine: rng.chance(0.4),
                     uv: uv_in(rng, nat),
@@ -1101,7 +1102,7 @@ fn gen_inputs(rng: &mut Rng) -> Option<Inputs> {
             });
         }
     }
-    Some(Inputs {
+    Inputs {
         surface,
         domain,
         perspective,
@@ -1109,7 +1110,7 @@ fn gen_inputs(rng: &mut Rng) -> Option<Inputs> {
         tol,
         ang,
         ops,
-    })
+    }
 }
 
 impl UnitDiff for Runner {
@@ -1134,6 +1135,6 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
-        gen_inputs(rng).and_then(|i| serde_json::to_value(i).ok())
+        serde_json::to_value(gen_inputs(rng)).ok()
     }
 }
