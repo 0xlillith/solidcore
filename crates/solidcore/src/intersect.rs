@@ -6,4 +6,5 @@
 //! `SM_API/SmApiIntersectors`.
 
 pub mod surface_intersector;
+pub mod surface_silhouette;
 pub mod surface_tracer;
