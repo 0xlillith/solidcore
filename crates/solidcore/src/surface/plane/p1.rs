@@ -72,11 +72,10 @@
 //!   analytic plane moves unless the new domain starts where the old one did. The
 //!   port keeps that (`plan/findings.md`). Its `Notify` calls only drop caches and
 //!   inform owners and are omitted, as for B-splines.
-//! - **Co-ported callees.** `SmSurface::Evaluate1stDerivatives` /
-//!   `Evaluate2ndDerivatives` (unit `surface.surface_p1`) are one-line wrappers of the
-//!   virtual `Evaluate` and are ported here over [`Surface::evaluate`];
-//!   `SmTol::MapTo2d(SmTol3d, SmVector2d, SmSurface)` (unit `geom.tol`, waiting on
-//!   those wrappers) is ported here for a plane (the only surface it is called with).
+//! - **Co-ported callees.** `SmTol::MapTo2d(SmTol3d, SmVector2d, SmSurface)` (unit
+//!   `geom.tol`, waiting on `SmSurface::Evaluate1stDerivatives`) is ported here for a
+//!   plane (the only surface it is called with). `Evaluate1stDerivatives` /
+//!   `Evaluate2ndDerivatives` of other surfaces go through `surface::surface::p7`.
 //! - **Unported callees.** `IsPlanar` of a curve-bounded surface (its base
 //!   `CalculateBoundingBox`, `surface.surface_p1`), `CreateNaturalUVTrimCurves`
 //!   (`surface.surface_p6`), `DropPoint` (`surface.surface_p5`), the general
@@ -117,10 +116,10 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::{
     BSplineSurface, BSplineSurfaceForm, CanonicalSurfaceData, SurfParamType,
 };
-use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::nurbs::math::MAX_DERIVATIVE;
 use crate::surface::surface::p2::{Surface, SurfaceKind, PLANE_TYPE};
+use crate::surface::surface::p7::{self, SecondDerivatives};
 
 const OP_EVAL: &str = "surface::plane::p1::Plane::evaluate";
 const OP_DROP: &str = "surface::plane::p1::Plane::drop_point_fast";
@@ -1989,15 +1988,6 @@ fn boundary_uv(domain: &Extent2d, index: usize, t: f64) -> (Point2, Vec2) {
     }
 }
 
-/// The second-order derivatives of `Evaluate2ndDerivatives`.
-struct SecondDerivatives {
-    du: Vec3,
-    dv: Vec3,
-    duv: Vec3,
-    duu: Vec3,
-    dvv: Vec3,
-}
-
 /// Every derivative of `d2` lies in the plane of normal `norm0` within `ang_tol`.
 fn in_plane(norm0: Vec3, d2: &SecondDerivatives, ang_tol: f64) -> bool {
     norm0.dot(d2.du).abs() < ang_tol
@@ -2007,46 +1997,14 @@ fn in_plane(norm0: Vec3, d2: &SecondDerivatives, ang_tol: f64) -> bool {
         && norm0.dot(d2.dvv).abs() < ang_tol
 }
 
-/// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)` (co-ported from
-/// `surface.surface_p1`): `Evaluate(uv, 1, 1, TRUE, TRUE, TRUE, .., TRUE)`.
+/// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`.
 fn evaluate_1st_derivatives(s: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    let m = s.evaluate(uv, 1, 1, upper_half_flags())?;
-    let at = |i: usize, j: usize| {
-        m.get(i)
-            .and_then(|r| r.get(j))
-            .copied()
-            .unwrap_or(Vec3::ZERO)
-    };
-    Ok((at(0, 0), at(1, 0), at(0, 1)))
+    p7::evaluate_1st_derivatives(s, uv, Side::Left, Side::Left)
 }
 
-/// `SmSurface::Evaluate2ndDerivatives(uv, TRUE, TRUE, ..)` (co-ported from
-/// `surface.surface_p1`): `Evaluate(uv, 2, 2, TRUE, TRUE, TRUE, .., TRUE)`.
+/// `SmSurface::Evaluate2ndDerivatives(uv, TRUE, TRUE, ..)`.
 fn evaluate_2nd_derivatives(s: &Surface, uv: Point2) -> Result<SecondDerivatives> {
-    let m = s.evaluate(uv, 2, 2, upper_half_flags())?;
-    let at = |i: usize, j: usize| {
-        m.get(i)
-            .and_then(|r| r.get(j))
-            .copied()
-            .unwrap_or(Vec3::ZERO)
-    };
-    Ok(SecondDerivatives {
-        du: at(1, 0),
-        dv: at(0, 1),
-        duv: at(1, 1),
-        duu: at(2, 0),
-        dvv: at(0, 2),
-    })
-}
-
-/// From the left in both directions, upper half, non-zero tangents.
-fn upper_half_flags() -> EvaluateFlags {
-    EvaluateFlags {
-        u_side: Side::Left,
-        v_side: Side::Left,
-        only_upper_half: true,
-        non_zero_tangents: true,
-    }
+    p7::evaluate_2nd_derivatives(s, uv, Side::Left, Side::Left)
 }
 
 /// The `SmBSplineCurve` part of a curve of a B-spline kind (upstream's slicing copy

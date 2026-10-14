@@ -2618,6 +2618,40 @@ behaviour worth knowing:
   extends where a plain B-spline would still be waiting on `surface.surface_p5` /
   `surface.surface_p7`.
 
+## surface.unbend_volume (`SmUnbendVolume`)
+
+All non-deferred difftest cases agree bit for bit with upstream (`max_rel_err = 0`, 1874
+default cases, a 30,374-case run clean). The 67 deferred cases are `IsCurveInParamDomainSimple`
+(66: `SmCurve::HasPlaneCrossings` needs `SmSurface::GlobalCurveIntersect`, unit
+`surface.surface_p8`) and `ReadFromDB` (1: base read `SmVolume::ReadFromDB`, unit
+`surface.volume_p2`). No upstream test builds an unbend volume. `SmVolume::EvaluatePoint` and
+`SmVolume::IsPointInParamDomain` (unit `surface.volume_p2`) are co-ported (marker
+`CO-PORTED(surface.volume_p2)`); `SmCrvInVolume::EvaluatePoint` now uses the former. Upstream
+behaviour worth knowing (all ported as written):
+- **`IsPointInParamDomainSimple` is always `TRUE`.** The inline header body calls
+  `IsOnBoundarySimple(P, bB, bB, bB)` with one `SmBoolean` for all three out-flags; the last
+  write `rbOnW = FALSE` clears it, so `return(rbOnU || rbOnV)` is `FALSE` for every point. As a
+  result degenerate segments in `IsLineInParamDomainSimple` are always "in", and the domain check
+  of `GlobalPointSolveSimple` never fails (it also checks the *projection* point as if it were a
+  parameter point). `IsOnBoundarySimple` called with distinct flags works as documented.
+- **`GW_MAX_DERIV` is 5** (`SmNurbsCrv.h`), not 3: `Evaluate` / `EvaluateSimple` accept
+  `n = 4, 5` and return zero derivatives above the third. With a next map and `n > 3`, the
+  `Map` call fails before the 64-entry `aNextDerivs` buffer could overflow.
+- **`EvaluateBoundingBoxSimple` maps the box edges through the whole volume.** The lines that
+  would make the volume a simple map for the duration are commented out ("do not compile on
+  gcc"), so the "ProjSpace" boxes include the orient and next maps. A bounded box with a side
+  of zero length makes `SmLine::CreateLineSegment` fail on that edge; upstream then
+  dereferences a null `pLine` (first edge) or the line the previous `SmCrvInVolume` already
+  deleted (owner flag 1). The port returns `InvalidInput`; the ffi rejects such boxes.
+- **`operator==`** overwrites the neutral-distance comparison with the singularity-tolerance
+  comparison: unbends differing only in neutral distance compare equal.
+- **`IsLineInParamDomainSimple`** tests the end points' discontinuity with
+  `SM_ARE_SAME(P.y, m_dSingularityTol)` (against the tolerance, not `0`).
+- **Constructor repair** has the same `Unitize` status comparison as the twist volume (only
+  the last zero-vector branch runs); a neutral distance below the clamped singularity tolerance
+  becomes `1.0`. The default constructor gives neutral distance `0` and tolerance
+  `SM_UNDEF_DOUBLE`.
+
 ## surface.surf_of_revolution_p1 (2026-10-13)
 
 Ported `SmSurfOfRevolution` part 1 (`crates/solidcore/src/surface/surf_of_revolution/p1.rs`)
@@ -2784,19 +2818,20 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   the `SmSurface` body (what `SmBSplineSurface` runs) and `Surface` dispatches to the plane and
   curve-bounded overrides. `surface_cache::p1`'s stub assumed no ported kind overrides
   `EvaluateNormal`; planes and curve-bounded surfaces do, so it now dispatches.
+- **`IsClosed` and a failed `smgu_FrenetFromDerivatives`.** Upstream writes the position,
+  the tangent and a zero curvature vector before returning `SM_ERR` for a zero tangent;
+  `base_is_closed` now leaves exactly that (found by comparing with the copy co-ported in
+  `intersect.surface_intersector_p1`, PR #33, which this unit's functions replace).
 - **Mislabelled stub.** `b_spline_surface::p1::is_closed` was marked
   `UNPORTED(surface.surface_p5)` for `SmSurface::IsClosed`, which is this unit's; wired.
-  `b_spline_surface::p1::owner_zone_tolerance` is commented `GetFace` (`surface.surface_p1`)
-  but returns `SmSurface::IsSingularity` / `surface.surface_p5`; left as is (not this unit's),
-  but note that it is why `IsPlanar` of a B-spline defers on `GetFace`.
+  `IsPlanar` of a B-spline defers on `SmSurface::GetFace` (`surface.surface_p1`), reached
+  through `b_spline_surface::p1::owner_zone_tolerance`.
 - **Upstream quirks kept.** `GetFlatCorners` masks its return with `&=` while filling the
   points; `SmSSGlobalSolver::BranchMayContainAnswers` returns `SM_SUCCESS` (`FALSE`) for a
   node outside its face and `NER`'s status (`TRUE`) for a missing patch; `sm_GoodDropResult`
   swaps the guess/result distance names; `FindDegenParamForDirection` compares a sample
   fraction with the parameter `dS`, and on Newton failure returns `SM_ERR` with `rUV` moved
-  (the port returns `DegenParam { converged: false }`). `IsClosed` ignores the status of
-  `smgu_EvaluateCurveContinuity` and reads its uninitialised output on failure; the port
-  propagates the error instead (no generated or fixture case reaches it).
+  (the port returns `DegenParam { converged: false }`).
 - **Not difftested.** `SmSPGlobalSolver` / `SmSSGlobalSolver::BranchMayContainAnswers` need
   surface cache trees with Bezier patch data (`surface.surface_cache_p3`); their non-normalize
   path is the green base `SmGlobalSolver::BranchMayContainAnswers`. The shim's
@@ -2815,3 +2850,47 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   exactly folded nets and pinched corners and samples boundaries, and the fixtures hit each
   branch (pole: second-derivative substitution; fold: zero result; pinch: step-off
   extrapolation).
+
+## intersect.point_class (`SmPointClassification`)
+
+- **Review fixes (PR #21).** The constructor takes an `SmZoneTol3d`, already converted, and
+  stores it as is (converting again turned `-SM_USE_DEFAULT` into the system tolerance).
+  `MergeIntoObject` runs `SmVertex::SetTolerance` in the reference build
+  (`SM_USE_OLDTOL`); it is an `UNPORTED(topology.vertex)` stub. Topology kinds without
+  their own `GetTolerance` (region, faceuse, loop, loopuse, vertexuse) use
+  `SmTopology::GetTolerance` (`SM_ZONE_TOL_3D`), and a faceuse `SmTopology::IsConnectedTo`
+  (`FALSE`); loop, loopuse and vertexuse do override `IsConnectedTo` and stay stubs. The
+  shim now builds real `SmEllipse` / `SmCircle` curves, `SetClassObject(class, NULL)` is
+  accepted for every class, and loads may read up to the last solution parameter.
+
+- **`SM_PC_POINT` stores an `SmPoint3d*` cast to `SmObject*`.** Upstream then calls virtual
+  `SmObject` members on it in `ComputePointParameters` (`SmTol::GetZoneTol3d(m_pObject)`),
+  `GetGap3d` with a surface and `SmTol::GetObjZoneTol3d` / `GetXSectTol3d` (the same call),
+  `IsConnectedTo` and `MergeIntoObject` (`GetType`): undefined behaviour. The port treats
+  a point like any other non-topology object (system zone tolerance, not connected, not
+  mergeable); the shim and the runner never send those ops for a point classification.
+- **`GetGap3d(pSurface)` returns `SM_ERR` as the gap value** (1001.0) when the object
+  point has no single drop point on the surface; the port does the same. Callers must not
+  read it as a distance.
+- **Release-build behaviour.** The reference build has no `SM_DEBUG_CODE`, so
+  `SetTParam`'s `bSnapToIvl` does nothing and `SetClassObject` accepts any object for any
+  class. `FindObjPoint3d`'s `SM_CAST_PTR` still checks the kind, so a mismatched class
+  and object gives `SM_ERR_NULL_POINTER` (ported as such). Scripts only pair a class with
+  an object of its kind.
+- **Stand-in objects.** The shim builds vertices, edges and faces without a B-rep and
+  `SmObject` stand-ins for volumes, regions, edgeuses and "other" objects. Upstream
+  dereferences a stand-in in `FindObjPoint3d` / `GetGap3d` (volume, edgeuse),
+  `ComputePointParameters`, `GetBrep` and `GetCurveObject` (edgeuse) and `MergeIntoObject`
+  (region, face, edge), so those ops are rejected at run time on both sides and dropped by
+  the generator. A stand-in region's zone tolerance is the system one upstream (it does
+  not answer `IsKindOf(SmTopology_TYPE)`); the port asks `topology.shell` (deferred).
+- **Deferred (356 of 2479 cases):** the surface point solve of `ComputePointParameters`
+  and `GetGap3d` (`surface.surface_p4` 256; `SmSurface::EvaluateNormal`, which follows
+  it, was wired by `surface.surface_p7`, PR #24) and every topology member (`topology.vertex` 41,
+  `topology.edge` 27, `topology.face_p2` 21, `topology.face_p4` 5, `topology.shell` 3,
+  `topology.edgeuse_p1` 3). The volume branch (`SmVolume::GlobalPointSolve` /
+  `EvaluatePoint`, `surface.volume_p2`) is ported with stubs but not exercised: the shim
+  has no real volume to classify to.
+- **`SmSpaceBend` / `SmSpaceUnbend` type queries** are compared through the static
+  `GetClassType` / `GetClassTypeString` (an instance needs the unported bend units); the
+  `IsKindOf` chains are unit-tested only.

@@ -63,10 +63,9 @@
 //!   `LocalCurveSolve`'s `cpdOptTargetDistance` (`NotUsed` upstream) and
 //!   `CreateParallelProjectionCurves`' context are dropped.
 //! - **Debug-only work** compiled out of the release build (drawing, dumps, the
-//!   `SM_ASSERT`s, `FindDegenParamForDirection`'s angle bookkeeping, `EvaluateNormal`'s
-//!   static list of bad surfaces) is not ported.
-//! - **`IsClosed`** propagates an error of `smgu_EvaluateCurveContinuity`, whose status
-//!   upstream ignores before reading its (then uninitialised) output.
+//!   `SM_ASSERT`s, `EvaluateNormal`'s static list of bad surfaces) is not ported, nor
+//!   is `FindDegenParamForDirection`'s angle bookkeeping (`dBestRad`,
+//!   `dNearBestRad`: computed in release builds but never read).
 //! - **Upstream quirks kept:** `GetFlatCorners` masks its return value with `&=` while
 //!   filling the corner points; `SmSSGlobalSolver::BranchMayContainAnswers` returns
 //!   `SM_SUCCESS` (that is, `FALSE`) for a node outside its face and `NER`'s status
@@ -766,9 +765,18 @@ pub fn base_is_closed<S: SurfaceEvaluate + ?Sized>(
                 // cheesy one point test for a short curve
                 if mid_gap_sq < 4.0 * tol * tol {
                     // but some short curves can be very small circles - watch for those
+                    // (status ignored; on failure upstream has already written the
+                    // position, the tangent and a zero curvature vector)
                     if let Some(g) = ignored(frenet_from_derivatives(&p_mid, 2))? {
                         for (dst, src) in g_mid.iter_mut().zip(g) {
                             *dst = src;
+                        }
+                    } else {
+                        for (dst, src) in g_mid.iter_mut().zip(p_mid.iter().take(2)) {
+                            *dst = *src;
+                        }
+                        if let Some(c) = g_mid.get_mut(2) {
+                            *c = Vec3::new(0.0, 0.0, 0.0);
                         }
                     }
 
@@ -1142,11 +1150,11 @@ impl Surface {
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
         // get surface spatial decomposition tree from Surface's cache
-        let _cache = surface_cache(self)?;
+        let cache = surface_cache(self)?;
+        surface_tree(&cache)?;
+        // UNPORTED(surface.surface_p1): SmSPGlobalSolver::SmSPGlobalSolver (then SolveIt)
         let _ = (uv_domain, test_point, distance_tolerance, requested);
         let _best = point_solve_best_answer_sq(op, opt_target_distance)?;
-        // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree
-        // UNPORTED(surface.surface_p1): SmSPGlobalSolver::SmSPGlobalSolver (then SolveIt)
         Err(SolidError::unported(
             "SmSPGlobalSolver::SmSPGlobalSolver",
             "surface.surface_p1",
@@ -1171,7 +1179,11 @@ impl Surface {
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
         // get target cache locals
-        let _cache = surface_cache(self)?;
+        let cache = surface_cache(self)?;
+        surface_tree(&cache)?;
+        // then the curve's cache and tree (SmCacheMgr::GetOrCreateObjectCache(SM_OC_CURVE),
+        // SmCurveCache::GetTree: curve::curve::p5::make_curve_cache, CurveCache::tree)
+        // UNPORTED(surface.surface_p1): SmCSGlobalSolver::SmCSGlobalSolver (then SolveIt)
         let _ = (
             uv_domain,
             curve,
@@ -1181,8 +1193,6 @@ impl Surface {
             requested,
         );
         let _best = pair_solve_best_answer_sq(op, opt_target_distance, false)?;
-        // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree
-        // UNPORTED(surface.surface_p1): SmCSGlobalSolver::SmCSGlobalSolver (then SolveIt)
         Err(SolidError::unported(
             "SmCSGlobalSolver::SmCSGlobalSolver",
             "surface.surface_p1",
@@ -1206,8 +1216,11 @@ impl Surface {
         opt_vectors: &[Vec3],
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
-        let _cache = surface_cache(self)?;
-        let _cache2 = surface_cache(other)?;
+        let cache = surface_cache(self)?;
+        let cache2 = surface_cache(other)?;
+        surface_tree(&cache)?;
+        surface_tree(&cache2)?;
+        // UNPORTED(surface.surface_p1): SmSSGlobalSolver::SmSSGlobalSolver (then SolveIt)
         let _ = (
             uv_domain,
             other_uv_domain,
@@ -1216,8 +1229,6 @@ impl Surface {
             requested,
         );
         let _best = pair_solve_best_answer_sq(op, opt_target_distance, true)?;
-        // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree
-        // UNPORTED(surface.surface_p1): SmSSGlobalSolver::SmSSGlobalSolver (then SolveIt)
         Err(SolidError::unported(
             "SmSSGlobalSolver::SmSSGlobalSolver",
             "surface.surface_p1",
@@ -1313,8 +1324,12 @@ impl Surface {
         opt_approx_tol_3d: Option<f64>,
         opt_angle_tol_rad: Option<f64>,
     ) -> Result<(Vec<Curve>, Vec<Curve>)> {
-        // check input
-        if projection_vector.length_squared() < EFF_ZERO_SQ {
+        // check input (ZERO_VEC_ER: fails unless |v|^2 >= SM_EFF_ZERO_SQ, so also for NaN)
+        if projection_vector
+            .length_squared()
+            .partial_cmp(&EFF_ZERO_SQ)
+            .is_none_or(core::cmp::Ordering::is_lt)
+        {
             return Err(SolidError::invalid_input(OP_PROJ, "zero projection vector"));
         }
 
@@ -1331,9 +1346,10 @@ impl Surface {
         // CalculateContinuities (only reported), the projection distance (given, or 4x the
         // largest box distance), the curve's linear sweep along the unit vector times the
         // distance (translated back by half when not given), and:
-        // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::DoIntersection
+        // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::SmAdvSurfaceIntersector
+        // (then DoIntersection)
         Err(SolidError::unported(
-            "SmAdvSurfaceIntersector::DoIntersection",
+            "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
             "intersect.adv_surface_intersector",
         ))
     }
@@ -1931,8 +1947,10 @@ pub fn check_seam_drop<S: SurfaceEvaluate + ?Sized>(
     }
 
     // pOther point is dropped onto a seam in pThis (evaluated in its STEP
-    // parameterisation).
-    let pt_der = evaluate_step(this_surf, this_uv)?;
+    // parameterisation). Upstream ignores the status: on failure sPtDer keeps its
+    // default-constructed (undefined) vectors.
+    let pt_der = ignored(evaluate_step(this_surf, this_uv))?
+        .unwrap_or_else(|| vec![vec![Vec3::UNDEF; 2]; 2]);
 
     let mut d = (Vec3::UNDEF, Vec3::UNDEF, Vec3::UNDEF);
     eval_1st_keep(other_surf, other_uv, Side::Left, Side::Left, &mut d)?;
@@ -2103,11 +2121,14 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
             && surface_node.aux_type == AuxDataType::BezierSurface
             && surface_node.child1.is_some()
         {
-            // UNPORTED(surface.surface_cache_p3): SmBezierPatch::GetPseudoBox, GetPolarBox
-            // (the point inside the pseudo box, else the polar box of the vectors to its
-            // 8 corners against the patch's polar box)
+            // SmBezierPatch::GetPseudoBox / GetPolarBox are ported (BezierPatch::pseudo_box,
+            // SurfaceCache::polar_box), but the patch (the node's m_pData) lives in the
+            // surface cache, which the tree reaches once the tree construction hands it over.
+            // UNPORTED(surface.surface_cache_p3): the SmBezierPatch of a tree node
+            // (then the point inside the pseudo box, else the polar box of the vectors to
+            // its 8 corners against the patch's polar box)
             return Err(SolidError::unported(
-                "SmBezierPatch::GetPolarBox",
+                "SmBezierPatch::GetPseudoBox",
                 "surface.surface_cache_p3",
             ));
         }
@@ -2183,7 +2204,9 @@ impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
             if node1.aux_type == AuxDataType::BezierSurface
                 && node2.aux_type == AuxDataType::BezierSurface
             {
-                // UNPORTED(surface.surface_cache_p3): SmBezierPatch of a tree node
+                // The patches (the nodes' m_pData) live in the surface caches, which the
+                // trees reach once the tree construction hands them over.
+                // UNPORTED(surface.surface_cache_p3): the SmBezierPatch of a tree node
                 // (then sm_IsNodeValid of both nodes, returning SM_SUCCESS = FALSE when
                 // outside, ComputeConeBoundTo and the polar box cone tests)
                 return Err(SolidError::unported(
@@ -2232,6 +2255,15 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SsGlobalSolver<'t, '_, O
 }
 
 // ---- callees in units not ported yet -------------------------------------------------------
+
+/// `SmSurfaceCache::GetTree` of a surface cache.
+fn surface_tree<C>(_cache: &C) -> Result<()> {
+    // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree
+    Err(SolidError::unported(
+        "SmSurfaceCache::GetTree",
+        "surface.surface_cache_p3",
+    ))
+}
 
 /// `SmSurface::IsFlatCorner(uv, angle_tol_deg)`.
 fn is_flat_corner(_surface: &Surface, _uv: Point2, _angle_tol_deg: f64) -> Result<bool> {

@@ -82,10 +82,11 @@
 //!   (`SmSurface::CreateIsoParametricCurve`, `surface.surface_p5`;
 //!   `SmSurface::CalculateBoundingBox`, `surface.surface_p1`), and
 //!   `SmSurface::IsSingularity` (`surface.surface_p5`; only the plane overrides it,
-//!   with "no singularity", wired by `surface.surface_cache_p2`) and `SmSurface::GetFace`
-//!   (`surface.surface_p1`) are not overridden by the other kinds: those return
-//!   [`SolidError::Unported`]. `EvaluateNormal` is [`Surface::evaluate_normal`]
-//!   (`surface::surface::p7`, with the plane and curve-bounded overrides). An `SmPlane` is an
+//!   with "no singularity", wired by `surface.surface_cache_p2`) and
+//!   `SmSurface::GetFace` (`surface.surface_p1`) are not overridden by the other kinds:
+//!   those return [`SolidError::Unported`]. `EvaluateNormal` is
+//!   [`Surface::evaluate_normal`] (`surface::surface::p7`, with the plane and
+//!   curve-bounded overrides). An `SmPlane` is an
 //!   `SmBSplineSurface` upstream: the cast gives its B-spline part, and its
 //!   `CreateIsoParametricCurve` (an `SmLine`, which the cache cannot hold as a
 //!   [`BSplineCurve`] without losing the line's overrides) and the inherited
