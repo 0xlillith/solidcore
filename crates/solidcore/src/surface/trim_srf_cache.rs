@@ -920,9 +920,9 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     ///
     /// # Errors
     ///
-    /// Those of the tree; [`SolidError::Unported`]: `Evaluate1stDerivatives`
-    /// (`surface.surface_p1`), `GetSingularities` (`surface.surface_p3`), and those of
-    /// [`SurfaceCache::find_uv_nodes`].
+    /// Those of the tree, of `Evaluate1stDerivatives` and of
+    /// [`SurfaceCache::find_uv_nodes`]; [`SolidError::Unported`]: `GetSingularities`
+    /// (`surface.surface_p3`).
     pub fn implant_vertexuse(
         &mut self,
         k: &Kernel,
@@ -1071,12 +1071,13 @@ fn surface_singularities(_surface: &Surface) -> Result<u64> {
 ///
 /// When wiring, keep upstream's flag arguments exactly: `(uv, TRUE, TRUE, ..)`
 /// (`SmTrimSrfCache.cpp:856`).
-fn evaluate_1st_derivatives(_surface: &Surface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)
-    Err(SolidError::unported(
-        "SmSurface::Evaluate1stDerivatives",
-        "surface.surface_p1",
-    ))
+fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    crate::surface::surface::p7::evaluate_1st_derivatives(
+        surface,
+        uv,
+        crate::nurbs::knots::Side::Left,
+        crate::nurbs::knots::Side::Left,
+    )
 }
 
 /// `SmTol::MapTo2d(tol, uv, dir, surface)`.
@@ -1353,12 +1354,11 @@ mod tests {
             uv_point: Point2::new(0.4, 0.4),
             vertex_tolerance: 0.001,
         };
+        // past Evaluate1stDerivatives (surface::surface::p7): the singularities or the
+        // UV node search are unported
         assert!(matches!(
             c.implant_vertexuse(&k, vu, &mut ext),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p1",
-                ..
-            })
+            Err(SolidError::Unported { .. })
         ));
         assert_eq!(ext, before);
         let surface = plane();
