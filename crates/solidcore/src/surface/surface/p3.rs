@@ -48,7 +48,9 @@ use crate::geom::extent1d::{Extent1d, ExtentNd};
 use crate::geom::extent2d::{Extent2d, SS_NONE, SS_UMAX, SS_UMIN, SS_VMAX, SS_VMIN};
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::SolverOperation;
-use crate::geom::local_solve_nd::{BoundaryHandler, EvalNFunctions, LocalSolveNd, TerminationReason};
+use crate::geom::local_solve_nd::{
+    BoundaryHandler, EvalNFunctions, LocalSolveNd, TerminationReason,
+};
 use crate::geom::matrix::Matrix;
 use crate::geom::tol::{approx_tol_3d, SmallTopoType};
 use crate::geom::vector3d::sqrt as sm_sqrt;
@@ -63,7 +65,9 @@ use crate::surface::plane::Plane;
 
 use super::p2::evaluate_geometric as smsurf_evaluate_geometric;
 use super::p2::{GeometricProperties, SurfaceEvaluate};
-use super::p4::{evaluate_normal_section as smsurf_evaluate_normal_section, SsNormalize, SspIntersect};
+use super::p4::{
+    evaluate_normal_section as smsurf_evaluate_normal_section, SsNormalize, SspIntersect,
+};
 use super::p7::{
     approx_derivative_lengths, check_seam_drop, evaluate_1st_derivatives, evaluate_2nd_derivatives,
 };
@@ -727,7 +731,9 @@ impl Surface {
         // Also set up what will be the expanded domain.
         let mut new_domain = Extent2d::new();
 
-        let other_dom = other_domain.copied().unwrap_or_else(|| other.natural_uv_domain());
+        let other_dom = other_domain
+            .copied()
+            .unwrap_or_else(|| other.natural_uv_domain());
 
         // upstream ignores the status of the point evaluations
         let mut pt = Vec3::UNDEF;
@@ -1005,7 +1011,10 @@ impl Surface {
 
     /// `SmFace::RemoveUVTrimCurves` of the face that owns this surface, if any.
     fn remove_uv_trim_curves_of_owner(&self) -> Result<()> {
-        if self.owner().is_some_and(|o| o.type_code == labels::FACE_TYPE) {
+        if self
+            .owner()
+            .is_some_and(|o| o.type_code == labels::FACE_TYPE)
+        {
             // UNPORTED(topology.face_p1): SmFace::RemoveUVTrimCurves
             return Err(SolidError::unported(
                 "SmFace::RemoveUVTrimCurves",
