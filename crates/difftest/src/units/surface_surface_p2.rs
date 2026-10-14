@@ -1346,7 +1346,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let anal = matches!(op, OpIn::CopyAnal);
             record(|o| {
                 let c = match &s {
-                    Some(x) if anal => x.copy_and_add_analytics()?,
+                    Some(x) if anal => x.copy_and_add_analytics(&Kernel::default())?,
                     Some(x) => x.copy()?,
                     None if anal => sp2::base_copy_and_add_analytics()?,
                     None => sp2::base_copy()?,
@@ -1970,7 +1970,7 @@ fn rust_static_op(op: &OpIn) -> Result<Run, HarnessError> {
                 .map(|c| curve_of(c).map(SmCurve::from))
                 .collect::<Result<Vec<_>, _>>()?;
             record(|_| {
-                Surface::create_plane_with_3d_curves(&cs, *tol)?;
+                Surface::create_plane_with_3d_curves(&Kernel::default(), &cs, *tol)?;
                 Ok(())
             })
         }

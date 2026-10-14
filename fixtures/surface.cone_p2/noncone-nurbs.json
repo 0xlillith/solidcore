@@ -1,0 +1,1396 @@
+{
+  "cases": [
+    {
+      "name": "noncone_0_0_0_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_0_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_0_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_0_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_0_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_0_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_0_1_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_0_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_0_1_1_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 0,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_0_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_0_1_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_0_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_3_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_3_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 3,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_4_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_4_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_5_recognize",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "recognize",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "noncone_1_1_1_5_rebuild",
+      "upstream_ref": "source/SMLib/src/SmCone.cpp:4305,4695 (valid NURB with noncanonical knots, flattened height or nonrational controls)",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 1,
+        "mutation": 5,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          0.0,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    }
+  ]
+}

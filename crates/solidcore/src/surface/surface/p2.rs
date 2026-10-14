@@ -517,9 +517,9 @@ impl Surface {
     /// # Errors
     ///
     /// Those of the kind's override (the base default is [`Surface::copy`]).
-    pub fn copy_and_add_analytics(&self) -> Result<Self> {
+    pub fn copy_and_add_analytics(&self, kernel: &Kernel) -> Result<Self> {
         match &self.kind {
-            SurfaceKind::BSpline(s) => s.copy_and_add_analytics(),
+            SurfaceKind::BSpline(s) => s.copy_and_add_analytics(kernel),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_copy_and_add_analytics(),
             // SmBSplineSurface::CopyAndAddAnalytics: not SmBSplineSurface_TYPE, so Copy
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
@@ -1236,7 +1236,11 @@ impl Surface {
     /// Those of the loop ordering ([`SolidError::Unported`]:
     /// `SmTrimmingTools::OrderCurvesIntoLoops`, `topology.trimming_tools`), of the
     /// plane frame and of the bilinear surface.
-    pub fn create_plane_with_3d_curves(curves: &[Curve], tol_3d: f64) -> Result<PlaneWith3dCurves> {
+    pub fn create_plane_with_3d_curves(
+        kernel: &Kernel,
+        curves: &[Curve],
+        tol_3d: f64,
+    ) -> Result<PlaneWith3dCurves> {
         // order curves into loops - clean up curves, build plane, check planarity
         let OrderedLoops {
             mut ordered,
@@ -1286,7 +1290,7 @@ impl Surface {
         let bs = BSplineSurface::create_bilinear_surface(pt00, pt10, pt01, pt11)?;
 
         // Copy pBS, when possible as an analytic surface
-        let plane = Self::from(bs).copy_and_add_analytics()?;
+        let plane = Self::from(bs).copy_and_add_analytics(kernel)?;
 
         Ok(PlaneWith3dCurves {
             plane,

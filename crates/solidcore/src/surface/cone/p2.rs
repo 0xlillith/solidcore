@@ -39,6 +39,16 @@ enum Membership {
 // The native helper reads only eLoc and ignores STEPInversion's status.
 // Preserve a classification actually written before a generator error, while
 // keeping missing callees and failures before classification explicit.
+// CirclePlaneIntersect sets its output count to zero before any failing
+// operation. The native trim helper ignores the status and consumes that count.
+fn trim_circle_hits(result: Result<CurveIntersection>) -> Result<CurveIntersection> {
+    match result {
+        Ok(hits) => Ok(hits),
+        Err(error) if !error.is_unported() => Ok(CurveIntersection::Points(Vec::new())),
+        Err(error) => Err(error),
+    }
+}
+
 fn trim_point_location(
     kernel: &Kernel,
     cone: &Cone,
@@ -121,22 +131,22 @@ pub fn ellipse_trim_intervals(
     ];
     let start_vector = corners[1] - corners[0];
     let end_vector = corners[3] - corners[2];
-    let mut top_hits = circle_plane_intersect(
+    let mut top_hits = trim_circle_hits(circle_plane_intersect(
         tolerance,
         cone.top_radius(),
         top,
         cone_axis,
         origin,
         ellipse_normal,
-    )?;
-    let mut bottom_hits = circle_plane_intersect(
+    ))?;
+    let mut bottom_hits = trim_circle_hits(circle_plane_intersect(
         tolerance,
         cone.bot_radius(),
         bottom,
         cone_axis,
         origin,
         ellipse_normal,
-    )?;
+    ))?;
     let start_parameter = line_plane_intersect(corners[0], start_vector, origin, ellipse_normal)?;
     let end_parameter = line_plane_intersect(corners[2], end_vector, origin, ellipse_normal)?;
     for hits in [&mut top_hits, &mut bottom_hits] {
@@ -491,6 +501,10 @@ impl Cone {
     pub fn rebuild_step_from_nurb_parameters(&mut self, kernel: &Kernel) -> Result<()> {
         use crate::curve::curve::Curve;
         use crate::curve::line::{BoundedLineOptions, Line};
+        // GetDegree/GetNaturalUVDomain reach the native virtual NURB factory.
+        if self.rev.base.gw_nurb().is_none() {
+            self.make_nurb(kernel)?;
+        }
         let Some(d) = detect_cone(kernel, &self.rev.base, 1000.0, false)? else {
             return Err(SolidError::sm_err(
                 "surface::cone::p2::Cone::rebuild_step_from_nurb_parameters",
@@ -548,6 +562,28 @@ impl Cone {
     }
 }
 
+// SmNurbsCrv.h:51 TO_EUCLID divides each coordinate directly by w.
+// CPoint::to_euclid implements the DIFFERENT N_CPtToPtEuclid operation (multiply
+// by reciprocal). Around a large cone apex that changes the computed height
+// and radius enough to alter the following offset branch and movement.
+fn offset_euclid(point: crate::nurbs::math::CPoint) -> crate::math::Point3 {
+    use crate::nurbs::math::{NOW, NOZ};
+    let z = if point.z != NOZ { point.z } else { 0.0 };
+    if point.w != NOW {
+        crate::math::Point3::new(
+            point.x / point.w,
+            point.y / point.w,
+            if point.z != NOZ {
+                point.z / point.w
+            } else {
+                0.0
+            },
+        )
+    } else {
+        crate::math::Point3::new(point.x, point.y, z)
+    }
+}
+
 impl Cone {
     /// Analytic cone offset (`CreateOffsetSurface`), including apex truncation.
     /// `None` is the upstream successful empty result when both radii shrink
@@ -562,6 +598,30 @@ impl Cone {
         distance: f64,
         tolerance: f64,
     ) -> Result<Option<Self>> {
+        // Native GetHeight precedes GetNaturalUVDomain's lazy MakeNurb.
+        // Build a missing NURB on an owned working copy: this Rust API keeps
+        // the input immutable while preserving the generated output geometry.
+        let height = self.height(kernel)?;
+        if self.rev.base.gw_nurb().is_none() {
+            let mut ready = self.clone();
+            ready.make_nurb(kernel)?;
+            if ready.rev.base.gw_nurb().is_none() {
+                return Err(SolidError::null_pointer(
+                    "surface::cone::p2::Cone::create_offset_surface",
+                ));
+            }
+            return ready.offset_with_height(kernel, distance, tolerance, height);
+        }
+        self.offset_with_height(kernel, distance, tolerance, height)
+    }
+
+    fn offset_with_height(
+        &self,
+        kernel: &Kernel,
+        distance: f64,
+        tolerance: f64,
+        height: f64,
+    ) -> Result<Option<Self>> {
         use crate::error::ignore_status;
         let sign = 1.0
             * (if self.rev.swap_uv { -1.0 } else { 1.0 })
@@ -570,7 +630,6 @@ impl Cone {
         let x_axis = self.rev.position.x_axis();
         let y_axis = self.rev.position.y_axis();
         let z_axis = self.rev.position.z_axis();
-        let height = self.height(kernel)?;
         let domain = self.rev.base.natural_uv_domain();
         let mut sin = (self.semi_angle_deg * std::f64::consts::PI / 180.0).sin();
         let mut cos = (self.semi_angle_deg * std::f64::consts::PI / 180.0).cos();
@@ -658,7 +717,7 @@ impl Cone {
             };
             for i in 0..=outer {
                 let (u, v) = if self.rev.swap_uv { (0, i) } else { (i, 0) };
-                let first = nurb.cpt(u, v)?.to_euclid();
+                let first = offset_euclid(nurb.cpt(u, v)?);
                 let z_distance = (first.x - origin.x) * z_axis.x
                     + (first.y - origin.y) * z_axis.y
                     + (first.z - origin.z) * z_axis.z;
@@ -667,7 +726,7 @@ impl Cone {
                 let radius = self.radius(z_distance);
                 let movement = if crate::geom::tol::is_zero(radius) {
                     let (u, v) = if self.rev.swap_uv { (1, i) } else { (i, 1) };
-                    let next = nurb.cpt(u, v)?.to_euclid();
+                    let next = offset_euclid(nurb.cpt(u, v)?);
                     let next_vector = next - origin;
                     let next_height = next_vector.dot(z_axis);
                     let radial = next_vector - next_height * z_axis;
@@ -684,7 +743,7 @@ impl Cone {
                 };
                 for j in 0..=inner {
                     let (u, v) = if self.rev.swap_uv { (j, i) } else { (i, j) };
-                    let euclidean = nurb.cpt(u, v)?.to_euclid();
+                    let euclidean = offset_euclid(nurb.cpt(u, v)?);
                     let point = nurb.cpt_mut(u, v)?;
                     // The native code multiplies these coordinates by w.
                     point.x = (euclidean.x + movement.x) * point.w;

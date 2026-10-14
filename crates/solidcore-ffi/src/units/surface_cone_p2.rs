@@ -20,19 +20,20 @@ mod sys {
 pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     let Some(
         &[bottom, top, height, start, end, swap, inside, tilt, z, rx, ry, a, b, u0, v0, u1, v1, tol],
-    ) = input.get(..)
+    ) = input.get(..18)
     else {
         return Err(FfiError::InvalidArgument(
             "expected 18 cone trim scalars".into(),
         ));
     };
-    if input.iter().any(|v| !v.is_finite() || v.abs() > 1e9)
+    if !matches!(input.len(), 18 | 27)
+        || input.iter().any(|v| !v.is_finite() || v.abs() > 1e9)
         || bottom < 0.0
         || (bottom == 0.0 && top == 0.0)
         || top < 0.0
         || height <= 0.0
-        || rx <= 0.0
-        || ry <= 0.0
+        || rx < 0.0
+        || ry < 0.0
         || start >= end
         || end - start > 360.0
         || start.abs() > 360.0
@@ -45,12 +46,22 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         || tol < 0.0
         || [swap, inside].iter().any(|v| *v != 0.0 && *v != 1.0)
         || [u0, v0, u1, v1].iter().any(|v| !(0.0..=1.0).contains(v))
-        || u0 >= u1
+        || u0 > u1
         || v0 >= v1
     {
         return Err(FfiError::InvalidArgument(format!(
             "invalid bounded cone trim at z={z}"
         )));
+    }
+    if let Some(&[_, _, _, x0, x1, x2, y0, y1, y2]) = input.get(18..) {
+        let x_norm = x0 * x0 + x1 * x1 + x2 * x2;
+        let y_norm = y0 * y0 + y1 * y1 + y2 * y2;
+        let dot = x0 * y0 + x1 * y1 + x2 * y2;
+        if (x_norm - 1.0).abs() > 1e-8 || (y_norm - 1.0).abs() > 1e-8 || dot.abs() > 1e-8 {
+            return Err(FfiError::InvalidArgument(
+                "pose is not a canonical frame".into(),
+            ));
+        }
     }
     Ok(())
 }
@@ -61,6 +72,11 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
 /// Invalid fixture data, primitive/setup failure, or reference failure.
 pub fn eval_trim(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     validate(input)?;
+    if input.len() != 18 {
+        return Err(FfiError::InvalidArgument(
+            "trim protocol requires 18 scalars".into(),
+        ));
+    }
     call_with_buffer(32, |out, len| {
         // SAFETY: the complete fixed-size input is validated; the shim bounds
         // output writes and checks the primitive statuses ignored by upstream.
@@ -116,15 +132,20 @@ pub fn validate_analytic(
     // Shared validation keeps the native and Rust fixture domains identical.
     validate(input)?;
     if !(1..=3).contains(&op)
-        || !(0..=1).contains(&kind)
-        || !(0..=2).contains(&mutation)
+        || !(0..=7).contains(&kind)
+        || !(0..=5).contains(&mutation)
         || !scale.is_finite()
         || !(0.0..=1e6).contains(&scale)
         || !distance.is_finite()
         || distance.abs() > 1e9
         || !tolerance.is_finite()
         || !(0.0..=1e9).contains(&tolerance)
-        || (kind == 1 && input.first() != input.get(1))
+        || (kind % 2 == 1 && input.first() != input.get(1))
+        || (kind & 2 != 0 && mutation != 0)
+        || (kind & 4 != 0
+            && input
+                .get(7)
+                .is_none_or(|angle| angle.abs() >= std::f64::consts::FRAC_PI_2))
     {
         return Err(FfiError::InvalidArgument(
             "invalid cone analytic fixture options".into(),
@@ -166,4 +187,54 @@ pub fn eval_analytic(
             )
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn record() -> [f64; 18] {
+        [
+            1.0, 2.0, 4.0, 20.0, 250.0, 0.0, 0.0, 0.0, 2.0, 1.0, 1.0, 0.0, 360.0, 0.0, 0.0, 1.0,
+            1.0, 1e-7,
+        ]
+    }
+    #[test]
+    fn rejects_malformed_records_and_uninitialized_mutation_before_cpp() {
+        let input = record();
+        assert!(validate(&input[..17]).is_err());
+        assert!(validate_analytic(&input, 3, 2, 1, 1.0, 0.0, 1e-7).is_err());
+        let mut pose = input.to_vec();
+        pose.extend([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
+        assert!(validate(&pose).is_err());
+        let mut nonfinite = input;
+        nonfinite[0] = f64::INFINITY;
+        assert!(validate(&nonfinite).is_err());
+    }
+    #[test]
+    fn native_truncation_discards_the_partial_sweep() {
+        let mut input = record();
+        input[0] = 2.0;
+        input[1] = 1.0;
+        let output = eval_analytic(&input, 3, 0, 0, 1.0, -1.5, 1e-7).unwrap();
+        assert_eq!(output.get(..2), Some([1000.0, 1.0].as_slice()));
+        // Source input sweep [20,250] becomes CreateCanonical's [0,360].
+        assert_eq!(output.get(16), Some(&0.0));
+        assert_eq!(output.get(18), Some(&360.0));
+    }
+    #[test]
+    fn rejects_null_truncation_factory_before_the_unsafe_offset_call() {
+        let input = record();
+        let baseline = eval_analytic(&input, 3, 0, 0, 1.0, 0.0, 0.0).unwrap();
+        assert_eq!(baseline.first(), Some(&1000.0));
+        let semi = 1.0_f64.atan2(4.0) * 180.0 / std::f64::consts::PI;
+        let cosine = (semi * std::f64::consts::PI / 180.0).cos();
+        let mut distance = -2.0 / cosine;
+        for _ in 0..4 {
+            distance = distance.next_up();
+        }
+        assert!(matches!(
+            eval_analytic(&input, 3, 0, 0, 1.0, distance, 0.0),
+            Err(FfiError::Status(-1002))
+        ));
+    }
 }

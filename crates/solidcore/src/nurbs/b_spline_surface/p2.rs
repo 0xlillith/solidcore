@@ -204,12 +204,12 @@ fn transpose<T: Copy>(a: &mut [T], num_rows: usize) {
 
 /// `SmCone::IsNurbSurfaceCone` (then the sphere, revolution and extrusion
 /// recognisers).
-fn is_nurb_surface_cone(_srf: &BSplineSurface) -> Result<Option<Surface>> {
-    // UNPORTED(surface.cone_p2): SmCone::IsNurbSurfaceCone
-    Err(SolidError::Unported {
-        upstream: "SmCone::IsNurbSurfaceCone",
-        unit: "surface.cone_p2",
-    })
+fn is_nurb_surface_sphere(_kernel: &Kernel, _surface: &BSplineSurface) -> Result<Option<Surface>> {
+    // UNPORTED(surface.sphere): SmSphere::IsNurbSurfaceSphere
+    Err(SolidError::unported(
+        "SmSphere::IsNurbSurfaceSphere",
+        "surface.sphere",
+    ))
 }
 
 /// `SmCurve::IsArc(lNumberOfSamplePoints, d3DTol, ..)` of a B-spline curve.
@@ -336,17 +336,40 @@ impl BSplineSurface {
     ///
     /// # Errors
     ///
-    /// Those of [`Plane::is_nurb_surface_plane`]; [`SolidError::Unported`]: the
-    /// recognisers after the plane (`SmCone::IsNurbSurfaceCone`, ...) are not ported.
-    pub fn copy_and_add_analytics(&self) -> Result<Surface> {
+    /// Recognition errors, the unported sphere recognizer, or an explicit
+    /// missing SurfaceKind adapter for a recognized cone or extrusion.
+    pub fn copy_and_add_analytics(&self, kernel: &Kernel) -> Result<Surface> {
         // (a surface that is not SmBSplineSurface_TYPE is copied as is: never here)
         // SmPlane
         if let Some(plane) = Plane::is_nurb_surface_plane(self, 1.0)? {
             return Ok(Surface::from(plane));
         }
-        // SmCone (then SmSphere, SmSurfOfRevolution, SmSurfOfExtrusion)
-        if let Some(analytic) = is_nurb_surface_cone(self)? {
-            return Ok(analytic);
+        if crate::surface::cone::Cone::is_nurb_surface_cone(kernel, self, 1.0)?.is_some() {
+            // DISPATCH GAP: recognition is ported and called above with the
+            // caller's Kernel. SurfaceKind cannot yet store a cone with its
+            // Kernel-dependent virtual evaluation. See the coordinator issue
+            // in plan/STATUS.md; do not substitute a generic B-spline/revolution.
+            return Err(SolidError::unported("SurfaceKind::Cone", "surface.cone_p2"));
+        }
+        if let Some(sphere) = is_nurb_surface_sphere(kernel, self)? {
+            return Ok(sphere);
+        }
+        // Preserve the full native recognition order after the missing sphere
+        // recognizer, rather than silently copying a non-cone before these calls.
+        let target = Surface::from(self.copy());
+        if let Some(revolution) = crate::surface::surf_of_revolution::SurfOfRevolution::is_nurb_surface_surf_of_revolution(kernel, &target, 1.0)? {
+            return Ok(Surface::from(revolution));
+        }
+        if crate::surface::surf_of_extrusion::SurfOfExtrusion::is_nurb_surface_surf_of_extrusion(
+            kernel, self, 1.0,
+        )?
+        .is_some()
+        {
+            // DISPATCH GAP: same Kernel-aware SurfaceKind issue as its reader.
+            return Err(SolidError::unported(
+                "SurfaceKind::SurfOfExtrusion",
+                "surface.surf_of_extrusion_p2",
+            ));
         }
         // arrive here - make sure it's a copy
         Ok(Surface::from(self.copy()))
@@ -1647,7 +1670,9 @@ mod tests {
     fn back_edges_are_unported() {
         let s = patch(false);
         let unported = |r: Result<()>| matches!(r, Err(SolidError::Unported { .. }));
-        assert!(unported(s.copy_and_add_analytics().map(|_| ())));
+        assert!(unported(
+            s.copy_and_add_analytics(&Kernel::default()).map(|_| ())
+        ));
         // (wired through surface.surface_p1 / surface.surface_p7)
         assert!(s.max_analytic_domain().is_ok());
         assert!(s.is_degenerate_point(1e-6, None).is_ok());

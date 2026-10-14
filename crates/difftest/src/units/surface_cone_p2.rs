@@ -23,6 +23,18 @@ impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "surface.cone_p2"
     }
+    fn cases(&self, ctx: &crate::case::CaseContext) -> Result<Vec<Case>, HarnessError> {
+        crate::runner::default_cases(
+            self,
+            &crate::case::CaseContext {
+                seeds: ctx.seeds.max(256),
+                ..ctx.clone()
+            },
+        )
+    }
+    fn generate(&self, rng: &mut crate::Rng) -> Option<Value> {
+        generated_analytic(rng)
+    }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         if case
             .inputs
@@ -160,6 +172,70 @@ fn mutate_cone(cone: &mut Cone, mutation: i32) -> solidcore::Result<()> {
     }
     let swap = cone.rev().swap_uv();
     let nurb = cone.base_mut().get_or_create_gw_nurb()?;
+    if mutation == 3 {
+        let knots = if swap { nurb.v_knots() } else { nurb.u_knots() };
+        let first = knots
+            .first()
+            .copied()
+            .ok_or(solidcore::SolidError::invalid_input(
+                "cone fixture",
+                "missing knots",
+            ))?;
+        let last = knots
+            .last()
+            .copied()
+            .ok_or(solidcore::SolidError::invalid_input(
+                "cone fixture",
+                "missing knots",
+            ))?;
+        let index = knots.iter().position(|k| *k > first && *k < last);
+        if let Some(index) = index {
+            let value = (first
+                + knots
+                    .get(index)
+                    .copied()
+                    .ok_or(solidcore::SolidError::invalid_input(
+                        "cone fixture",
+                        "missing knot",
+                    ))?)
+                / 2.0;
+            let target = if swap {
+                nurb.v_knots_mut()
+            } else {
+                nurb.u_knots_mut()
+            };
+            *target
+                .get_mut(index)
+                .ok_or(solidcore::SolidError::invalid_input(
+                    "cone fixture",
+                    "missing knot",
+                ))? = value;
+        }
+        return Ok(());
+    }
+    if mutation == 4 || mutation == 5 {
+        for i in 0..=nurb.n() {
+            for j in 0..=nurb.m() {
+                let point = nurb.cpt_mut(i, j)?;
+                if mutation == 4 {
+                    point.z = 0.0;
+                } else {
+                    use solidcore::nurbs::math::{NOW, NOZ};
+                    if point.w != NOW {
+                        point.x /= point.w;
+                        point.y /= point.w;
+                        point.z = if point.z != NOZ {
+                            point.z / point.w
+                        } else {
+                            0.0
+                        };
+                    }
+                    point.w = NOW;
+                }
+            }
+        }
+        return Ok(());
+    }
     let angle: f64 = 0.05;
     let cosine = angle.cos();
     let sine = angle.sin();
@@ -280,11 +356,54 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
         return Err(HarnessError::new("invalid cone geometry"));
     };
     let kernel = solidcore::Kernel::default();
-    let mut cone = if o.kind == 0 {
+    let (origin, x_axis, y_axis) =
+        if let Some(&[ox, oy, oz, xx, xy, xz, yx, yy, yz]) = values.get(18..) {
+            (
+                Point3::new(ox, oy, oz),
+                Vec3::new(xx, xy, xz),
+                Vec3::new(yx, yy, yz),
+            )
+        } else {
+            (
+                Point3::ZERO,
+                Vec3::new(1.0, 0.0, 0.0),
+                Vec3::new(0.0, 1.0, 0.0),
+            )
+        };
+    let mut cone = if o.kind & 4 != 0 {
+        if o.kind & 1 == 0 {
+            Cone::new_unbounded(
+                &kernel,
+                origin,
+                x_axis,
+                y_axis,
+                *bottom,
+                values
+                    .get(7)
+                    .copied()
+                    .ok_or_else(|| HarnessError::new("missing semi-angle"))?
+                    * 180.0
+                    / std::f64::consts::PI,
+                *swap != 0.0,
+                *inside != 0.0,
+            )
+        } else {
+            Cone::new_cylinder_unbounded(
+                &kernel,
+                origin,
+                x_axis,
+                y_axis,
+                *bottom,
+                *swap != 0.0,
+                *inside != 0.0,
+            )
+        }
+        .map_err(|e| HarnessError::new(e.to_string()))?
+    } else if o.kind & 1 == 0 {
         Cone::new_bounded(
-            Point3::ZERO,
-            Vec3::new(1.0, 0.0, 0.0),
-            Vec3::new(0.0, 1.0, 0.0),
+            origin,
+            x_axis,
+            y_axis,
             *bottom,
             *top,
             *start,
@@ -296,9 +415,9 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
         )
     } else {
         Cone::new_cylinder_bounded(
-            Point3::ZERO,
-            Vec3::new(1.0, 0.0, 0.0),
-            Vec3::new(0.0, 1.0, 0.0),
+            origin,
+            x_axis,
+            y_axis,
             *bottom,
             *start,
             *end,
@@ -308,8 +427,12 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
             false,
         )
     };
-    cone.make_nurb(&kernel)
-        .map_err(|e| HarnessError::new(e.to_string()))?;
+    // The native SmBSplineSurface copy constructor forces the source's
+    // virtual NURB factory before producing recognition's pure B-spline input.
+    if o.kind & 2 == 0 || op == 1 {
+        cone.make_nurb(&kernel)
+            .map_err(|e| HarnessError::new(e.to_string()))?;
+    }
     mutate_cone(&mut cone, o.mutation).map_err(|e| HarnessError::new(e.to_string()))?;
     let mut status = 1000.0;
     let result = match op {
@@ -352,4 +475,62 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
         analytic_state(&kernel, &mut out, &cone).map_err(|e| HarnessError::new(e.to_string()))?;
     }
     Ok(Output::new().values("state", out))
+}
+
+fn generated_analytic(rng: &mut crate::Rng) -> Option<Value> {
+    let scale = match rng.below(3) {
+        0 => 1e-7,
+        1 => 1.0,
+        _ => 1e6,
+    };
+    let kind = rng.below(4) as i32;
+    let bottom = rng.uniform(0.25, 8.0) * scale;
+    let top = if kind % 2 == 1 {
+        bottom
+    } else if rng.chance(0.15) {
+        0.0
+    } else {
+        rng.uniform(0.1, 8.0) * scale
+    };
+    let height = rng.uniform(1.0, 30.0) * scale;
+    let start = match rng.below(3) {
+        0 => 0.0,
+        1 => 20.0,
+        _ => 45.0,
+    };
+    let end = match rng.below(3) {
+        0 => 180.0,
+        1 => 250.0,
+        _ => 360.0,
+    };
+    let swap = f64::from(u8::from(rng.chance(0.5)));
+    let inside = f64::from(u8::from(rng.chance(0.5)));
+    let op = match rng.below(3) {
+        0 => "recognize",
+        1 => "rebuild",
+        _ => "offset",
+    };
+    let mutation = if kind < 2 && op != "offset" && rng.chance(0.25) {
+        1 + rng.below(2) as i32
+    } else {
+        0
+    };
+    let tolerance = match rng.below(4) {
+        0 => 0.0,
+        1 => 1e-12 * scale,
+        2 => 1e-7 * scale,
+        _ => 1e-3 * scale,
+    };
+    let distance = match rng.below(5) {
+        0 => -0.5 * bottom,
+        1 => -1.25 * bottom,
+        2 => 0.0,
+        3 => 0.25 * bottom,
+        _ => bottom,
+    };
+    Some(
+        serde_json::json!({"op":op,"kind":kind,"mutation":mutation,"scale":1.0,
+        "distance":distance,"tolerance":tolerance,
+        "trim":[bottom,top,height,start,end,swap,inside,0.0,height/2.0,scale,scale,0.0,360.0,0.0,0.0,1.0,1.0,1e-7*scale]}),
+    )
 }

@@ -368,10 +368,14 @@ static ULONG lDebugCount = 0 ;
 
 namespace {
 struct TrimCone : SmCone {
-    TrimCone(double bottom,double top,double start,double end,double height,
-             SmBoolean swap,SmBoolean inside)
-      : SmCone(SmPoint3d(0,0,0),SmVector3d(1,0,0),SmVector3d(0,1,0),
-               bottom,top,start,end,height,swap,inside,FALSE) {}
+    TrimCone(double b,double t,double s,double e,double h,SmBoolean swap,SmBoolean inside)
+      : TrimCone(SmPoint3d(0,0,0),SmVector3d(1,0,0),SmVector3d(0,1,0),b,t,s,e,h,swap,inside) {}
+    TrimCone(const SmPoint3d& o,const SmVector3d& x,const SmVector3d& y,
+             double b,double t,double s,double e,double h,SmBoolean swap,SmBoolean inside)
+      : SmCone(o,x,y,b,t,s,e,h,swap,inside,FALSE) {}
+    TrimCone(const SmPoint3d& o,const SmVector3d& x,const SmVector3d& y,
+             double radius,double semi,SmBoolean swap,SmBoolean inside)
+      : SmCone(o,x,y,radius,semi,swap,inside) {}
 };
 }
 
@@ -403,14 +407,8 @@ SC_EXPORT int32_t sc_surface_cone_p2_trim(const double* in,int64_t n_in,
         if(smgu_LinePlaneIntersect(corners[2*i],corners[2*i+1]-corners[2*i],origin,normal,parameter)!=SM_SUCCESS)
             return SC_ERR_ARG;
     }
-    const SmVector3d axis=cone.GetPosition().GetZAxis();
-    const SmPoint3d bottom=cone.GetPosition().GetOriginRef()+cone.GetSTEPUVDomain().GetVMin()*axis;
-    for(int i=0;i<2;++i) {
-        ULONG count=0;SmPoint3d points[2];
-        if(smgu_CirclePlaneIntersect(in[17],i?cone.GetTopRadius():cone.GetBotRadius(),
-             i?bottom+cone.GetHeight()*axis:bottom,axis,origin,normal,count,points)!=SM_SUCCESS)
-            return SC_ERR_ARG;
-    }
+    // CirclePlaneIntersect always initializes its count, including on errors;
+    // the helper can safely consume it. Only an unset line parameter is rejected.
     SmTArray<SmExtent1d> intervals;
     sm_GetEllipseTrimIntervals(context,origin,x,y,in[9],in[10],in[11],in[12],cone,domain,in[17],intervals);
     std::vector<double> values;
@@ -431,6 +429,11 @@ SC_EXPORT int32_t sc_surface_cone_p2_trim(const double* in,int64_t n_in,
 #include <nurbs.h>
 
 namespace {
+struct UnboundedCylinder : SmCylinder {
+    UnboundedCylinder(const SmPoint3d& o,const SmVector3d& x,const SmVector3d& y,
+                      double r,SmBoolean swap,SmBoolean inside)
+      : SmCylinder(o,x,y,r,swap,inside) {}
+};
 struct ConeStateAccess : SmCone {
     static SmPolarConversion SmSurfOfRevolution::*polar() {return &ConeStateAccess::m_vPolarConverter;}
 };
@@ -475,6 +478,23 @@ void cone_mutate(SmCone& cone,int mutation) {
     if(!mutation) return;
     gw_SURFACE* surface=cone.GetGwNurbPointer();
     const bool swap=cone.GetSwapUV()!=FALSE;
+    if(mutation==3) {
+        auto* knots=swap?surface->knv:surface->knu;
+        for(gw_INDEX i=1;i<knots->m;++i) {
+            if(knots->U[i]>knots->U[0] && knots->U[i]<knots->U[knots->m]) {
+                knots->U[i]=(knots->U[0]+knots->U[i])/2.0;break;
+            }
+        }
+        return;
+    }
+    if(mutation==4 || mutation==5) {
+        for(gw_INDEX i=0;i<=surface->net->n;++i) for(gw_INDEX j=0;j<=surface->net->m;++j) {
+            auto& p=surface->net->Pw[i][j];
+            if(mutation==4) p.z=0.0;
+            else {gw_CPOINT euclidean;TO_EUCLID(p,euclidean);p.x=euclidean.x;p.y=euclidean.y;p.z=euclidean.z;p.w=NL_NOW;}
+        }
+        return;
+    }
     const double angle=0.05,cosine=std::cos(angle),sine=std::sin(angle);
     for(gw_INDEX i=0;i<=surface->net->n;++i) for(gw_INDEX j=0;j<=surface->net->m;++j) {
         if(swap ? i!=surface->net->n : j!=surface->net->m) continue;
@@ -485,19 +505,60 @@ void cone_mutate(SmCone& cone,int mutation) {
 }
 }
 
+
+namespace {
+// The native offset path ignores CreateCanonical's status and dereferences its
+// output. Reject only a NULL result from that actual factory, before executing
+// the unsafe offset call. The probe uses the source's exact truncation formulas.
+bool offset_factory_defined(const SmContext& context,const SmCone& cone,double distance,double tolerance) {
+    SmAxis2Placement placement;double base=0,semi=0;SmBoolean swap=FALSE,inside=FALSE;
+    if(cone.GetCanonical(placement,base,semi,&swap,&inside)!=SM_SUCCESS) return false;
+    const double sign=1.0*(swap?-1.0:1.0)*(inside?-1.0:1.0);
+    const double sine=std::sin(semi*SM_PI/180.0),cosine=std::cos(semi*SM_PI/180.0);
+    const double height=cone.GetHeight(),offset_z=-sine*sign*distance;
+    const double radial=cosine*sign*distance;
+    const double old_bottom=cone.GetBotRadius(),old_top=cone.GetTopRadius();
+    double bottom=old_bottom+radial,top=old_top+radial;
+    if(bottom<tolerance && top<tolerance) return true;
+    if(bottom>=tolerance && top>=tolerance) return true;
+    double new_height;SmPoint3d origin;
+    const SmVector3d axis=placement.GetZAxis();
+    if(bottom<tolerance) {
+        const double tangent=height/old_top;new_height=top*tangent;
+        origin=placement.GetOriginRef()+(height+offset_z-new_height)*axis;bottom=0.0;
+    } else {
+        const double tangent=height/old_bottom;new_height=bottom*tangent;
+        origin=placement.GetOriginRef()+offset_z*axis;top=0.0;
+    }
+    SmAxis2Placement target;target.SetCanonical(origin,placement.GetXAxisRef(),placement.GetYAxisRef());
+    SmCone* raw=NULL;
+    SmCone::CreateCanonical(context,target,bottom,top,new_height,raw,swap,inside);
+    std::unique_ptr<SmCone> probe(raw);
+    return raw!=NULL;
+}
+}
+
 // op 1 recognition, 2 rebuild, 3 offset; kind 0 actual SmCone, 1 SmCylinder.
 SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mutation,
     double scale,double distance,double tolerance,const double* in,int64_t n_in,
     double* out,int64_t cap,int64_t* out_len)
 {
     SC_TRY
-    if(n_in!=18) return SC_ERR_ARG;
+    if(n_in!=18 && n_in!=27) return SC_ERR_ARG;
     SmContext context;
-    std::unique_ptr<SmCone> input(kind ? static_cast<SmCone*>(new(context) SmCylinder(
-        SmPoint3d(0,0,0),SmVector3d(1,0,0),SmVector3d(0,1,0),in[0],in[3],in[4],in[2],
-        in[5]?TRUE:FALSE,in[6]?TRUE:FALSE,FALSE,&context))
-        : static_cast<SmCone*>(new(context) TrimCone(in[0],in[1],in[3],in[4],in[2],in[5]?TRUE:FALSE,in[6]?TRUE:FALSE)));
-    if(input->MakeNurb()!=SM_SUCCESS) return SC_ERR_ARG;
+    const SmPoint3d origin=n_in==27?SmPoint3d(in[18],in[19],in[20]):SmPoint3d(0,0,0);
+    const SmVector3d x=n_in==27?SmVector3d(in[21],in[22],in[23]):SmVector3d(1,0,0);
+    const SmVector3d y=n_in==27?SmVector3d(in[24],in[25],in[26]):SmVector3d(0,1,0);
+    const SmBoolean swap=in[5]?TRUE:FALSE,inside=in[6]?TRUE:FALSE;
+    std::unique_ptr<SmCone> input;
+    if(kind&4) {
+        if(kind&1) input.reset(new(context) UnboundedCylinder(origin,x,y,in[0],swap,inside));
+        else input.reset(new(context) TrimCone(origin,x,y,in[0],in[7]*180.0/SM_PI,swap,inside));
+    } else {
+        if(kind&1) input.reset(new(context) SmCylinder(origin,x,y,in[0],in[3],in[4],in[2],swap,inside,FALSE,&context));
+        else input.reset(new(context) TrimCone(origin,x,y,in[0],in[1],in[3],in[4],in[2],swap,inside));
+    }
+    if(!(kind&2) && input->MakeNurb()!=SM_SUCCESS) return SC_ERR_ARG;
     cone_mutate(*input,mutation);
     std::unique_ptr<SmCone> result;
     const SmCone* selected=NULL;double status=0;
@@ -509,6 +570,7 @@ SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mu
     } else if(op==2) {
         status=(double)input->RebuildSTEPFromNURBParameters();selected=input.get();
     } else if(op==3) {
+        if(!offset_factory_defined(context,*input,distance,tolerance)) return SC_ERR_ARG;
         SmSurface* offset=NULL;
         status=(double)input->CreateOffsetSurface(context,distance,tolerance,offset);
         if(offset && !offset->IsKindOf(SmCone_TYPE)) {delete offset;return SC_ERR_ARG;}
