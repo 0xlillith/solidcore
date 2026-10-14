@@ -21,7 +21,7 @@ use solidcore::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
 use solidcore::nurbs::crv_basic::Curve as NlCurve;
 use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
-use solidcore::surface::surface::p9::CsiGlobalSolver;
+use solidcore::surface::surface::p1::CsiGlobalSolver;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::surface_cache::{
     BezierAux2d, BezierPatch, SurfaceCache, SurfaceCacheOptions,
@@ -204,15 +204,13 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                 let mut base = GlobalSolver::with_trees(curve_tree, tree, 3);
                 base.operation = SolverOperation::Intersect;
                 base.tolerance_3d = 1e-6;
-                let mut solver = CsiGlobalSolver {
-                    base,
-                    curve: &curve,
-                    surface_cache: &cache,
-                    kernel: &k,
-                    found_coincidence: false,
-                    interval,
-                    uv_domain: domain,
-                };
+                let mut solver = CsiGlobalSolver::new(
+                    curve_tree, tree, Some(cache.surface()), false, interval, domain,
+                );
+                solver.base = base;
+                solver.curve = Some(&curve);
+                solver.surface_cache = Some(&cache);
+                solver.kernel = Some(&k);
                 solver
                     .local_solve_branch(&[Some(NodeId(0)), Some(NodeId(0)), None])
                     .map(|more| {

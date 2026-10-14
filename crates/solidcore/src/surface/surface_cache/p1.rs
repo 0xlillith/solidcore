@@ -199,7 +199,7 @@ pub(super) const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
-        SurfaceKind::CurveBounded(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
     }
 }
 
@@ -235,7 +235,7 @@ fn create_iso_parametric_curve(
     match surface.kind() {
         SurfaceKind::BSpline(b) => bspline_iso_curve(k, b, param, iso, domain),
         SurfaceKind::Plane(_) => Err(plane_iso_unported()),
-        SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -269,20 +269,23 @@ pub(super) fn calculate_bounding_box(
 ) -> Result<BoundingBoxes> {
     match surface.kind() {
         SurfaceKind::BSpline(b) => b.calculate_bounding_box(domain, req),
-        SurfaceKind::Plane(_) => {
-            // UNPORTED(surface.plane_p1): SmBSplineSurface::CalculateBoundingBox on an
-            // SmPlane, inherited and dispatching to the plane (IsKindOf(SmPlane_TYPE),
-            // the SmPlane::EvaluateNormal override); the plane does not re-dispatch it yet
+        SurfaceKind::Plane(p) => crate::surface::surface::p1::plane_bounding_box(p, domain, req),
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            // SmSurface::CalculateBoundingBox (surface::surface::p1). Its polar box asks the
+            // surface's own cache for it, whose build asks this function again: upstream
+            // recurses without bound (UB-84), so the request is refused.
+            if req.polar {
+                return Err(SolidError::invalid_input(
+                    "surface::surface_cache::p1::calculate_bounding_box",
+                    crate::surface::surface::p1::POLAR_RECURSION,
+                ));
+            }
+            // The other boxes come from the surface's own cache, whose tree build needs
+            // the continuities.
+            // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
             Err(SolidError::unported(
-                "SmBSplineSurface::CalculateBoundingBox",
-                "surface.plane_p1",
-            ))
-        }
-        SurfaceKind::CurveBounded(_) => {
-            // UNPORTED(surface.surface_p1): SmSurface::CalculateBoundingBox
-            Err(SolidError::unported(
-                "SmSurface::CalculateBoundingBox",
-                "surface.surface_p1",
+                "SmSurface::CalculateContinuities",
+                "surface.surface_p6",
             ))
         }
     }
@@ -293,7 +296,7 @@ pub(super) fn calculate_bounding_box(
 fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
             Err(SolidError::unported(
                 "SmSurface::IsSingularity",
@@ -1604,13 +1607,18 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::GetFace` (`surface.surface_p1`).
+    /// Those of [`Surface::face`]; [`SolidError::Unported`] for a surface with a face:
+    /// faces have no handle in the caller's object space until the topology units
+    /// (`SmFace`, `topology.face_p2`) are ported.
     pub fn face(&self) -> Result<Option<O>> {
-        // UNPORTED(surface.surface_p1): SmSurface::GetFace
-        Err(SolidError::unported(
-            "SmSurface::GetFace",
-            "surface.surface_p1",
-        ))
+        match self.surface.face()? {
+            None => Ok(None),
+            // UNPORTED(topology.face_p2): SmFace handle of a surface's face
+            Some(_) => Err(SolidError::unported(
+                "SmFace handle of a surface's face",
+                "topology.face_p2",
+            )),
+        }
     }
 
     /// Whether `uv_point` passes the trim boundary test (`PointTest`): always with
@@ -2839,7 +2847,7 @@ mod tests {
         c.point_test_enabled = true;
         assert!(!c.point_test(Point2::new(5.0, 5.0)));
         assert!(c.point_classify(Point2::new(0.5, 0.5), 0.0).is_err());
-        assert!(c.face().unwrap_err().is_unported());
+        assert_eq!(c.face().unwrap(), None);
         assert!(c.is_kind_of(TYPE) && c.is_kind_of(object::OBJECT_TYPE) && !c.is_kind_of(15001));
         let k = Kernel::default();
         let d = c.uv_domain();

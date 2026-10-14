@@ -840,15 +840,16 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
 
 ## Surface tessellation and iso boundaries (2026-10-14, PR #6 review)
 
-`surface.surface_p9` is partial: 744 cases, 692 bit-identical, zero failed and
-52 deferred (`intersect.curve_class_p4`: 50; `surface.surface_p1`: 2), with no
-absolute floors. All 96 new review regressions pass; 32 failed before correcting
-the degeneracy tolerance and maximum-side forwarding. Fixtures and seeded cases
-cover poles, tiny patches, subdomains, angle-only controls, negative maximum side
-length and real analytic planes. Sensitivity detects every non-deferred case.
+`surface.surface_p9` is partial: 760 cases (160 fixtures and 600 generated),
+709 bit-identical, zero failed and 51 deferred (`intersect.curve_class_p4`: 50;
+`surface.surface_p6`: 1), with no absolute floors. All 96 review regressions
+and all 16 explicit analytic-plane cases without diagonals pass. The regression
+corpus reproduced 32 failures before the degeneracy/max-side fixes.
 
-`FindTessellationSplits` is wired into the surface cache's block subdivision with
-the caller Kernel: cache p2 is 751 passed / 154 deferred, cache p3 445 / 155.
-The CSI leaf body still defers at `sm_GetSurfaceToEvaluate`; full curve/surface
-intersection is not yet verified. See modules.toml and the committed reports for
-current per-unit counts; the earlier summary tables are historical.
+The solver uses the existing surface_p1 `CsiGlobalSolver` and constructor;
+surface/node/point helpers call the ported p1 implementations. The disjoint CSI
+fixture now passes; crossing reaches `surface.surface_p6`. End-to-end CSI is
+still unverified. `FindTessellationSplits` is wired into block subdivision:
+cache p2 compares 808/905 cases (97 deferred), cache p3 450/600 (150 deferred).
+The committed reports give the current deferral owners; earlier tables above
+are historical snapshots.

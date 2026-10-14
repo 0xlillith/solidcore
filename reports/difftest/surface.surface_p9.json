@@ -211,6 +211,134 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_0_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#18 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_0_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#19 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_0_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#20 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_0_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#21 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_1_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#22 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_1_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#23 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_1_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#24 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_0_1_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#25 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_0_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#26 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_0_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#27 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_0_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#28 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_0_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#29 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_1_0_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#30 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_1_1_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#31 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_1_2_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#32 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_plane_splits_1_1_3_no_diagonals",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p9/analytic-plane.json#33 (upstream source/SMLib/src/SmSurface.cpp:11644; source/SMLib/src/SmPlane.cpp (real analytic virtual dispatch))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "plane_splits_0_0",
       "outcome": "pass",
       "pass": true,
@@ -467,8 +595,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_GetSurfaceToEvaluate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::LocalCurveIntersect",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "csi_crossing_plane",
@@ -478,16 +606,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_GetSurfaceToEvaluate",
-        "unit": "surface.surface_p1"
-      },
       "max_rel_err": 0.0,
       "name": "csi_disjoint_plane",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p9/cases.json#29 (upstream source/SMLib/src/SmSurface.cpp:13887 (disjoint boxes))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6163,13 +6287,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 52,
+  "cases_deferred": 51,
   "cases_failed": 0,
-  "cases_passed": 692,
-  "cases_total": 744,
+  "cases_passed": 709,
+  "cases_total": 760,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 50,
-    "surface.surface_p1": 2
+    "surface.surface_p6": 1
   },
   "max_rel_err": 0.0,
   "pass": true,
