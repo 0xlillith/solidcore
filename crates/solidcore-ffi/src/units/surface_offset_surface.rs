@@ -46,9 +46,11 @@
 //! [`MAX_REACH`] domain lengths of the base domain, derivative orders of at most 6 and
 //! never written past the caller's array (`bOnlyUpperHalf` with `hv > hu` writes
 //! `Duv` past it), no bounding boxes or planarity tests over a curve-bounded or STEP
-//! base (their polar box recurses without bound upstream, UB-84), and no box outside
-//! the base domain nor planarity test once an extension may exist (the base-class box
-//! of the offset would ask the offset again for the extended part).
+//! base (their polar box recurses without bound upstream, UB-84), no box whose domain
+//! may lie outside the base domain (the base-class box of the offset asks the offset
+//! again for the outside part, without bound once an extension exists, and its surface
+//! cache subdivision runs away for small trimmed bases; the Rust side defers that path
+//! on `surface.surface_p6`), and no planarity test once an extension may exist.
 
 use super::surface_surf_of_revolution_p1 as rev;
 use crate::{call_with_buffer, FfiError};
@@ -657,6 +659,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
     }
     // the base domain as the script goes (unknown once an edit may have changed it)
     let mut dom = info.dom;
+    let mut edited = false;
     let unboxable = info.unboxable || matches!(box_base(off), Srf::Bounded { .. } | Srf::Step { .. });
     let plane = has_plane(&off.base);
     // an extension may exist once an evaluation ran with extension allowed
@@ -720,10 +723,18 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 if unboxable {
                     return Err(bad("box: curve-bounded or STEP base (UB-84)"));
                 }
-                // (without an extension the base-class box only asks the offset for
-                // subdomains of the base domain)
-                if ext_possible && !contained(*d, dom) {
-                    return Err(bad("box: outside the base domain with an extension"));
+                // a domain outside the base domain runs the base-class box on the
+                // offset: its surface cache asks the offset again for nodes outside the
+                // base (unbounded recursion with an extension), and its subdivision runs
+                // away for small trimmed bases. A plane's or surface of revolution's
+                // domain is not known here: its boxes pass while it is unedited (the
+                // generator then asks for its natural domain or a part of it).
+                let inside = match dom {
+                    Some(_) => contained(*d, dom),
+                    None => !edited,
+                };
+                if !inside {
+                    return Err(bad("box: domain may lie outside the base domain"));
                 }
                 o.extend_from_slice(d);
                 o.extend([b(want[0]), b(want[1]), b(want[2]), b(*expand)]);
@@ -751,10 +762,12 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("reverse: param"));
                 }
                 dom = None;
+                edited = true;
                 o.push(f64::from(*param));
             }
             Step::Swap => {
                 dom = None;
+                edited = true;
             }
             Step::Transform {
                 origin,
@@ -793,6 +806,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 check_uv([d[2], d[3]], dom, "trim max")?;
                 ext_possible |= allow;
                 dom = None;
+                edited = true;
                 o.extend_from_slice(d);
             }
             Step::Split { t, param } => {

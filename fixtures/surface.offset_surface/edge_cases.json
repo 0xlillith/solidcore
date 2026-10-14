@@ -8872,15 +8872,6 @@
       ]
      },
      {
-      "op": "bbox",
-      "dom": "OUT",
-      "want": [
-       true,
-       true,
-       false
-      ]
-     },
-     {
       "op": "is_planar",
       "tol": 0.001
      }
@@ -9186,15 +9177,6 @@
        true,
        true,
        true
-      ]
-     },
-     {
-      "op": "bbox",
-      "dom": "OUT",
-      "want": [
-       true,
-       true,
-       false
       ]
      },
      {
@@ -9506,15 +9488,6 @@
       ]
      },
      {
-      "op": "bbox",
-      "dom": "OUT",
-      "want": [
-       true,
-       true,
-       false
-      ]
-     },
-     {
       "op": "is_planar",
       "tol": 0.001
      }
@@ -9759,15 +9732,6 @@
        true,
        true,
        true
-      ]
-     },
-     {
-      "op": "bbox",
-      "dom": "OUT",
-      "want": [
-       true,
-       true,
-       false
       ]
      },
      {
