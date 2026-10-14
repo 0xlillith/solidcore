@@ -739,7 +739,18 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
 
-#### UB-74. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
+### Intersection
+
+#### UB-74. `PointBasedSurfaceIntersect` writes past its 20-point array
+- **Location:** `source/SMLib/src/SmSurface.cpp:30588` `SmSurface::PointBasedSurfaceIntersect` (UV point version).
+- **What happens:** The points go into `SmTsectPnt saTsectPnts[20]`; the size limit and the equal-length check of the two point arrays are `SM_ASSERT`s only, so 20 or more points write past the stack array, and a shorter second array is read past its end.
+- **Trigger:** 20 point pairs, or two UV point arrays of different lengths.
+- **How found:** read during porting (`intersect.surface_intersector_p1`).
+- **Confirmed:** no.
+- **Severity:** crash/UB.
+- **Rust port:** `Surface::point_based_surface_intersect` returns `InvalidInput` for those inputs.
+
+#### UB-75. `SmSurface::IsClosed` reads an uninitialised continuity when `smgu_EvaluateCurveContinuity` fails
 - **Location:** `SmSurface.cpp:22280` (and `:22299`), `SmSurface::IsClosed` (def. `:22157`).
 - **What happens:** The status of `smgu_EvaluateCurveContinuity` is ignored, and the local `eCurveContinuity` it should set is then compared with the running minimum and may be returned through `peOptContinuity`.
 - **Trigger:** `IsClosed(..., &continuity)` on a surface whose boundary derivatives make the continuity evaluation fail.
@@ -1337,7 +1348,45 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Ported as written.
 
-#### WR-50. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
+### Intersection
+
+#### WR-50. `AddStartPoint` "replaces" a bounded start point by assigning a local pointer
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3901` `SmSurfaceIntersector::AddStartPoint`.
+- **What happens:** For a bounded/exact start point pair whose stored point is the bounded one, the "replace pTSP with rStartTSP" branch only sets the loop variable `pTSP = &rStartTSP` and reports a match. The exact candidate is dropped and the bounded point stays in `m_vStartPoints`, the opposite of what the comment (and the function header) describe.
+- **Trigger:** A bounded start point already in the list, then an exact one within `2 * m_dThisApproxTol3d` with a matching curve tangent.
+- **How found:** read during porting.
+- **Confirmed:** no (the branch needs `smsurf_EvaluateNormalSection`, which the Rust side does not have yet, so those difftest cases are deferred).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (the candidate is not added).
+
+#### WR-51. `IsPointOnStartPoint` compares squared distances with a length tolerance
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:7515` `SmSurfaceIntersector::IsPointOnStartPoint`.
+- **What happens:** `DistanceBetweenSquared(...) < m_dThisApproxTol3d`: the effective tolerance is `sqrt(tol)`, far looser than intended for small tolerances (and tighter above 1).
+- **Trigger:** Any call; e.g. `tol = 1e-6` accepts points 1e-3 apart.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_start_points` and generated `on_start` ops agree with the squared test).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-52. `SER` inside `SmBoolean` functions reports a failure as `TRUE`
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:4195` `sm_IsPointOnCurve` and `:7376`, `:7391` `SmSurfaceIntersector::IsPointOnCurve`.
+- **What happens:** `SER(status)` returns the non-zero `SmStatus` from a function returning `SmBoolean`, so a failing point solve, curve evaluation or curve drop makes the point count as "on the curve".
+- **Trigger:** A curve whose `EvaluatePoint` or `DropPoint` fails, or a failing Hermite point solve.
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** wrong result.
+- **Rust port:** Faithful (`Ok(true)` on such an error).
+
+#### WR-53. `TestSpanAccuracy` compares a tangent length with an angle tolerance
+- **Location:** `source/SMLib/src/SmSurfaceIntersector.cpp:3448` `SmSurfaceIntersector::TestSpanAccuracy` (upstream's own `GWC_NEEDS_WORK` note).
+- **What happens:** `rNextTSP.CrvDeriv().Length() < m_dSteppingParallelTolRadians` (`SM_EFF_ZERO`): a length is tested against a radian tolerance, so the check only catches (near) zero tangents.
+- **Trigger:** A next point with a tangent shorter than `1e-12`.
+- **How found:** read during porting.
+- **Confirmed:** yes (`intersect.surface_intersector_p1` difftest, `edge_span_angle`).
+- **Severity:** wrong result (unit mix-up).
+- **Rust port:** Faithful.
+
+#### WR-54. `SmSurface::GetFlatCorners` destroys its return value while filling the corner points
 - **Location:** `SmSurface.cpp:12691`, `SmSurface::GetFlatCorners` (def. `:12655`).
 - **What happens:** The optional-output block tests `if(lRtn &= SM_FC_UMIN_VMIN)` (and so on) with `&=`, so asking for the points masks the flags down to at most one bit (usually none), and later corners are evaluated only if all earlier masks kept a bit.
 - **Trigger:** `GetFlatCorners(&points)` on a surface with two or more flat corners.
@@ -1346,7 +1395,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`Surface::flat_corners`; `IsFlatCorner` is not ported yet).
 
-#### WR-51. `sm_GoodDropResult` swaps the guess and result distances
+#### WR-55. `sm_GoodDropResult` swaps the guess and result distances
 - **Location:** `SmSurface.cpp:10349`, `sm_GoodDropResult` (file static, def. `:10256`).
 - **What happens:** `dDsqGuess` holds the distance to the result point and `dDsqResult` the distance to the guess point, so the final "result farther than the guess" test rejects drops that improved on the guess. The caller then runs the expensive global solve.
 - **Trigger:** A local drop whose result is closer to the point than the guess, with a small residual that passes the earlier tests.
@@ -1355,7 +1404,7 @@ by area within each severity.
 - **Severity:** wrong result (performance: an unneeded global solve).
 - **Rust port:** Reproduces it (`good_drop_result`).
 
-#### WR-52. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
+#### WR-56. `SmSurface::FindDegenParamForDirection` compares a sample fraction with a parameter
 - **Location:** `SmSurface.cpp:6948`, `SmSurface::FindDegenParamForDirection` (def. `:6757`).
 - **What happens:** The "nearly as good and closer to the input" tie-break compares `dThisParam` (a fraction in `[0, 1]` of the sample domain) with `dS` (the actual parameter), so it only means "closer" when the singular parameter runs over `[0, 1]`.
 - **Trigger:** A degenerate boundary whose singular parameter interval is not `[0, 1]`, with two nearly equally good samples.

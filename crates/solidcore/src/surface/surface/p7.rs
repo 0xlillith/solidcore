@@ -766,9 +766,18 @@ pub fn base_is_closed<S: SurfaceEvaluate + ?Sized>(
                 // cheesy one point test for a short curve
                 if mid_gap_sq < 4.0 * tol * tol {
                     // but some short curves can be very small circles - watch for those
+                    // (status ignored; on failure upstream has already written the
+                    // position, the tangent and a zero curvature vector)
                     if let Some(g) = ignored(frenet_from_derivatives(&p_mid, 2))? {
                         for (dst, src) in g_mid.iter_mut().zip(g) {
                             *dst = src;
+                        }
+                    } else {
+                        for (dst, src) in g_mid.iter_mut().zip(p_mid.iter().take(2)) {
+                            *dst = *src;
+                        }
+                        if let Some(c) = g_mid.get_mut(2) {
+                            *c = Vec3::new(0.0, 0.0, 0.0);
                         }
                     }
 
