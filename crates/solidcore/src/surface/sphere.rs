@@ -10,11 +10,12 @@
 //! | [`Sphere::is_kind_of`] | `IsKindOf` |
 //! | [`Sphere::create_canonical`] | `CreateCanonical` |
 //! | [`Sphere::create_iso_parametric_curve`] | `CreateIsoParametricCurve` |
+//! | [`Sphere::evaluate_step`], [`Sphere::evaluate_step_point`] | `EvaluateSTEP`, `EvaluateSTEPPoint` |
 //! | [`Sphere::make_nurb`] | inherited `MakeNurb` with sphere virtual iso calls |
 //!
 //! Deviations: owned generator instead of an owning pointer; explicit Kernel.
 //! A failed canonical generator construction returns its error instead of
-//! dereferencing the native NULL output. No recursion. This is a work in progress;
+//! dereferencing the native NULL output. Unwritten derivative slots are zero. No recursion. This is a work in progress;
 //! the remaining sphere functions and native comparisons belong to PR #79.
 
 use crate::curve::curve::Curve;
@@ -23,6 +24,7 @@ use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
+use crate::geom::vector2d::Point2;
 use crate::kernel::Kernel;
 use crate::math::{max2, min2, Point3, Vec3, EFF_ZERO, PI, UNDEF_DOUBLE};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -30,7 +32,7 @@ use crate::nurbs::b_spline_surface::{
     BSplineSurface, BSplineSurfaceForm, IsoCurveOptions, SurfParamType,
 };
 use crate::surface::surf_of_revolution::{RevolutionIsoCurve, SurfOfRevolution};
-use crate::surface::surface::p2::SPHERE_TYPE;
+use crate::surface::surface::p2::{scale_step_angular_derivatives, SPHERE_TYPE};
 
 /// Optional native sphere constructor arguments, with their upstream defaults.
 #[derive(Debug, Clone, Default)]
@@ -345,5 +347,86 @@ impl Sphere {
             domain,
             uv_curve,
         )
+    }
+}
+
+impl Sphere {
+    /// Evaluate the native triangular STEP derivative matrix through order three.
+    /// Unwritten entries are zero, and angular derivatives are per degree.
+    ///
+    /// # Errors
+    /// Orders above three (`SM_ERR`), or an invalid derivative layout.
+    pub fn evaluate_step(&self, mut uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
+        let operation = "surface::sphere::Sphere::evaluate_step";
+        if hu > 3 || hv > 3 {
+            return Err(SolidError::sm_err(operation));
+        }
+        let origin = self.rev.position.origin();
+        let x = self.rev.position.x_axis();
+        let y = self.rev.position.y_axis();
+        let z = self.rev.position.z_axis();
+        let radius = self.radius;
+        let min_highest = hu.min(hv);
+        if !self.rev.is_out_of_bounds_enabled() && !self.rev.anal_uv_domain.contains_point(uv, 0.0)
+        {
+            uv = self.rev.anal_uv_domain.clamp_point(uv);
+        }
+        let cos_u = (uv.x * PI / 180.0).cos();
+        let sin_u = (uv.x * PI / 180.0).sin();
+        let cos_v = (uv.y * PI / 180.0).cos();
+        let sin_v = (uv.y * PI / 180.0).sin();
+        // Orders were bounded above: at most sixteen entries.
+        let mut values = vec![Vec3::ZERO; (hu + 1) * (hv + 1)];
+        let mut put = |index: usize, value: Vec3| -> Result<()> {
+            let target = values
+                .get_mut(index)
+                .ok_or_else(|| SolidError::sm_err(operation))?;
+            *target = value;
+            Ok(())
+        };
+        put(
+            0,
+            origin + radius * (cos_v * (cos_u * x + sin_u * y) + sin_v * z),
+        )?;
+        if hu >= 1 {
+            put(hv + 1, radius * cos_v * (-sin_u * x + cos_u * y))?;
+        }
+        if hv >= 1 {
+            put(1, radius * (-sin_v * (cos_u * x + sin_u * y) + cos_v * z))?;
+        }
+        if hu >= 1 && hv >= 1 && min_highest >= 2 {
+            put(hv + 2, radius * -sin_v * (-sin_u * x + cos_u * y))?;
+        }
+        if hu >= 1 && hv >= 2 && min_highest >= 3 {
+            put(hv + 3, radius * -cos_v * (-sin_u * x + cos_u * y))?;
+        }
+        if hu >= 2 {
+            put(2 * hv + 2, radius * cos_v * (-cos_u * x - sin_u * y))?;
+        }
+        if hv >= 2 {
+            put(2, radius * (-cos_v * (cos_u * x + sin_u * y) - sin_v * z))?;
+        }
+        if hu >= 2 && hv >= 1 && min_highest >= 3 {
+            put(2 * hv + 3, radius * -sin_v * (-cos_u * x - sin_u * y))?;
+        }
+        if hu >= 3 {
+            put(3 * hv + 3, radius * cos_v * (sin_u * x - cos_u * y))?;
+        }
+        if hv >= 3 {
+            put(3, radius * (sin_v * (cos_u * x + sin_u * y) - cos_v * z))?;
+        }
+        scale_step_angular_derivatives(&mut values, hu, hv, true, true)?;
+        Ok(values)
+    }
+
+    /// Evaluate one STEP point, using the same clamping as the derivative call.
+    ///
+    /// # Errors
+    /// Those of STEP evaluation.
+    pub fn evaluate_step_point(&self, uv: Point2) -> Result<Point3> {
+        self.evaluate_step(uv, 0, 0)?
+            .first()
+            .copied()
+            .ok_or_else(|| SolidError::sm_err("surface::sphere::Sphere::evaluate_step_point"))
     }
 }
