@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**133 / 261 units ported** (87 green, 46 partial), **174,026 / 387,903 upstream lines (44.9%)**. 17 claimed, 0 blocked, 111 todo.
+**134 / 261 units ported** (87 green, 47 partial), **175,672 / 387,903 upstream lines (45.3%)**. 17 claimed, 0 blocked, 110 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -50,7 +50,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`, `topology.edgeuse_p1`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.edgeuse_p1`, `topology.face_p2`, `topology.loopuse`
 - [ ] `heal.gap` (1475 lines) — missing: `topology.edgeuse_p1`, `topology.vertexuse`
-- [ ] `query.loop` (830 lines) — missing: `topology.loopuse`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p1`, `intersect.curve_class_p7`, `topology.edgeuse_p1`, `topology.face_p2` +3 more
 - [ ] `query.face_p2` (1161 lines) — missing: `intersect.curve_class_p1`, `topology.face_p2`, `topology.face_p4`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.edgeuse_p1`, `topology.proto_topology_p1`, `topology.shell` +1 more
@@ -84,7 +83,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`, `topology.edge` +2 more
 - [ ] `query.api_queries` (809 lines) — missing: `intersect.topology_solver_p2`, `query.brep`, `query.edge`, `topology.brep_p1` +1 more
 - [ ] `topology.proto_topology_p3` (1577 lines) — missing: `intersect.curve_class_p1`, `topology.edge`, `topology.proto_topology_p1`, `topology.proto_topology_p2`
-- [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `intersect.adv_surface_intersector`, `topology.edge`
+- [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge`
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `intersect.curve_class_p1`, `surface.offset_surface` +1 more
 - [ ] `blend.fillet_standard_solver_p1` (2336 lines) — missing: `blend.fillet_solver_p1`, `surface.offset_surface`, `topology.edgeuse_p1`
 - [ ] `boolean.topology_intersector_p1` (2491 lines) — missing: `intersect.curve_class_p1`, `topology.edge`, `topology.face_p2`, `topology.face_p4` +4 more
@@ -128,7 +127,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
+- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🔨 `surface.surf_of_revolution_p2` (1369 lines) — in progress: #51 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
@@ -140,10 +139,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_point_solve_p1` (1771 lines) — in progress: #58 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p3` (1932 lines) — in progress: #56 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (draft)
+- [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (draft)
 
 ## By module
 
@@ -268,7 +267,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p1` (1944 lines) — partial, 872 cases
 - [ ] 🟡 `surface.plane_p1` (1934 lines) — partial, 2705 cases
 - [ ] 🟡 `surface.surf_of_revolution_p1` (1522 lines) — partial, 807 cases
-- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (draft)
+- [ ] 🔨 `surface.surface_p9` (1252 lines) — in progress: #6 @0xlillith (ready for review)
 - [ ] 🟡 `surface.trim_srf_cache` (966 lines) — partial, 621 cases
 - [ ] 🟡 `surface.b_spline_volume_n_lib` (310 lines) — partial, 2420 cases
 - [ ] 🟡 `surface.bend_volume` (945 lines) — partial, 2347 cases
@@ -335,7 +334,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.proto_topology_p2` (2091 lines) — waiting
 - [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
 
-### intersect (6/25)
+### intersect (7/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
@@ -348,7 +347,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `intersect.surface_drop_lib_p2` (1080 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p1` (1816 lines) — partial, 1510 cases
 - [ ] 🟡 `intersect.topology_solver_p1` (1838 lines) — partial, 3532 cases
-- [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.adv_surface_intersector` (1646 lines) — partial, 1931 cases
 - [ ] ⏳ `intersect.curve_class_p2` (1928 lines) — waiting
 - [ ] ⏳ `intersect.surface_drop_lib_p3` (2062 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p2` (1677 lines) — partial, 1660 cases
@@ -374,7 +373,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### query (0/10)
 
 - [ ] ⏳ `query.edge` (1025 lines) — waiting
-- [ ] ⏳ `query.loop` (830 lines) — waiting
+- [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (draft)
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] ⏳ `query.poly` (2119 lines) — waiting
