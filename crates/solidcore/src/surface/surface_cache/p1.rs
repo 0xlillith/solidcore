@@ -1607,13 +1607,18 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::GetFace` (`surface.surface_p1`).
+    /// Those of [`Surface::face`]; [`SolidError::Unported`] for a surface with a face:
+    /// faces have no handle in the caller's object space until the topology units
+    /// (`SmFace`, `topology.face_p2`) are ported.
     pub fn face(&self) -> Result<Option<O>> {
-        // UNPORTED(surface.surface_p1): SmSurface::GetFace
-        Err(SolidError::unported(
-            "SmSurface::GetFace",
-            "surface.surface_p1",
-        ))
+        match self.surface.face()? {
+            None => Ok(None),
+            // UNPORTED(topology.face_p2): SmFace handle of a surface's face
+            Some(_) => Err(SolidError::unported(
+                "SmFace handle of a surface's face",
+                "topology.face_p2",
+            )),
+        }
     }
 
     /// Whether `uv_point` passes the trim boundary test (`PointTest`): always with

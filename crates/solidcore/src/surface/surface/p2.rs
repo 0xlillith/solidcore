@@ -673,10 +673,10 @@ impl Surface {
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_step_inversion(),
             // SmBSplineSurface::STEPInversion solves on the plane through the virtual
             // point solvers
-            // UNPORTED(surface.surface_p1): SmSurface::GlobalPointSolve
+            // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
             SurfaceKind::Plane(_) => Err(SolidError::unported(
                 "SmSurface::GlobalPointSolve",
-                "surface.surface_p1",
+                "surface.surface_p4",
             )),
         }
     }
@@ -1148,6 +1148,13 @@ pub trait SurfaceEvaluate {
     /// Those of the evaluation.
     fn evaluate_point(&self, uv: Point2) -> Result<Point3>;
 
+    /// The virtual `operator==` (unit `surface.surface_p1`).
+    ///
+    /// # Errors
+    ///
+    /// Those of the comparison.
+    fn surface_approx_eq(&self, other: &Self) -> Result<bool>;
+
     /// `GetKnots`.
     ///
     /// # Errors
@@ -1165,6 +1172,10 @@ pub trait SurfaceEvaluate {
 }
 
 impl SurfaceEvaluate for Surface {
+    fn surface_approx_eq(&self, other: &Self) -> Result<bool> {
+        self.approx_eq(other)
+    }
+
     fn natural_uv_domain(&self) -> Extent2d {
         Self::natural_uv_domain(self)
     }
@@ -1197,6 +1208,11 @@ impl SurfaceEvaluate for Surface {
 }
 
 impl SurfaceEvaluate for BSplineSurface {
+    fn surface_approx_eq(&self, other: &Self) -> Result<bool> {
+        // SmBSplineSurface::operator== (two B-splines: SmSurface::operator== holds)
+        Ok(self.approx_eq(other))
+    }
+
     fn natural_uv_domain(&self) -> Extent2d {
         Self::natural_uv_domain(self)
     }
@@ -1388,21 +1404,17 @@ pub fn notify<T>(
 }
 
 /// `smsurf_GetSurfaceCache`: the surface's trimmed-surface cache, else its surface
-/// cache, made if needed.
+/// cache, built fresh ([`crate::surface::surface::p1::get_surface_cache`]).
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: the cache store makes surface caches through
-/// `SmSurface::CacheMakeOrValidate` (`surface.surface_p1`).
-pub fn surface_cache(_surface: &Surface) -> Result<a_object::CacheId> {
-    // SmCacheMgr::GetOrCreateObjectCache(SM_OC_TRIMSRF / SM_OC_SURFACE) makes the cache
-    // through SmSurface::CacheMakeOrValidate; the cache store holds no surface caches
-    // until it is ported.
-    // UNPORTED(surface.surface_p1): SmSurface::CacheMakeOrValidate
-    Err(SolidError::unported(
-        "SmSurface::CacheMakeOrValidate",
-        "surface.surface_p1",
-    ))
+/// Those of the cache builds.
+pub fn surface_cache<O: Copy + PartialEq>(
+    k: &Kernel,
+    surface: &Surface,
+    handle: Option<O>,
+) -> Result<crate::surface::surface_cache::p1::SurfaceCache<O>> {
+    crate::surface::surface::p1::get_surface_cache(k, surface, handle)
 }
 
 /// `sm_GetOriginalSurface`: the surface of the surface cache owning the tree of

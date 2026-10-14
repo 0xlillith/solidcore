@@ -869,8 +869,8 @@ impl Surface {
     }
 
     /// The derivatives at `uv` without zero-tangent adjustments (`EvaluateSimple`):
-    /// the plane's override, the curve bounded surface's basis surface, else the base
-    /// default, [`Surface::evaluate`] with exact tangents.
+    /// the B-spline's and the plane's overrides, the curve bounded surface's basis
+    /// surface, else the base default, [`Surface::evaluate`] with exact tangents.
     ///
     /// # Errors
     ///
@@ -883,6 +883,14 @@ impl Surface {
         flags: EvaluateFlags,
     ) -> Result<Vec<Vec<Vec3>>> {
         match self.kind() {
+            SurfaceKind::BSpline(s) => s.evaluate_simple(
+                uv,
+                highest_u_deriv,
+                highest_v_deriv,
+                flags.u_side == Side::Left,
+                flags.v_side == Side::Left,
+                flags.only_upper_half,
+            ),
             SurfaceKind::Plane(s) => {
                 s.evaluate_simple(uv, highest_u_deriv, highest_v_deriv, flags.only_upper_half)
             }
@@ -892,7 +900,7 @@ impl Surface {
                 highest_v_deriv,
                 flags,
             ),
-            SurfaceKind::BSpline(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::Step(_) => {
                 // pass the call along
                 self.evaluate(
                     uv,

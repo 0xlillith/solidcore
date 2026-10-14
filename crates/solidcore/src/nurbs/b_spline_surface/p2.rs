@@ -246,12 +246,26 @@ fn sweep_circle(c: &SmCurve) -> Result<(CurveCanonical, Extent1d)> {
 }
 
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`: point, `S_u`, `S_v`.
-fn evaluate_1st_derivatives(_srf: &BSplineSurface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate1stDerivatives
-    Err(SolidError::Unported {
-        upstream: "SmSurface::Evaluate1stDerivatives",
-        unit: "surface.surface_p1",
-    })
+fn evaluate_1st_derivatives(srf: &BSplineSurface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    // (SmSurface::Evaluate1stDerivatives: the virtual Evaluate, non-zero tangents)
+    let m = srf.evaluate(
+        uv,
+        1,
+        1,
+        crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags {
+            u_side: crate::nurbs::knots::Side::Left,
+            v_side: crate::nurbs::knots::Side::Left,
+            only_upper_half: true,
+            non_zero_tangents: true,
+        },
+    )?;
+    let at = |i: usize, j: usize| {
+        m.get(i)
+            .and_then(|r| r.get(j))
+            .copied()
+            .unwrap_or(Vec3::ZERO)
+    };
+    Ok((at(0, 0), at(1, 0), at(0, 1)))
 }
 
 /// The parts of `SmPlane(point, x_dir, y_dir, (1, 1), domain)` that

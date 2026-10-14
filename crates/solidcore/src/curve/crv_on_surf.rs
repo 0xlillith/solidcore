@@ -158,15 +158,34 @@ fn surface_evaluate_normal(_srf: &BSplineSurface, _uv: Point2, _from_left: bool)
 /// The second derivatives of `SmSurface::Evaluate2ndDerivatives(uv, from_left,
 /// from_left, S, Su, Sv, Suv, Suu, Svv)`: `[S, Su, Sv, Suv, Suu, Svv]`.
 fn surface_evaluate_2nd_derivatives(
-    _srf: &BSplineSurface,
-    _uv: Point2,
-    _from_left: bool,
+    srf: &BSplineSurface,
+    uv: Point2,
+    from_left: bool,
 ) -> Result<[Vec3; 6]> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate2ndDerivatives
-    Err(SolidError::unported(
-        "SmSurface::Evaluate2ndDerivatives",
-        "surface.surface_p1",
-    ))
+    // (the virtual Evaluate of the B-spline, non-zero tangents)
+    let side = if from_left {
+        Side::Left
+    } else {
+        Side::Right
+    };
+    let m = srf.evaluate(
+        uv,
+        2,
+        2,
+        EvaluateFlags {
+            u_side: side,
+            v_side: side,
+            only_upper_half: true,
+            non_zero_tangents: true,
+        },
+    )?;
+    let at = |i: usize, j: usize| {
+        m.get(i)
+            .and_then(|r| r.get(j))
+            .copied()
+            .unwrap_or(Vec3::ZERO)
+    };
+    Ok([at(0, 0), at(1, 0), at(0, 1), at(1, 1), at(2, 0), at(0, 2)])
 }
 
 /// `SmSurface::ReadFromDB(type, db, .., version)`: the surface of the record (the
