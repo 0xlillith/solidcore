@@ -14,14 +14,15 @@
 //! `SM_SUCCESS`, else the `SmStatus`; `1007` for a Rust `InvalidInput`, `-1` for a
 //! Rust error upstream cannot produce) and the rest as `out`.
 //!
-//! Deferred cases: ops reaching the simple maps of the unbend volume (unit
-//! `surface.unbend_volume`), which carries no data on the Rust side. The twist maps
-//! are default-constructed on both sides (period `0`: their values are NaN or
-//! infinite).
+//! Deferred cases: ops reaching an unported callee (none since the unbend volume,
+//! unit `surface.unbend_volume`, was wired). The twist and unbend maps are
+//! default-constructed on both sides (twist period `0`, unbend neutral distance `0`:
+//! some of their values are NaN or infinite).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use solidcore::kernel::Kernel;
 use solidcore::curve::curve::p2::Curve;
 use solidcore::curve::line::Line;
 use solidcore::geom::axis2_placement::Axis2Placement;
@@ -38,6 +39,7 @@ use solidcore::surface::volume::p1::{
     FindPvIntersect,
 };
 use solidcore::surface::twist_volume::TwistVolume;
+use solidcore::surface::unbend_volume::UnbendVolume;
 use solidcore::surface::volume::{Discontinuities3d, EvalOptions, Volume, VolumeKind};
 use solidcore::SolidError;
 use solidcore_ffi::units::surface_volume_p1::{self as ffi, Op};
@@ -523,7 +525,7 @@ fn build(v: &Vol) -> Result<Volume, HarnessError> {
                 m.t.ok_or_else(|| harness("transform map without t"))?,
             )),
             2 => VolumeKind::Twist(TwistVolume::new()),
-            3 => VolumeKind::Unbend,
+            3 => VolumeKind::Unbend(UnbendVolume::new()),
             k => return Err(harness(format!("bad map kind {k}"))),
         };
         next = Some(Volume::with_maps(kind, m.orient.map(transform_of), next));
@@ -829,7 +831,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         Inputs::SimplePreds { p, a, b: e, .. } => {
             let pt = tri!(o, v.is_point_in_param_domain_simple(v3(*p)));
             let ln = tri!(o, v.is_line_in_param_domain_simple(v3(*a), v3(*e)));
-            let cv = tri!(o, v.is_curve_in_param_domain_simple(&line(*a, *e)));
+            let cv = tri!(o, v.is_curve_in_param_domain_simple(&Kernel::default(), &line(*a, *e)));
             o.extend([0.0, b(pt), b(ln), b(cv)]);
         }
         Inputs::PtInInSpace { p, comp, .. } => {
@@ -838,15 +840,15 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             pv(&mut o, q);
         }
         Inputs::LineInParam { a, b: e, comp, .. } => {
-            let r = tri!(o, v.is_line_in_param_domain(v3(*a), v3(*e), *comp));
+            let r = tri!(o, v.is_line_in_param_domain(&Kernel::default(), v3(*a), v3(*e), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::CurveInParam { a, b: e, comp, .. } => {
-            let r = tri!(o, v.is_curve_in_param_domain(&line(*a, *e), *comp));
+            let r = tri!(o, v.is_curve_in_param_domain(&Kernel::default(), &line(*a, *e), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::CurveInInSpace { a, b: e, comp, .. } => {
-            let r = tri!(o, v.is_curve_in_in_space_domain(&line(*a, *e), *comp));
+            let r = tri!(o, v.is_curve_in_in_space_domain(&Kernel::default(), &line(*a, *e), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::Transform {
@@ -921,7 +923,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         Inputs::HasDisc { .. } => {
             let mut d = Discontinuities3d::new();
             d.set_unaligned();
-            let r = tri!(o, v.has_discontinuities_simple(Some(&mut d)));
+            let r = tri!(o, v.has_discontinuities_simple(Some(&mut d), true));
             o.extend([0.0, b(r)]);
             put_disc(&mut o, &d);
         }

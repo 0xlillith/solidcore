@@ -10,7 +10,7 @@
 //! | [`BSplineSurface::copy_and_add_analytics`]        | `CopyAndAddAnalytics`            |
 //! | [`BSplineSurface::create_iso_parametric_curve`], [`IsoCurveOptions`], [`IsoParametricCurve`] | `CreateIsoParametricCurve` |
 //! | [`BSplineSurface::create_sphere_from_arcs`], [`SphereFromArcs`] | `CreateSphereFromArcs`   |
-//! | [`BSplineSurface::create_surf_of_revolution`]     | `CreateSurfOfRevolution`         |
+//! | [`BSplineSurface::create_surf_of_revolution`], [`BSplineSurface::create_surf_of_revolution_with_line_vector`] | `CreateSurfOfRevolution` |
 //! | [`BSplineSurface::create_trimmed_plane_from_ruled`], [`TrimmedPlane`] | `CreateTrimmedPlaneFromRuled` |
 //! | [`BSplineSurface::is_degenerate_point`]           | `IsDegeneratePoint`              |
 //! | [`BSplineSurface::is_bilinear`]                   | `IsBilinear`                     |
@@ -31,9 +31,11 @@
 //! - **Surface type.** Only the plain B-spline is ported, so `GetType()` is always
 //!   `SmBSplineSurface_TYPE` here: `SetControlPoint`'s refusal for analytic surfaces
 //!   and `CopyAndAddAnalytics`' "copy an analytic as is" branch are never taken. The
-//!   generator of `CreateSurfOfRevolution` is a plain [`BSplineCurve`], never an
-//!   `SmLine` (a separate type here, `crate::curve::line`), so its arc length
-//!   reparametrisation of cylinders is never taken either.
+//!   generator of `CreateSurfOfRevolution` is a [`BSplineCurve`]; an `SmLine`
+//!   generator (a separate type here, `crate::curve::line`) passes its line vector to
+//!   [`BSplineSurface::create_surf_of_revolution_with_line_vector`], which takes
+//!   upstream's arc length reparametrisation of the sweep circle for cylinders
+//!   (`GetType() == SmLine_TYPE` and the line vector parallel to the axis).
 //! - **Missing NURB.** Where upstream dereferences the `NULL` NURB of a surface built
 //!   by `SmBSplineSurface()` (`GetControlPointsExpert`, `SetControlPoint`,
 //!   `CopySubPatch`, `SplitAt`) the port returns `SM_ERR`
@@ -60,10 +62,10 @@
 //!   (`surface.plane_p2`, then `surface.cone_p2`, `surface.sphere`,
 //!   `surface.surf_of_revolution_p2`, `surface.surf_of_extrusion_p2`);
 //!   `CreateTrimmedPlaneFromRuled` (unless the ruled
-//!   surface is a rectangle) `SmSurface::Evaluate1stDerivatives`
-//!   (`surface.surface_p1`); `IsDegeneratePoint` over another domain
-//!   `SmSurface::IsDegeneratePoint` (`surface.surface_p1`); `GetMaxAnalyticDomain` `SmSurface::IsPlanar` and
-//!   `IsClosed` (`surface.surface_p7`). Those calls return [`SolidError::Unported`].
+//!   surface is a rectangle) nothing unported (`SmSurface::Evaluate1stDerivatives`,
+//!   `IsPlanar` and `IsClosed` are those of `surface::surface::p7`); `IsDegeneratePoint`
+//!   over another domain `SmSurface::IsDegeneratePoint` (`surface.surface_p1`). Those
+//!   calls return [`SolidError::Unported`].
 
 use crate::curve::curve::p2::CRV_ON_SURF_TYPE;
 use crate::curve::curve::Curve as SmCurve;
@@ -74,7 +76,7 @@ use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::line_closest_point;
-use crate::geom::vector2d::Point2;
+use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_SQRT};
@@ -88,6 +90,7 @@ use crate::nurbs::math::{NOW, NOZ};
 use crate::nurbs::nurbs_srf::{is_nsrf_degenerate, split_srf};
 use crate::nurbs::srf_basic::Direction;
 use crate::nurbs::srf_tool::p1::{extract_iso_crv, extract_patch};
+use crate::surface::plane::Plane;
 
 use super::p1::{
     BSplineSurface, BSplineSurfaceForm, BoundingBoxRequest, CanonicalSurfaceData, SurfParamType,
@@ -243,12 +246,13 @@ fn sweep_circle(c: &SmCurve) -> Result<(CurveCanonical, Extent1d)> {
 }
 
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`: point, `S_u`, `S_v`.
-fn evaluate_1st_derivatives(_srf: &BSplineSurface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.surface_p1): SmSurface::Evaluate1stDerivatives
-    Err(SolidError::Unported {
-        upstream: "SmSurface::Evaluate1stDerivatives",
-        unit: "surface.surface_p1",
-    })
+fn evaluate_1st_derivatives(srf: &BSplineSurface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    crate::surface::surface::p7::evaluate_1st_derivatives(
+        srf,
+        uv,
+        crate::nurbs::knots::Side::Left,
+        crate::nurbs::knots::Side::Left,
+    )
 }
 
 /// The parts of `SmPlane(point, x_dir, y_dir, (1, 1), domain)` that
@@ -256,18 +260,25 @@ fn evaluate_1st_derivatives(_srf: &BSplineSurface, _uv: Point2) -> Result<(Point
 struct PlaneData {
     /// `EvaluateNormal` at the domain centre.
     normal: Vec3,
-    /// The points at the domain corners `(0, 0)`, `(0, 1)`, `(1, 0)`, `(1, 1)`
+    /// The points at the natural domain corners `(0, 0)`, `(0, 1)`, `(1, 0)`, `(1, 1)`
     /// (relative).
     corners: [Point3; 4],
 }
 
-/// `new SmPlane(point, x_dir, y_dir, scale, domain)`, its normal and corners.
-fn new_plane(_point: Point3, _x_dir: Vec3, _y_dir: Vec3, _domain: &Extent2d) -> Result<PlaneData> {
-    // UNPORTED(surface.plane_p1): SmPlane::SmPlane
-    Err(SolidError::Unported {
-        upstream: "SmPlane::SmPlane",
-        unit: "surface.plane_p1",
-    })
+/// `new SmPlane(point, x_dir, y_dir, (1, 1), domain)`, its normal
+/// (`EvaluateNormal`) and the points at the corners of its natural domain
+/// (`EvaluatePoint` at `GetMin`, `(0, 1)`, `(1, 0)`, `GetMax`).
+fn new_plane(point: Point3, x_dir: Vec3, y_dir: Vec3, domain: &Extent2d) -> PlaneData {
+    let plane = Plane::new(point, x_dir, y_dir, Vec2::new(1.0, 1.0), domain);
+    let normal = plane.evaluate_normal();
+    let plane_domain = plane.natural_uv_domain();
+    let corners = [
+        plane.evaluate_point(plane_domain.min()),
+        plane.evaluate_point(plane_domain.evaluate(0.0, 1.0)),
+        plane.evaluate_point(plane_domain.evaluate(1.0, 0.0)),
+        plane.evaluate_point(plane_domain.max()),
+    ];
+    PlaneData { normal, corners }
 }
 
 /// `SmSurface::CreateNaturalUVTrimCurves(domain, SM_SP_U, FALSE, ..)`: the 3D trimming
@@ -297,25 +308,14 @@ fn surface_is_degenerate_point(
 }
 
 /// `SmSurface::IsPlanar()`.
-fn surface_is_planar(_srf: &BSplineSurface) -> Result<bool> {
-    // UNPORTED(surface.surface_p7): SmSurface::IsPlanar
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsPlanar",
-        unit: "surface.surface_p7",
-    })
+fn surface_is_planar(srf: &BSplineSurface) -> Result<bool> {
+    // upstream's default tolerance is SM_EFF_ZERO
+    Ok(crate::surface::surface::p7::b_spline_is_planar(srf, EFF_ZERO)?.is_planar)
 }
 
 /// `SmSurface::IsClosed(domain, dir)`.
-fn surface_is_closed(
-    _srf: &BSplineSurface,
-    _domain: &Extent2d,
-    _dir: SurfParamType,
-) -> Result<bool> {
-    // UNPORTED(surface.surface_p7): SmSurface::IsClosed
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsClosed",
-        unit: "surface.surface_p7",
-    })
+fn surface_is_closed(srf: &BSplineSurface, domain: &Extent2d, dir: SurfParamType) -> Result<bool> {
+    Ok(crate::surface::surface::p7::base_is_closed(srf, domain, dir, None, false)?.0)
 }
 
 /// Expands `ivl` relatively by 100 (degree 1), 1 (degree 2) or 0.5.
@@ -618,6 +618,37 @@ impl BSplineSurface {
         swap_uv: bool,
         opt_sweep_curve: Option<&SmCurve>,
     ) -> Result<Self> {
+        Self::create_surf_of_revolution_with_line_vector(
+            gen_curve,
+            None,
+            origin,
+            axis_dir,
+            angle_span_deg,
+            swap_uv,
+            opt_sweep_curve,
+        )
+    }
+
+    /// [`Self::create_surf_of_revolution`] of a generator that may be an `SmLine`
+    /// (`CreateSurfOfRevolution` with `pGenCurve->GetType() == SmLine_TYPE`):
+    /// `gen_line_vector` is the line's `GetLineVector()` (`None` for any other
+    /// generator). When it is parallel to the axis within `0.001` degrees (a
+    /// cylinder) and no sweep curve is given, the sweep circle is reparametrised with
+    /// arc length.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::create_surf_of_revolution`] and of the circle's arc length
+    /// reparametrisation.
+    pub fn create_surf_of_revolution_with_line_vector(
+        gen_curve: &BSplineCurve,
+        gen_line_vector: Option<Vec3>,
+        origin: Point3,
+        axis_dir: Vec3,
+        angle_span_deg: f64,
+        swap_uv: bool,
+        opt_sweep_curve: Option<&SmCurve>,
+    ) -> Result<Self> {
         // unitized rotation axis
         let axis_dir = axis_dir.unitize()?;
 
@@ -671,7 +702,7 @@ impl BSplineSurface {
                 let x_unit = x_vec / radius;
                 let y_vec = axis_dir.cross(x_unit);
                 let ref_frame = Axis2Placement::new(center, x_unit, y_vec);
-                let cir = BSplineCurve::create_circle_segment(
+                let mut cir = BSplineCurve::create_circle_segment(
                     3,
                     &ref_frame,
                     radius,
@@ -679,8 +710,13 @@ impl BSplineSurface {
                     angle_span_deg,
                     NurbCircleParam::Quadratic,
                 )?;
-                // (a generator SmLine parallel to the axis would be reparametrised
-                // with arc length here; a BSplineCurve never is one)
+
+                // If we have a cylinder, reparametrize it with arc length
+                if let Some(line_vec) = gen_line_vector {
+                    if line_vec.is_parallel_to(axis_dir, 0.001) {
+                        cir.reparametrize_with_arc_length()?;
+                    }
+                }
 
                 // get the sweep circle parameters
                 let c = cir.canonical()?;
@@ -873,7 +909,7 @@ impl BSplineSurface {
         let size = bbox.size();
         let leng = size.length();
         let tmp_domain = Extent2d::from_bounds(-leng, -leng, leng, leng);
-        let plane = new_plane(pnt, dv, du, &tmp_domain)?;
+        let plane = new_plane(pnt, dv, du, &tmp_domain);
 
         // Make sure both curves are on the plane before continuing.
         if !curve1.is_on_plane(pnt, plane.normal, tol, None)?.on_plane {

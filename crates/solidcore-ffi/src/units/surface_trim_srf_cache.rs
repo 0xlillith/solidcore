@@ -19,8 +19,9 @@
 //! Outputs (first entry the status `0` / `SmStatus`):
 //! `New`: `type kinds.. modified boundary point_test have_t containment D factor ch ang ar max min
 //! ratio no_tree`. `PointTest`: `ok object_type` (`-1` = none). `ImplantEu`: one status per call
-//! up to the first failing one, the face extent `D`, then per node `marked class k eu..` (edge use
-//! indices = call indices). `Face`: (with `build`) `build_status boundary point_test have_t
+//! up to the first failing one, the face extent `D`, the node count, then for every node of the
+//! tree (the input nodes, then the children subdivisions made, in allocation order) `marked
+//! class k eu..` (edge use indices = call indices). `Face`: (with `build`) `build_status boundary point_test have_t
 //! containment D node_count`, then per point `test_status ok object_type classify_status class
 //! object_type`.
 //!
@@ -373,7 +374,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             }
             let n = tree(rd, &srf)?;
             rd.flag()?;
-            rd.domain()?;
+            // Face extent: unordered (negative-area) bounds are valid input; upstream
+            // resets them to the curve box, so only finiteness is checked here.
+            rd.finites(4)?;
             let k = rd.index(8)?;
             for _ in 0..k {
                 curve_2d(rd)?;

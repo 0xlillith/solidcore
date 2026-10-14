@@ -49,6 +49,16 @@ jobs:
       - run: rustup target add wasm32-unknown-unknown
       - run: cargo check -p solidcore --target wasm32-unknown-unknown
 
+  # Same packaging check the release workflow runs before publishing (no secrets).
+  publish-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> bin"
+      - run: cargo publish -p solidcore --locked --dry-run
+
   deny:
     runs-on: ubuntu-latest
     steps:
@@ -112,6 +122,13 @@ jobs:
         with:
           workspaces: ". -> bin"
           key: difftest
+
+      # The clippy job above cannot see code behind the cpp feature (ffi bindings and
+      # the difftest unit runners); lint it here, where the C++ headers exist.
+      # difftest/cpp enables solidcore-ffi/cpp and registers the runners.
+      - name: Clippy with the C++ feature
+        if: steps.green.outputs.any == 'true'
+        run: cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
 
       - name: Difftest green units
         if: steps.green.outputs.any == 'true'
