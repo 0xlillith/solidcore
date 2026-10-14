@@ -34,7 +34,7 @@
 //! | [`Surface::knots`]                                | `GetKnots`                                       |
 //! | [`Surface::convert_uv_from_step_to_nurbs`], [`Surface::convert_uv_from_nurbs_to_step`] | `ConvertUVFromSTEPToNURBS`, `ConvertUVFromNURBSToSTEP` |
 //! | [`Surface::curve_on_classify`]                    | `CurveOnClassify`                                |
-//! | [`Surface::global_surface_intersect`], [`SurfaceIntersection`] | `GlobalSurfaceIntersect`            |
+//! | [`Surface::global_surface_intersect`], [`base_global_surface_intersect`], [`SurfaceIntersection`] | `GlobalSurfaceIntersect` (virtual: the `SmPlane` override in `surface::plane::p2`; the `SmSurface` body) |
 //! | [`Surface::point_based_surface_intersect`], [`PointIntersection`] | `PointBasedSurfaceIntersect` (UV point version) |
 //! | [`Surface::read_from_db`]                         | `SmSurface::ReadFromDB`                          |
 //! | [`Surface::create_plane_with_3d_curves`], [`PlaneWith3dCurves`] | `CreatePlaneWith3DCurves`          |
@@ -67,7 +67,8 @@
 //!   [`BSplineSurface`], [`CurveBoundedSurface`] (unit
 //!   `surface.curve_bounded_surface`) and [`Plane`] (unit `surface.plane_p1`: the
 //!   inherited `SmBSplineSurface` methods run on its B-spline part, re-dispatched to
-//!   the plane's overrides; `Transform` and `TrimWithDomain` belong to
+//!   the plane's overrides; `Transform`, `TrimWithDomain`, `ReadFromDB`,
+//!   `IntersectWithPlane` and `GlobalSurfaceIntersect` are those of
 //!   `surface.plane_p2`, `STEPInversion` needs the point solvers of
 //!   `surface.surface_p1`); the other analytic and generated surfaces (`SmCone`, ...)
 //!   join the enum in their own units. Each virtual method is one `match`: a
@@ -99,8 +100,7 @@
 //!   `SmBezierPatch` of a tree node, which the tree reaches once the tree construction
 //!   (`surface.surface_cache_p3`) hands the cache's patch data over;
 //!   `ReadFromDB` of the analytic and generated surfaces needs their units. Those
-//!   calls return [`SolidError::Unported`]. The `IntersectWithPlane` default takes
-//!   the plane as an opaque argument until `SmPlane` is ported.
+//!   calls return [`SolidError::Unported`].
 //! - **`SmDerivSurfDefinition`.** The reference curves are borrowed
 //!   ([`Option<&Curve>`]). `AssertValid` runs every test (all are `SM_LEVEL_0` and the
 //!   release build ignores the test level and the test requests), so it takes only
@@ -277,10 +277,12 @@ impl From<Plane> for Surface {
 pub struct SurfaceIntersection {
     /// `pOpt3DCurves`: the 3D intersection curves.
     pub curves_3d: Vec<Curve>,
-    /// `pOptSurface1UVCurves`: their UV curves on this surface.
-    pub surface1_uv_curves: Vec<Curve>,
-    /// `pOptSurface2UVCurves`: their UV curves on the other surface.
-    pub surface2_uv_curves: Vec<Curve>,
+    /// `pOptSurface1UVCurves`: their UV curves on this surface (`None`: upstream's
+    /// `NULL`, no UV curve).
+    pub surface1_uv_curves: Vec<Option<Curve>>,
+    /// `pOptSurface2UVCurves`: their UV curves on the other surface (`None`: no UV
+    /// curve).
+    pub surface2_uv_curves: Vec<Option<Curve>>,
     /// `pOptCurveTypes`: the kind of each intersection.
     pub curve_types: Vec<TsectCurveType>,
     /// `pOptDeviations`: the maximum distance of each curve from the surfaces.
@@ -473,7 +475,7 @@ impl Surface {
     /// Those of the kind's override (the base default is [`Surface::copy`]).
     pub fn copy_and_add_analytics(&self) -> Result<Self> {
         match &self.kind {
-            SurfaceKind::BSpline(s) => Ok(Self::from(s.copy_and_add_analytics()?)),
+            SurfaceKind::BSpline(s) => s.copy_and_add_analytics(),
             SurfaceKind::CurveBounded(_) => base_copy_and_add_analytics(),
             // SmBSplineSurface::CopyAndAddAnalytics: not SmBSplineSurface_TYPE, so Copy
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
@@ -687,22 +689,34 @@ impl Surface {
         }
     }
 
-    /// `IntersectWithPlane`: no ported kind overrides it; the base default fails.
-    /// `plane` stands for the `SmPlane` argument until that type is ported.
+    /// `IntersectWithPlane`: the special-case intersection with `plane` and whether
+    /// the general intersector is still needed. The `SmPlane` override
+    /// ([`Plane::intersect_with_plane`]; `plane` is taken as without owner); the other
+    /// ported kinds run the base default.
     ///
     /// # Errors
     ///
-    /// `SM_ERR` (the base default).
-    pub fn intersect_with_plane<P: ?Sized>(
+    /// Those of [`Plane::intersect_with_plane`] (with this surface's owner for the
+    /// zone tolerance); `SM_ERR` (the base default).
+    pub fn intersect_with_plane(
         &self,
-        _uv_domain: &Extent2d,
-        _plane: &P,
-        _other_uv_domain: &Extent2d,
+        uv_domain: &Extent2d,
+        plane: &Plane,
+        other_uv_domain: &Extent2d,
         _use_surface_edges: [bool; 2],
-        _approx_tol_3d: Option<f64>,
+        approx_tol_3d: Option<f64>,
         _ang_tol_rad: Option<f64>,
     ) -> Result<(bool, SurfaceIntersection)> {
-        base_intersect_with_plane()
+        match &self.kind {
+            SurfaceKind::Plane(s) => s.intersect_with_plane_owned(
+                uv_domain,
+                plane,
+                other_uv_domain,
+                approx_tol_3d,
+                [self.owner.is_some(), false],
+            ),
+            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => base_intersect_with_plane(),
+        }
     }
 
     // ---- edits ----------------------------------------------------------------------
@@ -769,11 +783,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.transform(rotate_n_move, scale),
             SurfaceKind::CurveBounded(_) => base_edit(),
-            // UNPORTED(surface.plane_p2): SmPlane::Transform
-            SurfaceKind::Plane(_) => Err(SolidError::unported(
-                "SmPlane::Transform",
-                "surface.plane_p2",
-            )),
+            SurfaceKind::Plane(s) => s.transform(rotate_n_move, scale),
         }
     }
 
@@ -786,11 +796,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.trim_with_domain(trim_domain),
             SurfaceKind::CurveBounded(_) => base_edit(),
-            // UNPORTED(surface.plane_p2): SmPlane::TrimWithDomain
-            SurfaceKind::Plane(_) => Err(SolidError::unported(
-                "SmPlane::TrimWithDomain",
-                "surface.plane_p2",
-            )),
+            SurfaceKind::Plane(s) => s.trim_with_domain(trim_domain),
         }
     }
 
@@ -882,11 +888,7 @@ impl Surface {
         // pass the call along to the appropriate derived type
         match surface_type {
             B_SPLINE_SURFACE_TYPE => Ok(Self::from(BSplineSurface::read_from_db(db, version)?)),
-            // UNPORTED(surface.plane_p2): SmPlane::ReadFromDB
-            PLANE_TYPE => Err(SolidError::unported(
-                "SmPlane::ReadFromDB",
-                "surface.plane_p2",
-            )),
+            PLANE_TYPE => Ok(Self::from(Plane::read_from_db(db, version)?)),
             // UNPORTED(surface.surf_of_extrusion_p2): SmSurfOfExtrusion::ReadFromDB
             SURF_OF_EXTRUSION_TYPE => Err(SolidError::unported(
                 "SmSurfOfExtrusion::ReadFromDB",
@@ -957,27 +959,45 @@ impl Surface {
     }
 
     /// The intersection curves of this surface over `uv_domain` with `other` over
-    /// `other_uv_domain` (`GlobalSurfaceIntersect`, through
-    /// `SmAdvSurfaceIntersector`).
+    /// `other_uv_domain` (`GlobalSurfaceIntersect`): the `SmPlane` override (the
+    /// plane/plane special case first), else [`base_global_surface_intersect`].
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmAdvSurfaceIntersector`
-    /// (`intersect.adv_surface_intersector`).
+    /// Those of the plane/plane intersection; [`SolidError::Unported`]:
+    /// `SmAdvSurfaceIntersector` (`intersect.adv_surface_intersector`).
     pub fn global_surface_intersect(
         &self,
-        _uv_domain: &Extent2d,
-        _other: &Self,
-        _other_uv_domain: &Extent2d,
-        _use_surface_edges: [bool; 2],
-        _approx_tol_3d: Option<f64>,
-        _ang_tol_rad: Option<f64>,
+        uv_domain: &Extent2d,
+        other: &Self,
+        other_uv_domain: &Extent2d,
+        use_surface_edges: [bool; 2],
+        approx_tol_3d: Option<f64>,
+        ang_tol_rad: Option<f64>,
     ) -> Result<SurfaceIntersection> {
-        // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::SmAdvSurfaceIntersector
-        Err(SolidError::unported(
-            "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
-            "intersect.adv_surface_intersector",
-        ))
+        match &self.kind {
+            SurfaceKind::Plane(p) => crate::surface::plane::p2::global_surface_intersect(
+                self,
+                p,
+                uv_domain,
+                other,
+                other_uv_domain,
+                use_surface_edges,
+                approx_tol_3d,
+                ang_tol_rad,
+            ),
+            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) => {
+                base_global_surface_intersect(
+                    self,
+                    uv_domain,
+                    other,
+                    other_uv_domain,
+                    use_surface_edges,
+                    approx_tol_3d,
+                    ang_tol_rad,
+                )
+            }
+        }
     }
 
     /// The intersection curve of this surface with `other` through the given pairs
@@ -1265,6 +1285,29 @@ pub const fn base_degree() -> usize {
 #[must_use]
 pub const fn base_number_control_points() -> usize {
     0
+}
+
+/// `SmSurface::GlobalSurfaceIntersect`: the intersection curves of `this` over
+/// `uv_domain` with `other` over `other_uv_domain`, through `SmAdvSurfaceIntersector`.
+///
+/// # Errors
+///
+/// [`SolidError::Unported`]: `SmAdvSurfaceIntersector`
+/// (`intersect.adv_surface_intersector`).
+pub fn base_global_surface_intersect(
+    _this: &Surface,
+    _uv_domain: &Extent2d,
+    _other: &Surface,
+    _other_uv_domain: &Extent2d,
+    _use_surface_edges: [bool; 2],
+    _approx_tol_3d: Option<f64>,
+    _ang_tol_rad: Option<f64>,
+) -> Result<SurfaceIntersection> {
+    // UNPORTED(intersect.adv_surface_intersector): SmAdvSurfaceIntersector::SmAdvSurfaceIntersector
+    Err(SolidError::unported(
+        "SmAdvSurfaceIntersector::SmAdvSurfaceIntersector",
+        "intersect.adv_surface_intersector",
+    ))
 }
 
 /// `SmSurface::GetMaxAnalyticDomain`: reports `SM_ERR` and returns an initialised
