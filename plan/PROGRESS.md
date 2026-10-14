@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**116 / 261 units ported** (83 green, 33 partial), **148,454 / 387,903 upstream lines (38.3%)**. 18 claimed, 0 blocked, 127 todo.
+**117 / 261 units ported** (83 green, 34 partial), **149,920 / 387,903 upstream lines (38.6%)**. 17 claimed, 0 blocked, 127 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -158,7 +158,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (draft)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
-- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.adv_surface_intersector` (1646 lines) — in progress: #41 @bherbruck (draft)
 - [ ] 🔨 `sweep.api_surfaces` (381 lines) — in progress: #37 @bherbruck (ready for review)
 
@@ -318,11 +317,11 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `surface.surface_point_solve_p2` (1882 lines) — waiting
 - [ ] ⏳ `surface.surface_point_solve_p3` (1282 lines) — waiting
 
-### topology (2/31)
+### topology (3/31)
 
 - [x] ✅ `topology.database_io` (363 lines) — green, 2059 cases
 - [x] ✅ `topology.topology` (389 lines) — green, 657 cases
-- [ ] 🔨 `topology.brep_data` (1466 lines) — in progress: #25 @bherbruck (ready for review)
+- [ ] 🟡 `topology.brep_data` (1466 lines) — partial, 2379 cases
 - [ ] ⏳ `topology.proto_topology_p1` (2746 lines) — waiting
 - [ ] ⏳ `topology.edgeuse_p1` (1157 lines) — waiting
 - [ ] ⏳ `topology.face_p2` (1827 lines) — waiting
