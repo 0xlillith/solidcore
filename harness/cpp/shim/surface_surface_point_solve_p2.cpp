@@ -20,6 +20,7 @@
 #include "StdAfx.h"
 #include <SmBSplineCurve.h>
 #include <SmBSplineSurface.h>
+#include <SmCircle.h>
 #include <SmBrep.h>
 #include <SmContext.h>
 #include <SmCurveBoundedSurface.h>
@@ -31,12 +32,14 @@
 #include <SmGraphicsExtern.h>
 #include <SmGraphicsOutput.h>
 #include <SmIsoCurve.h>
+#include <SmLine.h>
 #include <SmLocalSolve1d.h>
 #include <SmNurbsSrf.h>
 #include <SmOffsetSurface.h>
 #include <SmPlane.h>
 #include <SmSTEPSurface.h>
 #include <SmSolutionArray.h>
+#include <SmSurfOfRevolution.h>
 #include <SmSurface.h>
 #include <SmSurfaceCache.h>
 #include <SmTArray.h>
@@ -77,6 +80,7 @@ enum
     OP_STEP = 12,
     OP_LINE = 13,
     OP_LINE_B = 14,
+    OP_REV_INFO = 15,
 };
 
 struct Rd
@@ -160,11 +164,115 @@ SmBSplineSurface* read_bspline(Rd& rd, const SmContext& ctx)
     return s;
 }
 
+// Reaches the protected SmSurfOfRevolution constructor (as the surf_of_revolution_p1 shim).
+struct RevPeek : SmSurfOfRevolution
+{
+    RevPeek(SmBSplineCurve* c, const SmPoint3d& o, const SmVector3d& x, const SmVector3d& y,
+            const SmExtent2d& d, SmBoolean swap)
+        : SmSurfOfRevolution(c, o, x, y, d, swap)
+    {
+    }
+};
+
+// `n p m`, `n+1` points `x y z w`, `m+1` knots: SmBSplineCurve(gw_CURVE*, 3, FALSE).
+SmBSplineCurve* read_curve(Rd& rd, const SmContext& ctx)
+{
+    gw_INDEX n = (gw_INDEX)rd.idx();
+    gw_DEGREE p = (gw_DEGREE)rd.idx();
+    gw_INDEX m = (gw_INDEX)rd.idx();
+    gw_CURVE* cur = sm_AllocateNurbCurve(n, p, m);
+    for (gw_INDEX i = 0; i <= n; i++)
+    {
+        cur->pol->Pw[i].x = rd.num();
+        cur->pol->Pw[i].y = rd.num();
+        cur->pol->Pw[i].z = rd.num();
+        cur->pol->Pw[i].w = rd.num();
+    }
+    for (gw_INDEX i = 0; i <= m; i++)
+        cur->knt->U[i] = rd.num();
+    return new (ctx) SmBSplineCurve(cur, 3, FALSE);
+}
+
+// A generator `kind ...` (layout of the surf_of_revolution_p1 shim): 0 a B-spline curve,
+// 1 a line `a[3] b[3]` (its NURB made), 2 a circle `c[3] x[3] y[3] d0 d1 r`.
+SmBSplineCurve* read_gen(Rd& rd, const SmContext& ctx)
+{
+    int64_t kind = rd.idx();
+    if (kind == 0)
+        return read_curve(rd, ctx);
+    if (kind == 1)
+    {
+        SmPoint3d a = rd.vec();
+        SmPoint3d b = rd.vec();
+        SmLine* l = new (ctx) SmLine(a, b, 3, &ctx);
+        l->GetOrCreateGwNurbPointer();
+        return l;
+    }
+    SmPoint3d c = rd.vec();
+    SmVector3d x = rd.vec();
+    SmVector3d y = rd.vec();
+    double d0 = rd.num();
+    double d1 = rd.num();
+    double r = rd.num();
+    return new (ctx) SmCircle(c, x, y, SmExtent1d(d0, d1), r, 3, &ctx);
+}
+
+// A surface of revolution `mode gen oob swap` then for mode 0 (CreateCanonical) `P[3]
+// A[3]`, for mode 1 (the constructor and MakeNurb) `O[3] X[3] Y[3] D[4]` (layout of the
+// surf_of_revolution_p1 shim). Writes the construction status; NULL on failure.
+SmSurfOfRevolution* read_rev(Rd& rd, const SmContext& ctx, SmStatus& stt)
+{
+    int64_t mode = rd.idx();
+    SmBSplineCurve* gen = read_gen(rd, ctx);
+    bool oob = rd.flag();
+    bool swap = rd.flag();
+    SmSurfOfRevolution* s = NULL;
+    if (mode == 0)
+    {
+        SmPoint3d p = rd.vec();
+        SmVector3d a = rd.vec();
+        stt = SmSurfOfRevolution::CreateCanonical(ctx, gen, p, a, s, swap ? TRUE : FALSE);
+    }
+    else
+    {
+        SmPoint3d org = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        SmExtent2d d = rd.domain();
+        s = new (ctx) RevPeek(gen, org, x, y, d, swap ? TRUE : FALSE);
+        stt = s->MakeNurb();
+    }
+    if (stt != SM_SUCCESS)
+    {
+        if (s)
+            delete s; // owns gen
+        else
+            delete gen;
+        return NULL;
+    }
+    s->SetOutOfBoundsEnabled(oob ? TRUE : FALSE); // the surface and its generator
+    return s;
+}
+
+// The construction of a surface of revolution failed (OP_REV_INFO reports it first).
+struct BuildFailed
+{
+};
+
 // A surface `kind ...`: 0 B-spline `oob form nurb`; 1 bounded plane `o x y sx sy D`;
-// 2 curve-bounded surface (implicit outer, no boundary curves) over a B-spline block.
+// 2 curve-bounded surface (implicit outer, no boundary curves) over a B-spline block;
+// 3 surface of revolution (read_rev; throws BuildFailed when it cannot be built).
 SmSurface* read_surface(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx();
+    if (kind == 3)
+    {
+        SmStatus stt = SM_SUCCESS;
+        SmSurfOfRevolution* r = read_rev(rd, ctx, stt);
+        if (r == NULL)
+            throw BuildFailed();
+        return r;
+    }
     if (kind == 1)
     {
         SmPoint3d o = rd.vec();
@@ -482,6 +590,30 @@ void op_line_b(Rd& rd, const SmContext& ctx, std::vector<double>& o)
     o.push_back(st(s));
     put_state(o, next);
 }
+// `W 3 R`: builds the surface of revolution R (wrapped when W = 1); writes the construction
+// status, then on success the natural UV domain of the (wrapped) surface and the control
+// point counts of the surface of revolution.
+void op_rev_info(Rd& rd, const SmContext& ctx, std::vector<double>& o)
+{
+    bool wrap = rd.flag();
+    rd.idx(); // kind 3
+    SmStatus stt = SM_SUCCESS;
+    SmSurfOfRevolution* r = read_rev(rd, ctx, stt);
+    o.push_back(st(stt));
+    if (r == NULL)
+        return;
+    double nu = (double)r->GetNumberControlPoints(SM_SP_U);
+    double nv = (double)r->GetNumberControlPoints(SM_SP_V);
+    SmSurface* s = wrap ? (SmSurface*)new (ctx) SmSTEPSurface(*r, TRUE) : (SmSurface*)r;
+    SmExtent2d d = s->GetNaturalUVDomain();
+    o.push_back(d.GetMin().x);
+    o.push_back(d.GetMin().y);
+    o.push_back(d.GetMax().x);
+    o.push_back(d.GetMax().y);
+    o.push_back(nu);
+    o.push_back(nv);
+    delete s;
+}
 } // namespace sc_spsp2
 
 SC_EXPORT int32_t sc_surface_surface_point_solve_p2_eval(int32_t op, const double* in, int64_t n_in, double* out,
@@ -509,6 +641,7 @@ SC_EXPORT int32_t sc_surface_surface_point_solve_p2_eval(int32_t op, const doubl
     case sc_spsp2::OP_STEP: sc_spsp2::op_step(rd, ctx, o); break;
     case sc_spsp2::OP_LINE: sc_spsp2::op_line(rd, ctx, o); break;
     case sc_spsp2::OP_LINE_B: sc_spsp2::op_line_b(rd, ctx, o); break;
+    case sc_spsp2::OP_REV_INFO: sc_spsp2::op_rev_info(rd, ctx, o); break;
     default: return SC_ERR_ARG;
     }
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);

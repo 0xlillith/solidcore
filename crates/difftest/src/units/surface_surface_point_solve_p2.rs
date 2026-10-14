@@ -19,7 +19,10 @@
 //! `my_test_surface_closest_point` (`tests/prog_test/src/smSurfaceTest.cpp:4117`), and
 //! generated cases (planes, B-splines incl. closed, rational, bilinear, zigzag and
 //! huge / tiny ones, curve-bounded and STEP-wrapped surfaces; sub-domains; test points on,
-//! near and far from the surface; stepper points inside, on and near the boundary).
+//! near and far from the surface; stepper points inside, on and near the boundary), and
+//! `rev_gen*` cases on surfaces of revolution (real `SmSurfOfRevolution`s, built as the
+//! `surface.surf_of_revolution_p1` runner builds them, some STEP-wrapped; the problem
+//! domain from the surface's natural domain as the shim reports it).
 //!
 //! Deferred cases: `SmSurface::LocalPointSolve` (`surface.surface_p5`; every `Solve` that
 //! gets a rough guess), `SmSurface::IsOnSeam` (`surface.surface_p4`; `RefineGuess` on any
@@ -36,12 +39,17 @@ use solidcore::geom::global_solver::SolutionRequested;
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use solidcore::kernel::Kernel;
 use solidcore::surface::surface::Surface;
+use solidcore::surface::surface::p1::StepSurface;
 use solidcore::surface::surface_point_solve::p1::ErrorNormType;
 use solidcore::surface::surface_point_solve::{SurfPtGlobalSolver, SurfPtSolveStepper};
 use solidcore_ffi::units::surface_surface_point_solve_p2::{self as ffi, Op, MAX_GRID, MAX_HITS};
 
 use super::surface_surface_cache_p1::{dom_of, flag, gen_sub_dom, harness, srf, status, v3, BssIn, SrfIn};
 use super::surface_surface_cache_p3::{push_surf, surf_domain, surf_size, surface_in, SurfIn};
+use super::surface_surf_of_revolution_p1::{
+    ffi_surf as rev_ffi_surf, gen_surf as rev_gen_surf, rust_surf as rev_rust_surf,
+    SurfIn as RevSurfIn,
+};
 use super::surface_surface_point_solve_p1::{
     gen_surface, gen_test, gen_uv, gen_uv_any, net_counts, p2, push2, solver_op, test_on_normal,
     wrapped_of, SOLVERS, SURFACE_SMS_POINTS,
@@ -52,6 +60,12 @@ use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
 pub const MIN_GENERATED: usize = 900;
+
+/// Surface of revolution cases (see [`rev_cases`]).
+const REV_CASES: usize = 240;
+
+/// The seed of the first surface of revolution case.
+const REV_SEED: u64 = 0x5245_5653_5032_0000;
 
 /// `surface.surface_point_solve_p2` runner.
 pub struct Runner;
@@ -153,12 +167,21 @@ impl OpIn {
     }
 }
 
+/// The problem's surface: a surface of revolution (as the `surface.surf_of_revolution_p1`
+/// runner builds it), or one of the `surface.surface_cache_p3` kinds.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+enum AnySurf {
+    Rev { rev: RevSurfIn },
+    Base(SurfIn),
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
     /// Wrap the surface in an `SmSTEPSurface`.
     #[serde(default)]
     wrap: bool,
-    surf: SurfIn,
+    surf: AnySurf,
     /// The solver domain.
     dom: [f64; 4],
     /// The `SmSolverOperationType` code.
@@ -171,9 +194,16 @@ struct Inputs {
 
 // ---- C++ side -----------------------------------------------------------------------
 
-fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
+/// The problem's surface block `W S` (not for a surface of revolution).
+fn cpp_head(i: &Inputs, s: &SurfIn) -> Result<Vec<f64>, HarnessError> {
     let mut o = vec![flag(i.wrap)];
-    push_surf(&mut o, &i.surf)?;
+    push_surf(&mut o, s)?;
+    Ok(o)
+}
+
+/// The problem after its surface block and the op's parameters.
+fn cpp_rest(i: &Inputs) -> (Op, Vec<f64>) {
+    let mut o = Vec::new();
     o.extend(i.dom);
     o.push(f64::from(i.solver));
     o.extend(i.test);
@@ -257,7 +287,7 @@ fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
             o.push(f64::from(*norm));
         }
     }
-    Ok((i.op.ffi(), o))
+    (i.op.ffi(), o)
 }
 
 fn to_output(flat: &[f64]) -> Output {
@@ -270,8 +300,16 @@ fn to_output(flat: &[f64]) -> Output {
 }
 
 fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
-    let (op, input) = cpp_input(i)?;
-    let flat = ffi::eval(op, &input).map_err(|e| harness(e.to_string()))?;
+    let (op, rest) = cpp_rest(i);
+    let flat = match &i.surf {
+        AnySurf::Rev { rev } => ffi::eval_rev(op, i.wrap, &rev_ffi_surf(rev)?, &rest),
+        AnySurf::Base(s) => {
+            let mut input = cpp_head(i, s)?;
+            input.extend(rest);
+            ffi::eval(op, &input)
+        }
+    }
+    .map_err(|e| harness(e.to_string()))?;
     Ok(to_output(&flat))
 }
 
@@ -363,7 +401,7 @@ fn err_record(e: &solidcore::SolidError) -> Result<Vec<f64>, solidcore::SolidErr
 fn rust_op(i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, HarnessError> {
     use solidcore::nurbs::b_spline_surface::SurfParamType;
     let k = Kernel::default();
-    let surface: Surface = wrapped_of(i.wrap, &i.surf)?;
+    let surface: Surface = any_surface(&k, i.wrap, &i.surf)?;
     let dom = dom_of(i.dom);
     let op = solver_op(i.solver)?;
     let test = v3(i.test);
@@ -554,6 +592,23 @@ fn rust_op(i: &Inputs) -> Result<solidcore::Result<Vec<f64>>, HarnessError> {
     Ok(run())
 }
 
+/// The problem's surface, wrapped in an `SmSTEPSurface` when `wrap`.
+fn any_surface(k: &Kernel, wrap: bool, s: &AnySurf) -> Result<Surface, HarnessError> {
+    match s {
+        AnySurf::Base(s) => wrapped_of(wrap, s),
+        AnySurf::Rev { rev } => {
+            let r = rev_rust_surf(k, rev)?
+                .map_err(|e| harness(format!("surface of revolution: {e}")))?;
+            let r = Surface::from(r);
+            Ok(if wrap {
+                Surface::from(StepSurface::new(r, true))
+            } else {
+                r
+            })
+        }
+    }
+}
+
 fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     Ok(match rust_op(i)? {
         Ok(o) => to_output(&o),
@@ -589,8 +644,7 @@ fn clip(uv: [f64; 2], sd: [f64; 4]) -> [f64; 2] {
 }
 
 #[allow(clippy::too_many_lines)]
-fn gen_op(rng: &mut Rng, s: &SurfIn, d: [f64; 4], sd: [f64; 4], size: f64) -> Result<OpIn, HarnessError> {
-    let (nu, nv) = net_counts(s)?;
+fn gen_op(rng: &mut Rng, (nu, nv): (usize, usize), d: [f64; 4], sd: [f64; 4], size: f64) -> OpIn {
     let idx = |rng: &mut Rng, n: usize| -> usize {
         if rng.chance(0.3) {
             if rng.chance(0.5) {
@@ -626,7 +680,7 @@ fn gen_op(rng: &mut Rng, s: &SurfIn, d: [f64; 4], sd: [f64; 4], size: f64) -> Re
             _ => size * 1e-7,
         }
     };
-    Ok(match rng.below(40) {
+    match rng.below(40) {
         0..=2 => OpIn::Rough,
         3..=5 => OpIn::Poly {
             iu: idx(rng, nu),
@@ -727,7 +781,7 @@ fn gen_op(rng: &mut Rng, s: &SurfIn, d: [f64; 4], sd: [f64; 4], size: f64) -> Re
             uv1: gen_uv(rng, d),
             norm: rng.below(9) as u8,
         },
-    })
+    }
 }
 
 fn gen_case(rng: &mut Rng) -> Result<Inputs, HarnessError> {
@@ -738,29 +792,8 @@ fn gen_case(rng: &mut Rng) -> Result<Inputs, HarnessError> {
     let sd = if rng.chance(0.5) { d } else { gen_sub_dom(rng, d) };
     let solver = *rng.choose(&SOLVERS).unwrap_or(&3);
     let s = surface_in(&surf)?;
-    let test = if solver == 10 {
-        match rng.below(4) {
-            0 => [1.0, 0.0, 0.0],
-            1 => [0.0, -1.0, 0.0],
-            _ => super::surface_surface_cache_p1::gvec(rng, 1.0),
-        }
-    } else {
-        gen_test(rng, &s, sd, size)
-    };
-    let tol = match rng.below(4) {
-        0 => 1e-6,
-        1 => size * 1e-8,
-        2 => size * rng.uniform(1e-5, 1e-2),
-        _ => 1e-10,
-    };
-    let op = gen_op(rng, &surf, d, sd, size)?;
-    let mut test = test;
-    // converged / boundary tests: test points on the normal at the stepper point
-    if solver != 10 && rng.chance(0.5) {
-        if let OpIn::Conv { uv0, .. } | OpIn::Push { uv0, .. } | OpIn::Seams { uv: uv0, .. } = &op {
-            test = test_on_normal(rng, &s, *uv0, size);
-        }
-    }
+    let (op, test, tol) = gen_op_test(rng, &s, net_counts(&surf)?, d, sd, solver, size);
+    let surf = AnySurf::Base(surf);
     Ok(Inputs {
         wrap,
         surf,
@@ -770,6 +803,91 @@ fn gen_case(rng: &mut Rng) -> Result<Inputs, HarnessError> {
         tol,
         op,
     })
+}
+
+/// A surface of revolution case (the generator of the `surface.surf_of_revolution_p1`
+/// runner; the problem as [`gen_case`]).
+fn gen_rev_case(rng: &mut Rng) -> Result<Inputs, HarnessError> {
+    use solidcore::nurbs::b_spline_surface::SurfParamType;
+    let k = Kernel::default();
+    let rev = rev_gen_surf(rng);
+    let wrap = rng.chance(0.15);
+    let built = rev_rust_surf(&k, &rev)?.map_err(|e| harness(format!("not built: {e}")))?;
+    let counts = (
+        built.base().number_control_points(SurfParamType::U),
+        built.base().number_control_points(SurfParamType::V),
+    );
+    let surf = AnySurf::Rev { rev };
+    let s = any_surface(&k, wrap, &surf)?;
+    let nd = s.natural_uv_domain();
+    let d = [nd.min().x, nd.min().y, nd.max().x, nd.max().y];
+    // the largest coordinate magnitude over a grid of surface points
+    let mut size = 1e-12_f64;
+    for i in 0..=4 {
+        for j in 0..=4 {
+            let uv = [
+                d[0] + (d[2] - d[0]) * f64::from(i) / 4.0,
+                d[1] + (d[3] - d[1]) * f64::from(j) / 4.0,
+            ];
+            if let Ok(p) = s.evaluate_point(p2(uv)) {
+                size = size.max(p.x.abs()).max(p.y.abs()).max(p.z.abs());
+            }
+        }
+    }
+    let sd = if rng.chance(0.5) { d } else { gen_sub_dom(rng, d) };
+    let solver = *rng.choose(&SOLVERS).unwrap_or(&3);
+    let (op, test, tol) = gen_op_test(rng, &s, counts, d, sd, solver, size);
+    Ok(Inputs {
+        wrap,
+        surf,
+        dom: sd,
+        solver,
+        test,
+        tol,
+        op,
+    })
+}
+
+/// The problem's tolerance.
+fn gen_tol(rng: &mut Rng, size: f64) -> f64 {
+    match rng.below(4) {
+        0 => 1e-6,
+        1 => size * 1e-8,
+        2 => size * rng.uniform(1e-5, 1e-2),
+        _ => 1e-10,
+    }
+}
+
+/// The op, the test point and the tolerance of a case over `s` (surface domain `d`, solver domain
+/// `sd`, control-net counts `counts`).
+fn gen_op_test(
+    rng: &mut Rng,
+    s: &Surface,
+    counts: (usize, usize),
+    d: [f64; 4],
+    sd: [f64; 4],
+    solver: u8,
+    size: f64,
+) -> (OpIn, [f64; 3], f64) {
+    let test = if solver == 10 {
+        match rng.below(4) {
+            0 => [1.0, 0.0, 0.0],
+            1 => [0.0, -1.0, 0.0],
+            _ => super::surface_surface_cache_p1::gvec(rng, 1.0),
+        }
+    } else {
+        gen_test(rng, s, sd, size)
+    };
+    let tol = gen_tol(rng, size);
+    let op = gen_op(rng, counts, d, sd, size);
+    let mut test = test;
+    // converged / boundary tests: test points on the normal at the stepper point
+    if solver != 10 && rng.chance(0.5) {
+        if let OpIn::Conv { uv0, .. } | OpIn::Push { uv0, .. } | OpIn::Seams { uv: uv0, .. } = &op {
+            test = test_on_normal(rng, s, *uv0, size);
+        }
+    }
+    (op, test, tol)
 }
 
 // ---- inline cases from the upstream tests ----------------------------------------------------
@@ -856,7 +974,7 @@ fn upstream_cases(ctx: &CaseContext, id: &str) -> Result<Vec<Case>, HarnessError
         for (oi, op) in ops.into_iter().enumerate() {
             let inputs = Inputs {
                 wrap: false,
-                surf: surf.clone(),
+                surf: AnySurf::Base(surf.clone()),
                 dom: d,
                 solver: 3,
                 test: *test,
@@ -874,6 +992,43 @@ fn upstream_cases(ctx: &CaseContext, id: &str) -> Result<Vec<Case>, HarnessError
     Ok(out)
 }
 
+/// Whether the shim accepts the case (for a surface of revolution this builds it in C++).
+fn valid(i: &Inputs) -> bool {
+    let (op, rest) = cpp_rest(i);
+    match &i.surf {
+        AnySurf::Rev { rev } => rev_ffi_surf(rev)
+            .is_ok_and(|s| ffi::validate_rev(op, i.wrap, &s, &rest).is_ok()),
+        AnySurf::Base(s) => cpp_head(i, s).is_ok_and(|mut input| {
+            input.extend(rest);
+            ffi::validate(op, &input).is_ok()
+        }),
+    }
+}
+
+/// The surface of revolution cases `rev_gen0000..`: case `i` from a generator seeded
+/// with [`REV_SEED`]` + i` (the first valid of up to 64 draws).
+fn rev_cases(id: &str) -> Result<Vec<Case>, HarnessError> {
+    let mut out = Vec::new();
+    for i in 0..REV_CASES {
+        let mut rng = Rng::new(REV_SEED + i as u64);
+        for _ in 0..64 {
+            let Ok(c) = gen_rev_case(&mut rng) else {
+                continue;
+            };
+            if valid(&c) {
+                out.push(Case {
+                    unit: id.to_string(),
+                    name: format!("rev_gen{i:04}"),
+                    source: CaseSource::Inline,
+                    inputs: serde_json::to_value(c).map_err(|e| harness(e.to_string()))?,
+                });
+                break;
+            }
+        }
+    }
+    Ok(out)
+}
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "surface.surface_point_solve_p2"
@@ -884,10 +1039,7 @@ impl UnitDiff for Runner {
             let Ok(i) = gen_case(rng) else {
                 continue;
             };
-            let Ok((op, input)) = cpp_input(&i) else {
-                continue;
-            };
-            if ffi::validate(op, &input).is_ok() {
+            if valid(&i) {
                 return serde_json::to_value(i).ok();
             }
         }
@@ -901,6 +1053,7 @@ impl UnitDiff for Runner {
             ..ctx.clone()
         };
         v.extend(default_cases(self, &ctx)?);
+        v.extend(rev_cases(self.id())?);
         Ok(v)
     }
 
@@ -924,11 +1077,11 @@ mod tests {
         let bil: InlineSrf = gen_bilinear(&mut Rng::new(1));
         let i = Inputs {
             wrap: false,
-            surf: SurfIn::Bspline(BssIn {
+            surf: AnySurf::Base(SurfIn::Bspline(BssIn {
                 oob: false,
                 form: default_form(),
                 srf: SrfIn::Inline(bil),
-            }),
+            })),
             dom: [0.0, 0.0, 1.0, 1.0],
             solver: 3,
             test: [0.5, 0.5, 1.0],
@@ -941,8 +1094,8 @@ mod tests {
                 best: 1e300,
             },
         };
-        let (op, input) = cpp_input(&i).unwrap();
+        let (op, _) = cpp_rest(&i);
         assert_eq!(op, Op::Patch);
-        assert!(ffi::validate(op, &input).is_ok());
+        assert!(valid(&i));
     }
 }

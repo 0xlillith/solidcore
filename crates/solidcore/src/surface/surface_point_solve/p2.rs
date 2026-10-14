@@ -75,6 +75,7 @@ use super::p1::{control_point, ErrorNormType, SurfPtGlobalSolver, SurfPtSolveSte
 
 const OP_ROUGH: &str = "surface::surface_point_solve::p2::SurfPtGlobalSolver::find_rough_guess";
 const OP_POLY: &str = "surface::surface_point_solve::p2::SurfPtGlobalSolver::find_polygon_guess";
+const OP_SOLVE: &str = "surface::surface_point_solve::p2::SurfPtGlobalSolver::solve";
 const OP_ADJUST: &str = "surface::surface_point_solve::p2::SurfPtSolveStepper::adjust_step";
 const OP_LINE_B: &str =
     "surface::surface_point_solve::p2::SurfPtSolveStepper::line_search_bracketted";
@@ -988,7 +989,11 @@ impl SurfPtGlobalSolver<'_> {
         sol.num_variables = 2;
         let mut found_answer = false;
 
-        let rough = self.find_rough_guess()?;
+        let rough = match self.find_rough_guess() {
+            Ok(r) => r,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Err(SolidError::sm_err(OP_SOLVE)),
+        };
         let (best_idx_u, best_idx_v) = (rough.best_idx_u, rough.best_idx_v);
 
         // Check for creases.  Note: this is currently not used.
@@ -1075,6 +1080,9 @@ impl SurfPtGlobalSolver<'_> {
             if try_again {
                 let save_guess = uv_guess;
                 uv_guess = self.refine_guess_by_grid(uv_guess, best_idx_u, best_idx_v)?;
+                // (upstream's eStat is now RefineGuessByGrid's SM_SUCCESS, even when
+                // the guess did not move and the first local solve failed)
+                stat_ok = true;
 
                 if !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
                     match local_point_solve(surface, this_domain, op, pt_for_local, uv_guess, &sol)
