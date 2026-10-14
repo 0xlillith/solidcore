@@ -171,6 +171,7 @@ use crate::nurbs::knots::Side;
 use crate::surface::cone::Cone;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
 use crate::surface::plane::Plane;
+use crate::surface::surf_of_extrusion::SurfOfExtrusion;
 use crate::surface::torus::Torus;
 use crate::topology::database_io::DatabaseReader;
 
@@ -889,11 +890,17 @@ impl Surface {
                 "SmPlane::ReadFromDB",
                 "surface.plane_p2",
             )),
-            // UNPORTED(surface.surf_of_extrusion_p2): SmSurfOfExtrusion::ReadFromDB
-            SURF_OF_EXTRUSION_TYPE => Err(SolidError::unported(
-                "SmSurfOfExtrusion::ReadFromDB",
-                "surface.surf_of_extrusion_p2",
-            )),
+            SURF_OF_EXTRUSION_TYPE => {
+                // SmSurfOfExtrusion::ReadFromDB reads the whole record, but the surface
+                // of extrusion is not a SurfaceKind (its virtuals need a Kernel the
+                // Surface dispatchers do not take; see plan/findings.md)
+                let _surf = SurfOfExtrusion::read_from_db(k, db, version)?;
+                // UNPORTED(surface.surf_of_extrusion_p2): SurfaceKind::SurfOfExtrusion
+                Err(SolidError::unported(
+                    "SurfaceKind::SurfOfExtrusion",
+                    "surface.surf_of_extrusion_p2",
+                ))
+            }
             // UNPORTED(surface.surf_of_revolution_p3): SmSurfOfRevolution::ReadFromDB
             SURF_OF_REVOLUTION_TYPE => Err(SolidError::unported(
                 "SmSurfOfRevolution::ReadFromDB",
