@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**143 / 261 units ported** (89 green, 54 partial), **189,678 / 387,903 upstream lines (48.9%)**. 15 claimed, 0 blocked, 103 todo.
+**144 / 261 units ported** (89 green, 55 partial), **190,508 / 387,903 upstream lines (49.1%)**. 16 claimed, 0 blocked, 101 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `surface.sphere` (2861 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -43,7 +43,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.face_p2`, `topology.loopuse`
 - [ ] `heal.gap` (1475 lines) — missing: `topology.vertexuse`
-- [ ] `query.loop` (830 lines) — missing: `topology.loopuse`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`, `topology.face_p2`, `topology.loopuse`, `topology.vertex` +1 more
 - [ ] `query.face_p2` (1161 lines) — missing: `topology.face_p2`, `topology.face_p4`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.proto_topology_p1`, `topology.shell`, `topology.vertex`
@@ -122,6 +121,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #79 @0xlillith (draft)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
@@ -275,7 +275,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
 - [ ] 🟡 `surface.plane_p2` (1627 lines) — partial, 2218 cases
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
-- [ ] ▶️ `surface.sphere` (2861 lines) — ready
+- [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #79 @0xlillith (draft)
 - [ ] 🟡 `surface.surf_of_extrusion_p2` (1420 lines) — partial, 1359 cases
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p3` (1939 lines) — waiting
@@ -361,10 +361,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `primitive.primitive_creation_p2` (2258 lines) — waiting
 - [ ] ⏳ `primitive.api_primitives` (885 lines) — waiting
 
-### query (0/10)
+### query (1/10)
 
 - [ ] ⏳ `query.edge` (1025 lines) — waiting
-- [ ] ⏳ `query.loop` (830 lines) — waiting
+- [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
