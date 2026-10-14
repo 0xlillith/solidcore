@@ -636,8 +636,7 @@ impl<'t, 'a, O: SolutionObject + 't> TopologySolver<'t, 'a, O> {
     /// # Errors
     ///
     /// Those of the traversal ([`GlobalSolve::solve_branch`]);
-    /// [`SolidError::Unported`] once a pair reaches the local solve
-    /// (`SmTopologySolver::LocalSolve`, unit `intersect.topology_solver_p2`).
+    /// Errors from local solves or their explicit unported callees.
     pub fn solve_trees(
         &mut self,
         tree1: &'t Tree<O>,
@@ -1896,14 +1895,14 @@ fn face_classifies_on_face<O>(_face: O, _point: Point3, _tol: f64) -> Result<boo
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::curve::line::{BoundedLineOptions, Line};
     use crate::geom::solution_array::ObjectKind;
 
     /// Free-standing test objects: vertices `(point, tolerance)` and curves.
     #[derive(Debug, Clone, Copy, PartialEq)]
-    enum Obj {
+    pub(crate) enum Obj {
         Vertex(usize),
         Curve(usize, Extent1d),
         Edge(usize),
@@ -1931,7 +1930,7 @@ mod tests {
         }
     }
 
-    struct Scene {
+    pub(crate) struct Scene {
         vertices: Vec<(Point3, f64)>,
         curves: Vec<Curve>,
         edges: Vec<(usize, Extent1d)>,
@@ -2019,7 +2018,7 @@ mod tests {
         }
     }
 
-    fn scene() -> Scene {
+    pub(crate) fn scene() -> Scene {
         let line = Line::bounded(
             Vec3::new(0.0, 0.0, 0.0),
             Vec3::new(1.0, 0.0, 0.0),
@@ -2170,36 +2169,6 @@ mod tests {
                 ..
             })
         ));
-    }
-
-    #[test]
-    fn edge_vertex_rejects_the_upstream_wrong_class_operand() {
-        let kernel = Kernel::default();
-        let objects = scene();
-        for swap in [false, true] {
-            let mut solver = TopologySolver::new(
-                &kernel,
-                &objects,
-                SolverOperation::Intersect,
-                SolutionRequested::All,
-                1e-6,
-                BIG_DOUBLE,
-                &[],
-            );
-            let mut local = LocalSolver::new(LocalSolverKind::EdgeVertex, swap, None);
-            let curve = Obj::Curve(0, Extent1d::from_min_max(0.0, 10.0));
-            let vertex = Obj::Vertex(0);
-            let (first, second) = if swap {
-                (vertex, curve)
-            } else {
-                (curve, vertex)
-            };
-            assert!(matches!(
-                local.solve_it(&mut solver, Some(first), Some(second)),
-                Err(SolidError::InvalidInput { .. })
-            ));
-            assert!(solver.base.solutions.is_empty());
-        }
     }
 
     #[test]
