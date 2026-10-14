@@ -10,7 +10,9 @@
 //! then runs the ops, each on a target `t` (`0` or `1`; "other" is `pc[1 - t]`).
 //!
 //! Objects (`kind data`): `0` curve block (as unit `curve.curve_p6`: `0 dim oob n p m
-//! cpts(x y z w) knots`, `1 dim P1 D1 P2 D2`, `2 3 P V d0 d1 scale io`), `1 O[3] N[3]`
+//! cpts(x y z w) knots`, `1 dim P1 D1 P2 D2`, `2 3 P V d0 d1 scale io`; or as unit
+//! `curve.ellipse_p1` without `pOptNurb`: `3 dim C X Y d0 d1 rx ry io` an `SmEllipse`, `4 dim
+//! C X Y d0 d1 r io` an `SmCircle`), `1 O[3] N[3]`
 //! (`SmPlane(O, N)`), `2` volume stand-in, `3 P[3]` (an `SmPoint3d`), `4` vertex, `5 c`
 //! (an edge on pool curve `c`, `-1` none), `6 s` (a face on pool plane `s`, `-1` none),
 //! `7` region stand-in, `8` edgeuse stand-in, `9` other stand-in.
@@ -35,7 +37,7 @@
 //! | 15   | `P[3]`                                 | `ComputePointParameters`         |                          |
 //! | 16   |                                        | `FindObjPoint3d`                 | `P[3]` on success        |
 //! | 17   | `s` (plane or `-1`)                    | `GetGap3d`                       | `gap`                    |
-//! | 18   | `tol obj value p0 p1 p2 p3 off pre`    | `LoadFromIntersection`           |                          |
+//! | 18   | `tol obj value p0..p9 off pre`         | `LoadFromIntersection`           |                          |
 //! | 19   | `P[3]`                                 | `MergeIntoObject`                | `n_edges n_vertices`     |
 //! | 20   |                                        | `GetBrep() != NULL`              | `has_brep`               |
 //! | 21   | `j`                                    | `IsConnectedTo(SmTopology*)`     | `connected`              |
@@ -53,8 +55,8 @@
 //! `NULL`, `-2` for an object outside the pool).
 //!
 //! [`run`] accepts only well-formed scripts with bounded finite data whose
-//! `SetClassObject` pairs a class with an object of that kind (no object for `UNKNOWN`
-//! and `NOTHING`). The shim additionally rejects, at run time, the ops that would call
+//! `SetClassObject` pairs a class with no object or an object of that kind (no object
+//! for `UNKNOWN` and `NOTHING`), and whose loads read inside the 10 solution parameters. The shim additionally rejects, at run time, the ops that would call
 //! a member of a stand-in object or of an `SmPoint3d` (see its file comment).
 
 use crate::units::curve_curve_p6::MAX_COORD;
@@ -294,12 +296,31 @@ fn bspline(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 
 /// A curve block.
 fn curve_block(rd: &mut Reader<'_>) -> Result<(), FfiError> {
-    let kind = rd.index(2)?;
+    let kind = rd.index(4)?;
     let dim = rd.index(3)?;
     if dim < 2 {
         return Err(bad("curve block: dimension must be 2 or 3"));
     }
     match kind {
+        3 | 4 => {
+            // an SmEllipse / SmCircle (as unit curve.ellipse_p1 accepts them)
+            rd.vec3()?;
+            rd.nonzero3()?;
+            rd.nonzero3()?;
+            let d0 = rd.finite()?;
+            let d1 = rd.finite()?;
+            let len = (d1 - d0).abs();
+            if d0.abs() > 720.0 || d1.abs() > 720.0 || !(1e-4..=360.0).contains(&len) {
+                return Err(bad("conic: domain outside [-720, 720] or length outside [1e-4, 360]"));
+            }
+            for _ in 0..(if kind == 3 { 2 } else { 1 }) {
+                if rd.finite()? <= 0.0 {
+                    return Err(bad("conic: radius not positive"));
+                }
+            }
+            rd.flag()?;
+            Ok(())
+        }
         0 => {
             rd.flag()?;
             bspline(rd)
@@ -399,9 +420,12 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
             op::SET_CLASS_OBJECT => {
                 let class = rd.index(110)?;
                 let want = kind_of_class(class)?;
-                let obj = rd.opt_index(kinds.len())?;
-                if obj.map(|j| kinds.get(j).copied()) != want.map(Some) {
-                    return Err(bad("SetClassObject: object kind does not match the class"));
+                // no object is fine for any class (the class becomes UNKNOWN); an object
+                // must be of the class's kind
+                if let Some(j) = rd.opt_index(kinds.len())? {
+                    if kinds.get(j).copied() != want {
+                        return Err(bad("SetClassObject: object kind does not match the class"));
+                    }
                 }
             }
             op::SET_T => {
@@ -441,11 +465,21 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
                     return Err(bad("LoadFromIntersection: a point is not an SmObject"));
                 }
                 rd.bounded(MAX_VALUE)?;
-                for _ in 0..4 {
+                for _ in 0..10 {
                     rd.finite()?;
                 }
-                // parameters offset..offset+2 stay inside the 10 of an SmSolutionEnd
-                rd.index(6)?;
+                // the parameters read (curve/edge 1, surface/face 2, volume 3) stay inside
+                // the 10 of an SmSolutionEnd
+                let read = match kinds.get(obj).copied() {
+                    Some(kind::CURVE | kind::EDGE) => 1,
+                    Some(kind::PLANE | kind::FACE) => 2,
+                    Some(kind::VOLUME) => 3,
+                    _ => 0,
+                };
+                let off = rd.index(9)?;
+                if off + read > 10 {
+                    return Err(bad("LoadFromIntersection: parameters past the solution end"));
+                }
                 rd.bounded(MAX_VALUE)?;
             }
             op::CONNECTED => {

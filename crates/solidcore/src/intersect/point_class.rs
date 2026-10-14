@@ -92,8 +92,13 @@
 //!   as upstream. `SM_ASSERT_TOL` only reports.
 //! - **Geometry tolerances.** `SmTol::GetZoneTol3d(const SmObject*)` gives a curve or
 //!   surface the tolerance of its edge or face (`GetEdge` / `GetFace`), and every other
-//!   non-topology object the system zone tolerance. A curve or surface with no owner
-//!   has neither; an owned one needs the topology units (`UNPORTED`).
+//!   non-topology object the system zone tolerance. A curve's edge is found with
+//!   [`Curve::edge`] (intermediate owners through [`ClassGeometry::owner_of`]); a
+//!   surface with no owner has no face (`GetFace` itself is unit `surface.surface_p1`);
+//!   an edge's or face's tolerance needs the topology units (`UNPORTED`). Topology
+//!   kinds without a `GetTolerance` override (region, faceuse, loop, loopuse,
+//!   vertexuse) get `SmTopology::GetTolerance`, `SM_ZONE_TOL_3D`, and a faceuse
+//!   `SmTopology::IsConnectedTo`, `FALSE`.
 //! - **`GetGap3d` failure.** With a surface and no single drop point, upstream returns
 //!   `SM_ERR` *as the gap value*; so does [`PointClassification::gap_3d`].
 //! - **Not in this unit.** `GetLoop`, `GetSurfaceObject`, `GetVolumeObject`,
@@ -108,10 +113,11 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::SolverOperation;
-use crate::geom::object;
+use crate::geom::object::{self, ObjectRef};
 use crate::geom::solution_array::SolutionEnd;
 use crate::geom::tol::{
     xsect_tol3d, xsect_tol_3d_from_zones, zone_tol3d, zone_tol_3d, SmallTopoType, UNINIT_TOL,
+    ZONE_TOL_3D,
 };
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE};
@@ -236,6 +242,13 @@ pub trait ClassGeometry<O> {
     fn volume(&self, o: O) -> Option<&Volume>;
     /// The point of a [`ClassObjectKind::Point`] handle.
     fn point(&self, o: O) -> Option<Point3>;
+    /// The owner of an intermediate owner on a curve's owner chain (`GetOwner` of a
+    /// generating curve or an edgeuse), for `SmCurve::GetEdge`
+    /// ([`Curve::edge`]); `None` (the default) ends the chain.
+    fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
+        let _ = owner;
+        None
+    }
 }
 
 /// Which operand of [`PointClassification::combine`] takes precedence (upstream
@@ -291,11 +304,13 @@ pub struct PointClassification<O> {
 
 impl<O: ClassObject> PointClassification<O> {
     /// A cleared classification of something with zone tolerance `src_zone_tol_3d`
-    /// (`SmPointClassification(SmZoneTol3d, const SmContext*)`; upstream's default
-    /// argument is `SM_USE_DEFAULT`, the system zone tolerance).
+    /// (`SmPointClassification(SmZoneTol3d, const SmContext*)`). The argument is
+    /// already an `SmZoneTol3d` and is stored as is; upstream's default,
+    /// `SmZoneTol3d(SM_USE_DEFAULT)`, is `zone_tol3d(k, USE_DEFAULT)` (the system zone
+    /// tolerance).
     #[must_use]
-    pub fn new(k: &Kernel, src_zone_tol_3d: f64) -> Self {
-        let tol = zone_tol3d(k, src_zone_tol_3d);
+    pub fn new(src_zone_tol_3d: f64) -> Self {
+        let tol = src_zone_tol_3d;
         let mut pc = Self {
             src_zone_tol_3d: tol,
             point_class: PointClassType::Unknown,
@@ -310,7 +325,7 @@ impl<O: ClassObject> PointClassification<O> {
             sss_point_flag: false,
             sss_point: Point3::new(0.0, 0.0, 0.0),
         };
-        pc.reset(k, Some(tol));
+        pc.src_zone_tol_3d = tol;
         pc
     }
 
@@ -680,13 +695,6 @@ impl<O: ClassObject> PointClassification<O> {
                     "topology.edgeuse_p1",
                 ))
             }
-            ClassObjectKind::Faceuse => {
-                // UNPORTED(topology.edgeuse_p1): SmFaceuse::IsConnectedTo (SmTopology::IsConnectedTo)
-                Err(SolidError::unported(
-                    "SmFaceuse::IsConnectedTo",
-                    "topology.edgeuse_p1",
-                ))
-            }
             ClassObjectKind::Loopuse => {
                 // UNPORTED(topology.loopuse): SmLoopuse::IsConnectedTo
                 Err(SolidError::unported(
@@ -694,7 +702,10 @@ impl<O: ClassObject> PointClassification<O> {
                     "topology.loopuse",
                 ))
             }
-            ClassObjectKind::Curve
+            // SmFaceuse does not override it: SmTopology::IsConnectedTo reports and
+            // returns FALSE (unit topology.topology); the other kinds are not tested
+            ClassObjectKind::Faceuse
+            | ClassObjectKind::Curve
             | ClassObjectKind::Surface
             | ClassObjectKind::Volume
             | ClassObjectKind::Point
@@ -897,9 +908,10 @@ impl<O: ClassObject> PointClassification<O> {
 
     /// Projects `point` onto the classification object and stores the gap and the
     /// object's parameters there (`ComputePointParameters`): a curve, edge or edgeuse
-    /// gets its `t` (the drop point within a hundred times the intersection
-    /// tolerance), a surface or face its `uv`, a volume its `uvw`; points and vertices
-    /// only get their gap and parameters zeroed.
+    /// gets its `t` (the closest point, `SM_SO_MINIMIZE`; a hundred times the
+    /// intersection tolerance is only `DropPoint`'s end-snapping distance), a surface or
+    /// face its `uv`, a volume its `uvw`; points and vertices only get their gap and
+    /// parameters zeroed.
     ///
     /// # Errors
     ///
@@ -1209,8 +1221,10 @@ impl<O: ClassObject> PointClassification<O> {
         // remember when vertex is representing two different exact points
         set_vertex_exact(new_v, merged.exact)?;
 
-        // adjust the Vertex position (the tolerance only in the SM_USE_NEWTOL build)
+        // adjust the Vertex position and Tolerance (the reference build is
+        // SM_USE_OLDTOL, SmConfig.h:227, so SetTolerance is called)
         set_vertex_point(new_v, merged.position)?;
+        set_vertex_tolerance(new_v, merged.zone_tol_3d)?;
 
         Ok(outputs)
     }
@@ -1351,34 +1365,20 @@ fn object_zone_tol_3d<O: ClassObject>(
                 "topology.face_p2",
             ))
         }
-        ClassObjectKind::Edgeuse | ClassObjectKind::Faceuse => {
-            // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetTolerance, SmTopology::GetTolerance of a faceuse
+        ClassObjectKind::Edgeuse => {
+            // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetTolerance
             Err(SolidError::unported(
                 "SmEdgeuse::GetTolerance",
                 "topology.edgeuse_p1",
             ))
         }
-        ClassObjectKind::Loop | ClassObjectKind::Loopuse => {
-            // UNPORTED(topology.loopuse): SmTopology::GetTolerance of a loop or loopuse
-            Err(SolidError::unported(
-                "SmTopology::GetTolerance",
-                "topology.loopuse",
-            ))
-        }
-        ClassObjectKind::Vertexuse => {
-            // UNPORTED(topology.vertexuse): SmTopology::GetTolerance of a vertexuse
-            Err(SolidError::unported(
-                "SmTopology::GetTolerance",
-                "topology.vertexuse",
-            ))
-        }
-        ClassObjectKind::Region => {
-            // UNPORTED(topology.shell): SmTopology::GetTolerance of a region
-            Err(SolidError::unported(
-                "SmTopology::GetTolerance",
-                "topology.shell",
-            ))
-        }
+        // no GetTolerance override: SmTopology::GetTolerance, SM_ZONE_TOL_3D (unit
+        // topology.topology, SM_USE_OLDTOL)
+        ClassObjectKind::Faceuse
+        | ClassObjectKind::Loop
+        | ClassObjectKind::Loopuse
+        | ClassObjectKind::Vertexuse
+        | ClassObjectKind::Region => Ok(ZONE_TOL_3D),
         ClassObjectKind::Surface => {
             let surface = geometry.surface(o).ok_or_else(|| unresolved(OP_GEOMETRY))?;
             if surface.owner().is_some() {
@@ -1393,8 +1393,9 @@ fn object_zone_tol_3d<O: ClassObject>(
         }
         ClassObjectKind::Curve => {
             let curve = geometry.curve(o).ok_or_else(|| unresolved(OP_GEOMETRY))?;
-            if curve.owner().is_some() {
-                // UNPORTED(topology.edge): SmEdge::GetTolerance (of SmCurve::GetEdge)
+            // SmCurve::GetEdge (Curve::edge) walks the owner chain
+            if curve.edge(|r| geometry.owner_of(r))?.is_some() {
+                // UNPORTED(topology.edge): SmEdge::GetTolerance
                 return Err(SolidError::unported(
                     "SmEdge::GetTolerance",
                     "topology.edge",
@@ -1523,6 +1524,15 @@ fn set_vertex_point<O>(_vertex: O, _point: Point3) -> Result<()> {
     ))
 }
 
+/// `SmVertex::SetTolerance(zone_tol_3d)` (defaults `bUpdateOnlyIfLarger = TRUE`, ...).
+fn set_vertex_tolerance<O>(_vertex: O, _zone_tol_3d: f64) -> Result<()> {
+    // UNPORTED(topology.vertex): SmVertex::SetTolerance
+    Err(SolidError::unported(
+        "SmVertex::SetTolerance",
+        "topology.vertex",
+    ))
+}
+
 /// `SmVertex::SetExact`.
 fn set_vertex_exact<O>(_vertex: O, _exact: bool) -> Result<()> {
     // UNPORTED(topology.vertex): SmVertex::SetExact
@@ -1629,7 +1639,7 @@ mod tests {
     }
 
     fn pc() -> PointClassification<H> {
-        PointClassification::new(&Kernel::default(), 0.25)
+        PointClassification::new(0.25)
     }
 
     #[test]

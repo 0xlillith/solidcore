@@ -22,6 +22,8 @@
 
 #include "StdAfx.h"
 #include <SmBSplineCurve.h>
+#include <SmCircle.h>
+#include <SmEllipse.h>
 #include <SmContext.h>
 #include <SmCurve.h>
 #include <SmEdge.h>
@@ -195,6 +197,21 @@ SmCurve* read_curve(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx();
     ULONG dim = (ULONG)rd.idx();
+    if (kind == 3 || kind == 4)
+    {
+        // `c[3] x[3] y[3] d0 d1 rx [ry] io`: SmEllipse / SmCircle (no pOptNurb)
+        SmPoint3d c = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        double d0 = rd.num();
+        double d1 = rd.num();
+        double rx = rd.num();
+        double ry = kind == 3 ? rd.num() : rx;
+        bool io = rd.flag();
+        if (kind == 3)
+            return new (ctx) SmEllipse(c, x, y, SmExtent1d(d0, d1), rx, ry, dim, &ctx, NULL, io ? TRUE : FALSE);
+        return new (ctx) SmCircle(c, x, y, SmExtent1d(d0, d1), rx, dim, &ctx, NULL, io ? TRUE : FALSE);
+    }
     if (kind == 0)
     {
         bool oob = rd.flag();
@@ -466,7 +483,7 @@ int32_t run(Rd& rd, std::vector<double>& o)
             int64_t obj = rd.idx();
             SmSolutionEnd end;
             end.m_dSolutionValue = rd.num();
-            for (int k = 0; k < 4; k++)
+            for (int k = 0; k < 10; k++)
                 end[(ULONG)k] = rd.num();
             ULONG off = (ULONG)rd.idx();
             double pre = rd.num();

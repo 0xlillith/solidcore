@@ -2761,6 +2761,16 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 
 ## intersect.point_class (`SmPointClassification`)
 
+- **Review fixes (PR #21).** The constructor takes an `SmZoneTol3d`, already converted, and
+  stores it as is (converting again turned `-SM_USE_DEFAULT` into the system tolerance).
+  `MergeIntoObject` runs `SmVertex::SetTolerance` in the reference build
+  (`SM_USE_OLDTOL`); it is an `UNPORTED(topology.vertex)` stub. Topology kinds without
+  their own `GetTolerance` (region, faceuse, loop, loopuse, vertexuse) use
+  `SmTopology::GetTolerance` (`SM_ZONE_TOL_3D`), and a faceuse `SmTopology::IsConnectedTo`
+  (`FALSE`); loop, loopuse and vertexuse do override `IsConnectedTo` and stay stubs. The
+  shim now builds real `SmEllipse` / `SmCircle` curves, `SetClassObject(class, NULL)` is
+  accepted for every class, and loads may read up to the last solution parameter.
+
 - **`SM_PC_POINT` stores an `SmPoint3d*` cast to `SmObject*`.** Upstream then calls virtual
   `SmObject` members on it in `ComputePointParameters` (`SmTol::GetZoneTol3d(m_pObject)`),
   `GetGap3d` with a surface and `SmTol::GetObjZoneTol3d` / `GetXSectTol3d` (the same call),

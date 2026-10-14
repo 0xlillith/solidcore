@@ -1047,7 +1047,7 @@ fn face_zone_tol_3d<O>(_face: O) -> Result<f64> {
 ///
 /// When wiring, keep upstream's flag arguments exactly: `(.., FALSE, TRUE, ..)`
 /// (`SmTrimSrfCache.cpp:91` and `:1089`). The classification is
-/// `intersect::point_class::PointClassification::new(k, src_zone_tol_3d)`; its
+/// `intersect::point_class::PointClassification::new(src_zone_tol_3d)`; its
 /// `point_class()` and `object()` are the results.
 fn face_point_classify<O>(
     _face: O,

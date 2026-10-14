@@ -27,6 +27,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use solidcore::curve::curve::p2::Curve;
+use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::hermite_curve::HermiteCurve;
 use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::axis2_placement::Axis2Placement;
@@ -125,6 +126,22 @@ enum CurveIn {
     Hermite(HermiteIn),
     Circle(CircleIn),
     Line(LineIn),
+    /// A real `SmEllipse` / `SmCircle` (`ry = None`), angles in degrees.
+    Conic(ConicIn),
+}
+
+/// An `SmEllipse(C, X, Y, [d0, d1], rx, ry, dim, ctx, NULL, io)` or, without `ry`, an
+/// `SmCircle(C, X, Y, [d0, d1], rx, dim, ctx, NULL, io)`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ConicIn {
+    center: [f64; 3],
+    x: [f64; 3],
+    y: [f64; 3],
+    domain: [f64; 2],
+    rx: f64,
+    ry: Option<f64>,
+    #[serde(default)]
+    inside_out: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -169,7 +186,8 @@ enum OpIn {
         tol: f64,
         obj: usize,
         value: f64,
-        params: [f64; 4],
+        /// Up to 10 solution parameters (missing ones are 0).
+        params: Vec<f64>,
         offset: usize,
         pre: f64,
     },
@@ -244,6 +262,18 @@ fn curve_block(v: &mut Vec<f64>, c: &CurveIn) -> Result<(), HarnessError> {
                 v.extend_from_slice(&p);
             }
         }
+        CurveIn::Conic(c) => {
+            v.extend([if c.ry.is_some() { 3.0 } else { 4.0 }, 3.0]);
+            v.extend_from_slice(&c.center);
+            v.extend_from_slice(&c.x);
+            v.extend_from_slice(&c.y);
+            v.extend(c.domain);
+            v.push(c.rx);
+            if let Some(ry) = c.ry {
+                v.push(ry);
+            }
+            v.push(b(c.inside_out));
+        }
         CurveIn::Line(l) => {
             v.extend([2.0, 3.0]);
             v.extend_from_slice(&l.p);
@@ -299,6 +329,21 @@ fn build_curve(c: &CurveIn) -> Result<Curve, HarnessError> {
             h.dim,
         ))),
         CurveIn::Line(l) => Ok(Curve::from(build_line(l))),
+        CurveIn::Conic(c) => {
+            let k = Kernel::default();
+            let opts = EllipseOptions {
+                dim: 3,
+                nurb: None,
+                inside_out: c.inside_out,
+            };
+            let domain = Extent1d::from_min_max(c.domain[0], c.domain[1]);
+            let e = match c.ry {
+                Some(ry) => Ellipse::new(&k, v3(c.center), v3(c.x), v3(c.y), domain, c.rx, ry, &opts),
+                None => Ellipse::new_circle(&k, v3(c.center), v3(c.x), v3(c.y), domain, c.rx, &opts),
+            }
+            .map_err(|e| harness(format!("conic: {e}")))?;
+            Ok(Curve::from(e))
+        }
         CurveIn::Circle(_) => Err(harness("unresolved circle")),
     }
 }
@@ -364,7 +409,7 @@ fn cpp_input(s: &Script) -> Result<Vec<f64>, HarnessError> {
                 ..
             } => {
                 v.extend([*tol, *obj as f64, *value]);
-                v.extend_from_slice(params);
+                v.extend((0..10).map(|i| params.get(i).copied().unwrap_or(0.0)));
                 v.extend([*offset as f64, *pre]);
             }
             OpIn::Connected { j, .. } => v.push(*j as f64),
@@ -607,8 +652,10 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
     let k = Kernel::default();
     let pool = build_pool(&s.objects)?;
     let mut pcs: [PointClassification<H>; 2] = [
-        PointClassification::new(&k, zone_tol3d(&k, s.tol[0])),
-        PointClassification::new(&k, zone_tol3d(&k, s.tol[1])),
+        // SmPointClassification(SmZoneTol3d(tol)): the conversion happens once, in the
+        // argument
+        PointClassification::new(zone_tol3d(&k, s.tol[0])),
+        PointClassification::new(zone_tol3d(&k, s.tol[1])),
     ];
     let mut o: Vec<f64> = Vec::new();
     // after a deferred op the remaining ops still run (their state may differ from
@@ -931,7 +978,23 @@ fn gen_curve(rng: &mut Rng) -> CurveIn {
                 inside_out: rng.chance(0.3),
             })
         }
-        4..=7 => CurveIn::Bspline(gen_bspline(rng)),
+        4..=5 => CurveIn::Bspline(gen_bspline(rng)),
+        6..=7 => {
+            let d0 = rng.uniform(-180.0, 180.0);
+            let mut y = rp(rng, 1.0);
+            if y.iter().map(|c| c * c).sum::<f64>() < 1e-2 {
+                y = [0.0, 1.0, 0.0];
+            }
+            CurveIn::Conic(ConicIn {
+                center: rp(rng, 5.0),
+                x: [1.0, 0.0, 0.0],
+                y,
+                domain: [d0, d0 + rng.uniform(10.0, 360.0)],
+                rx: rng.uniform(0.5, 10.0),
+                ry: rng.chance(0.5).then(|| rng.uniform(0.5, 10.0)),
+                inside_out: rng.chance(0.2),
+            })
+        }
         _ => CurveIn::Hermite(HermiteIn {
             dim: 3,
             p1: rp(rng, 5.0),
@@ -1038,6 +1101,10 @@ fn gen_class_object(rng: &mut Rng, objs: &[ObjIn], geometric: bool) -> (i32, Opt
         &[100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110]
     };
     let class = *rng.choose(classes).unwrap_or(&106);
+    // SetClassObject(class, NULL) is valid for any class (the class becomes UNKNOWN)
+    if rng.chance(0.1) {
+        return (class, None);
+    }
     let obj = class_object_kind(class).and_then(|k| {
         let ids = of_kind(objs, k);
         rng.choose(&ids).copied()
@@ -1143,19 +1210,14 @@ fn gen_op(rng: &mut Rng, objs: &[ObjIn], geometric: bool) -> OpIn {
                 let Some(&obj) = rng.choose(&any_obj) else {
                     continue;
                 };
-                let params = [
-                    rng.uniform(-2.0, 5.0),
-                    rng.uniform(-2.0, 5.0),
-                    rng.uniform(-2.0, 5.0),
-                    rng.uniform(-2.0, 5.0),
-                ];
+                let params = (0..10).map(|_| rng.uniform(-2.0, 5.0)).collect();
                 OpIn::Load {
                     t,
                     tol: gen_tol(rng),
                     obj,
                     value: rng.uniform(0.0, 0.5),
                     params,
-                    offset: rng.below(4) as usize,
+                    offset: rng.below(10) as usize,
                     pre: if rng.chance(0.5) { BIG } else { rng.uniform(0.0, 1.0) },
                 }
             }
