@@ -129,9 +129,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (draft)
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (draft)
-- [ ] 🔨 `surface.surface_point_solve_p2` (1882 lines) — in progress: #66 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_point_solve_p2` (1882 lines) — in progress: #66 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p1` (1157 lines) — in progress: #55 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.loop` (830 lines) — in progress: #63 @bherbruck (ready for review)
@@ -290,7 +290,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
 - [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
 - [ ] 🟡 `surface.surface_point_solve_p1` (1771 lines) — partial, 1035 cases
-- [ ] 🔨 `surface.surface_point_solve_p2` (1882 lines) — in progress: #66 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_point_solve_p2` (1882 lines) — in progress: #66 @bherbruck (ready for review)
 - [ ] ⏳ `surface.surface_point_solve_p3` (1282 lines) — waiting
 
 ### topology (3/31)
@@ -348,7 +348,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p3` (1932 lines) — partial, 1527 cases
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
-- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_intersector_p4` (1570 lines) — in progress: #70 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p2` (1391 lines) — in progress: #60 @0xlillith (ready for review)
 - [ ] ⏳ `intersect.curve_class_p5` (2017 lines) — waiting
 - [ ] ⏳ `intersect.surface_intersector_p5` (622 lines) — waiting
