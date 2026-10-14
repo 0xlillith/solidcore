@@ -40,6 +40,7 @@ pub mod brep_data;
 pub mod database_io;
 pub mod edgeuse;
 pub mod proto_topology;
+pub mod shell;
 #[allow(clippy::module_inception)]
 pub mod topology;
 
@@ -297,14 +298,22 @@ pub struct Shell {
     pub faces: Vec<FaceId>,
     /// `m_pListOwner` (CO-PORTED): the region owning the shell (`GetRegion`).
     pub region: Option<RegionId>,
+    /// Native `m_tShellType`, independent of the list head during construction.
+    pub shell_type: shell::ShellType,
+    /// Native list members in head-first circular traversal order.
+    pub members: shell::ShellMembers,
 }
 
 /// A region (`SmRegion`, CO-PORTED minimal record).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Region {
     /// `m_pListOwner != NULL`: the region is on the B-rep's region list, so
     /// `GetBrep` reaches the B-rep.
     pub in_brep: bool,
+    /// Native region shell list, in traversal order from its head.
+    pub shells: Vec<ShellId>,
+    /// Native `m_bIsVoidFlag` (false at construction).
+    pub is_void: bool,
 }
 
 /// One use of a face (`SmFaceuse`): the face seen from one side.
@@ -442,6 +451,7 @@ pub struct Brep {
     edges: Arena<EdgeId, Edge>,
     vertices: Arena<VertexId, Vertex>,
     regions: Arena<RegionId, Region>,
+    infinite_region: Option<RegionId>,
     faceuses: Arena<FaceuseId, Faceuse>,
     loopuses: Arena<LoopuseId, Loopuse>,
     edgeuses: Arena<EdgeuseId, Edgeuse>,
@@ -461,6 +471,7 @@ impl Default for Brep {
             edges: Arena::default(),
             vertices: Arena::default(),
             regions: Arena::default(),
+            infinite_region: None,
             faceuses: Arena::default(),
             loopuses: Arena::default(),
             edgeuses: Arena::default(),
@@ -483,6 +494,18 @@ impl Brep {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// The region designated as infinite by the B-rep constructor.
+    #[must_use]
+    pub const fn infinite_region(&self) -> Option<RegionId> {
+        self.infinite_region
+    }
+
+    /// Friend write of the B-rep's infinite-region identity. Like other record
+    /// writes, this permits references to records added later.
+    pub fn set_infinite_region_record(&mut self, region: Option<RegionId>) {
+        self.infinite_region = region;
     }
 
     /// All shells.
