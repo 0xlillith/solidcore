@@ -1154,6 +1154,27 @@ pub trait SurfaceEvaluate {
     fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         super::p7::base_evaluate_normal(self, uv, u_side, v_side)
     }
+
+    /// `LocalCurveSolve(.., SM_SO_MAXIMIZE, SM_EFF_ZERO_SQRT, ..)`: the curve parameter
+    /// and surface parameters of the gap maximum near the guesses, if any.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Surface::local_curve_solve`]; [`SolidError::Unported`] by default.
+    fn local_curve_maximize(
+        &self,
+        _curve: &Curve,
+        _domain: &Extent2d,
+        _interval: &Extent1d,
+        _guess_uv: Point2,
+        _guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>> {
+        // UNPORTED(surface.surface_p7): SmBSplineSurface::LocalCurveSolve (not on BSplineSurface yet)
+        Err(SolidError::unported(
+            "SmSurface::LocalCurveSolve",
+            "surface.surface_p7",
+        ))
+    }
 }
 
 impl SurfaceEvaluate for Surface {
@@ -1189,6 +1210,28 @@ impl SurfaceEvaluate for Surface {
 
     fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         Self::evaluate_normal(self, uv, u_side, v_side)
+    }
+
+    fn local_curve_maximize(
+        &self,
+        curve: &Curve,
+        domain: &Extent2d,
+        interval: &Extent1d,
+        guess_uv: Point2,
+        guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>> {
+        Ok(self
+            .local_curve_solve(
+                domain,
+                curve,
+                interval,
+                SolverOperation::Maximize,
+                EFF_ZERO_SQRT,
+                &[],
+                guess_uv,
+                guess_t,
+            )?
+            .map(|s| (s.t, s.uv)))
     }
 }
 
