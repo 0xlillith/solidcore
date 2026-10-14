@@ -4,6 +4,7 @@
 #include "sc_shim.h"
 #include "StdAfx.h"
 #include <SmBSplineSurface.h>
+#include <SmPlane.h>
 #include <SmBSplineCurve.h>
 #include <SmContext.h>
 #include <SmCurveCache.h>
@@ -25,7 +26,7 @@ public:
     virtual SmSolutionPairType IdenticalSolutions(const SmSolution&, const SmSolution&, const SmSolution*&) const;
 };
 
-SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, const double* xyz, const double* bounds,
+SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, int32_t analytic_plane, const double* xyz, const double* bounds,
     int32_t direction, double chord, double angle, double max_side, int32_t diagonals,
     const double* line, double* output, int64_t cap, int64_t* out_len) {
     SC_TRY
@@ -36,11 +37,31 @@ SC_EXPORT int32_t sc_surface_surface_p9_eval(int32_t op, const double* xyz, cons
         p.x=xyz[at];p.y=xyz[at+1];p.z=xyz[at+2];p.w=NL_NOW;
     }
     double knots[6]={0,0,0,1,1,1};
-    SmBSplineSurface* surface=new(context) SmBSplineSurface(2,2,2,2,5,5,rows,knots,knots);
+    SmSurface* surface = analytic_plane
+        ? static_cast<SmSurface*>(new(context) SmPlane(SmPoint3d(0,0,0), SmVector3d(1,0,0), SmVector3d(0,1,0), SmVector2d(1,1), SmExtent2d(0,0,1,1), &context))
+        : static_cast<SmSurface*>(new(context) SmBSplineSurface(2,2,2,2,5,5,rows,knots,knots));
     SmExtent2d domain(bounds[0],bounds[1],bounds[2],bounds[3]);
     std::vector<double> out;
     auto status=[](SmStatus r){return r==SM_SUCCESS ? 0.0 : (double)r;};
     if(op==0) {
+        // All six sampled isos degenerate => dMaxLength stays -1. For 0 <
+        // max_side < 1 the negative count converted to ULONG is undefined.
+        // Test the actual C++ curves; poles or short endpoints alone are valid.
+        if (max_side > 0.0 && max_side < 1.0) {
+            bool all_degenerate = true;
+            for (int i = 0; i <= 5; ++i) {
+                const SmPoint2d uv = domain.Evaluate((double)i / 5.0, (double)i / 5.0);
+                SmBSplineCurve* iso = NULL;
+                const SmStatus r = surface->CreateIsoParametricCurve(context,
+                    (SmSurfParamType)direction, direction == SM_SP_V ? uv.y : uv.x,
+                    max_side / 100.0, iso);
+                if (r != SM_SUCCESS || !iso) { delete iso; delete surface; return SC_ERR_ARG; }
+                const bool degenerate = iso->IsDegenerate() == TRUE;
+                delete iso;
+                if (!degenerate) { all_degenerate = false; break; }
+            }
+            if (all_degenerate) { delete surface; return SC_ERR_ARG; }
+        }
         SmTArray<double> splits;
         SmStatus r=surface->FindTessellationSplits((SmSurfParamType)direction,domain,chord,angle,max_side,splits,diagonals?TRUE:FALSE);
         out.push_back(status(r));

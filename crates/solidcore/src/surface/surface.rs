@@ -8,6 +8,7 @@
 //! functions).
 
 pub mod p2;
+pub mod p7;
 pub mod p9;
 
 pub use p2::{Surface, SurfaceKind};

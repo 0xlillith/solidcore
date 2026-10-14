@@ -49,6 +49,8 @@ pub struct Runner;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
     op: i32,
+    #[serde(default)]
+    analytic_plane: bool,
     net: [[f64; 3]; 9],
     #[serde(default = "domain")]
     domain: [f64; 4],
@@ -69,6 +71,12 @@ fn harness(e: impl std::fmt::Display) -> HarnessError {
     HarnessError::new(e.to_string())
 }
 fn surface(i: &Inputs) -> Result<Surface, HarnessError> {
+    if i.analytic_plane {
+        return Ok(Surface::from(solidcore::surface::plane::Plane::new(
+            Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), Vec3::new(0.0, 1.0, 0.0),
+            solidcore::geom::vector2d::Vec2::new(1.0, 1.0), &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+        )));
+    }
     let net = i
         .net
         .chunks(3)
@@ -270,6 +278,7 @@ impl UnitDiff for Runner {
         let i: Inputs = case.parse()?;
         ffi::eval(
             i.op,
+            i.analytic_plane,
             &i.net,
             i.domain,
             i.direction,
@@ -299,15 +308,24 @@ impl UnitDiff for Runner {
                 rng.uniform(-height, height),
             ];
         }
+        if rng.chance(0.15) {
+            for p in net.iter_mut().take(3) { *p = [0.0, 0.0, 0.0]; }
+        }
+        if rng.chance(0.1) {
+            for p in &mut net { for v in p { *v *= 1e-7; } }
+        }
+        let domain = if rng.chance(0.25) { domain() } else {
+            [rng.uniform(0.0, 0.2), rng.uniform(0.0, 0.2), rng.uniform(0.8, 1.0), rng.uniform(0.8, 1.0)]
+        };
         let direction = rng.below(2) as i32;
         let (op, controls, diagonals) = if rng.chance(0.25) {
             (1, [0.01, 0.0, 0.0], false)
         } else {
-            let mode = rng.below(4);
+            let mode = rng.below(6);
             (
                 0,
                 [
-                    if mode == 0 {
+                    if mode == 0 || mode == 5 {
                         0.0
                     } else {
                         rng.uniform(0.02, 0.2)
@@ -319,6 +337,8 @@ impl UnitDiff for Runner {
                     },
                     if mode == 3 {
                         rng.uniform(0.5, 2.0)
+                    } else if mode == 4 || mode == 5 {
+                        -rng.uniform(0.5, 2.0)
                     } else {
                         0.0
                     },
@@ -328,9 +348,10 @@ impl UnitDiff for Runner {
         };
         serde_json::to_value(Inputs {
             op,
+            analytic_plane: rng.chance(0.1),
             net,
             direction,
-            domain: domain(),
+            domain,
             controls,
             diagonals,
             line: line(),

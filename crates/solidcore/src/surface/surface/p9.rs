@@ -17,26 +17,40 @@
 //! Failed tessellations retain the empty parameter array;
 //! unported errors are propagated even where upstream ignores a status.
 
+use std::borrow::Cow;
+
 use super::p2::{merge_double_arrays, Surface, SurfaceKind};
 use crate::curve::crv_on_surf::CrvOnSurf;
+use crate::curve::curve::p3::{local_curve_intersect, PointSolveOptions};
 use crate::curve::curve::Curve;
 use crate::curve::iso_curve::IsoCurve;
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
+use crate::geom::geom_utility::p2::ContinuityType;
+use crate::geom::global_solver::{
+    Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolverOperation,
+};
+use crate::geom::solution_array::{Solution, SolutionObject, SolutionType, SortKey};
+use crate::geom::tree::NodeId;
+use crate::geom::vector2d::Point2;
+use crate::geom::vector3d::Point3;
 use crate::kernel::Kernel;
 use crate::math::EFF_ZERO_SQRT;
+use crate::math::{max2, EFF_ZERO};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::{BSplineSurface, IsoCurveOptions, SurfParamType};
 use crate::nurbs::crv_basic::Curve as NurbCurve;
 use crate::nurbs::math::{CPoint, NOW, NOZ};
+use crate::surface::surface_cache::{BezierPatch, SurfaceCache};
 
 const OP: &str = "surface::surface::p9::find_tessellation_splits";
 const MAX_SPLITS: usize = 1_000_000;
 
-fn bss(surface: &Surface) -> Result<&BSplineSurface> {
+fn bss(surface: &Surface) -> Result<Cow<'_, BSplineSurface>> {
     match surface.kind() {
-        SurfaceKind::BSpline(s) => Ok(s),
+        SurfaceKind::BSpline(s) => Ok(Cow::Borrowed(s)),
+        SurfaceKind::Plane(p) => Ok(p.base_for_query()),
         SurfaceKind::CurveBounded(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
@@ -53,6 +67,13 @@ fn iso_curve(
     direction: SurfParamType,
     value: f64,
 ) -> Result<BSplineCurve> {
+    if let SurfaceKind::Plane(p) = surface.kind() {
+        return Ok(p
+            .create_iso_parametric_curve(direction, value, None, false)?
+            .curve
+            .base_with_nurb()?
+            .into_owned());
+    }
     Ok(bss(surface)?
         .create_iso_parametric_curve(k, direction, value, IsoCurveOptions::default())?
         .curve)
@@ -73,9 +94,15 @@ fn implicit_iso(
     )))
 }
 
-fn tessellate(curve: &Curve, interval: &Extent1d, chord: f64, angle: f64) -> Result<Vec<f64>> {
+fn tessellate(
+    curve: &Curve,
+    interval: &Extent1d,
+    chord: f64,
+    angle: f64,
+    max_side: f64,
+) -> Result<Vec<f64>> {
     Ok(
-        ignored(curve.tessellate_by_bisection(interval, chord, angle, 0.0))?
+        ignored(curve.tessellate_by_bisection(interval, chord, angle, max_side))?
             .map(|t| t.parameters)
             .unwrap_or_default(),
     )
@@ -178,7 +205,7 @@ impl Surface {
                 };
                 let curve = iso_curve(k, self, direction, iso)?;
                 let generic = Curve::from(curve.clone());
-                if generic.is_degenerate(crate::geom::tol::ZONE_TOL_3D, None)? {
+                if generic.is_degenerate(EFF_ZERO, None)? {
                     continue;
                 }
                 length = generic.approximate_length(&interval, 30, false)?.0;
@@ -258,12 +285,12 @@ impl Surface {
                 boundary.x
             };
             let curve = implicit_iso(self, direction, value, true)?;
-            let degenerate = curve.is_degenerate(crate::geom::tol::ZONE_TOL_3D, None)?;
+            let degenerate = curve.is_degenerate(EFF_ZERO, None)?;
             let is_linear = curve.is_linear(linear_tol, true)?.linear;
             let mut splits = Vec::new();
             let mut fallback_needed = degenerate || is_linear;
             if !fallback_needed {
-                match curve.tessellate_by_bisection(&interval, chord, angle, 0.0) {
+                match curve.tessellate_by_bisection(&interval, chord, angle, max_side) {
                     Ok(result) => splits = result.parameters,
                     Err(e) if e.is_unported() => return Err(e),
                     Err(_) => fallback_needed = true,
@@ -280,7 +307,7 @@ impl Surface {
                 let curve = implicit_iso(self, direction, value, true)?;
                 final_linear = curve.is_linear(linear_tol, true)?.linear;
                 if !final_linear {
-                    match curve.tessellate_by_bisection(&interval, chord, angle, 0.0) {
+                    match curve.tessellate_by_bisection(&interval, chord, angle, max_side) {
                         Ok(result) => splits = result.parameters,
                         Err(e) if e.is_unported() => return Err(e),
                         Err(_) => failures += 1,
@@ -325,7 +352,13 @@ impl Surface {
                     Some(*domain),
                     0,
                 )?);
-                let mut p = tessellate(&curve, &Extent1d::from_min_max(0.0, 1.0), chord, angle)?;
+                let mut p = tessellate(
+                    &curve,
+                    &Extent1d::from_min_max(0.0, 1.0),
+                    chord,
+                    angle,
+                    max_side,
+                )?;
                 if index == 1 && direction == SurfParamType::U {
                     p.reverse();
                 }
@@ -354,18 +387,6 @@ impl Surface {
 }
 
 // ---- curve/surface leaf solver -----------------------------------------------------
-
-use crate::curve::curve::p3::{local_curve_intersect, PointSolveOptions};
-use crate::geom::geom_utility::p2::ContinuityType;
-use crate::geom::global_solver::{
-    Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolverOperation,
-};
-use crate::geom::solution_array::{Solution, SolutionObject, SolutionType, SortKey};
-use crate::geom::tree::NodeId;
-use crate::geom::vector2d::Point2;
-use crate::geom::vector3d::Point3;
-use crate::math::{max2, EFF_ZERO};
-use crate::surface::surface_cache::{BezierPatch, SurfaceCache};
 
 /// Curve/surface intersection solver state (`SmCSIGlobalSolver`). Its constructor
 /// belongs to `surface.surface_p1`; fields are explicit so that unit can assemble
@@ -406,22 +427,24 @@ fn node_valid<O>(_cache: &SurfaceCache<O>, _node: NodeId) -> Result<bool> {
     Err(SolidError::unported("sm_IsNodeValid", "surface.surface_p1"))
 }
 fn surface_closed(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _direction: SurfParamType,
+    surface: &Surface,
+    domain: &Extent2d,
+    direction: SurfParamType,
 ) -> Result<(bool, ContinuityType)> {
-    // UNPORTED(surface.surface_p7): SmSurface::IsClosed
-    Err(SolidError::unported(
-        "SmSurface::IsClosed",
-        "surface.surface_p7",
-    ))
+    let (closed, continuity) = surface.is_closed(domain, direction, None, true)?;
+    Ok((closed, continuity.ok_or(SolidError::sm_err(OP))?))
 }
-fn tangent_drop(_surface: &Surface, _uv: Point2, _point: Point3) -> Result<Point2> {
-    // UNPORTED(surface.surface_p7): SmSurface::DropPointsToTangentPlane
-    Err(SolidError::unported(
-        "SmSurface::DropPointsToTangentPlane",
-        "surface.surface_p7",
-    ))
+fn tangent_drop(surface: &Surface, uv: Point2, point: Point3) -> Result<Point2> {
+    super::p7::drop_points_to_tangent_plane(
+        surface,
+        uv,
+        crate::nurbs::knots::Side::Left,
+        crate::nurbs::knots::Side::Left,
+        &[point],
+    )?
+    .first()
+    .copied()
+    .ok_or(SolidError::sm_err(OP))
 }
 fn intersect_surface_curve(
     _surface: &Surface,
@@ -576,6 +599,14 @@ impl<'a, O: SolutionObject + 'a> CsiGlobalSolver<'a, O> {
             .flatten()
             .ok_or(SolidError::null_pointer(OP))?;
         let patch: BezierPatch<O> = self.surface_cache.patch(surface_id)?.clone();
+        let original = super::p2::original_surface(self.base.tree(1)?, &surface_node)?;
+        if Some(original) != self.surface_cache.surface_handle() {
+            return Err(SolidError::invalid_input(
+                OP,
+                "surface cache does not own the original surface",
+            ));
+        }
+        // Resolve the original tree-owner handle, not the Bezier patch surface.
         let parent_surface = self.surface_cache.surface();
         let eval_surface = surface_to_evaluate(self.surface_cache, surface_id)?;
         let mut domain = patch.aux.uv_domain;
@@ -870,7 +901,7 @@ impl<'a, O: SolutionObject + 'a> CsiGlobalSolver<'a, O> {
                     continue;
                 }
                 let iso = implicit_iso(eval_surface, dir, constant, j == 0)?;
-                if iso.is_degenerate(crate::geom::tol::ZONE_TOL_3D, None)? {
+                if iso.is_degenerate(EFF_ZERO, None)? {
                     continue;
                 }
                 let coincident = self.curve.simple_coincidence_checker::<O>(

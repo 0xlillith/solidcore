@@ -79,9 +79,9 @@
 //! - **`sm_check_zero_surface_derivs`** takes `Su` / `Sv` mutably and returns the
 //!   flag; its unused point argument is dropped.
 //! - **Back-edges.** `CreateExtendedSurface` calls `SmSurface::IsSingularity`
-//!   (`surface.surface_p5`) and `SmSurface::IsClosed` (`surface.surface_p7`);
+//!   (`surface.surface_p5`) and `SmSurface::IsClosed` (`surface::surface::p7`);
 //!   `sm_CreateNonRationalCurve` drops its curve with `SmSurface::DropCurve`
-//!   (`intersect.surface_drop_lib_p3`). Those calls return [`SolidError::Unported`]
+//!   (`intersect.surface_drop_lib_p3`). The unported calls return [`SolidError::Unported`]
 //!   until the units are ported. `sm_CreateNonRationalCurve` takes a
 //!   [`BSplineCurve`] (upstream casts its `SmCurve` with `SM_CAST_PTR`, failing with
 //!   `NER` for other curve types) and a [`BSplineSurface`] base surface (the only
@@ -203,12 +203,8 @@ fn is_singularity(_srf: &BSplineSurface, _uv: Point2) -> Result<(bool, SurfParam
 }
 
 /// `SmSurface::IsClosed(domain, dir)`.
-fn is_closed(_srf: &BSplineSurface, _domain: &Extent2d, _dir: SurfParamType) -> Result<bool> {
-    // UNPORTED(surface.surface_p7): SmSurface::IsClosed
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsClosed",
-        unit: "surface.surface_p7",
-    })
+fn is_closed(srf: &BSplineSurface, domain: &Extent2d, dir: SurfParamType) -> Result<bool> {
+    Ok(crate::surface::surface::p7::base_is_closed(srf, domain, dir, None, false)?.0)
 }
 
 /// The curves dropped by `SmSurface::DropCurve` (with its two distance outputs, which
@@ -1156,6 +1152,26 @@ impl BSplineSurface {
         dist: f64,
         extension_continuity: ContinuityType,
     ) -> Result<BSplineSurface> {
+        self.create_extended_surface_dispatched(
+            ext_direction,
+            dist,
+            extension_continuity,
+            &|uv| is_singularity(self, uv),
+            &|domain, dir| is_closed(self, domain, dir),
+        )
+    }
+
+    /// The body of [`BSplineSurface::create_extended_surface_dir`] with the virtual
+    /// `IsSingularity(uv, dir)` and `IsClosed(domain, dir)` of the calling object
+    /// passed in (an `SmPlane` overrides both), as upstream's virtual dispatch.
+    pub(crate) fn create_extended_surface_dispatched(
+        &self,
+        ext_direction: SurfParamType,
+        dist: f64,
+        extension_continuity: ContinuityType,
+        is_singularity: &dyn Fn(Point2) -> Result<(bool, SurfParamType)>,
+        is_closed: &dyn Fn(&Extent2d, SurfParamType) -> Result<bool>,
+    ) -> Result<BSplineSurface> {
         const OP: &str = OP_EXTEND;
 
         // copy input surface into local object
@@ -1195,7 +1211,7 @@ impl BSplineSurface {
         let mut skip_vmax = neither || u_dir || ext_direction == SurfParamType::VMin;
 
         // Don't extend through singularities in U or V
-        let (sing, sing_direction) = is_singularity(self, uv_domain.min())?;
+        let (sing, sing_direction) = is_singularity(uv_domain.min())?;
         if sing {
             if sing_direction == SurfParamType::U {
                 skip_vmin = true;
@@ -1203,7 +1219,7 @@ impl BSplineSurface {
                 skip_umin = true;
             }
         }
-        let (sing, sing_direction) = is_singularity(self, uv_domain.max())?;
+        let (sing, sing_direction) = is_singularity(uv_domain.max())?;
         if sing {
             if sing_direction == SurfParamType::U {
                 skip_vmax = true;
@@ -1214,7 +1230,7 @@ impl BSplineSurface {
 
         // when asked and allowed - extend in U direction
         if (ext_u_or_v == SurfParamType::U || ext_u_or_v == SurfParamType::Both)
-            && !is_closed(self, &uv_domain, SurfParamType::U)?
+            && !is_closed(&uv_domain, SurfParamType::U)?
         {
             // when extending in the UMin direction
             if !skip_umin {
@@ -1246,7 +1262,7 @@ impl BSplineSurface {
 
         // when asked - extend in the V direction
         if (ext_u_or_v == SurfParamType::V || ext_u_or_v == SurfParamType::Both)
-            && !is_closed(self, &uv_domain, SurfParamType::V)?
+            && !is_closed(&uv_domain, SurfParamType::V)?
         {
             // reset extension distance
             ext_dist = dist;
@@ -1280,9 +1296,7 @@ impl BSplineSurface {
         }
 
         // build output SmBSplineSurface from esur SURFACE object
-        if is_closed(self, &uv_domain, SurfParamType::U)?
-            && is_closed(self, &uv_domain, SurfParamType::V)?
-        {
+        if is_closed(&uv_domain, SurfParamType::U)? && is_closed(&uv_domain, SurfParamType::V)? {
             // surfaces closed in both directions - don't get extended - copy input
             Ok(self.copy())
         } else {

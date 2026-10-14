@@ -1,6 +1,7 @@
 //! Safe wrappers for `surface.surface_p9`; shim: `surface_surface_p9.cpp`.
 //! Upstream: `source/SMLib/src/SmSurface.cpp` (tessellation, iso boundaries and CSI).
-//! Inputs are one non-rational quadratic 3x3 Bezier patch, a domain within [0,1]^2,
+//! Inputs are one non-rational quadratic 3x3 Bezier patch or a real unit plane,
+//! a domain within [0,1]^2,
 //! bounded controls and, for CSI, a non-degenerate line. No counts cross the FFI.
 use crate::{call_with_buffer, FfiError};
 
@@ -8,6 +9,7 @@ mod sys {
     extern "C" {
         pub fn sc_surface_surface_p9_eval(
             op: i32,
+            analytic_plane: i32,
             xyz: *const f64,
             bounds: *const f64,
             direction: i32,
@@ -29,6 +31,7 @@ mod sys {
 /// Invalid data is rejected before C++; shim failures return `FfiError::Status`.
 pub fn eval(
     op: i32,
+    analytic_plane: bool,
     net: &[[f64; 3]; 9],
     domain: [f64; 4],
     direction: i32,
@@ -48,10 +51,10 @@ pub fn eval(
             .any(|v| !v.is_finite() || !(0.0..=1.0).contains(v))
         || domain[2] - domain[0] < 1e-4
         || domain[3] - domain[1] < 1e-4
-        || controls.iter().any(|v| !v.is_finite() || *v < 0.0)
-        || (controls[0] != 0.0 && !(1e-3..=10.0).contains(&controls[0]))
-        || (controls[1] != 0.0 && !(1.0..=90.0).contains(&controls[1]))
-        || (controls[2] != 0.0 && !(0.05..=100.0).contains(&controls[2]))
+        || controls.iter().any(|v| !v.is_finite())
+        || (controls[0] != 0.0 && !(1e-3..=10.0).contains(&controls[0].abs()))
+        || (controls[1] != 0.0 && !(1.0..=90.0).contains(&controls[1].abs()))
+        || (controls[2] != 0.0 && !(0.05..=100.0).contains(&controls[2].abs()))
         || line
             .iter()
             .flatten()
@@ -61,26 +64,6 @@ pub fn eval(
     }
     if op == 0 && direction > 1 {
         return Err(invalid());
-    }
-    if controls[2] > 0.0 {
-        let distances = if direction == 0 {
-            [(0, 2), (3, 5), (6, 8)]
-        } else {
-            [(0, 6), (1, 7), (2, 8)]
-        };
-        for (a, b) in distances {
-            let pa = net.get(a).ok_or_else(invalid)?;
-            let pb = net.get(b).ok_or_else(invalid)?;
-            if pa
-                .iter()
-                .zip(pb)
-                .map(|(a, b)| (a - b) * (a - b))
-                .sum::<f64>()
-                < 1e-4
-            {
-                return Err(invalid());
-            }
-        }
     }
     if op == 2 && line[0] == line[1] {
         return Err(invalid());
@@ -93,6 +76,7 @@ pub fn eval(
         unsafe {
             sys::sc_surface_surface_p9_eval(
                 op,
+                i32::from(analytic_plane),
                 xyz.as_ptr(),
                 domain.as_ptr(),
                 direction,
@@ -107,4 +91,18 @@ pub fn eval(
             )
         }
     })
+}
+
+#[cfg(all(test, feature = "cpp"))]
+mod tests {
+    use super::*;
+    #[test]
+    fn rejects_only_the_undefined_all_degenerate_count() {
+        let net = [[0.0; 3]; 9];
+        let line = [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]];
+        assert!(matches!(eval(0, false, &net, [0.0, 0.0, 1.0, 1.0], 0, [0.02, 15.0, 0.5], false, line), Err(FfiError::Status(_))));
+        for max_side in [1.0, 2.0, -0.5] {
+            assert_eq!(eval(0, false, &net, [0.0, 0.0, 1.0, 1.0], 0, [0.02, 15.0, max_side], false, line).unwrap(), vec![0.0, 0.0, 1.0]);
+        }
+    }
 }
