@@ -1,4 +1,63 @@
-//! `SmSurface`, part 4 (work in progress).
+//! `SmSurface`, part 4: the lazy evaluator's normal and cross-section evaluations, the
+//! point-on-normal convergence test, the seam curve and seam test, the global point solve,
+//! the classification of curve/surface intersection points, and the Newton equation sets of
+//! the curve/surface and surface/surface solves (intersection, normalize, minimize,
+//! maximize, signed directed minimize, surface/surface/plane intersection).
+//!
+//! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`.
+//! The file is split over several plan units (`surface.surface_p1`, `_p2`, ...); each lives
+//! in its own submodule and adds methods to [`Surface`] (or free functions).
+//!
+//! | Rust                                              | Upstream                                         |
+//! |---------------------------------------------------|--------------------------------------------------|
+//! | [`SurfaceEval::normal`]                           | `SmSurfaceEval::Normal`                          |
+//! | [`SurfaceEval::eval_normal_section`]              | `SmSurfaceEval::EvalNormalSection`               |
+//! | [`pass_sp_convergence_test`]                      | `sm_PassSPConvergenceTest` (static)              |
+//! | [`Surface::create_seam_curve`]                    | `SmSurface::CreateSeamCurve`                     |
+//! | [`Surface::is_on_seam`], [`SeamInfo`]             | `SmSurface::IsOnSeam`                            |
+//! | [`Surface::global_point_solve`], [`global_point_solve_starts`], [`NoObject`] | `SmSurface::GlobalPointSolve` |
+//! | [`classify_curve_surface_xsect_point`], [`XsectClassification`] | `sm_ClassifyCurveSurfaceXSectPoint` (static) |
+//! | `convert_to_parameter_delta` (private)            | `sm_ConvertToParameterDelta` (static)            |
+//! | [`CsIntersect`]                                   | `SmCSIntersectENFO` (constructor, `Evaluate`)    |
+//! | [`CsNormalize`]                                   | `SmCSNormalizeENFO` (constructor, `Evaluate`)    |
+//! | [`SspIntersect`]                                  | `SmSSPIntersectENFO` (constructor, `Evaluate`)   |
+//! | [`SsiNormalize`]                                  | `SmSSINormalizeENFO` (constructor, `Evaluate`)   |
+//! | [`SsNormalize`]                                   | `SmSSNormalizeENFO` (constructor, `Evaluate`)    |
+//! | [`evaluate_normal_section`], [`NormalSection`] (co-ported) | `smsurf_EvaluateNormalSection` (unit `surface.surface_p1`) |
+//! | [`is_point_on_normal`], [`PointOnNormal`], [`NormalTestReason`] (co-ported) | `smsurf_IsPointOnNormal` (unit `surface.surface_p3`) |
+//! | [`SurfaceEval::eval_normal`] (co-ported)          | `SmSurfaceEval::EvalNormal` (unit `surface.surface_p3`) |
+//!
+//! Deviations:
+//! - **Equation sets.** Each `Sm*ENFO` class is a struct implementing [`EvalNFunctions`]
+//!   (its constructor is `new`); the unused tolerance arguments of the constructors are
+//!   dropped. `SmCSIntersectENFO` keeps its call count, last gap and minimize flag in the
+//!   struct, as upstream. The finite-difference Jacobian `SmSSINormalizeENFO` computes after
+//!   its analytic one is the only one that reaches the caller, so the analytic one is not
+//!   built. `SmSSINormalizeENFO` evaluates the *second* surface's normal on the *first*
+//!   surface, as upstream does (kept, since the difftest compares it).
+//! - **Co-ported callees.** `smsurf_EvaluateNormalSection`, `smsurf_IsPointOnNormal` and
+//!   `SmSurfaceEval::EvalNormal` are small callees owned by units `surface.surface_p1` and
+//!   `surface.surface_p3` that this unit's functions need to run at all; they are ported
+//!   here (recorded as `CO-PORTED` in the plan notes). `Normal` fails with the status of a
+//!   failed evaluation where upstream asserts and returns the stale matrix entry.
+//! - **Statuses.** `smsurf_IsPointOnNormal` returns its `SmStatus` reasons as
+//!   [`NormalTestReason`] and always succeeds, as upstream; its deviation output is `0` when
+//!   the surface could not be evaluated (upstream leaves it unset).
+//! - **`CreateSeamCurve`** returns `None` for a surface that is not closed and fails with
+//!   [`SolidError::InvalidInput`] for a closed one that is not a B-spline surface
+//!   ([`CrvOnSurf`] is built on a [`BSplineSurface`](crate::nurbs::b_spline_surface::BSplineSurface)).
+//! - **Classification** (`sm_ClassifyCurveSurfaceXSectPoint`) returns the outputs as
+//!   [`XsectClassification`]; an out-of-domain guess keeps its unclamped values, as
+//!   upstream. `SmCurve::EvaluateGeometric` failing with `SM_ERR` marks the point touching
+//!   (other failures propagate; upstream would read uninitialised vectors). The shape
+//!   variables only read on paths where they were set start at zero.
+//! - **Unported callees** (return [`SolidError::Unported`]): `SmSurface::IsOnBoundary` and the
+//!   tolerance branch of `IsInDomain` (`SmTol::MapTo2d`: `surface.surface_p1`), the zone
+//!   tolerance of a surface (`topology.edgeuse_p1`), `GlobalPointSolve_1`
+//!   (`surface.surface_point_solve_p3`), the surface cache (`smsurf_GetSurfaceCache`), the
+//!   trim containment of a face's surface (`SmFace::PointClassify`, `query.face_p2`) and the
+//!   edge and face tolerances of owned curves and surfaces (`topology.edge`,
+//!   `topology.face_p2`).
 
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::evaluate_geometric as curve_evaluate_geometric;
@@ -2089,4 +2148,103 @@ pub fn global_point_solve_starts(
         requested,
     )?;
     Ok(solutions.as_slice().iter().map(|s| s.start).collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn plane() -> Surface {
+        Surface::from(Plane::from_normal(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 0.0, 1.0),
+        ))
+    }
+
+    #[test]
+    fn plane_normal_through_the_evaluator() {
+        let s = plane();
+        let mut e = SurfaceEval::with_uv(Some(&s), 0.3, 0.2);
+        let n = e.normal().unwrap();
+        assert!((n.z.abs() - 1.0).abs() < 1e-12 && n.x.abs() < 1e-12);
+    }
+
+    #[test]
+    fn point_on_the_normal_of_a_plane() {
+        let s = plane();
+        let uv = Point2::new(0.3, 0.2);
+        let on = s.evaluate_point(uv).unwrap();
+        let n = s.evaluate_normal(uv, Side::Left, Side::Left).unwrap();
+        let r = is_point_on_normal(&s, None, uv, on + n * 5.0, None, 1e-6).unwrap();
+        assert!(r.good_point);
+        assert!((r.drop_to_surf - 5.0).abs() < 1e-12);
+        let off = is_point_on_normal(
+            &s,
+            None,
+            uv,
+            on + n * 5.0 + Vec3::new(1.0, 0.0, 0.0),
+            None,
+            1e-6,
+        )
+        .unwrap();
+        assert!(!off.good_point);
+        assert_eq!(off.reason, NormalTestReason::NotWithinTolerance);
+        assert!(pass_sp_convergence_test(&s, uv, on + n, 1e-6).unwrap());
+    }
+
+    #[test]
+    fn a_line_through_a_plane_crosses_it() {
+        let s = plane();
+        let c = Curve::from(Line::from_points(
+            Vec3::new(0.1, 0.2, -1.0),
+            Vec3::new(0.1, 0.2, 1.0),
+            3,
+        ));
+        let uv = Point2::new(0.1, 0.2);
+        let dom = s.natural_uv_domain();
+        let r = classify_curve_surface_xsect_point(
+            &s,
+            &dom,
+            &c,
+            &Extent1d::from_min_max(0.0, 1.0),
+            uv,
+            0.5,
+        )
+        .unwrap();
+        assert_eq!(r.point_type, TsectCurveType::Crossing);
+        assert!(!r.found_guess);
+    }
+
+    #[test]
+    fn a_plane_has_no_seam() {
+        let k = Kernel::new(&crate::kernel::KernelOptions::default());
+        assert!(plane()
+            .create_seam_curve(&k, SurfParamType::U, false)
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn normal_section_of_a_plane_is_flat() {
+        let s = plane();
+        let flags = EvaluateFlags {
+            u_side: Side::Left,
+            v_side: Side::Left,
+            only_upper_half: true,
+            non_zero_tangents: true,
+        };
+        let m = s.evaluate(Point2::new(0.1, 0.1), 2, 2, flags).unwrap();
+        let mut pvv = [[Vec3::UNDEF; 3]; 3];
+        for (i, row) in pvv.iter_mut().enumerate() {
+            for (j, slot) in row.iter_mut().enumerate() {
+                if i + j <= 2 {
+                    *slot = m[i][j];
+                }
+            }
+        }
+        pvv[2][2] = Vec3::new(0.0, 0.0, 1.0);
+        let sec = evaluate_normal_section(&mut pvv, Vec3::new(1.0, 1.0, 0.0)).unwrap();
+        assert!(sec.curvature.abs() < 1e-12);
+        assert!((sec.tangent.length() - 1.0).abs() < 1e-12);
+    }
 }
