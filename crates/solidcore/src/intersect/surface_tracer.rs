@@ -273,12 +273,19 @@ impl TracePoint {
 
 /// The object of the boundary solutions of
 /// [`SurfaceTrace::find_solutions_on_boundary_curve`]: the boundary iso curve.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct BoundaryCurve;
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct BoundaryCurve {
+    /// The curve's natural interval (`SmCurve::GetNaturalInterval`), when known.
+    pub natural_interval: Option<Extent1d>,
+}
 
 impl SolutionObject for BoundaryCurve {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        self.natural_interval
     }
 }
 

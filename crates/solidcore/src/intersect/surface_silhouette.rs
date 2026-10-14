@@ -40,6 +40,13 @@
 //!   without patch slot is upstream's null `m_pData` (`NER`: `true`).
 //! - **Evaluations.** `SmSurface::Evaluate` writes only the upper half of the
 //!   `[3][3]` matrix; the other entries keep what the trace point held, as upstream.
+//!   `smsurf_EvaluateGeometric` repairs a vanishing `S_u`/`S_v` of its matrix in
+//!   place: upstream that also writes the previous point (`pPrevPnt`), the port
+//!   evaluates a copy of it (the trait passes `&TracePoint`); nothing here reads the
+//!   previous point's derivatives afterwards.
+//! - **Boundary solutions** name the boundary curve as
+//!   [`BoundaryCurve`] (with its natural interval) where upstream stores the curve
+//!   pointer.
 //! - **Unported callees** return [`SolidError::Unported`] (see the `UNPORTED`
 //!   markers): `SmSurface::EvaluateNormal` for surfaces other than planes and
 //!   `SmSurface::DropVectors` (`surface.surface_p7`), `SmSurface::EvaluateGeometric`
@@ -148,7 +155,11 @@ fn evaluate_geometric_at(surface: &Surface, uv: Point2) -> Result<GeometricPrope
 
 /// `SmSurface::EvaluateNormalSection(uv, TRUE, TRUE, direction, ..)` (no plane
 /// override).
-fn evaluate_normal_section(surface: &Surface, uv: Point2, direction: Vec3) -> Result<NormalSection> {
+fn evaluate_normal_section(
+    surface: &Surface,
+    uv: Point2,
+    direction: Vec3,
+) -> Result<NormalSection> {
     match surface.kind() {
         SurfaceKind::CurveBounded(s) => {
             s.evaluate_normal_section(uv, Side::Left, Side::Left, direction)
@@ -234,7 +245,12 @@ impl<'s> SurfaceSilhouette<'s> {
     ///
     /// [`SolidError::Unported`] from the surface evaluations; their other failures
     /// answer `true` (upstream returns the failure status as its boolean).
-    pub fn does_point_lie_on_curve(&self, k: &Kernel, uv: &mut Point2, refine: bool) -> Result<bool> {
+    pub fn does_point_lie_on_curve(
+        &self,
+        k: &Kernel,
+        uv: &mut Point2,
+        refine: bool,
+    ) -> Result<bool> {
         let surface = self.surface();
         let normal = match evaluate_normal(surface, *uv) {
             Ok(n) => n,
@@ -303,13 +319,17 @@ impl<'s> SurfaceSilhouette<'s> {
             CurvePropertyType::SilhouetteVector
         };
         let eye = [self.eye];
-        let opts = PropertyAnalysisOptions {
+        let mut opts = PropertyAnalysisOptions {
             property_value: None,
             opt_vectors: &eye,
             want_comb: false,
             handle: None,
         };
         let curve = Curve::from(boundary.clone());
+        // the solutions name the curve (its cache tree's owner)
+        opts.handle = Some(BoundaryCurve {
+            natural_interval: Some(curve.natural_interval()),
+        });
         let analysis = curve.global_property_analysis(
             k,
             interval,
@@ -333,7 +353,6 @@ impl<'s> SurfaceSilhouette<'s> {
     /// `SM_ERR` for an eye point on the surface, a normal that cannot be found or a
     /// zero tangent without previous point; those of the evaluations, of
     /// `smsurf_EvaluateGeometric`, `AngleBetween` and `smsurf_DropVectors`.
-    #[allow(clippy::too_many_lines)] // one upstream function, kept in one piece
     pub fn compute_point_values(
         &self,
         uv: Point2,
@@ -448,8 +467,10 @@ impl<'s> SurfaceSilhouette<'s> {
 
                             // If the angle between the two vectors is very small or
                             // very large then they are parallel.
-                            let angle1 = fold_angle(r2.angle_between(g2.principle_curvature_vector1)?);
-                            let angle2 = fold_angle(r2.angle_between(g2.principle_curvature_vector2)?);
+                            let angle1 =
+                                fold_angle(r2.angle_between(g2.principle_curvature_vector1)?);
+                            let angle2 =
+                                fold_angle(r2.angle_between(g2.principle_curvature_vector2)?);
                             // one curvature vector exactly parallel to the view vector
                             // and the other exactly perpendicular
                             if angle1 < ang_tol / 100.0 || angle2 < ang_tol / 100.0 {
@@ -497,8 +518,14 @@ impl<'s> SurfaceSilhouette<'s> {
                     // for T with (T==0) the previous uv and (T==1) `uv`, allowing
                     // convergence outside of [0,1].
                     let prev_uv = prev.curve_uv[0];
-                    let mut efo =
-                        FindSilSingEfo::new(surface, prev_uv, uv, false, self.perspective, self.eye);
+                    let mut efo = FindSilSingEfo::new(
+                        surface,
+                        prev_uv,
+                        uv,
+                        false,
+                        self.perspective,
+                        self.eye,
+                    );
                     let mut ivl = Extent1d::from_min_max(-5.0, 5.0);
                     let mut ls = LocalSolve1d::with_interval(ivl, false);
                     // Guess param: linearly interpolate between PrevDot (at t==0) and
@@ -628,7 +655,6 @@ impl<'s> SurfaceSilhouette<'s> {
     ///
     /// `SM_ERR` when no normal can be found at the guess; those of the surface
     /// evaluations and of `smgu_CircleFindSilhouettePoints`.
-    #[allow(clippy::too_many_lines)] // one upstream function, kept in one piece
     pub fn local_point_solve(
         &self,
         k: &Kernel,
@@ -727,8 +753,13 @@ impl<'s> SurfaceSilhouette<'s> {
         let circle_normal = tangent_plane_dir.cross(normal);
 
         // Find the closest silhouette point on the normal circle
-        let Some((sil_point1, sil_point2)) =
-            circle_find_silhouette_points(center, circle_normal, radius, self.perspective, self.eye)?
+        let Some((sil_point1, sil_point2)) = circle_find_silhouette_points(
+            center,
+            circle_normal,
+            radius,
+            self.perspective,
+            self.eye,
+        )?
         else {
             return Ok(None);
         };
@@ -1166,7 +1197,6 @@ mod tests {
     fn plane_point_values_without_tangent_fail() {
         let s = plane();
         let d = Extent2d::from_bounds(0.0, 0.0, 10.0, 10.0);
-        let k = Kernel::default();
         // the silhouette function is constant: no direction, no previous point
         let t = SurfaceSilhouette::new(&s, &d, false, Vec3::new(0.3, 0.2, 1.0)).unwrap();
         let mut p = TracePoint::new();
