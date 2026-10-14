@@ -2737,3 +2737,15 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
   `surface.surf_of_revolution_p2` / `_p3` (deferred). `ReadFromDB` is unit-tested only:
   the `surface.surface_p2` shim dumps B-spline surfaces only. The `SmSurface::ReadFromDB`
   dispatch now reads the cone data and defers on `surface.surf_of_revolution_p3`.
+- **Review fixes.** Upstream-issue ids renumbered to UB-74, UB-75, WR-50, WR-51 (UB-73,
+  WR-48, WR-49 were taken by `surface.b_spline_volume_n_lib`). Deviations now also note:
+  `Cone::new_unbounded` propagates an error from `GetApex` (upstream ignores its status
+  and reads an uninitialised `dApexParam`); the inversion enables out-of-bounds on a clone
+  of the generator where upstream's `const` `STEPInversion` sets it on the generator for
+  good (same results, the flag already propagates). **Revisit with
+  `surface.surf_of_revolution_p3`:** ASCII `Cone::read_from_db` leaves the radius and
+  semi-angle at `UNDEF_DOUBLE` after a failed numeric extraction, where C++11 `>>` stores
+  `0`; not observable while `ReadFromDB` ends in `Unported`. The reviewer's adversarial
+  cases are in `fixtures/surface.cone_p1/review.json` (3167, pruned from 3607 by keeping
+  one status-only off-surface inversion per point and cone instead of one per tolerance
+  and guess); all pass bit-identically.
