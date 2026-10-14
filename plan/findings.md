@@ -2886,15 +2886,16 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
 
 ## intersect.topology_solver_p1
 
-- Upstream issues UB-80 (`MayContainAnswer` reads uninitialised `IntersectLine`
-  results for a ray shorter than `SM_EFF_ZERO`), UB-81 (edge solvers dereference a free
-  curve's missing edge) and WR-61 (`SmTLSPointVertex::SolveIt` ray firing falls through
+- Upstream issues UB-85 (`MayContainAnswer` reads uninitialised `IntersectLine`
+  results for a ray shorter than `SM_EFF_ZERO`), UB-86 (edge solvers dereference a free
+  curve's missing edge) and WR-62 (`SmTLSPointVertex::SolveIt` ray firing falls through
   into the 3D signed case; still unconfirmed against the C++: even single-call fixtures
   are deferred because `add_sorted_solution` reaches the `SmTol::GetZoneTol3d` stub of
-  `topology.brep_p1` for vertex objects). The port keeps the WR-61 fall-through as
+  `topology.brep_p1` for vertex objects). The port keeps the WR-62 fall-through as
   written. (Renumbered when other units took the numbers on `main` first: filed as
   UB-73, UB-74 and WR-48, then UB-77, UB-78 and WR-52, then UB-78, UB-79 and WR-55,
-  then UB-80, UB-81 and WR-59.)
+  then UB-80, UB-81 and WR-59, merged as UB-80, UB-81 and WR-61 while
+  `surface.surf_of_extrusion_p1` held those numbers, then UB-85, UB-86 and WR-62.)
 - The FFI guard refuses an option vector shorter than `1e-6` only where upstream is
   undefined or unverified: the ray of `MayContainAnswer` (`Op::May` and tree solves with
   `SM_SO_RAYFIRE`) and every vector the curve solvers hand to
@@ -2980,8 +2981,10 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   the `surface.surface_p2` shim dumps B-spline surfaces only. The `SmSurface::ReadFromDB`
   dispatch now reads the cone data and defers on `surface.surf_of_revolution_p3`.
 - **Merge renumbering.** On merging with `main` the cone's UB-78, WR-55 and WR-56 became
-  UB-81, WR-61 and WR-62 (units merged first had taken those ids). The id lists below
-  are historical.
+  UB-81, WR-61 and WR-62 (units merged first had taken those ids). Those still collided
+  on `main` (with `intersect.topology_solver_p1` and `surface.surf_of_extrusion_p1`), so
+  PR #61 renumbered the cone's UB-80, UB-81, WR-61 and WR-62 to UB-87, UB-88, WR-63 and
+  WR-64; HANG-11 is unchanged. The id lists below are historical.
 - **Review fixes.** Upstream-issue ids renumbered to UB-78, UB-80, WR-55, WR-56 (UB-73 to
   UB-77, UB-79 and WR-48 to WR-54 were taken by units merged first). Deviations now also note:
   `Cone::new_unbounded` propagates an error from `GetApex` (upstream ignores its status
@@ -3030,7 +3033,7 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   is reachable: unbounded cones with a semi-angle just above the cylinder test (`5e-11`
   degrees) have their polar circle ~5e11 below the origin and the polar conversion
   fails. With `swap_uv` upstream then uses the sweep value the converter wrote (now
-  ported); without it (or with nothing written) it reads an unset value (UB-80): the
+  ported); without it (or with nothing written) it reads an unset value (UB-87): the
   shim and runner refuse those inputs. The fourth adversarial set is
   `fixtures/surface.cone_p1/review4.json` (7800 cases, pruned from 35,138 run against
   the C++: tiny/negative semi-angles with every swap/inside-out, zero/over-long/negative
@@ -3324,7 +3327,7 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 
 - `CreateOffsetSurface` merges the near-duplicate axis intersections through the solutions' curve objects (their natural intervals), so the port names the two curves with handles that carry their intervals ([`CurveHandle`]); without them 5 point solutions stay unmerged and the offset generator is not trimmed at the axis.
 - `BSplineSurface::create_surf_of_revolution` with a given sweep circle ignores the status of the circle's `Transform` (it refuses `|scale| < SM_EFF_ZERO` before changing anything, so the untransformed copy is used).
-- Upstream quirks recorded in `plan/upstream-issues.md`: WR-61 (`GetControlPolygon` zeroes the weights a polar conversion then reads) and WR-62 (`IsNurbSurfaceSurfOfRevolution` returns a status as `TRUE`).
+- Upstream quirks recorded in `plan/upstream-issues.md`: WR-65 (`GetControlPolygon` zeroes the weights a polar conversion then reads) and WR-66 (`IsNurbSurfaceSurfOfRevolution` returns a status as `TRUE`).
 - `Surface::global_surface_intersect` for a surface of revolution dispatches to `SurfOfRevolution::global_surface_intersect`, which falls back to the free `base_global_surface_intersect(this, ..)` (shared with `surface.plane_p2`, PR #40).
 ## surface.surface_p1 (`SmSurface` part 1 and `SmSTEPSurface`, 2026-10-14)
 
