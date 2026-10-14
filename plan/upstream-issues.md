@@ -423,8 +423,8 @@ by area within each severity.
 - **Location:** `SmTransform.cpp:1224`, `SmTransform::EvaluateBoundingBoxSimple`.
 - **What happens:** When an output box is requested, `AreAligned(*pOptParamPseudoBox, ...)` runs before the `NULL` check.
 - **Trigger:** The default call (`pOptParamPseudoBox = NULL`) with an output box requested.
-- **How found:** read during porting; later a crash in the C++ reference run (UB-74).
-- **Confirmed:** yes (through `SmVolume::InvMapPoint`, UB-74).
+- **How found:** read during porting; later a crash in the C++ reference run (UB-75).
+- **Confirmed:** yes (through `SmVolume::InvMapPoint`, UB-75).
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput`.
 
@@ -739,7 +739,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
 
-#### UB-73. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
+#### UB-74. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
 - **Location:** `SmVolume.cpp:8104`, `SmVolume::ReadFromDB` (the `SmVolume_TYPE` branch).
 - **What happens:** (1) A next map of type `SmVolume_TYPE` recurses with `rpNewVolume->m_pNextMap` (NULL) as the volume to fill, and the branch writes `rpNewVolume->m_pNextMap` through it. A top-level `SmVolume_TYPE` read does the same with the caller's NULL. (2) `rDB.ReadType(lNextType)` / `ReadType(lOrientType)` statuses are ignored; at end of data the type stays uninitialised and is switched on. (3) The orient map read is cast to `SmTransform*` whatever its type, and a failed read leaves it NULL; `RefreshInvOrientMap` then copies, inverts and simplifies it (a NULL or mistyped object). The nested reads' statuses are ignored throughout.
 - **Trigger:** An ASCII transform volume whose base data says `1` then `Object Type 22001` (next map), or `1` then `Object Type 22011` / `22004` (orient map), or ends right after a `1` flag.
@@ -748,7 +748,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `SolidError::Unsupported`, which the derived readers do not ignore. Nested reads are bounded by `DatabaseReader::enter_nested`.
 
-#### UB-74. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
+#### UB-75. Volume inverse maps reach UB-42 through `MapPseudoBox` and `EvaluateBoundingBox`
 - **Location:** `SmVolume.cpp:3907` `InvMapPoint` -> `:2058` `MapPseudoBox` (trim branch: `EvaluateBoundingBoxSimple(sParamBox, NULL, ...)`); `:3411` `InvEvaluatePoint` and `:4512` `GlobalPointSolve` -> `:1692` `EvaluateBoundingBox(*pOptParamDomain, NULL, ...)`.
 - **What happens:** With a search domain and compounding, an unoriented `SmTransform` map with next maps (or, for `EvaluateBoundingBox`, any transform map, and the orient map for in-space boxes) receives a NULL parameter pseudo box, and `SmTransform::EvaluateBoundingBoxSimple` dereferences it (UB-42).
 - **Trigger:** `InvMapPoint(P, NULL, ok, pts, gaps, &domain, TRUE)` on `SmTransform` -> `SmTwistVolume`.
@@ -1343,8 +1343,10 @@ by area within each severity.
 - **Trigger:** `CalculateContinuitiesSimple(SM_VP_U, .., FALSE)` on a trilinear unit cube volume: conts `[C0, UNDEFINED]`.
 - **How found:** adversarial / edge-case fixture.
 - **Confirmed:** yes (fixtures `conts_*_rep` of `surface.b_spline_volume_n_lib`).
+- **Severity:** wrong result.
+- **Rust port:** Ported as written.
 
-#### WR-48. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
+#### WR-50. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
 - **Location:** `SmVolume.cpp:5865` `EvaluateBoundingBoxSimple` and `:6057` `EvaluatePseudoBoxSimple` (sample `EvaluatePoint` and `Evaluate1stDerivatives` with compounding); `:919` `IsPointInParamDomain` (passes the last out-space image to the next map's in-space check); `:6857` `LocalPointSolveSimple` (solution value is the distance to the compound image); `:6665` `InvEvaluatePointSimple` (a failed local solve forces `rbSuccess = FALSE` after a successful global solve); `:3411` `InvEvaluatePoint`, `:3907` `InvMapPoint` (always report success); `:4512` `GlobalPointSolve` (found flag of the last point only).
 - **What happens:** The projection-space boxes of a compound volume are boxes of its last out-space; domain checks and solution values use the wrong space; success flags are lost or always set.
 - **Trigger:** `EvaluatePseudoBoxSimple` of a volume with a next map; `IsPointInParamDomain` of a chain with a plain `SmVolume` second map.

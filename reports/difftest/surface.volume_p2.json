@@ -298,16 +298,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "bspline_has_disc_deferred",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/cases.json#37 (upstream unit edge case (no upstream test calls SmVolume directly))",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -448,6 +444,1686 @@
       "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/cases.json#54 (upstream source/SMLib/src/SmVolume.cpp:8104)",
       "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_base_pt_skew",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#0",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_base_tr_b_perm_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#1",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_base_tr_pt_degen",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#2",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_skew_tro_pu2_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#3",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tiny_b_perm_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#4",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tiny_tiny_degen",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#5",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tr_big_perm_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#6",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tr_tr_halfinf_perm_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#7",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tr_tr_tiny_degen",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#8",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tro_inf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#9",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tro_tw_tiny_skew",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#10",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tw_pu2_skew",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#11",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tw_zero_axis_big_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#12",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bbs_tw_zero_axis_inf_perm_scaled",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#13",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_base_tr_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#14",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_huge_tw_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#15",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_huge_tw_[1e-09, 0, 1e-09]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#16",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tiny_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#17",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tiny_[100000.0, -100000.0, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#18",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tiny_[1e-09, 0, 1e-09]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#19",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tr_tr_[1234567.0, 0, 0]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#20",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tro_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#21",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tro_[100000.0, -100000.0, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#22",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_trrot_[-3, 7, 0.5]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#23",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_trrot_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#24",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tw_base_[100000.0, -100000.0, 3]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#25",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tw_tr_[-3, 7, 0.5]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#26",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_e1_tw_zero_axis_[1e-09, 0, 1e-09]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#27",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_base_halfinf_degen_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#28",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_base_inf_rot_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#29",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_base_pt_none_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#30",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_huge_tw_b_rot_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#31",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_huge_tw_pu2_perm_scaled_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#32",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_huge_tw_tiny_perm_scaled_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#33",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_sing_b_zero_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#34",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tiny_big_zero_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#35",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tr_tr_b_zero_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#36",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_trrot_pu2_skew_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#37",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tw_base_pt_degen_1111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#38",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tw_base_pu_perm_scaled_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#39",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tw_neg_inf_perm_scaled_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#40",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ebb_tw_tr_b_skew_1010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#41",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_base_[100000.0, -100000.0, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#42",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_skew_tro_[0, 0, 0]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#43",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_skew_tro_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#44",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_skew_tro_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#45",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tiny_[-3, 7, 0.5]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#46",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tr_[-3, 7, 0.5]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#47",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tr_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#48",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tr_[1234567.0, 0, 0]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#49",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tr_tr_[-3, 7, 0.5]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#50",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tro_[1, 2, 3]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#51",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tro_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#52",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tro_[1e-09, 0, 1e-09]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#53",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tw_[100000.0, -100000.0, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#54",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ep_tw_tr_[100000.0, -100000.0, 3]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#55",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_base_[0, 0, 0]_True_tiny_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#56",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_base_tr_[1234567.0, 0, 0]_True_pu_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#57",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_sing_[1, 2, 3]_False_b_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#58",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_sing_[1, 2, 3]_False_b_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#59",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_sing_[1, 2, 3]_True_None_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#60",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_skew_tro_[1234567.0, 0, 0]_False_b_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#61",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tr_[1, 2, 3]_False_b_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#62",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_trrot_[1, 2, 3]_False_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#63",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_base_[-3, 7, 0.5]_False_None_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#64",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_neg_[-3, 7, 0.5]_True_pu_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#65",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_neg_[-3, 7, 0.5]_True_tiny_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#66",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_tr_[-3, 7, 0.5]_True_pu_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#67",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_zero_axis_[100000.0, -100000.0, 3]_True_tiny_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#68",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_gl_tw_zero_axis_[1234567.0, 0, 0]_True_b_[0.5, 0.5, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#69",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_base_[0, 0, 0]_False_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#70",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_sing_[1, 2, 3]_True_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#71",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_skew_tro_[100000.0, -100000.0, 3]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#72",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tr_tr_[1234567.0, 0, 0]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#73",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tro_[100000.0, -100000.0, 3]_True_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#74",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_trrot_[0, 0, 0]_True_[0.5, 0.5, 0.5]_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#75",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_trrot_[1e-09, 0, 1e-09]_False_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#76",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_[1, 2, 3]_True_[0.5, 0.5, 0.5]_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#77",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_base_[1234567.0, 0, 0]_False_[0.5, 0.5, 0.5]_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#78",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_neg_[1, 2, 3]_True_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#79",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_neg_[1234567.0, 0, 0]_True_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#80",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_tr_[100000.0, -100000.0, 3]_True_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#81",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_tr_[1234567.0, 0, 0]_False_None_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#82",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ie_tw_zero_axis_[1234567.0, 0, 0]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#83",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_base_[1e-09, 0, 1e-09]_True_[0.5, 0.5, 0.5]_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#84",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_base_tr_[1, 2, 3]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#85",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_sing_[1e-09, 0, 1e-09]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#86",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_skew_tro_[1, 2, 3]_True_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#87",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_skew_tro_[1, 2, 3]_True_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#88",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_skew_tro_[1234567.0, 0, 0]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#89",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tiny_[100000.0, -100000.0, 3]_True_None_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#90",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tr_tr_[1, 2, 3]_True_None_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#91",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tr_tr_[1e-09, 0, 1e-09]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#92",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tro_[-3, 7, 0.5]_True_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#93",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tro_[100000.0, -100000.0, 3]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#94",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tw_[0, 0, 0]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#95",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tw_base_[0, 0, 0]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#96",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ies_tw_base_[100000.0, -100000.0, 3]_True_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#97",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_base_[1, 2, 3]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#98",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_base_[1234567.0, 0, 0]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#99",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_base_[1234567.0, 0, 0]_True_None_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#100",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_base_[1e-09, 0, 1e-09]_False_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#101",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_base_tr_[100000.0, -100000.0, 3]_True_[0.5, 0.5, 0.5]_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#102",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tiny_[-3, 7, 0.5]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#103",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tiny_[1, 2, 3]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#104",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tro_[1, 2, 3]_True_None_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#105",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_trrot_[-3, 7, 0.5]_False_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#106",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tw_[100000.0, -100000.0, 3]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#107",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tw_base_[100000.0, -100000.0, 3]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#108",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tw_base_[1e-09, 0, 1e-09]_True_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#109",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tw_neg_[0, 0, 0]_True_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#110",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_im_tw_zero_axis_[-3, 7, 0.5]_False_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#111",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_huge_tw_[-3, 7, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#112",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_huge_tw_[1, 2, 3]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#113",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_huge_tw_[1e-09, 0, 1e-09]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#114",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tr_[0, 0, 0]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#115",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tr_[100000.0, -100000.0, 3]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#116",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tr_tr_[0, 0, 0]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#117",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tro_[1e-09, 0, 1e-09]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#118",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tro_tw_[100000.0, -100000.0, 3]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#119",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tro_tw_[1e-09, 0, 1e-09]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#120",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tw_[-3, 7, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#121",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tw_base_[-3, 7, 0.5]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#122",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tw_base_[100000.0, -100000.0, 3]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#123",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tw_neg_[100000.0, -100000.0, 3]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#124",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_line_tw_neg_[1234567.0, 0, 0]",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#125",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_base_[0, 0, 0]_True_None_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#126",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_sing_[-3, 7, 0.5]_True_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#127",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_sing_[1234567.0, 0, 0]_True_None_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#128",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tr_tr_[0, 0, 0]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#129",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tr_tr_[0, 0, 0]_True_None_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#130",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tro_tw_[100000.0, -100000.0, 3]_True_None_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#131",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tro_tw_[1e-09, 0, 1e-09]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#132",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_trrot_[100000.0, -100000.0, 3]_True_None_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#133",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_[-3, 7, 0.5]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#134",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_[0, 0, 0]_True_None_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#135",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_[100000.0, -100000.0, 3]_False_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#136",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_[100000.0, -100000.0, 3]_True_[0.5, 0.5, 0.5]_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#137",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_neg_[1, 2, 3]_False_[0.5, 0.5, 0.5]_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#138",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ls_tw_neg_[1234567.0, 0, 0]_True_[0.5, 0.5, 0.5]_None",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#139",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_base_tr_degen_tiny_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#140",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_base_tr_zero_pu_10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#141",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_sing_perm_scaled_inf_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#142",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tiny_skew_pt_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#143",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tr_perm_scaled_pu2_01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#144",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tr_tr_perm_scaled_pt_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#145",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tro_tw_rot_b_01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#146",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tro_tw_rot_halfinf_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#147",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tro_tw_rot_tiny_10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#148",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tw_base_perm_scaled_b_10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#149",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tw_neg_rot_b_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#150",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tw_neg_zero_halfinf_01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#151",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tw_perm_scaled_halfinf_00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#152",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_mpb_tw_tr_rot_pt_01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#153",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_base_tr_degen_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#154",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_base_tr_perm_scaled_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#155",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_huge_tw_perm_scaled_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#156",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_sing_zero_pu2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#157",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_sing_zero_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#158",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tiny_zero_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#159",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tr_skew_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#160",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tr_tr_degen_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#161",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tro_perm_scaled_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#162",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tro_zero_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#163",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_trrot_degen_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#164",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_trrot_rot_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#165",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_trrot_skew_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#166",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pbs_tw_neg_zero_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#167",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_base_degen_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#168",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_base_degen_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#169",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_base_tr_skew_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#170",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_base_tr_skew_pu2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#171",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_huge_tw_perm_scaled_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#172",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_skew_tro_rot_halfinf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#173",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tro_tw_degen_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#174",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_base_degen_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#175",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_base_zero_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#176",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_degen_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#177",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_neg_degen_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#178",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_neg_zero_pu",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#179",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_skew_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#180",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pib_tw_zero_axis_zero_b",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#181",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_base_[0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#182",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_base_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#183",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_base_[1e-09, 0, 1e-09]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#184",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_base_tr_[-3, 7, 0.5]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#185",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_huge_tw_[-3, 7, 0.5]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#186",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_sing_[100000.0, -100000.0, 3]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#187",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_skew_tro_[100000.0, -100000.0, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#188",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_skew_tro_[1e-09, 0, 1e-09]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#189",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_tr_[0, 0, 0]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#190",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_tro_[1, 2, 3]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#191",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_tro_tw_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#192",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_trrot_[1234567.0, 0, 0]_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#193",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_tw_neg_[1, 2, 3]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#194",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_pt_tw_zero_axis_[1e-09, 0, 1e-09]_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#195",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_bs_next",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#196",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_deep",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#197",
+      "values_compared": 591
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_exp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#198",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_extra_tokens",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#199",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_flag2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#200",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_flagneg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#201",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_flagplus",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#202",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_noeol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#203",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_orient_with_next",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#204",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_orient_with_orient",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#205",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_singular_orient",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#206",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_trunc_mid_matrix",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#207",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_twist_chain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#208",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_read_unknown_next",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.volume_p2/review_adversarial.json#209",
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -610,16 +2286,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0020",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137323",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -798,14 +2470,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0043",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137346",
       "values_compared": 0
     },
@@ -866,16 +2534,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0051",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137354",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -1046,14 +2710,10 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137376",
       "values_compared": 0
     },
@@ -1322,16 +2982,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0107",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137410",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2350,16 +4006,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0235",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137538",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2546,16 +4198,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0259",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137562",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2638,16 +4286,12 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137573",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3378,16 +5022,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0362",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137665",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -3414,16 +5054,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0366",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137669",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -3874,16 +5510,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0423",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137726",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -4558,16 +6190,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0508",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137811",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5114,16 +6742,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0577",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137880",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5390,14 +7014,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0611",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137914",
       "values_compared": 0
     },
@@ -5426,16 +7046,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0615",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137918",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5694,16 +7310,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0648",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137951",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5810,16 +7422,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0662",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137965",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6094,16 +7702,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0697",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138000",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6122,16 +7726,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0700",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138003",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6246,16 +7846,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0715",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138018",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6370,14 +7966,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0730",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138033",
       "values_compared": 0
     },
@@ -6542,16 +8134,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0751",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138054",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6602,14 +8190,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0758",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138061",
       "values_compared": 0
     },
@@ -6622,16 +8206,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0760",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138063",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6666,16 +8246,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0765",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138068",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -7086,28 +8662,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0817",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138120",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0818",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138121",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -7318,14 +8886,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0845",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138148",
       "values_compared": 0
     },
@@ -7490,16 +9054,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0866",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138169",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7838,16 +9398,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0909",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138212",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7858,16 +9414,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0911",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138214",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7974,16 +9526,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0925",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138228",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -8114,16 +9662,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0942",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138245",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8278,16 +9822,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0962",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138265",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8314,16 +9854,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0966",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138269",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8446,16 +9982,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen0982",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138285",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8826,14 +10358,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1029",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138332",
       "values_compared": 0
     },
@@ -8910,16 +10438,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1039",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138342",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9010,16 +10534,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1051",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138354",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9070,14 +10590,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1058",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138361",
       "values_compared": 0
     },
@@ -9314,16 +10830,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1088",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138391",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -9334,14 +10846,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1090",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138393",
       "values_compared": 0
     },
@@ -9498,16 +11006,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1110",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138413",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9606,16 +11110,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138426",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9682,16 +11182,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1132",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138435",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9830,14 +11326,10 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138453",
       "values_compared": 0
     },
@@ -9946,14 +11438,10 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1164",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138467",
       "values_compared": 0
     },
@@ -10278,16 +11766,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1205",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138508",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10610,16 +12094,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1246",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138549",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10814,14 +12294,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1271",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138574",
       "values_compared": 0
     },
@@ -10994,16 +12470,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1293",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138596",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11198,16 +12670,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1318",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138621",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11554,14 +13022,10 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1362",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138665",
       "values_compared": 0
     },
@@ -11630,16 +13094,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1371",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138674",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11650,16 +13110,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1373",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138676",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11774,14 +13230,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1388",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138691",
       "values_compared": 0
     },
@@ -12034,14 +13486,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1420",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138723",
       "values_compared": 0
     },
@@ -12062,16 +13510,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1423",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138726",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12178,16 +13622,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1437",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138740",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -12278,16 +13718,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1449",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138752",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12314,16 +13750,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1453",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138756",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12758,16 +14190,12 @@
       "values_compared": 110
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1508",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138811",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12882,16 +14310,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1523",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138826",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13062,16 +14486,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1545",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138848",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13090,38 +14510,26 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1548",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138851",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1549",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138852",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1550",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138853",
       "values_compared": 0
     },
@@ -13446,16 +14854,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1591",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138894",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13530,16 +14934,12 @@
       "values_compared": 40
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1601",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138904",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -13774,16 +15174,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1631",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138934",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -14078,14 +15474,10 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1668",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138971",
       "values_compared": 0
     },
@@ -14114,14 +15506,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1672",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138975",
       "values_compared": 0
     },
@@ -14166,16 +15554,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1678",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138981",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -14218,16 +15602,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1684",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138987",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -14286,14 +15666,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1692",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138995",
       "values_compared": 0
     },
@@ -14330,14 +15706,10 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1697",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139000",
       "values_compared": 0
     },
@@ -14390,14 +15762,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1704",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139007",
       "values_compared": 0
     },
@@ -14554,14 +15922,10 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1724",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139027",
       "values_compared": 0
     },
@@ -14878,16 +16242,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1764",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139067",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -14914,14 +16274,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1768",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139071",
       "values_compared": 0
     },
@@ -15182,14 +16538,10 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1801",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139104",
       "values_compared": 0
     },
@@ -15338,14 +16690,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1820",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139123",
       "values_compared": 0
     },
@@ -15358,16 +16706,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1822",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139125",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15530,16 +16874,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1843",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139146",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15566,16 +16906,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1847",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139150",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -15730,16 +17066,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1867",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139170",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -15750,16 +17082,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1869",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139172",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -16154,16 +17482,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::IsCurveInParamDomainSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1919",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139222",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16798,25 +18122,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBSplineVolume::HasDiscontinuitiesSimple",
-        "unit": "surface.b_spline_volume_n_lib"
-      },
       "max_rel_err": 0.0,
       "name": "gen1999",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139302",
-      "values_compared": 0
+      "values_compared": 12
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 92,
+  "cases_deferred": 2,
   "cases_failed": 0,
-  "cases_passed": 1963,
-  "cases_total": 2055,
+  "cases_passed": 2263,
+  "cases_total": 2265,
   "deferred_by_unit": {
-    "surface.b_spline_volume_n_lib": 90,
     "surface.unbend_volume": 2
   },
   "max_rel_err": 0.0,

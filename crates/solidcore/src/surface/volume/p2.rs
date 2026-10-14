@@ -64,6 +64,7 @@ use crate::geom::solution_array::{
 };
 use crate::geom::transform::Transform;
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_SQRT};
 use crate::surface::b_spline_volume::BSplineVolume;
 use crate::surface::twist_volume::TwistVolume;
@@ -221,6 +222,7 @@ impl Volume {
     /// Those of [`Volume::is_line_in_param_domain`].
     pub fn is_line_in_in_space_domain(
         &self,
+        k: &Kernel,
         start: Point3,
         end: Point3,
         with_compounding: bool,
@@ -234,7 +236,7 @@ impl Volume {
             None => (start, end),
         };
         // pass the check along
-        let is_in = self.is_line_in_param_domain(start_param, end_param, with_compounding)?;
+        let is_in = self.is_line_in_param_domain(k, start_param, end_param, with_compounding)?;
         Ok((is_in, start_param, end_param))
     }
 
@@ -246,6 +248,7 @@ impl Volume {
     /// Those of [`Volume::is_line_in_param_domain`].
     pub fn is_box_in_param_domain(
         &self,
+        k: &Kernel,
         param_box: &Extent3d,
         with_compounding: bool,
     ) -> Result<bool> {
@@ -253,7 +256,7 @@ impl Volume {
         for e in param_box.edges().chunks_exact(2) {
             if let [a, b] = e {
                 // when any ParamBoxEdge line is not completely within ParamSpace domain
-                if !self.is_line_in_param_domain(*a, *b, with_compounding)? {
+                if !self.is_line_in_param_domain(k, *a, *b, with_compounding)? {
                     return Ok(false);
                 }
             }
@@ -269,12 +272,16 @@ impl Volume {
     /// Those of [`Volume::is_line_in_in_space_domain`].
     pub fn is_pseudo_box_in_in_space_domain(
         &self,
+        k: &Kernel,
         in_space_pseudo_box: &PseudoBox,
         with_compounding: bool,
     ) -> Result<bool> {
         for e in in_space_pseudo_box.edges().chunks_exact(2) {
             if let [a, b] = e {
-                if !self.is_line_in_in_space_domain(*a, *b, with_compounding)?.0 {
+                if !self
+                    .is_line_in_in_space_domain(k, *a, *b, with_compounding)?
+                    .0
+                {
                     return Ok(false);
                 }
             }
@@ -298,6 +305,7 @@ impl Volume {
     #[allow(clippy::too_many_arguments)]
     pub fn evaluate_bounding_box(
         &self,
+        k: &Kernel,
         param_box: &Extent3d,
         param_pseudo_box: Option<&PseudoBox>,
         mut out_box: Option<&mut Extent3d>,
@@ -316,7 +324,7 @@ impl Volume {
         }
 
         // check input - ParamBox must be maintained within Natural ParamDomain
-        if !self.is_box_in_param_domain(param_box, true)? {
+        if !self.is_box_in_param_domain(k, param_box, true)? {
             return Err(SolidError::sm_err(OP_BOX));
         }
 
@@ -377,6 +385,7 @@ impl Volume {
             if let (Some(next), true) = (self.next_map.as_deref(), with_compounding) {
                 let first = this_out;
                 next.map_pseudo_box(
+                    k,
                     &first,
                     out_box,
                     Some(&mut this_out),
@@ -463,6 +472,7 @@ impl Volume {
     /// [`SolidError::Unported`] from an unported kind.
     pub fn map_pseudo_box(
         &self,
+        k: &Kernel,
         in_space_pseudo_box: &PseudoBox,
         mut out_box: Option<&mut Extent3d>,
         out_pseudo_box: Option<&mut PseudoBox>,
@@ -471,7 +481,7 @@ impl Volume {
     ) -> Result<()> {
         // when asked check input - InSpacePseudoBox must map within Natural ParamDomain
         if !trim_to_legal_param_space
-            && !self.is_pseudo_box_in_in_space_domain(in_space_pseudo_box, true)?
+            && !self.is_pseudo_box_in_in_space_domain(k, in_space_pseudo_box, true)?
         {
             return Err(SolidError::sm_err(OP_MAP_BOX));
         }
@@ -551,6 +561,7 @@ impl Volume {
         if let Some(next) = next {
             let first = this_out;
             ignore_defined(next.map_pseudo_box(
+                k,
                 &first,
                 out_box,
                 Some(&mut this_out),
@@ -595,6 +606,9 @@ impl Volume {
                     "transform box without a parameter pseudo box (upstream dereferences null)",
                 ))
             }
+            // Only reachable through this simple entry point: a twist always has an
+            // orient map (its component constructor installs one), so the compound
+            // entry points always request a projection box for it.
             VolumeKind::Twist(_) if has_out && proj_box.is_none() && !param_box.any_bounds() => {
                 return Err(undefined_box(
                     "unbounded twist box without a box output (upstream dereferences null)",
@@ -862,20 +876,20 @@ impl Volume {
     /// map's, made "unaligned" (keeping the lower minimum continuity) when a next map
     /// has discontinuities.
     ///
-    /// `calc_geometric` (upstream `bCalcGeometric`) is passed down the chain; no
-    /// ported simple map uses it.
+    /// `calc_geometric` (upstream `bCalcGeometric`) is passed to the simple map and
+    /// down the chain (without `disconts` the next maps get `false`, as upstream).
     ///
     /// # Errors
     ///
     /// [`SolidError::Unported`] from an unported kind.
-    #[allow(clippy::only_used_in_recursion)]
     pub fn has_discontinuities(
         &self,
         mut disconts: Option<&mut Discontinuities3d>,
         calc_geometric: bool,
     ) -> Result<bool> {
         // Pass the call along to the simple map
-        let mut this_has = self.has_discontinuities_simple(disconts.as_deref_mut())?;
+        let mut this_has =
+            self.has_discontinuities_simple(disconts.as_deref_mut(), calc_geometric)?;
 
         if let Some(next) = self.next_map.as_deref() {
             if let Some(d) = disconts {
@@ -916,6 +930,7 @@ impl Volume {
     /// kind.
     pub fn inv_evaluate_point(
         &self,
+        k: &Kernel,
         out_point: Point3,
         param_guess: Option<Point3>,
         param_domain: Option<&Extent3d>,
@@ -933,6 +948,7 @@ impl Volume {
                         let mut b = Extent3d::new();
                         let mut pb = PseudoBox::new();
                         ignore_defined(self.evaluate_bounding_box(
+                            k,
                             d,
                             None,
                             Some(&mut b),
@@ -954,6 +970,7 @@ impl Volume {
                     None => None,
                 };
                 let r = next.inv_map_point(
+                    k,
                     out_point,
                     next_in_guess,
                     next_in_pseudo_box.as_ref(),
@@ -1005,6 +1022,7 @@ impl Volume {
     /// kind.
     pub fn inv_map_point(
         &self,
+        k: &Kernel,
         out_point: Point3,
         in_guess: Option<Point3>,
         in_domain: Option<&PseudoBox>,
@@ -1019,7 +1037,14 @@ impl Volume {
                 let next_in_box = match in_domain {
                     Some(d) => {
                         let mut pb = PseudoBox::new();
-                        ignore_defined(self.map_pseudo_box(d, None, Some(&mut pb), false, true))?;
+                        ignore_defined(self.map_pseudo_box(
+                            k,
+                            d,
+                            None,
+                            Some(&mut pb),
+                            false,
+                            true,
+                        ))?;
                         Some(pb)
                     }
                     None => None,
@@ -1028,7 +1053,8 @@ impl Volume {
                     Some(g) => Some(ignored(self.map_point(g, false))?.unwrap_or(Vec3::UNDEF)),
                     None => None,
                 };
-                let r = next.inv_map_point(out_point, next_in_guess, next_in_box.as_ref(), true)?;
+                let r =
+                    next.inv_map_point(k, out_point, next_in_guess, next_in_box.as_ref(), true)?;
                 gaps = r.gaps;
                 r.points
             }
@@ -1111,6 +1137,7 @@ impl Volume {
     /// [`SolidError::Unported`] from an unported kind.
     pub fn global_point_solve<O: SolutionObject>(
         &self,
+        k: &Kernel,
         out_point: Point3,
         param_domain: Option<&Extent3d>,
         with_compounding: bool,
@@ -1127,6 +1154,7 @@ impl Volume {
                         let mut b = Extent3d::new();
                         let mut pb = PseudoBox::new();
                         ignore_defined(self.evaluate_bounding_box(
+                            k,
                             d,
                             None,
                             Some(&mut b),
@@ -1139,7 +1167,8 @@ impl Volume {
                     }
                     None => None,
                 };
-                let r = next.inv_map_point(out_point, None, next_in_pseudo_box.as_ref(), true)?;
+                let r =
+                    next.inv_map_point(k, out_point, None, next_in_pseudo_box.as_ref(), true)?;
                 // quit when mapping back to 1st OutSpace fails
                 if !r.success {
                     return Err(SolidError::sm_err(OP_SOLVE));
@@ -1622,14 +1651,15 @@ mod tests {
         assert!(vol
             .is_point_in_param_domain(v(5.0, 5.0, 5.0), true)
             .unwrap());
-        assert!(vol.is_box_in_param_domain(&unit_box(), true).unwrap());
+        let k = Kernel::default();
+        assert!(vol.is_box_in_param_domain(&k, &unit_box(), true).unwrap());
         let (inside, a, b) = vol
-            .is_line_in_in_space_domain(v(0.0, 0.0, 0.0), v(1.0, 1.0, 1.0), true)
+            .is_line_in_in_space_domain(&k, v(0.0, 0.0, 0.0), v(1.0, 1.0, 1.0), true)
             .unwrap();
         assert!(inside);
         assert!(close(a, v(0.0, 0.0, 0.0)) && close(b, v(1.0, 1.0, 1.0)));
         let pb = PseudoBox::from_extent3d(&unit_box());
-        assert!(vol.is_pseudo_box_in_in_space_domain(&pb, true).unwrap());
+        assert!(vol.is_pseudo_box_in_in_space_domain(&k, &pb, true).unwrap());
     }
 
     #[test]
@@ -1638,7 +1668,9 @@ mod tests {
         let ppb = PseudoBox::new();
         let mut out = Extent3d::new();
         let mut in_box = Extent3d::new();
+        let k = Kernel::default();
         vol.evaluate_bounding_box(
+            &k,
             &unit_box(),
             Some(&ppb),
             Some(&mut out),
@@ -1651,11 +1683,20 @@ mod tests {
         assert_eq!(in_box, unit_box());
         assert!(out.is_bounded());
         // no outputs - no work
-        vol.evaluate_bounding_box(&unit_box(), None, None, None, None, None, true)
+        vol.evaluate_bounding_box(&k, &unit_box(), None, None, None, None, None, true)
             .unwrap();
         // a transform without a parameter pseudo box dereferences null upstream
         assert!(vol
-            .evaluate_bounding_box(&unit_box(), None, Some(&mut out), None, None, None, true)
+            .evaluate_bounding_box(
+                &k,
+                &unit_box(),
+                None,
+                Some(&mut out),
+                None,
+                None,
+                None,
+                true
+            )
             .is_err());
     }
 
@@ -1696,22 +1737,25 @@ mod tests {
             Some(tv(shift(v(0.0, 0.0, 5.0)))),
         );
         let target = vol.evaluate_point(v(0.25, 0.5, 0.75), true).unwrap();
-        let r = vol.inv_evaluate_point(target, None, None, true).unwrap();
+        let k = Kernel::default();
+        let r = vol
+            .inv_evaluate_point(&k, target, None, None, true)
+            .unwrap();
         assert!(r.success);
         assert_eq!(r.points.len(), 1);
         assert!(close(r.points[0], v(0.25, 0.5, 0.75)));
         assert!(r.gaps[0] < 1e-12);
         let m = vol
-            .inv_map_point(target, Some(v(0.0, 0.0, 0.0)), None, true)
+            .inv_map_point(&k, target, Some(v(0.0, 0.0, 0.0)), None, true)
             .unwrap();
         assert_eq!(m.points.len(), 1);
-        let (found, sols) = vol.global_point_solve(target, None, true, Me).unwrap();
+        let (found, sols) = vol.global_point_solve(&k, target, None, true, Me).unwrap();
         assert!(found);
         assert_eq!(sols.len(), 1);
         // a singular transform fails
         let flat = tv(affine(v(0.0, 0.0, 0.0), Vec3::X, Vec3::Y, Vec3::ZERO));
         assert!(flat
-            .inv_evaluate_point(v(1.0, 1.0, 1.0), None, None, true)
+            .inv_evaluate_point(&k, v(1.0, 1.0, 1.0), None, None, true)
             .is_err());
     }
 

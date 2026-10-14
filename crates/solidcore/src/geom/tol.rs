@@ -664,18 +664,21 @@ pub fn scaled_zero_of_equations<E: EvalNFunctions + ?Sized>(equations: &E) -> f6
 
 /// `SmTol::GetScaledZero(const SmVolume&)`: `100 * SM_EFF_ZERO` for an unbounded
 /// parameter domain; for a bounded one the scaled zero of the out-space bounding box
-/// of the domain (`EvaluateBoundingBox`, status ignored: the box stays in its
-/// initial state on failure).
+/// of the domain (`EvaluateBoundingBox`, status ignored: on a failure the box holds
+/// whatever was written before it, possibly nothing, as upstream).
 ///
+/// No caller and no difftest coverage of the bounded branch yet: `geom.tol` has no
+/// B-spline volume fixture.
 /// # Errors
 ///
 /// [`SolidError::Unported`] from the volume; the undefined cases of
 /// `EvaluateBoundingBox` ([`SolidError::Unsupported`]).
-pub fn scaled_zero_of_volume(volume: &Volume) -> Result<f64> {
+pub fn scaled_zero_of_volume(k: &Kernel, volume: &Volume) -> Result<f64> {
     let param_domain = volume.natural_param_domain()?;
     if param_domain.is_bounded() {
         let mut out_box = Extent3d::new();
         let r = volume.evaluate_bounding_box(
+            k,
             &param_domain,
             None,
             Some(&mut out_box),
@@ -970,10 +973,13 @@ mod tests {
         use crate::geom::transform::Transform;
         use crate::surface::volume::VolumeKind;
         let v = Volume::new(VolumeKind::Transform(Transform::IDENTITY));
-        assert_eq!(scaled_zero_of_volume(&v), Ok(100.0 * EFF_ZERO));
+        assert_eq!(
+            scaled_zero_of_volume(&Kernel::default(), &v),
+            Ok(100.0 * EFF_ZERO)
+        );
         let t = Volume::new(VolumeKind::Unbend);
         assert!(matches!(
-            scaled_zero_of_volume(&t),
+            scaled_zero_of_volume(&Kernel::default(), &t),
             Err(SolidError::Unported { .. })
         ));
     }

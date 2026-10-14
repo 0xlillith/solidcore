@@ -16,9 +16,7 @@
 //! Rust `InvalidInput`, `-1` for a Rust error upstream cannot produce) and the rest
 //! as `out`.
 //!
-//! Deferred cases: ops reaching the unbend volume (unit `surface.unbend_volume`) and
-//! a B-spline map's `IsCurveInParamDomainSimple` / `HasDiscontinuitiesSimple` (unit
-//! `surface.b_spline_volume_n_lib`).
+//! Deferred cases: ops reaching the unbend volume (unit `surface.unbend_volume`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -30,6 +28,7 @@ use solidcore::geom::pseudo_box::PseudoBox;
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use solidcore::geom::transform::Transform;
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::spiral::allocate_nurb_volume;
 use solidcore::surface::b_spline_volume::BSplineVolume;
@@ -733,23 +732,24 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         return Ok(to_output(&o));
     }
     let v = build(i.vol().ok_or_else(|| harness("no volume"))?)?;
+    let k = Kernel::default();
     match i {
         Inputs::PtInParam { p, comp, .. } => {
             let r = tri!(o, v.is_point_in_param_domain(v3(*p), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::LineInInSpace { a, b: e, comp, .. } => {
-            let (r, pa, pb) = tri!(o, v.is_line_in_in_space_domain(v3(*a), v3(*e), *comp));
+            let (r, pa, pb) = tri!(o, v.is_line_in_in_space_domain(&k, v3(*a), v3(*e), *comp));
             o.extend([0.0, b(r)]);
             pv(&mut o, pa);
             pv(&mut o, pb);
         }
         Inputs::BoxInParam { bx, comp, .. } => {
-            let r = tri!(o, v.is_box_in_param_domain(&ext(bx), *comp));
+            let r = tri!(o, v.is_box_in_param_domain(&k, &ext(bx), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::PboxInInSpace { pb, comp, .. } => {
-            let r = tri!(o, v.is_pseudo_box_in_in_space_domain(&pbox(pb), *comp));
+            let r = tri!(o, v.is_pseudo_box_in_in_space_domain(&k, &pbox(pb), *comp));
             o.extend([0.0, b(r)]);
         }
         Inputs::EvalBbox {
@@ -766,6 +766,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             tri!(
                 o,
                 v.evaluate_bounding_box(
+                    &k,
                     &ext(bx),
                     ppb.as_ref(),
                     w0.then_some(&mut ob),
@@ -802,6 +803,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             tri!(
                 o,
                 v.map_pseudo_box(
+                    &k,
                     &pbox(pb),
                     w0.then_some(&mut ob),
                     w1.then_some(&mut opb),
@@ -841,7 +843,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let d = dom.as_ref().map(ext);
             let r: InvPoints = tri!(
                 o,
-                v.inv_evaluate_point(v3(*p), guess.map(v3), d.as_ref(), *comp)
+                v.inv_evaluate_point(&k, v3(*p), guess.map(v3), d.as_ref(), *comp)
             );
             put_inv(&mut o, r.success, &r.points, &r.gaps);
         }
@@ -853,12 +855,12 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             ..
         } => {
             let d = dom.as_ref().map(pbox);
-            let r = tri!(o, v.inv_map_point(v3(*p), guess.map(v3), d.as_ref(), *comp));
+            let r = tri!(o, v.inv_map_point(&k, v3(*p), guess.map(v3), d.as_ref(), *comp));
             put_inv(&mut o, r.success, &r.points, &r.gaps);
         }
         Inputs::Global { p, dom, comp, .. } => {
             let d = dom.as_ref().map(ext);
-            let (found, sols) = tri!(o, v.global_point_solve(v3(*p), d.as_ref(), *comp, Me));
+            let (found, sols) = tri!(o, v.global_point_solve(&k, v3(*p), d.as_ref(), *comp, Me));
             put_solutions(&mut o, found, &sols);
         }
         Inputs::HasDisc {
