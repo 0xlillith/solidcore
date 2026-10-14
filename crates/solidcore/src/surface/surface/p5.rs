@@ -754,7 +754,7 @@ fn finish_ps_solve<O: Copy>(
 
 impl Surface {
     /// Refines the guess `guess_uv` to a solution of `op` for `test_point`
-    /// (`LocalPointSolve`): `LocalPointSolve_1` (unit `intersect.surface_intersector_p3`)
+    /// (`LocalPointSolve`): `LocalPointSolve_1` (unit `surface.surface_point_solve_p3`)
     /// unless the operation is [`SolverOperation::Maximize`] (upstream's new point
     /// solvers are on), which runs [`Surface::local_point_solve_0`].
     ///
@@ -773,11 +773,11 @@ impl Surface {
             op != SolverOperation::Maximize || op == SolverOperation::Signed3dDirectedMaximize;
 
         if use_new {
-            // UNPORTED(intersect.surface_intersector_p3): SmSurface::LocalPointSolve_1
+            // UNPORTED(surface.surface_point_solve_p3): SmSurface::LocalPointSolve_1
             let _ = (domain, test_point, guess_uv, OP_LPS);
             return Err(SolidError::unported(
                 "SmSurface::LocalPointSolve_1",
-                "intersect.surface_intersector_p3",
+                "surface.surface_point_solve_p3",
             ));
         }
 

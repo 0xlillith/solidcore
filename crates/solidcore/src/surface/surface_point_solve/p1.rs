@@ -154,6 +154,8 @@ impl<'s> SurfacePointSolver<'s> {
         let b_spline = match surface.kind() {
             SurfaceKind::BSpline(b) => Some(b),
             SurfaceKind::Plane(p) => Some(p.base()),
+            // an SmSurfOfRevolution is an SmBSplineSurface
+            SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
         }
         .filter(|b| b.gw_nurb().is_some());
@@ -1244,7 +1246,10 @@ fn set_interval(d: &mut Extent2d, dir: SurfParamType, ivl: &Extent1d) {
 fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_on_seam().0),
-        SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p4): SmSurface::IsOnSeam
             Err(SolidError::unported(
                 "SmSurface::IsOnSeam",
@@ -1902,7 +1907,9 @@ impl<'s> SurfPtSolveStepper<'s> {
                     Err(_) => return Ok(false),
                 }
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_)
+            | SurfaceKind::SurfOfRevolution(_)
+            | SurfaceKind::Step(_) => {
                 // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
                 return Err(SolidError::unported(
                     "SmSurface::CreateIsoParametricCurve",
