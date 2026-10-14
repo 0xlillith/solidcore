@@ -338,10 +338,7 @@ fn curve_block(rd: &mut Reader<'_>) -> Result<CurveInfo, FfiError> {
             radius(rd)?;
             radius(rd)?;
             rd.flag()?;
-            Ok(CurveInfo {
-                a: -1e3,
-                b: 1e3,
-            })
+            Ok(CurveInfo { a: -1e3, b: 1e3 })
         }
         _ => {
             if dim != 3 {
@@ -386,6 +383,44 @@ fn tol(rd: &mut Reader<'_>) -> Result<f64, FfiError> {
     Ok(v)
 }
 
+/// Whether `v` has unit length (upstream's `SM_IS_ZERO(Length() - 1)` contract).
+fn is_unit(v: [f64; 3]) -> bool {
+    (v.iter().map(|c| c * c).sum::<f64>().sqrt() - 1.0).abs() <= 1e-9
+}
+
+/// Largest distance from the view plane at which the eye of
+/// `SM_SO_PERSPECTIVE_INTERSECT` counts as lying on it.
+const EYE_ON_PLANE_TOL: f64 = 1e-3;
+
+/// The contract of the projected intersections (ops 16, 17 and 18): upstream
+/// asserts unit vectors (`GlobalCurveSolve` asserts `|cpOptVectors[0]| == 1`,
+/// `SmVector3d::PerspectiveProjectPointToPlane` a unit normal) and the solver does
+/// not unitize the view-plane normal (16), the rotation axis and plane x axis (17)
+/// or the plane normal (18), so non-unit ones are outside the contract. A
+/// perspective eye on (or within [`EYE_ON_PLANE_TOL`] of) the view plane is also
+/// excluded: Rust and C++ disagree there, see
+/// <https://github.com/bherbruck/solidcore/issues/59>.
+fn check_projection_vectors(code: i32, vecs: &[[f64; 3]; 3]) -> Result<(), FfiError> {
+    let [v0, v1, v2] = *vecs;
+    let units_ok = match code {
+        16 => is_unit(v0),
+        17 => is_unit(v1) && is_unit(v2),
+        18 => is_unit(v1),
+        _ => return Ok(()),
+    };
+    if !units_ok {
+        return Err(bad("projection option vectors must be unit vectors"));
+    }
+    if code == 18 {
+        let dist = (v2[0] - v0[0]) * v1[0] + (v2[1] - v0[1]) * v1[1] + (v2[2] - v0[2]) * v1[2];
+        if dist.abs() <= EYE_ON_PLANE_TOL {
+            return Err(bad(
+                "perspective eye on the view plane (solidcore issue #59)",
+            ));
+        }
+    }
+    Ok(())
+}
 
 fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
     match op {
@@ -410,9 +445,11 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             if nvec != if needs_vectors { 3 } else { 0 } {
                 return Err(bad("wrong option vector count for the operation"));
             }
-            for _ in 0..nvec {
-                rd.vec3()?;
+            let mut vecs = [[0.0; 3]; 3];
+            for v in vecs.iter_mut().take(nvec) {
+                *v = rd.vec3()?;
             }
+            check_projection_vectors(code, &vecs)?;
             rd.index(1)?;
         }
         Op::SelfIntersect => {

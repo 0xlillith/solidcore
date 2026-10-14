@@ -129,7 +129,6 @@ enum CurveIn {
     Ellipse(EllipseIn),
 }
 
-
 // ---- C++ input --------------------------------------------------------------------
 
 /// `c` with a circle replaced by its inline B-spline.
@@ -147,7 +146,9 @@ fn resolve(c: &CurveIn) -> Result<CurveIn, HarnessError> {
         solidcore::nurbs::b_spline_curve::NurbCircleParam::Quadratic,
     )
     .map_err(|e| harness(format!("circle: {e}")))?;
-    let cur = arc.gw_nurb().ok_or_else(|| harness("circle without NURB"))?;
+    let cur = arc
+        .gw_nurb()
+        .ok_or_else(|| harness("circle without NURB"))?;
     Ok(CurveIn::Bspline(BSplineIn {
         dim: 3,
         oob: false,
@@ -194,13 +195,18 @@ fn curve_block(v: &mut Vec<f64>, c: &CurveIn) -> Result<(), HarnessError> {
             v.extend_from_slice(&e.c);
             v.extend_from_slice(&e.x);
             v.extend_from_slice(&e.y);
-            v.extend([e.domain[0], e.domain[1], e.radii[0], e.radii[1], b(e.inside_out)]);
+            v.extend([
+                e.domain[0],
+                e.domain[1],
+                e.radii[0],
+                e.radii[1],
+                b(e.inside_out),
+            ]);
         }
         CurveIn::Circle(_) => return Err(harness("unresolved circle")),
     }
     Ok(())
 }
-
 
 fn to_output(flat: &[f64]) -> Output {
     let status = flat.first().copied().unwrap_or(f64::NAN);
@@ -209,7 +215,6 @@ fn to_output(flat: &[f64]) -> Output {
         .ints("status", vec![status as i64])
         .values("out", rest)
 }
-
 
 // ---- Rust side --------------------------------------------------------------------
 
@@ -257,7 +262,10 @@ fn build(c: &CurveIn) -> Result<Curve, HarnessError> {
                 .len()
                 .checked_sub(1)
                 .ok_or_else(|| harness("no points"))?;
-            let m = bs.u.len().checked_sub(1).ok_or_else(|| harness("no knots"))?;
+            let m =
+                bs.u.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("no knots"))?;
             let mut cur =
                 allocate_nurb_curve(n, bs.p, m).map_err(|e| harness(format!("curve: {e}")))?;
             for (d, s) in cur.cpts_mut().iter_mut().zip(&bs.cpts) {
@@ -285,7 +293,6 @@ fn build(c: &CurveIn) -> Result<Curve, HarnessError> {
         CurveIn::Circle(_) => Err(harness("unresolved circle")),
     }
 }
-
 
 /// The `SmStatus` of a Rust error; `1007` for `InvalidInput`, `-1` for one upstream
 /// cannot return.
@@ -370,20 +377,13 @@ fn put_sol<O: Copy>(o: &mut Vec<f64>, s: &Solution<O>, id: impl Fn(Option<O>) ->
         second(&s.start),
     ]);
     if s.solution_type == SolutionType::RangeOfValues {
-        o.extend([
-            s.end.solution_value,
-            s.end.parameters[0],
-            second(&s.end),
-        ]);
+        o.extend([s.end.solution_value, s.end.parameters[0], second(&s.end)]);
     }
 }
-
-
 
 fn ivl_of(i: [f64; 2]) -> Extent1d {
     Extent1d::from_min_max(i[0], i[1])
 }
-
 
 // ---- generation -------------------------------------------------------------------
 
@@ -462,7 +462,11 @@ fn gen_hermite(rng: &mut Rng) -> HermiteIn {
         p1,
         d1,
         p2,
-        d2: if rng.chance(0.08) { [0.0; 3] } else { rp(rng, s) },
+        d2: if rng.chance(0.08) {
+            [0.0; 3]
+        } else {
+            rp(rng, s)
+        },
     };
     if h.dim == 2 {
         for v in [&mut h.p1, &mut h.d1, &mut h.p2, &mut h.d2] {
@@ -537,7 +541,6 @@ fn gen_curve(rng: &mut Rng) -> CurveIn {
     resolve(&c).unwrap_or(c)
 }
 
-
 /// A curve that is closed (or nearly) over its natural interval.
 fn gen_closed_curve(rng: &mut Rng) -> CurveIn {
     match rng.below(4) {
@@ -587,7 +590,6 @@ fn range_of(c: &CurveIn) -> (f64, f64) {
         }
     }
 }
-
 
 /// An increasing interval of `c`: mostly its natural one or a sub-interval.
 fn gen_ivl(rng: &mut Rng, c: &CurveIn) -> [f64; 2] {
@@ -726,7 +728,6 @@ fn gen_tol(rng: &mut Rng) -> f64 {
         .unwrap_or(&1e-5)
 }
 
-
 // ---- the ops ----------------------------------------------------------------------
 
 fn one_i() -> i32 {
@@ -803,7 +804,12 @@ fn cpp_input(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
                 curve_block(&mut v, c2)?;
             }
             v.extend_from_slice(ivl2);
-            v.extend([f64::from(*sop), *tol, b(target.is_some()), target.unwrap_or(0.0)]);
+            v.extend([
+                f64::from(*sop),
+                *tol,
+                b(target.is_some()),
+                target.unwrap_or(0.0),
+            ]);
             v.push(vecs.len() as f64);
             for x in vecs {
                 v.extend_from_slice(x);
@@ -996,7 +1002,10 @@ fn gen_crossing(rng: &mut Rng, c: &CurveIn, t: f64) -> CurveIn {
     let p = point_at(c, t);
     let q = point_at(&other, s);
     let off = *rng.choose(&[0.0, 0.0, 1e-9, 1e-7, 1e-5]).unwrap_or(&0.0);
-    let d = add([p[0] - q[0], p[1] - q[1], p[2] - q[2]], scale3(gen_dir(rng), off));
+    let d = add(
+        [p[0] - q[0], p[1] - q[1], p[2] - q[2]],
+        scale3(gen_dir(rng), off),
+    );
     translated(&other, d)
 }
 
@@ -1212,11 +1221,58 @@ fn gen_gcs(rng: &mut Rng) -> OpIn {
     };
     let near = point_at(&c1, (ivl1[0] + ivl1[1]) / 2.0);
     let target = if sop == 6 {
-        Some(rng.uniform(0.05, 20.0))
+        // mostly a distance some pair of points of the two curves really has
+        if rng.chance(0.8) {
+            let p = point_at(&c1, ivl1[0] + (ivl1[1] - ivl1[0]) * rng.uniform(0.0, 1.0));
+            let other = c2.as_ref().unwrap_or(&c1);
+            let q = point_at(other, ivl2[0] + (ivl2[1] - ivl2[0]) * rng.uniform(0.0, 1.0));
+            let d = [p[0] - q[0], p[1] - q[1], p[2] - q[2]];
+            Some(d.iter().map(|x| x * x).sum::<f64>().sqrt().max(0.05))
+        } else {
+            Some(rng.uniform(0.05, 20.0))
+        }
     } else if rng.chance(0.15) && matches!(sop, 3 | 4 | 9 | 11..=15) {
-        Some(rng.uniform(0.0, 30.0) * if sop == 9 || sop == 11 { rng.uniform(-1.0, 1.0) } else { 1.0 })
+        Some(
+            rng.uniform(0.0, 30.0)
+                * if sop == 9 || sop == 11 {
+                    rng.uniform(-1.0, 1.0)
+                } else {
+                    1.0
+                },
+        )
     } else {
         None
+    };
+    let vecs = gen_vectors(rng, sop, near);
+    // projected, rotated, perspective and tangency solves of unrelated curves seldom
+    // have solutions: most of the time make the second curve pass through a point of
+    // the first one (a true intersection is one in every projection), shifted along
+    // the view normal / rotation axis for the parallel and rotated projections, or
+    // tangent to it for the projected tangency
+    let (c2, ivl2) = match (sop, vecs.get(if sop == 16 || sop == 22 { 0 } else { 1 })) {
+        (16..=18 | 22, Some(&n)) if rng.chance(0.7) => {
+            let t = ivl1[0] + (ivl1[1] - ivl1[0]) * rng.uniform(0.0, 1.0);
+            let c = if sop == 22 {
+                gen_tangent_line(rng, &c1, t)
+            } else {
+                let shifts: &[f64] = if sop == 18 {
+                    &[0.0, 0.0, 0.0, 0.3]
+                } else {
+                    &[0.0, 0.5, -1.0, 3.0]
+                };
+                let shift = *rng.choose(shifts).unwrap_or(&0.0);
+                translated(&gen_crossing(rng, &c1, t), scale3(n, shift))
+            };
+            // mostly the whole second curve, so that it contains the crossing
+            let ivl = if rng.chance(0.8) {
+                let (a, bb) = range_of(&c);
+                [a, bb]
+            } else {
+                gen_partner_ivl(rng, &c, ivl1)
+            };
+            (Some(c), ivl)
+        }
+        _ => (c2, ivl2),
     };
     OpIn::Gcs {
         c1,
@@ -1226,16 +1282,16 @@ fn gen_gcs(rng: &mut Rng) -> OpIn {
         sop,
         tol: gen_tol(rng),
         target,
-        vecs: gen_vectors(rng, sop, near),
+        vecs,
         requested: i32::from(!rng.chance(0.3)),
     }
 }
 
 fn gen_case(rng: &mut Rng) -> OpIn {
     match rng.below(100) {
-        0..=54 => gen_gcs(rng),
-        55..=59 => {
-            let c = if rng.chance(0.5) {
+        0..=64 => gen_gcs(rng),
+        65..=67 => {
+            let c = if rng.chance(0.75) {
                 gen_looping(rng)
             } else {
                 gen_curve(rng)
@@ -1247,12 +1303,12 @@ fn gen_case(rng: &mut Rng) -> OpIn {
                 tol: gen_tol(rng),
             }
         }
-        60..=69 => {
+        68..=74 => {
             let c = gen_curve(rng);
             let ivl = gen_ivl(rng, &c);
             OpIn::TightBox { c, ivl }
         }
-        70..=79 => {
+        75..=81 => {
             let c = gen_curve(rng);
             let ivl = gen_ivl(rng, &c);
             let n = unit(gen_dir(rng));
@@ -1264,7 +1320,7 @@ fn gen_case(rng: &mut Rng) -> OpIn {
             };
             OpIn::TightPseudoBox { c, ivl, basis }
         }
-        80..=91 => {
+        82..=93 => {
             let planar = rng.chance(0.6);
             let z0 = rng.uniform(-3.0, 3.0);
             let c0 = gen_curve(rng);
@@ -1272,7 +1328,13 @@ fn gen_case(rng: &mut Rng) -> OpIn {
             let (a, bb) = range_of(&c);
             let mut p = point_at(&c, a + (bb - a) * rng.uniform(0.0, 1.0));
             if rng.chance(0.2) {
-                p = add(p, scale3(gen_dir(rng), *rng.choose(&[1e-7, 1e-4, 0.5]).unwrap_or(&1e-7)));
+                p = add(
+                    p,
+                    scale3(
+                        gen_dir(rng),
+                        *rng.choose(&[1e-7, 1e-4, 0.5]).unwrap_or(&1e-7),
+                    ),
+                );
             }
             let mut n = if planar && rng.chance(0.8) {
                 [0.0, 0.0, 1.0]
@@ -1369,7 +1431,10 @@ mod tests {
                 Ok(_) => stats[1] += 1,
             }
         }
-        eprintln!("total {} ran {} deferred {} harness {}", stats[0], stats[1], stats[2], stats[3]);
+        eprintln!(
+            "total {} ran {} deferred {} harness {}",
+            stats[0], stats[1], stats[2], stats[3]
+        );
         assert!(stats[1] > 0);
     }
 }

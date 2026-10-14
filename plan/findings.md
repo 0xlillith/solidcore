@@ -3766,3 +3766,18 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+## curve.curve_p9: zero-end-tangent Hermite pair, loose tolerance (one case in 30,093)
+
+`difftest --unit curve.curve_p9 --seeds 30000` (generator after the review-13 changes) has
+one disagreement, `gen21507` (seed 7577090626449511304): `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE`
+(9), `SM_SR_ALL`, `tol` 0.5, two near-identical cubic Hermite curves (`p1` differs by about
+0.1, `d1` identical, `d2` = (0,0,0) on both), first interval `[0.9424, 1.0934]`, second
+`[0, 1]`. First solution value: C++ `6.019854387120155e-2`, Rust `6.026870704308737e-2`
+(relative error 5.8e-2). The result is stable under clamping the first interval to
+`[.., 1]`, and the case agrees bit-for-bit when `tol` is 0.01, the first interval is
+`[0, 1]`, or `d2` is non-zero (`d1` or `(1e-3, 0, 0)`). Suspected cause: with a degenerate
+end tangent and a loose tolerance the solver stops at the first box within `tol`, so a
+last-bit difference in the Hermite cache (zero-length end control polygon) picks another
+pair of leaves. Not investigated further; the default 3,093-case set (which the gate and
+CI run) is clean, and the previous generator's 30,055-case run was clean.
