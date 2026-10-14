@@ -41,7 +41,8 @@
 //! | [`DropCurveFail::copy_of`]                        | `SmDropCurveFail` copy constructor               |
 //! | [`IsoCurveLengthIntegrand::evaluate`], [`AreaIntegrand`] | `SmIsoCurveLengthIFEO::Evaluate`, `SmAreaIFEO::Evaluate` |
 //! | [`FindSingularParamWithGivenTangentDir`]          | `SmFindSingularParamWithGivenTangentDirEFO` (constructor, `Evaluate`) |
-//! | [`CsiGlobalSolver`], [`CsGlobalSolver`], [`LsiGlobalSolver::new`], [`SpGlobalSolver`], [`SsGlobalSolver`] | the constructors of `SmCSIGlobalSolver`, `SmCSGlobalSolver` (and its `BranchMayContainAnswers`), `SmLSIGlobalSolver`, `SmSPGlobalSolver`, `SmSSGlobalSolver` |
+//! | [`evaluate_1st_derivatives`], [`evaluate_2nd_derivatives`], [`SecondDerivatives`], [`evaluate_directional_derivs`] | `Evaluate1stDerivatives`, `Evaluate2ndDerivatives`, `EvaluateDirectionalDerivs` for code generic over [`SurfaceEvaluate`] (first co-ported by `surface.surface_p7`) |
+//! | [`CsiGlobalSolver`], [`CsGlobalSolver`], [`LsiGlobalSolver::new`], [`SpGlobalSolver::new`], [`SsGlobalSolver::new`] | the constructors of `SmCSIGlobalSolver`, `SmCSGlobalSolver` (and its `BranchMayContainAnswers`), `SmLSIGlobalSolver`, `SmSPGlobalSolver`, `SmSSGlobalSolver` |
 //! | [`CsIntersectEnfo`], [`CsNormalizeEnfo`], [`FindPsNormalEnfo`], [`SspIntersectEnfo`], [`SsiNormalizeEnfo`], [`SsNormalizeEnfo`], [`SssIntersectEnfo`] | the constructors of `SmCSIntersectENFO`, `SmCSNormalizeENFO`, `SmFindPSNormalENFO`, `SmSSPIntersectENFO`, `SmSSINormalizeENFO`, `SmSSNormalizeENFO`, `SmSSSIntersectENFO` |
 //!
 //! Deviations:
@@ -94,6 +95,7 @@ use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p1::{directional_derivs, vec_lin_comb_two_vectors};
 use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::global_solver::{Branch, GlobalSolver, SolverOperation};
+use crate::geom::local_solve1d::{EvalFunction, FunctionValue};
 use crate::geom::object::ObjectRef;
 use crate::geom::polar_box::PolarBox;
 use crate::geom::pseudo_box::PseudoBox;
@@ -119,9 +121,10 @@ use crate::topology::database_io::{DatabaseReader, FileType};
 
 use super::p2::{
     cs_are_perpen_disjoint, evaluate_geometric, intersect_curve_and_split, original_surface,
-    DropCurveFail, IsoCurveLengthIntegrand, LsiGlobalSolver, SurfaceEval, STEP_SURFACE_TYPE,
-    SURF_OF_EXTRUSION_TYPE, SURF_OF_REVOLUTION_TYPE,
+    DropCurveFail, IsoCurveLengthIntegrand, LsiGlobalSolver, SurfaceEval, SurfaceEvaluate,
+    STEP_SURFACE_TYPE, SURF_OF_EXTRUSION_TYPE, SURF_OF_REVOLUTION_TYPE,
 };
+use super::p7::{SpGlobalSolver, SsGlobalSolver};
 use super::{Surface, SurfaceKind};
 
 const OP_STEP: &str = "surface::surface::p1::StepSurface";
@@ -129,7 +132,6 @@ const OP_FACE: &str = "surface::surface::p1::Surface::face";
 const OP_CACHE: &str = "surface::surface::p1::validate_surface_cache";
 const OP_IVL: &str = "surface::surface::p1::find_uv_curve_ivl_in_domain";
 const OP_DOMAIN: &str = "surface::surface::p1::Surface::convert_domain";
-const OP_DIR: &str = "surface::surface::p1::Surface::evaluate_directional_derivs";
 const OP_BOX: &str = "surface::surface::p1::Surface::calculate_bounding_box";
 
 /// The default `d3DTolerance` of `IsDegeneratePoint` and `dOpt3DTol` of
@@ -177,6 +179,135 @@ fn block_at(b: &[[Vec3; 2]; 2], i: usize, j: usize) -> Vec3 {
 /// indexed `[i][j]` like upstream's `SmVector3d[2][2]`.
 fn first_block(m: &[Vec<Vec3>]) -> [[Vec3; 2]; 2] {
     [[at(m, 0, 0), at(m, 0, 1)], [at(m, 1, 0), at(m, 1, 1)]]
+}
+
+// ---- evaluation wrappers (generic over SurfaceEvaluate) -----------------------------------
+
+/// Entry `[i][j]` of an evaluation matrix (`i` times in `u`, `j` times in `v`).
+fn at_checked(m: &[Vec<Vec3>], i: usize, j: usize) -> Result<Vec3> {
+    m.get(i).and_then(|r| r.get(j)).copied().ok_or_else(|| {
+        SolidError::invalid_input(
+            "surface::surface::p1::evaluate",
+            "evaluation matrix too small",
+        )
+    })
+}
+
+/// `Evaluate` flags: the given sides, the upper half, the given zero-tangent handling.
+const fn side_flags(u_side: Side, v_side: Side, non_zero_tangents: bool) -> EvaluateFlags {
+    EvaluateFlags {
+        u_side,
+        v_side,
+        only_upper_half: true,
+        non_zero_tangents,
+    }
+}
+
+/// The point and first partial derivatives `(P, S_u, S_v)` at `uv`, zero first
+/// derivatives replaced by short, properly directed ones
+/// (`SmSurface::Evaluate1stDerivatives`).
+///
+/// # Errors
+///
+/// Those of the surface's `Evaluate`.
+pub fn evaluate_1st_derivatives<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
+    uv: Point2,
+    u_side: Side,
+    v_side: Side,
+) -> Result<(Point3, Vec3, Vec3)> {
+    let m = surface.evaluate(uv, 1, 1, side_flags(u_side, v_side, true))?;
+    Ok((
+        at_checked(&m, 0, 0)?,
+        at_checked(&m, 1, 0)?,
+        at_checked(&m, 0, 1)?,
+    ))
+}
+
+/// The point and the first and second partial derivatives at a surface point
+/// ([`evaluate_2nd_derivatives`]).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SecondDerivatives {
+    /// `rPoint`.
+    pub point: Point3,
+    /// `rDU`.
+    pub du: Vec3,
+    /// `rDV`.
+    pub dv: Vec3,
+    /// `rDUV`.
+    pub duv: Vec3,
+    /// `rDUU`.
+    pub duu: Vec3,
+    /// `rDVV`.
+    pub dvv: Vec3,
+}
+
+/// The point and the first and second partial derivatives at `uv`, zero first
+/// derivatives replaced (`SmSurface::Evaluate2ndDerivatives`).
+///
+/// # Errors
+///
+/// Those of the surface's `Evaluate`.
+pub fn evaluate_2nd_derivatives<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
+    uv: Point2,
+    u_side: Side,
+    v_side: Side,
+) -> Result<SecondDerivatives> {
+    let m = surface.evaluate(uv, 2, 2, side_flags(u_side, v_side, true))?;
+    Ok(SecondDerivatives {
+        point: at_checked(&m, 0, 0)?,
+        du: at_checked(&m, 1, 0)?,
+        dv: at_checked(&m, 0, 1)?,
+        duv: at_checked(&m, 1, 1)?,
+        duu: at_checked(&m, 2, 0)?,
+        dvv: at_checked(&m, 0, 2)?,
+    })
+}
+
+/// The position and the directional derivatives up to `highest_deriv` (at most 3) of
+/// the surface along `uv_dir` at `uv`, from exact (not zero-corrected) partial
+/// derivatives (`SmSurface::EvaluateDirectionalDerivs`).
+///
+/// # Errors
+///
+/// `SM_ERR` for `highest_deriv > 3`; those of `Evaluate` and `smgu_DirectionalDerivs`.
+pub fn evaluate_directional_derivs<S: SurfaceEvaluate + ?Sized>(
+    surface: &S,
+    uv: Point2,
+    uv_dir: Vec2,
+    highest_deriv: usize,
+    u_side: Side,
+    v_side: Side,
+) -> Result<Vec<Vec3>> {
+    const OP: &str = "surface::surface::p1::evaluate_directional_derivs";
+    // check state
+    if highest_deriv > 3 {
+        return Err(SolidError::sm_err(OP));
+    }
+
+    // make the surface evaluation
+    let m = surface.evaluate(
+        uv,
+        highest_deriv,
+        highest_deriv,
+        side_flags(u_side, v_side, false),
+    )?;
+
+    // pass the call along (smgu_DirectionalDerivs reads the matrix row-major,
+    // `[i * (highest_deriv + 1) + j]`)
+    let mut derivs = Vec::new();
+    for i in 0..=highest_deriv {
+        for j in 0..=highest_deriv {
+            derivs.push(
+                m.get(i)
+                    .and_then(|r| r.get(j))
+                    .copied()
+                    .unwrap_or(Vec3::UNDEF),
+            );
+        }
+    }
+    directional_derivs(uv_dir, highest_deriv, highest_deriv, &derivs)
 }
 
 // ---- SmSTEPSurface --------------------------------------------------------------------
@@ -779,18 +910,7 @@ impl Surface {
         u_from_left: bool,
         v_from_left: bool,
     ) -> Result<(Point3, Vec3, Vec3)> {
-        let m = self.evaluate(
-            uv,
-            1,
-            1,
-            EvaluateFlags {
-                u_side: side(u_from_left),
-                v_side: side(v_from_left),
-                only_upper_half: true,
-                non_zero_tangents: true,
-            },
-        )?;
-        Ok((at(&m, 0, 0), at(&m, 1, 0), at(&m, 0, 1)))
+        evaluate_1st_derivatives(self, uv, side(u_from_left), side(v_from_left))
     }
 
     /// The point, first and second derivatives at `uv` with non-zero tangents
@@ -805,25 +925,8 @@ impl Surface {
         u_from_left: bool,
         v_from_left: bool,
     ) -> Result<[Vec3; 6]> {
-        let m = self.evaluate(
-            uv,
-            2,
-            2,
-            EvaluateFlags {
-                u_side: side(u_from_left),
-                v_side: side(v_from_left),
-                only_upper_half: true,
-                non_zero_tangents: true,
-            },
-        )?;
-        Ok([
-            at(&m, 0, 0),
-            at(&m, 1, 0),
-            at(&m, 0, 1),
-            at(&m, 1, 1),
-            at(&m, 2, 0),
-            at(&m, 0, 2),
-        ])
+        let d = evaluate_2nd_derivatives(self, uv, side(u_from_left), side(v_from_left))?;
+        Ok([d.point, d.du, d.dv, d.duv, d.duu, d.dvv])
     }
 
     /// The derivatives at `uv` in the STEP parameterisation (`EvaluateSTEP`): the
@@ -962,32 +1065,14 @@ impl Surface {
         u_from_left: bool,
         v_from_left: bool,
     ) -> Result<Vec<Vec3>> {
-        // check state
-        if highest_deriv > 3 {
-            return Err(SolidError::sm_err(OP_DIR));
-        }
-
-        // make the surface evaluation
-        let m = self.evaluate(
+        evaluate_directional_derivs(
+            self,
             uv,
+            uv_dir,
             highest_deriv,
-            highest_deriv,
-            EvaluateFlags {
-                u_side: side(u_from_left),
-                v_side: side(v_from_left),
-                only_upper_half: true,
-                non_zero_tangents: false,
-            },
-        )?;
-
-        // pass the call along (the flat matrix, v index fastest)
-        let mut flat = Vec::with_capacity((highest_deriv + 1) * (highest_deriv + 1));
-        for i in 0..=highest_deriv {
-            for j in 0..=highest_deriv {
-                flat.push(at(&m, i, j));
-            }
-        }
-        directional_derivs(uv_dir, highest_deriv, highest_deriv, &flat)
+            side(u_from_left),
+            side(v_from_left),
+        )
     }
 
     // ---- domains --------------------------------------------------------------------
@@ -2315,6 +2400,20 @@ impl<'s> FindSingularParamWithGivenTangentDir<'s> {
     }
 }
 
+impl EvalFunction for FindSingularParamWithGivenTangentDir<'_> {
+    fn evaluate(&mut self, t: f64, out: &mut FunctionValue, _signal_errors: bool) -> Result<()> {
+        // init output
+        out.f = 0.0;
+        out.f_prime = 0.0;
+        out.found_answer = false;
+        let (f, f_prime, found) = FindSingularParamWithGivenTangentDir::evaluate(self, t)?;
+        out.f = f;
+        out.f_prime = f_prime;
+        out.found_answer = found;
+        Ok(())
+    }
+}
+
 // ---- solver constructors ------------------------------------------------------------------
 
 /// The curve/surface intersection solver (`SmCSIGlobalSolver`); its solves belong to
@@ -2435,20 +2534,9 @@ impl<'t, 's, O: SolutionObject> LsiGlobalSolver<'t, 's, O> {
     }
 }
 
-/// The point/surface solver (`SmSPGlobalSolver`); its solves belong to unit
-/// `surface.surface_p8`.
-#[derive(Debug)]
-pub struct SpGlobalSolver<'t, 's, O> {
-    /// The `SmGlobalSolver` state.
-    pub base: GlobalSolver<'t, O>,
-    /// `m_pSurf`.
-    pub surface: Option<&'s Surface>,
-    /// `m_crUVDomain`.
-    pub uv_domain: Extent2d,
-}
-
 impl<'t, 's, O: SolutionObject> SpGlobalSolver<'t, 's, O> {
-    /// The constructor: the point tree and the surface tree, two variables.
+    /// The constructor (`SmSPGlobalSolver`): the point tree and the surface tree, two
+    /// variables.
     #[must_use]
     pub fn new(
         point_tree: &'t Tree<O>,
@@ -2464,24 +2552,8 @@ impl<'t, 's, O: SolutionObject> SpGlobalSolver<'t, 's, O> {
     }
 }
 
-/// The surface/surface solver (`SmSSGlobalSolver`); its solves belong to unit
-/// `surface.surface_p11`.
-#[derive(Debug)]
-pub struct SsGlobalSolver<'t, 's, O> {
-    /// The `SmGlobalSolver` state.
-    pub base: GlobalSolver<'t, O>,
-    /// `m_pSurf1`.
-    pub surface1: Option<&'s Surface>,
-    /// `m_pSurf2`.
-    pub surface2: Option<&'s Surface>,
-    /// `m_crUVDomain1`.
-    pub uv_domain1: Extent2d,
-    /// `m_crUVDomain2`.
-    pub uv_domain2: Extent2d,
-}
-
 impl<'t, 's, O: SolutionObject> SsGlobalSolver<'t, 's, O> {
-    /// The constructor: two trees, four variables.
+    /// The constructor (`SmSSGlobalSolver`): two trees, four variables.
     #[must_use]
     pub fn new(
         surface_tree1: &'t Tree<O>,
