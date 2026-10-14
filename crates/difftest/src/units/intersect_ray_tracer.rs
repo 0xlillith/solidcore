@@ -13,8 +13,8 @@
 //! produce the flat record documented in the ffi module, reported as the values `rec`.
 //!
 //! Deferred cases: every ray or solve that gets past the leaf's pseudo box test reaches
-//! `SmSurface::LocalLineIntersect` (`surface.surface_p8`); `add_surface` needs the surface cache
-//! (`surface.surface_p1`). The generator makes mostly cases whose rays are rejected before
+//! `SmSurface::LocalLineIntersect` (`surface.surface_p8`); `add_surface` builds the surface cache and
+//! then needs `SmSurface::CalculateContinuities` (`surface.surface_p6`). The generator makes mostly cases whose rays are rejected before
 //! that (grid miss, element box rejection by parameter, skipped element, pseudo box miss) and
 //! checks that with the Rust side, plus free cases that defer.
 
@@ -34,6 +34,7 @@ use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::intersect::ray_tracer::{
     surface_leaf, LightSource, Lsi3LocalSolver, RayObject, RayRenderer, RayTracer,
 };
+use solidcore::kernel::Kernel;
 use solidcore::math::BIG_DOUBLE;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::knots::Side;
@@ -572,7 +573,7 @@ fn run_rust(i: &Inputs, st: &mut Stats) -> solidcore::Result<Vec<f64>> {
             }
             OpIn::AddSurface { surface } => {
                 let surf = surfaces.get(*surface).ok_or_else(|| bad_index("surface"))?;
-                tracer!().add_surface_to_grid(surf)?;
+                tracer!().add_surface_to_grid(&Kernel::default(), surf)?;
             }
             OpIn::Renderer {
                 origin,

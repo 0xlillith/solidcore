@@ -139,8 +139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "add_surface_to_grid_defers",
@@ -176,6 +176,22 @@
       "pass": false,
       "source": "fixture:fixtures/intersect.ray_tracer/cases.json#18 (upstream source/SMLib/src/SmRayTracer.cpp:114 SmRayRenderer (hit shading))",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "degenerate_patch_all_corners_equal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.ray_tracer/cases.json#19 (upstream SmGrid.cpp:252-290 SmSurfaceGridElement::Init (SE signals and carries on))",
+      "values_compared": 20
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "degenerate_patch_du_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.ray_tracer/cases.json#20 (upstream SmGrid.cpp:252-290 SmSurfaceGridElement::Init (P00==P10, P01==P11))",
+      "values_compared": 20
     },
     {
       "deferred": {
@@ -1895,8 +1911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0190",
@@ -2603,8 +2619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CacheMakeOrValidate",
-        "unit": "surface.surface_p1"
+        "symbol": "SmSurface::CalculateContinuities",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0266",
@@ -3801,10 +3817,10 @@
   "cases_both_errored": 0,
   "cases_deferred": 111,
   "cases_failed": 0,
-  "cases_passed": 308,
-  "cases_total": 419,
+  "cases_passed": 310,
+  "cases_total": 421,
   "deferred_by_unit": {
-    "surface.surface_p1": 3,
+    "surface.surface_p6": 3,
     "surface.surface_p8": 108
   },
   "max_rel_err": 0.0,
