@@ -108,10 +108,9 @@ use crate::topology::BrepId;
 
 use super::p1::{
     evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
-    SecondDerivatives,
+    CsNormalizeEnfo, SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
-use super::p4::CsNormalize;
 use super::{Surface, SurfaceKind};
 
 const OP_DEGEN: &str = "surface::surface::p7::Surface::find_degen_param_for_direction";
@@ -2233,7 +2232,7 @@ fn cs_normalize_local_solve(
     surface: &Surface,
     curve: &Curve,
     op: SolverOperation,
-    _distance_tolerance: f64,
+    distance_tolerance: f64,
     opt_vectors: &[Vec3],
     intervals: &[Extent1d],
     guess: &[f64],
@@ -2246,7 +2245,14 @@ fn cs_normalize_local_solve(
     }
     // Do not do periodicity for this function. Local solvers should not cross seams.
     let periodicities = vec![false; guess.len()];
-    let mut equations = CsNormalize::new(curve, surface, op, opt_vectors);
+    let mut equations = CsNormalizeEnfo::new(
+        curve,
+        surface,
+        op,
+        distance_tolerance,
+        (!opt_vectors.is_empty()).then_some(opt_vectors),
+        EFF_ZERO_SQ,
+    );
     let mut solver = LocalSolveNd::new(&mut equations, Some(&bounds), Some(&periodicities));
     solver.set_boundary_handler(BoundaryHandler::TotalBoundaryHits, 5);
     let solution = solver.solve_it(guess, EFF_ZERO_SQRT)?;
