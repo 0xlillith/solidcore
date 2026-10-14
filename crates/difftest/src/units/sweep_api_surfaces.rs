@@ -730,7 +730,7 @@ fn gen_extrude(rng: &mut Rng) -> Inputs {
 fn gen_sweep(rng: &mut Rng) -> Inputs {
     let s = gen_scale(rng);
     let off = rng.point3(-10.0, 10.0);
-    let curve = gen_bspline(rng, s, off, 0.0, false);
+    let curve = gen_bspline(rng, s, off, 0.0, true);
     let path = match rng.below(5) {
         // a path rising out of the section's plane
         0 | 1 => {
@@ -753,7 +753,7 @@ fn gen_sweep(rng: &mut Rng) -> Inputs {
         },
         _ => {
             let z = rng.uniform(1.0, 10.0);
-            gen_bspline(rng, s, off, z, false)
+            gen_bspline(rng, s, off, z, true)
         }
     };
     Inputs::Sweep { curve, path }
@@ -762,7 +762,7 @@ fn gen_sweep(rng: &mut Rng) -> Inputs {
 fn gen_ruled(rng: &mut Rng) -> Inputs {
     let s = gen_scale(rng);
     let off = rng.point3(-10.0, 10.0);
-    let curve1 = gen_bspline(rng, s, off, 0.0, false);
+    let curve1 = gen_bspline(rng, s, off, 0.0, true);
     let curve2 = if rng.chance(0.3) {
         // the same construction raised (upstream test)
         match &curve1 {
@@ -772,11 +772,11 @@ fn gen_ruled(rng: &mut Rng) -> Inputs {
                     .map(|q| [q[0], q[1], q[2] + 10.0 * s])
                     .collect(),
             },
-            _ => gen_bspline(rng, s, off, 10.0, false),
+            _ => gen_bspline(rng, s, off, 10.0, true),
         }
     } else {
         let z = rng.uniform(0.0, 10.0);
-        gen_bspline(rng, s, off, z, false)
+        gen_bspline(rng, s, off, z, true)
     };
     Inputs::Ruled { curve1, curve2 }
 }
@@ -798,7 +798,7 @@ fn gen_skin(rng: &mut Rng) -> Inputs {
                     radius: s * rng.uniform(1.0, 5.0),
                 }
             } else {
-                gen_bspline(rng, s, off, z, false)
+                gen_bspline(rng, s, off, z, true)
             }
         })
         .collect();

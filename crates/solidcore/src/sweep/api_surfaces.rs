@@ -39,6 +39,9 @@
 //!   return [`SolidError::Unported`]: `SmPrimitiveCreation` (units
 //!   `primitive.primitive_creation_p1..p3`) and the `SmBrep` construction and queries
 //!   they use (`topology.brep_p1`, `topology.brep_p3`) are not ported yet.
+//! - [`create_surface_revolution`] copies the curve with the infallible
+//!   [`BSplineCurve::copy`]; upstream `SmCurve::Copy` can fail (only on allocation
+//!   failure) and then returns `SM_ERR`, a path the port does not have.
 
 use crate::curve::curve::Curve;
 use crate::error::{Result, SolidError};
@@ -259,6 +262,7 @@ pub fn create_surface_revolution(
     };
 
     // Revolve a copy of the input: CreateRotationalSweep consumes the curve
+    // (upstream's `SM_ERR` on a failed copy cannot happen: the copy is infallible)
     let curve_copy = Curve::from(curve.copy());
     let curves_to_sweep = vec![curve_copy];
 

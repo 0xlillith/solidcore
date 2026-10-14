@@ -3,6 +3,486 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_extrude_scale_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#0",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_scale_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#1",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_scale_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#2",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_scale_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#3",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_eff_zero_exact",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#4",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_eff_zero_diag",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#5",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_eff_zero_just_above",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#6",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_1d",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#7",
+      "values_compared": 61
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_2d_rational",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#8",
+      "values_compared": 74
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_line",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#9",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_point_curve",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#10",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_odd_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#11",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_high_degree",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#12",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_extrude_circle_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#13",
+      "values_compared": 139
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_circle_line_path",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#14",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_circle_arc_path",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#15",
+      "values_compared": 8982
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_path_tangent_in_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#16",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_rational_path",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#17",
+      "values_compared": 2879
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_path_point",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#18",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_section_point",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#19",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_scale_1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#20",
+      "values_compared": 177
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_scale_10000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#21",
+      "values_compared": 28038
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_path_tol_short",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#22",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_path_tol_shorter",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#23",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_diff_degree",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#24",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_rational_mixed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#25",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_diff_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#26",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_same_curve",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#27",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_point_curves",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#28",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#29",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#30",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_circle_vs_circle_offset",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#31",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_two_identical",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#32",
+      "values_compared": 75
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_mixed_kinds",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#33",
+      "values_compared": 246
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_twelve",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#34",
+      "values_compared": 473
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_three_lines",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#35",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_two_lines",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#36",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_coincident_middle",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#37",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#38",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#39",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_point_profiles",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#40",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_rational_diff_domains",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#41",
+      "values_compared": 192
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_empty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#42",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#43",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_degree_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#44",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_counts_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#45",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_null_and_count_bad",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#46",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_null_last",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#47",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_zero_profiles",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#48",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_zero_count_second",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#49",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skprim_all_null",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#50",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rev_null_nan_ok",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#51",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_2d_2d",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#52",
+      "values_compared": 56
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_2d_3d",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#53",
+      "values_compared": 84
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ruled_dim2_3ddata",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#54",
+      "values_compared": 84
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_skin_2d",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#55",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sweep_2d",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#56",
+      "values_compared": 4327
+    },
+    {
+      "deferred": {
+        "symbol": "SmPrimitiveCreation::CreateRotationalSweep",
+        "unit": "primitive.primitive_creation_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_rev_2d_nurb",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#57",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPrimitiveCreation::CreateRotationalSweep",
+        "unit": "primitive.primitive_creation_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_rev_dim2_3ddata",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/sweep.api_surfaces/adversarial.json#58",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "extrude_wave_z",
       "outcome": "pass",
       "pass": true,
@@ -243,7 +723,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660629",
-      "values_compared": 21720
+      "values_compared": 21597
     },
     {
       "max_rel_err": 0.0,
@@ -251,7 +731,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660630",
-      "values_compared": 8553
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -267,7 +747,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660632",
-      "values_compared": 211
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -363,7 +843,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660644",
-      "values_compared": 13069
+      "values_compared": 16352
     },
     {
       "max_rel_err": 0.0,
@@ -467,7 +947,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660657",
-      "values_compared": 88
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -819,7 +1299,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660699",
-      "values_compared": 1
+      "values_compared": 4583
     },
     {
       "max_rel_err": 0.0,
@@ -859,7 +1339,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660704",
-      "values_compared": 3286
+      "values_compared": 2974
     },
     {
       "max_rel_err": 0.0,
@@ -907,7 +1387,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660710",
-      "values_compared": 261
+      "values_compared": 244
     },
     {
       "max_rel_err": 0.0,
@@ -1031,7 +1511,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660725",
-      "values_compared": 9222
+      "values_compared": 5261
     },
     {
       "max_rel_err": 0.0,
@@ -1123,7 +1603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660736",
-      "values_compared": 23832
+      "values_compared": 20917
     },
     {
       "deferred": {
@@ -1183,7 +1663,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660743",
-      "values_compared": 1765
+      "values_compared": 1317
     },
     {
       "max_rel_err": 0.0,
@@ -1259,7 +1739,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660752",
-      "values_compared": 111
+      "values_compared": 138
     },
     {
       "max_rel_err": 0.0,
@@ -1323,7 +1803,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660760",
-      "values_compared": 5320
+      "values_compared": 3766
     },
     {
       "max_rel_err": 0.0,
@@ -1591,7 +2071,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660793",
-      "values_compared": 13265
+      "values_compared": 12775
     },
     {
       "max_rel_err": 0.0,
@@ -1647,7 +2127,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660800",
-      "values_compared": 3093
+      "values_compared": 2958
     },
     {
       "max_rel_err": 0.0,
@@ -1711,7 +2191,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660808",
-      "values_compared": 1
+      "values_compared": 703
     },
     {
       "max_rel_err": 0.0,
@@ -1935,7 +2415,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660835",
-      "values_compared": 156
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -1959,7 +2439,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660838",
-      "values_compared": 21495
+      "values_compared": 24729
     },
     {
       "max_rel_err": 0.0,
@@ -1967,7 +2447,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660839",
-      "values_compared": 102
+      "values_compared": 111
     },
     {
       "max_rel_err": 0.0,
@@ -1999,7 +2479,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660843",
-      "values_compared": 259
+      "values_compared": 288
     },
     {
       "max_rel_err": 0.0,
@@ -2007,7 +2487,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660844",
-      "values_compared": 5233
+      "values_compared": 5463
     },
     {
       "max_rel_err": 0.0,
@@ -2031,7 +2511,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660847",
-      "values_compared": 165
+      "values_compared": 111
     },
     {
       "max_rel_err": 0.0,
@@ -2039,7 +2519,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660848",
-      "values_compared": 7539
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -2079,7 +2559,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660853",
-      "values_compared": 11795
+      "values_compared": 20918
     },
     {
       "max_rel_err": 0.0,
@@ -2127,7 +2607,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660859",
-      "values_compared": 9303
+      "values_compared": 9348
     },
     {
       "max_rel_err": 0.0,
@@ -2199,7 +2679,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660868",
-      "values_compared": 74
+      "values_compared": 66
     },
     {
       "deferred": {
@@ -2235,7 +2715,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660872",
-      "values_compared": 383
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2483,7 +2963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660902",
-      "values_compared": 1
+      "values_compared": 10741
     },
     {
       "max_rel_err": 0.0,
@@ -2515,7 +2995,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660906",
-      "values_compared": 11057
+      "values_compared": 11131
     },
     {
       "max_rel_err": 0.0,
@@ -2531,7 +3011,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660908",
-      "values_compared": 9706
+      "values_compared": 5169
     },
     {
       "max_rel_err": 0.0,
@@ -2659,7 +3139,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660924",
-      "values_compared": 129
+      "values_compared": 111
     },
     {
       "max_rel_err": 0.0,
@@ -2963,7 +3443,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660961",
-      "values_compared": 33989
+      "values_compared": 29971
     },
     {
       "max_rel_err": 0.0,
@@ -3003,7 +3483,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660966",
-      "values_compared": 19274
+      "values_compared": 15564
     },
     {
       "max_rel_err": 0.0,
@@ -3011,7 +3491,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660967",
-      "values_compared": 8527
+      "values_compared": 20233
     },
     {
       "max_rel_err": 0.0,
@@ -3039,7 +3519,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660970",
-      "values_compared": 8845
+      "values_compared": 12876
     },
     {
       "max_rel_err": 0.0,
@@ -3063,7 +3543,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660973",
-      "values_compared": 7219
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -3091,7 +3571,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660976",
-      "values_compared": 57
+      "values_compared": 103
     },
     {
       "max_rel_err": 0.0,
@@ -3107,7 +3587,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660978",
-      "values_compared": 139
+      "values_compared": 231
     },
     {
       "max_rel_err": 0.0,
@@ -3147,7 +3627,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660983",
-      "values_compared": 6496
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3247,7 +3727,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893660995",
-      "values_compared": 11808
+      "values_compared": 5465
     },
     {
       "max_rel_err": 0.0,
@@ -3303,7 +3783,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661002",
-      "values_compared": 3136
+      "values_compared": 5261
     },
     {
       "max_rel_err": 0.0,
@@ -3311,7 +3791,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661003",
-      "values_compared": 1929
+      "values_compared": 5803
     },
     {
       "max_rel_err": 0.0,
@@ -3343,7 +3823,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661007",
-      "values_compared": 175
+      "values_compared": 103
     },
     {
       "max_rel_err": 0.0,
@@ -3359,7 +3839,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661009",
-      "values_compared": 11192
+      "values_compared": 5305
     },
     {
       "max_rel_err": 0.0,
@@ -3431,7 +3911,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661018",
-      "values_compared": 15370
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3455,7 +3935,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661021",
-      "values_compared": 157
+      "values_compared": 139
     },
     {
       "max_rel_err": 0.0,
@@ -3495,7 +3975,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661026",
-      "values_compared": 3428
+      "values_compared": 8782
     },
     {
       "max_rel_err": 0.0,
@@ -3511,7 +3991,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661028",
-      "values_compared": 22745
+      "values_compared": 23114
     },
     {
       "max_rel_err": 0.0,
@@ -3535,7 +4015,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661031",
-      "values_compared": 137
+      "values_compared": 175
     },
     {
       "max_rel_err": 0.0,
@@ -3543,7 +4023,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661032",
-      "values_compared": 1
+      "values_compared": 309
     },
     {
       "max_rel_err": 0.0,
@@ -3559,7 +4039,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661034",
-      "values_compared": 3808
+      "values_compared": 5523
     },
     {
       "deferred": {
@@ -3683,7 +4163,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661048",
-      "values_compared": 4015
+      "values_compared": 1478
     },
     {
       "max_rel_err": 0.0,
@@ -3751,7 +4231,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661056",
-      "values_compared": 12470
+      "values_compared": 11339
     },
     {
       "max_rel_err": 0.0,
@@ -3827,7 +4307,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661065",
-      "values_compared": 7826
+      "values_compared": 27329
     },
     {
       "deferred": {
@@ -3855,7 +4335,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661068",
-      "values_compared": 28068
+      "values_compared": 24018
     },
     {
       "deferred": {
@@ -3979,7 +4459,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661082",
-      "values_compared": 12389
+      "values_compared": 12537
     },
     {
       "max_rel_err": 0.0,
@@ -3995,7 +4475,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661084",
-      "values_compared": 10023
+      "values_compared": 19338
     },
     {
       "max_rel_err": 0.0,
@@ -4019,7 +4499,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661087",
-      "values_compared": 1
+      "values_compared": 509
     },
     {
       "max_rel_err": 0.0,
@@ -4051,7 +4531,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661091",
-      "values_compared": 94
+      "values_compared": 65
     },
     {
       "max_rel_err": 0.0,
@@ -4099,7 +4579,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661097",
-      "values_compared": 148
+      "values_compared": 202
     },
     {
       "max_rel_err": 0.0,
@@ -4331,7 +4811,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661125",
-      "values_compared": 46240
+      "values_compared": 25267
     },
     {
       "max_rel_err": 0.0,
@@ -4371,7 +4851,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661130",
-      "values_compared": 119
+      "values_compared": 93
     },
     {
       "max_rel_err": 0.0,
@@ -4387,7 +4867,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661132",
-      "values_compared": 14730
+      "values_compared": 8779
     },
     {
       "max_rel_err": 0.0,
@@ -4411,7 +4891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661135",
-      "values_compared": 237
+      "values_compared": 384
     },
     {
       "max_rel_err": 0.0,
@@ -4587,7 +5067,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661157",
-      "values_compared": 349
+      "values_compared": 193
     },
     {
       "max_rel_err": 0.0,
@@ -4715,7 +5195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661173",
-      "values_compared": 139
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4803,7 +5283,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661184",
-      "values_compared": 8867
+      "values_compared": 8888
     },
     {
       "max_rel_err": 0.0,
@@ -4843,7 +5323,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661189",
-      "values_compared": 426
+      "values_compared": 510
     },
     {
       "max_rel_err": 0.0,
@@ -4963,7 +5443,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661204",
-      "values_compared": 7941
+      "values_compared": 11238
     },
     {
       "max_rel_err": 0.0,
@@ -4979,7 +5459,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661206",
-      "values_compared": 102
+      "values_compared": 92
     },
     {
       "max_rel_err": 0.0,
@@ -5027,7 +5507,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661212",
-      "values_compared": 14759
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5123,7 +5603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661224",
-      "values_compared": 165
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -5155,7 +5635,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661228",
-      "values_compared": 128
+      "values_compared": 156
     },
     {
       "max_rel_err": 0.0,
@@ -5171,7 +5651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661230",
-      "values_compared": 4585
+      "values_compared": 7852
     },
     {
       "max_rel_err": 0.0,
@@ -5211,7 +5691,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661235",
-      "values_compared": 425
+      "values_compared": 299
     },
     {
       "max_rel_err": 0.0,
@@ -5355,7 +5835,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661253",
-      "values_compared": 425
+      "values_compared": 737
     },
     {
       "deferred": {
@@ -5383,7 +5863,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661256",
-      "values_compared": 9451
+      "values_compared": 5701
     },
     {
       "deferred": {
@@ -5459,7 +5939,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661265",
-      "values_compared": 111
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -5483,7 +5963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661268",
-      "values_compared": 2508
+      "values_compared": 864
     },
     {
       "max_rel_err": 0.0,
@@ -5499,7 +5979,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661270",
-      "values_compared": 138
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -5567,7 +6047,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661278",
-      "values_compared": 17024
+      "values_compared": 25269
     },
     {
       "max_rel_err": 0.0,
@@ -5583,7 +6063,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661280",
-      "values_compared": 12406
+      "values_compared": 12271
     },
     {
       "max_rel_err": 0.0,
@@ -5591,7 +6071,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661281",
-      "values_compared": 232
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5679,7 +6159,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661292",
-      "values_compared": 4215
+      "values_compared": 4256
     },
     {
       "max_rel_err": 0.0,
@@ -5795,7 +6275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661306",
-      "values_compared": 1
+      "values_compared": 509
     },
     {
       "deferred": {
@@ -5847,7 +6327,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661312",
-      "values_compared": 75
+      "values_compared": 140
     },
     {
       "max_rel_err": 0.0,
@@ -5919,7 +6399,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661320",
-      "values_compared": 7621
+      "values_compared": 7225
     },
     {
       "max_rel_err": 0.0,
@@ -5955,7 +6435,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661324",
-      "values_compared": 1
+      "values_compared": 14963
     },
     {
       "max_rel_err": 0.0,
@@ -5995,7 +6475,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661329",
-      "values_compared": 1
+      "values_compared": 400
     },
     {
       "max_rel_err": 0.0,
@@ -6107,7 +6587,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661343",
-      "values_compared": 1033
+      "values_compared": 5463
     },
     {
       "max_rel_err": 0.0,
@@ -6339,7 +6819,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661371",
-      "values_compared": 101
+      "values_compared": 102
     },
     {
       "max_rel_err": 0.0,
@@ -6371,7 +6851,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661375",
-      "values_compared": 102
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -6395,7 +6875,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661378",
-      "values_compared": 63518
+      "values_compared": 63242
     },
     {
       "max_rel_err": 0.0,
@@ -6411,7 +6891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661380",
-      "values_compared": 102
+      "values_compared": 92
     },
     {
       "deferred": {
@@ -6675,7 +7155,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661412",
-      "values_compared": 111
+      "values_compared": 102
     },
     {
       "max_rel_err": 0.0,
@@ -6683,7 +7163,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661413",
-      "values_compared": 2847
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6707,7 +7187,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661416",
-      "values_compared": 6109
+      "values_compared": 8777
     },
     {
       "max_rel_err": 0.0,
@@ -6715,7 +7195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=3073449223893661417",
-      "values_compared": 4227
+      "values_compared": 5445
     },
     {
       "max_rel_err": 0.0,
@@ -6783,13 +7263,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 49,
+  "cases_deferred": 51,
   "cases_failed": 0,
-  "cases_passed": 774,
-  "cases_total": 823,
+  "cases_passed": 831,
+  "cases_total": 882,
   "deferred_by_unit": {
     "primitive.primitive_creation_p2": 11,
-    "primitive.primitive_creation_p3": 38
+    "primitive.primitive_creation_p3": 40
   },
   "max_rel_err": 0.0,
   "pass": true,

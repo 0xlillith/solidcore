@@ -35,10 +35,10 @@
 //! [`run`] accepts only what upstream handles without undefined behaviour: finite data;
 //! well-formed clamped NURB curves (`m = n+p+1`, `1 <= p <= n`, degree at most 17,
 //! consistent dimension and rationality markers, non-decreasing knots with end
-//! multiplicity exactly `degree + 1` and interior multiplicity at most the degree); 3D
-//! data and positive weights except for `Extrude` (which takes any dimension, as
-//! `CreateLinearSweep` does); B-spline curves where upstream takes `SmBSplineCurve*`
-//! and no `NULL` curve where upstream dereferences it unchecked (all but
+//! multiplicity exactly `degree + 1` and interior multiplicity at most the degree);
+//! NURB data of any dimension, 2D data (`z = NL_NOZ`) included, since upstream handles
+//! it; positive weights except for `Extrude` (as `CreateLinearSweep`, any weights);
+//! B-spline curves where upstream takes `SmBSplineCurve*` and no `NULL` curve where upstream dereferences it unchecked (all but
 //! `Revolution` and `SkinPrimitive`); `SmApiCreateCurve` with at least 4 points and
 //! positive arc / circle radii (a failing constructor is `SC_ERR_ARG`); at most 12
 //! skin profiles; a skin-from-faces degree of 1 to 3 with 1 to 4 positive-radius
@@ -230,8 +230,8 @@ fn check_knots(knots: &[f64], p: usize) -> Result<(), FfiError> {
 /// What a curve argument may be.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Need {
-    /// An `SmBSplineCurve` with 3D data and positive weights.
-    BSpline3d,
+    /// An `SmBSplineCurve` of any dimension with positive weights.
+    BSplinePosWeights,
     /// An `SmBSplineCurve` of any dimension (`CreateLinearSweep`).
     BSplineAnyDim,
     /// Any `SmCurve`.
@@ -268,12 +268,9 @@ fn check_curve(c: &CurveSpec, need: Need, nullable: bool) -> Result<(), FfiError
                 if (z == NOZ) != (z0 == NOZ) || (w == NOW) != (w0 == NOW) {
                     return Err(bad("nurb: mixed dimension or rationality"));
                 }
-                if need != Need::BSplineAnyDim && (z == NOZ || (w != NOW && w <= 0.0)) {
-                    return Err(bad("nurb: need 3D data and positive weights"));
+                if need != Need::BSplineAnyDim && w != NOW && w <= 0.0 {
+                    return Err(bad("nurb: need positive weights"));
                 }
-            }
-            if need != Need::BSplineAnyDim && *dim != 3 {
-                return Err(bad("nurb: dimension must be 3"));
             }
             check_knots(knots, *p)?;
         }
@@ -374,15 +371,15 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             o.extend_from_slice(vector);
         }
         Call::Sweep { curve, path } => {
-            check_curve(curve, Need::BSpline3d, false)?;
-            check_curve(path, Need::BSpline3d, false)?;
+            check_curve(curve, Need::BSplinePosWeights, false)?;
+            check_curve(path, Need::BSplinePosWeights, false)?;
             o.push(2.0);
             push_curve(&mut o, curve);
             push_curve(&mut o, path);
         }
         Call::Ruled { curve1, curve2 } => {
-            check_curve(curve1, Need::BSpline3d, false)?;
-            check_curve(curve2, Need::BSpline3d, false)?;
+            check_curve(curve1, Need::BSplinePosWeights, false)?;
+            check_curve(curve2, Need::BSplinePosWeights, false)?;
             o.push(3.0);
             push_curve(&mut o, curve1);
             push_curve(&mut o, curve2);
@@ -393,7 +390,7 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             axis,
             angle_deg,
         } => {
-            check_curve(curve, Need::BSpline3d, true)?;
+            check_curve(curve, Need::BSplinePosWeights, true)?;
             finite(origin, "revolution origin")?;
             finite(axis, "revolution axis")?;
             finite(&[*angle_deg], "revolution angle")?;
@@ -408,7 +405,7 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
                 return Err(bad("skin: more than 12 profiles"));
             }
             for c in profiles {
-                check_curve(c, Need::BSpline3d, false)?;
+                check_curve(c, Need::BSplinePosWeights, false)?;
             }
             o.extend([5.0, profiles.len() as f64]);
             for c in profiles {
