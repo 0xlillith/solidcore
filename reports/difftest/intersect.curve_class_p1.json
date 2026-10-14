@@ -815,8 +815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -915,8 +915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0108",
@@ -979,8 +979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0115",
@@ -991,8 +991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -1267,8 +1267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0149",
@@ -1803,8 +1803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -2919,8 +2919,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0346",
@@ -3947,8 +3947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0471",
@@ -4967,8 +4967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0592",
@@ -5363,8 +5363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0639",
@@ -5419,8 +5419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0645",
@@ -6063,8 +6063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0723",
@@ -6631,8 +6631,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0792",
@@ -7043,8 +7043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0841",
@@ -7439,8 +7439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0887",
@@ -8091,8 +8091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0965",
@@ -8199,8 +8199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0978",
@@ -9127,8 +9127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1089",
@@ -10287,8 +10287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1230",
@@ -13015,8 +13015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1562",
@@ -13943,8 +13943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1673",
@@ -14427,8 +14427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1731",
@@ -16379,8 +16379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1969",
@@ -16563,8 +16563,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "surface.surface_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1990",
@@ -16752,9 +16752,8 @@
   "cases_passed": 1853,
   "cases_total": 2013,
   "deferred_by_unit": {
-    "curve.crv_on_surf": 24,
     "intersect.curve_class_p4": 6,
-    "surface.surface_p1": 55,
+    "surface.surface_p1": 79,
     "surface.surface_p4": 54,
     "topology.edge": 9,
     "topology.face_p2": 10,

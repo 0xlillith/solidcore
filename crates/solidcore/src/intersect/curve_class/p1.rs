@@ -122,7 +122,8 @@
 //!   solves (`surface.surface_p4`, `surface.surface_p5`), `SmSurface::GetFace` and
 //!   `ApproximateSize` and the surface cache (`surface.surface_p1`), `SmTol::MapTo2d`
 //!   (its `Evaluate1stDerivatives`, `surface.surface_p1`), and an `SmCrvOnSurf` over a
-//!   surface that is not a B-spline (`curve.crv_on_surf` holds only B-spline surfaces).
+//!   surface that is not a B-spline (its `SmSurface` dispatch, `surface.surface_p1`, as
+//!   in `curve.crv_on_surf`).
 //! - **Recursion.** None.
 
 use std::borrow::Cow;
@@ -155,7 +156,6 @@ const OP_TOUCH: &str = "intersect::curve_class::p1::get_winding_count";
 const OP_XSECT: &str = "intersect::curve_class::p1::set_xsect_curve_through_point";
 const OP_APPLY: &str = "intersect::curve_class::p1::apply_point_solution";
 const OP_GAPS: &str = "intersect::curve_class::p1::get_cci_surface_gaps";
-const OP_CULL: &str = "intersect::curve_class::p1::cull_or_refine_cci_in_3d";
 const OP_PAIR: &str = "intersect::curve_class::p1::xsect_tol_2d_or_3d_for_classify_pair";
 
 /// The most intervals [`CurveClassification::set_size`] stores (far above anything a
@@ -1760,8 +1760,8 @@ pub fn get_curve_curve_angle(
 /// # Errors
 ///
 /// Those of the 3D intersection and distance computations;
-/// [`SolidError::Unported`] for a surface that is not a B-spline surface (unit
-/// `curve.crv_on_surf` holds only B-spline surfaces).
+/// [`SolidError::Unported`] for a surface that is not a B-spline surface (the
+/// `SmSurface` dispatch of `SmCrvOnSurf`, unit `surface.surface_p1`).
 pub fn cull_or_refine_cci_in_3d<S: SolutionObject>(
     k: &Kernel,
     surface: &Surface,
@@ -1774,14 +1774,14 @@ pub fn cull_or_refine_cci_in_3d<S: SolutionObject>(
 ) -> Result<()> {
     // project UVCurve into 3d space
     let SurfaceKind::BSpline(bs) = surface.kind() else {
-        // UNPORTED(curve.crv_on_surf): SmCrvOnSurf over a surface that is not an SmBSplineSurface
+        // UNPORTED(surface.surface_p1): SmSurface dispatch for a non-B-spline surface
+        // (SmCrvOnSurf over it; curve.crv_on_surf holds only B-spline surfaces)
         return Err(SolidError::unported(
-            "SmCrvOnSurf::SmCrvOnSurf",
-            "curve.crv_on_surf",
+            "SmSurface (non-B-spline) in SmCrvOnSurf",
+            "surface.surface_p1",
         ));
     };
     let curve_1 = Curve::from(CrvOnSurf::new(k, uv_curve_1.clone(), bs.clone(), None, 0)?);
-    let _ = OP_CULL;
 
     // for every solution
     let mut i = 0;
