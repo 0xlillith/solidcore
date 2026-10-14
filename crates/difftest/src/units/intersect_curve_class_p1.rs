@@ -1757,7 +1757,6 @@ fn gen_objects(rng: &mut Rng) -> Vec<ObjIn> {
 fn gen_tol(rng: &mut Rng) -> f64 {
     match rng.below(8) {
         0 => USE_DEFAULT,
-        1 => 1e-5,
         2 => 1e-3,
         3 => 1e-8,
         4 => 0.0,
@@ -1933,11 +1932,11 @@ fn gen_script(rng: &mut Rng) -> Script {
     let mut sizes = [0usize; 2];
     let topo = rng.chance(0.15);
     // set up both classifications most of the time
-    for t in 0..2 {
+    for (t, size) in sizes.iter_mut().enumerate() {
         if rng.chance(0.8) {
             let n = 1 + rng.below(4) as usize;
             ops.push(OpIn::SetSize { t, n });
-            sizes[t] = n;
+            *size = n;
             let curves = of_kind(&objects, kind::CURVE);
             ops.push(OpIn::SetCurve { t, obj: pick(rng, &curves), owned: rng.chance(0.2) });
             if rng.chance(0.7) {
@@ -1962,11 +1961,14 @@ fn gen_script(rng: &mut Rng) -> Script {
         0..=9 => {
             for _ in 0..(2 + rng.below(14)) {
                 let t = rng.below(2) as usize;
-                let op = gen_container_op(rng, &objects, t, sizes[t], topo);
-                match &op {
-                    OpIn::SetSize { n, .. } => sizes[t] = *n,
-                    OpIn::RemoveAt { .. } => sizes[t] = sizes[t].saturating_sub(1),
-                    _ => {}
+                let size = sizes.get(t).copied().unwrap_or(0);
+                let op = gen_container_op(rng, &objects, t, size, topo);
+                if let Some(slot) = sizes.get_mut(t) {
+                    match &op {
+                        OpIn::SetSize { n, .. } => *slot = *n,
+                        OpIn::RemoveAt { .. } => *slot = slot.saturating_sub(1),
+                        _ => {}
+                    }
                 }
                 ops.push(op);
             }
@@ -1991,9 +1993,15 @@ fn gen_script(rng: &mut Rng) -> Script {
                     2 => uvs.push(uv[1]),
                     3 => {
                         // the B-spline surface of the pool as a second surface
-                        if let Some(b) = of_kind(&objects, kind::BSURF).first() {
-                            srf[1] = Some(*b);
-                            uvs[1] = surf_uv(rng, &objects[*b]);
+                        let bsurf = of_kind(&objects, kind::BSURF).first().copied();
+                        if let Some((b, obj)) = bsurf.and_then(|b| Some((b, objects.get(b)?))) {
+                            if let Some(slot) = srf.get_mut(1) {
+                                *slot = Some(b);
+                            }
+                            let q = surf_uv(rng, obj);
+                            if let Some(slot) = uvs.get_mut(1) {
+                                *slot = q;
+                            }
                         }
                     }
                     _ => {}
@@ -2051,7 +2059,7 @@ fn gen_script(rng: &mut Rng) -> Script {
                 .chain(of_kind(&objects, kind::BSURF))
                 .collect();
             let all: Vec<usize> = (0..objects.len()).collect();
-            for _ in 0..(1 + rng.below(6)) {
+            for _ in 0..=rng.below(6) {
                 let t = rng.below(2) as usize;
                 let op = match rng.below(5) {
                     0 | 1 => {
@@ -2423,7 +2431,8 @@ mod dump {
     #[ignore = "debugging aid"]
     fn coverage_stats() {
         let k = Kernel::default();
-        let mut stats: std::collections::BTreeMap<String, usize> = Default::default();
+        let mut stats: std::collections::BTreeMap<String, usize> =
+            std::collections::BTreeMap::default();
         let mut bump = |s: String| *stats.entry(s).or_default() += 1;
         for i in 0..MIN_GENERATED {
             let mut rng = Rng::new(CaseContext::seed_for("intersect.curve_class_p1", i));

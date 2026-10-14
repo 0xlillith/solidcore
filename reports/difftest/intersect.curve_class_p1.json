@@ -3,6 +3,686 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv0_p0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#0 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv0_p0.37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#1 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv0_p0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#2 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv0_p1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#3 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv0_p1.7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#4 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv1_p0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#5 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv1_p0.37",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#6 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv1_p0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#7 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv1_p1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#8 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv1_p1.7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#9 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv2_p0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#10 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv2_p0.37",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#11 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv2_p0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#12 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv2_p1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#13 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_unit_uv2_p1.7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#14 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_unit_uv1.2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#15 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_unit_uv-0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#16 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_unit_uv0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#17 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv0_p0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#18 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv0_p0.37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#19 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv0_p0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#20 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv0_p1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#21 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv0_p1.7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#22 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv1_p0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#23 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv1_p0.37",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#24 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv1_p0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#25 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv1_p1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#26 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv1_p1.7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#27 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv2_p0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#28 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv2_p0.37",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#29 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv2_p0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#30 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv2_p1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#31 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_huge_uv2_p1.7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#32 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_huge_uv1.2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#33 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_huge_uv-0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#34 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_huge_uv0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#35 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv0_p0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#36 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv0_p0.37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#37 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv0_p0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#38 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv0_p1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#39 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv0_p1.7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#40 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 321
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv1_p0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#41 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 353
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv1_p0.37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#42 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 353
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv1_p0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#43 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 353
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv1_p1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#44 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 353
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv1_p1.7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#45 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 353
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv2_p0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#46 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 385
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv2_p0.37",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#47 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 385
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv2_p0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#48 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 385
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv2_p1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#49 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 385
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_tiny_uv2_p1.7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#50 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 385
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_tiny_uv1.2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#51 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_tiny_uv-0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#52 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_tiny_uv0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#53 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 427
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_line_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#54 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_line_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#55 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_line_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#56 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_line_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#57 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_line_scaled_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#58 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_line_scaled_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#59 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_line_scaled_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#60 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_line_scaled_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#61 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_circle_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#62 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_circle_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#63 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_circle_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#64 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_circle_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#65 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_ellipse_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#66 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_ellipse_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#67 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_ellipse_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#68 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_ellipse_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#69 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_hermite_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#70 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_hermite_x5.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#71 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_xsect_hermite_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#72 (upstream source/SMLib/src/SmCurveClass.cpp:512 (sm_SetXSectCurveThroughPoint -> SmBSplineCurve::SetIntersectionCurveThroughPoint at :675); review adversarial case)",
+      "values_compared": 88
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_apply_hermite_x3.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#73 (upstream source/SMLib/src/SmCurveClass.cpp:464 (sm_ApplyPointSolution); review adversarial case)",
+      "values_compared": 350
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_containers_grow",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p1/adversarial.json#74 (upstream source/SMLib/src/SmCurveClass.cpp:5378,5409 (SmCurveClassification::RemoveAt/SetSize past MIN_ARRAY_SIZE); review adversarial case)",
+      "values_compared": 14818
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "apply_point_solution_two_planes",
       "outcome": "pass",
       "pass": true,
@@ -16747,14 +17427,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 160,
+  "cases_deferred": 180,
   "cases_failed": 0,
-  "cases_passed": 1853,
-  "cases_total": 2013,
+  "cases_passed": 1908,
+  "cases_total": 2088,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 6,
     "surface.surface_p1": 79,
     "surface.surface_p4": 54,
+    "surface.surface_p5": 20,
     "topology.edge": 9,
     "topology.face_p2": 10,
     "topology.vertex": 2

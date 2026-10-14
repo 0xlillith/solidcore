@@ -1413,8 +1413,9 @@ pub fn get_cci_surface_gaps<S: Copy>(
     uv_curves: &[Option<&Curve>],
     edge_surface_count: usize,
 ) -> Result<CciSurfaceGaps> {
-    let _ = edge_surface_count; // NotUsed
-                                // init output
+    // NotUsed
+    let _ = edge_surface_count;
+    // init output
     let mut out = CciSurfaceGaps {
         success: false,
         curve_edge_gap: class_curve_point.distance(edge_curve_point),
