@@ -1080,7 +1080,9 @@ fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
         Some(
             sp2::SurfaceKind::CurveBounded(_)
             | sp2::SurfaceKind::Plane(_)
-            | sp2::SurfaceKind::SurfOfRevolution(_) | sp2::SurfaceKind::Step(_),
+            | sp2::SurfaceKind::SurfOfRevolution(_)
+            | sp2::SurfaceKind::Step(_)
+            | sp2::SurfaceKind::OffsetSurface(_),
         )
         | None => o.push(0.0),
     }
@@ -1293,7 +1295,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let dir = param_of(*dir)?;
             record(|o| {
                 let (l, r) = match &s {
-                    Some(x) => x.split_at(*t, dir)?,
+                    Some(x) => x.split_at(&Kernel::default(), *t, dir)?,
                     None => sp2::base_split_at()?,
                 };
                 dump_state(o, Some(&l));
@@ -1314,7 +1316,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let cont = continuity_of(*cont)?;
             record(|o| {
                 let e = match &s {
-                    Some(x) => x.create_extended_surface(*dist, cont)?,
+                    Some(x) => x.create_extended_surface(&Kernel::default(), *dist, cont)?,
                     None => sp2::base_create_extended_surface()?,
                 };
                 dump_state(o, Some(&e));
@@ -1326,7 +1328,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let dir = param_of(*dir)?;
             record(|o| {
                 let e = match &s {
-                    Some(x) => x.create_extended_surface_dir(dir, *dist, cont)?,
+                    Some(x) => x.create_extended_surface_dir(&Kernel::default(), dir, *dist, cont)?,
                     None => sp2::base_create_extended_surface()?,
                 };
                 dump_state(o, Some(&e));
@@ -1346,8 +1348,8 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let anal = matches!(op, OpIn::CopyAnal);
             record(|o| {
                 let c = match &s {
-                    Some(x) if anal => x.copy_and_add_analytics()?,
-                    Some(x) => x.copy()?,
+                    Some(x) if anal => x.copy_and_add_analytics(&Kernel::default())?,
+                    Some(x) => x.copy(&Kernel::default())?,
                     None if anal => sp2::base_copy_and_add_analytics()?,
                     None => sp2::base_copy()?,
                 };

@@ -175,6 +175,7 @@ use crate::nurbs::crv_fit::p1::ParamMethod;
 use crate::nurbs::knots::Side;
 use crate::surface::cone::Cone;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
+use crate::surface::offset_surface::OffsetSurface;
 use crate::surface::plane::Plane;
 use crate::surface::surf_of_revolution::SurfOfRevolution;
 use crate::surface::surface::p1::StepSurface;
@@ -253,6 +254,9 @@ pub enum SurfaceKind {
     /// `SmSTEPSurface` (unit `surface.surface_p1`): another surface in its STEP
     /// parameterisation.
     Step(StepSurface),
+    /// `SmOffsetSurface` (unit `surface.offset_surface`): another surface moved along
+    /// its normal.
+    OffsetSurface(OffsetSurface),
 }
 
 /// A surface (`SmSurface`): its concrete kind and the object owning it (`m_pOwner`:
@@ -450,6 +454,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.type_code(),
             SurfaceKind::Plane(s) => s.type_code(),
             SurfaceKind::SurfOfRevolution(s) => s.type_code(),
+            SurfaceKind::OffsetSurface(s) => s.type_code(),
         }
     }
 
@@ -462,6 +467,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.type_string(),
             SurfaceKind::Plane(s) => s.type_string(),
             SurfaceKind::SurfOfRevolution(s) => s.type_string(),
+            SurfaceKind::OffsetSurface(s) => s.type_string(),
         }
     }
 
@@ -474,6 +480,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.class_string(),
             SurfaceKind::Plane(s) => s.class_string(),
             SurfaceKind::SurfOfRevolution(s) => s.class_string(),
+            SurfaceKind::OffsetSurface(s) => s.class_string(),
         }
     }
 
@@ -489,22 +496,26 @@ impl Surface {
             SurfaceKind::Step(_) => Ok(StepSurface::is_kind_of(t)),
             SurfaceKind::Plane(s) => s.is_kind_of(t),
             SurfaceKind::SurfOfRevolution(s) => s.is_kind_of(t),
+            SurfaceKind::OffsetSurface(_) => Ok(OffsetSurface::is_kind_of(t)),
         }
     }
 
     // ---- copies ---------------------------------------------------------------------
 
-    /// An exact copy (`Copy`); the owner is not copied.
+    /// An exact copy (`Copy`); the owner is not copied. The kernel is the context an
+    /// offset surface's copy is constructed in.
     ///
     /// # Errors
     ///
-    /// None for the ported kinds (the base default is `SM_ERR`).
-    pub fn copy(&self) -> Result<Self> {
+    /// Those of [`OffsetSurface::copy`]; none for the other ported kinds (the base
+    /// default is `SM_ERR`).
+    pub fn copy(&self, k: &Kernel) -> Result<Self> {
         match &self.kind {
             SurfaceKind::BSpline(s) => Ok(Self::from(s.copy())),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_copy(),
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
             SurfaceKind::SurfOfRevolution(s) => Ok(Self::from(s.copy())),
+            SurfaceKind::OffsetSurface(s) => Ok(Self::from(s.copy(k)?)),
         }
     }
 
@@ -513,13 +524,15 @@ impl Surface {
     /// # Errors
     ///
     /// Those of the kind's override (the base default is [`Surface::copy`]).
-    pub fn copy_and_add_analytics(&self) -> Result<Self> {
+    pub fn copy_and_add_analytics(&self, k: &Kernel) -> Result<Self> {
         match &self.kind {
             SurfaceKind::BSpline(s) => Ok(Self::from(s.copy_and_add_analytics()?)),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_copy_and_add_analytics(),
             // SmBSplineSurface::CopyAndAddAnalytics: not SmBSplineSurface_TYPE, so Copy
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
             SurfaceKind::SurfOfRevolution(s) => Ok(Self::from(s.copy())),
+            // the base body: the virtual Copy
+            SurfaceKind::OffsetSurface(s) => Ok(Self::from(s.copy(k)?)),
         }
     }
 
@@ -550,6 +563,9 @@ impl Surface {
                 s.base()
                     .evaluate(uv, highest_u_deriv, highest_v_deriv, flags)
             }
+            SurfaceKind::OffsetSurface(s) => {
+                s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
         }
     }
 
@@ -565,6 +581,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.evaluate_point(uv),
             SurfaceKind::Plane(s) => Ok(s.evaluate_point(uv)),
             SurfaceKind::SurfOfRevolution(s) => s.base().evaluate_point(uv),
+            SurfaceKind::OffsetSurface(s) => s.evaluate_point(uv),
         }
     }
 
@@ -579,6 +596,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.natural_uv_domain(),
             SurfaceKind::Plane(s) => s.natural_uv_domain(),
             SurfaceKind::SurfOfRevolution(s) => s.base().natural_uv_domain(),
+            SurfaceKind::OffsetSurface(s) => s.natural_uv_domain(),
         }
     }
 
@@ -589,9 +607,10 @@ impl Surface {
         match &self.kind {
             SurfaceKind::Plane(s) => s.step_uv_domain(),
             SurfaceKind::SurfOfRevolution(s) => s.step_uv_domain(),
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                base_step_uv_domain(self)
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_) => base_step_uv_domain(self),
         }
     }
 
@@ -603,6 +622,7 @@ impl Surface {
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_degree(),
             SurfaceKind::Plane(s) => s.base_for_query().degree(param),
             SurfaceKind::SurfOfRevolution(s) => s.base().degree(param),
+            SurfaceKind::OffsetSurface(s) => s.degree(),
         }
     }
 
@@ -612,7 +632,9 @@ impl Surface {
     pub fn number_control_points(&self, param: SurfParamType) -> usize {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.number_control_points(param),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_number_control_points(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                base_number_control_points()
+            }
             SurfaceKind::Plane(s) => s.base_for_query().number_control_points(param),
             SurfaceKind::SurfOfRevolution(s) => s.base().number_control_points(param),
         }
@@ -629,6 +651,7 @@ impl Surface {
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Ok(base_max_analytic_domain()),
             SurfaceKind::Plane(s) => Ok(s.max_analytic_domain()),
             SurfaceKind::SurfOfRevolution(s) => s.max_analytic_domain(),
+            SurfaceKind::OffsetSurface(s) => s.max_analytic_domain(),
         }
     }
 
@@ -637,7 +660,9 @@ impl Surface {
     pub fn is_bilinear(&self) -> bool {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.is_bilinear(),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_is_bilinear(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                base_is_bilinear()
+            }
             SurfaceKind::Plane(s) => s.base_for_query().is_bilinear(),
             SurfaceKind::SurfOfRevolution(s) => s.base().is_bilinear(),
         }
@@ -651,7 +676,9 @@ impl Surface {
     pub fn is_parallel_to_vector(&self, vector: Vec3) -> Result<bool> {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.is_parallel_to_vector(vector),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Ok(base_is_parallel_to_vector()),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                Ok(base_is_parallel_to_vector())
+            }
             SurfaceKind::Plane(s) => Ok(s.is_parallel_to_vector(vector)),
             // (not a plane: the SmBSplineSurface net test)
             SurfaceKind::SurfOfRevolution(s) => s.base().is_parallel_to_vector(vector),
@@ -675,6 +702,7 @@ impl Surface {
             SurfaceKind::Step(s) => s.knots(param, ivl),
             SurfaceKind::Plane(s) => s.base_for_query().knots(param, ivl),
             SurfaceKind::SurfOfRevolution(s) => s.base().knots(param, ivl),
+            SurfaceKind::OffsetSurface(s) => s.knots(param, ivl),
         }
     }
 
@@ -724,6 +752,9 @@ impl Surface {
                 s.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess)
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_step_inversion(),
+            SurfaceKind::OffsetSurface(s) => {
+                s.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess)
+            }
             // SmBSplineSurface::STEPInversion solves on the plane through the virtual
             // point solvers
             // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
@@ -778,9 +809,10 @@ impl Surface {
                 requested,
                 None,
             ),
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                base_drop_point_fast()
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_) => base_drop_point_fast(),
         }
     }
 
@@ -820,7 +852,9 @@ impl Surface {
     pub fn adjust_step_uv_domain(&mut self, new_step_uv_domain: &Extent2d) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.adjust_step_uv_domain(new_step_uv_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_adjust_step_uv_domain(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                base_adjust_step_uv_domain()
+            }
             SurfaceKind::Plane(s) => s.adjust_step_uv_domain(new_step_uv_domain),
             // UNPORTED(surface.surf_of_revolution_p2): SmSurfOfRevolution::AdjustSTEPUVDomain
             SurfaceKind::SurfOfRevolution(_) => Err(SolidError::unported(
@@ -850,6 +884,7 @@ impl Surface {
                 s.base_mut().reverse(param)?;
                 ignore_status(s.rebuild_step_from_nurb_parameters(k))
             }
+            SurfaceKind::OffsetSurface(s) => s.reverse(k, param),
         }
     }
 
@@ -861,7 +896,9 @@ impl Surface {
     pub fn reparameterize(&mut self, k: &Kernel, new_domain: &Extent2d) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.reparameterize(new_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                base_edit()
+            }
             SurfaceKind::Plane(s) => s.reparameterize(new_domain),
             SurfaceKind::SurfOfRevolution(s) => s.reparameterize(k, new_domain),
         }
@@ -885,6 +922,7 @@ impl Surface {
                 s.toggle_swap_uv_bit();
                 ignore_status(s.rebuild_step_from_nurb_parameters(k))
             }
+            SurfaceKind::OffsetSurface(s) => s.swap_uv(k),
         }
     }
 
@@ -903,6 +941,7 @@ impl Surface {
             SurfaceKind::SurfOfRevolution(s) => s.transform(k, rotate_n_move, scale),
             SurfaceKind::BSpline(s) => s.transform(rotate_n_move, scale),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::OffsetSurface(s) => s.transform(k, rotate_n_move, scale),
             // UNPORTED(surface.plane_p2): SmPlane::Transform
             SurfaceKind::Plane(_) => Err(SolidError::unported(
                 "SmPlane::Transform",
@@ -920,6 +959,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.trim_with_domain(trim_domain),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::OffsetSurface(s) => s.trim_with_domain(trim_domain),
             // UNPORTED(surface.plane_p2): SmPlane::TrimWithDomain
             SurfaceKind::Plane(_) => Err(SolidError::unported(
                 "SmPlane::TrimWithDomain",
@@ -936,12 +976,17 @@ impl Surface {
     // ---- new surfaces ---------------------------------------------------------------
 
     /// The two halves of the surface split at `param` in `surf_param`'s direction
-    /// (`SplitAt`).
+    /// (`SplitAt`; the kernel is the context the halves are constructed in).
     ///
     /// # Errors
     ///
     /// Those of the kind's override (the base default is `SM_ERR`).
-    pub fn split_at(&self, param: f64, surf_param: SurfParamType) -> Result<(Self, Self)> {
+    pub fn split_at(
+        &self,
+        k: &Kernel,
+        param: f64,
+        surf_param: SurfParamType,
+    ) -> Result<(Self, Self)> {
         match &self.kind {
             SurfaceKind::BSpline(s) => {
                 let (l, r) = s.split_at(param, surf_param)?;
@@ -956,16 +1001,19 @@ impl Surface {
                 let (l, r) = s.base().split_at(param, surf_param)?;
                 Ok((Self::from(l), Self::from(r)))
             }
+            SurfaceKind::OffsetSurface(s) => s.split_at(k, param, surf_param),
         }
     }
 
-    /// The surface extended by `dist` on every side (`CreateExtendedSurface`).
+    /// The surface extended by `dist` on every side (`CreateExtendedSurface`; the
+    /// kernel is the context the new surface is constructed in).
     ///
     /// # Errors
     ///
     /// Those of the kind's override (the base default is `SM_ERR`).
     pub fn create_extended_surface(
         &self,
+        k: &Kernel,
         dist: f64,
         extension_continuity: ContinuityType,
     ) -> Result<Self> {
@@ -981,17 +1029,21 @@ impl Surface {
                 s.base()
                     .create_extended_surface(dist, extension_continuity)?,
             )),
+            SurfaceKind::OffsetSurface(s) => {
+                s.create_extended_surface(k, dist, extension_continuity)
+            }
         }
     }
 
     /// The surface extended by `dist` in `ext_direction` (`CreateExtendedSurface`
-    /// with a direction).
+    /// with a direction; the kernel is the context the new surface is constructed in).
     ///
     /// # Errors
     ///
     /// Those of the kind's override (the base default is `SM_ERR`).
     pub fn create_extended_surface_dir(
         &self,
+        k: &Kernel,
         ext_direction: SurfParamType,
         dist: f64,
         extension_continuity: ContinuityType,
@@ -1012,6 +1064,9 @@ impl Surface {
                 s.base()
                     .create_extended_surface_dir(ext_direction, dist, extension_continuity)?,
             )),
+            SurfaceKind::OffsetSurface(s) => {
+                s.create_extended_surface_dir(k, ext_direction, dist, extension_continuity)
+            }
         }
     }
 
@@ -1077,11 +1132,7 @@ impl Surface {
             CURVE_BOUNDED_SURFACE_TYPE => Ok(Self::from(CurveBoundedSurface::read_from_db(
                 k, db, version,
             )?)),
-            // UNPORTED(surface.offset_surface): SmOffsetSurface::ReadFromDB
-            OFFSET_SURFACE_TYPE => Err(SolidError::unported(
-                "SmOffsetSurface::ReadFromDB",
-                "surface.offset_surface",
-            )),
+            OFFSET_SURFACE_TYPE => Ok(Self::from(OffsetSurface::read_from_db(k, db, version)?)),
             // UNPORTED(surface.srf_in_volume): SmSrfInVolume::ReadFromDB
             SRF_IN_VOLUME_TYPE => Err(SolidError::unported(
                 "SmSrfInVolume::ReadFromDB",
@@ -1243,8 +1294,8 @@ impl Surface {
         // make a bilinear BSpline planar surface from the 4 plane corner points
         let bs = BSplineSurface::create_bilinear_surface(pt00, pt10, pt01, pt11)?;
 
-        // Copy pBS, when possible as an analytic surface
-        let plane = Self::from(bs).copy_and_add_analytics()?;
+        // Copy pBS, when possible as an analytic surface (the SmBSplineSurface override)
+        let plane = Self::from(bs.copy_and_add_analytics()?);
 
         Ok(PlaneWith3dCurves {
             plane,
@@ -3925,7 +3976,9 @@ mod tests {
             )
             .is_err());
         s.swap_uv(&Kernel::default()).unwrap();
-        let (a, b) = s.split_at(0.5, SurfParamType::U).unwrap();
+        let (a, b) = s
+            .split_at(&Kernel::default(), 0.5, SurfParamType::U)
+            .unwrap();
         assert!(a.natural_uv_domain().u_max() <= 0.5 + 1e-12);
         assert!(b.natural_uv_domain().u_min() >= 0.5 - 1e-12);
         assert_eq!(

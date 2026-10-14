@@ -496,19 +496,6 @@ const fn owner_zone_tolerance(_srf: &BSplineSurface) -> f64 {
     crate::geom::tol::ZONE_TOL_3D
 }
 
-/// `SmSurface::CreateOffsetSurface`: its body constructs an `SmOffsetSurface`.
-fn surface_create_offset_surface(
-    _srf: &BSplineSurface,
-    _signed_offset_distance: f64,
-    _approx_tol_3d: f64,
-) -> Result<BSplineSurface> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface (from SmSurface::CreateOffsetSurface)
-    Err(SolidError::Unported {
-        upstream: "SmOffsetSurface",
-        unit: "surface.offset_surface",
-    })
-}
-
 /// `SmSurface::IsDegenerateCurve` (the base body, on a copy of the B-spline as an
 /// [`SmSurface`](crate::surface::surface::Surface)).
 fn surface_is_degenerate_curve(
@@ -1667,21 +1654,33 @@ impl BSplineSurface {
         Ok(Self::from_gw_nurb(&sur))
     }
 
-    /// The offset of this surface by `signed_offset_distance` along its normal, within
-    /// `approx_tol_3d` (`CreateOffsetSurface`): passed to
-    /// `SmSurface::CreateOffsetSurface`, which returns an `SmSurface` (an offset
-    /// surface, approximated when necessary); the result type follows that port.
+    /// The offset of this surface by `signed_offset_distance` along its normal
+    /// (`CreateOffsetSurface`: passed to `SmSurface::CreateOffsetSurface`, an implicit
+    /// `SmOffsetSurface` that owns a copy of this surface; `approx_tol_3d` is not used).
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::CreateOffsetSurface` is not ported yet.
+    /// Those of [`OffsetSurface::new`](crate::surface::offset_surface::OffsetSurface::new)
+    /// ([`SolidError::Unported`]: the base's `GetSingularities`, `surface.surface_p3`).
     pub fn create_offset_surface(
         &self,
+        k: &crate::kernel::Kernel,
         signed_offset_distance: f64,
         approx_tol_3d: f64,
-    ) -> Result<Self> {
-        // Create implicit offset surface
-        surface_create_offset_surface(self, signed_offset_distance, approx_tol_3d)
+    ) -> Result<crate::surface::surface::Surface> {
+        let _ = approx_tol_3d;
+        // Create implicit offset surface (SmSurface::CreateOffsetSurface: Copy, then
+        // an owning SmOffsetSurface)
+        let copy = crate::surface::surface::Surface::from(self.copy());
+        Ok(crate::surface::surface::Surface::from(
+            crate::surface::offset_surface::OffsetSurface::new(
+                k,
+                signed_offset_distance,
+                copy,
+                true,
+                crate::surface::offset_surface::SS_UNKNOWN,
+            )?,
+        ))
     }
 
     // ---- editing ----------------------------------------------------------------------

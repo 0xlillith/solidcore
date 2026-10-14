@@ -203,7 +203,7 @@ pub(super) const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => None,
     }
 }
 
@@ -248,7 +248,7 @@ fn create_iso_parametric_curve(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
             "surface.surface_cache_p1",
         )),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -303,6 +303,16 @@ pub(super) fn calculate_bounding_box(
                 "surface.surface_p6",
             ))
         }
+        // UNPORTED(surface.surface_cache_p1): SmOffsetSurface::CalculateBoundingBox.
+        // Ported as OffsetSurface::calculate_bounding_box (surface.offset_surface), but
+        // it takes the kernel (its base surface's boxes may need a surface cache) and
+        // forwards the basis guesses, which this function's requests do not carry. A
+        // cache of an offset surface needs SmSurface::CalculateContinuities
+        // (surface.surface_p6) first, so this arm is not reached before that lands.
+        SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
+            "SmOffsetSurface::CalculateBoundingBox",
+            "surface.surface_cache_p1",
+        )),
     }
 }
 
@@ -314,7 +324,8 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
             Err(SolidError::unported(
                 "SmSurface::IsSingularity",

@@ -778,9 +778,11 @@ fn st<T>(r: solidcore::Result<T>) -> solidcore::Result<f64> {
 fn the_cbs(s: &Surface) -> solidcore::Result<&CurveBoundedSurface> {
     match s.kind() {
         SurfaceKind::CurveBounded(c) => Ok(c),
-        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) | SurfaceKind::Step(_) => {
-            Err(SolidError::sm_err("difftest: not a curve bounded surface"))
-        }
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::Plane(_)
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_) => Err(SolidError::sm_err("difftest: not a curve bounded surface")),
     }
 }
 
@@ -836,9 +838,9 @@ fn rust_surface_op(op: &OpIn, this: &CbsIn) -> Result<Run, HarnessError> {
                 o.push(st(s.knots(SurfParamType::U, None))?);
                 o.push(flag(s.is_parallel_to_vector(v)?));
                 push_dom(&mut o, &s.max_analytic_domain()?);
-                o.push(st(s.copy())?);
-                o.push(st(s.copy_and_add_analytics())?);
-                o.push(st(s.split_at(0.5, SurfParamType::U))?);
+                o.push(st(s.copy(&Kernel::default()))?);
+                o.push(st(s.copy_and_add_analytics(&Kernel::default()))?);
+                o.push(st(s.split_at(&Kernel::default(), 0.5, SurfParamType::U))?);
                 o.push(st(s.reverse(&Kernel::default(), SurfParamType::U))?);
                 o.push(st(s.swap_uv(&Kernel::default()))?);
                 dump_state(&mut o, &s);

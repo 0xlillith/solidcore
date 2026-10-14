@@ -101,7 +101,7 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::TsectCurveType;
-use crate::surface::surface::Surface;
+use crate::surface::surface::{Surface, SurfaceKind};
 
 const OP_POINT: &str = "intersect::surface_intersector::p1::SurfaceIntersector::point";
 const OP_LIST: &str = "intersect::surface_intersector::p1::SurfaceIntersector::add_to_list";
@@ -1871,13 +1871,24 @@ fn fillet_law_evaluate<L: ?Sized>(
     ))
 }
 
-/// `SM_CAST_PTR(SmOffsetSurface, surface)->SetOffsetDistance(distance)`.
-fn set_offset_distance(_surface: &Surface, _distance: f64) -> Result<()> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::SetOffsetDistance
-    Err(SolidError::unported(
-        "SmOffsetSurface::SetOffsetDistance",
-        "surface.offset_surface",
-    ))
+/// `SM_CAST_PTR(SmOffsetSurface, surface)->SetOffsetDistance(distance)` (`NULL`
+/// dereferenced upstream for a surface that is not an offset).
+fn set_offset_distance(surface: &Surface, _distance: f64) -> Result<()> {
+    match surface.kind() {
+        // DISPATCH GAP: SmOffsetSurface::SetOffsetDistance is ported
+        // (OffsetSurface::set_offset_distance, surface.offset_surface), but upstream
+        // sets it through the intersector's shared surface pointers, which are
+        // `&Surface` here. The only caller first needs SmFilletLaw::Evaluate
+        // (blend.fillet_executive_p1), whose porter decides how a fillet holds its
+        // offset surfaces (no UNPORTED marker: the setter is ported).
+        SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
+            "SmOffsetSurface::SetOffsetDistance through a shared surface",
+            "blend.fillet_executive_p1",
+        )),
+        _ => Err(SolidError::null_pointer(
+            "intersect::surface_intersector::p1::set_offset_distance",
+        )),
+    }
 }
 
 #[cfg(test)]

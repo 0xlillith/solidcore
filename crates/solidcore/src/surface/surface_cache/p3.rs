@@ -729,7 +729,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                     Some(std::borrow::Cow::Owned(tmp.base().clone()))
                 }
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                None
+            }
         };
         let (u_count, v_count, beziers) = if let Some(b) = bspline {
             let nurb = b

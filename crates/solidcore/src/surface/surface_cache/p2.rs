@@ -539,7 +539,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
                 None
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Some(&cache_surface),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
+                Some(&cache_surface)
+            }
         };
 
         let mut subdivide = false;
@@ -916,7 +918,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                     SurfaceKind::BSpline(b) => b.copy_sub_patch(&node_uv),
                     SurfaceKind::Plane(p) => p.base().copy_sub_patch(&node_uv),
                     SurfaceKind::SurfOfRevolution(s) => s.base().copy_sub_patch(&node_uv),
-                    SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+                    SurfaceKind::CurveBounded(_)
+                    | SurfaceKind::Step(_)
+                    | SurfaceKind::OffsetSurface(_) => {
                         return Err(invalid(OP_BLOCK, "node surface is not a B-spline"))
                     }
                 };

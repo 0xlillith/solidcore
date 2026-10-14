@@ -1650,7 +1650,8 @@ fn surface_drop_curve(
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_) => {
             // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve
             Err(SolidError::unported(
                 "SmSurface::DropCurve",

@@ -114,6 +114,7 @@ use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, 
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::surface::offset_surface::{OffsetSurface, SS_UNKNOWN};
 use crate::surface::plane::Plane;
 use crate::surface::surface_cache::p1::{SurfaceCache, SurfaceCacheOptions};
 use crate::surface::trim_srf_cache::TrimSrfCache;
@@ -855,6 +856,7 @@ impl Surface {
         match (self.kind(), other.kind()) {
             (SurfaceKind::CurveBounded(s), _) => s.approx_eq(other),
             (SurfaceKind::Step(s), _) => s.approx_eq(other),
+            (SurfaceKind::OffsetSurface(s), _) => s.approx_eq(other),
             // SmBSplineSurface::operator==: SmSurface::operator== first
             (SurfaceKind::BSpline(a), SurfaceKind::BSpline(b)) => Ok(a.approx_eq(b)),
             // SmPlane::operator==: SmBSplineSurface::operator== first
@@ -878,7 +880,6 @@ impl Surface {
     /// (`SmOffsetSurface`, `SmSrfInVolume`) are not ported, so their owners cannot be
     /// followed.
     pub fn face(&self) -> Result<Option<ObjectRef>> {
-        let _ = OP_FACE;
         // when the surface has an owner
         let Some(owner) = self.owner() else {
             return Ok(None);
@@ -890,10 +891,12 @@ impl Surface {
         // GenSurface owners can be another Surface (SmSrfInVolume, SmOffsetSurface -
         // continue looking for a Face owner) or a Curve (stop looking)
         if is_surface_type(owner.type_code) {
-            // UNPORTED(surface.offset_surface): SmSurface::GetOwner of an owning SmOffsetSurface
-            return Err(SolidError::unported(
-                "SmSurface::GetOwner of an owning SmOffsetSurface",
-                "surface.offset_surface",
+            // An owning surface holds its base surface by value and does not become its
+            // owner (see OffsetSurface), so the owner chain cannot be followed from
+            // here: only a caller-set surface owner reaches this branch.
+            return Err(SolidError::invalid_input(
+                OP_FACE,
+                "a surface owner's own owner cannot be followed (owning surfaces hold their base by value)",
             ));
         }
         Ok(None)
@@ -958,7 +961,10 @@ impl Surface {
                     .map(<[Vec3]>::to_vec)
                     .collect())
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_) => {
                 // pass the call along
                 self.evaluate(
                     uv,
@@ -983,9 +989,10 @@ impl Surface {
         match self.kind() {
             SurfaceKind::CurveBounded(s) => s.basis().evaluate_step_point(uv),
             SurfaceKind::SurfOfRevolution(s) => s.evaluate_step_point_at(uv),
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
-                self.evaluate_point(uv)
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_) => self.evaluate_point(uv),
         }
     }
 
@@ -1027,6 +1034,9 @@ impl Surface {
             SurfaceKind::CurveBounded(s) => {
                 s.basis()
                     .evaluate_simple(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            SurfaceKind::OffsetSurface(s) => {
+                s.evaluate_simple(uv, highest_u_deriv, highest_v_deriv, flags)
             }
             SurfaceKind::Step(_) => {
                 // pass the call along
@@ -1313,6 +1323,9 @@ impl Surface {
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
                 self.base_calculate_bounding_box(k, want, expand_pos_boxes_by_zone_tol_3d)
             }
+            SurfaceKind::OffsetSurface(s) => {
+                s.calculate_bounding_box(k, self, uv_domain, want, expand_pos_boxes_by_zone_tol_3d)
+            }
         }
     }
 
@@ -1443,24 +1456,19 @@ impl Surface {
         Ok(Vec2::new(size_u, size_v))
     }
 
-    /// An `SmOffsetSurface` of a copy of this surface at `signed_offset_distance`
-    /// (`CreateOffsetSurface`; the approximation tolerance is not used).
+    /// The offset of this surface by `signed_offset_distance` (`CreateOffsetSurface`;
+    /// the approximation tolerance is not used): an offset surface's override (its base
+    /// offset by the compound distance), else the base body, an `SmOffsetSurface` that
+    /// owns a copy of this surface (default singularities).
     ///
     /// # Errors
     ///
-    /// Those of [`Surface::copy`]; [`SolidError::Unported`]: `SmOffsetSurface`
-    /// (`surface.offset_surface`).
-    pub fn create_offset_surface(&self, signed_offset_distance: f64) -> Result<Self> {
-        // temporary copy of the surface
-        let _copy = self.copy()?;
-        let _ = signed_offset_distance;
-
-        // build the SmOffsetSurface surface
-        // UNPORTED(surface.offset_surface): SmOffsetSurface::SmOffsetSurface
-        Err(SolidError::unported(
-            "SmOffsetSurface::SmOffsetSurface",
-            "surface.offset_surface",
-        ))
+    /// Those of [`Surface::copy`] and of [`OffsetSurface::new`].
+    pub fn create_offset_surface(&self, k: &Kernel, signed_offset_distance: f64) -> Result<Self> {
+        if let SurfaceKind::OffsetSurface(s) = self.kind() {
+            return s.create_offset_surface(k, signed_offset_distance);
+        }
+        base_create_offset_surface(k, self, signed_offset_distance)
     }
 
     /// The silhouette curves of the surface over `uv_domain` for a parallel
@@ -1567,7 +1575,7 @@ impl Surface {
             // inherited from SmBSplineSurface
             SurfaceKind::SurfOfRevolution(s) => s.base().is_degenerate_point(tol_3d, uv_domain),
             SurfaceKind::Plane(p) => p.base_for_query().is_degenerate_point(tol_3d, uv_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
                 base_is_degenerate_point(self, tol_3d, uv_domain)
             }
         }
@@ -1597,7 +1605,7 @@ impl Surface {
                 p.base_for_query()
                     .is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol)
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {
                 base_is_degenerate_curve(self, angle_tol_deg, uv_domain, opt_3d_tol)
             }
         }
@@ -1799,6 +1807,31 @@ fn unreachable_kind<T>() -> Result<T> {
 /// the codes from `SURF_BASE_TYPE + 1` below the topology codes.
 const fn is_surface_type(t: i64) -> bool {
     t > 15000 && t < 16000
+}
+
+/// `SmSurface::CreateOffsetSurface` (base body, also what `SmBSplineSurface`'s override
+/// calls): an `SmOffsetSurface` at `signed_offset_distance` that owns a copy of
+/// `surface` (default singularities); the approximation tolerance is not used.
+///
+/// # Errors
+///
+/// Those of [`Surface::copy`] and of [`OffsetSurface::new`].
+pub fn base_create_offset_surface(
+    k: &Kernel,
+    surface: &Surface,
+    signed_offset_distance: f64,
+) -> Result<Surface> {
+    // temporary copy of the surface
+    let surf_copy = surface.copy(k)?;
+
+    // build the SmOffsetSurface surface
+    Ok(Surface::from(OffsetSurface::new(
+        k,
+        signed_offset_distance,
+        surf_copy,
+        true,
+        SS_UNKNOWN,
+    )?))
 }
 
 /// `SmSurface::IsDegeneratePoint` (base body): the domain is a point, or its corners,
@@ -2200,7 +2233,7 @@ pub fn crossed_seam_or_pole(
                 return false;
             }
         }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::OffsetSurface(_) => {}
     }
 
     // Just look for a big jump.

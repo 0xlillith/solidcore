@@ -95,6 +95,7 @@ use crate::geom::solution_array::{Solution, SolutionArray, SolutionEnd, Solution
 use crate::geom::tree::AuxDataType;
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt as sm_sqrt;
+use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::{
@@ -742,12 +743,13 @@ pub struct CurveSurfaceSolution {
 
 impl Surface {
     /// The unit normal at `uv` (`EvaluateNormal`, virtual): the plane's axis for a
-    /// plane, the basis surface's normal for a curve-bounded surface, the
-    /// [`base_evaluate_normal`] body otherwise.
+    /// plane, the basis surface's normal for a curve-bounded surface, the offset
+    /// surface's override, the [`base_evaluate_normal`] body otherwise.
     ///
     /// # Errors
     ///
-    /// Only [`SolidError::Unported`].
+    /// [`SolidError::Unported`]; those of
+    /// [`OffsetSurface::evaluate_normal`](crate::surface::offset_surface::OffsetSurface::evaluate_normal).
     pub fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         match self.kind() {
             SurfaceKind::BSpline(_) | SurfaceKind::SurfOfRevolution(_) | SurfaceKind::Step(_) => {
@@ -755,6 +757,7 @@ impl Surface {
             }
             SurfaceKind::CurveBounded(s) => s.evaluate_normal(uv, u_side, v_side),
             SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
+            SurfaceKind::OffsetSurface(s) => s.evaluate_normal(uv, u_side, v_side),
         }
     }
 
@@ -780,7 +783,8 @@ impl Surface {
             SurfaceKind::BSpline(_)
             | SurfaceKind::CurveBounded(_)
             | SurfaceKind::SurfOfRevolution(_)
-            | SurfaceKind::Step(_) => {
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
             }
         }
@@ -793,8 +797,10 @@ impl Surface {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from the bounding box (the base
-    /// `SmSurface::CalculateBoundingBox` of a curve-bounded surface).
-    pub fn is_planar(&self, tol_3d: f64) -> Result<Planar> {
+    /// `SmSurface::CalculateBoundingBox` of a curve-bounded surface); `Unported` errors
+    /// of an offset surface's bounding box (its other failures are ignored, as
+    /// upstream).
+    pub fn is_planar(&self, k: &Kernel, tol_3d: f64) -> Result<Planar> {
         match self.kind() {
             SurfaceKind::Plane(p) => {
                 let (point, normal, deviation) = p.is_planar();
@@ -819,6 +825,20 @@ impl Surface {
             // SmSurfOfRevolution inherits SmBSplineSurface::CalculateBoundingBox
             SurfaceKind::SurfOfRevolution(s) => {
                 Ok(planar_of(s.base(), &self.natural_uv_domain())?.is_planar(tol_3d))
+            }
+            // the SmSurface body: the pseudo box of the virtual CalculateBoundingBox over
+            // the natural domain (status ignored: a failure leaves a default box)
+            SurfaceKind::OffsetSurface(s) => {
+                let pseudo = ignored(s.calculate_bounding_box(
+                    k,
+                    self,
+                    &self.natural_uv_domain(),
+                    [false, true, false],
+                    true,
+                ))?
+                .and_then(|b| b.pseudo_box)
+                .unwrap_or_else(PseudoBox::new);
+                Ok(pseudo.is_planar(tol_3d))
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
                 // SmSurface::CalculateBoundingBox (surface::surface::p1) builds a surface
@@ -856,7 +876,7 @@ impl Surface {
     /// Those of [`Surface::is_flat_corner`].
     pub fn flat_corners(
         &self,
-        k: &crate::kernel::Kernel,
+        k: &Kernel,
         angle_tol_deg: f64,
         want_points: bool,
     ) -> Result<FlatCorners> {
