@@ -1705,10 +1705,10 @@ soft_depends_on = ["curve.curve_p2", "geom.geom_utility_p1", "nurbs.b_spline_cur
 est_lines = 1180
 layer = 24
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "21 fns; largest: SmTorus::RebuildSTEPFromNURBParameters, SmTorus::CreateOffsetSurface, SmTorus::CreateIsoParametricCurve, SmTorus::EvaluateSTEP; cycle back-edges (call into later units; stub or co-port): surface.surf_of_revolution_p3(2), surface.surf_of_revolution_p2(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit"
+notes = "PARTIAL (PR #23): difftest 563 cases (63 fixture: TestSmGeneral torus STEP derivatives, smSurfaceTest analytic torus, smTopoTest torus, SmApiCreateTorus radii, swap/inside-out/partial-domain/explicit-generator edges; + 500 generated) over CreateCanonical, EvaluateSTEP(Point), ConvertUVFromSTEPToNURBS/NURBSToSTEP, CreateIsoParametricCurve, CreateOffsetSurface (+rebuild), RebuildSTEPFromNURBParameters, Transform, operator==, Copy; 545 pass bit-identical, 18 deferred (surface.surf_of_revolution_p3: SmSurfOfRevolution::Transform). ReadFromDB is ported up to SmSurfOfRevolution::ReadFromDB (unported; unit test only). SurfOfRevolution::make_nurb_with_sweep_params_using / rebuild_polar_converter take the iso-curve maker so the torus override is used (upstream virtual CreateIsoParametricCurve). 21 fns; cycle back-edges: surface.surf_of_revolution_p3(2), surface.surf_of_revolution_p2(1)"
 
 [[unit]]
 id = "surface.unbend_volume"
@@ -2013,10 +2013,10 @@ soft_depends_on = ["curve.curve_p7", "geom.geom_utility_p1", "geom.pseudo_box", 
 est_lines = 979
 layer = 31
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "8 fns; largest: SmSurfaceSilhouette::ComputePointValues, SmSurfaceSilhouette::LocalPointSolve, SmFindSilSingEFO::Evaluate, SmSurfaceSilhouette::BranchMayContainAnswers; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "partial (PR #45): difftest 709 cases (incl. 37 review adversarial fixtures), 540 pass, 169 deferred (surface.surface_p3 163: SmSurface::EvaluateNormalSection / EvaluateGeometric; surface.plane_p1 6: SmBSplineSurface::CalculateBoundingBox on a plane, a stub in surface_cache/p1.rs, see findings). SmSurface::EvaluateNormal and DropVectors wired to surface.surface_p7. 8 fns; largest: SmSurfaceSilhouette::ComputePointValues, SmSurfaceSilhouette::LocalPointSolve, SmFindSilSingEFO::Evaluate, SmSurfaceSilhouette::BranchMayContainAnswers; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.offset_surface"
@@ -2237,10 +2237,10 @@ soft_depends_on = ["curve.curve_p8", "geom.extent3d", "geom.object", "geom.tol",
 est_lines = 1677
 layer = 33
 tests = ["prog_test:my_test_parallel_projection", "prog_test:my_test_tsurf_projection", "prog_test:my_test_surface_interface", "prog_test:my_test_ssi", "prog_test:my_test_tsurf_section", "prog_test:my_test_planar_section"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "6 fns; largest: SmSurfaceIntersector::ClassifyBoundaryStartPointIntersection, SmSurfaceIntersector::ComputePointValues, SmSurfaceIntersector::DoBoundaryPlaneTest, SmSurfaceIntersector::FlushCurve; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit"
+notes = "6 fns; largest: SmSurfaceIntersector::ClassifyBoundaryStartPointIntersection, SmSurfaceIntersector::ComputePointValues, SmSurfaceIntersector::DoBoundaryPlaneTest, SmSurfaceIntersector::FlushCurve; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit; difftest PR #42: 1660 cases (1508 pass, 152 deferred: blend.fillet_executive_p1(11), surface.surface_p3(36), surface.surface_p5(105)); EvaluateNormal wired to surface.surface_p7; shim covers SmPlane, SmBSplineSurface, SmCurveBoundedSurface; fixtures from my_test_planar_section (shovel.srf) plus 38 + 105 review adversarial cases; FlushCurve unguarded (decreasing knots compare the CreateCanonical SM_ERR path); gap walk capped at MAX_GAP_SAMPLES (see plan/findings.md)"
 
 [[unit]]
 id = "surface.surface_point_solve_p2"
@@ -3497,10 +3497,10 @@ soft_depends_on = ["curve.curve_p2", "geom.context", "geom.object", "nurbs.b_spl
 est_lines = 381
 layer = 59
 tests = ["SM_API_test:TestSmCreateRuledSurface", "SM_API_test:TestSmCreateSkinSurface", "SM_API_test:TestSmCreateExtrude", "SM_API_test:TestSmCreateSkinFromFaces", "SM_API_test:TestSmCreateSkinPrimitive", "SM_API_test:TestSmCreateSurfaceRevolution"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "9 fns; largest: SmApiCreateSkinPrimitive, SmApiCreateSurfaceRevolution, SmApiCreateSkin, SmApiCreateSkinFromFaces; entry points: SmApiCreateExtrude, SmApiCreateRuledSurface, SmApiCreateSkin, SmApiCreateSkinFromFaces, SmApiCreateSkinPrimitive, SmApiCreateSurfaceRevolution, SmApiCreateSweep; 15 upstream test entry points reach this unit"
+notes = "partial (PR #37): difftest cases=882 passed=831 deferred=51 (blocked_by primitive.primitive_creation_p2(11), primitive.primitive_creation_p3(40): SmApiCreateSkinPrimitive / SmApiCreateSkinFromFaces / SmApiCreateSurfaceRevolution validate and copy inputs, then stub SmPrimitiveCreation::CreateSkinPrimitive / CreateSkinFromFaces / CreateRotationalSweep); extrude, sweep, ruled and skin bit-identical; 9 fns; largest: SmApiCreateSkinPrimitive, SmApiCreateSurfaceRevolution, SmApiCreateSkin, SmApiCreateSkinFromFaces; entry points: SmApiCreateExtrude, SmApiCreateRuledSurface, SmApiCreateSkin, SmApiCreateSkinFromFaces, SmApiCreateSkinPrimitive, SmApiCreateSurfaceRevolution, SmApiCreateSweep; 15 upstream test entry points reach this unit"
 
 [[unit]]
 id = "blend.fillet_geom_p3"
