@@ -136,7 +136,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surf_of_extrusion_p2` (1420 lines) — in progress: #57 @bherbruck (draft)
+- [ ] 🔨 `surface.surf_of_extrusion_p2` (1420 lines) — in progress: #57 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
@@ -289,7 +289,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.sphere` (2861 lines) — waiting
-- [ ] 🔨 `surface.surf_of_extrusion_p2` (1420 lines) — in progress: #57 @bherbruck (draft)
+- [ ] 🔨 `surface.surf_of_extrusion_p2` (1420 lines) — in progress: #57 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p3` (1939 lines) — waiting
 - [ ] 🟡 `surface.surface_p1` (2458 lines) — partial, 806 cases
