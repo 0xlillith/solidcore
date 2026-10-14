@@ -40,9 +40,9 @@
 //!
 //! Deviations:
 //! - **Derived class.** `SmSurfOfExtrusion` derives from `SmBSplineSurface`; the base
-//!   object is the [`SurfOfExtrusion::base`] field. The surface joins
-//!   [`crate::surface::surface::SurfaceKind`] with the unit porting its remaining
-//!   virtual overrides (`surface.surf_of_extrusion_p2`).
+//!   object is the [`SurfOfExtrusion::base`] field. The surface is not a
+//!   [`crate::surface::surface::SurfaceKind`] yet: its overrides need a [`Kernel`] the
+//!   `Surface` dispatchers do not take (see `surface.surf_of_extrusion_p2`).
 //! - **Generator.** `m_pGenCurve` is a [`Curve`] of a kind derived from
 //!   `SmBSplineCurve` (B-spline, ellipse, line, hyperbola, parabola); other kinds are
 //!   rejected (`InvalidInput`) where upstream casts. It is `None` only for the empty

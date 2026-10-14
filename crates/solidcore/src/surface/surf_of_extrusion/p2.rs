@@ -63,20 +63,19 @@
 //!   intersects the generator's plane with the plane (`SmPlane::IntersectWithPlane`,
 //!   unit `surface.plane_p2`) and classifies the line on this surface
 //!   (`SmCurveClassification`, unit `intersect.curve_class_p1`); for a plane parallel
-//!   to a perpendicular or independent generator's plane it takes the plane's pseudo
-//!   box, which upstream expands by the zone tolerance of the plane's face
-//!   (`SmSurface::GetFace`, unit `surface.surface_p1`), then trims the projected
-//!   generator to the plane domain (`SmPlane::TrimCurveToPlaneDomain`,
-//!   `surface.plane_p2`). The general intersection `GlobalSurfaceIntersect` falls
-//!   back to needs `SmAdvSurfaceIntersector` (`intersect.adv_surface_intersector`);
-//!   parallel extrusions reach `SmCurve::GlobalCurveSolve` (`curve.curve_p9`) through
-//!   [`intersect_generators`]. Those return [`SolidError::Unported`]; the code below
-//!   the first two is ported with the callees.
+//!   to a perpendicular or independent generator's plane whose pseudo box meets the
+//!   projected generator's, it trims that curve to the plane domain
+//!   (`SmPlane::TrimCurveToPlaneDomain`, `surface.plane_p2`). The general intersection
+//!   `GlobalSurfaceIntersect` falls back to needs `SmAdvSurfaceIntersector`
+//!   (`intersect.adv_surface_intersector`); parallel extrusions reach
+//!   `SmCurve::GlobalCurveSolve` (`curve.curve_p9`) through [`intersect_generators`].
+//!   Those return [`SolidError::Unported`]; the code below the first two is ported
+//!   with the callees.
 //! - **Debug code.** The `SM_DEBUG_CODE` drawing and dumps are omitted.
 
 use crate::curve::curve::p7::PropertyAnalysisOptions;
 use crate::curve::curve::{Curve, CurvePropertyType};
-use crate::error::{ignore_status, Result, SolidError};
+use crate::error::{ignore_status, ignored, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
@@ -86,7 +85,10 @@ use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_SQRT, PI};
-use crate::nurbs::b_spline_surface::{BSplineSurface, IsoCurveOptions, SurfParamType};
+use crate::nurbs::b_spline_curve::BoundingBoxRequest as CurveBoxRequest;
+use crate::nurbs::b_spline_surface::{
+    BSplineSurface, BoundingBoxRequest as SurfaceBoxRequest, IsoCurveOptions, SurfParamType,
+};
 use crate::nurbs::math::{CPoint, NOW, NOZ};
 use crate::surface::cone::Cone;
 use crate::surface::plane::Plane;
@@ -310,8 +312,8 @@ impl SurfOfExtrusion {
     /// `SM_ERR_NULL_POINTER` without generator; those of the generator's plane
     /// intersection, evaluations, closed and degenerate tests;
     /// [`SolidError::Unported`]: the first case (`SmPlane::IntersectWithPlane`, unit
-    /// `surface.plane_p2`), the second past the extrusion interval test (the plane's
-    /// pseudo box: `SmSurface::GetFace`, unit `surface.surface_p1`).
+    /// `surface.plane_p2`), the second when the plane's and the projected generator's
+    /// pseudo boxes meet (`SmPlane::TrimCurveToPlaneDomain`, unit `surface.plane_p2`).
     #[allow(clippy::too_many_lines)] // one upstream function
     pub fn intersect_with_plane(
         &self,
@@ -404,22 +406,47 @@ impl SurfOfExtrusion {
 
             // intersectionCurve = sweptCurveCopy projected to the plane along the
             // extrusion vector (status ignored upstream, which then reads the curve)
-            let _proj_curve = gen_base(gen)?.create_plane_projection(
+            let proj_curve = gen_base(gen)?.create_plane_projection(
                 crate::nurbs::b_spline_curve::ProjectionType::Parallel,
                 plane_origin,
                 plane_normal,
                 self.extrusion_vec,
             )?;
 
-            // get plane and intersection curve bounding boxes; the plane's pseudo box
-            // is expanded by the zone tolerance of the plane's face, then the curve is
-            // trimmed to the plane domain (SmPlane::TrimCurveToPlaneDomain,
-            // surface.plane_p2) when the boxes meet
-            // UNPORTED(surface.surface_p1): SmSurface::GetFace
-            return Err(SolidError::unported(
-                "SmSurface::GetFace",
-                "surface.surface_p1",
-            ));
+            // get plane and intersection curve bounding boxes (statuses ignored: a
+            // failed box stays initialised)
+            // (bExpandPosBoxesByZoneTol3d defaults to TRUE)
+            let plane_req = SurfaceBoxRequest {
+                pseudo: true,
+                expand_by_zone_tol: true,
+                ..SurfaceBoxRequest::default()
+            };
+            let plane_nurb = plane.base_with_nurb()?;
+            let mut plane_pbox =
+                ignored(plane_nurb.calculate_bounding_box(&plane.natural_uv_domain(), &plane_req))?
+                    .and_then(|b| b.pseudo)
+                    .unwrap_or_default();
+            let curve_req = CurveBoxRequest {
+                pseudo: true,
+                ..CurveBoxRequest::default()
+            };
+            let curve_pbox = ignored(
+                proj_curve.calculate_bounding_box(&proj_curve.natural_interval(), curve_req),
+            )?
+            .and_then(|b| b.pseudo)
+            .unwrap_or_default();
+
+            // only use curves intersecting plane domain
+            plane_pbox.expand_absolute(tol);
+            if !plane_pbox.are_disjoint(&curve_pbox, None) {
+                // trim curves to plane domain and add them to the output
+                let _ = other_uv_domain;
+                // UNPORTED(surface.plane_p2): SmPlane::TrimCurveToPlaneDomain
+                return Err(SolidError::unported(
+                    "SmPlane::TrimCurveToPlaneDomain",
+                    "surface.plane_p2",
+                ));
+            }
         }
         // when extrusion vec is perpendicular to plane normal
         // - xsect is one or more lines each line generated by sweeping

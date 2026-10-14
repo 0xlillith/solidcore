@@ -111,6 +111,24 @@ by area within each severity.
 - **Severity:** crash/UB (out-of-bounds read, stack exhaustion).
 - **Rust port:** `CompositeCurve::with_curves` returns `InvalidInput`; nesting is bounded by `DatabaseReader::enter_nested` (64).
 
+#### UB-85. `SmSurfOfExtrusion::ReadFromDB` reads an uninitialised generator type from a failed ASCII stream [PSIRT]
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:4560` `SmSurfOfExtrusion::ReadFromDB` (def. `:4480`), through `SmDatabaseIO::ReadType` (`SmDatabaseIO.cpp:400`); also the locals `eOrientation` and `bSwapUV` (`:4506`-`:4507`).
+- **What happens:** The ASCII branch extracts the record without checking the stream. Once an extraction fails, every later `>>` leaves its (uninitialised) local untouched, and the ASCII `ReadType` returns `SM_SUCCESS` without writing `lGenCurveType`, which then selects the curve reader.
+- **Trigger:** An ASCII `SmSurfOfExtrusion` record cut short, or with a non-numeric field, before its generator's `Object Type` line.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The FFI guard only passes records the strict stream simulator of `topology.brep_data` reads completely.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** `read_type` reports the unread type and `read_from_db` returns `InvalidInput`.
+
+#### UB-86. `SmSurfOfExtrusion::ReadFromDB` casts any curve kind to `SmBSplineCurve` [PSIRT]
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:4562`-`4565` `SmSurfOfExtrusion::ReadFromDB`.
+- **What happens:** The generator read by `SmCurve::ReadFromDB` is only checked with `SM_ASSERT_MSG(pGenCurve->IsKindOf(SmBSplineCurve_TYPE))` (compiled out in release) and then stored as `SmBSplineCurve*`. A composite (or other non-B-spline) curve record makes every later generator call use the wrong class layout.
+- **Trigger:** An `SmSurfOfExtrusion` record whose generator is an `SmCompositeCurve` record.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The FFI guard only passes `SmBSplineCurve` generator records; the shim also refuses a read generator that is not one.
+- **Severity:** crash/UB (type confusion).
+- **Rust port:** Returns `InvalidInput`.
+
 ### NLib: knots and basis functions
 
 #### UB-7. `N_BasisEval` uses an uninitialised span for an unknown side flag
@@ -488,6 +506,24 @@ by area within each severity.
 - **Severity:** crash/UB (use after free).
 - **Rust port:** Identifies callbacks by key, so the case cannot arise.
 
+#### UB-80. `SmTopologySolver::MayContainAnswer` reads uninitialised ray/box results
+- **Location:** `SmTopologySolver.cpp:2909`, `SmTopologySolver::MayContainAnswer` (def. `:2716`), `SM_SO_RAYFIRE` branch.
+- **What happens:** The status of `SmExtent3d::IntersectLine` is ignored. When it fails (`SM_ERR_INVALID_INPUT` for a ray vector shorter than `SM_EFF_ZERO` or an undefined box), `lNumFound`, `dTEnter` and `dTExit` are read uninitialised and decide whether the branch is culled.
+- **Trigger:** A ray-fire topology solve whose option vector is (near) zero.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard keeps a ray vector shorter than `1e-6` from `MayContainAnswer`; zero and tiny option vectors elsewhere are defined upstream and are difftested by `fixtures/intersect.topology_solver_p1/zero_vectors.json`).
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** Returns `InvalidInput`.
+
+#### UB-81. Topology edge solvers dereference a curve's missing edge
+- **Location:** `SmTopologySolver.cpp:557`/`:582` `SmTLSPointEdge::SolveIt`, `:1079`/`:1101` `SmTLSCurveEdge::SolveIt`, `:1359`/`:1380` `SmTLSEdgeEdge::SolveIt`.
+- **What happens:** `pCurve->GetEdge()` is only checked by an `SM_ASSERT_MSG` (compiled out); with no shape (`m_pShape == NULL`) a curve that defines no edge is dereferenced as `NULL->GetInterval()`.
+- **Trigger:** Any of these local solvers called on a free curve (no owning edge) outside a shape solve.
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the difftest guard passes only curves that own an edge).
+- **Severity:** crash/UB (bad argument from calling code).
+- **Rust port:** Returns `InvalidInput`.
+
 ### Curves
 
 #### UB-46. NURB-less curves are dereferenced
@@ -794,6 +830,24 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` where upstream would read past the arrays.
 
+#### UB-83. `SmSurface::GetDomainWithContinuity` dereferences a missing surface cache
+- **Location:** `SmSurface.cpp:12056`, `SmSurface::GetDomainWithContinuity` (base body).
+- **What happens:** When `smsurf_GetSurfaceCache` returns `NULL` (neither a trimmed surface cache nor a surface cache can be built), `SE(SM_ERR)` only reports it and the body goes on to call `GetUContinuitiesArray()` through the null pointer.
+- **Trigger:** `GetDomainWithContinuity` on a curve-bounded surface or plane whose cache build fails (generated `surface.surface_p1` `dom_cont` cases).
+- **How found:** crash in the C++ reference run.
+- **Confirmed:** yes (segfault; the `surface.surface_p1` shim now checks the cache first and reports `SM_ERR`).
+- **Severity:** crash/UB.
+- **Rust port:** Returns the cache build error.
+
+#### UB-84. `SmSurface::CalculateBoundingBox` of a polar box recurses without bound
+- **Location:** `SmSurface.cpp:5397`, `SmSurface::CalculateBoundingBox` (base body), with `SmSurfaceCache.cpp:1184`, `SmBezierAux2d::BuildPolarBox`.
+- **What happens:** For a polar box, the base body asks the top node of the surface's own cache for it (`SmBezierAux2d::GetPolarBox`). Building that box calls the node surface's `CalculateBoundingBox`, which for a curve-bounded or STEP surface is the same base body again. Nothing ends the cycle, so the stack overflows.
+- **Trigger:** `CalculateBoundingBox` with `pPolarBox != NULL` on an `SmCurveBoundedSurface` or `SmSTEPSurface` (any surface kind that does not override `CalculateBoundingBox`).
+- **How found:** the maintainer's review of `surface.surface_p1` (PR #43), by printing the polar box in the shim; gdb shows about 58k frames cycling through those three functions.
+- **Confirmed:** yes (stack overflow in the C++ reference build).
+- **Severity:** crash/UB.
+- **Rust port:** `Surface::base_calculate_bounding_box` and the surface caches' `calculate_bounding_box` refuse a polar box of those kinds with `InvalidInput` (bounded on wasm). The `surface.surface_p1` FFI never asks the C++ for it.
+
 #### UB-78. `SmApiCreateSkinFromFaces` with no faces crashes
 - **Location:** `source/SM_API/src/SmApiPrimitives.cpp:1335` `SmApiCreateSkinFromFaces` -> `source/SMLib/src/SmPrimitiveCreation.cpp:6711` `SmPrimitiveCreation::CreateSkinFromFaces` -> `SmBSplineSurfaceNLib.cpp` `SmBSplineSurface::CreateSkinnedSurface`.
 - **What happens:** With an empty face array (and no curves, which the API always passes), `CreateSkinFromFaces` still runs one layer and calls `CreateSkinnedSurface` with zero cross sections, which has no check for that and segfaults.
@@ -840,6 +894,33 @@ by area within each severity.
 - **Confirmed:** no (the harness keeps these calls away from the C++).
 - **Severity:** crash/UB.
 - **Rust port:** Treats a point like any other non-topology object (system zone tolerance, not connected, not mergeable).
+
+#### UB-87. `SmSurfOfExtrusion::IntersectWithCylinder` makes the iso circle of an unbounded cylinder from unset values
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:3223` `SmSurfOfExtrusion::IntersectWithCylinder` (def. `:3164`), then `:3255` `sm_IntersectGenerators(*this, dTol, *pOtherGenCurve, ...)`.
+- **What happens:** The other generator is `CreateIsoCircleFromPoint` at the bottom of the cylinder's height interval, whose status is ignored. For an unbounded cylinder that point lies at `-SM_INFINITE_PARAMETER` on the axis, where the cone's STEP inversion leaves its outputs unset and `CreateIsoCircleFromPoint` reads them (UB-80); a tolerance of `0` does the same for bounded cylinders. When the circle stays `NULL` and the extrusion is parallel to the axis, `sm_IntersectGenerators` dereferences it.
+- **Trigger:** `IntersectWithCylinder` with `SmCylinder::CreateCanonical(O, 0.6)`, or with a bounded `SmCone` of equal radii and `pdOptApproxTol3d = 0`.
+- **How found:** generated difftest cases (`surface.surf_of_extrusion_p2`: the shim's replay of the inversion rejected the generated unbounded cylinders and zero tolerances; the generator now avoids them).
+- **Confirmed:** yes (the replayed `STEPInversion` left its outputs unset).
+- **Severity:** crash/UB (uninitialised read, null dereference).
+- **Rust port:** A failed iso circle is `None`; the generators' intersection returns `SM_ERR_NULL_POINTER` where upstream dereferences it.
+
+#### UB-88. `SmSurfOfExtrusion` intersections dereference the optional 3D curve array
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:2506` (`IntersectWithPlane`), `:3272` (`IntersectWithCylinder`), `:3400` (`IntersectWithSurfOfExtrusion`).
+- **What happens:** `pOpt3DCurves` is documented as "NULL to ignore", but the closing loops call `pOpt3DCurves->GetSize()` unconditionally (and `sm_IntersectGenerators` does the same for range solutions).
+- **Trigger:** Any of the three with `pOpt3DCurves = NULL` that reaches its closing loop (e.g. `IntersectWithPlane` of a plane parallel to the extrusion).
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no. The shim always passes every output array.
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Always produces every output.
+
+#### UB-89. `SmSurfOfExtrusion::IntersectWithPlane` compares with an uninitialised first point
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:2348` (`sFirstCrvPt`), `:2454` (`IntersectWithPlane`).
+- **What happens:** `sFirstCrvPt` is only set when the first plane intersection solution makes a curve. When it does not (no directrix, or the directrix misses the plane domain), a later solution on a closed generator compares its point with the uninitialised `sFirstCrvPt`, and may then `RemoveAt(0)` from an empty curve array.
+- **Trigger:** A plane parallel to the extrusion of a closed generator, bounded so that the directrix at the first hit misses the plane domain while a later one hits it.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** The comparison is false without a first point.
 
 ## Hang
 
@@ -1169,6 +1250,15 @@ by area within each severity.
 - **Confirmed:** yes.
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
+
+#### WR-61. `SmTLSPointVertex::SolveIt` ray firing falls through into the 3D signed case
+- **Location:** `SmTopologySolver.cpp:206-262`, `SmTLSPointVertex::SolveIt` (def. `:116`).
+- **What happens:** The `SM_SO_RAYFIRE` case has no `break`, so the `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE` case runs after it: it recomputes the ray parameter without the rayfire snap to the ray start (`dParam < 0.0 -> 0.0`), overwrites `dDistSq`, and sets the sign from the unsnapped parameter (negated again when the object order is swapped). A vertex just behind the ray start (within `SM_EFF_ZERO` of it) gets a small negative ray distance instead of `0`, and a swapped call returns negated ray distances.
+- **Trigger:** `SM_SO_RAYFIRE` point/vertex solve from `(1, 0, 0)` along `(1, 0, 0)` with a vertex at `(1 - 1e-13, 0, 0)` (fixture `point_vertex_rayfire_behind_start`).
+- **How found:** read during porting (`intersect.topology_solver_p1`).
+- **Confirmed:** no (the C++ runs the fixture, but the Rust side defers it: the solution comparison needs vertex zone tolerances). The review's single-call fixtures `adv_rayfire_behind_start_single_*` are deferred the same way (`add_sorted_solution` reaches the `SmTol::GetZoneTol3d` stub of `topology.brep_p1` for vertex objects).
+- **Severity:** wrong result.
+- **Rust port:** Ported as is (the fall-through kept).
 
 #### WR-54. Old composite curve records get their segment gaps shifted by one
 - **Location:** `source/SMLib/src/SmBrepData.cpp:5438` (`sGaps` holds the first segment's start gap, then every end gap) passed to `SmCompositeCurve.cpp:1050` (which reads `(*cpGaps)[i]` as segment `i`'s end gap).
@@ -1566,6 +1656,15 @@ by area within each severity.
 - **Confirmed:** no (the surface point solve is not ported yet, so these cases defer).
 - **Severity:** wrong result.
 - **Rust port:** Returns `SM_ERR` as the gap value too.
+
+#### WR-63. `SmSurfOfExtrusion::IsNurbSurfaceSurfOfExtrusion` returns a failing status as `TRUE`
+- **Location:** `source/SMLib/src/SmSurfOfExtrusion.cpp:3520`, `:3534`, `:3539` (`SER` in `IsNurbSurfaceSurfOfExtrusion`, def. `:3447`, which returns `SmBoolean`).
+- **What happens:** `SER` returns the failing `SmStatus` (a non-zero value) from a function returning `SmBoolean`, so a failed iso curve or control polygon reports "is an extrusion" with `rpSurfOfExtrusion == NULL`.
+- **Trigger:** A test surface whose iso curve extraction fails.
+- **How found:** read during porting (`surface.surf_of_extrusion_p2`).
+- **Confirmed:** no.
+- **Severity:** wrong result.
+- **Rust port:** Returns the error (`Err`); the shim reports the raw value.
 
 ## Docs
 

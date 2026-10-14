@@ -76,7 +76,7 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// A solution object handle (the solutions name no objects here).
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Handle;
+pub(crate) struct Handle;
 
 impl SolutionObject for Handle {
     fn kind(&self) -> ObjectKind {
@@ -1077,7 +1077,8 @@ fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
     match s.map(Surface::kind) {
         Some(sp2::SurfaceKind::BSpline(b)) => dump_bss(o, b),
         // `put_state` of a surface that is not a B-spline
-        Some(sp2::SurfaceKind::CurveBounded(_) | sp2::SurfaceKind::Plane(_)) | None => o.push(0.0),
+        Some(sp2::SurfaceKind::CurveBounded(_) | sp2::SurfaceKind::Plane(_) | sp2::SurfaceKind::Step(_))
+        | None => o.push(0.0),
     }
 }
 

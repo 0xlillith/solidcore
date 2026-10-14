@@ -17,7 +17,8 @@
 //!
 //! Deferred cases: `IntersectWithPlane` of a linear or coplanar generator
 //! (`SmPlane::IntersectWithPlane`, `surface.plane_p2`), and of a plane parallel to a
-//! planar generator inside the extrusion (`SmSurface::GetFace`, `surface.surface_p1`);
+//! planar generator inside the extrusion whose box meets the projected generator
+//! (`SmPlane::TrimCurveToPlaneDomain`, `surface.plane_p2`);
 //! parallel extrusions / cylinder axes (`SmCurve::GlobalCurveSolve`, `curve.curve_p9`);
 //! `GlobalSurfaceIntersect` needing the general intersector
 //! (`intersect.adv_surface_intersector`).
@@ -1147,7 +1148,24 @@ fn gen_plane_op(rng: &mut Rng, k: &Kernel, b: &SurfOfExtrusion) -> Option<OpIn> 
             } else {
                 0.0
             };
-            gen_plane(rng, add(p, en, shift), n, size)
+            let o = add(p, en, shift);
+            if rng.chance(0.35) {
+                // a bounded plane away from the generator: the pseudo boxes are disjoint
+                let away = normalize(cross3(normalize(n), unit_vec(rng)));
+                let PlaneIn::Bounded { x, y, scale, .. } = gen_plane(rng, o, n, size) else {
+                    return None;
+                };
+                let half = 0.5 * size;
+                PlaneIn::Bounded {
+                    o: add(o, away, rng.uniform(5.0, 50.0) * size),
+                    x,
+                    y,
+                    scale,
+                    dom: [-half, -half, half, half],
+                }
+            } else {
+                gen_plane(rng, o, n, size)
+            }
         }
         // oblique
         _ => {
