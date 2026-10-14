@@ -30,9 +30,12 @@
 //!   `ComputePointValues` passes no previous point, so it recurses at most once.
 //! - **Loop bound.** The gap-function walk of
 //!   `ClassifyBoundaryStartPointIntersection` grows its step by 5 per sample and
-//!   upstream ends it only when a sample leaves a domain (a zero UV tangent on both
-//!   surfaces never does). It stops with `SM_ERR` after [`MAX_GAP_SAMPLES`] samples
-//!   (upstream classifies a side in a handful).
+//!   upstream ends it only when a sample leaves a domain. With a zero UV tangent on
+//!   both surfaces no sample ever does: the samples stay at the point until `delta`
+//!   overflows to `inf` (about 440 samples), after which `0 * inf` is NaN and
+//!   `ContainsPoint2d` treats a NaN point as inside, so upstream never ends. It stops
+//!   with `SM_ERR` after [`MAX_GAP_SAMPLES`] samples (upstream classifies a side in a
+//!   handful).
 //! - **Fillet laws.** `SmFilletLaw` is not ported: the law is an opaque argument
 //!   passed to [`SurfaceIntersector::evaluate_law_point`]. The curve parameter
 //!   `EvaluateLawPoint` never sets (an uninitialised `double` upstream) is stored as

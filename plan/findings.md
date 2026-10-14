@@ -2847,3 +2847,25 @@ with `CreateCanonical`, `MakeNurb` and `MakeNurbWithSweepParams` co-ported (unit
 - **`SmSpaceBend` / `SmSpaceUnbend` type queries** are compared through the static
   `GetClassType` / `GetClassTypeString` (an instance needs the unported bend units); the
   `IsKindOf` chains are unit-tested only.
+
+## intersect.surface_intersector_p2 (`SmSurfaceIntersector`, part 2, 2026-10-14)
+
+- **Gap walk bound.** `ClassifyBoundaryStartPointIntersection` walks the gap function
+  with steps growing by 5 until a sample leaves a domain. With a zero UV tangent on both
+  surfaces the samples never move until `delta` overflows to `inf`; then `0 * inf` is
+  NaN and `ContainsPoint2d` treats a NaN point as inside, so upstream never ends. The
+  port stops with `SM_ERR` after `MAX_GAP_SAMPLES` (2000) samples. The shim's
+  `is_rejected_classify` rejects every point with both UV tangents zero (or a non-finite
+  UV value), so the early returns before the walk (tangent point, both steps leaving the
+  domain, tangent-curve / singularity / coincidence points off a tangent natural
+  boundary) are not compared for such points. Narrowing the guard to the walk itself
+  would need the shim to replay the pre-walk classification; not done.
+- **NaN curve intersection tolerance.** `DoBoundaryPlaneTest` with a zero tolerance and
+  an empty box divides 0 by 0. The C++ and the Rust agree on the result (fixture
+  `adv_graze_nan`), so the generator no longer excludes it.
+- **Input bound.** The FFI accepts finite inputs up to `MAX_COORD = 1e9` (as other
+  units do), so huge-scale inputs beyond 1e9 are not compared.
+- **Over-deferral (not a disagreement).** `surface_evaluate_normal` and `is_singularity`
+  return `Unported` for a curve-bounded surface over a plane, though upstream forwards
+  these to the basis plane. Revisit when `surface.surface_p5` / `surface.surface_p7`
+  land; those cases then move from deferred to compared.

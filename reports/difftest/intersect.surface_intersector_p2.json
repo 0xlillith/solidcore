@@ -90,6 +90,318 @@
       "values_compared": 0
     },
     {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_trace_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#0 (upstream review adversarial)",
+      "values_compared": 2127
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_rev_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#1 (upstream review adversarial)",
+      "values_compared": 742
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_trace_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#2 (upstream review adversarial)",
+      "values_compared": 2127
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_rev_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#3 (upstream review adversarial)",
+      "values_compared": 742
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_trace_1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#4 (upstream review adversarial)",
+      "values_compared": 2127
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_perp_rev_1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#5 (upstream review adversarial)",
+      "values_compared": 742
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.01_prev1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#6 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalSurfaceSolve",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.01_prev2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#7 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.01_prev4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#8 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalSurfaceSolve",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.01_prev3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#9 (upstream review adversarial)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_0.5_0.01_prev1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#10 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_0.5_0.01_prev2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#11 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_0.5_0.01_prev4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#12 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_0.5_0.01_prev3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#13 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.06_prev1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#14 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.06_prev2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#15 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.06_prev4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#16 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_2_0.06_prev3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#17 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-07_0.001_prev1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#18 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-07_0.001_prev2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#19 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-07_0.001_prev4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#20 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_1e-07_0.001_prev3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#21 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_89.999_0.001_prev1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#22 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_89.999_0.001_prev2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#23 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_89.999_0.001_prev4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#24 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tilt_89.999_0.001_prev3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#25 (upstream review adversarial)",
+      "values_compared": 746
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_classify_steps",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#26 (upstream review adversarial)",
+      "values_compared": 337
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_flush_two",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#27 (upstream review adversarial)",
+      "values_compared": 615
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_flush_close",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#28 (upstream review adversarial)",
+      "values_compared": 755
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_flush_merge3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#29 (upstream review adversarial)",
+      "values_compared": 859
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_flush_neg_merge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#30 (upstream review adversarial)",
+      "values_compared": 1148
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bspline_edges",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#31 (upstream review adversarial)",
+      "values_compared": 677
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_curve_bounded_plane",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#32 (upstream review adversarial)",
+      "values_compared": 626
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_huge_uv",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#33 (upstream review adversarial)",
+      "values_compared": 500
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#34 (upstream review adversarial)",
+      "values_compared": 124
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_tol0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#35 (upstream review adversarial)",
+      "values_compared": 502
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_empty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#36 (upstream review adversarial)",
+      "values_compared": 124
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_nan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p2/review_adversarial.json#37 (upstream review adversarial)",
+      "values_compared": 94
+    },
+    {
       "deferred": {
         "symbol": "SmSurface::EvaluateNormal",
         "unit": "surface.surface_p7"
@@ -483,7 +795,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380166867",
-      "values_compared": 450
+      "values_compared": 414
     },
     {
       "max_rel_err": 0.0,
@@ -507,7 +819,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380166870",
-      "values_compared": 506
+      "values_compared": 446
     },
     {
       "max_rel_err": 0.0,
@@ -3087,7 +3399,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167174",
-      "values_compared": 470
+      "values_compared": 446
     },
     {
       "max_rel_err": 0.0,
@@ -3207,7 +3519,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167188",
-      "values_compared": 674
+      "values_compared": 628
     },
     {
       "max_rel_err": 0.0,
@@ -4443,7 +4755,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167333",
-      "values_compared": 662
+      "values_compared": 622
     },
     {
       "max_rel_err": 0.0,
@@ -5567,7 +5879,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167463",
-      "values_compared": 574
+      "values_compared": 538
     },
     {
       "deferred": {
@@ -6991,7 +7303,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167632",
-      "values_compared": 662
+      "values_compared": 622
     },
     {
       "max_rel_err": 0.0,
@@ -9143,7 +9455,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380167886",
-      "values_compared": 310
+      "values_compared": 286
     },
     {
       "max_rel_err": 0.0,
@@ -10139,7 +10451,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380168000",
-      "values_compared": 710
+      "values_compared": 686
     },
     {
       "max_rel_err": 0.0,
@@ -10579,7 +10891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380168051",
-      "values_compared": 710
+      "values_compared": 646
     },
     {
       "max_rel_err": 0.0,
@@ -10751,7 +11063,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380168072",
-      "values_compared": 652
+      "values_compared": 617
     },
     {
       "max_rel_err": 0.0,
@@ -12355,7 +12667,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=6023564690380168259",
-      "values_compared": 606
+      "values_compared": 582
     },
     {
       "max_rel_err": 0.0,
@@ -12951,13 +13263,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 203,
+  "cases_deferred": 205,
   "cases_failed": 0,
-  "cases_passed": 1314,
-  "cases_total": 1517,
+  "cases_passed": 1350,
+  "cases_total": 1555,
   "deferred_by_unit": {
     "blend.fillet_executive_p1": 10,
-    "surface.surface_p3": 34,
+    "surface.surface_p3": 36,
     "surface.surface_p5": 82,
     "surface.surface_p7": 77
   },

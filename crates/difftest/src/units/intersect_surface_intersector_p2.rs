@@ -616,7 +616,7 @@ fn flush_rejected(si: &SurfaceIntersector<'_>) -> Result<bool, Fail> {
             }
         }
         let k = param(i);
-        if !(k > last) {
+        if k.partial_cmp(&last) != Some(core::cmp::Ordering::Greater) {
             return Ok(true);
         }
         last = k;
@@ -1134,16 +1134,14 @@ fn gen_point(rng: &mut Rng, doms: [[f64; 4]; 2], s: f64, param: f64) -> Vec<f64>
 }
 
 fn gen_curve(rng: &mut Rng, s: f64) -> CurveIn {
-    match rng.below(3) {
-        0 => {
-            let a = rng.point3(-s, s);
-            let d = unit_vec(rng);
-            CurveIn::Segment {
-                a,
-                b: [a[0] + s * d[0], a[1] + s * d[1], a[2] + s * d[2]],
-            }
+    if rng.below(3) == 0 {
+        let a = rng.point3(-s, s);
+        let d = unit_vec(rng);
+        CurveIn::Segment {
+            a,
+            b: [a[0] + s * d[0], a[1] + s * d[1], a[2] + s * d[2]],
         }
-        _ => {
+    } else {
             let p = 1 + rng.below(3) as usize;
             let n = p + 1 + rng.below(3) as usize;
             let cpts = (0..n)
@@ -1159,7 +1157,6 @@ fn gen_curve(rng: &mut Rng, s: f64) -> CurveIn {
                 cpts,
                 knots,
             }
-        }
     }
 }
 
@@ -1346,7 +1343,7 @@ fn heights(rng: &mut Rng, n: usize, s: f64, flat_row0: Option<&[f64]>) -> Vec<Ve
 
 /// Two bump patches meeting (or not) along `x = s`: disjoint, touching (sharing the
 /// boundary row or not), overlapping, slightly tilted, or a straight-edged patch.
-fn gen_bpt_case(rng: &mut Rng) -> Option<Inputs> {
+fn gen_bpt_case(rng: &mut Rng) -> Inputs {
     let s = gen_scale(rng);
     let deg = 2 + rng.below(2) as usize;
     let n = deg + 1 + rng.below(3) as usize;
@@ -1390,10 +1387,9 @@ fn gen_bpt_case(rng: &mut Rng) -> Option<Inputs> {
         let bmin = [-s, -s, -s];
         let bmax = [3.0 * s, 2.0 * s, s];
         // a zero tolerance with an empty box is 0 / 0: a NaN curve intersection
-        // tolerance (plan/findings.md), not generated
+        // tolerance, on which the C++ and the Rust agree (case adv_graze_nan)
         let empty_box = rng.chance(0.1);
         let tol = s * pick_f(rng, &[1e-3, 1e-6, 0.1, 0.0]);
-        let tol = if empty_box && tol == 0.0 { s * 1e-3 } else { tol };
         ops.push(OpIn::Bpt {
             tol,
             bbox: [bmin, if empty_box { bmin } else { bmax }],
@@ -1413,7 +1409,7 @@ fn gen_bpt_case(rng: &mut Rng) -> Option<Inputs> {
     if rng.chance(0.3) {
         ops.push(gen_cpv(rng, &g, &[]));
     }
-    Some(Inputs {
+    Inputs {
         a,
         b: Some(b),
         dom1,
@@ -1422,13 +1418,13 @@ fn gen_bpt_case(rng: &mut Rng) -> Option<Inputs> {
         curves: Vec::new(),
         points,
         ops,
-    })
+    }
 }
 
 fn gen_case(rng: &mut Rng) -> Option<Inputs> {
     let scenario = rng.below(20);
     if scenario < 4 {
-        return gen_bpt_case(rng);
+        return Some(gen_bpt_case(rng));
     }
     let s = gen_scale(rng);
     let (a, b) = match scenario {
