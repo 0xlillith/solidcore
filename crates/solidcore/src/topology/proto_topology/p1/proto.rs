@@ -151,9 +151,18 @@ fn as_topology<O: ClassObject>(o: Option<O>) -> Option<O> {
 }
 
 /// The curve behind `o` (a `NULL` dereference upstream for none).
-fn curve_of<'g, O: Copy>(geometry: &'g impl ClassGeometry<O>, o: Option<O>) -> Result<&'g Curve> {
+fn curve_of<O: Copy>(geometry: &impl ClassGeometry<O>, o: Option<O>) -> Result<&Curve> {
     o.and_then(|o| geometry.curve(o))
         .ok_or(dangling("curve handle is null or unknown"))
+}
+
+/// A status upstream ignores, except the errors that cannot be ignored here: unported
+/// callees and undefined behaviour upstream.
+fn ignore_soft<T>(r: Result<T>) -> Result<()> {
+    if let Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) = r {
+        return Err(e);
+    }
+    Ok(())
 }
 
 /// `FindObjPoint3d` with its status ignored: the object point, `SetUninitialized`
@@ -278,18 +287,18 @@ pub fn find_position_from_pcs<O: ClassObject>(
         let dim2 = as_topology(pc2.object()).map_or(3, topo_dimension);
 
         // Give more weight to the one with lower dimension.
-        if dim1 < dim2 {
-            position = pt1;
-        } else if dim2 < dim1 {
-            position = pt2;
-        } else {
-            // Same dimension. Give more weight to the one with the tighter gap.
-            let gap1 = pc1.gap_3d(k, geometry, None)?;
-            let gap2 = pc2.gap_3d(k, geometry, None)?;
-            let sum = gap1 + gap2;
-            let frac = if sum > EFF_ZERO { gap1 / sum } else { 0.5 };
-            position = (1.0 - frac) * pt1 + frac * pt2;
-        }
+        position = match dim1.cmp(&dim2) {
+            core::cmp::Ordering::Less => pt1,
+            core::cmp::Ordering::Greater => pt2,
+            core::cmp::Ordering::Equal => {
+                // Same dimension. Give more weight to the one with the tighter gap.
+                let gap1 = pc1.gap_3d(k, geometry, None)?;
+                let gap2 = pc2.gap_3d(k, geometry, None)?;
+                let sum = gap1 + gap2;
+                let frac = if sum > EFF_ZERO { gap1 / sum } else { 0.5 };
+                (1.0 - frac) * pt1 + frac * pt2
+            }
+        };
     }
 
     Ok(PositionFromPcs {
@@ -375,12 +384,12 @@ fn are_connected_vertex_edge() -> Result<bool> {
 /// [`SolidError::Unported`] for the face/edge/vertex pairs (their topology walks,
 /// units `topology.vertex` and `topology.edge`).
 pub fn are_connected<O: ClassObject>(topo1: Option<O>, topo2: Option<O>) -> Result<bool> {
+    use ClassObjectKind as K;
     if topo1 == topo2 {
         return Ok(true);
     }
     let kind = |o: Option<O>| o.map(|o| o.class_kind());
     let (k1, k2) = (kind(topo1), kind(topo2));
-    use ClassObjectKind as K;
 
     if k1 == Some(K::Face) {
         if k2 == Some(K::Edge) {
@@ -1148,12 +1157,7 @@ impl<O: ClassObject> EdgeDefinition<O> {
         if min <= max {
             ignore_status(self.xsect_interval.set_min_max(min, max))?;
         } else {
-            match self.reverse_orientation(k, geometry) {
-                Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                    return Err(e)
-                }
-                Ok(()) | Err(_) => {}
-            }
+            ignore_soft(self.reverse_orientation(k, geometry))?;
             ignore_status(self.xsect_interval.set_min_max(max, min))?;
         }
         Ok(())
@@ -1175,12 +1179,7 @@ impl<O: ClassObject> EdgeDefinition<O> {
         reverse: bool,
     ) -> Result<()> {
         if reverse {
-            match self.reverse_orientation(k, geometry) {
-                Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                    return Err(e)
-                }
-                Ok(()) | Err(_) => {}
-            }
+            ignore_soft(self.reverse_orientation(k, geometry))?;
         }
 
         if new_domain.are_same(&self.xsect_interval) {
@@ -2965,12 +2964,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         }
 
         // Eval PE at SplitParam (status ignored)
-        match self.proto_edge_evaluate(geometry, orig_pe, split_param, true, false) {
-            Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                return Err(e)
-            }
-            Ok(_) | Err(_) => {}
-        }
+        ignore_soft(self.proto_edge_evaluate(geometry, orig_pe, split_param, true, false))?;
 
         // UNPORTED(query.face_p2): SmProtoVertex::ContainsPoint
         Err(SolidError::unported(

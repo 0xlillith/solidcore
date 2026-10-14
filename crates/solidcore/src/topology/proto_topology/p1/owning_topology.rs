@@ -512,9 +512,8 @@ pub fn destroy_topology<R: OwningRecords + ?Sized>(records: &mut R, this: Object
         return Ok(());
     };
     let mut list = records.owning(owner).ok_or(broken_list(OP))?;
-    match list.remove(owner, records, this) {
-        Err(e @ SolidError::InvalidInput { .. }) => return Err(e),
-        Ok(()) | Err(_) => {}
+    if let Err(e @ SolidError::InvalidInput { .. }) = list.remove(owner, records, this) {
+        return Err(e);
     }
     records.set_owning(owner, list).ok_or(broken_list(OP))?;
     set_owner(records, this, None, OP)

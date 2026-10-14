@@ -67,9 +67,7 @@ impl<O: Copy + Ord> CopyBrepMap<O> {
     /// The original of `copy_obj` (`GetAt`): `None` for a null or unknown object.
     #[must_use]
     pub fn get_at(&self, copy_obj: Option<O>) -> Option<O> {
-        if copy_obj.is_none() {
-            return None;
-        }
+        copy_obj?;
         self.map.get(&copy_obj).copied().flatten()
     }
 

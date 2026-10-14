@@ -170,9 +170,10 @@ impl Assembly {
         let instances = Self::assembly_instances(records, this)?;
         let mut list = list_of(records, this)?;
         for i in instances {
-            match list.remove(this, records, i) {
-                Err(e @ crate::error::SolidError::InvalidInput { .. }) => return Err(e),
-                Ok(()) | Err(_) => {}
+            if let Err(e @ crate::error::SolidError::InvalidInput { .. }) =
+                list.remove(this, records, i)
+            {
+                return Err(e);
             }
         }
         list.destroy();
