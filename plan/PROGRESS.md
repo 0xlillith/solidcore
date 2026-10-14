@@ -154,7 +154,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.surface_tracer` (1900 lines) — in progress: #27 @bherbruck (ready for review)
-- [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (draft)
+- [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p1` (2458 lines) — in progress: #43 @Mqrius (draft)
 - [ ] 🔨 `intersect.point_class` (909 lines) — in progress: #21 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.topology_solver_p1` (1838 lines) — in progress: #30 @bherbruck (ready for review)
@@ -300,7 +300,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_cache_p3` (1703 lines) — in progress: #39 @Mqrius (ready for review)
 - [ ] 🔨 `surface.volume_p2` (1490 lines) — in progress: #26 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p7` (2406 lines) — in progress: #24 @Pluto-XI (ready for review)
-- [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (draft)
+- [ ] 🔨 `surface.plane_p2` (1627 lines) — in progress: #40 @bherbruck (ready for review)
 - [ ] ⏳ `surface.surface_p4` (2270 lines) — waiting
 - [ ] ⏳ `surface.sphere` (2861 lines) — waiting
 - [ ] ⏳ `surface.surf_of_extrusion_p2` (1420 lines) — waiting
