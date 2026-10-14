@@ -173,6 +173,7 @@ use crate::nurbs::b_spline_surface::{BSplineSurface, LocationType, SurfParamType
 use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType, SkinnedSurfaceOptions};
 use crate::nurbs::crv_fit::p1::ParamMethod;
 use crate::nurbs::knots::Side;
+use crate::surface::cone::Cone;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
 use crate::surface::plane::Plane;
 use crate::surface::surf_of_revolution::SurfOfRevolution;
@@ -1040,16 +1041,17 @@ impl Surface {
             SURF_OF_REVOLUTION_TYPE => {
                 Ok(Self::from(SurfOfRevolution::read_from_db(k, db, version)?))
             }
-            // UNPORTED(surface.cone_p1): SmCone::ReadFromDB
-            CONE_TYPE => Err(SolidError::unported(
-                "SmCone::ReadFromDB",
-                "surface.cone_p1",
-            )),
-            // UNPORTED(surface.cone_p1): SmCylinder::ReadFromDB
-            CYLINDER_TYPE => Err(SolidError::unported(
-                "SmCylinder::ReadFromDB",
-                "surface.cone_p1",
-            )),
+            CONE_TYPE | CYLINDER_TYPE => {
+                // SmCone::ReadFromDB / SmCylinder::ReadFromDB: the cone's own data, then
+                // the surface of revolution (which returns Unported today)
+                let _cone = Cone::read_from_db(k, db, version, surface_type == CYLINDER_TYPE)?;
+                // UNPORTED(surface.surf_of_revolution_p3): the cone joins SurfaceKind with
+                // the remaining SmSurfOfRevolution overrides (SmSurfOfRevolution::ReadFromDB)
+                Err(SolidError::unported(
+                    "SmSurfOfRevolution::ReadFromDB",
+                    "surface.surf_of_revolution_p3",
+                ))
+            }
             // UNPORTED(surface.sphere): SmSphere::ReadFromDB
             SPHERE_TYPE => Err(SolidError::unported(
                 "SmSphere::ReadFromDB",
