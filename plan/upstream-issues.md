@@ -730,7 +730,7 @@ by area within each severity.
 - **Severity:** crash/UB.
 - **Rust port:** The unbend volume is not ported yet. The harness rejects these chains.
 
-#### UB-73. `SmCone` STEP-to-NURB conversion dereferences a missing polar curve
+#### UB-74. `SmCone` STEP-to-NURB conversion dereferences a missing polar curve
 - **Location:** `source/SMLib/src/SmEllipse.cpp:489`, `SmPolarConversion::ConvertToNURBSParameter` (def. `:467`), reached from `SmCone.cpp:1808` `SmCone::ConvertUVFromSTEPToNURBS` and `:1682` `SmCone::CreateIsoCircleFromPoint`.
 - **What happens:** `m_cpCurve->GetSTEPInterval()` is called without the `NER(m_cpCurve)` check that `ConvertToPolarParameter` has. A cone whose polar converter could not be set up has no curve; `SmSurfOfRevolution::MakeNurbWithSweepParams` ignores `RebuildPolarConverter`'s status, so `CreateCanonical` still succeeds.
 - **Trigger:** `new SmCylinder(O, X, Y, -1.8, 0, 360, 4.3, FALSE, FALSE, FALSE)` (a negative radius) and `MakeNurb()`, which succeeds without polar curve, then `ConvertUVFromSTEPToNURBS`.
@@ -739,10 +739,10 @@ by area within each severity.
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Returns `InvalidInput`.
 
-#### UB-74. `SmCone::CreateIsoCircleFromPoint` and `GetHeight` read uninitialised parameters
+#### UB-75. `SmCone::CreateIsoCircleFromPoint` and `GetHeight` read uninitialised parameters
 - **Location:** `SmCone.cpp:1679`-`1682` `SmCone::CreateIsoCircleFromPoint` (def. `:1620`); `SmCone.cpp:2265`-`2266` `SmCone::GetHeight` (def. `:2251`).
 - **What happens:** `CreateIsoCircleFromPoint` ignores the statuses of `STEPInversion` and `ConvertUVFromSTEPToNURBS`; when the generator drop in `SmSurfOfRevolution::STEPInversion` finds no solution the height of `sStepUV` is never written and is used anyway. `GetHeight` ignores `EvaluatePoint`'s status and subtracts uninitialised points when the conversion fails (no polar curve).
-- **Trigger:** `CreateIsoCircleFromPoint` with a reference point just outside the height interval of a steep bounded cone and a tolerance below the in-plane gap the clamp leaves; `GetHeight` of the cone of UB-73.
+- **Trigger:** `CreateIsoCircleFromPoint` with a reference point just outside the height interval of a steep bounded cone and a tolerance below the in-plane gap the clamp leaves; `GetHeight` of the cone of UB-74.
 - **How found:** read during porting (`surface.cone_p1`).
 - **Confirmed:** no. The shim replays the inversion and refuses those inputs.
 - **Severity:** crash/UB (uninitialised read).
@@ -1328,7 +1328,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Kept as is.
 
-#### WR-48. `SmCone::CreateCanonical` overloads misuse their arguments
+#### WR-50. `SmCone::CreateCanonical` overloads misuse their arguments
 - **Location:** `SmCone.cpp:341`-`348` `SmCone::CreateCanonical(Origin, BotRadius, SemiAngleDeg, pOptHeight, bSwapUV, bInsideOut)` (def. `:308`); `SmCone.cpp:392`-`400` `SmCone::CreateCanonical(Origin, BotRadius, TopRadius, Height, ...)` (def. `:375`).
 - **What happens:** With a height, the first overload passes `FALSE` as the bounded constructor's `bInsideOut` and the caller's `bInsideOut` as `bMakeNurbGenCurve`, so an inside-out request is dropped. For `Height <= 0` the second overload builds the infinite cone with `TopRadius` as the semi-angle in degrees.
 - **Trigger:** `CreateCanonical(O, 1.0, 30.0, &h, cone, FALSE, TRUE)` gives `GetInsideOut() == FALSE`; `CreateCanonical(O, 1.0, 30.0, 0.0, cone)` gives a 30 degree cone.
@@ -1337,7 +1337,7 @@ by area within each severity.
 - **Severity:** wrong result.
 - **Rust port:** Reproduces both.
 
-#### WR-49. `sm_TotalCoincidenceChecker` misses reversed coincident lines and returns `FALSE` as a status
+#### WR-51. `sm_TotalCoincidenceChecker` misses reversed coincident lines and returns `FALSE` as a status
 - **Location:** `SmCone.cpp:2501` and `:2508`, `sm_TotalCoincidenceChecker` (file static, def. `:2454`).
 - **What happens:** For lines, the reversed test computes `dDist_E_S` from `sPt01` and `sPt11` (the end of this line and the start of the other, instead of `sPt10`), so reversed coincident lines are never found. The function then returns `FALSE` (0), which is not `SM_SUCCESS`; callers' `SER` turn it into an error return.
 - **Trigger:** Lines `(0,0,0)-(1,2,3)` and `(1,2,3)-(0,0,0)`.

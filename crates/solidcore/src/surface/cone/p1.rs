@@ -72,7 +72,17 @@
 //!   outputs set (callers use them): here they return the outputs ([`Apex::is_cylinder`],
 //!   [`ConeStepInversion::inside`]). `Evaluate` and `EvaluateSTEP` entries upstream
 //!   does not write are `0`. `ConvertUVFromSTEPToNURBS` without polar curve (upstream
-//!   dereferences `NULL`) is `InvalidInput`.
+//!   dereferences `NULL`) is `InvalidInput`. The unbounded constructor propagates an
+//!   error from `GetApex` (upstream ignores its status and then reads an
+//!   uninitialised `dApexParam`); a cylinder's apex is not an error here.
+//! - **`STEPInversion` out of bounds.** Upstream's `const` `STEPInversion` calls
+//!   `m_pGenCurve->SetOutOfBoundsEnabled(TRUE)`, changing the generator for good; here
+//!   the inversion turns it on in a clone of the generator. Results are the same:
+//!   [`Cone::set_out_of_bounds_enabled`] already propagates the flag to the generator.
+//! - **ASCII `ReadFromDB`.** A failed numeric extraction leaves the field at its
+//!   initial value (`UNDEF_DOUBLE` for the radius and semi-angle); C++11 `>>` stores `0`.
+//!   Not observable while the read ends in [`SolidError::Unported`]
+//!   (`surface.surf_of_revolution_p3`); revisit when that unit wires `ReadFromDB`.
 //! - **`sm_TotalCoincidenceChecker`** returns `FALSE` (`0`, not `SM_SUCCESS`) for two
 //!   lines that are not coincident: that is the `SmStatus` 0 error here.
 //! - **Unported callees.** `AdjustSTEPUVDomain` past its radius checks calls
