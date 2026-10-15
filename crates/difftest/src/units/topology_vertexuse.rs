@@ -25,7 +25,7 @@ use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
-use solidcore::geom::vector2d::Point2;
+use solidcore::geom::vector2d::{Point2, Vec2};
 use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
@@ -35,7 +35,8 @@ use solidcore::nurbs::crv_basic::Curve;
 use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::geom::solution_array::ObjectKind;
-use solidcore::surface::surface::p2::DropCurveFail;
+use solidcore::surface::surface::p2::{DropCurveFail, B_SPLINE_SURFACE_TYPE};
+use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertexuse as vu1;
@@ -73,7 +74,7 @@ const NULL_DEREF: i64 = -2;
 /// A B-spline curve: `dim`, control points `[x y z w]` (`w = NOW` non-rational, `z =
 /// NOZ` 2D), degree, knots.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct CrvIn {
+pub(crate) struct CrvIn {
     dim: u64,
     cpts: Vec<[f64; 4]>,
     p: usize,
@@ -82,7 +83,7 @@ struct CrvIn {
 
 /// A B-spline surface.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct BssIn {
+pub(crate) struct BssIn {
     #[serde(default)]
     oob: bool,
     #[serde(default)]
@@ -96,14 +97,14 @@ struct BssIn {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-enum SrfIn {
+pub(crate) enum SrfIn {
     Bspline(BssIn),
     Plane { o: [f64; 3], n: [f64; 3] },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
-enum BrepIn {
+pub(crate) enum BrepIn {
     /// An upstream test file, relative to `upstream/TestFiles/pt_TestFiles`.
     File {
         file: String,
@@ -143,7 +144,7 @@ struct Inputs {
 
 // ---- encoding ---------------------------------------------------------------------------
 
-fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
+pub(crate) fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
     let n = c.cpts.len().checked_sub(1).ok_or_else(|| harness("curve without points"))?;
     let m = c.u.len().checked_sub(1).ok_or_else(|| harness("curve without knots"))?;
     v.extend([c.dim as f64, n as f64, c.p as f64, m as f64]);
@@ -154,7 +155,7 @@ fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
     Ok(())
 }
 
-fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
+pub(crate) fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
     match s {
         SrfIn::Plane { o, n } => {
             v.push(1.0);
@@ -199,7 +200,7 @@ fn flag(b: bool) -> f64 {
 }
 
 /// The `.smb` path of a B-rep input ("" when it is not a file).
-fn path_of(b: &BrepIn) -> Result<String, HarnessError> {
+pub(crate) fn path_of(b: &BrepIn) -> Result<String, HarnessError> {
     match b {
         BrepIn::File { file, .. } => {
             let p = crate::fixtures::upstream_test_file(&crate::case::repo_root(), file)?;
@@ -235,7 +236,7 @@ fn brep_block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
 }
 
 /// Resolves a selector modulo `n` (`-1` and an empty kind select null).
-fn sel(s: i64, n: usize) -> i64 {
+pub(crate) fn sel(s: i64, n: usize) -> i64 {
     if s < 0 || n == 0 {
         -1
     } else {
@@ -306,7 +307,8 @@ fn orient_of(code: i64) -> Result<OrientType, HarnessError> {
 
 /// An exported curve block (`None` for `-1`). A B-spline or line is rebuilt exactly;
 /// another `SmBSplineCurve` kind is an error for a UV trim curve (`uv`) and its B-spline
-/// part for an edge curve (edge curves are only evaluated on deferred paths).
+/// part for an edge curve (this runner compares no edge curve values; the `heal.gap`
+/// runner, which reuses this importer, gives the C++ edges the same B-splines).
 fn read_curve(rd: &mut Rd<'_>, uv: bool) -> Result<Option<SmCurve>, HarnessError> {
     let ty = rd.num()?;
     if ty == -1.0 {
@@ -353,14 +355,26 @@ fn read_curve(rd: &mut Rd<'_>, uv: bool) -> Result<Option<SmCurve>, HarnessError
     Ok(Some(SmCurve::from(base)))
 }
 
-fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
+fn read_surface(rd: &mut Rd<'_>) -> Result<(Option<Surface>, bool), HarnessError> {
     let kind = rd.num()?;
     if kind == -1.0 {
-        return Ok(None);
+        return Ok((None, true));
+    }
+    if kind == 1.0 {
+        // an SmPlane: origin, axes, scales, analytic domain
+        let o = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
+        let x = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
+        let y = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
+        let sc = Vec2::new(rd.num()?, rd.num()?);
+        let d = Extent2d::from_bounds(rd.num()?, rd.num()?, rd.num()?, rd.num()?);
+        return Ok((Some(Surface::from(Plane::new(o, x, y, sc, &d))), true));
     }
     if kind != 0.0 {
-        return Err(harness("export: a surface is not a B-spline"));
+        return Err(harness("export: a surface is not a B-spline or plane"));
     }
+    // an SmBSplineSurface subclass other than SmPlane: only its B-spline part is
+    // imported, so its evaluations are not the upstream ones
+    let exact = rd.num()? == B_SPLINE_SURFACE_TYPE as f64;
     let oob = rd.num()? != 0.0;
     let form = rd.num()?;
     let n = rd.usize()?;
@@ -384,11 +398,12 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
     *b.out_of_bounds_enabled_mut() = oob;
     let form = BSplineSurfaceForm::from_code(form as u64).ok_or_else(|| harness("bad surface form"))?;
     b.set_b_spline_surface_form(form);
-    Ok(Some(Surface::from(b)))
+    Ok((Some(Surface::from(b)), exact))
 }
 
-/// Builds the Rust B-rep from the shim's export (see the module docs).
-fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
+/// Builds the Rust B-rep from the shim's export (see the module docs), with whether
+/// each face's surface was imported exactly.
+pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
     let c = ffi::counts(ex).ok_or_else(|| harness("import of a failed build"))?;
     let [n_r, n_s, n_fu, n_f, n_lu, n_l, n_eu, n_e, n_vu, n_v] = c;
     let mut rd = Rd { v: ex, at: 1 };
@@ -431,8 +446,24 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
         });
     }
     let mut surfaces = Vec::new();
-    for _ in 0..n_f {
-        surfaces.push(read_surface(&mut rd)?);
+    let mut exact_faces = Vec::new();
+    for f in 0..n_f {
+        let (mut surface, exact) = read_surface(&mut rd)?;
+        exact_faces.push(exact);
+        let faceuse = opt(rd.idx()?, FaceuseId::from_index)?;
+        let dom = Extent2d::from_bounds(rd.num()?, rd.num()?, rd.num()?, rd.num()?);
+        let rect = rd.idx()?;
+        let tolerance = rd.num()?;
+        let owned = rd.num()? != 0.0;
+        if owned {
+            if let Some(s) = surface.as_mut() {
+                s.set_owner(Some(ObjectRef {
+                    type_code: solidcore::topology::face::p2::TYPE,
+                    key: ObjectKey(1 + f as u64),
+                }));
+            }
+        }
+        surfaces.push((surface, faceuse, dom, rect, tolerance));
     }
     let mut loopuses = Vec::new();
     for _ in 0..n_lu {
@@ -593,16 +624,15 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
             .collect();
         b.add_shell_record(s).map_err(|e| harness(e.to_string()))?;
     }
-    for (f, surface) in surfaces.into_iter().enumerate() {
+    for (f, (surface, faceuse, uv_domain, rect, tolerance)) in surfaces.into_iter().enumerate() {
         let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
         b.add_face_record(Face {
-            shell,
-            loops: Vec::new(),
             surface,
-            // Not exported by this shim: `SmFace()` defaults. The Rust side never reads
-            // them here (`GetUVDomain` / `GetTolerance` are `topology.face_p2` stubs).
-            uv_domain: Extent2d::new(),
-            tolerance: 0.0,
+            faceuse,
+            uv_domain,
+            rectangular_trim: i32::try_from(rect).map_err(|_| harness("rectangular trim flag"))?,
+            tolerance,
+            ..Face::new(shell)
         })
         .map_err(|e| harness(e.to_string()))?;
     }
@@ -659,7 +689,7 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
             b.vertex_mut(v).map_err(|e| harness(e.to_string()))?.vertexuses.push(id);
         }
     }
-    Ok(b)
+    Ok((b, exact_faces))
 }
 
 fn id<I: Copy>(o: Option<I>, f: impl Fn(I) -> u32) -> i64 {
@@ -794,7 +824,7 @@ fn domain(s: &SrfIn) -> [f64; 4] {
     }
 }
 
-fn gen_brep(rng: &mut Rng) -> BrepIn {
+pub(crate) fn gen_brep(rng: &mut Rng) -> BrepIn {
     match rng.below(10) {
         0..=5 => BrepIn::File {
             file: (*rng.choose(&FILES).unwrap_or(&"SmallBox.smb")).to_string(),
@@ -947,6 +977,33 @@ fn output(op: &OpIn, body: &[f64]) -> Output {
     }
 }
 
+/// Whether the op's vertex use is on a face whose surface was not imported exactly (an
+/// `SmBSplineSurface` subclass other than `SmPlane`, imported as its B-spline part):
+/// the ops reaching the face's surface would evaluate a different surface, so such
+/// cases are not compared (both sides report `inexact_surface`).
+fn inexact(op: &OpIn, b: &Brep, exact: &[bool]) -> bool {
+    let vu = match op {
+        OpIn::VuQuery { vu }
+        | OpIn::Connected { vu, .. }
+        | OpIn::Gaps { vu, .. }
+        | OpIn::Notify { vu, .. }
+        | OpIn::UvPoint { vu, .. }
+        | OpIn::UvSector { vu, .. }
+        | OpIn::MissingSeam { vu, .. }
+        | OpIn::OnPole { vu } => *vu,
+    };
+    if matches!(op, OpIn::VuQuery { .. } | OpIn::Connected { .. } | OpIn::Notify { .. }) {
+        return false;
+    }
+    let Ok(Some(fu)) = vu1::faceuse(b, VertexuseId::from_index(vu as u32)) else {
+        return false;
+    };
+    let Ok(Some(f)) = b.faceuse(fu).map(|r| r.face) else {
+        return false;
+    };
+    !exact.get(f.index() as usize).copied().unwrap_or(true)
+}
+
 // ---- C++ side ---------------------------------------------------------------------------
 
 fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
@@ -957,6 +1014,10 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(Output::err("no_vertexuse"));
     };
+    let (b, exact) = import(&ex)?;
+    if inexact(&op, &b, &exact) {
+        return Ok(Output::err("inexact_surface"));
+    }
     let (code, args) = op_args(&op);
     let mut input = brep_block(i)?;
     input.extend(args);
@@ -1040,10 +1101,13 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(c) = ffi::counts(&ex) else {
         return Ok(build_failure(&ex));
     };
-    let mut b = import(&ex)?;
+    let (mut b, exact) = import(&ex)?;
     let Some(op) = resolve(&i.op, c) else {
         return Ok(Output::err("no_vertexuse"));
     };
+    if inexact(&op, &b, &exact) {
+        return Ok(Output::err("inexact_surface"));
+    }
     match run_rust_op(&mut b, &op) {
         Ok(o) => Ok(o),
         Err(Fail::Solid(e)) => rust_err(&e),

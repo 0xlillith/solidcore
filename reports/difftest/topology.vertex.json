@@ -122,16 +122,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "scale1em06_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#15 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -286,16 +282,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "scale0p001_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#35 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -450,16 +442,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "scale1000p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#55 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -614,16 +602,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "scale1000000p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#75 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -964,16 +948,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "point_curve_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#118 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -1016,16 +996,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "point_curve_v1_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#124 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -1068,16 +1044,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "point_curve_v2_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#130 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -1120,16 +1092,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "point_curve_v3_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#136 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -1285,8 +1253,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol0_a0",
@@ -1297,8 +1265,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol0_a1",
@@ -1309,8 +1277,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol1_a0",
@@ -1321,8 +1289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol1_a1",
@@ -1333,8 +1301,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol2_a0",
@@ -1345,8 +1313,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol2_a1",
@@ -1357,8 +1325,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol3_a0",
@@ -1369,8 +1337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol3_a1",
@@ -1381,8 +1349,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol4_a0",
@@ -1393,8 +1361,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol4_a1",
@@ -1405,8 +1373,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol5_a0",
@@ -1417,8 +1385,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol5_a1",
@@ -1429,8 +1397,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol6_a0",
@@ -1441,8 +1409,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gaptol6_a1",
@@ -2392,16 +2360,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#27 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -2412,16 +2376,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v0_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#29 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -2432,16 +2392,12 @@
       "values_compared": 25
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v0_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#31 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -2736,16 +2692,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v1_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#68 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -2756,16 +2708,12 @@
       "values_compared": 31
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v1_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#70 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -2776,16 +2724,12 @@
       "values_compared": 25
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v1_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#72 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3080,16 +3024,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v2_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#109 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -3100,16 +3040,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v2_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#111 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3120,16 +3056,12 @@
       "values_compared": 25
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v2_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#113 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3424,16 +3356,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v3_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#150 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -3444,16 +3372,12 @@
       "values_compared": 31
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v3_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#152 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3464,16 +3388,12 @@
       "values_compared": 25
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v3_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#154 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3768,16 +3688,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v4_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#191 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -3788,16 +3704,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v4_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#193 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3808,16 +3720,12 @@
       "values_compared": 25
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "net_v4_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#195 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3908,16 +3816,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v0_gaps_all_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#207 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -3952,16 +3856,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v1_gaps_all_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#212 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4200,16 +4100,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#242 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4220,16 +4116,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v0_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#244 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -4240,16 +4132,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v0_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#246 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -4544,16 +4432,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v1_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#283 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4564,16 +4448,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v1_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#285 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -4584,16 +4464,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "repair_v1_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#287 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -6604,16 +6480,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_eq_0p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#539 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6648,16 +6520,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_eq_0p3_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#544 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6692,16 +6560,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_eq_0p7_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#549 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6736,16 +6600,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_eq_45p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#554 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6780,16 +6640,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_eq_180p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#559 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6824,16 +6680,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_ne_0p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#564 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6868,16 +6720,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_ne_0p3_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#569 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6912,16 +6760,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_ne_0p7_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#574 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -6956,16 +6800,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_ne_45p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#579 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -7000,16 +6840,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "bspl_line_ne_180p0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#584 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -8872,16 +8708,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "seam_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#813 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -8892,16 +8724,12 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "seam_v0_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#815 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -8912,16 +8740,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "seam_v0_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#817 (upstream tests/prog_test/src/smTopoTest.cpp:3767)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10032,16 +9856,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#954 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10052,16 +9872,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v0_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#956 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10072,16 +9888,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v0_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#958 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10376,16 +10188,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v1_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#995 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10396,16 +10204,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v1_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#997 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10416,16 +10220,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_full_v1_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#999 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10720,16 +10520,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v0_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1036 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10740,16 +10536,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v0_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1038 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -10760,16 +10552,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v0_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1040 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -11064,16 +10852,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v1_gaps_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1077 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11084,16 +10868,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v1_gaps_tol_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1079 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -11104,16 +10884,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
-      },
       "max_rel_err": 0.0,
       "name": "wire_sub_v1_gaps_noarr_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1081 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -11264,14 +11040,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1100 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -11425,8 +11197,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_g0",
@@ -11437,8 +11209,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_g1",
@@ -11449,8 +11221,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_tol_g0",
@@ -11461,8 +11233,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_tol_g1",
@@ -11473,8 +11245,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_noarr_g0",
@@ -11485,8 +11257,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v0_gaps_noarr_g1",
@@ -11636,14 +11408,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1141 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -11797,8 +11565,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_g0",
@@ -11809,8 +11577,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_g1",
@@ -11821,8 +11589,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_tol_g0",
@@ -11833,8 +11601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_tol_g1",
@@ -11845,8 +11613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_noarr_g0",
@@ -11857,8 +11625,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v1_gaps_noarr_g1",
@@ -12008,14 +11776,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1182 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -12169,8 +11933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_g0",
@@ -12181,8 +11945,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_g1",
@@ -12193,8 +11957,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_tol_g0",
@@ -12205,8 +11969,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_tol_g1",
@@ -12217,8 +11981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_noarr_g0",
@@ -12229,8 +11993,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v2_gaps_noarr_g1",
@@ -12380,14 +12144,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1223 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -12541,8 +12301,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_g0",
@@ -12553,8 +12313,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_g1",
@@ -12565,8 +12325,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_tol_g0",
@@ -12577,8 +12337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_tol_g1",
@@ -12589,8 +12349,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_noarr_g0",
@@ -12601,8 +12361,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_v3_gaps_noarr_g1",
@@ -12752,14 +12512,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1264 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -12913,8 +12669,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_g0",
@@ -12925,8 +12681,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_g1",
@@ -12937,8 +12693,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_tol_g0",
@@ -12949,8 +12705,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_tol_g1",
@@ -12961,8 +12717,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_noarr_g0",
@@ -12973,8 +12729,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v0_gaps_noarr_g1",
@@ -13124,14 +12880,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1305 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -13285,8 +13037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_g0",
@@ -13297,8 +13049,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_g1",
@@ -13309,8 +13061,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_tol_g0",
@@ -13321,8 +13073,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_tol_g1",
@@ -13333,8 +13085,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_noarr_g0",
@@ -13345,8 +13097,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v1_gaps_noarr_g1",
@@ -13496,14 +13248,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1346 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -13657,8 +13405,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_g0",
@@ -13669,8 +13417,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_g1",
@@ -13681,8 +13429,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_tol_g0",
@@ -13693,8 +13441,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_tol_g1",
@@ -13705,8 +13453,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_noarr_g0",
@@ -13717,8 +13465,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v2_gaps_noarr_g1",
@@ -13868,14 +13616,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1387 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -14029,8 +13773,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_g0",
@@ -14041,8 +13785,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_g1",
@@ -14053,8 +13797,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_tol_g0",
@@ -14065,8 +13809,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_tol_g1",
@@ -14077,8 +13821,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_noarr_g0",
@@ -14089,8 +13833,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_v3_gaps_noarr_g1",
@@ -14240,14 +13984,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1428 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -14401,8 +14141,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_g0",
@@ -14413,8 +14153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_g1",
@@ -14425,8 +14165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_tol_g0",
@@ -14437,8 +14177,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_tol_g1",
@@ -14449,8 +14189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_noarr_g0",
@@ -14461,8 +14201,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_noarr_g1",
@@ -14612,14 +14352,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1469 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -14773,8 +14509,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_g0",
@@ -14785,8 +14521,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_g1",
@@ -14797,8 +14533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_tol_g0",
@@ -14809,8 +14545,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_tol_g1",
@@ -14821,8 +14557,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_noarr_g0",
@@ -14833,8 +14569,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_noarr_g1",
@@ -14984,14 +14720,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "pinched_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1510 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -15145,8 +14877,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_g0",
@@ -15157,8 +14889,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_g1",
@@ -15169,8 +14901,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_tol_g0",
@@ -15181,8 +14913,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_tol_g1",
@@ -15193,8 +14925,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_noarr_g0",
@@ -15205,8 +14937,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_noarr_g1",
@@ -15356,14 +15088,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "pinched_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1551 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -15517,8 +15245,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_g0",
@@ -15529,8 +15257,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_g1",
@@ -15541,8 +15269,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_tol_g0",
@@ -15553,8 +15281,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_tol_g1",
@@ -15565,8 +15293,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_noarr_g0",
@@ -15577,8 +15305,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_noarr_g1",
@@ -15728,14 +15456,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "pinched_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1592 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -15889,8 +15613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_g0",
@@ -15901,8 +15625,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_g1",
@@ -15913,8 +15637,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_tol_g0",
@@ -15925,8 +15649,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_tol_g1",
@@ -15937,8 +15661,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_noarr_g0",
@@ -15949,8 +15673,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_noarr_g1",
@@ -16100,14 +15824,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "pinched_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1633 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 0
     },
@@ -16261,8 +15981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_g0",
@@ -16273,8 +15993,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_g1",
@@ -16285,8 +16005,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_tol_g0",
@@ -16297,8 +16017,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_tol_g1",
@@ -16309,8 +16029,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_noarr_g0",
@@ -16321,8 +16041,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_noarr_g1",
@@ -27732,14 +27452,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#9 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
       "values_compared": 0
     },
@@ -27893,8 +27609,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_g0",
@@ -27905,8 +27621,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_g1",
@@ -27917,8 +27633,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_tol_g0",
@@ -27929,8 +27645,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_tol_g1",
@@ -27941,8 +27657,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_noarr_g0",
@@ -27953,8 +27669,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_gaps_noarr_g1",
@@ -28100,14 +27816,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#50 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
       "values_compared": 0
     },
@@ -28261,8 +27973,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_g0",
@@ -28273,8 +27985,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_g1",
@@ -28285,8 +27997,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_tol_g0",
@@ -28297,8 +28009,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_tol_g1",
@@ -28309,8 +28021,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_noarr_g0",
@@ -28321,8 +28033,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_gaps_noarr_g1",
@@ -28460,14 +28172,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#90 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
       "values_compared": 0
     },
@@ -28497,8 +28205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_gaps_g1",
@@ -28509,8 +28217,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_gaps_tol_g1",
@@ -28521,8 +28229,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_gaps_noarr_g1",
@@ -28628,14 +28336,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#108 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
       "values_compared": 0
     },
@@ -28665,8 +28369,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_gaps_g1",
@@ -28677,8 +28381,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_gaps_tol_g1",
@@ -28689,8 +28393,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_gaps_noarr_g1",
@@ -28749,8 +28453,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_rebuild_v0_gaps",
@@ -28777,8 +28481,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_rebuild_v3_gaps",
@@ -29020,14 +28724,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#153 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 0
     },
@@ -29181,8 +28881,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_g0",
@@ -29193,8 +28893,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_g1",
@@ -29205,8 +28905,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_tol_g0",
@@ -29217,8 +28917,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_tol_g1",
@@ -29229,8 +28929,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_noarr_g0",
@@ -29241,8 +28941,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_noarr_g1",
@@ -29388,14 +29088,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#194 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 0
     },
@@ -29549,8 +29245,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_g0",
@@ -29561,8 +29257,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_g1",
@@ -29573,8 +29269,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_tol_g0",
@@ -29585,8 +29281,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_tol_g1",
@@ -29597,8 +29293,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_noarr_g0",
@@ -29609,8 +29305,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_noarr_g1",
@@ -29748,14 +29444,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#234 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 0
     },
@@ -29785,8 +29477,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_gaps_g1",
@@ -29797,8 +29489,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_gaps_tol_g1",
@@ -29809,8 +29501,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_gaps_noarr_g1",
@@ -29916,14 +29608,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#252 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 0
     },
@@ -29953,8 +29641,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_gaps_g1",
@@ -29965,8 +29653,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_gaps_tol_g1",
@@ -29977,8 +29665,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_gaps_noarr_g1",
@@ -30037,8 +29725,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_rebuild_v0_gaps",
@@ -30065,8 +29753,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_rebuild_v3_gaps",
@@ -30308,14 +29996,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#297 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
       "values_compared": 0
     },
@@ -30469,8 +30153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_g0",
@@ -30481,8 +30165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_g1",
@@ -30493,8 +30177,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_tol_g0",
@@ -30505,8 +30189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_tol_g1",
@@ -30517,8 +30201,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_noarr_g0",
@@ -30529,8 +30213,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_noarr_g1",
@@ -30676,14 +30360,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#338 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
       "values_compared": 0
     },
@@ -30837,8 +30517,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_g0",
@@ -30849,8 +30529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_g1",
@@ -30861,8 +30541,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_tol_g0",
@@ -30873,8 +30553,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_tol_g1",
@@ -30885,8 +30565,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_noarr_g0",
@@ -30897,8 +30577,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_noarr_g1",
@@ -31036,14 +30716,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#378 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
       "values_compared": 0
     },
@@ -31073,8 +30749,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_g1",
@@ -31085,8 +30761,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_tol_g1",
@@ -31097,8 +30773,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_noarr_g1",
@@ -31204,14 +30880,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#396 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
       "values_compared": 0
     },
@@ -31241,8 +30913,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_g1",
@@ -31253,8 +30925,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_tol_g1",
@@ -31265,8 +30937,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_noarr_g1",
@@ -31325,8 +30997,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v0_gaps",
@@ -31353,8 +31025,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v3_gaps",
@@ -31596,14 +31268,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cone_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#441 (upstream TestFiles/pt_TestFiles/cone.smb)",
       "values_compared": 0
     },
@@ -31757,8 +31425,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_g0",
@@ -31769,8 +31437,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_g1",
@@ -31781,8 +31449,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_tol_g0",
@@ -31793,8 +31461,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_tol_g1",
@@ -31805,8 +31473,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_noarr_g0",
@@ -31817,8 +31485,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_noarr_g1",
@@ -31968,14 +31636,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cone_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#482 (upstream TestFiles/pt_TestFiles/cone.smb)",
       "values_compared": 0
     },
@@ -32129,8 +31793,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_g0",
@@ -32141,8 +31805,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_g1",
@@ -32153,8 +31817,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_tol_g0",
@@ -32165,8 +31829,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_tol_g1",
@@ -32177,8 +31841,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_noarr_g0",
@@ -32189,8 +31853,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_noarr_g1",
@@ -32328,14 +31992,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cone_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#522 (upstream TestFiles/pt_TestFiles/cone.smb)",
       "values_compared": 0
     },
@@ -32365,8 +32025,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_g1",
@@ -32377,8 +32037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_tol_g1",
@@ -32389,8 +32049,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_noarr_g1",
@@ -32500,14 +32160,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cone_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#540 (upstream TestFiles/pt_TestFiles/cone.smb)",
       "values_compared": 0
     },
@@ -32537,8 +32193,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_g1",
@@ -32549,8 +32205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_tol_g1",
@@ -32561,8 +32217,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_noarr_g1",
@@ -32621,8 +32277,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v0_gaps",
@@ -32653,8 +32309,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v3_gaps",
@@ -32940,14 +32596,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#585 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 0
     },
@@ -33101,8 +32753,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_g0",
@@ -33113,8 +32765,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_g1",
@@ -33125,8 +32777,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_tol_g0",
@@ -33137,8 +32789,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_tol_g1",
@@ -33149,8 +32801,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_noarr_g0",
@@ -33161,8 +32813,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v0_gaps_noarr_g1",
@@ -33312,14 +32964,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#626 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 0
     },
@@ -33473,8 +33121,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_g0",
@@ -33485,8 +33133,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_g1",
@@ -33497,8 +33145,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_tol_g0",
@@ -33509,8 +33157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_tol_g1",
@@ -33521,8 +33169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_noarr_g0",
@@ -33533,8 +33181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v1_gaps_noarr_g1",
@@ -33676,14 +33324,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#666 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 0
     },
@@ -33713,8 +33357,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v2_gaps_g1",
@@ -33725,8 +33369,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v2_gaps_tol_g1",
@@ -33737,8 +33381,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v2_gaps_noarr_g1",
@@ -33848,14 +33492,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#684 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 0
     },
@@ -33885,8 +33525,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v3_gaps_g1",
@@ -33897,8 +33537,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v3_gaps_tol_g1",
@@ -33909,8 +33549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_v3_gaps_noarr_g1",
@@ -33973,8 +33613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_rebuild_v0_gaps",
@@ -34005,8 +33645,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_rebuild_v3_gaps",
@@ -34332,14 +33972,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#729 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 0
     },
@@ -34493,8 +34129,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_g0",
@@ -34505,8 +34141,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_g1",
@@ -34517,8 +34153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_tol_g0",
@@ -34529,8 +34165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_tol_g1",
@@ -34541,8 +34177,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_noarr_g0",
@@ -34553,8 +34189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_noarr_g1",
@@ -34704,14 +34340,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#770 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 0
     },
@@ -34865,8 +34497,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_g0",
@@ -34877,8 +34509,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_g1",
@@ -34889,8 +34521,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_tol_g0",
@@ -34901,8 +34533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_tol_g1",
@@ -34913,8 +34545,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_noarr_g0",
@@ -34925,8 +34557,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_noarr_g1",
@@ -35068,14 +34700,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#810 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 0
     },
@@ -35105,8 +34733,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_g1",
@@ -35117,8 +34745,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_tol_g1",
@@ -35129,8 +34757,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_noarr_g1",
@@ -35240,14 +34868,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#828 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 0
     },
@@ -35277,8 +34901,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_g1",
@@ -35289,8 +34913,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_tol_g1",
@@ -35301,8 +34925,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_noarr_g1",
@@ -35365,8 +34989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v0_gaps",
@@ -35397,8 +35021,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v3_gaps",
@@ -35720,14 +35344,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#873 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 0
     },
@@ -35881,8 +35501,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_g0",
@@ -35893,8 +35513,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_g1",
@@ -35905,8 +35525,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_tol_g0",
@@ -35917,8 +35537,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_tol_g1",
@@ -35929,8 +35549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_noarr_g0",
@@ -35941,8 +35561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_noarr_g1",
@@ -36088,14 +35708,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#914 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 0
     },
@@ -36249,8 +35865,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_g0",
@@ -36261,8 +35877,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_g1",
@@ -36273,8 +35889,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_tol_g0",
@@ -36285,8 +35901,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_tol_g1",
@@ -36297,8 +35913,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_noarr_g0",
@@ -36309,8 +35925,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_noarr_g1",
@@ -36448,14 +36064,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#954 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 0
     },
@@ -36485,8 +36097,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_g1",
@@ -36497,8 +36109,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_tol_g1",
@@ -36509,8 +36121,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_noarr_g1",
@@ -36616,14 +36228,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#972 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 0
     },
@@ -36653,8 +36261,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_g1",
@@ -36665,8 +36273,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_tol_g1",
@@ -36677,8 +36285,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_noarr_g1",
@@ -36737,8 +36345,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_rebuild_v0_gaps",
@@ -36765,8 +36373,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_rebuild_v3_gaps",
@@ -37012,14 +36620,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1017 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 0
     },
@@ -37173,8 +36777,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_g0",
@@ -37185,8 +36789,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_g1",
@@ -37197,8 +36801,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_tol_g0",
@@ -37209,8 +36813,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_tol_g1",
@@ -37221,8 +36825,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_noarr_g0",
@@ -37233,8 +36837,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_noarr_g1",
@@ -37384,14 +36988,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1058 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 0
     },
@@ -37545,8 +37145,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_g0",
@@ -37557,8 +37157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_g1",
@@ -37569,8 +37169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_tol_g0",
@@ -37581,8 +37181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_tol_g1",
@@ -37593,8 +37193,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_noarr_g0",
@@ -37605,8 +37205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_noarr_g1",
@@ -37748,14 +37348,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1098 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 0
     },
@@ -37785,8 +37381,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_g1",
@@ -37797,8 +37393,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_tol_g1",
@@ -37809,8 +37405,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_noarr_g1",
@@ -37920,14 +37516,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1116 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 0
     },
@@ -37957,8 +37549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_g1",
@@ -37969,8 +37561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_tol_g1",
@@ -37981,8 +37573,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_noarr_g1",
@@ -38045,8 +37637,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v0_gaps",
@@ -38077,8 +37669,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v3_gaps",
@@ -38400,14 +37992,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1161 (upstream TestFiles/pt_TestFiles/sphere.smb)",
       "values_compared": 0
     },
@@ -38561,8 +38149,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_g0",
@@ -38573,8 +38161,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_g1",
@@ -38585,8 +38173,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_tol_g0",
@@ -38597,8 +38185,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_tol_g1",
@@ -38609,8 +38197,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_noarr_g0",
@@ -38621,8 +38209,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_noarr_g1",
@@ -38768,14 +38356,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1202 (upstream TestFiles/pt_TestFiles/sphere.smb)",
       "values_compared": 0
     },
@@ -38929,8 +38513,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_g0",
@@ -38941,8 +38525,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_g1",
@@ -38953,8 +38537,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_tol_g0",
@@ -38965,8 +38549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_tol_g1",
@@ -38977,8 +38561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_noarr_g0",
@@ -38989,8 +38573,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_noarr_g1",
@@ -39128,14 +38712,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1242 (upstream TestFiles/pt_TestFiles/sphere.smb)",
       "values_compared": 0
     },
@@ -39165,8 +38745,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_g1",
@@ -39177,8 +38757,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_tol_g1",
@@ -39189,8 +38769,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_noarr_g1",
@@ -39296,14 +38876,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1260 (upstream TestFiles/pt_TestFiles/sphere.smb)",
       "values_compared": 0
     },
@@ -39333,8 +38909,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_g1",
@@ -39345,8 +38921,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_tol_g1",
@@ -39357,8 +38933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_noarr_g1",
@@ -39417,8 +38993,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v0_gaps",
@@ -39445,8 +39021,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v3_gaps",
@@ -39692,14 +39268,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1305 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
       "values_compared": 0
     },
@@ -39853,8 +39425,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_g0",
@@ -39865,8 +39437,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_g1",
@@ -39877,8 +39449,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_tol_g0",
@@ -39889,8 +39461,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_tol_g1",
@@ -39901,8 +39473,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_noarr_g0",
@@ -39913,8 +39485,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_gaps_noarr_g1",
@@ -40064,14 +39636,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1346 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
       "values_compared": 0
     },
@@ -40225,8 +39793,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_g0",
@@ -40237,8 +39805,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_g1",
@@ -40249,8 +39817,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_tol_g0",
@@ -40261,8 +39829,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_tol_g1",
@@ -40273,8 +39841,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_noarr_g0",
@@ -40285,8 +39853,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_gaps_noarr_g1",
@@ -40428,14 +39996,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1386 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
       "values_compared": 0
     },
@@ -40465,8 +40029,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_gaps_g1",
@@ -40477,8 +40041,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_gaps_tol_g1",
@@ -40489,8 +40053,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_gaps_noarr_g1",
@@ -40600,14 +40164,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1404 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
       "values_compared": 0
     },
@@ -40637,8 +40197,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_gaps_g1",
@@ -40649,8 +40209,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_gaps_tol_g1",
@@ -40661,8 +40221,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_gaps_noarr_g1",
@@ -40725,8 +40285,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_rebuild_v0_gaps",
@@ -40757,8 +40317,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_rebuild_v3_gaps",
@@ -41084,14 +40644,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1449 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
       "values_compared": 0
     },
@@ -41245,8 +40801,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_g0",
@@ -41257,8 +40813,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_g1",
@@ -41269,8 +40825,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_tol_g0",
@@ -41281,8 +40837,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_tol_g1",
@@ -41293,8 +40849,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_noarr_g0",
@@ -41305,8 +40861,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_gaps_noarr_g1",
@@ -41456,14 +41012,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1490 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
       "values_compared": 0
     },
@@ -41617,8 +41169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_g0",
@@ -41629,8 +41181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_g1",
@@ -41641,8 +41193,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_tol_g0",
@@ -41653,8 +41205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_tol_g1",
@@ -41665,8 +41217,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_noarr_g0",
@@ -41677,8 +41229,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_gaps_noarr_g1",
@@ -41820,14 +41372,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1530 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
       "values_compared": 0
     },
@@ -41857,8 +41405,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_gaps_g1",
@@ -41869,8 +41417,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_gaps_tol_g1",
@@ -41881,8 +41429,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_gaps_noarr_g1",
@@ -41992,14 +41540,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1548 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
       "values_compared": 0
     },
@@ -42029,8 +41573,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_gaps_g1",
@@ -42041,8 +41585,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_gaps_tol_g1",
@@ -42053,8 +41597,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_gaps_noarr_g1",
@@ -42117,8 +41661,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_rebuild_v0_gaps",
@@ -42149,8 +41693,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_rebuild_v3_gaps",
@@ -42476,14 +42020,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1593 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
       "values_compared": 0
     },
@@ -42637,8 +42177,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_g0",
@@ -42649,8 +42189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_g1",
@@ -42661,8 +42201,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_tol_g0",
@@ -42673,8 +42213,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_tol_g1",
@@ -42685,8 +42225,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_noarr_g0",
@@ -42697,8 +42237,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_noarr_g1",
@@ -42848,14 +42388,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1634 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
       "values_compared": 0
     },
@@ -43009,8 +42545,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_g0",
@@ -43021,8 +42557,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_g1",
@@ -43033,8 +42569,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_tol_g0",
@@ -43045,8 +42581,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_tol_g1",
@@ -43057,8 +42593,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_noarr_g0",
@@ -43069,8 +42605,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_noarr_g1",
@@ -43212,14 +42748,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1674 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
       "values_compared": 0
     },
@@ -43249,8 +42781,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_g1",
@@ -43261,8 +42793,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_tol_g1",
@@ -43273,8 +42805,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_noarr_g1",
@@ -43384,14 +42916,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1692 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
       "values_compared": 0
     },
@@ -43421,8 +42949,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_g1",
@@ -43433,8 +42961,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_tol_g1",
@@ -43445,8 +42973,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_noarr_g1",
@@ -43509,8 +43037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v0_gaps",
@@ -43541,8 +43069,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v3_gaps",
@@ -43868,14 +43396,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1737 (upstream TestFiles/pt_TestFiles/torus.smb)",
       "values_compared": 0
     },
@@ -44029,8 +43553,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_g0",
@@ -44041,8 +43565,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_g1",
@@ -44053,8 +43577,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_tol_g0",
@@ -44065,8 +43589,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_tol_g1",
@@ -44077,8 +43601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_noarr_g0",
@@ -44089,8 +43613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v0_gaps_noarr_g1",
@@ -44240,14 +43764,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1778 (upstream TestFiles/pt_TestFiles/torus.smb)",
       "values_compared": 0
     },
@@ -44401,8 +43921,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_g0",
@@ -44413,8 +43933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_g1",
@@ -44425,8 +43945,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_tol_g0",
@@ -44437,8 +43957,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_tol_g1",
@@ -44449,8 +43969,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_noarr_g0",
@@ -44461,8 +43981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v1_gaps_noarr_g1",
@@ -44604,14 +44124,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1818 (upstream TestFiles/pt_TestFiles/torus.smb)",
       "values_compared": 0
     },
@@ -44641,8 +44157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v2_gaps_g1",
@@ -44653,8 +44169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v2_gaps_tol_g1",
@@ -44665,8 +44181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v2_gaps_noarr_g1",
@@ -44776,14 +44292,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1836 (upstream TestFiles/pt_TestFiles/torus.smb)",
       "values_compared": 0
     },
@@ -44813,8 +44325,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v3_gaps_g1",
@@ -44825,8 +44337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v3_gaps_tol_g1",
@@ -44837,8 +44349,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_v3_gaps_noarr_g1",
@@ -44901,8 +44413,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_rebuild_v0_gaps",
@@ -44933,8 +44445,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_rebuild_v3_gaps",
@@ -45260,14 +44772,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1881 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
       "values_compared": 0
     },
@@ -45421,8 +44929,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_g0",
@@ -45433,8 +44941,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_g1",
@@ -45445,8 +44953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_tol_g0",
@@ -45457,8 +44965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_tol_g1",
@@ -45469,8 +44977,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_noarr_g0",
@@ -45481,8 +44989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_gaps_noarr_g1",
@@ -45632,14 +45140,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1922 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
       "values_compared": 0
     },
@@ -45793,8 +45297,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_g0",
@@ -45805,8 +45309,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_g1",
@@ -45817,8 +45321,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_tol_g0",
@@ -45829,8 +45333,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_tol_g1",
@@ -45841,8 +45345,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_noarr_g0",
@@ -45853,8 +45357,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_gaps_noarr_g1",
@@ -45996,14 +45500,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1962 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
       "values_compared": 0
     },
@@ -46033,8 +45533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_gaps_g1",
@@ -46045,8 +45545,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_gaps_tol_g1",
@@ -46057,8 +45557,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_gaps_noarr_g1",
@@ -46168,14 +45668,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1980 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
       "values_compared": 0
     },
@@ -46205,8 +45701,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_gaps_g1",
@@ -46217,8 +45713,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_gaps_tol_g1",
@@ -46229,8 +45725,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_gaps_noarr_g1",
@@ -46293,8 +45789,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_rebuild_v0_gaps",
@@ -46325,8 +45821,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_rebuild_v3_gaps",
@@ -46652,14 +46148,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2025 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
       "values_compared": 0
     },
@@ -46813,8 +46305,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_g0",
@@ -46825,8 +46317,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_g1",
@@ -46837,8 +46329,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_tol_g0",
@@ -46849,8 +46341,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_tol_g1",
@@ -46861,8 +46353,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_noarr_g0",
@@ -46873,8 +46365,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_gaps_noarr_g1",
@@ -47024,14 +46516,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2066 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
       "values_compared": 0
     },
@@ -47185,8 +46673,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_g0",
@@ -47197,8 +46685,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_g1",
@@ -47209,8 +46697,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_tol_g0",
@@ -47221,8 +46709,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_tol_g1",
@@ -47233,8 +46721,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_noarr_g0",
@@ -47245,8 +46733,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_gaps_noarr_g1",
@@ -47388,14 +46876,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2106 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
       "values_compared": 0
     },
@@ -47425,8 +46909,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_gaps_g1",
@@ -47437,8 +46921,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_gaps_tol_g1",
@@ -47449,8 +46933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_gaps_noarr_g1",
@@ -47560,14 +47044,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_vu_f",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2124 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
       "values_compared": 0
     },
@@ -47597,8 +47077,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_gaps_g1",
@@ -47609,8 +47089,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_gaps_tol_g1",
@@ -47621,8 +47101,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_gaps_noarr_g1",
@@ -47685,8 +47165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_rebuild_v0_gaps",
@@ -47717,8 +47197,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUVDomain",
-        "unit": "topology.face_p2"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_rebuild_v3_gaps",
@@ -48053,8 +47533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertexEdgeGap::Set",
-        "unit": "heal.gap"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0009",
@@ -48080,14 +47560,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardFaceuse",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11202289197584117224",
       "values_compared": 0
     },
@@ -48117,15 +47593,14 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 1012,
+  "cases_deferred": 881,
   "cases_failed": 0,
-  "cases_passed": 4496,
+  "cases_passed": 4627,
   "cases_total": 5508,
   "deferred_by_unit": {
-    "heal.gap": 99,
     "surface.surface_p3": 382,
     "topology.edge": 24,
-    "topology.face_p2": 431,
+    "topology.edgeuse_p3": 399,
     "topology.face_p3": 76
   },
   "max_rel_err": 0.0,

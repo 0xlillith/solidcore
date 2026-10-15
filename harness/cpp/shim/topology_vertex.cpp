@@ -624,7 +624,10 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_list(o, v);
     }
     for (SmFace* p : g.faces)
+    {
         put_surface(o, p->GetSurface());
+        o.push_back((double)g.find(2, p->GetUpwardFaceuse()));
+    }
     for (SmLoopuse* p : g.loopuses)
     {
         o.push_back((double)g.find(2, p->GetOwner()));

@@ -71,8 +71,7 @@
 //!   with the composite face code): it returns the first vertex use of any face whose
 //!   face use is that face's upward face use, else the last vertex use with a face use
 //!   (`plan/upstream-issues.md`). Ported as written.
-//! - **Unported callees.** `SmFace::GetUpwardFaceuse` (`topology.face_p2`),
-//!   `SmFace::SetTolerance` (`topology.face_p3`), `SmEdge::SetTolerance`
+//! - **Unported callees.** `SmFace::SetTolerance` (`topology.face_p3`), `SmEdge::SetTolerance`
 //!   (`topology.edge`) and the gap evaluations reached through the vertex uses
 //!   (`heal.gap`, surface units) return [`SolidError::Unported`].
 //! - **Co-ports.** The small `SmEdge` and `SmLoopuse` accessors this unit reaches are
@@ -296,15 +295,6 @@ pub fn brep(b: &Brep, v: VertexId) -> Result<Option<&Brep>> {
 
 // ---- co-ported accessors of other units --------------------------------------------------
 
-/// `SmFace::GetUpwardFaceuse`.
-fn face_upward_faceuse(_b: &Brep, _f: FaceId) -> Result<Option<FaceuseId>> {
-    // UNPORTED(topology.face_p2): SmFace::GetUpwardFaceuse
-    Err(SolidError::unported(
-        "SmFace::GetUpwardFaceuse",
-        "topology.face_p2",
-    ))
-}
-
 /// `SmFace::SetTolerance(tol)` (default arguments).
 fn face_set_tolerance(_b: &mut Brep, _f: FaceId, _tol: f64) -> Result<()> {
     // UNPORTED(topology.face_p3): SmFace::SetTolerance
@@ -484,7 +474,7 @@ pub fn loop_vertices(b: &Brep, l: LoopId) -> Result<Vec<Option<VertexId>>> {
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
-/// upstream dereferences null; [`SolidError::Unported`] (`SmFace::GetUpwardFaceuse`).
+/// upstream dereferences null.
 pub fn vertexuse_of_face(
     b: &Brep,
     v: VertexId,
@@ -512,7 +502,7 @@ pub fn vertexuse_of_face(
         // Use the first Vertexuse found on an upward Faceuse.
         let this_face =
             this_face.ok_or_else(|| null("GetVertexuseOfFace: face use without face"))?;
-        if face_upward_faceuse(b, this_face)? == Some(fu) {
+        if crate::topology::face::p2::upward_faceuse(b, this_face)? == Some(fu) {
             break;
         }
     }

@@ -8,9 +8,9 @@
 //! `prog_test` `my_test_topology`. There is no Rust B-rep reader or builder yet (units
 //! `topology.brep_*`), so the Rust side imports the graph the shim exports in traversal
 //! order (raw members, including each vertex's vertex use list in upstream list order,
-//! each vertex use's cached gaps and each edge's curve identity) into a
-//! [`Brep`] and runs the ported functions on it; their results are compared as traversal
-//! indices, flags, statuses and values. `init_gaps` has the C++ side compute the cached
+//! each vertex use's cached gaps, each edge's curve identity and each face's upward face
+//! use) into a [`Brep`] and runs the ported functions on it; their results are compared
+//! as traversal indices, flags, statuses and values. `init_gaps` has the C++ side compute the cached
 //! gaps before the op, so that cached gaps and their resets are observable. A B-rep
 //! whose edges share a curve object, or whose edge curves are not B-splines or lines,
 //! is a harness error (the Rust side could not represent it).
@@ -28,7 +28,6 @@ use solidcore::curve::curve::Curve as SmCurve;
 use solidcore::curve::line::Line;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent1d::Extent1d;
-use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::geom::solution_array::ObjectKind;
 use solidcore::geom::vector2d::Point2;
@@ -501,7 +500,10 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     }
     let mut surfaces = Vec::new();
     for _ in 0..n_f {
-        surfaces.push(read_surface(&mut rd)?);
+        let surface = read_surface(&mut rd)?;
+        // `GetUpwardFaceuse` (`m_pFU`)
+        let faceuse = opt(rd.idx()?, FaceuseId::from_index)?;
+        surfaces.push((surface, faceuse));
     }
     let mut loopuses = Vec::new();
     for _ in 0..n_lu {
@@ -669,16 +671,15 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
             .collect();
         b.add_shell_record(s).map_err(|e| harness(e.to_string()))?;
     }
-    for (f, surface) in surfaces.into_iter().enumerate() {
+    for (f, (surface, faceuse)) in surfaces.into_iter().enumerate() {
         let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
+        // The domain, rectangular-trim flag and tolerance are not exported by this shim:
+        // `SmFace()` defaults (`RefreshTolerance` reads the tolerance only to defer at the
+        // unported `SmFace::SetTolerance`).
         b.add_face_record(Face {
-            shell,
-            loops: Vec::new(),
             surface,
-            // Not exported by this shim: `SmFace()` defaults. The Rust side never reads
-            // them here (`GetUVDomain` / `GetTolerance` are `topology.face_p2` stubs).
-            uv_domain: Extent2d::new(),
-            tolerance: 0.0,
+            faceuse,
+            ..Face::new(shell)
         })
         .map_err(|e| harness(e.to_string()))?;
     }
