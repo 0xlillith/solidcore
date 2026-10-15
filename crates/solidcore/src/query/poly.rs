@@ -118,7 +118,7 @@
 //!   (even itself), and the virtual `GetPolyEdges` / `GetNormal` /
 //!   `CalculateBoundingBox` / `GetOKBackPtrs` of the composite would then recurse
 //!   without bound; refusing nested composites keeps that recursion one level deep
-//!   (WR-75 in `plan/upstream-issues.md`).
+//!   (WR-82 in `plan/upstream-issues.md`).
 //! - `SmCPolyFace::GetNormal` of a composite without members returns `(1,1,1)` after an
 //!   `SM_ASSERT`; kept.
 //! - `SmPolyBrep::GetPolyEdges` with a common edge use walks each face's loop list as
