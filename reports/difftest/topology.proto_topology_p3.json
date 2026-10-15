@@ -27,8 +27,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0003",
@@ -159,8 +159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0019",
@@ -283,8 +283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0033",
@@ -318,16 +318,12 @@
       "values_compared": 122
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0037",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275505",
-      "values_compared": 0
+      "values_compared": 715
     },
     {
       "max_rel_err": 0.0,
@@ -382,16 +378,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0044",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275512",
-      "values_compared": 0
+      "values_compared": 137
     },
     {
       "max_rel_err": 0.0,
@@ -427,8 +419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0049",
@@ -447,8 +439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0051",
@@ -515,8 +507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0059",
@@ -699,8 +691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0080",
@@ -722,16 +714,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0082",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275550",
-      "values_compared": 0
+      "values_compared": 137
     },
     {
       "max_rel_err": 0.0,
@@ -815,8 +803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0092",
@@ -878,16 +866,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0099",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275567",
-      "values_compared": 0
+      "values_compared": 83
     },
     {
       "max_rel_err": 0.0,
@@ -955,8 +939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0107",
@@ -1035,8 +1019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -1098,16 +1082,12 @@
       "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275591",
-      "values_compared": 0
+      "values_compared": 124
     },
     {
       "max_rel_err": 0.0,
@@ -1231,8 +1211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -1258,16 +1238,12 @@
       "values_compared": 687
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275609",
-      "values_compared": 0
+      "values_compared": 186
     },
     {
       "deferred": {
@@ -1299,8 +1275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -1483,8 +1459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0165",
@@ -1511,8 +1487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0168",
@@ -1547,8 +1523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0172",
@@ -1595,8 +1571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0177",
@@ -1631,8 +1607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0181",
@@ -1659,8 +1635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0184",
@@ -1767,8 +1743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -1787,8 +1763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0198",
@@ -1863,8 +1839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0206",
@@ -1882,16 +1858,12 @@
       "values_compared": 126
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0208",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275676",
-      "values_compared": 0
+      "values_compared": 101
     },
     {
       "deferred": {
@@ -1923,8 +1895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0212",
@@ -2335,8 +2307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0260",
@@ -2547,8 +2519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0284",
@@ -2783,8 +2755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0310",
@@ -2907,8 +2879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -3051,8 +3023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -3098,16 +3070,12 @@
       "values_compared": 75
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0346",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275814",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -3143,8 +3111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -3199,8 +3167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0357",
@@ -3278,16 +3246,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275833",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "max_rel_err": 0.0,
@@ -3439,8 +3403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0383",
@@ -3535,8 +3499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -3579,8 +3543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0398",
@@ -3682,16 +3646,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0410",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275878",
-      "values_compared": 0
+      "values_compared": 151
     },
     {
       "max_rel_err": 0.0,
@@ -3703,8 +3663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0412",
@@ -3818,16 +3778,12 @@
       "values_compared": 164
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0426",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275894",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -3923,8 +3879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -4062,16 +4018,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0453",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275921",
-      "values_compared": 0
+      "values_compared": 149
     },
     {
       "max_rel_err": 0.0,
@@ -4091,8 +4043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -4367,8 +4319,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0487",
@@ -4427,8 +4379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0494",
@@ -4507,8 +4459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0503",
@@ -4630,16 +4582,12 @@
       "values_compared": 101
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0517",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275985",
-      "values_compared": 0
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -4659,8 +4607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0520",
@@ -4979,8 +4927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0557",
@@ -4999,8 +4947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0559",
@@ -5074,16 +5022,12 @@
       "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0568",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276036",
-      "values_compared": 0
+      "values_compared": 151
     },
     {
       "max_rel_err": 0.0,
@@ -5215,8 +5159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0585",
@@ -5503,8 +5447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0618",
@@ -5767,8 +5711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0648",
@@ -5851,8 +5795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0657",
@@ -6007,8 +5951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0675",
@@ -6103,8 +6047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0686",
@@ -6438,16 +6382,12 @@
       "values_compared": 75
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0724",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276192",
-      "values_compared": 0
+      "values_compared": 119
     },
     {
       "max_rel_err": 0.0,
@@ -6730,16 +6670,12 @@
       "values_compared": 703
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0756",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276224",
-      "values_compared": 0
+      "values_compared": 124
     },
     {
       "max_rel_err": 0.0,
@@ -6791,8 +6727,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0763",
@@ -6842,16 +6778,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0768",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276236",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -7023,8 +6955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0789",
@@ -7110,16 +7042,12 @@
       "values_compared": 114
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0799",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276267",
-      "values_compared": 0
+      "values_compared": 145
     },
     {
       "max_rel_err": 0.0,
@@ -7131,8 +7059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0801",
@@ -7454,16 +7382,12 @@
       "values_compared": 498
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0839",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276307",
-      "values_compared": 0
+      "values_compared": 113
     },
     {
       "max_rel_err": 0.0,
@@ -7526,21 +7450,17 @@
       "values_compared": 102
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0847",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276315",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0848",
@@ -7607,8 +7527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0855",
@@ -7719,8 +7639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0868",
@@ -7783,8 +7703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0874",
@@ -7910,16 +7830,12 @@
       "values_compared": 48
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0888",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276356",
-      "values_compared": 0
+      "values_compared": 149
     },
     {
       "deferred": {
@@ -8170,16 +8086,12 @@
       "values_compared": 140
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0918",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276386",
-      "values_compared": 0
+      "values_compared": 150
     },
     {
       "max_rel_err": 0.0,
@@ -8427,8 +8339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0947",
@@ -8759,8 +8671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0986",
@@ -8827,8 +8739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0994",
@@ -8947,8 +8859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1008",
@@ -8967,8 +8879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmBrep::Point3DClassify",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen1010",
@@ -9067,8 +8979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1022",
@@ -9095,8 +9007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1025",
@@ -9227,8 +9139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1040",
@@ -9263,8 +9175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1044",
@@ -9331,8 +9243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1052",
@@ -9359,8 +9271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1055",
@@ -9459,8 +9371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1065",
@@ -9634,16 +9546,12 @@
       "values_compared": 75
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1086",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276554",
-      "values_compared": 0
+      "values_compared": 88
     },
     {
       "max_rel_err": 0.0,
@@ -9739,8 +9647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1097",
@@ -10155,8 +10063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1146",
@@ -10231,8 +10139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1155",
@@ -10251,8 +10159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1157",
@@ -10399,8 +10307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1174",
@@ -10543,8 +10451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1190",
@@ -10614,16 +10522,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1198",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276666",
-      "values_compared": 0
+      "values_compared": 527
     },
     {
       "max_rel_err": 0.0,
@@ -10642,16 +10546,12 @@
       "values_compared": 93
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1201",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276669",
-      "values_compared": 0
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -10743,8 +10643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1212",
@@ -10963,8 +10863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1236",
@@ -11007,8 +10907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1241",
@@ -11067,8 +10967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1247",
@@ -11103,8 +11003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1251",
@@ -11394,16 +11294,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1285",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276753",
-      "values_compared": 0
+      "values_compared": 475
     },
     {
       "max_rel_err": 0.0,
@@ -11415,8 +11311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1287",
@@ -11451,8 +11347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1291",
@@ -11587,8 +11483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1307",
@@ -11794,16 +11690,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1330",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276798",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "deferred": {
@@ -11987,8 +11879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1351",
@@ -12083,8 +11975,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1362",
@@ -12198,16 +12090,12 @@
       "values_compared": 70
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276844",
-      "values_compared": 0
+      "values_compared": 98
     },
     {
       "max_rel_err": 0.0,
@@ -12335,8 +12223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1390",
@@ -12411,8 +12299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1398",
@@ -12639,8 +12527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1424",
@@ -12651,8 +12539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1425",
@@ -12703,8 +12591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1431",
@@ -12971,8 +12859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1463",
@@ -12991,8 +12879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1465",
@@ -13111,8 +12999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1478",
@@ -13323,8 +13211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1502",
@@ -13335,8 +13223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1503",
@@ -13523,8 +13411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1524",
@@ -13583,8 +13471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1531",
@@ -13702,16 +13590,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1543",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277011",
-      "values_compared": 0
+      "values_compared": 135
     },
     {
       "max_rel_err": 0.0,
@@ -13810,16 +13694,12 @@
       "values_compared": 357
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1555",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277023",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -13886,16 +13766,12 @@
       "values_compared": 101
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1564",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277032",
-      "values_compared": 0
+      "values_compared": 144
     },
     {
       "max_rel_err": 0.0,
@@ -13954,16 +13830,12 @@
       "values_compared": 113
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1571",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277039",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "max_rel_err": 0.0,
@@ -14007,8 +13879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1577",
@@ -14095,8 +13967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1587",
@@ -14115,8 +13987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1589",
@@ -14202,16 +14074,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1598",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277066",
-      "values_compared": 0
+      "values_compared": 164
     },
     {
       "max_rel_err": 0.0,
@@ -14299,8 +14167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1609",
@@ -14319,8 +14187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1611",
@@ -14458,16 +14326,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1627",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277095",
-      "values_compared": 0
+      "values_compared": 96
     },
     {
       "max_rel_err": 0.0,
@@ -14495,8 +14359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1631",
@@ -14575,8 +14439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1639",
@@ -14611,8 +14475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1643",
@@ -14695,8 +14559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1653",
@@ -14739,8 +14603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1658",
@@ -14766,16 +14630,12 @@
       "values_compared": 46
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1661",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277129",
-      "values_compared": 0
+      "values_compared": 514
     },
     {
       "max_rel_err": 0.0,
@@ -14843,8 +14703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1670",
@@ -14890,16 +14750,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1675",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277143",
-      "values_compared": 0
+      "values_compared": 122
     },
     {
       "max_rel_err": 0.0,
@@ -14987,8 +14843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1686",
@@ -15039,8 +14895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmBrep::Point3DClassify",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen1692",
@@ -15114,16 +14970,12 @@
       "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1700",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277168",
-      "values_compared": 0
+      "values_compared": 96
     },
     {
       "max_rel_err": 0.0,
@@ -15663,8 +15515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1767",
@@ -15698,16 +15550,12 @@
       "values_compared": 91
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1771",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277239",
-      "values_compared": 0
+      "values_compared": 149
     },
     {
       "max_rel_err": 0.0,
@@ -15919,8 +15767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1797",
@@ -16054,16 +15902,12 @@
       "values_compared": 112
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1813",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277281",
-      "values_compared": 0
+      "values_compared": 152
     },
     {
       "max_rel_err": 0.0,
@@ -16115,8 +15959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1820",
@@ -16199,8 +16043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1830",
@@ -16275,8 +16119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1839",
@@ -16287,8 +16131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1840",
@@ -16535,8 +16379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1867",
@@ -16759,8 +16603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1892",
@@ -16807,8 +16651,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1897",
@@ -16939,8 +16783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1912",
@@ -16958,16 +16802,12 @@
       "values_compared": 91
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1914",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277382",
-      "values_compared": 0
+      "values_compared": 96
     },
     {
       "max_rel_err": 0.0,
@@ -16995,8 +16835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1918",
@@ -17063,8 +16903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1925",
@@ -17110,16 +16950,12 @@
       "values_compared": 100
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1930",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277398",
-      "values_compared": 0
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -17291,8 +17127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1950",
@@ -17327,8 +17163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1954",
@@ -17398,16 +17234,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1962",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277430",
-      "values_compared": 0
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -17435,8 +17267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1966",
@@ -17470,16 +17302,12 @@
       "values_compared": 107
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1970",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277438",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -17643,8 +17471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1990",
@@ -17766,16 +17594,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2003",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277471",
-      "values_compared": 0
+      "values_compared": 541
     },
     {
       "max_rel_err": 0.0,
@@ -17871,8 +17695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2015",
@@ -18067,8 +17891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2037",
@@ -18107,8 +17931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2041",
@@ -18159,8 +17983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2046",
@@ -18283,8 +18107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2061",
@@ -18303,8 +18127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2063",
@@ -18347,8 +18171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2068",
@@ -18359,8 +18183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2069",
@@ -18447,8 +18271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2078",
@@ -18475,8 +18299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2081",
@@ -18503,8 +18327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2084",
@@ -18607,8 +18431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2095",
@@ -18743,8 +18567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2110",
@@ -18794,28 +18618,20 @@
       "values_compared": 86
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2116",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277584",
-      "values_compared": 0
+      "values_compared": 542
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2117",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277585",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "deferred": {
@@ -18858,21 +18674,17 @@
       "values_compared": 653
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2122",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277590",
-      "values_compared": 0
+      "values_compared": 81
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetSurface",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2123",
@@ -18938,16 +18750,12 @@
       "values_compared": 126
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2131",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277599",
-      "values_compared": 0
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,
@@ -19002,21 +18810,17 @@
       "values_compared": 117
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2138",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277606",
-      "values_compared": 0
+      "values_compared": 128
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2139",
@@ -19063,8 +18867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2144",
@@ -19143,8 +18947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2153",
@@ -19179,8 +18983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2157",
@@ -19354,16 +19158,12 @@
       "values_compared": 52
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2176",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277644",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -19515,8 +19315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2193",
@@ -19839,8 +19639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2231",
@@ -19851,8 +19651,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2232",
@@ -19863,8 +19663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2233",
@@ -19914,16 +19714,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2238",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277706",
-      "values_compared": 0
+      "values_compared": 176
     },
     {
       "max_rel_err": 0.0,
@@ -20299,8 +20095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2284",
@@ -20410,28 +20206,20 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2297",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277765",
-      "values_compared": 0
+      "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2298",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277766",
-      "values_compared": 0
+      "values_compared": 113
     },
     {
       "max_rel_err": 0.0,
@@ -20483,8 +20271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2305",
@@ -20527,8 +20315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2310",
@@ -20567,8 +20355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2314",
@@ -20675,8 +20463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2326",
@@ -20755,8 +20543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2335",
@@ -20827,8 +20615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2343",
@@ -20907,8 +20695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2352",
@@ -21038,16 +20826,12 @@
       "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2368",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277836",
-      "values_compared": 0
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -21059,8 +20843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2370",
@@ -21223,8 +21007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2387",
@@ -21399,8 +21183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2406",
@@ -21486,16 +21270,12 @@
       "values_compared": 146
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277884",
-      "values_compared": 0
+      "values_compared": 122
     },
     {
       "max_rel_err": 0.0,
@@ -21515,8 +21295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2419",
@@ -21611,8 +21391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2430",
@@ -21651,8 +21431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2434",
@@ -21883,8 +21663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2459",
@@ -22131,8 +21911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2489",
@@ -22846,16 +22626,12 @@
       "values_compared": 145
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2573",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278041",
-      "values_compared": 0
+      "values_compared": 134
     },
     {
       "max_rel_err": 0.0,
@@ -23043,8 +22819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2596",
@@ -23239,8 +23015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2619",
@@ -23287,8 +23063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2624",
@@ -23307,8 +23083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2626",
@@ -23339,8 +23115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2629",
@@ -23379,8 +23155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2633",
@@ -23574,16 +23350,12 @@
       "values_compared": 123
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2655",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278123",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "max_rel_err": 0.0,
@@ -23775,8 +23547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2678",
@@ -23843,8 +23615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2685",
@@ -23950,16 +23722,12 @@
       "values_compared": 97
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2698",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278166",
-      "values_compared": 0
+      "values_compared": 511
     },
     {
       "max_rel_err": 0.0,
@@ -24107,8 +23875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2716",
@@ -24154,16 +23922,12 @@
       "values_compared": 109
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2721",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278189",
-      "values_compared": 0
+      "values_compared": 128
     },
     {
       "deferred": {
@@ -24254,16 +24018,12 @@
       "values_compared": 107
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2732",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278200",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -24427,8 +24187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2751",
@@ -24675,8 +24435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2779",
@@ -24759,8 +24519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2788",
@@ -24851,8 +24611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2798",
@@ -24987,8 +24747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2813",
@@ -25106,16 +24866,12 @@
       "values_compared": 78
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2827",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278295",
-      "values_compared": 0
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -25167,8 +24923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2834",
@@ -25555,8 +25311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2879",
@@ -25574,16 +25330,12 @@
       "values_compared": 96
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2881",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278349",
-      "values_compared": 0
+      "values_compared": 146
     },
     {
       "max_rel_err": 0.0,
@@ -25595,8 +25347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2883",
@@ -25627,8 +25379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2886",
@@ -25667,8 +25419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2890",
@@ -26079,8 +25831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2938",
@@ -26154,21 +25906,17 @@
       "values_compared": 95
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2947",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278415",
-      "values_compared": 0
+      "values_compared": 143
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2948",
@@ -26275,8 +26023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2960",
@@ -26355,8 +26103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2969",
@@ -26395,8 +26143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2973",
@@ -26431,8 +26179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2977",
@@ -26443,8 +26191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2978",
@@ -26487,8 +26235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2983",
@@ -26499,8 +26247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoTopologyManager::CreateProtoVertex",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2984",
@@ -26538,16 +26286,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen2988",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278456",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "max_rel_err": 0.0,
@@ -26595,8 +26339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmProtoVertex::AddVertexDefinition",
+        "unit": "topology.proto_topology_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2994",
@@ -26691,18 +26435,17 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 664,
+  "cases_deferred": 600,
   "cases_failed": 0,
-  "cases_passed": 2340,
+  "cases_passed": 2404,
   "cases_total": 3004,
   "deferred_by_unit": {
-    "query.brep": 28,
-    "query.face_p2": 254,
+    "query.brep": 30,
     "surface.surface_point_solve_p3": 103,
-    "topology.edge": 73,
-    "topology.face_p2": 77,
-    "topology.proto_topology_p2": 51,
-    "topology.vertex": 78
+    "topology.edge": 77,
+    "topology.face_p2": 78,
+    "topology.proto_topology_p2": 231,
+    "topology.vertex": 81
   },
   "max_rel_err": 0.0,
   "pass": true,

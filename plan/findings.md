@@ -4714,3 +4714,12 @@ mutated scales and accepted/reduced step counts are compared.
   `surface::surface::p4` (`GlobalPointSolve` on a face-owned surface), `intersect::ray_tracer` and `intersect::topology_solver::p1` call `PointClassify` on opaque
   face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
   reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.
+
+## topology.proto_topology_p3 (PR #121): stubs kept for ported or partial units
+
+- `UNPORTED(query.face_p2)` in `p3::face_curve_on_classify` (`SmFace::CurveOnClassify`, called
+  from `ResolveOverlappingProtoEdges`) stays: `query::face::p2::curve_on_classify` needs a
+  `Brep`, a `FaceId` and a `CurveOnClassifyObjects` implementation, while the proto-topology
+  manager holds opaque object handles (`ProtoBrepAccess`, no `Brep`). Wire it when the manager
+  gets its `Brep` implementation (`topology.proto_topology_p2`'s `ProtoBrep`).
+- `UNPORTED(topology.proto_topology_p2)` (eight callees) are stubs for the open PR #114.
