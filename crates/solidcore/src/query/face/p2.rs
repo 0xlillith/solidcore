@@ -906,6 +906,7 @@ mod tests {
             b.add_vertex_record(Vertex {
                 point: Point3::new(x, y, 0.0),
                 tolerance: 1e-6,
+                ..Vertex::default()
             })
             .unwrap();
         }
