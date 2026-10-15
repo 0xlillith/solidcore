@@ -101,7 +101,6 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::TsectCurveType;
-use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
 
 const OP_POINT: &str = "intersect::surface_intersector::p1::SurfaceIntersector::point";

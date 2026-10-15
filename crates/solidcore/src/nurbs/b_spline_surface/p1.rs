@@ -535,7 +535,7 @@ fn local_point_solve(
     let surface = crate::surface::surface::Surface::from(srf.clone_exact());
     let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
         domain,
-        crate::geom::global_solver::SolverOperation::Intersect,
+        SolverOperation::Intersect,
         point,
         guess,
     )?;
