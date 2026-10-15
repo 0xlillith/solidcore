@@ -2002,16 +2002,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "rect_edge_crossing_plane",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/curve.curve_p4/upstream.json#250 (upstream tests/SM_API_test/src/TestSmPrimitives.cpp:424 (SmApiCreateRectangle((0,0,0), 10, 6)))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3031,8 +3027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0119",
@@ -3099,8 +3095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0127",
@@ -4183,8 +4179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0262",
@@ -4235,8 +4231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0268",
@@ -4351,8 +4347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0282",
@@ -5243,8 +5239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0393",
@@ -5943,8 +5939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0480",
@@ -7139,8 +7135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -7439,8 +7435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0666",
@@ -7739,8 +7735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0703",
@@ -9583,8 +9579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0933",
@@ -10027,8 +10023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0988",
@@ -10079,8 +10075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0994",
@@ -10219,8 +10215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1011",
@@ -10447,8 +10443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1039",
@@ -10763,8 +10759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1078",
@@ -14223,8 +14219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1510",
@@ -14243,8 +14239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1512",
@@ -14279,8 +14275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1516",
@@ -14603,8 +14599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1556",
@@ -14927,8 +14923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1596",
@@ -14987,8 +14983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1603",
@@ -15006,16 +15002,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1605",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7577093924984376035",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15067,8 +15059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1612",
@@ -15311,8 +15303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1642",
@@ -16371,8 +16363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1774",
@@ -17087,8 +17079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1863",
@@ -18315,8 +18307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2016",
@@ -18719,8 +18711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2066",
@@ -18731,8 +18723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2067",
@@ -18991,8 +18983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2099",
@@ -19595,8 +19587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2174",
@@ -19839,8 +19831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2204",
@@ -20419,8 +20411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2276",
@@ -20487,8 +20479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2284",
@@ -20795,8 +20787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2322",
@@ -21119,8 +21111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2362",
@@ -21987,8 +21979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2470",
@@ -23214,16 +23206,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen2623",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7577093924984377053",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -23563,8 +23551,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2666",
@@ -23743,8 +23731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2688",
@@ -24099,8 +24087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2732",
@@ -24334,16 +24322,12 @@
       "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen2761",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7577093924984377191",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -24363,8 +24347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2764",
@@ -24607,8 +24591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2794",
@@ -25379,8 +25363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2890",
@@ -25951,8 +25935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2961",
@@ -26227,8 +26211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen2995",
@@ -26271,12 +26255,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 49,
+  "cases_deferred": 45,
   "cases_failed": 0,
-  "cases_passed": 3210,
+  "cases_passed": 3214,
   "cases_total": 3259,
   "deferred_by_unit": {
-    "surface.surface_p8": 49
+    "surface.surface_point_solve_p3": 45
   },
   "max_rel_err": 0.0,
   "pass": true,

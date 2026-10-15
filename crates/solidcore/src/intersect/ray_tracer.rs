@@ -42,7 +42,9 @@
 //!   [`LocalSolveResult::status`]; [`SolidError::Unported`] is always propagated.
 //! - **Solution nodes.** `LocalSolve` stores the grid element pointer in
 //!   `m_apNodes[0]` through an illegal cast that only `SmRayRenderer::RenderRay`
-//!   reads; `FireRay` clears it. The Rust solution leaves `nodes` empty.
+//!   reads; `FireRay` clears it. The Rust `LocalSolve` sets `nodes[0]` to a marker
+//!   node (the element's surface index) so that "set" compares as upstream's pointer;
+//!   nothing reads its value, and the solution `FireRay` returns has it empty.
 //! - **Grid elements of other types.** `FireRay` asserts (debug builds only) that a
 //!   non-polygon element is a surface element and casts it regardless; an element
 //!   of another type (user data, hierarchy) is [`SolidError::InvalidInput`] here.
@@ -767,6 +769,9 @@ impl Lsi3LocalSolver {
                     }
                     sol.start.solution_value = hit.deviation;
                     sol.solution_type = SolutionType::SingleValue;
+                    // the grid element pointer upstream stores through an illegal
+                    // cast (see the module header); only "set" matters
+                    sol.nodes[0] = Some(NodeId(element.surface));
                 }
             }
 
