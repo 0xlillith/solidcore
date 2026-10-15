@@ -896,6 +896,8 @@ the full-validation reports byte for byte.
 failures and one explicit `query.brep` deferral, with no absolute floors.
 Polygon trees and exact vertex/line-edge resizing are compared against C++;
 exact tree construction and face resizing await the dependencies documented
-in `plan/findings.md`. Cache factories and topology-solver back-edges are wired.
+in `plan/findings.md`, including native B-rep list traversal. Cache factories
+and topology-solver back-edges are wired; face picking uses caller-supplied
+kernel, B-rep identity and owner mappings.
 The four affected units keep their existing pass/deferred counts; 131
 `geom.a_object` deferrals now correctly name `query.brep` instead of the cache.

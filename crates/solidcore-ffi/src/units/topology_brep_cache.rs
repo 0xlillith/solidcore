@@ -63,6 +63,8 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     for _ in 0..ne {
         let a = [r.num()?, r.num()?, r.num()?];
         let b = [r.num()?, r.num()?, r.num()?];
+        // Keep the squared-length test: the native line constructor also rejects
+        // tiny nonzero segments whose squared length underflows to zero.
         let length_sq = a.iter().zip(b).map(|(a, b)| (a - b) * (a - b)).sum::<f64>();
         if length_sq == 0.0 {
             return Err(invalid());

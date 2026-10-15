@@ -2800,7 +2800,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "CO-PORTED in topology.brep_cache (PR #115): unfiltered SmBrep::GetVertices/GetEdges/GetFaces list traversal -> existing topology::Brep::{vertices,edges,faces} arena iteration in topology::brep_cache::BrepCache::build_trees (attribute-filter overloads remain owned here). 50 fns; largest: SmBrep::HealBrep, SmBrep::CreateCornerBlend, SmBrep::CreateEdgeEdgeBlend, sm_MakeVertexSplitUVTrimCurve; cycle back-edges (call into later units; stub or co-port): query.brep(3), heal.heal_data_p1(2); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmBrep::m_bValidateOnly, the region/face use/loop use/edge use/vertex use arenas -> topology::Brep (validate_only, regions(), faceuses(), ..., add_*_record, *_mut); CO-PORTED in topology.edgeuse_p2 (PR #87): SmBrep::m_sThisZoneTol3d, GetTolerance -> topology::Brep::tolerance, set_tolerance"
+notes = "50 fns; largest: SmBrep::HealBrep, SmBrep::CreateCornerBlend, SmBrep::CreateEdgeEdgeBlend, sm_MakeVertexSplitUVTrimCurve; cycle back-edges (call into later units; stub or co-port): query.brep(3), heal.heal_data_p1(2); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmBrep::m_bValidateOnly, the region/face use/loop use/edge use/vertex use arenas -> topology::Brep (validate_only, regions(), faceuses(), ..., add_*_record, *_mut); CO-PORTED in topology.edgeuse_p2 (PR #87): SmBrep::m_sThisZoneTol3d, GetTolerance -> topology::Brep::tolerance, set_tolerance"
 
 [[unit]]
 id = "topology.brep_p6"

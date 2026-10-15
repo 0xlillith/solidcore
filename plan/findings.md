@@ -4496,7 +4496,10 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   boundaries, tree split thresholds, tolerance extremes and scale changes.
 - Exact `BuildTrees` stops at `SmBrep::CalculateBoundingBox` (`query.brep`,
   currently PR #101); its exact geometry insertion paths are implemented but
-  not certified. Face resizing needs `SmFace::CalculateBoundingBox`
+  not certified. The subsequent `SmBrep::GetVertices/GetEdges/GetFaces` calls
+  explicitly defer to `topology.brep_p1`; arena allocation order is not the
+  B-rep linked-list order and includes unlinked records. Face resizing needs
+  `SmFace::CalculateBoundingBox`
   (`query.face_p1`, PR #105) and `SmFace::GetEdges` (`topology.face_p4`). Those
   calls retain correctly owned `UNPORTED` markers. `BuildPolyTrees`, `GetBBox`,
   drawing and memory accounting are not functions assigned to this unit.
@@ -4507,8 +4510,16 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
 - Geometry owner keys need not equal arena indices. Build/resize and the solver
   adapter take an explicit identity mapping; resize cases use keys offset by
   1,000,000,000. Cache invalidation and source identity remain with the caller,
-  as for existing curve/surface cache factories. `CacheSource` and typed object
-  handles avoid references from the cache back into mutable geometry.
+  as for existing curve/surface cache factories. `geom::tools::find_face` now
+  takes the caller's kernel, B-rep id, owner keys and intermediate-owner resolver;
+  it never creates a default context or assumes arena-index keys. The solver
+  adapter uses that B-rep id for shape membership. `Curve::edge` follows the
+  supplied generated-curve/edgeuse owner chain in both resizing and solving;
+  a native regression compares chained and direct ownership. Reverse edge/face
+  lookup deliberately scans arena ids using the caller's key mapping: it resolves
+  identity, not B-rep list membership, and does not affect traversal order.
+  Native surface/curve containment uses zero tolerance, vertices use `EFF_ZERO`.
+  `CacheSource` and typed object handles avoid references from the cache back into mutable geometry.
 - The shim builds exact resize edges with `MakeShellVertex` plus
   `MakeWireEdgeVertex`, preserving the two distinct endpoints supplied to the
   Rust fixture. `CreateWireEdgeFromCurve` would intentionally `GlueVertices`

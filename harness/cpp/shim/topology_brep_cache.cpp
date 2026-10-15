@@ -9,6 +9,9 @@
 #include <SmContext.h>
 #include <SmEdge.h>
 #include <SmLine.h>
+// Fixture-only access: SmPolyBrep is final and exposes no public insertion of
+// standalone vertices (including isolated vertices not connected to any face).
+// Keep this access change scoped to the native polygon header in this shim.
 #define protected public
 #include <SmPoly.h>
 #undef protected

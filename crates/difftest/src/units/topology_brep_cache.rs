@@ -122,6 +122,10 @@ fn dump(
     Ok(())
 }
 fn run(i: &Inputs) -> SolidResult<Output> {
+    run_with_intermediate_owners(i, false)
+}
+
+fn run_with_intermediate_owners(i: &Inputs, intermediate_owners: bool) -> SolidResult<Output> {
     let k = Kernel::default();
     let mut poly = PolyBrep::new(&k, i.tol);
     let mut vertices = Vec::new();
@@ -209,10 +213,34 @@ fn run(i: &Inputs) -> SolidResult<Output> {
             })?);
         }
         let mut edge_ids = Vec::new();
+        let mut owners = std::collections::BTreeMap::new();
         for &edge in &i.resize_edges {
-            edge_ids.push(add_wire(&k, &mut b, edge)?);
+            let e = add_wire(&k, &mut b, edge)?;
+            if intermediate_owners {
+                use solidcore::geom::object::ObjectRef;
+                let generated = ObjectRef {
+                    type_code: solidcore::curve::curve::p2::TYPE,
+                    key: solidcore::geom::attribute::ObjectKey(2000000000 + u64::from(e.index())),
+                };
+                let edgeuse = ObjectRef {
+                    type_code: solidcore::topology::edgeuse::p1::TYPE,
+                    key: generated.key,
+                };
+                b.edge_mut(e)?
+                    .curve
+                    .as_mut()
+                    .ok_or(solidcore::SolidError::null_pointer(
+                        "difftest::topology_brep_cache::owner_chain",
+                    ))?
+                    .set_owner(Some(generated), None);
+                owners.insert(generated, edgeuse);
+                owners.insert(edgeuse, identity(CacheObject::Edge(e)));
+            }
+            edge_ids.push(e);
         }
-        cache.resize_trees(&k, &b, &[], &edge_ids, &ids, &identity)?;
+        cache.resize_trees(&k, &b, &[], &edge_ids, &ids, &identity, &|o| {
+            owners.get(&o).copied()
+        })?;
     }
     ints.push(0);
     // Separate streams ensure topology and ids compare exactly, boxes relatively.
@@ -429,7 +457,7 @@ mod tests {
                 unit: Runner.id().into(),
                 name: format!("tolerance_{tolerance}"),
                 source: crate::case::CaseSource::Inline,
-                inputs: serde_json::to_value(input).unwrap(),
+                inputs: serde_json::to_value(&input).unwrap(),
             };
             let cpp = Runner.run_cpp(&case).unwrap();
             let rust = Runner.run_rust(&case).unwrap();
@@ -438,6 +466,9 @@ mod tests {
                 .get("boxes")
                 .is_some_and(|values| !values.is_empty()));
             assert_eq!(cpp, rust);
+            // Equivalent geometry reached through generated-curve and edgeuse
+            // identities must resolve to the same native edge bounding boxes.
+            assert_eq!(cpp, run_with_intermediate_owners(&input, true).unwrap());
         }
     }
 }
