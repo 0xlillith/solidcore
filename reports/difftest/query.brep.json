@@ -3,6 +3,798 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "attribute_0_0_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#0 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_0_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#1 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_0_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#2 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_0_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#3 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_0_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#4 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_0_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#5 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#6 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#7 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#8 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#9 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#10 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_1_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#11 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#12 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#13 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#14 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#15 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#16 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_2_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#17 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#18 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#19 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#20 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#21 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#22 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_3_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#23 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#24 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#25 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#26 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#27 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#28 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_4_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#29 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#30 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#31 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#32 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#33 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#34 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_0_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#35 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#36 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#37 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#38 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#39 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#40 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_1_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#41 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#42 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#43 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#44 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#45 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#46 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_2_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#47 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#48 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#49 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#50 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#51 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#52 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_3_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#53 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#54 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#55 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#56 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#57 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#58 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_4_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#59 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#60 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#61 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#62 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#63 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#64 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_0_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#65 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#66 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#67 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#68 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#69 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#70 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_1_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#71 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#72 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#73 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#74 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#75 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#76 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_2_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#77 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#78 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#79 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#80 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#81 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#82 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_3_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#83 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#84 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#85 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_9007199254740993_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#86 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_9007199254740993_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#87 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_18446744073709551615_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#88 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_4_18446744073709551615_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#89 (upstream source/SMLib/inc/SmPolyDecimate.h:80-263; source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_nonfinite_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#90 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_nonfinite_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#91 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_0_nonfinite_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#92 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_nonfinite_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#93 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_nonfinite_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#94 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_1_nonfinite_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#95 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_nonfinite_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#96 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_nonfinite_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#97 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "attribute_2_nonfinite_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/attributes.json#98 (upstream source/SMLib/src/SmPolyDecimate.cpp:421-473)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "api_0_interior",
       "outcome": "pass",
       "pass": true,
@@ -5765,8 +6557,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 720,
-  "cases_total": 720,
+  "cases_passed": 819,
+  "cases_total": 819,
   "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,

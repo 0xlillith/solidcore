@@ -1,5 +1,5 @@
 //! query.brep: actual `SM_API` evaluation entry points, status and failure atomicity.
-//! Initial surface API batch only; this does not certify the complete B-rep unit.
+//! Surface APIs and decimation attributes; B-rep queries remain pending.
 use super::surface_surface_cache_p1::{push3, status};
 use super::surface_surface_cache_p3::{gen_surf, push_surf, surf_domain, surface_in, SurfIn};
 use crate::case::CaseContext;
@@ -51,11 +51,17 @@ impl UnitDiff for Runner {
         "query.brep"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("attribute_kind").is_some() {
+            return attribute_cpp(&case.parse()?);
+        }
         let i: Inputs = case.parse()?;
         let out = ffi::surface(i.op, &flat(&i)?).map_err(|e| HarnessError::new(e.to_string()))?;
         Ok(record(out))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("attribute_kind").is_some() {
+            return attribute_rust(&case.parse()?);
+        }
         let i: Inputs = case.parse()?;
         let s = i.surf.as_ref().map(surface_in).transpose()?;
         let [u, v] = uv(&i);
@@ -142,4 +148,149 @@ impl UnitDiff for Runner {
             },
         )
     }
+}
+
+#[derive(Serialize, Deserialize)]
+struct AttributeInput {
+    attribute_kind: u8,
+    #[serde(default)]
+    special: u8,
+    id: u64,
+    behavior: u8,
+    mutate: bool,
+    sort: u64,
+    class: u8,
+    data: [f64; 13],
+}
+fn attr_record(values: Vec<f64>, integers: [u64; 8]) -> Output {
+    // Preserve all 64 identity bits without routing them through a double or
+    // overflowing difftest's signed integer representation.
+    let integers: Vec<i64> = integers
+        .into_iter()
+        .flat_map(|v| [i64::from(v as u32), i64::from((v >> 32) as u32)])
+        .collect();
+    Output::new()
+        .values("payloads", values)
+        .ints("integer_words", integers)
+}
+fn attribute_data(i: &AttributeInput) -> [f64; 13] {
+    let mut d = i.data;
+    match i.special {
+        1 => d[0] = f64::NAN,
+        2 => d[0] = f64::INFINITY,
+        3 => d[0] = f64::NEG_INFINITY,
+        _ => {}
+    }
+    d
+}
+fn attribute_cpp(i: &AttributeInput) -> Result<Output, HarnessError> {
+    let record = solidcore_ffi::units::query_brep_attributes::eval(
+        i.attribute_kind,
+        i.id,
+        i.behavior,
+        i.mutate,
+        i.sort,
+        i.class,
+        &attribute_data(i),
+    )
+    .map_err(|e| HarnessError::new(e.to_string()))?;
+    Ok(attr_record(record.values, record.integers))
+}
+fn attr_payload(a: &solidcore::geom::attribute::Attribute) -> Vec<f64> {
+    use solidcore::geom::attribute::AttributeValue;
+    let mut out = Vec::new();
+    match a.value() {
+        AttributeValue::DecimateVertex(v) => {
+            out.extend([v.vertex_distance, v.max_face_error]);
+            push3(&mut out, v.average_plane_normal);
+        }
+        AttributeValue::QuadricVertex(v) => {
+            for row in v.matrix {
+                push3(&mut out, row);
+            }
+            push3(&mut out, v.linear);
+            out.push(v.constant);
+        }
+        AttributeValue::QuadricEdge(v) => {
+            push3(&mut out, v.new_point);
+            out.push(v.error);
+        }
+        _ => {}
+    }
+    out
+}
+fn attr_order(a: &solidcore::geom::attribute::Attribute) -> (u64, u64) {
+    use solidcore::geom::attribute::AttributeValue;
+    match a.value() {
+        AttributeValue::DecimateVertex(v) => (v.sort_index, v.vertex_class as u64),
+        AttributeValue::QuadricEdge(v) => (v.sort_index.unwrap_or(0), 0),
+        _ => (0, 0),
+    }
+}
+fn attribute_rust(i: &AttributeInput) -> Result<Output, HarnessError> {
+    use solidcore::geom::attribute::{AttributeValue, Behavior};
+    use solidcore::geom::vector3d::Vec3;
+    use solidcore::query::brep::PolyVertexClass;
+    let behavior =
+        Behavior::from_code(i32::from(i.behavior)).map_err(|e| HarnessError::new(e.to_string()))?;
+    let mut a = match i.attribute_kind {
+        0 => brep::decimate_vertex_attribute(i.id, behavior),
+        1 => brep::quadric_vertex_attribute(i.id, behavior),
+        2 => brep::quadric_edge_attribute(i.id, behavior),
+        _ => return Err(HarnessError::new("attribute kind")),
+    };
+    let mut values = attr_payload(&a);
+    let d = attribute_data(i);
+    if i.mutate {
+        match a.value_mut() {
+            AttributeValue::DecimateVertex(v) => {
+                v.sort_index = i.sort;
+                v.vertex_class = match i.class {
+                    0 => PolyVertexClass::NotComputed,
+                    1 => PolyVertexClass::Unknown,
+                    2 => PolyVertexClass::Simple,
+                    3 => PolyVertexClass::Boundary,
+                    4 => PolyVertexClass::Interior,
+                    5 => PolyVertexClass::Corner,
+                    _ => return Err(HarnessError::new("vertex class")),
+                };
+                v.vertex_distance = d[0];
+                v.max_face_error = d[1];
+                v.average_plane_normal = Vec3::new(d[2], d[3], d[4]);
+            }
+            AttributeValue::QuadricVertex(v) => {
+                v.matrix = [
+                    Vec3::new(d[0], d[1], d[2]),
+                    Vec3::new(d[3], d[4], d[5]),
+                    Vec3::new(d[6], d[7], d[8]),
+                ];
+                v.linear = Vec3::new(d[9], d[10], d[11]);
+                v.constant = d[12];
+            }
+            AttributeValue::QuadricEdge(v) => {
+                v.new_point = Vec3::new(d[0], d[1], d[2]);
+                v.error = d[3];
+                v.sort_index = Some(i.sort);
+            }
+            _ => return Err(HarnessError::new("attribute value")),
+        }
+    }
+    let copy = a.make_copy();
+    values.extend(attr_payload(&a));
+    values.extend(attr_payload(&copy));
+    let (sort, cls) = attr_order(&a);
+    let (csort, ccls) = attr_order(&copy);
+    Ok(attr_record(
+        values,
+        [
+            a.attribute_id(),
+            copy.attribute_id(),
+            a.behavior().code() as u64,
+            copy.behavior().code() as u64,
+            sort,
+            csort,
+            cls,
+            ccls,
+        ],
+    ))
 }
