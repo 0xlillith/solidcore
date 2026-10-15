@@ -1702,9 +1702,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// then the listed proto edges (with their edge definitions, which delete the
     /// curves they own), then the listed proto vertices (with their vertex
     /// definitions). Returns the curve handles deleted. References to objects
-    /// already deleted (a use after free upstream) are skipped.
+    /// already deleted (a use after free upstream) are skipped. Objects that are not
+    /// listed stay in the store (upstream allocates them from the context, not from
+    /// the manager); the manager must not be used for anything else afterwards.
     #[must_use]
-    pub fn destroy(mut self) -> Vec<O> {
+    pub fn destroy(&mut self) -> Vec<O> {
         let mut deleted = Vec::new();
         for pf in std::mem::take(&mut self.pfs) {
             if let Some(slot) = self.pf_store.get_mut(pf.0 as usize) {
@@ -2927,7 +2929,9 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// Removes the proto vertex `pv` when it has no proto edges and lies on the curve
     /// of `pe` (the first definition's curve over the proto edge's interval, within
     /// twice the proto edge's tolerance) (`RemoveCoincidentNoEdgeProtoVertex`; the
-    /// proto vertex is unlisted, not deleted).
+    /// proto vertex is unlisted, not deleted). As upstream, `true` is also returned,
+    /// with nothing removed, when the point solve fails or finds nothing (upstream
+    /// returns `SM_SUCCESS` from its `SmBoolean` function there).
     ///
     /// # Errors
     ///
@@ -2975,11 +2979,13 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             SolutionRequested::All,
             &opts,
         ))?;
+        // upstream returns SM_SUCCESS here, which reads as TRUE (the proto vertex is
+        // not removed): plan/upstream-issues.md WR-73
         let Some(sols) = sols else {
-            return Ok(false);
+            return Ok(true);
         };
         if sols.is_empty() {
-            return Ok(false);
+            return Ok(true);
         }
 
         // When the ProtoVertex is Edgeless and XSects a ProtoEdge - remove it

@@ -2181,10 +2181,10 @@ soft_depends_on = ["curve.curve_p1", "curve.curve_p6", "geom.solution_array"]
 est_lines = 2746
 layer = 32
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "180 fns; largest: sm_AreOverlapping, SmProtoTopologyManager::CanCombineEdgeDefinitions, SmProtoTopologyManager::RemoveCoincidentNoEdgeProtoVertex, sm_TransformIndependentObject; entry points: SmApiRotate, SmApiScale, SmApiScaleByPt, SmApiTransform, SmApiTranslate; cycle back-edges (call into later units; stub or co-port): query.poly(9), topology.edge(7), query.face_p2(4), blend.fillet_geom_p1(3), topology.edgeuse_p1(3), topology.vertex(3), topology.shell(2), boolean.topology_intersector_p1(1), topology.brep_p1(1), topology.brep_p2(1), topology.brep_p3(1), topology.brep_p4(1), topology.brep_p5(1), topology.face_p4(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmOwningTopology::IsKindOf -> topology::edgeuse::p1::owning_topology_is_kind_of"
+notes = "PARTIAL: difftest 1601 cases (14 upstream-derived fixtures from SM_API_test TestSmGeneral.cpp transforms, 87 edge cases built in code: list walks, assemblies, the proto life cycle at unit/huge/tiny scale, manager destructor, every API call on line/B-spline/circle/plane/composite/crv-on-surf/other/null; 1500 generated list/proto/transform scripts), 1383 pass bit-identical (max_rel_err 0), 218 deferred (query.face_p2 63, surface.surface_p4 58, topology.edge 28, topology.face_p2 26, topology.vertex 24, topology.brep_p5 10, query.poly 9); --perturb SENSITIVE. Upstream defects found: UB-98 (SmCopyBrepMap release SM_ASSERT null deref), HANG-12 (DropPoint after zero-length Reparameterize; Rust curve point solve loops too), WR-73 (RemoveCoincidentNoEdgeProtoVertex returns SM_SUCCESS as TRUE, kept for parity). Wired UNPORTED(topology.proto_topology_p1) in topology.topology (SmTopology destructor -> destroy_topology; stays green 657/657) and the topology.edgeuse_p1 co-port of SmOwningTopology::IsKindOf (unchanged 2449 pass/273 deferred). Plan notes: 180 fns; largest: sm_AreOverlapping, SmProtoTopologyManager::CanCombineEdgeDefinitions, SmProtoTopologyManager::RemoveCoincidentNoEdgeProtoVertex, sm_TransformIndependentObject; entry points: SmApiRotate, SmApiScale, SmApiScaleByPt, SmApiTransform, SmApiTranslate; cycle back-edges (call into later units; stub or co-port): query.poly(9), topology.edge(7), query.face_p2(4), blend.fillet_geom_p1(3), topology.edgeuse_p1(3), topology.vertex(3), topology.shell(2), boolean.topology_intersector_p1(1), topology.brep_p1(1), topology.brep_p2(1), topology.brep_p3(1), topology.brep_p4(1), topology.brep_p5(1), topology.face_p4(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmOwningTopology::IsKindOf -> topology::edgeuse::p1::owning_topology_is_kind_of"
 
 [[unit]]
 id = "intersect.adv_surface_intersector"
@@ -2251,10 +2251,10 @@ soft_depends_on = ["geom.geom_utility_p1", "geom.object", "surface.surface_p1", 
 est_lines = 1882
 layer = 33
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "19 fns; largest: SmSurfPtGlobalSolver::FindPolygonGuess, SmSurfPtGlobalSolver::Solve, SmSurfPtGlobalSolver::RefineGuess, SmSurfPtSolveStepper::Step; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "19 fns; largest: SmSurfPtGlobalSolver::FindPolygonGuess, SmSurfPtGlobalSolver::Solve, SmSurfPtGlobalSolver::RefineGuess, SmSurfPtSolveStepper::Step; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PARTIAL (PR #66): difftest 1320 cases (180 inline on upstream Surface.sms with the my_test_surface_closest_point points; 900 generated: planes, B-splines incl. closed / rational / bilinear / zigzag / huge / tiny nets, curve-bounded and STEP-wrapped surfaces, sub-domains, the 5 solver operations; 240 rev_gen cases on real SmSurfOfRevolution surfaces, some STEP-wrapped; all 15 ops: FindRoughGuess, FindPolygonGuess, RefineGuess, RefinePatchByGrid, RefineGuessByGrid, CheckSeams, Solve, AdjustStep, ErrorNorm/IsSingular, Converged, PushingBoundary/ConvergedOnBoundary, SnapToBoundaries, Step, LineSearch, LineSearchBracketted), 1230 pass bit-identical, 90 deferred (surface.surface_p4 63: SmSurface::IsOnSeam, SmSurfaceEval::Normal; surface.surface_p5 27: SmSurface::LocalPointSolve, so every Solve with a rough guess); SmSurface::InvertPointNearSingularity stubbed UNPORTED(surface.surface_p8); --perturb SENSITIVE"
 
 [[unit]]
 id = "topology.edgeuse_p1"
@@ -2349,10 +2349,10 @@ soft_depends_on = ["curve.curve_cache", "curve.curve_p2", "curve.hermite_curve",
 est_lines = 1570
 layer = 35
 tests = ["prog_test:my_test_parallel_projection", "prog_test:my_test_tsurf_projection", "prog_test:my_test_surface_interface", "prog_test:my_test_ssi", "prog_test:my_test_tsurf_section", "prog_test:my_test_planar_section"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "4 fns; largest: SmSurfaceIntersector::TraceCurve, SmSurfaceIntersector::DoPointIntersection, SmSurfaceIntersector::DoLawIntersection, SmSurfaceIntersector::FindInteriorCurves; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit"
+notes = "4 fns; largest: SmSurfaceIntersector::TraceCurve, SmSurfaceIntersector::DoPointIntersection, SmSurfaceIntersector::DoLawIntersection, SmSurfaceIntersector::FindInteriorCurves; unit-SCC #22 (220 units); 150 upstream test entry points reach this unit; PARTIAL (PR #70): difftest 1542 cases (22 inline edge cases, 20 fixture cases from my_test_planar_section on shovel.srf, 1500 generated programs on plane pairs crossing down to 1e-6 rad, coincident, parallel a gap apart or the same object, scales 1e-6..1e5: DoPointIntersection through 0-5 points with directions/extensions/tolerances, TraceCurve from evaluated or raw points with curve points, targets and curves to avoid, then FlushCurve, DoLawIntersection point counts, FindInteriorCurves; a few on B-spline and curve-bounded surfaces), 938 pass bit-identical (max_rel_err 0), 604 deferred (surface.surface_p11 578, surface.surface_p3 26); --perturb SENSITIVE 938/938. UNPORTED stubs: SmSurface::IsSingularity of non-planes (surface.surface_p5); the SM_SR_NODES node pairs of FindInteriorCurves' GlobalSurfaceSolve (surface.surface_p11; the pair walk is find_interior_curves_from_node_pairs). DoLawIntersection past its SmOffsetSurface check is unreachable until surface.offset_surface adds the kind. Back-edges NOT wired: SmAdvSurfaceIntersector's TraceCurve (intersect/adv_surface_intersector.rs) and SmSurface::PointBasedSurfaceIntersect's DoPointIntersection (surface/surface/p2.rs) run on the advanced intersector, whose ComputeSingularityPoint override the basic part 1-4 methods cannot dispatch to yet; the stubs stay tagged UNPORTED(intersect.surface_intersector_p4) with that reason."
 
 [[unit]]
 id = "intersect.topology_solver_p2"

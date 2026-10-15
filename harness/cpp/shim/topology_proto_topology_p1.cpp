@@ -32,6 +32,8 @@
 #include <SmContext.h>
 #include <SmCopyBrepMap.h>
 #include <SmCurve.h>
+#include <SmCompositeCurve.h>
+#include <SmCrvOnSurf.h>
 #include <SmCurveClass.h>
 #include <SmEdge.h>
 #include <SmEllipse.h>
@@ -879,6 +881,7 @@ struct ListRun
     std::vector<SmOwningTopology*> objs; // NULL: empty instance slot
     std::vector<bool> alive;
     SmCopyBrepMap map;
+    std::map<const void*, const void*> map_entries; // what SetAt stored (GetAt's SM_ASSERTs dereference both)
 
     double id(const void* p) const
     {
@@ -1216,12 +1219,14 @@ int32_t run_list(Rd& rd, std::vector<double>& o)
         }
         case L_MAP_SET:
         {
-            if (bad(a, true) || bad(b, true))
+            // the release SM_ASSERTs still call GetType() on both objects
+            if (bad(a, false) || bad(b, false))
             {
                 skip = true;
                 break;
             }
             r.map.SetAt(obj(a), obj(b));
+            r.map_entries[static_cast<SmTopology*>(obj(a))] = static_cast<SmTopology*>(obj(b));
             break;
         }
         case L_MAP_GET:
@@ -1231,12 +1236,18 @@ int32_t run_list(Rd& rd, std::vector<double>& o)
                 skip = true;
                 break;
             }
-            SmTopology* g = r.map.GetAt(obj(a));
-            if (g != NULL && !r.is_live_ptr(g))
+            if (a != -1)
             {
-                skip = true;
-                break;
+                // the release SM_ASSERTs call GetType() on the original found: it must
+                // exist and be alive
+                auto it = r.map_entries.find(static_cast<SmTopology*>(obj(a)));
+                if (it == r.map_entries.end() || !r.is_live_ptr(it->second))
+                {
+                    skip = true;
+                    break;
+                }
             }
+            SmTopology* g = r.map.GetAt(obj(a));
             out.push_back(r.id(g));
             break;
         }
@@ -2823,7 +2834,9 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             double a = rd.num();
             double b = rd.num();
             bool rev = rd.flag();
-            if (skip || !d || d->GetXSectCurve3d() == NULL)
+            // a zero-length domain collapses the curves to a point: later point solves on
+            // them never return (plan/upstream-issues.md HANG-12)
+            if (skip || !d || d->GetXSectCurve3d() == NULL || a == b)
             {
                 skip = true;
                 break;
@@ -3370,6 +3383,15 @@ enum TObj : int64_t
     T_POLY = 4,
     T_OTHER = 5,
     T_NULL = 6,
+    T_COMPOSITE = 7,
+    T_CRV_ON_SURF = 8,
+};
+
+// SmCrvOnSurf's UV-line constructor is protected.
+class ScCos : public SmCrvOnSurf
+{
+public:
+    ScCos(SmPoint2d& a, SmPoint2d& b, SmSurface& s, const SmContext* ctx) : SmCrvOnSurf(a, b, s, NULL, 0, ctx) {}
 };
 
 int32_t run_transform(Rd& rd, std::vector<double>& o)
@@ -3402,6 +3424,35 @@ int32_t run_transform(Rd& rd, std::vector<double>& o)
     case T_POLY: obj = new (ctx) SmPolyBrep(SmZoneTol3d(1.0e-5)); break;
     case T_OTHER: obj = new (ctx) ScOwning(); break;
     case T_NULL: obj = NULL; break;
+    case T_COMPOSITE:
+    {
+        bool owned = rd.flag();
+        int64_t n = rd.idx();
+        SmTArray<SmCurve*> curves;
+        for (int64_t i = 0; i < n && i < 4 && !rd.bad; i++)
+            curves.Add(read_curve(rd, ctx));
+        SmCompositeCurve* c = new (ctx) SmCompositeCurve(3, curves, FALSE, NULL, NULL);
+        if (owned)
+            c->SetOwner(anchor());
+        obj = c;
+        break;
+    }
+    case T_CRV_ON_SURF:
+    {
+        bool owned = rd.flag();
+        SmSurface* s = read_surface(rd, ctx, 2);
+        double a0 = rd.num();
+        double a1 = rd.num();
+        double b0 = rd.num();
+        double b1 = rd.num();
+        SmPoint2d a(a0, a1);
+        SmPoint2d b(b0, b1);
+        SmCurve* c = new (ctx) ScCos(a, b, *s, &ctx);
+        if (owned)
+            c->SetOwner(anchor());
+        obj = c;
+        break;
+    }
     default: return SC_ERR_ARG;
     }
     int64_t op = rd.idx();

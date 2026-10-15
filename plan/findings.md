@@ -3730,6 +3730,28 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   the UV-curve cases defer on `SmSurface::LocalPointSolve` (`surface.surface_p5`, 20
   cases); only the tiny-scale ones are compared until that unit lands.
 
+## intersect.surface_intersector_p4
+
+- **No virtual dispatch in the intersector parts.** `SmSurfaceIntersector`'s
+  `TraceCurve` / `DoPointIntersection` reach `ComputeNextPoint`, `ComputePointValues`
+  (which calls `ComputeSingularityPoint` for parallel normals), `FlushCurve` and
+  `TestSpanAccuracy`, all virtual upstream. Parts 1-4 port them as methods of the basic
+  `SurfaceIntersector`, so they always run the basic versions. `SmAdvSurfaceIntersector`
+  overrides `ComputeSingularityPoint` (and `SmFilletIntersector` several more), so the
+  part 4 functions cannot replace the advanced intersector's `TraceCurve` stub
+  (`intersect/adv_surface_intersector.rs`) or `SmSurface::PointBasedSurfaceIntersect`'s
+  `DoPointIntersection` (`surface/surface/p2.rs`, run on an `SmAdvSurfaceIntersector`).
+  Those stubs stay `UNPORTED(intersect.surface_intersector_p4)` until the parts take a
+  trait for their virtual calls.
+- **Real-value coverage is narrow until `surface.surface_p11`.** The basic intersector
+  refines every crossing, tangent-curve and singular point with
+  `SmSurface::LocalSurfaceIntersect`, and the basic `ComputeSingularityPoint` fails
+  (`SM_ERR`) for parallel normals. So on planes the traces that run without deferral
+  start at raw points of the types it does not refine (unknown, tangent, coincident,
+  touching), and `DoPointIntersection` on coincident or parallel planes fails in its
+  `ComputePointValues` (`SM_ERR`, compared with all evaluated point values).
+  `FindInteriorCurves` always defers (global surface solve).
+
 ## intersect.topology_solver_p2 (PR #60, 2026-10-14)
 
 - **Scope.** All 15 owned functions have Rust bodies: the shared VertexEdge and
@@ -3800,3 +3822,26 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+## topology.proto_topology_p1 (`SmOwningTopology`, `SmAssembly`, `SmCopyBrepMap`, `SmProtoTopology` part 1, API transforms, 2026-10-14; partial, no disagreements)
+
+- **Harness.** One shim entry runs scripts of three kinds (list, proto, transform); the
+  runner interprets the same script against the port and applies the shim's run-time
+  refusals to its own state, so an op the shim refuses as undefined upstream (null or
+  deleted pointer dereference, use after free in a destructor, a list walk that would
+  not end) ends both records with `-2`, and a state divergence shows up as a mismatch.
+  Proto ops are `[code, args...]` arrays exactly as the shim reads them.
+- **Upstream defects found:** UB-98 (`SmCopyBrepMap` release asserts call `GetType()`
+  on null objects; crashed the reference run), HANG-12 (`DropPoint` never returns after
+  `Reparameterize` to a zero-length domain; the Rust curve point solve loops the same
+  way, which belongs to the curve units), WR-73 (`RemoveCoincidentNoEdgeProtoVertex`
+  returns `SM_SUCCESS` as TRUE; ported for parity). The shim refuses the UB-98 calls and
+  zero-length `Reparameterize`.
+- **Deferred** (`Unported`): the B-rep walks of `sm_AreConnected` and point
+  classifications on bare topology objects (topology.vertex, topology.edge,
+  topology.face_p2), `SmProtoVertex::ContainsPoint` (query.face_p2), surface point
+  solves (surface.surface_p4), `SmBrep::Transform` (topology.brep_p5) and
+  `SmPolyBrep::Transform` (query.poly).
+- **Co-port wired:** `topology::edgeuse::p1::owning_topology_is_kind_of` (CO-PORTED in
+  topology.edgeuse_p1, PR #55) now calls `owning_topology::is_kind_of`; edgeuse_p1
+  difftest unchanged (2449 pass, 273 deferred).

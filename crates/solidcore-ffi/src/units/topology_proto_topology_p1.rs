@@ -24,10 +24,13 @@
 //!   `SetGap3d(gap)`). The final state is documented on [`proto_op`].
 //! * **transform** (`2 object op args`): one object (`0 owned curve-block`, `1 owned O N`
 //!   plane, `2 owned surface-block`, `3` an empty `SmBrep`, `4` an empty `SmPolyBrep`, `5`
-//!   another topology object, `6` null) and one API call: `0 O X Y` `SmApiTransform`, `1 S`
+//!   another topology object, `6` null, `7 owned n curve-block*n` an `SmCompositeCurve` of 1
+//!   to 4 curves, `8 owned surface-block a0 a1 b0 b1` an `SmCrvOnSurf` UV line on a
+//!   B-spline surface) and one API call: `0 O X Y` `SmApiTransform`, `1 S`
 //!   `SmApiScale`, `2 R S` `SmApiScaleByPt`, `3 V` `SmApiTranslate`, `4 R A deg`
 //!   `SmApiRotate`. Output: the status, then for a curve its natural interval and 5 points
-//!   (`status [P]`), for a surface its natural domain and 3x3 points.
+//!   (`status [P]`), for a surface its natural domain and 3x3 points (nothing more for kinds 3
+//!   to 8).
 //!
 //! Each list or proto op writes `op status n outputs*n`. An op the shim refuses because it
 //! is undefined upstream (a dangling or null pointer dereference, a double delete, a crash
@@ -91,8 +94,8 @@ pub mod slot {
 /// | 11 | `asm inst` | `SmAssembly::RemoveInstance` | |
 /// | 12 | `slot asm component mirrored` | `SmAssemblyInstance(..)` | `component mirrored` |
 /// | 13 | `inst` | `SmAssemblyInstance::GetParentAssembly` | `id` |
-/// | 14 | `copy orig` | `SmCopyBrepMap::SetAt` | |
-/// | 15 | `copy` | `SmCopyBrepMap::GetAt` | `id` |
+/// | 14 | `copy orig` | `SmCopyBrepMap::SetAt` (both live: the release `SM_ASSERT`s call `GetType()`) | |
+/// | 15 | `copy` | `SmCopyBrepMap::GetAt` (null, or set to a live original) | `id` |
 /// | 16 | `orig copy` | `SmCopyBrepMap::SetBreps` | |
 /// | 17 | `obj id` | `AddAttribute(SmAttribute(id, SM_AB_STANDALONE_COPY))` | |
 /// | 18 | `obj` | `GetType`, `IsKindOf` (the probe types), `GetTypeString`, `GetClassString` | `type flag*11 n char*n n char*n` |
@@ -190,7 +193,7 @@ pub mod pool {
 /// | 57 | `ed at_start` | `GetEndPosition(SmBoolean, ..)` | `P` |
 /// | 58 | `ed pv` | `GetEndPosition(SmProtoVertex*, ..)` | `[P]` |
 /// | 59 | `ed` | `ReverseOrientation` | |
-/// | 60 | `ed a b reverse` | `Reparameterize` | |
+/// | 60 | `ed a b reverse` | `Reparameterize` (refused for `a == b`: HANG-12) | |
 /// | 61 | `ed a b` | `SetXSectInterval(double, double)` | |
 /// | 62 | `ed pv pv pc pc c a b` | `IsSameEdgeDefinition` | `same identical` |
 /// | 63 | `ed P tol at_start` | `IsInteriorPoint` | `flag param` |
@@ -332,6 +335,8 @@ pub mod tobj {
     pub const POLY: i64 = 4;
     pub const OTHER: i64 = 5;
     pub const NULL: i64 = 6;
+    pub const COMPOSITE: i64 = 7;
+    pub const CRV_ON_SURF: i64 = 8;
 }
 
 const MAX_SLOTS: i64 = 32;
@@ -635,13 +640,12 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             p::VD_SET_SRC | p::PV_FINAL_VTX => "iiii",
             p::VD_SET_POS | p::PV_CLOSEST => "i3",
             p::MGR_SET_TOL | p::MGR_SET_CAPTURE => "f",
-            p::ED_EVAL | p::PE_EVAL => "ifi",
+            p::ED_EVAL | p::PE_EVAL | p::WHICH_PV => "ifi",
             p::ED_REPARAM => "iffi",
             p::ED_IS_SAME | p::PE_IS_SAME => "iiicciff",
             p::ED_IS_INTERIOR => "i3fi",
             p::MGR_FIND_PV => "3",
             p::MGR_CHECK_OVERLAP => "ifffcc",
-            p::WHICH_PV => "ifi",
             p::FIND_POS => "cc",
             p::SAME_CURVE => "iffifff",
             p::IS_INTERIOR => "iffff",
@@ -669,7 +673,21 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 }
 
 fn validate_transform(rd: &mut Reader<'_>) -> Result<(), FfiError> {
-    match rd.int(0, tobj::NULL)? {
+    match rd.int(0, tobj::CRV_ON_SURF)? {
+        tobj::COMPOSITE => {
+            rd.flag()?;
+            let n = rd.int(1, 4)?;
+            for _ in 0..n {
+                rd.curve()?;
+            }
+        }
+        tobj::CRV_ON_SURF => {
+            rd.flag()?;
+            rd.surface()?;
+            for _ in 0..4 {
+                rd.finite()?;
+            }
+        }
         tobj::CURVE => {
             rd.flag()?;
             rd.curve()?;
@@ -697,7 +715,8 @@ fn validate_transform(rd: &mut Reader<'_>) -> Result<(), FfiError> {
                 x[0] * y[1] - x[1] * y[0],
             ];
             let n = |v: [f64; 3]| (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
-            if !(n(c) > 1e-6 * n(x) * n(y)) {
+            let lim = 1e-6 * n(x) * n(y);
+            if !matches!(n(c).partial_cmp(&lim), Some(core::cmp::Ordering::Greater)) {
                 return Err(bad("placement axes"));
             }
         }
