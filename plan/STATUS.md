@@ -1,6 +1,6 @@
 # solidcore status
 
-Last updated: 2026-10-15, PR #115 (`topology.brep_cache` partial). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
+Last updated: 2026-10-15, PR #127 (`sweep.trans_sweep_geometry` partial: 595 bit-identical passes, 53 deferred on `surface.cone_p2`). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
 
 ## Handoff (2026-10-13): from one local swarm to pull requests
 

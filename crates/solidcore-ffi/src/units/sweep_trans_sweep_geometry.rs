@@ -1,0 +1,105 @@
+//! Safe native calls for `sweep.trans_sweep_geometry`.
+//!
+//! Input: op (0 start frame, 1 end frame, 2 transform, 3 vertex same,
+//! 4 vertex higher, 5 check, 6 edge same, 7 edge higher, 8 face same),
+//! sweep xyz, point xyz, start/end/edge/face tolerances, epsilon, analytics flag,
+//! curve kind (0 real line, 1 rational Bezier, 2 real circle, 3 Hermite, 4 2D Bezier), point count,
+//! interval min/max, swap flag, face kind (0 real plane, 1 extruded B-spline),
+//! then xyzw control points (circle: center xyz and radius in its first entry).
+//! Output begins with the upstream status; successful geometry includes native
+//! kinds, parameter domains, ordered boundaries, endpoint roles, tolerances,
+//! normals, and nine curve / 25 surface position and derivative samples.
+// Fixed wire layout / test geometry indices are validated before use.
+#![allow(clippy::indexing_slicing)]
+
+use crate::{call_with_buffer, FfiError};
+mod sys {
+    extern "C" {
+        pub fn sc_sweep_trans_sweep_geometry_eval(
+            input: *const f64,
+            n: i64,
+            out: *mut f64,
+            cap: i64,
+            len: *mut i64,
+        ) -> i32;
+    }
+}
+/// Execute a validated sweep case against upstream C++.
+///
+/// # Errors
+/// Invalid layouts or inputs that cannot construct a curve without undefined reads;
+/// native shim failures.
+pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let bad = || FfiError::InvalidArgument("invalid translational sweep layout".into());
+    if input.len() < 19 || input.iter().any(|v| !v.is_finite()) {
+        return Err(bad());
+    }
+    // The native basis work arrays have NL_MAXDEG = 17 entries plus one.
+    let n = input[14] as usize;
+    if !(2..=18).contains(&n)
+        || input[14] != n as f64
+        || input.len() != 19 + 4 * n
+        || !(0.0..=8.0).contains(&input[0])
+        || input[0].fract() != 0.0
+        || ![0.0, 1.0, 2.0, 3.0, 4.0].contains(&input[13])
+        || [12, 17, 18]
+            .iter()
+            .any(|&i| ![0.0, 1.0].contains(&input[i]))
+        || input[15] > input[16]
+    {
+        return Err(bad());
+    }
+    if [1.0, 4.0].contains(&input[13]) && input[19..].as_chunks::<4>().0.iter().any(|p| p[3] <= 0.0)
+    {
+        return Err(bad());
+    }
+    if input[13] == 2.0 && input[22] <= 0.0 {
+        return Err(bad());
+    }
+    if input[13] == 0.0 && input[19..22] == input[19 + 4 * (n - 1)..22 + 4 * (n - 1)] {
+        return Err(bad());
+    }
+    call_with_buffer(2048, |out, len| {
+        // SAFETY: layout and all indexed counts are checked above. Both buffers and
+        // len are valid for their advertised sizes; C++ retains no pointers.
+        unsafe {
+            sys::sc_sweep_trans_sweep_geometry_eval(
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::eval;
+
+    #[test]
+    fn rejects_layouts_before_native_indexing() {
+        assert!(eval(&[]).is_err());
+        assert!(eval(&[0.0; 19]).is_err());
+        let mut input = vec![0.0; 27];
+        input[14] = 2.0;
+        input[13] = 1.0;
+        input[16] = 1.0;
+        input[22] = 1.0;
+        input[26] = 1.0;
+        input[14] = 1e300;
+        assert!(eval(&input).is_err());
+        input[14] = 2.5;
+        assert!(eval(&input).is_err());
+        input[14] = 2.0;
+        input[0] = 0.5;
+        assert!(eval(&input).is_err());
+        input[0] = 5.0;
+        input[22] = 0.0;
+        assert!(eval(&input).is_err());
+        input[22] = 1.0;
+        input[19] = f64::NAN;
+        assert!(eval(&input).is_err());
+    }
+}

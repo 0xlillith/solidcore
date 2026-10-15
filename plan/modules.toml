@@ -3259,10 +3259,10 @@ soft_depends_on = ["curve.curve_p7", "curve.line", "geom.object", "geom.solution
 est_lines = 817
 layer = 52
 tests = ["prog_test:my_sweep_null_region_counts", "prog_test:my_test_dosweep_null_region", "SM_API_test:TestNonManifoldSweepDistinctTarget", "SM_API_test:TestNonManifoldSweepNullEntry", "SM_API_test:TestNonManifoldSweepStaleEntry", "SM_API_test:TestSmCreateLinearSweepCylinder"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "11 fns; largest: SmTranslationalSweepGeometry::CheckCurveSweep, SmTranslationalSweepGeometry::EdgeSweepHigher, SmTranslationalSweepGeometry::EdgeSweepSame, SmTranslationalSweepGeometry::FaceSweepSame; unit-SCC #22 (220 units); 45 upstream test entry points reach this unit"
+notes = "PARTIAL (PR #127): 648 cases, 595 bit-identical passes, 53 deferred on surface.cone_p2; zero failures, no absolute floors. All 11 owned functions plus GetEndCoordSystem ported; compiled SM_SWEEP_CHECKS-disabled behavior. Native lines/circles/B-splines/planes; ordered boundaries, endpoint aliases, tolerances, runtime types and evaluations compared. No incoming UNPORTED back-edges. 11 fns; largest: SmTranslationalSweepGeometry::CheckCurveSweep, SmTranslationalSweepGeometry::EdgeSweepHigher, SmTranslationalSweepGeometry::EdgeSweepSame, SmTranslationalSweepGeometry::FaceSweepSame; unit-SCC #22 (220 units); 45 upstream test entry points reach this unit"
 
 [[unit]]
 id = "boolean.merge_p1"
