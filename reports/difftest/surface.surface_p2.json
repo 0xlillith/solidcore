@@ -559,8 +559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CalculateContinuities",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gssi_crossing_planes",
@@ -7206,7 +7206,7 @@
   "deferred_by_unit": {
     "surface.cone_p2": 10,
     "surface.surface_p5": 36,
-    "surface.surface_p6": 1,
+    "surface.surface_p8": 1,
     "surface.surface_point_solve_p3": 13,
     "topology.trimming_tools": 1
   },
