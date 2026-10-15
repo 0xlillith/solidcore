@@ -52,6 +52,9 @@
 //! - **Curve intervals** are passed with the classification they belong to (upstream
 //!   reaches it through the interval's back pointer; `SmCurveInterval::GetCurve` is the
 //!   classification's curve).
+//! - `UpdateEdges` trims a definition at the split point; its alternative of splitting
+//!   the proto edge (`SmProtoEdge::Split`) sits behind `static constexpr SmBoolean
+//!   cbiDoSplit = FALSE` and is not ported.
 //! - The `SM_DEBUG_CODE` blocks (dumps, drawing) are not ported; release `SM_ASSERT`s
 //!   are expression statements whose only effect is the dereference they make.
 //! - **Callees not ported yet** return [`SolidError::Unported`]: `SmBrep::MakeEdgeInFace`
