@@ -36,6 +36,7 @@ use super::p2::{
     SurfaceEval, SurfaceKind, TangencyType,
 };
 use super::p4::{is_point_on_normal, NoObject};
+use super::p5::DropPointOptions;
 use super::p6::SampleOptions;
 use crate::curve::curve::p8::CurveIntersectOptions;
 use crate::curve::curve::{Curve, CurveKind};
@@ -92,58 +93,66 @@ fn check_shape_match(
 }
 
 /// `SmSurface::DropPoint(pt, domain, guess, bSuccess, uv, dist, bIsMulti, op)`: success,
-/// the UV point and the distance.
+/// the UV point (the guess when none was found) and the distance.
 fn surface_drop_point(
-    _surface: &Surface,
-    _pt: Point3,
-    _domain: &Extent2d,
-    _guess: Option<Point2>,
-    _op: SolverOperation,
+    surface: &Surface,
+    pt: Point3,
+    domain: &Extent2d,
+    guess: Option<Point2>,
+    op: SolverOperation,
 ) -> Result<(bool, Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let r = surface.drop_point::<NoObject>(
+        pt,
+        domain,
+        &DropPointOptions {
+            guess_uv: guess,
+            operation: op,
+            ..DropPointOptions::default()
+        },
+    )?;
+    Ok((r.success, r.result_uv, r.gap))
 }
 
-/// `SmSurface::LocalPointSolve(domain, SM_SO_MINIMIZE, pt, guess, bSuccess, sol)`:
+/// `SmSurface::LocalPointSolve(domain, op, pt, guess, bSuccess, sol)`:
 /// success and the solution.
 fn surface_local_point_solve<O: SolutionObject>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _op: SolverOperation,
-    _pt: Point3,
-    _guess: Point2,
+    surface: &Surface,
+    domain: &Extent2d,
+    op: SolverOperation,
+    pt: Point3,
+    guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let r = surface.local_point_solve::<O>(domain, op, pt, guess)?;
+    Ok((r.found, r.solution))
 }
 
 /// `sm_SpLocalSolve(pSurfaceNode, pBezPatch, uvDomain, uConts, vConts, testPnt, tol,
 /// op, bSolveForSurface, bProcessBoundaryCurves, sSolutions)`: the solutions `[u, v]`
-/// of the leaf. `patch` is `pBezPatch` (its Bezier surface is `mBA_pSurface`) and
-/// `eval_surface` the original surface of the node's cache.
+/// of the leaf. `eval_surface` is `sm_GetSurfaceToEvaluate(node, patch surface)`, the
+/// original surface of the node's cache (the patch itself is not read by the port).
 fn sp_local_solve<O: SolutionObject>(
     _patch: &BezierPatch<O>,
-    _eval_surface: &Surface,
-    _domain: &Extent2d,
-    _u_conts: [ContinuityType; 2],
-    _v_conts: [ContinuityType; 2],
-    _point: Point3,
-    _tol_3d: f64,
-    _operation: SolverOperation,
-    _solve_for_surface: bool,
-    _process_boundary_curves: bool,
+    eval_surface: &Surface,
+    domain: &Extent2d,
+    u_conts: [ContinuityType; 2],
+    v_conts: [ContinuityType; 2],
+    point: Point3,
+    tol_3d: f64,
+    operation: SolverOperation,
+    solve_for_surface: bool,
+    process_boundary_curves: bool,
 ) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p5): sm_SpLocalSolve
-    Err(SolidError::unported(
-        "sm_SpLocalSolve",
-        "surface.surface_p5",
-    ))
+    super::p5::sp_local_solve::<O>(
+        eval_surface,
+        domain,
+        u_conts,
+        v_conts,
+        point,
+        tol_3d,
+        operation,
+        solve_for_surface,
+        process_boundary_curves,
+    )
 }
 
 /// `SmSurface::DropCurve(ctx, domain, curve, interval, tol, .., keepAll, NULL, FALSE)`
@@ -178,20 +187,20 @@ fn surface_drop_curve(
 
 // ---- helpers --------------------------------------------------------------------------------
 
-/// The 3x3 evaluation matrix of `Evaluate(uv, 2, 2, TRUE, TRUE, TRUE, ..)`.
-fn evaluate_3x3(surface: &Surface, uv: Point2) -> Result<[[Vec3; 3]; 3]> {
-    let m = surface.evaluate(uv, 2, 2, EvaluateFlags::default())?;
-    let mut out = [[Vec3::ZERO; 3]; 3];
+/// `Evaluate(uv, 2, 2, TRUE, TRUE, TRUE, &sPVV[0][0])` whose status upstream ignores: on
+/// failure `out` keeps what it held (upstream's array is left as it was).
+fn evaluate_3x3_into(surface: &Surface, uv: Point2, out: &mut [[Vec3; 3]; 3]) -> Result<()> {
+    let Some(m) = ignored(surface.evaluate(uv, 2, 2, EvaluateFlags::default()))? else {
+        return Ok(());
+    };
     for (i, row) in out.iter_mut().enumerate() {
         for (j, slot) in row.iter_mut().enumerate() {
-            *slot = m
-                .get(i)
-                .and_then(|r| r.get(j))
-                .copied()
-                .ok_or(SolidError::sm_err(OP_COINC))?;
+            if let Some(v) = m.get(i).and_then(|r| r.get(j)) {
+                *slot = *v;
+            }
         }
     }
-    Ok(out)
+    Ok(())
 }
 
 /// `EvaluatePoint(uv, pt)` whose status upstream ignores: `Vec3::UNDEF` on failure.
@@ -344,6 +353,10 @@ impl Surface {
             max_distance: BIG_DOUBLE,
         };
 
+        // For evaluation (upstream's sPVV0/sPVV1 start undefined)
+        let mut pvv0 = [[Vec3::UNDEF; 3]; 3];
+        let mut pvv1 = [[Vec3::UNDEF; 3]; 3];
+
         // low work - surfaces are the same
         if core::ptr::eq(self, other) {
             res.are_coincident = true;
@@ -446,8 +459,8 @@ impl Surface {
                     let (uv1, uv_binorm1) = boundary_uv(&domain1, jj, t1);
 
                     // Now check the surfaces for coincidence at this point.
-                    let pvv0 = evaluate_3x3(self, uv0)?;
-                    let pvv1 = evaluate_3x3(other, uv1)?;
+                    evaluate_3x3_into(self, uv0, &mut pvv0)?;
+                    evaluate_3x3_into(other, uv1, &mut pvv1)?;
 
                     // Now check 2nd order terms.
                     let matched = ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?
@@ -497,8 +510,8 @@ impl Surface {
         if let Some((true, uv0, dist)) = dropped {
             if dist <= tol_3d {
                 // Point coincidence, check normals and curvature.
-                let pvv0 = evaluate_3x3(self, uv0)?;
-                let pvv1 = evaluate_3x3(other, uv1)?;
+                evaluate_3x3_into(self, uv0, &mut pvv0)?;
+                evaluate_3x3_into(other, uv1, &mut pvv1)?;
                 if ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?.unwrap_or(false) {
                     return Ok(res);
                 }
@@ -524,8 +537,8 @@ impl Surface {
             uv1 = found_uv1;
             if dist <= tol_3d {
                 // Point coincidence, check normals and curvature.
-                let pvv0 = evaluate_3x3(self, uv0)?;
-                let pvv1 = evaluate_3x3(other, uv1)?;
+                evaluate_3x3_into(self, uv0, &mut pvv0)?;
+                evaluate_3x3_into(other, uv1, &mut pvv1)?;
                 if ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?.unwrap_or(false) {
                     return Ok(res);
                 }
@@ -2508,5 +2521,45 @@ mod tests {
         assert!(hit.found);
         assert!((hit.t - 2.0).abs() < 1e-9);
         assert!((hit.uv.x - 0.5).abs() < 1e-9 && (hit.uv.y - 0.5).abs() < 1e-9);
+    }
+
+    #[test]
+    fn tmp_degenerate_line_surface() {
+        use crate::nurbs::math::{CPoint, NOW};
+        use crate::nurbs::srf_basic::Surface as NlSurface;
+        let rows: [&[[f64; 3]]; 2] = [
+            &[
+                [-44.681590021410166, 67.02238503211525, 18.146048194526948],
+                [-44.681590021410166, 67.02238503211525, 18.146048194526948],
+                [-44.681590021410166, 67.02238503211525, 18.146048194526948],
+                [-44.681590021410166, 67.02238503211525, 18.146048194526948],
+            ],
+            &[
+                [89.36318004282033, 67.02238503211525, 0.0],
+                [89.36318004282033, 67.02238503211525, 0.0],
+                [89.36318004282033, 67.02238503211525, 0.0],
+                [89.36318004282033, 67.02238503211525, 0.0],
+            ],
+        ];
+        let net = rows
+            .iter()
+            .map(|r| {
+                r.iter()
+                    .map(|c| CPoint::new(c[0], c[1], c[2], NOW))
+                    .collect()
+            })
+            .collect();
+        let nl = NlSurface::new(
+            net,
+            1,
+            1,
+            vec![0.0, 0.0, 1.0, 1.0],
+            vec![0.0, 0.0, 0.2902846541158647, 0.5446927402597225, 1.0, 1.0],
+        )
+        .unwrap();
+        let s = Surface::from(BSplineSurface::from_nurb(nl, false));
+        let k = Kernel::default();
+        let r = s.base_coincidence_check(&k, &s.clone(), 1e-6, false);
+        eprintln!("RESULT {r:?}");
     }
 }

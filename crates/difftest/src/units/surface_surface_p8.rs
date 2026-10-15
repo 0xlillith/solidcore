@@ -928,6 +928,16 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
+        if let Some(path) = std::env::var_os("P8_CASE") {
+            // TMP: run case files (comma separated) on both sides
+            for f in path.to_string_lossy().split(',') {
+                let i: Inputs = serde_json::from_str(&std::fs::read_to_string(f).unwrap()).unwrap();
+                let c = cpp(&i).map(|o| format!("{:?}", o.values));
+                let r = rust(&i).map(|o| format!("{:?}", o.values));
+                eprintln!("TMP {f}\n cpp  {c:?}\n rust {r:?}");
+            }
+            std::process::exit(0);
+        }
         for _ in 0..64 {
             let i = gen_case(rng);
             let Ok((op, input)) = cpp_input(&i) else {
@@ -935,9 +945,6 @@ impl UnitDiff for Runner {
             };
             if ffi::validate(op, &input).is_err() {
                 continue;
-            }
-            if std::env::var_os("P8_TRACE").is_some() {
-                eprintln!("TRACE {}", serde_json::to_string(&i).unwrap_or_default());
             }
             if let Err(Fail::Harness(_)) = rust_run(&i) {
                 continue;
@@ -1198,7 +1205,10 @@ enum Shape {
 
 fn scale_of(rng: &mut Rng) -> f64 {
     match rng.below(20) {
-        0 => 1e-4,
+        // Not 1e-4: the surface cache's tolerances are absolute, and a surface a few 1e-4
+        // across needs about 2^20 leaves per patch (HANG-?: 15 s in the C++, 120 s in the
+        // port, for one `GlobalCurveIntersect`).
+        0 => 1e-3,
         1 => 1e4,
         2..=5 => rng.uniform(0.1, 50.0),
         _ => 1.0,
