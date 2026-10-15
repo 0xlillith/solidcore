@@ -895,3 +895,25 @@ license/source checks. Sensitivity detects 2,384/2,384 part-2 cases,
 3,248/3,248 part-1 cases 611/611 tree cases and 721/721 tools cases. Full differential validation:
 142 units, 89 green, 53 partial, zero failed. The four default reports match
 the full-validation reports byte for byte.
+
+
+## Cone recognition, rebuilding and offsets (2026-10-15, PR #71)
+
+`surface.cone_p2` is green: all 3,390 native comparisons pass, with exact numeric
+agreement, zero failures/deferrals and no absolute floors. Coverage includes
+cached/lazy and bounded/unbounded cones and real cylinders, rigid poses,
+1e-7/1/1e6 scales, trims/apices, UV swaps, tolerance conversion, non-cone NURBs
+and fixed-seed generated cases. Four native adapter regressions pass.
+
+The six affected default reports match the complete verification byte for byte:
+cone p1 20,694/20,694; revolution p2 1,099/1,167 (68 deferred); B-spline surface
+p2 749/763 (14); Surface p2 808/869 (61); curve-bounded surface 469/535 (66).
+Perturbation detects every compared case. Existing deferrals remain explicit;
+the Kernel-aware analytic Surface dispatch is coordinated separately in #76.
+
+Final local verification includes official main 4b9da2c5: formatting, strict
+plain/C++ workspace Clippy, workspace tests (1,003 kernel tests and 10 harness
+tests), 19 native FFI tests, wasm and license/source checks all pass. Full
+differential verification covers exactly 147 plan units: 90 green, 57 partial,
+zero failed. See findings and upstream-issues UB-98/WR-73 for scope and native
+defects. SSI work remains deferred under issue #17; no external corpus is used.

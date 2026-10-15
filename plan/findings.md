@@ -3841,9 +3841,24 @@ ordinary failures remain empty intersections; line-plane failures leave their
 parameter unset and are rejected by the shim before the helper consumes it.
 Offset TO_EUCLID divides each coordinate directly by its weight, whereas the
 separate N_CPtToPtEuclid helper multiplies by a reciprocal. Keeping that distinction
-is necessary for large-scale apex offsets to match bit for bit.
+is necessary for exact numeric agreement on large-scale apex offsets.
 
-Three native adapter regressions pass: malformed/lazy-mutated inputs rejected
+Four native adapter regressions pass: malformed/lazy-mutated inputs rejected
 before C++, truncation of a 20..250-degree cone returns a full 0..360-degree sweep,
-and a near-collapse canonical factory returns NULL and is rejected before the
-unsafe native offset call. See upstream-issues UB-98 and WR-73.
+a near-collapse canonical factory returns NULL and is rejected before the unsafe
+native offset call, and the linear-axis guard follows UV swapping. Four initially
+mislabeled collapsed-angular fixtures collapsed the linear axis after swapping;
+the preflight correctly rejected the unset line-plane parameter. Their domains
+were transposed to collapse the actual angular axis, retaining all cases and the
+fixed tolerance. See upstream-issues UB-98 and WR-73.
+
+Final verification on official main 4b9da2c5: cone part 2 compares all 3,390 cases
+with exact numeric agreement, zero failures/deferrals and no absolute floors.
+All six affected reports match the complete run byte for byte; perturbation
+detects every compared case. The full suite covers exactly the 147 green/partial
+plan units (90 green, 57 partial), with zero failures. Strict plain/C++ workspace
+Clippy, formatting, workspace tests (1,003 kernel tests and 10 harness tests),
+19 native FFI tests, wasm and license/source checks pass. The inversion helper
+returns status and the actual optional classification together; it does not use
+an output argument or invent unset UV values. Issue #76 remains the explicit
+shared-dispatch follow-up, and no external SSI corpus is used.
