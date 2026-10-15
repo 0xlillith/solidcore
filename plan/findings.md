@@ -4737,10 +4737,23 @@ mutated scales and accepted/reduced step counts are compared.
   them. `global_surface_solve_with` also returns the solution nodes' boxes and patch
   domains (`SM_SR_NODES`, read by `SmSurfaceIntersector::FindInteriorCurves`, now wired).
 - **Unported callees** (deferred): `sm_IntersectSrfBndryCrv` and `sm_ExtractIsoCurve`
-  (`surface.surface_p8`; `LiftCurve` defers at its first call), `SmSurface::LocalSurfaceSolve`
-  (`surface.surface_p3`; every non-intersect surface/surface leaf solve ends with it),
-  and `LocalPointSolve` through `DropPoint` of a B-spline in `IntersectSurfaceBoundaries`
-  (`surface.surface_point_solve_p3`).
+  (`surface.surface_p8`; `LiftCurve` defers at its first call) and `LocalPointSolve`
+  through `DropPoint` of a B-spline in `IntersectSurfaceBoundaries`
+  (`surface.surface_point_solve_p3`). `SmSurface::LocalSurfaceSolve` is wired to unit
+  `surface.surface_p3` (merged).
+- **Dispatch gap: `LiftCurve` on a surface that is not a B-spline.** `SmCrvOnSurf` holds
+  any `SmSurface` upstream; the ported `CrvOnSurf` (unit `curve.crv_on_surf`) holds an
+  `SmBSplineSurface`, so `LiftCurve` of a plane, surface of revolution, curve-bounded,
+  in-volume or STEP surface returns `Unported` naming `curve.crv_on_surf` past the iso
+  curve test (as the `SmIsoCurve` gaps of parts 5, 6 and 9). Unreachable in the difftest
+  until `sm_ExtractIsoCurve` (`surface.surface_p8`) lands.
+- **Global solve comparison.** The `surface.surface_p7` runner's `GlobalCurveSolve` and
+  `GlobalSurfaceSolve` cases compare the first 16 solutions (type, value, variables, end
+  parameters of a range), not only their count. Its generator covers minimize, maximize,
+  normalize and signed directed minimize curve solves and generated surface/surface solves
+  (a bumpy patch lifted 0.05..2 above a B-spline surface's control hull, so minimizing
+  never meets a continuum of zero distances; intersect for the `SM_SR_NODES` node pairs on
+  crossing surfaces).
 - **Upstream issues:** UB-116 (`IntersectSurfaceBoundaries` dereferences a NULL curve
   array), WR-97 (`LocalSurfaceIntersect` boundary retries: `!bFoundSolution` binds to
   the minimum test only; reproduced).

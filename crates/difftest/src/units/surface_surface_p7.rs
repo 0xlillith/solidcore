@@ -1787,6 +1787,11 @@ impl UnitDiff for Runner {
             if is_solve(&i.op) && !unit_scale(&i.surface) {
                 continue;
             }
+            if let OpIn::Gss { other, .. } = &i.op {
+                if !unit_scale(other) {
+                    continue;
+                }
+            }
             if let Err(Fail::Harness(_)) = rust_run(&i) {
                 continue;
             }

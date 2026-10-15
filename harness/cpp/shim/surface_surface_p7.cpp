@@ -602,11 +602,11 @@ void put_uv(std::vector<double>& o, const SmVector2d& v)
 // The first SOLS_OUT solutions of a global solve: type, value, variable count (at most
 // 4), the start parameters and, for a range, the end parameters (surface.surface_p11).
 const ULONG SOLS_OUT = 16;
-void put_sols(std::vector<double>& o, const SmSolutionArray& sols)
+void put_sols(std::vector<double>& o, SmSolutionArray& sols)
 {
     for (ULONG i = 0; i < sols.GetSize() && i < SOLS_OUT; i++)
     {
-        const SmSolution& s = sols[i];
+        SmSolution& s = sols[i];
         ULONG n = s.m_lNumVariables < 4 ? s.m_lNumVariables : 4;
         o.push_back((double)s.m_eSolutionType);
         o.push_back(s.m_vStart.m_dSolutionValue);
