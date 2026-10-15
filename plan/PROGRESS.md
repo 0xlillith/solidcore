@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**165 / 261 units ported** (92 green, 73 partial), **220,989 / 387,903 upstream lines (57.0%)**. 19 claimed, 0 blocked, 77 todo.
+**165 / 261 units ported** (92 green, 73 partial), **220,989 / 387,903 upstream lines (57.0%)**. 20 claimed, 0 blocked, 76 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -29,7 +29,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`, `topology.loopuse`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.shell`
 - [ ] `topology.face_p3` (1881 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.face_p4`, `topology.loopuse`
-- [ ] `topology.topology_traverser` (784 lines) — missing: `topology.edge`
 - [ ] `query.face_p3` (1620 lines) — missing: `query.face_p2`, `topology.edge`, `topology.face_p4`, `topology.loopuse`
 - [ ] `topology.brep_p7` (2503 lines) — missing: `topology.brep_p10`, `topology.edge`, `topology.shell`
 - [ ] `topology.face_p1` (2171 lines) — missing: `topology.face_p3`, `topology.face_p4`, `topology.loopuse`
@@ -109,6 +108,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
+- [ ] 🔨 `topology.topology_traverser` (784 lines) — in progress: #113 @damgru (draft)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
@@ -290,7 +290,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.face_p4` (1812 lines) — waiting
 - [ ] ⏳ `topology.brep_p10` (1890 lines) — waiting
 - [ ] ⏳ `topology.face_p3` (1881 lines) — waiting
-- [ ] ⏳ `topology.topology_traverser` (784 lines) — waiting
+- [ ] 🔨 `topology.topology_traverser` (784 lines) — in progress: #113 @damgru (draft)
 - [ ] ⏳ `topology.brep_p7` (2503 lines) — waiting
 - [ ] ⏳ `topology.face_p1` (2171 lines) — waiting
 - [ ] ⏳ `topology.brep_p1` (2454 lines) — waiting
