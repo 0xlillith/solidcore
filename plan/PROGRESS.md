@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**164 / 261 units ported** (92 green, 72 partial), **219,511 / 387,903 upstream lines (56.6%)**. 19 claimed, 0 blocked, 78 todo.
+**165 / 261 units ported** (92 green, 73 partial), **220,989 / 387,903 upstream lines (57.0%)**. 18 claimed, 0 blocked, 78 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -17,8 +17,8 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
 - [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p3`, `surface.surface_p5`
 - [ ] `surface.surface_p8` (2374 lines) — missing: `surface.surface_p3`, `surface.surface_p5`
-- [ ] `intersect.surface_drop_lib_p2` (1080 lines) — missing: `intersect.surface_drop_lib_p1`, `surface.surface_p5`
-- [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p1`, `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3` +1 more
+- [ ] `intersect.surface_drop_lib_p2` (1080 lines) — missing: `surface.surface_p5`
+- [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3`, `surface.surface_p5`
 - [ ] `intersect.curve_class_p3` (1986 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p4` (2022 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4`, `intersect.curve_class_p7`
@@ -99,7 +99,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
-- [ ] 🔨 `intersect.surface_drop_lib_p1` (1478 lines) — in progress: #98 @bherbruck (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
@@ -305,12 +304,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.proto_topology_p2` (2091 lines) — waiting
 - [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
 
-### intersect (13/25)
+### intersect (14/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] 🟡 `intersect.curve_class_p1` (2087 lines) — partial, 2125 cases
-- [ ] 🔨 `intersect.surface_drop_lib_p1` (1478 lines) — in progress: #98 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.surface_drop_lib_p1` (1478 lines) — partial, 1862 cases
 - [ ] 🟡 `intersect.surface_silhouette` (979 lines) — partial, 709 cases
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🟡 `intersect.ray_tracer` (1246 lines) — partial, 421 cases
