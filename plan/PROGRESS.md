@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**168 / 261 units ported** (92 green, 76 partial), **226,307 / 387,903 upstream lines (58.3%)**. 23 claimed, 0 blocked, 70 todo.
+**168 / 261 units ported** (92 green, 76 partial), **226,307 / 387,903 upstream lines (58.3%)**. 26 claimed, 0 blocked, 67 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -16,7 +16,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
 - [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3`
-- [ ] `intersect.curve_class_p3` (1986 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p4` (2022 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p5` (2017 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p6`, `intersect.curve_class_p7`
@@ -32,7 +31,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `query.face_p4` (1432 lines) — missing: `query.face_p3`, `topology.loopuse`
 - [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edgeuse_p3`, `topology.loopuse`, `topology.shell`
 - [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edgeuse_p3`, `topology.face_p3`, `topology.loopuse`, `topology.shell`
-- [ ] `heal.face_props` (1410 lines) — missing: `topology.loopuse`
 - [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.loopuse`, `topology.shell`
 - [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.face_p3`, `topology.loopuse` +1 more
 - [ ] `topology.brep_p2` (2443 lines) — missing: `surface.offset_surface`, `topology.brep_cache`, `topology.brep_p1`, `topology.face_p3` +1 more
@@ -45,7 +43,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.face_p4`
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`
 - [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `topology.brep_p1`
-- [ ] `topology.proto_topology_p3` (1577 lines) — missing: `topology.proto_topology_p2`
 - [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `blend.fillet_standard_solver_p1` (2336 lines) — missing: `blend.fillet_solver_p1`, `surface.offset_surface`
@@ -97,6 +94,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_lib_p2` (1080 lines) — in progress: #112 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
+- [ ] 🔨 `intersect.curve_class_p3` (1986 lines) — in progress: #123 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
@@ -104,11 +102,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
 - [ ] 🔨 `mass.integrator` (1031 lines) — in progress: #119 @damgru (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
+- [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
 - [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
 ## By module
@@ -299,7 +299,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.brep_p5` (2193 lines) — waiting
 - [ ] ⏳ `topology.brep_p3` (2503 lines) — waiting
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
-- [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
+- [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
 
 ### intersect (14/25)
 
@@ -318,7 +318,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] ⏳ `intersect.surface_drop_lib_p3` (2062 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p2` (1677 lines) — partial, 1660 cases
-- [ ] ⏳ `intersect.curve_class_p3` (1986 lines) — waiting
+- [ ] 🔨 `intersect.curve_class_p3` (1986 lines) — in progress: #123 @froglemonade2 (draft)
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p3` (1932 lines) — partial, 1527 cases
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
@@ -365,7 +365,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### heal (1/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
-- [ ] ⏳ `heal.face_props` (1410 lines) — waiting
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
 - [ ] ⏳ `heal.heal_data_p2` (2160 lines) — waiting
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
