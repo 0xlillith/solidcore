@@ -4309,6 +4309,88 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   (`ComputeUVPoint`, `GetVertex`) and `intersect::point_class` (`IsConnectedTo`). Those
   callers hold opaque object handles without a `Brep` (as for `topology.edgeuse_p1`).
 
+## intersect.surface_drop_lib_p1 (`SmSurfaceDropLib.cpp` part 1, 2026-10-15; partial, no disagreements)
+
+- **Ignored evaluation statuses.** `SmDropPt::IsMovingAlongBoundary` ignores the statuses
+  of its `Evaluate1stDerivatives` / `EvaluateNormal` calls, and `TestSpanAccuracy` those of
+  the two `EvaluatePoint`s of its domain clamp check. This is not undefined behaviour:
+  `SmVector3d` / `SmPoint3d` members default to `SM_UNDEF_DOUBLE`, so upstream goes on with
+  those defaults or whatever the evaluator wrote before it failed. The port does not
+  model that path (a failed evaluation is an error), and the shim reports such inputs as
+  `REJECTED` on both sides. The guard has never fired: 0 of the generated moving/span
+  cases and 0 of the review's ~3600 pole, cone-apex and collapsed-edge cases, so no valid
+  input is hidden today. If an evaluator failure is ever reached, port it with
+  `SM_UNDEF_DOUBLE` vectors instead of rejecting.
+- **`sm_FixBoundaryCurves`** on `3k` points (`k >= 2`) reads one point past the array
+  (`SM_ASSERT` compiled out): undefined, rejected by the shim, `InvalidInput` in Rust.
+- **Coverage limit.** `DropIsoCurve` grows its `dKnots[100]` `SmTArray` buffer past 100
+  knots; the FFI caps B-spline curves at 64 control points, so that growth is not
+  difftested (the Rust side has no limit).
+- **Review fixes (PR #98).** Clippy with `--features difftest/cpp` failed in the runner
+  (collapsible `if`, unchecked indexing in two generators); fixed without changing the rng
+  draw order, so the generated cases are byte-identical. 328 review fixtures added
+  (`fixtures/intersect.surface_drop_lib_p1/review_poles.json`, subsampled from 3596; none
+  undefined in C++): all pass bit-identical or defer on `surface.surface_p3`.
+## topology.vertex (`SmVertex`, 2026-10-15; partial, no disagreements)
+
+- **Vertex use lists.** `topology::Vertex` gained `vertexuses` (`m_pList`, upstream list
+  order; `GetPrimaryVertexuse` is its head) and `poly_vertex` (`m_pPolyVertex3D`). Every
+  B-rep builder must keep `vertexuses` in step with the vertex use records: the
+  `topology.vertexuse` / `topology.edgeuse_p1` runners fill it in arena order (their
+  shims do not export the list), the `topology.vertex` shim exports the real list. The
+  co-ported scans in `topology::vertexuse` now call `topology::vertex`.
+- **`m_bExact` does not exist in the reference build.** `SM_TOLERANT_WATCH` is defined
+  only by `NL_DataStruct.h`, which is not seen before `SmVertex.h`; the shim cannot even
+  name `m_bExact`. `IsExact` is therefore always `TRUE` and `SetExact` does nothing; the
+  port does the same (no field).
+- **Uses that no owner chain reaches.** In prog_test `my_test_topology`'s wire network a
+  vertex's use list holds vertex uses that the region/shell/edge walk never visits (how
+  they got there was not investigated). The vertex shim registers the vertices' list
+  members too; the earlier topology shims' exports omit them.
+- **Chains of wire edges.** The shim adds a B-rep kind built as prog_test
+  `my_test_edge_geometry_repairs` builds its wire (`MakeShellVertex`,
+  `MakeWireEdgeVertex`, `MakeWireEdge`) from real `SmLine`s (optionally
+  re-parameterised), degree-1 `SmBSplineCurve` lines and B-spline curves, so
+  `IsTopologicalVertex` / `AreEdgesTangent` are compared on lines (the `IsLine` branch),
+  on curves meeting at equal and unequal parameters, around the 0.5 degree limit, on
+  cusps (upstream counts them, WR-92) and on reversed edges.
+- **Curve identity.** Upstream compares edge curves by pointer in
+  `IsTopologicalVertex`; each Rust edge owns its curve, so a B-rep whose edges share a
+  curve object is rejected by the runner (none of the fixtures do).
+- **Upstream bugs.** `GetVertexuseOfFace` ignores its face (WR-91),
+  `GetMaxUpDimGap3d` adds to a `NULL` gap array by default (UB-105), the tangent tests
+  read an uninitialised tangent after a failed evaluation (UB-106). Ported as written
+  where defined; the undefined cases are `InvalidInput` and skipped by the shim.
+- **Review fixtures (PR #96 review).** `fixtures/topology.vertex/review.json` (1408 cases,
+  all pass, none skipped by the shim) adds what the generated chains never reach:
+  rational edges at a vertex with two edges (`SmBSplineCurve::IsLine` handing a rational
+  curve to the sampling `SmCurve::IsLine`), rational arcs meeting lines and arcs at equal
+  and unequal parameters, turns at 0.49/0.51/179.49/179.51/180/90 degrees, 1e-12..1e12
+  scales and tangent / gap / `SetTolerance` limits. Still not compared: `SmCircle` /
+  `SmEllipse` edges at a vertex (the chain shim builds only `SmLine` and
+  `SmBSplineCurve`); the shim reports `-2` (skipped) for an `IsTopologicalVertex` where
+  upstream's SER would return before reading the uninitialised tangent, and the FFI
+  rejects NaN tolerances that C++ handles (coverage only, no wrong result).
+  `Brep::add_vertexuse_record` does not append to `Vertex::vertexuses`; a linking helper
+  or a debug consistency check would stop silent drift once library builders create
+  vertex uses.
+- **Not wired**, still `UNPORTED(topology.vertex)`: the generic-handle callers in
+  `intersect::point_class` (`GetBrep`, `IsConnectedTo`, `GetPoint`, `SetPoint`,
+  `GetTolerance`, `SetTolerance`, `SetExact`, `GetScaledZero`), `geom::solution_array`
+  (`GetPoint`), `geom::object` (`GetPoint`), `geom::tol` (comments),
+  `surface::trim_srf_cache` (`GetTolerance`, behind `UNPORTED(topology.vertexuse)`),
+  `topology::proto_topology::p1::proto` (`GetVertexuses`, `GetPoint`) and
+  `query::poly` (`Get/SetPolyVertex` of an original vertex key). They hold opaque object
+  handles (or `ObjectKey`s) that cannot reach a `Brep` vertex yet (as for
+  `topology.edgeuse_p1` and `topology.vertexuse`); whoever gives those handles a B-rep
+  should call `topology::vertex`. `geom::tools`' `GetTolerance` is wired (its 60
+  deferred cases now pass).
+- **After merging main (topology.face_p2, heal.gap).** `SmFace::GetUpwardFaceuse` is
+  wired to `topology::face::p2::upward_faceuse`; the shim now exports each face's
+  upward face use (`m_pFU`) and the runner sets `Face::faceuse` from it. Run: 5508
+  cases, 4627 pass, 0 fail, 881 deferred (topology.edgeuse_p3 399, surface.surface_p3
+  382, topology.face_p3 76, topology.edge 24).
+
 ## surface.surface_p10 (`sm_GlobalCurveIntersectCombineSolutions`, `SmLSIGlobalSolver::LocalSolve`, PR #93 review, 2026-10-15; partial, no disagreements)
 
 - **Adversarial fixtures.** 31 review cases were added to `fixtures/surface.surface_p10/cases.json`
@@ -4339,3 +4421,47 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   degenerate-interval exit only on the V boundary, the unexpanded pseudo box passed to
   `SimpleCoincidenceChecker`, `IsDegenerate` defaulting to `SM_EFF_ZERO`). Re-run this
   unit's difftest when surface.surface_p6 lands.
+
+## heal.gap (`SmGap`, `SmGapArray`, `SmGapSample`, `SmGapFunction`, 2026-10-15; partial, no disagreements)
+
+- **What is compared.** Gap functions (curve or surface to point, curve or surface)
+  over real `SmBSplineCurve`, `SmHermiteCurve`, `SmLine`, `SmEllipse`, `SmCircle`,
+  `SmCrvOnSurf` curves and `SmBSplineSurface`, `SmPlane`, `SmCurveBoundedSurface`
+  surfaces: status, adjusted sample counts, sample state, extreme indices, all-normal
+  flag, other-parameter ranges and every sample (drop type, both positions, tolerance
+  point, parameters, tolerance, in-tolerance flag), through `GetMaxGapSample` and
+  `GetSampleSet`, with and without stopping at the first big gap, after `SetSampleCnt` /
+  `SetXSectTol3d`; single `Evaluate` calls with and without drop guesses;
+  `sm_AddUniqueGetOrderedIndex`; `SmGapSample::SetCanonical`; `SmGapArray`; and the six
+  gap records set on real B-reps (constructor = `Set`, every accessor,
+  `GetGapEndPoints`, `CacheGap`). All bit-identical (max_rel_err 0).
+- **Topology cases** build the B-rep exactly as the `topology.vertexuse` shim (the code is
+  copied into `harness/cpp/shim/heal_gap.cpp`), and the Rust side imports the same
+  export with that runner's importer (made `pub(crate)`). The importer rebuilds every
+  face surface as a plain B-spline of its NURB (an `SmPlane` as a plane, since the
+  topology.face_p2 merge) and every edge curve as a B-spline (or `SmLine`), so the shim
+  replaces the other analytic face surfaces and non-line edge curves of the C++ B-rep by
+  plain B-spline copies of their NURBs before the op (the originals are leaked). Without that, gaps between nearly coincident points disagreed at ULP level
+  (e.g. `0` vs `8.9e-16` on `disk.smb`): the analytic and NURB evaluations differ in the
+  last bits, which a distance of near-coincident points amplifies. Parameters are given
+  as fractions of the selected edge's interval / the face surface's domain, resolved on
+  the imported graph by both sides.
+- **Deferred:** the surface drops of `SmCrvSrfGapFunction` / `SmSrfSrfGapFunction`
+  (`SmSurface::DropPoint`, `surface.surface_p5`), curve drops onto an `SmCrvOnSurf`
+  (`SmCurveClassification` construction, `intersect.curve_class_p4`), and trim-curve gaps
+  on edge uses without a UV trim curve (creating one in
+  `SmEdgeuse::GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`; the existing-curve branch
+  is read in place).
+- **Back-edges wired:** `SmVertexEdgeGap::Set` / `SmVertexFaceGap::Set` in
+  `topology::vertexuse` (`CalcVertexEdgeGap`, `CalcVertexFaceGap`) and
+  `SmEdgeEdgeGap::SetEdgeEdgeGap` / `SmCrvSrfGapFunction` in `topology::edgeuse::p1`
+  (`CalcEdgeCCWEdgeGap`, `CalcMaxEdgeFaceGap`, which now take the kernel). Their
+  runners compare only the cache states of those gaps, so the gap values are compared
+  here. `CalcMaxEdgeFaceGap` uses the context-less `SmTol::GetXSectTol3d(NULL)` (the
+  records carry no context); it is deferred anyway by the surface drop.
+- **Upstream bugs** ported as is: `plan/upstream-issues.md` WR-88 (non-B-spline `v`
+  samples spaced by array index), WR-89 (B-spline spans walked from the first knot),
+  WR-90 (`SmGapArray::Append` keeps the old longest gap), UB-104 (null dereferences and
+  zero counts; the port returns `InvalidInput`).
+- `SmBrep::ReadFromFile` crashes on `SmallBox.smb` (UB-1), so topology fixtures use the
+  `topology.vertexuse` file list.

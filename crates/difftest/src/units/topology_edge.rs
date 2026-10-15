@@ -645,7 +645,11 @@ fn import(ex: &[f64]) -> Result<Imported, HarnessError> {
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex { point, tolerance });
+        vertices.push(Vertex {
+            point,
+            tolerance,
+            ..Vertex::default()
+        });
     }
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
@@ -730,6 +734,14 @@ fn import(ex: &[f64]) -> Result<Imported, HarnessError> {
     }
     for vu in vertexuses {
         b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
+    }
+    // the vertex use lists are not exported: each vertex lists its uses in arena order
+    let uses: Vec<(VertexuseId, Option<VertexId>)> =
+        b.vertexuses().iter().map(|(id, r)| (id, r.vertex)).collect();
+    for (id, v) in uses {
+        if let Some(v) = v {
+            b.vertex_mut(v).map_err(|e| harness(e.to_string()))?.vertexuses.push(id);
+        }
     }
     Ok(Imported {
         b,
@@ -1885,8 +1897,8 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
         } => {
             let t = (*tol >= 0.0).then_some(*tol);
             let r = match which {
-                0 => ed::max_gap_3d(b, eid(*e), *want, t),
-                1 => ed::max_up_dim_gap_3d(b, eid(*e), *want, t),
+                0 => ed::max_gap_3d(&k, b, eid(*e), *want, t),
+                1 => ed::max_up_dim_gap_3d(&k, b, eid(*e), *want, t),
                 _ => ed::max_down_dim_gap_3d(b, eid(*e), *want, t),
             };
             match r {
@@ -2045,7 +2057,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             tol,
             coincidence,
         } => out.push(slot(ed::is_tangent_edge(b, eid(*e), *tol, *coincidence), flag)?),
-        OpIn::Blend { e } => out.push(slot(ed::blend_edgeuse(b, eid(*e)), |x| {
+        OpIn::Blend { e } => out.push(slot(ed::blend_edgeuse(&k, b, eid(*e)), |x| {
             ix(x, EdgeuseId::index)
         })?),
         OpIn::Ode {

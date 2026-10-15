@@ -24,8 +24,8 @@
 //!   `rbSameOrient` / `rlFoundIndex` unset or holding a rejected candidate's value).
 //! - [`find_edge`] and [`find_face`] report "nothing found" (upstream `SM_ERR`) as
 //!   `Ok(None)`. Faces are returned as [`FaceId`]s.
-//! - **Edge queries** are those of `topology::edge` (unit `topology.edge`).
-//! - **Unported callees.** Vertex tolerances, curve evaluation of the opaque target
+//! - **Edge and vertex queries** are those of `topology::edge` and `topology::vertex`.
+//! - **Unported callees.** Curve evaluation of the opaque target
 //!   curve, point drops, curve/curve distance,
 //!   `SmBrep::GetEdges`, `SmBrep::GetTolerance` and the B-rep cache tree adapter
 //!   needed by the ported `SmTopologySolver::BrepPointSolve`
@@ -176,8 +176,7 @@ pub fn find_first_point_within_tol_to_pnt(
 /// A vertex closer than `SM_EFF_ZERO` ends the search at once.
 ///
 /// # Errors
-/// [`SolidError::NotFound`] for a vertex id outside `brep`;
-/// [`SolidError::Unported`] while vertex tolerances are not ported.
+/// [`SolidError::NotFound`] for a vertex id outside `brep`.
 pub fn find_first_vertex_within_tol_to_pnt(
     brep: &Brep,
     vertices: &[VertexId],
@@ -345,12 +344,7 @@ pub fn find_face(brep: &Brep, point: Point3) -> Result<Option<FaceId>> {
 
 /// `SmVertex::GetTolerance`.
 fn vertex_tolerance(brep: &Brep, v: VertexId) -> Result<f64> {
-    brep.vertex(v)?;
-    // UNPORTED(topology.vertex): SmVertex::GetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmVertex::GetTolerance",
-        unit: "topology.vertex",
-    })
+    crate::topology::vertex::tolerance(brep, v)
 }
 
 /// `SmCurve::GetOwner`, as the owning edge (if any).
@@ -552,8 +546,10 @@ mod tests {
         let a = brep.add_vertex(p(0.0, 0.0, 0.0)).unwrap();
         let b = brep.add_vertex(p(1.0, 0.0, 0.0)).unwrap();
         let e = brep.add_edge(a, b).unwrap();
-        let r = find_first_vertex_within_tol_to_pnt(&brep, &[a], p(0.0, 0.0, 0.0), 1.0);
-        assert!(matches!(r, Err(SolidError::Unported { .. })));
+        // vertex tolerances are ported (topology.vertex): the vertex at the point is found
+        let r = find_first_vertex_within_tol_to_pnt(&brep, &[a], p(0.0, 0.0, 0.0), 1.0).unwrap();
+        assert!(r.found);
+        assert_eq!(r.index, 0);
         let q = CoincidentEdgeQuery {
             start_vertex: a,
             end_vertex: b,

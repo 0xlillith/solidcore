@@ -752,17 +752,16 @@ impl Surface {
     ) -> Result<(Point2, LocationType)> {
         match &self.kind {
             SurfaceKind::BSpline(s) => {
-                s.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess)
+                s.step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_step_inversion(),
             SurfaceKind::SrfInVolume(s) => s.step_inversion(k, anal_domain, point_on_surf, tol_3d),
             // SmBSplineSurface::STEPInversion solves on the plane through the virtual
             // point solvers
-            // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-            SurfaceKind::Plane(_) => Err(SolidError::unported(
-                "SmSurface::GlobalPointSolve",
-                "surface.surface_p4",
-            )),
+            SurfaceKind::Plane(s) => {
+                s.base()
+                    .step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
+            }
             SurfaceKind::SurfOfRevolution(s) => {
                 s.step_inversion(k, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
@@ -1406,6 +1405,21 @@ pub trait SurfaceEvaluate {
     fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         super::p7::base_evaluate_normal(self, uv, u_side, v_side)
     }
+
+    /// `LocalCurveSolve(.., SM_SO_MAXIMIZE, SM_EFF_ZERO_SQRT, ..)`: the curve parameter
+    /// and surface parameters of the gap maximum near the guesses, if any.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Surface::local_curve_solve`].
+    fn local_curve_maximize(
+        &self,
+        curve: &Curve,
+        domain: &Extent2d,
+        interval: &Extent1d,
+        guess_uv: Point2,
+        guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>>;
 }
 
 impl SurfaceEvaluate for Surface {
@@ -1446,9 +1460,51 @@ impl SurfaceEvaluate for Surface {
     fn evaluate_normal(&self, uv: Point2, u_side: Side, v_side: Side) -> Result<Vec3> {
         Self::evaluate_normal(self, uv, u_side, v_side)
     }
+
+    fn local_curve_maximize(
+        &self,
+        curve: &Curve,
+        domain: &Extent2d,
+        interval: &Extent1d,
+        guess_uv: Point2,
+        guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>> {
+        Ok(self
+            .local_curve_solve(
+                domain,
+                curve,
+                interval,
+                SolverOperation::Maximize,
+                EFF_ZERO_SQRT,
+                &[],
+                guess_uv,
+                guess_t,
+            )?
+            .map(|s| (s.t, s.uv)))
+    }
 }
 
 impl SurfaceEvaluate for BSplineSurface {
+    fn local_curve_maximize(
+        &self,
+        curve: &Curve,
+        domain: &Extent2d,
+        interval: &Extent1d,
+        guess_uv: Point2,
+        guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>> {
+        // SmBSplineSurface does not override SmSurface::LocalCurveSolve: run it on a
+        // `Surface` holding this B-spline surface.
+        SurfaceEvaluate::local_curve_maximize(
+            &Surface::from(self.clone()),
+            curve,
+            domain,
+            interval,
+            guess_uv,
+            guess_t,
+        )
+    }
+
     fn surface_approx_eq(&self, other: &Self) -> Result<bool> {
         // SmBSplineSurface::operator== (two B-splines: SmSurface::operator== holds)
         Ok(self.approx_eq(other))
@@ -1745,6 +1801,20 @@ pub struct SurfaceEval<'s> {
     fails_eval: bool,
 }
 
+/// The members of a [`SurfaceEval`] its lazy normal evaluations write.
+pub(super) struct EvalStateMut<'a> {
+    /// `m_sPVV`.
+    pub(super) pvv: &'a mut [[Vec3; 3]; 3],
+    /// `m_sSectTangent`.
+    pub(super) sect_tangent: &'a mut Vec3,
+    /// `m_dSectCurvature`.
+    pub(super) sect_curvature: &'a mut f64,
+    /// `m_bNormalSet`.
+    pub(super) normal_set: &'a mut bool,
+    /// `m_bSectDirSet`.
+    pub(super) sect_dir_set: &'a mut bool,
+}
+
 impl<'s> SurfaceEval<'s> {
     /// An evaluator of `surface` with nothing set (`SmSurfaceEval(pSurf)`).
     #[must_use]
@@ -1834,6 +1904,24 @@ impl<'s> SurfaceEval<'s> {
     #[must_use]
     pub const fn sect_dir(&self) -> Vec3 {
         self.sect_dir
+    }
+
+    /// The side flags `(m_bUFromLeft, m_bVFromLeft)`.
+    #[must_use]
+    pub(super) const fn sides(&self) -> (bool, bool) {
+        (self.u_from_left, self.v_from_left)
+    }
+
+    /// Mutable access to the members the lazy evaluations of unit
+    /// `surface.surface_p4` (`EvalNormal`, `EvalNormalSection`) write.
+    pub(super) const fn state_mut(&mut self) -> EvalStateMut<'_> {
+        EvalStateMut {
+            pvv: &mut self.pvv,
+            sect_tangent: &mut self.sect_tangent,
+            sect_curvature: &mut self.sect_curvature,
+            normal_set: &mut self.normal_set,
+            sect_dir_set: &mut self.sect_dir_set,
+        }
     }
 
     /// The evaluation matrix as stored (`m_sPVV`; entries not evaluated yet keep

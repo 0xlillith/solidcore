@@ -97,8 +97,7 @@
 //! - **Unported callees** return [`SolidError::Unported`]: `SmEdgeuse::NormalizedEvaluate`,
 //!   `EvaluateBinormal` and `GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`),
 //!   `SmBrep::Notify` (`topology.brep_p2`), `SmBrep::GetInfiniteRegion`
-//!   (`topology.brep_p1`), `SmVertex::SetTolerance` (`topology.vertex`),
-//!   `SmSurface::CoverOtherCoincidentSurface` (`surface.surface_p5`) and
+//!   (`topology.brep_p1`), `SmSurface::CoverOtherCoincidentSurface` (`surface.surface_p5`) and
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`).
 
 use std::collections::BTreeMap;
@@ -242,14 +241,9 @@ fn infinite_region(b: &Brep) -> Result<Option<RegionId>> {
     ))
 }
 
-/// `SmVertex::SetTolerance` (unit `topology.vertex`).
+/// `SmVertex::SetTolerance(tol)` (default arguments; unit `topology.vertex`).
 fn vertex_set_tolerance(b: &mut Brep, v: VertexId, tolerance: f64) -> Result<()> {
-    let _ = (b, v, tolerance);
-    // UNPORTED(topology.vertex): SmVertex::SetTolerance
-    Err(SolidError::unported(
-        "SmVertex::SetTolerance",
-        "topology.vertex",
-    ))
+    crate::topology::vertex::set_tolerance(b, v, tolerance, true, true)
 }
 
 /// Which of the two input surfaces `SmSurface::CoverOtherCoincidentSurface` keeps
@@ -1280,6 +1274,7 @@ fn keep_gap(gap: &EdgeGap, tol: Option<f64>) -> bool {
 /// `GetMaxUpDimGap3d`: the largest cached edge/face gap of the edge uses (computed
 /// when not cached), with all of them longer than `tol` when `want_gaps`.
 pub fn max_up_dim_gap_3d(
+    k: &Kernel,
     b: &mut Brep,
     e: EdgeId,
     want_gaps: bool,
@@ -1291,7 +1286,7 @@ pub fn max_up_dim_gap_3d(
     };
     for eu in edgeuses(b, e, None, None)? {
         // Max Edge/Face gap
-        let Some(g) = eu1::max_edge_face_gap(b, eu, false)? else {
+        let Some(g) = eu1::max_edge_face_gap(k, b, eu, false)? else {
             continue;
         };
         let g = EdgeGap::EdgeFace(g);
@@ -1354,9 +1349,15 @@ pub fn max_down_dim_gap_3d(
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] when either is null (upstream dereferences both).
-pub fn max_gap_3d(b: &mut Brep, e: EdgeId, want_gaps: bool, tol: Option<f64>) -> Result<MaxGap> {
+pub fn max_gap_3d(
+    k: &Kernel,
+    b: &mut Brep,
+    e: EdgeId,
+    want_gaps: bool,
+    tol: Option<f64>,
+) -> Result<MaxGap> {
     // UpDim gaps
-    let up = max_up_dim_gap_3d(b, e, want_gaps, tol)?;
+    let up = max_up_dim_gap_3d(k, b, e, want_gaps, tol)?;
     // DownDim gaps
     let down = max_down_dim_gap_3d(b, e, want_gaps, tol)?;
 
@@ -1945,8 +1946,7 @@ pub fn is_connected_to(b: &Brep, e: EdgeId, target: Option<EntityRef>) -> Result
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream dereferences null (cascading without
-/// primary edge use or vertex use); [`SolidError::Unported`] when a vertex tolerance
-/// must grow (`SmVertex::SetTolerance`, unit `topology.vertex`).
+/// primary edge use or vertex use); [`SolidError::NotFound`] for a dangling id.
 pub fn set_tolerance(
     b: &mut Brep,
     e: EdgeId,
@@ -2307,7 +2307,7 @@ pub fn set_curve(
 /// [`SolidError::InvalidInput`] where upstream dereferences null;
 /// [`SolidError::Unported`] from `SmBrep::GetInfiniteRegion` and
 /// `SmEdgeuse::EvaluateBinormal`.
-pub fn blend_edgeuse(b: &Brep, e: EdgeId) -> Result<Option<EdgeuseId>> {
+pub fn blend_edgeuse(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Option<EdgeuseId>> {
     if is_lamina(b, e)? {
         return Ok(None); // skip all lamina edges
     }
@@ -2394,8 +2394,8 @@ pub fn blend_edgeuse(b: &Brep, e: EdgeId) -> Result<Option<EdgeuseId>> {
     if shell_filleting {
         let step_off = 0.001;
         let opts = eu2::StepOffOptions::default();
-        let s0 = eu2::evaluate_binormal_step_off(b, cur0, test_param, step_off, &opts)?;
-        let s1 = eu2::evaluate_binormal_step_off(b, cur1, test_param, step_off, &opts)?;
+        let s0 = eu2::evaluate_binormal_step_off(k, b, cur0, test_param, step_off, &opts)?;
+        let s1 = eu2::evaluate_binormal_step_off(k, b, cur1, test_param, step_off, &opts)?;
         let (pnt, fu_normal) = (s0.point, s0.face_normal);
         let (pnt2, fu_normal2) = (s1.point, s1.face_normal);
         let vec = (pnt2 - pnt).unitize_or_z();
@@ -2443,6 +2443,8 @@ mod tests {
                 b.add_vertex_record(Vertex {
                     point: Vec3::new(f64::from(i), 0.0, 0.0),
                     tolerance: 1e-5,
+                    vertexuses: Vec::new(),
+                    poly_vertex: None,
                 })
                 .unwrap()
             })
@@ -2523,7 +2525,7 @@ mod tests {
 
     #[test]
     fn orientation_and_tolerance() {
-        let (mut b, e, eus, _) = wire();
+        let (mut b, e, eus, vs) = wire();
         set_orientation(&mut b, e, OrientType::Opposite).unwrap();
         assert_eq!(b.edgeuse(eus[0]).unwrap().orientation, OrientType::Opposite);
         assert_eq!(b.edgeuse(eus[1]).unwrap().orientation, OrientType::Same);
@@ -2532,9 +2534,12 @@ mod tests {
         assert_eq!(b.edge(e).unwrap().tolerance, 1e-5);
         set_tolerance(&mut b, e, 1e-6, false, true).unwrap();
         assert_eq!(b.edge(e).unwrap().tolerance, 1e-6);
-        assert!(set_tolerance(&mut b, e, 1.0, true, true)
-            .unwrap_err()
-            .is_unported());
+        // growing past the vertex tolerances grows them too
+        set_tolerance(&mut b, e, 1.0, true, true).unwrap();
+        assert_eq!(b.edge(e).unwrap().tolerance, 1.0);
+        for v in vs {
+            assert_eq!(b.vertex(v).unwrap().tolerance, 1.0);
+        }
     }
 
     #[test]

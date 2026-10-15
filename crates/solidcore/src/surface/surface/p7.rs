@@ -81,6 +81,7 @@
 use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::extent1d::ExtentNd;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p2::{
     evaluate_curve_continuity, frenet_from_derivatives, ContinuityType, CurveEval,
@@ -89,6 +90,7 @@ use crate::geom::global_solver::{
     Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolutionRequested,
     SolverOperation,
 };
+use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd};
 use crate::geom::pseudo_box::{Planar, PseudoBox};
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionEnd, SolutionObject};
 use crate::geom::tree::AuxDataType;
@@ -105,7 +107,7 @@ use crate::topology::BrepId;
 
 use super::p1::{
     evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
-    SecondDerivatives,
+    CsNormalizeEnfo, SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
 use super::{Surface, SurfaceKind};
@@ -2169,6 +2171,8 @@ pub struct SsGlobalSolver<'t, 's, O> {
     pub uv_domain1: Extent2d,
     /// `m_crUVDomain2`.
     pub uv_domain2: Extent2d,
+    /// The kernel (upstream's `SmContext`), for the surfaces' seam tests.
+    pub kernel: &'s crate::kernel::Kernel,
 }
 
 impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
@@ -2289,20 +2293,35 @@ fn singular_param_solve(
 /// evaluator tolerance `SM_EFF_ZERO^2`, no periodicity): the solution vector, `None`
 /// when not found.
 fn cs_normalize_local_solve(
-    _surface: &Surface,
-    _curve: &Curve,
-    _op: SolverOperation,
-    _distance_tolerance: f64,
-    _opt_vectors: &[Vec3],
-    _intervals: &[Extent1d],
-    _guess: &[f64],
+    surface: &Surface,
+    curve: &Curve,
+    op: SolverOperation,
+    distance_tolerance: f64,
+    opt_vectors: &[Vec3],
+    intervals: &[Extent1d],
+    guess: &[f64],
 ) -> Result<Option<Vec<f64>>> {
-    // (the evaluator, surface::surface::p1::CsNormalizeEnfo, has no Evaluate yet)
-    // UNPORTED(surface.surface_p4): SmCSNormalizeENFO::Evaluate
-    Err(SolidError::unported(
-        "SmCSNormalizeENFO::Evaluate",
-        "surface.surface_p4",
-    ))
+    let mut bounds = ExtentNd::new(intervals.len());
+    for (i, ivl) in intervals.iter().enumerate() {
+        if let Some(slot) = bounds.get_mut(i) {
+            *slot = *ivl;
+        }
+    }
+    // Do not do periodicity for this function. Local solvers should not cross seams.
+    let periodicities = vec![false; guess.len()];
+    let mut equations = CsNormalizeEnfo::new(
+        curve,
+        surface,
+        op,
+        distance_tolerance,
+        (!opt_vectors.is_empty()).then_some(opt_vectors),
+        EFF_ZERO_SQ,
+    );
+    let mut solver = LocalSolveNd::new(&mut equations, Some(&bounds), Some(&periodicities));
+    solver.set_boundary_handler(BoundaryHandler::TotalBoundaryHits, 5);
+    let solution = solver.solve_it(guess, EFF_ZERO_SQRT)?;
+    // No: see note in upstream [B234]: not found is not found, whatever the reason.
+    Ok(solution.found.then_some(solution.x))
 }
 
 #[cfg(test)]

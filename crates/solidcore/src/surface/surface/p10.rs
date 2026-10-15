@@ -45,6 +45,7 @@
 
 use super::p1::{is_node_valid, is_point_valid, surface_to_evaluate};
 use super::p2::{original_surface, LsiGlobalSolver, Surface, TsectCurveType};
+use super::p4;
 use super::p9::implicit_iso;
 use crate::curve::curve::p3::local_curve_intersect;
 use crate::curve::curve::Curve;
@@ -68,6 +69,7 @@ use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface_cache::p1::SurfaceCache;
+use crate::topology::ObjectHandle;
 
 const OP_LSI: &str = "surface::surface::p10::LsiGlobalSolver::local_solve_branch";
 const OP_COMBINE: &str = "surface::surface::p10::global_curve_intersect_combine_solutions";
@@ -130,20 +132,20 @@ struct XsectPointClass {
     point_type: TsectCurveType,
 }
 
-/// `sm_ClassifyCurveSurfaceXSectPoint`.
+/// `sm_ClassifyCurveSurfaceXSectPoint` (`surface::surface::p4`).
 fn classify_curve_surface_xsect_point(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _uv: Point2,
-    _t: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    uv: Point2,
+    t: f64,
 ) -> Result<XsectPointClass> {
-    // UNPORTED(surface.surface_p4): sm_ClassifyCurveSurfaceXSectPoint
-    Err(SolidError::unported(
-        "sm_ClassifyCurveSurfaceXSectPoint",
-        "surface.surface_p4",
-    ))
+    let c = p4::classify_curve_surface_xsect_point(surface, domain, curve, interval, uv, t)?;
+    Ok(XsectPointClass {
+        guess: c.found_guess.then_some((c.new_uv_guess, c.new_t_guess)),
+        point_type: c.point_type,
+    })
 }
 
 /// `SmSurface::LocalPointSolve` (`rbFoundAnswer`, `rSolution`).
@@ -207,18 +209,19 @@ struct DropAndTrim {
 /// `SmSurface::DropAndTrimCurve(context, domain, curve, interval, tol, ..., TRUE,
 /// TRUE)` (upstream requires an `SmBSplineCurve`).
 fn drop_and_trim_curve(
-    _k: &Kernel,
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<DropAndTrim> {
-    // UNPORTED(intersect.surface_drop_lib_p1): SmSurface::DropAndTrimCurve
-    Err(SolidError::unported(
-        "SmSurface::DropAndTrimCurve",
-        "intersect.surface_drop_lib_p1",
-    ))
+    let r = surface
+        .drop_and_trim_curve::<ObjectHandle>(k, domain, curve, interval, tol, true, true, None)?;
+    Ok(DropAndTrim {
+        dist_to_surface: r.max_drop_to_surf,
+        uv_curves: r.uv_curves.into_iter().map(Curve::from).collect(),
+    })
 }
 
 // ---- helpers -----------------------------------------------------------------------------------
