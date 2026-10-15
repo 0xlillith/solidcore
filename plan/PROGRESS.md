@@ -124,7 +124,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.vertexuse` (1429 lines) — in progress: #88 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (draft)
+- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 - [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (ready for review)
 
@@ -356,7 +356,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ### query (1/10)
 
-- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (draft)
+- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
