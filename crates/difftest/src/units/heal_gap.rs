@@ -933,7 +933,7 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
             let Some(c) = counts(&ex) else {
                 return Ok(state(vec![-1.0, ex.get(1).copied().unwrap_or(0.0)]));
             };
-            let b = import(&ex)?;
+            let (b, _) = import(&ex)?;
             let args = topo_args(&b, c, *kind, *sel0, *sel1, *f0, *f1, *uv)?;
             let out = ffi::topo(&path, &block, &args).map_err(|e| harness(format!("c++: {e}")))?;
             Ok(state(out))
@@ -1069,7 +1069,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
             let Some(c) = counts(&ex) else {
                 return Ok(state(vec![-1.0, ex.get(1).copied().unwrap_or(0.0)]));
             };
-            let b = import(&ex)?;
+            let (b, _) = import(&ex)?;
             let args = topo_args(&b, c, *kind, *sel0, *sel1, *f0, *f1, *uv)?;
             match topo_rust(&b, &args) {
                 Ok(v) => o = v,

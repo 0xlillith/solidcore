@@ -1026,15 +1026,16 @@ SmBSplineCurve* plain_curve(SmCurve* c)
     return new (the_context()) SmBSplineCurve(sm_AllocateAndCopyNurbCurve(nurb), b->GetDim(), FALSE);
 }
 
-// The Rust side imports the export's NURBs as plain B-splines (and lines): give every
-// face and edge of the C++ B-rep the same geometry (the analytic originals are left
-// unowned and leaked).
+// The Rust side imports the export's NURBs as plain B-splines (and lines), and SmPlanes
+// as planes: give every other face and edge of the C++ B-rep the same geometry (the
+// analytic originals are left unowned and leaked).
 void normalise(Graph& g)
 {
     for (SmFace* f : g.faces)
     {
         SmSurface* s = f->*FacePeek::surface();
-        if (s == nullptr || !s->IsKindOf(SmBSplineSurface_TYPE) || s->GetType() == SmBSplineSurface_TYPE)
+        if (s == nullptr || !s->IsKindOf(SmBSplineSurface_TYPE) || s->GetType() == SmBSplineSurface_TYPE ||
+            s->GetType() == SmPlane_TYPE)
             continue;
         SmBSplineSurface* b = (SmBSplineSurface*)s;
         gw_SURFACE* nurb = b->GetGwNurbPointer();
