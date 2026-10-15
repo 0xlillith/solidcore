@@ -711,6 +711,414 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "review106_seam_span_1e-06_wrap_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#0 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_seam_span_1e-06_wrap_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#1 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_seam_span_1.000002e-06_wrap_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#2 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_seam_span_1.000002e-06_wrap_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#3 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_seam_span_2e-06_wrap_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#4 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_seam_span_2e-06_wrap_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_seam_comparison.json#5 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5882; SmVector2d::operator!=)",
+      "values_compared": 12
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_0_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#0 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_0_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#1 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_0_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#2 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_1_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#3 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_1_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#4 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_1_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#5 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_2_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#6 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_2_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#7 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_2_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#8 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_3_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#9 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_3_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#10 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_sphere_3_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#11 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_0_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#12 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_0_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#13 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_0_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#14 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_1_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#15 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_1_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#16 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_1_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#17 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_2_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#18 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_2_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#19 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_2_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#20 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_3_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#21 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_3_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#22 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_torus_3_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#23 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_0_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#24 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_0_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#25 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_0_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#26 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_1_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#27 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_1_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#28 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_1_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#29 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_2_solver_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#30 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_2_solver_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#31 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_2_solver_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#32 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 12
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_3_solver_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#33 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_3_solver_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#34 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review106_wrapped_cone_3_solver_4",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/surface.surface_point_solve_p3/review_wrapped_poles_seams.json#35 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:5683; STEP-wrapped revolution poles and seams)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "port106_matrix_0363_boundary_or_next_0",
       "outcome": "pass",
       "pass": true,
@@ -11035,13 +11443,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 112,
+  "cases_deferred": 130,
   "cases_failed": 0,
-  "cases_passed": 1211,
-  "cases_total": 1323,
+  "cases_passed": 1235,
+  "cases_total": 1365,
   "deferred_by_unit": {
     "surface.surface_p3": 96,
-    "surface.surface_p8": 16
+    "surface.surface_p8": 34
   },
   "max_rel_err": 0.0,
   "pass": true,
