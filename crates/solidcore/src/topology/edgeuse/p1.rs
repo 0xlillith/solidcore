@@ -1565,9 +1565,9 @@ mod tests {
         })
         .unwrap();
         b.add_face_record(Face {
-            shell: ShellId::from_index(0),
             loops: vec![LoopId::from_index(0)],
             surface: Some(Surface::from(Plane::from_normal(Vec3::ZERO, Vec3::Z))),
+            ..Face::new(ShellId::from_index(0))
         })
         .unwrap();
         b.add_loop_record(Loop {

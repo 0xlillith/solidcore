@@ -885,9 +885,8 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     for (f, surface) in surfaces.into_iter().enumerate() {
         let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
         b.add_face_record(Face {
-            shell,
-            loops: Vec::new(),
             surface,
+            ..Face::new(shell)
         })
         .map_err(|e| harness(e.to_string()))?;
     }
