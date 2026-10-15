@@ -1711,7 +1711,7 @@ fn curve_drop(
 }
 
 /// `pSurface->DropPoint(pt, domain, pOptGuess, bSuccess, uv, dist, bIsMulti)`: success,
-/// the drop parameters and distance.
+/// the drop parameters and distance; the status is ignored as upstream does.
 fn surface_drop(
     k: &Kernel,
     surface: &Surface,
@@ -1723,12 +1723,16 @@ fn surface_drop(
         guess_uv: guess,
         ..Default::default()
     };
-    let result = ignored(
-        surface.drop_point::<crate::surface::surface::p4::NoObject>(k, point, domain, &opts),
-    )?;
-    Ok(result.map_or((false, Point2::UNDEF, 0.0), |r| {
-        (r.success, r.result_uv, r.gap)
-    }))
+    // Upstream ignores the DropPoint status (no `SER`) and reads `bSuccess`/`dDist`
+    // either way; on failure they keep their initial values (`FALSE`, the guess, `BIG_DOUBLE`).
+    Ok(
+        match ignored(
+            surface.drop_point::<crate::surface::surface::p4::NoObject>(k, point, domain, &opts),
+        )? {
+            Some(d) => (d.success, d.result_uv, d.gap),
+            None => (false, guess.unwrap_or(Point2::UNDEF), BIG_DOUBLE),
+        },
+    )
 }
 
 /// `Evaluate(dOtherU, 1, TRUE, sOtherPD, TRUE)` of a curve, status ignored: the point
