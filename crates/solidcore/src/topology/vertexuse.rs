@@ -59,7 +59,7 @@
 //!   record; the `SmTopology::Notify` step runs on the caller's topology records as
 //!   [`topo::notify`] does.
 //! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`),
-//!   `SmLoopuse::GetOrientation` (`topology.loopuse`), `SmSurface::LocalPointSolve` /
+//!   `SmSurface::LocalPointSolve` /
 //!   `IsSingularity` (`surface.surface_p5`), `GlobalPointSolve` / `IsOnSeam`
 //!   (`surface.surface_p4`; a plane's overrides are ported), `GetSingularities`
 //!   (`surface.surface_p3`) return [`SolidError::Unported`]. The gap evaluation of
@@ -692,13 +692,9 @@ fn face_tolerance(b: &Brep, f: FaceId) -> Result<f64> {
     crate::topology::face::p2::tolerance(b, f)
 }
 
-/// `pLoopuse->GetOrientation()`.
-fn loopuse_orientation(_b: &Brep, _lu: LoopuseId) -> Result<OrientType> {
-    // UNPORTED(topology.loopuse): SmLoopuse::GetOrientation
-    Err(SolidError::unported(
-        "SmLoopuse::GetOrientation",
-        "topology.loopuse",
-    ))
+/// `pLoopuse->GetOrientation()` (unit `topology.loopuse`).
+fn loopuse_orientation(b: &Brep, lu: LoopuseId) -> Result<OrientType> {
+    crate::topology::loopuse::orientation(b, lu)
 }
 
 /// `pEdgeuse->NormalizedEvaluate(t, TRUE, rUVPnt, &rUVTan, bOKToMakeUVTrimCurve)`: the
@@ -742,16 +738,20 @@ struct PointDrop {
 /// an answer was found and the solution.
 fn local_point_solve(
     _k: &Kernel,
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _op: SolverOperation,
-    _point: Point3,
-    _guess: Point2,
+    surface: &Surface,
+    domain: &Extent2d,
+    op: SolverOperation,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, PointDrop)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
+    let r = surface
+        .local_point_solve::<crate::surface::surface::p4::NoObject>(domain, op, point, guess)?;
+    Ok((
+        r.found,
+        PointDrop {
+            uv: Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
+            value: r.solution.start.solution_value,
+        },
     ))
 }
 
@@ -789,7 +789,7 @@ fn global_point_solve(
 
 /// `pSurface->IsSingularity(uv, eDir, dTol3d)` (virtual: the plane override, the base
 /// body otherwise).
-fn is_singularity(surface: &Surface, _uv: Point2, _tol: f64) -> Result<(bool, SurfParamType)> {
+fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
@@ -797,11 +797,8 @@ fn is_singularity(surface: &Surface, _uv: Point2, _tol: f64) -> Result<(bool, Su
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            let r = surface.is_singularity(uv, tol, false)?;
+            Ok((r.singular, r.direction))
         }
     }
 }

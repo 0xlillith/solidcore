@@ -29,7 +29,7 @@
 //! | [`points_in_face`], [`PointsInFace`]    | `SmFace::GetPointsInFace`                         |
 //! | `vertex_edges` (private)                | `SmVertex::GetEdges` without face filter (CO-PORTED, `topology.vertex`) |
 //! | `edge_edgeuses` (private)               | `SmEdge::GetEdgeuses` without filters (CO-PORTED, `topology.edge`) |
-//! | `loopuse_vertexuses` (private)          | `SmLoopuse::GetVertexuses` without filter (CO-PORTED, `topology.loopuse`) |
+//! | `loopuse_vertexuses` (private)          | `SmLoopuse::GetVertexuses` without filter (unit `topology.loopuse`) |
 //!
 //! Deviations:
 //! - **Object model.** A face is a record in the [`Brep`]'s arenas; the methods are
@@ -332,17 +332,9 @@ fn vertex_edges(b: &Brep, v: VertexId) -> Result<Vec<EdgeId>> {
     Ok(out)
 }
 
-/// `SmLoopuse::GetVertexuses` without filter (CO-PORTED from unit `topology.loopuse`):
-/// the vertex use of a vertex loop use, else the start vertex uses of its edge uses in
-/// CCW order.
+/// `SmLoopuse::GetVertexuses` without filter (unit `topology.loopuse`).
 pub(crate) fn loopuse_vertexuses(b: &Brep, lu: LoopuseId) -> Result<Vec<Option<VertexuseId>>> {
-    match b.loopuse(lu)?.start {
-        LoopuseStart::Vertexuse(vu) => Ok(vec![vu]),
-        _ => Ok(eu1::loopuse_edgeuses(b, lu)?
-            .into_iter()
-            .map(|eu| b.edgeuse(eu).map(|r| r.vertexuse))
-            .collect::<Result<Vec<_>>>()?),
-    }
+    crate::topology::loopuse::vertexuses(b, lu, None)
 }
 
 /// The edge of `eu`, which upstream dereferences.
@@ -431,7 +423,7 @@ fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Resul
 
 /// `pSurf->IsSingularity(uv, eDir, dTol3d, TRUE)` (virtual: the plane override, the
 /// base body otherwise).
-fn is_singularity(surface: &Surface, _uv: Point2, _tol: f64) -> Result<(bool, SurfParamType)> {
+fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
@@ -439,11 +431,8 @@ fn is_singularity(surface: &Surface, _uv: Point2, _tol: f64) -> Result<(bool, Su
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            let r = surface.is_singularity(uv, tol, false)?;
+            Ok((r.singular, r.direction))
         }
     }
 }
