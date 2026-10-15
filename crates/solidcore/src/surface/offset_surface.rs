@@ -2191,7 +2191,7 @@ mod tests {
         s
     }
 
-    fn is_face_tolerance(r: Result<impl core::fmt::Debug>) -> bool {
+    fn is_face_tolerance<T>(r: &Result<T>) -> bool {
         matches!(
             r,
             Err(SolidError::Unported {
@@ -2209,19 +2209,19 @@ mod tests {
         let k = Kernel::default();
         let dom = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
         let off = face_owned(Surface::from(offset(2.0)));
-        assert!(is_face_tolerance(off.calculate_bounding_box(
+        assert!(is_face_tolerance(&off.calculate_bounding_box(
             &k,
             &dom,
             [true, false, false],
             true
         )));
-        assert!(is_face_tolerance(off.calculate_bounding_box(
+        assert!(is_face_tolerance(&off.calculate_bounding_box(
             &k,
             &dom,
             [false, false, true],
             true
         )));
-        assert!(is_face_tolerance(off.is_planar(&k, 1e-6)));
+        assert!(is_face_tolerance(&off.is_planar(&k, 1e-6)));
         // no expansion, no tolerance: the box is computed
         assert!(off
             .calculate_bounding_box(&k, &dom, [true, true, true], false)
@@ -2230,7 +2230,7 @@ mod tests {
         // a nested offset passes the face down to its base
         let nested = OffsetSurface::new(&k, 1.0, Surface::from(offset(2.0)), true, 0).unwrap();
         let nested = face_owned(Surface::from(nested));
-        assert!(is_face_tolerance(nested.calculate_bounding_box(
+        assert!(is_face_tolerance(&nested.calculate_bounding_box(
             &k,
             &dom,
             [true, false, false],
