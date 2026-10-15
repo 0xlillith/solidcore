@@ -115,7 +115,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] 🔨 `topology.face_p2` (1827 lines) — in progress: #91 @bherbruck (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
-- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (draft)
+- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #97 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
@@ -288,7 +288,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.edgeuse_p2` (600 lines) — partial, 4583 cases
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🟡 `topology.vertexuse` (1429 lines) — partial, 2686 cases
-- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (draft)
+- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #97 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] ⏳ `topology.edge` (2213 lines) — waiting
