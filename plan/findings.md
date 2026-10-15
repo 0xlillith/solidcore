@@ -4747,6 +4747,19 @@ mutated scales and accepted/reduced step counts are compared.
   in-volume or STEP surface returns `Unported` naming `curve.crv_on_surf` past the iso
   curve test (as the `SmIsoCurve` gaps of parts 5, 6 and 9). Unreachable in the difftest
   until `sm_ExtractIsoCurve` (`surface.surface_p8`) lands.
+- **Unbounded surface cache subdivision (fixed).** A difftest run of this unit with
+  `surface.surface_p7` reached 3.5 GB RSS within 84 s and aborted ("memory allocation of
+  3523215360 bytes failed": the `BezierPatch` array of a `SurfaceCache` growing past 2^21
+  patches in `SubdivideToTolerances`). The `surface.surface_p7` generator ran the Rust
+  side of each candidate case (now a real global solve) before its scale filter, so
+  extreme-scale surfaces were subdivided to the default tolerances into millions of
+  patches (upstream does the same, for minutes). Fixes: the generator checks both
+  surfaces' scales before the Rust run, and `SubdivideToTolerances` (unit
+  `surface.surface_cache_p3`) refuses to split once the tree holds
+  `MAX_SUBDIVISION_NODES` (2^20) nodes, with `InvalidInput` (a generated
+  `surface.surface_p1` `GetDomainWithContinuity` case at `1e-4` scale needs more than
+  2^18; no fixture comes near 2^20). Peak RSS of the `surface.surface_p7` run is now
+  about 80 MB.
 - **Global solve comparison.** The `surface.surface_p7` runner's `GlobalCurveSolve` and
   `GlobalSurfaceSolve` cases compare the first 16 solutions (type, value, variables, end
   parameters of a range), not only their count. Its generator covers minimize, maximize,

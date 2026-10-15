@@ -114,8 +114,9 @@ const OP_GET: &str = "surface::surface_cache::p3::SurfaceCache::get_tree";
 pub const MAX_SUBDIVISION_DEPTH: u32 = 512;
 
 /// Most tree nodes `SubdivideToTolerances` splits up to (see the module deviations):
-/// `2^18`, about 450 MB of Bezier patches.
-pub const MAX_SUBDIVISION_NODES: usize = 1 << 18;
+/// `2^20`, about 1.7 GB of Bezier patches (a generated `surface.surface_p1` case at
+/// `1e-4` scale needs more than `2^18`).
+pub const MAX_SUBDIVISION_NODES: usize = 1 << 20;
 
 /// `SM_SS_UMIN` .. `SM_SS_VMAX`: the singular sides of a surface.
 const SS_UMIN: u32 = 1;
