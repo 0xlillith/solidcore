@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**157 / 261 units ported** (91 green, 66 partial), **207,768 / 387,903 upstream lines (53.6%)**. 16 claimed, 0 blocked, 88 todo.
+**158 / 261 units ported** (91 green, 67 partial), **208,793 / 387,903 upstream lines (53.8%)**. 15 claimed, 0 blocked, 88 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -60,7 +60,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `heal.heal_data_p1` (922 lines) — missing: `heal.heal_data_p2`, `topology.brep_p1`
 - [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.edge`, `topology.face_p2` +2 more
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`, `topology.edge` +1 more
-- [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `query.edge`, `topology.brep_p1`, `topology.edge`
+- [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `topology.brep_p1`, `topology.edge`
 - [ ] `topology.proto_topology_p3` (1577 lines) — missing: `topology.edge`, `topology.proto_topology_p2`
 - [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge`
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`, `topology.edge`
@@ -118,7 +118,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #97 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
 - [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 
 ## By module
@@ -347,9 +346,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `primitive.primitive_creation_p2` (2258 lines) — waiting
 - [ ] ⏳ `primitive.api_primitives` (885 lines) — waiting
 
-### query (3/10)
+### query (4/10)
 
-- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
+- [ ] 🟡 `query.edge` (1025 lines) — partial, 1368 cases
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
