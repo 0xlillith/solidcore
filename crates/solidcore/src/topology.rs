@@ -312,8 +312,8 @@ pub struct Region {
     pub in_brep: bool,
     /// Native region shell list, in traversal order from its head.
     pub shells: Vec<ShellId>,
-    /// Native `m_bIsVoidFlag` (false at construction).
-    pub is_void: bool,
+    /// Native `SmBoolean` `m_bIsVoidFlag` (0 at construction; 2 is `UNSURE`).
+    pub is_void: i32,
 }
 
 /// One use of a face (`SmFaceuse`): the face seen from one side.

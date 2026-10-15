@@ -376,6 +376,10 @@ struct VuPeek : SmVertexuse
     static SmTopology* SmVertexuse::*owner() { return &VuPeek::m_pSorLUorEU; }
     static SmVertexFaceGap SmVertexuse::*face_gap() { return &VuPeek::m_sVertexFaceGap3d; }
 };
+struct RegionPeek : SmRegion
+{
+    static SmBoolean SmRegion::*is_void() { return &RegionPeek::m_bIsVoidFlag; }
+};
 struct ShPeek : SmShell
 {
     static SM_TYPE SmShell::*type() { return &ShPeek::m_tShellType; }
@@ -777,6 +781,18 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
     {
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
+    }
+    // Versioned shell/region extension. Read raw state, never shell operations
+    // under test. Keep the existing graph prefix and its entity counts stable.
+    o.push_back(1.0);
+    o.push_back((double)g.find(0, brep->GetInfiniteRegion()));
+    for (SmRegion* p : g.regions)
+        o.push_back((double)(p->*RegionPeek::is_void()));
+    for (SmShell* p : g.shells)
+    {
+        SM_TYPE ty = p->*ShPeek::type();
+        o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, p->GetList())
+                             : ty == SmVertexuse_TYPE ? g.find(8, p->GetList()) : -1));
     }
 }
 

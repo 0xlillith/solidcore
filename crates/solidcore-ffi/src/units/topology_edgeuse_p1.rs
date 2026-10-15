@@ -32,6 +32,12 @@
 //! | `Gaps`      | `eu which flag want_out`                | per `which` (`0` `GetMaxEdgeFaceGap`, `1` `GetEdgeCCWEdgeGap`, `2` `CalcMaxEdgeFaceGap`, `3` `CalcEdgeCCWEdgeGap`) |
 //! | `SetOrient` | `eu orientation`                        | `orient mate radial` |
 //!
+//! The graph export ends with a versioned extension: `1 infinite_region`, then
+//! one raw void flag per region and one raw wire-edge-use/vertex-use head index
+//! per shell (`-1` for other member classes). The original graph prefix and the
+//! ten entity counts remain unchanged. This supplies shell state independently
+//! of the shell operations being compared.
+//!
 //! Geometry ops: `StepOff` (`surface dist P[3] N[3] u v jac` -> `status found F0 F1
 //! J00 J01 J10 J11`), `DistDev` (`surface P[3] u v value obj want_dev` -> `dist dev`;
 //! `obj` 0 null, 1 the surface, 2 a line), `Seam` (`n curve*n a b called` -> `seam`).

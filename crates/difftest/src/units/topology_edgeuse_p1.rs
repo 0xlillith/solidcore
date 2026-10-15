@@ -43,6 +43,7 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::DropCurveFail;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::edgeuse::p1 as eu1;
+use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::{
     Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse, FaceuseId,
     Loop, LoopId, Loopuse, LoopuseId, LoopuseStart, ObjectHandle, Region, RegionId, Shell,
@@ -463,6 +464,16 @@ fn is_brep_op(op: &OpIn) -> bool {
     !matches!(op, OpIn::StepOff { .. } | OpIn::DistDev { .. } | OpIn::Seam { .. })
 }
 
+/// Reuse the native B-rep fixture encoding without duplicating its geometry
+/// constructors or input validation. Shell cases supply a B-rep description.
+pub(crate) fn fixture_input(value: Value) -> Result<(String, Vec<f64>), HarnessError> {
+    let brep: BrepIn = serde_json::from_value(value)
+        .map_err(|e| harness(format!("topology fixture: {e}")))?;
+    let inputs = Inputs { brep: Some(brep), validate_only: false, init_gaps: false,
+        op: OpIn::SetOrient { eu: 0, orient: 0 } };
+    Ok((path_of(inputs.brep.as_ref())?, brep_block(&inputs)?))
+}
+
 /// The C++ export of the case's B-rep.
 fn export(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
     let path = path_of(i.brep.as_ref())?;
@@ -689,7 +700,7 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
 }
 
 /// Builds the Rust B-rep from the shim's export (see the module docs).
-fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
+pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     let c = ffi::counts(ex).ok_or_else(|| harness("import of a failed build"))?;
     let [n_r, n_s, n_fu, n_f, n_lu, n_l, n_eu, n_e, n_vu, n_v] = c;
     let mut rd = Rd { v: ex, at: 1 };
@@ -699,19 +710,21 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     let mut regions = Vec::new();
     for _ in 0..n_r {
         let in_brep = rd.num()? != 0.0;
-        rd.list()?;
-        regions.push(Region { in_brep, ..Region::default() });
+        let shells = rd.list()?.into_iter()
+            .map(|x| opt(x, ShellId::from_index)?.ok_or_else(|| harness("null shell")))
+            .collect::<Result<Vec<_>, _>>()?;
+        regions.push(Region { in_brep, shells, ..Region::default() });
     }
     let mut shells = Vec::new();
     for _ in 0..n_s {
         let region = opt(rd.idx()?, RegionId::from_index)?;
-        rd.idx()?;
-        rd.list()?;
-        shells.push(Shell {
-            faces: Vec::new(),
-            region,
-            ..Shell::default()
-        });
+        let shell_type = ShellType::from_code(rd.idx()?);
+        let faceuses = rd.list()?.into_iter()
+            .map(|x| opt(x, FaceuseId::from_index)?.ok_or_else(|| harness("null face use")))
+            .collect::<Result<Vec<_>, _>>()?;
+        let members = if faceuses.is_empty() { ShellMembers::Empty }
+            else { ShellMembers::Faceuses(faceuses) };
+        shells.push(Shell { faces: Vec::new(), region, shell_type, members });
     }
     let mut faceuses = Vec::new();
     for _ in 0..n_fu {
@@ -856,6 +869,26 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
         let tolerance = rd.num()?;
         vertices.push(Vertex { point, tolerance });
     }
+    if rd.idx()? != 1 {
+        return Err(harness("export: unsupported shell extension version"));
+    }
+    let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
+    for region in &mut regions {
+        region.is_void = i32::try_from(rd.idx()?)
+            .map_err(|_| harness("export: void flag outside native int range"))?;
+    }
+    for shell in &mut shells {
+        let head = rd.idx()?;
+        if shell.is_wire_shell() {
+            shell.members = opt(head, EdgeuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Edgeuse);
+        } else if shell.is_vertex_shell() {
+            shell.members = opt(head, VertexuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Vertexuse);
+        } else if head != -1 {
+            return Err(harness("export: unexpected shell head"));
+        }
+    }
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
     }
@@ -863,6 +896,7 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     // assemble (skeleton fields filled minimally)
     let mut b = Brep::new();
     b.set_validate_only(validate_only);
+    b.set_infinite_region_record(infinite_region);
     for r in regions {
         b.add_region_record(r).map_err(|e| harness(e.to_string()))?;
     }

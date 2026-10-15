@@ -285,13 +285,13 @@ impl Region {
     pub const fn is_kind_of(code: i64) -> bool {
         code == Self::type_code() || owning_topology::is_kind_of(code)
     }
-    /// Whether this region is explicitly void.
+    /// Native void state, preserving `FALSE` (0), `TRUE` (1), and `UNSURE` (2).
     #[must_use]
-    pub const fn is_void(&self) -> bool {
+    pub const fn is_void(&self) -> i32 {
         self.is_void
     }
     /// Set the native void flag.
-    pub fn set_is_void(&mut self, value: bool) {
+    pub fn set_is_void(&mut self, value: i32) {
         self.is_void = value;
     }
     /// Owning B-rep, or NULL when the region is detached (`GetBrep`).
