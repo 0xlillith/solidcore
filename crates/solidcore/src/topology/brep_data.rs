@@ -1861,9 +1861,8 @@ fn read_old_composite(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for another type up to version 32; [`SolidError::Unported`] for an
-/// offset surface (`SmOffsetSurface`, unit `surface.offset_surface`);
-/// [`SolidError::InvalidInput`] for an attribute index past the table (upstream reads
+/// `SM_ERR` for another type up to version 32; those of
+/// [`OffsetSurface::new`] for an offset surface; [`SolidError::InvalidInput`] for an attribute index past the table (upstream reads
 /// past the array) or an ASCII type header that could not be read; those of the
 /// surface readers.
 pub fn read_surface_from_db(

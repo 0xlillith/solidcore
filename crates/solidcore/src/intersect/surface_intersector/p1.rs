@@ -1907,7 +1907,8 @@ fn set_offset_distance(surface: &Surface, _distance: f64) -> Result<()> {
         // sets it through the intersector's shared surface pointers, which are
         // `&Surface` here. The only caller first needs SmFilletLaw::Evaluate
         // (blend.fillet_executive_p1), whose porter decides how a fillet holds its
-        // offset surfaces (no UNPORTED marker: the setter is ported).
+        // offset surfaces.
+        // UNPORTED(blend.fillet_executive_p1): SmOffsetSurface::SetOffsetDistance through a shared surface
         SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
             "SmOffsetSurface::SetOffsetDistance through a shared surface",
             "blend.fillet_executive_p1",

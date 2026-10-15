@@ -64,14 +64,16 @@
 //! - **Owners.** `m_pOwner` is an [`ObjectRef`]. `SetOwner`'s `SM_NO_CHANGE_OWNER`
 //!   notification is the object layer's (see part 2's `notify`). `GetFace` follows
 //!   owner chains through surfaces upstream; the owning surfaces (`SmOffsetSurface`,
-//!   `SmSrfInVolume`) are not ported, so a surface owner returns
-//!   [`SolidError::Unported`].
-//! - **Evaluation failures.** `IsDegeneratePoint`, `IsDegenerateCurve`, `IsFlatCorner`
-//!   and `IsPeriodic` ignore `Evaluate`'s status upstream and read stale or undefined
-//!   values on failure; the port returns the error. `IsPeriodic` keeps upstream's `SER`
-//!   inside a boolean function: a failing `Unitize` returns `TRUE`.
-//! - **Unported callees.** `CreateOffsetSurface` needs `SmOffsetSurface`
-//!   (`surface.offset_surface`), `CreateSilhouetteCurves` needs `SmSurfaceSilhouette`
+//!   `SmSrfInVolume`) hold their base by value and do not become its owner, so a
+//!   surface owner returns `InvalidInput` (an offset passes its face down to its
+//!   base's box instead).
+//! - **Evaluation failures.** `IsDegeneratePoint`, `IsDegenerateCurve` and
+//!   `IsFlatCorner` ignore `Evaluate`'s status upstream and read stale or undefined
+//!   values on failure; the port returns the error. `IsPeriodic` ignores it as upstream
+//!   ([`Surface::evaluate_ignoring_status`]: a B-spline keeps the derivatives it wrote
+//!   before its zero-tangent repair failed) and keeps upstream's `SER` inside a boolean
+//!   function: a failing `Unitize` returns `TRUE`.
+//! - **Unported callees.** `CreateSilhouetteCurves` needs `SmSurfaceSilhouette`
 //!   (`intersect.surface_silhouette`), `ApproximateSize` of kinds other than B-splines needs
 //!   `SmIsoCurve` over any surface (the ported iso curve holds a B-spline), the zone
 //!   tolerance of a surface with a face needs `SmFace::GetTolerance`
@@ -949,9 +951,10 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for a surface owner: the owning surfaces
-    /// (`SmOffsetSurface`, `SmSrfInVolume`) are not ported, so their owners cannot be
-    /// followed.
+    /// `InvalidInput` for a surface owner: the owning surfaces (`SmOffsetSurface`,
+    /// `SmSrfInVolume`) hold their base by value and do not become its owner, so the
+    /// chain cannot be followed from the base (an offset's box passes its face down
+    /// instead, see [`OffsetSurface::calculate_bounding_box`]).
     pub fn face(&self) -> Result<Option<ObjectRef>> {
         // when the surface has an owner
         let Some(owner) = self.owner() else {

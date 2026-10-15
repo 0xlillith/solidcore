@@ -45,7 +45,8 @@
 //!   stepper hold a [`SurfacePointSolver`] (`base`) instead of deriving from it. The
 //!   surface is borrowed for the life of the solver (`m_pSrf`, not owned upstream
 //!   either); `m_pBSplSrf` is the B-spline part of a B-spline or plane with a NURB.
-//!   `SmOffsetSurface` is not ported, so its base-surface lookup is not reachable.
+//!   An `SmOffsetSurface` contributes its base's B-spline part (one level, as
+//!   upstream).
 //! - **Out-params** become return values: [`PolygonTriangleGuess`],
 //!   [`BoundsCheck`], `(bool, SurfParamType)` from the boundary test, the new grid
 //!   point of the stride check. Upstream's in/out best indices of
