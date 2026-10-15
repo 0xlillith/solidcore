@@ -332,7 +332,7 @@ fn vertex_edges(b: &Brep, v: VertexId) -> Result<Vec<EdgeId>> {
 }
 
 /// `SmLoopuse::GetVertexuses` without filter (unit `topology.loopuse`).
-fn loopuse_vertexuses(b: &Brep, lu: LoopuseId) -> Result<Vec<Option<VertexuseId>>> {
+pub(crate) fn loopuse_vertexuses(b: &Brep, lu: LoopuseId) -> Result<Vec<Option<VertexuseId>>> {
     crate::topology::loopuse::vertexuses(b, lu, None)
 }
 
