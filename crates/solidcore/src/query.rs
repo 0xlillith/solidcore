@@ -6,6 +6,7 @@
 
 pub mod api_queries;
 pub mod edge;
+pub mod face;
 pub mod r#loop;
 pub mod poly;
 pub mod tess;
