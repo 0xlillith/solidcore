@@ -26,6 +26,7 @@
 // index per kind; -1 is null), reading raw members (protected ones through
 // pointer-to-member access), never the functions under test.
 #include "sc_shim.h"
+#include <algorithm>
 #include "support/topology_fixture.h"
 #include <memory>
 
@@ -793,29 +794,9 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
     }
-    // Versioned shell/region extension. Read raw state, never shell operations
-    // under test. Keep the existing graph prefix and its entity counts stable.
-    o.push_back(3.0);
-    o.push_back((double)g.find(0, brep->GetInfiniteRegion()));
-    for (SmRegion* p : g.regions)
-        o.push_back((double)(p->*RegionPeek::is_void()));
-    for (SmShell* p : g.shells)
-    {
-        SM_TYPE ty = p->*ShPeek::type();
-        o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, p->GetList())
-                             : ty == SmVertexuse_TYPE ? g.find(8, p->GetList()) : -1));
-    }
-    for (SmVertex* p : g.vertices)
-    {
-        std::vector<int64_t> uses;
-        for (SmTopology* use : list_of(p->GetList())) uses.push_back(g.find(8, use));
-        put_list(o, uses);
-    }
-    for (SmFaceuse* p : g.faceuses)
-    {
-        o.push_back((double)g.find(2, p->GetNext()));
-        o.push_back((double)g.find(2, p->GetLast()));
-    }
+    sc_topology_fixture::append_shell_state(
+        {*brep,g.regions,g.shells,g.faceuses,g.faces,g.loopuses,g.loops,
+         g.edgeuses,g.edges,g.vertexuses,g.vertices},o);
 }
 
 // Builds the B-rep of a B-rep block; nullptr (status in `st`) when construction fails.
@@ -1287,6 +1268,34 @@ void run_geom_op(int32_t op, Rd& rd, std::vector<double>& o)
 } // namespace
 
 namespace sc_topology_fixture {
+void append_shell_state(const View& view,std::vector<double>& output)
+{
+    const auto identity=[](const auto& values,const void* pointer)->int64_t {
+        if (!pointer) return -1;
+        auto found=std::find(values.begin(),values.end(),pointer);
+        if(found==values.end()) throw 1;
+        return (int64_t)(found-values.begin());
+    };
+    output.push_back(3.0);
+    output.push_back((double)identity(view.regions,view.brep.GetInfiniteRegion()));
+    for(SmRegion* region:view.regions)
+        output.push_back((double)(region->*RegionPeek::is_void()));
+    for(SmShell* shell:view.shells) {
+        SM_TYPE type=shell->*ShPeek::type();
+        output.push_back((double)(type==SmEdgeuse_TYPE ? identity(view.edgeuses,shell->GetList())
+            : type==SmVertexuse_TYPE ? identity(view.vertexuses,shell->GetList()) : -1));
+    }
+    for(SmVertex* vertex:view.vertices) {
+        std::vector<int64_t> uses;
+        for(SmTopology* use:list_of(vertex->GetList())) uses.push_back(identity(view.vertexuses,use));
+        put_list(output,uses);
+    }
+    for(SmFaceuse* faceuse:view.faceuses) {
+        output.push_back((double)identity(view.faceuses,faceuse->GetNext()));
+        output.push_back((double)identity(view.faceuses,faceuse->GetLast()));
+    }
+}
+
 int32_t apply(const char* path, const double* input, int64_t count,
               const std::function<int32_t(const View&)>& operation)
 {

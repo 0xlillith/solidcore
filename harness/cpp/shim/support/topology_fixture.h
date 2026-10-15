@@ -19,7 +19,8 @@ class SmVertex;
 
 namespace sc_topology_fixture {
 // Traversal-order identities of an independently constructed native B-rep.
-// All references are valid only during apply's callback.
+// The B-rep and identity vectors must stay live during every operation.
+// References supplied by apply expire when its callback returns.
 struct View {
     SmBrep& brep;
     const std::vector<SmRegion*>& regions;
@@ -33,6 +34,10 @@ struct View {
     const std::vector<SmVertexuse*>& vertexuses;
     const std::vector<SmVertex*>& vertices;
 };
+
+// Append version 3 shell/region state shared by graph exporters. Every value
+// comes from the actual native record; an unregistered reference fails setup.
+void append_shell_state(const View& view, std::vector<double>& output);
 
 // Uses the existing edge-use fixture protocol and native constructors. Setup
 // errors fail the harness; the B-rep is destroyed before this function returns.

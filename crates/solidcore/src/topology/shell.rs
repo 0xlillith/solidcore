@@ -22,7 +22,7 @@
 //! | [`shell_is_degenerate`], [`region_is_degenerate`] | `IsDegenerate` (native default tolerance) |
 //! | `shell_bounds_for_degeneracy`, `region_bounds_for_degeneracy` | minimum default-tight `CalculateBoundingBox` branches (`query.face_p1`) |
 //! | [`faceuse_sibling_links`] | typed `SmTopology::GetNext` / `GetLast` for face uses |
-//! | `edge_vertices_for_shell`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (no attribute filter), `IsWire` |
+//! | `query::edge::edge_vertices`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (delegated to PR #89), `IsWire` |
 //! | `vertex_edges_for_shell` | `SmVertex::GetVertexuses`, `GetEdges` (no face filter) |
 //! | [`Region::get_shells`], [`Region::is_void`], [`Region::set_is_void`] | `GetShells`, `IsVoid`, `SetIsVoid` |
 //! | [`Region::is_infinite_region`] | `IsInfiniteRegion` |
@@ -420,7 +420,7 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
         let mut seen_vertices = BTreeSet::new();
         let mut seen_edges = BTreeSet::new();
         while let Some(edge) = stack.pop() {
-            for vertex in edge_vertices_for_shell(brep, edge)? {
+            for vertex in crate::query::edge::edge_vertices(brep, edge)? {
                 if !seen_vertices.insert(vertex) {
                     continue;
                 }
@@ -444,34 +444,6 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
             if owner.edgeuse(primary)?.owner == crate::topology::EdgeuseOwner::Shell(Some(id)) {
                 output.push(edge);
             }
-        }
-    }
-    Ok(output)
-}
-
-// Minimal no-attribute GetVertices branch needed by GetWireEdges. Endpoint
-// order follows the primary edge use's orientation, not a guessed vertex pair.
-fn edge_vertices_for_shell(brep: &Brep, edge: EdgeId) -> Result<Vec<VertexId>> {
-    use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
-    use crate::topology::edgeuse::p1;
-    let Some(primary) = p1::primary_edgeuse(brep, edge)? else {
-        return Ok(Vec::new());
-    };
-    let mate = p1::mate(brep, primary)?.ok_or(invalid_members())?;
-    let first_use = p1::vertexuse(brep, primary)?.ok_or(invalid_members())?;
-    let second_use = p1::vertexuse(brep, mate)?.ok_or(invalid_members())?;
-    let mut first = brep.vertexuse(first_use)?.vertex;
-    let mut second = brep.vertexuse(second_use)?.vertex;
-    if brep.edgeuse(primary)?.orientation != OrientType::Same {
-        std::mem::swap(&mut first, &mut second);
-    }
-    // Source adds the first pointer unconditionally. GetWireEdges immediately
-    // dereferences it, so NULL is an undefined native input on this path.
-    let first = first.ok_or(invalid_members())?;
-    let mut output = vec![first];
-    if let Some(second) = second {
-        if second != first {
-            output.push(second);
         }
     }
     Ok(output)
@@ -801,17 +773,39 @@ fn shell_bounds_for_degeneracy(
 }
 
 fn edge_bounds_for_shell(
-    _kernel: &crate::kernel::Kernel,
+    kernel: &crate::kernel::Kernel,
     brep: &Brep,
     id: EdgeId,
-    _tight: bool,
+    tight: bool,
 ) -> Result<BoundsAttempt> {
+    use crate::geom::extent3d::Extent3d;
+    use crate::nurbs::b_spline_curve::BoundingBoxRequest;
     brep.edge(id)?;
-    // UNPORTED(query.edge): SmEdge::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmEdge::CalculateBoundingBox",
-        "query.edge",
-    ))
+    let request = BoundingBoxRequest {
+        normal: true,
+        pseudo: false,
+        polar: false,
+    };
+    match crate::query::edge::calculate_bounding_box(kernel, brep, id, request, tight) {
+        Ok(boxes) => Ok(BoundsAttempt {
+            bounds: boxes.normal.ok_or_else(|| {
+                SolidError::invalid_input(
+                    "topology::shell::edge_bounds_for_shell",
+                    "requested 3D bounding box missing",
+                )
+            })?,
+            status: Ok(()),
+        }),
+        // Native SER returns before unioning this edge's box. IsDegenerate
+        // ignores that status and reads only the preceding successful aggregate.
+        Err(error @ (SolidError::Upstream { .. } | SolidError::Nlib { .. })) => Ok(BoundsAttempt {
+            bounds: Extent3d::new(),
+            status: Err(error),
+        }),
+        // Missing dependencies and safety errors must not become ordinary
+        // native status results or disappear into an initialized extent.
+        Err(error) => Err(error),
+    }
 }
 
 fn face_bounds_for_shell(
