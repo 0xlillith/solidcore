@@ -23,7 +23,7 @@
 // the harness code of harness/cpp/shim/sc_edgeuse_graph.h, so the export has that
 // unit's layout and traversal order (the Rust side imports it with that unit's
 // importer), except that an edge curve which is not an SmBSplineCurve is exported as
-// none and the curve type of every edge follows the graph. Version 3 shell state
+// none and the curve type of every edge follows the graph. Version 4 shell state
 // is emitted by the shared topology_fixture helper. They read raw members
 // (protected ones through pointer-to-member access), never the functions under test.
 #include "sc_shim.h"
@@ -408,7 +408,7 @@ void walk(SmBrep* brep, Graph& g)
             g.vertex((SmVertex*)p->GetOwner());
             g.typed(p->GetVertexuseType(), p->*VuPeek::owner());
         }
-        // Close through the real vertex-use lists before exporting version 3.
+        // Close through the real vertex-use lists before exporting version 4.
         for (; v < g.vertices.size(); v++, more = true)
             for (SmTopology* t : list_of(g.vertices[v]->GetList()))
                 g.vertexuse((SmVertexuse*)t);

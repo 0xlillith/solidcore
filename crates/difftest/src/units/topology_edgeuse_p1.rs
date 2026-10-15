@@ -921,7 +921,7 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
         let tolerance = rd.num()?;
         vertices.push(Vertex { point, tolerance, vertexuses: Vec::new() });
     }
-    if rd.idx()? != 3 {
+    if rd.idx()? != 4 {
         return Err(harness("export: unsupported shell extension version"));
     }
     let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
@@ -950,6 +950,9 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
         faceuse.sibling_links = Some((opt(rd.idx()?, FaceuseId::from_index)?,
             opt(rd.idx()?, FaceuseId::from_index)?));
     }
+    // Raw native Face::m_pFU, including a downward primary use or NULL.
+    let primary_faceuses=(0..n_f).map(|_|opt(rd.idx()?,FaceuseId::from_index))
+        .collect::<Result<Vec<_>,_>>()?;
     let brep_tolerance = rd.num()?;
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
@@ -984,6 +987,7 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
         let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
         b.add_face_record(Face {
             surface,
+            faceuse: *primary_faceuses.get(f).ok_or_else(||harness("missing face primary"))?,
             uv_domain,
             tolerance,
             ..Face::new(shell)

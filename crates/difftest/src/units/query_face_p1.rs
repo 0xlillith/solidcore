@@ -16,6 +16,7 @@ use solidcore::query::face::p1;
 use solidcore::SolidError;
 use solidcore_ffi::units::query_face_p1 as ffi;
 
+/// Differential coverage of the six `query.face_p1` operations.
 pub struct Runner;
 
 #[derive(Serialize, Deserialize)]
@@ -32,7 +33,7 @@ impl Parameter {
             Self::Special(x) if x == "NaN" => Ok(f64::NAN),
             Self::Special(x) if x == "+inf" => Ok(f64::INFINITY),
             Self::Special(x) if x == "-inf" => Ok(f64::NEG_INFINITY),
-            _ => Err(HarnessError::new("unknown special parameter")),
+            Self::Special(_) => Err(HarnessError::new("unknown special parameter")),
         }
     }
 }
@@ -86,19 +87,25 @@ impl UnitDiff for Runner {
             return run_box(case, false);
         }
         let input: Input = case.parse()?;
-        let v = |i: usize| Vec3::new(input.data[i], input.data[i + 1], input.data[i + 2]);
+        let [px, py, pz, dx, dy, dz, qx, qy, qz, ex, ey, ez] = input.data;
+        let p = Vec3::new(px, py, pz);
+        let d = Vec3::new(dx, dy, dz);
+        let q = Vec3::new(qx, qy, qz);
+        let e = Vec3::new(ex, ey, ez);
         let curve: Option<Curve> = match input.kind {
             0 => None,
-            1 => Some(Line::from_points(v(0), v(6), 3).into()),
-            2 => Some(HermiteCurve::new(v(0), v(3), v(6), v(9), 3).into()),
+            1 => Some(Line::from_points(p, q, 3).into()),
+            2 => Some(HermiteCurve::new(p, d, q, e, 3).into()),
             _ => return Err(HarnessError::new("unknown curve kind")),
         };
         let mut values = [11., 13., 17., 19., 23., 29., 31., 37., 41.];
         match p1::evaluate_curve(curve.as_ref(), input.parameter.value()?) {
             Ok(result) => {
-                for (i, vector) in result.iter().enumerate() {
+                for ((i, vector), destination) in
+                    result.iter().enumerate().zip(values.chunks_exact_mut(3))
+                {
                     if input.mask & (1 << i) != 0 {
-                        values[i * 3..i * 3 + 3].copy_from_slice(&[vector.x, vector.y, vector.z]);
+                        destination.copy_from_slice(&[vector.x, vector.y, vector.z]);
                     }
                 }
                 Ok(output(0, values))
@@ -162,9 +169,12 @@ fn run_box(case: &Case, cpp: bool) -> Result<Output, HarnessError> {
         if values.len() != 7 {
             return Err(HarnessError::new("malformed native box record"));
         }
+        let (status, rest) = values
+            .split_first()
+            .ok_or_else(|| HarnessError::new("missing native status"))?;
         return Ok(Output::new()
-            .int("status", values[0] as i64)
-            .values("out", values[1..].to_vec()));
+            .int("status", *status as i64)
+            .values("out", rest.to_vec()));
     }
     let export = graph::eval(graph::Op::Export, &path, &block)
         .map_err(|e| HarnessError::new(e.to_string()))?;

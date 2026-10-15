@@ -541,17 +541,36 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
     let mut regions = Vec::new();
     for _ in 0..n_r {
         let in_brep = rd.num()? != 0.0;
-        rd.list()?;
-        regions.push(Region { in_brep });
+        let shells = rd
+            .list()?
+            .into_iter()
+            .map(|x| opt(x, ShellId::from_index)?.ok_or_else(|| harness("null shell")))
+            .collect::<Result<Vec<_>, _>>()?;
+        regions.push(Region {
+            in_brep,
+            shells,
+            is_void: 0,
+        });
     }
     let mut shells = Vec::new();
     for _ in 0..n_s {
         let region = opt(rd.idx()?, RegionId::from_index)?;
-        rd.idx()?;
-        rd.list()?;
+        let shell_type = solidcore::topology::shell::ShellType::from_code(rd.idx()?);
+        let faceuses = rd
+            .list()?
+            .into_iter()
+            .map(|x| opt(x, FaceuseId::from_index)?.ok_or_else(|| harness("null face use")))
+            .collect::<Result<Vec<_>, _>>()?;
+        let members = if shell_type == solidcore::topology::shell::ShellType::Faceuse {
+            solidcore::topology::shell::ShellMembers::Faceuses(faceuses)
+        } else {
+            solidcore::topology::shell::ShellMembers::Empty
+        };
         shells.push(Shell {
             faces: Vec::new(),
             region,
+            shell_type,
+            members,
         });
     }
     let mut faceuses = Vec::new();
@@ -571,6 +590,7 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
             mate,
             orientation,
             loopuses,
+            sibling_links: None,
         });
     }
     let mut surfaces = Vec::new();
@@ -649,7 +669,8 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
             uv_trim_curve,
             ..Edgeuse::default()
         };
-        let me = EdgeuseId::from_index(u32::try_from(edgeuses.len()).map_err(|_| harness("overflow"))?);
+        let me =
+            EdgeuseId::from_index(u32::try_from(edgeuses.len()).map_err(|_| harness("overflow"))?);
         if has_fail {
             let f = DropCurveFail::<ObjectHandle> {
                 fail_status: i32::try_from(fail_status).map_err(|_| harness("fail status"))?,
@@ -728,8 +749,57 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex { point, tolerance });
+        vertices.push(Vertex {
+            point,
+            tolerance,
+            vertexuses: Vec::new(),
+        });
     }
+    // Shared version-4 native shell/face state, before any records are assembled.
+    // Temporary empty fields above are replaced by the actual native lists;
+    // malformed or incomplete snapshots fail the harness rather than compare.
+    if rd.idx()? != 4 {
+        return Err(harness("unsupported shell extension version"));
+    }
+    let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
+    for region in &mut regions {
+        region.is_void =
+            i32::try_from(rd.idx()?).map_err(|_| harness("void flag outside native int"))?;
+    }
+    for shell in &mut shells {
+        use solidcore::topology::shell::ShellMembers;
+        let head = rd.idx()?;
+        if shell.is_wire_shell() {
+            shell.members = opt(head, EdgeuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Edgeuse);
+        } else if shell.is_vertex_shell() {
+            shell.members = opt(head, VertexuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Vertexuse);
+        } else if head != -1 {
+            return Err(harness("unexpected shell head"));
+        }
+    }
+    for vertex in &mut vertices {
+        vertex.vertexuses = rd
+            .list()?
+            .into_iter()
+            .map(|x| opt(x, VertexuseId::from_index)?.ok_or_else(|| harness("null vertex use")))
+            .collect::<Result<Vec<_>, _>>()?;
+    }
+    for faceuse in &mut faceuses {
+        faceuse.sibling_links = Some((
+            opt(rd.idx()?, FaceuseId::from_index)?,
+            opt(rd.idx()?, FaceuseId::from_index)?,
+        ));
+    }
+    // The face export already contains m_pFU; require the shared snapshot to
+    // agree, instead of silently replacing a conflicting native identity.
+    for (_,faceuse,_,_,_) in &surfaces {
+        if opt(rd.idx()?,FaceuseId::from_index)?!=*faceuse {
+            return Err(harness("inconsistent native face primary"));
+        }
+    }
+    let brep_tolerance = rd.num()?;
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
     }
@@ -737,6 +807,8 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
     // assemble (skeleton fields filled minimally)
     let mut b = Brep::new();
     b.set_validate_only(validate_only);
+    b.set_infinite_region_record(infinite_region);
+    b.set_tolerance(brep_tolerance);
     for r in regions {
         b.add_region_record(r).map_err(|e| harness(e.to_string()))?;
     }
@@ -758,7 +830,10 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
         b.add_shell_record(s).map_err(|e| harness(e.to_string()))?;
     }
     for (f, (surface, faceuse, uv_domain, rect, tolerance)) in surfaces.into_iter().enumerate() {
-        let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
+        let shell = face_shells
+            .get(f)
+            .copied()
+            .unwrap_or(ShellId::from_index(0));
         b.add_face_record(Face {
             surface,
             faceuse,
@@ -803,16 +878,20 @@ pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
         b.add_vertex_record(v).map_err(|e| harness(e.to_string()))?;
     }
     for fu in faceuses {
-        b.add_faceuse_record(fu).map_err(|e| harness(e.to_string()))?;
+        b.add_faceuse_record(fu)
+            .map_err(|e| harness(e.to_string()))?;
     }
     for lu in loopuses {
-        b.add_loopuse_record(lu).map_err(|e| harness(e.to_string()))?;
+        b.add_loopuse_record(lu)
+            .map_err(|e| harness(e.to_string()))?;
     }
     for eu in edgeuses {
-        b.add_edgeuse_record(eu).map_err(|e| harness(e.to_string()))?;
+        b.add_edgeuse_record(eu)
+            .map_err(|e| harness(e.to_string()))?;
     }
     for vu in vertexuses {
-        b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
+        b.add_vertexuse_record(vu)
+            .map_err(|e| harness(e.to_string()))?;
     }
     Ok((
         b,

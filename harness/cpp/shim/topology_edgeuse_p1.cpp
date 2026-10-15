@@ -605,7 +605,7 @@ void append_shell_state(const View& view,std::vector<double>& output)
         if(found==values.end()) throw 1;
         return (int64_t)(found-values.begin());
     };
-    output.push_back(3.0);
+    output.push_back(4.0);
     output.push_back((double)identity(view.regions,view.brep.GetInfiniteRegion()));
     for(SmRegion* region:view.regions)
         output.push_back((double)(region->*RegionPeek::is_void()));
@@ -623,6 +623,12 @@ void append_shell_state(const View& view,std::vector<double>& output)
         output.push_back((double)identity(view.faceuses,faceuse->GetNext()));
         output.push_back((double)identity(view.faceuses,faceuse->GetLast()));
     }
+    // Legal protected-member access; no derived object is fabricated or cast.
+    struct FaceStateAccess:SmFace {
+        static auto primary() { return &FaceStateAccess::m_pFU; }
+    };
+    for(SmFace* face:view.faces)
+        output.push_back((double)identity(view.faceuses,face->*FaceStateAccess::primary()));
 }
 
 int32_t apply(const char* path, const double* input, int64_t count,

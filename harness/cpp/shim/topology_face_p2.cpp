@@ -24,6 +24,7 @@
 //   `3 validate_only init_gaps`                 the wire network of prog_test my_test_topology
 // Ops whose upstream path would dereference null output -2 instead of calling it.
 #include "sc_shim.h"
+#include "support/topology_fixture.h"
 
 
 #include "StdAfx.h"
@@ -671,6 +672,10 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
     }
+    sc_topology_fixture::append_shell_state(
+        {*brep,g.regions,g.shells,g.faceuses,g.faces,g.loopuses,g.loops,
+         g.edgeuses,g.edges,g.vertexuses,g.vertices},o);
+    o.push_back((double)brep->GetTolerance());
 }
 
 // Builds the B-rep of a B-rep block; nullptr (status in `st`) when construction fails.

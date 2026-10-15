@@ -293,12 +293,9 @@ fn point_of(m: &Model, f: FaceId, at: &At) -> Result<Point2, HarnessError> {
 }
 
 fn dom_of(m: &Model, f: FaceId, d: Option<[f64; 4]>) -> Result<[f64; 4], HarnessError> {
-    match d {
-        Some(d) => Ok(d),
-        None => {
-            let dom = m.brep.face(f).map_err(|e| harness(e.to_string()))?.uv_domain;
-            Ok([dom.min().x, dom.min().y, dom.max().x, dom.max().y])
-        }
+    if let Some(d)=d {Ok(d)} else {
+        let dom=m.brep.face(f).map_err(|e|harness(e.to_string()))?.uv_domain;
+        Ok([dom.min().x,dom.min().y,dom.max().x,dom.max().y])
     }
 }
 
@@ -322,7 +319,7 @@ fn op_args(m: &Model, op: &OpIn) -> Result<(Op, Vec<f64>, Vec<FaceId>), HarnessE
         } => {
             let f = face_of(m, *face)?;
             let uv = point_of(m, f, at)?;
-            let mut v = vec![f.index() as f64, uv.x, uv.y, *src_tol, flag(*do_bnd), flag(*use_uv)];
+            let mut v = vec![f64::from(f.index()), uv.x, uv.y, *src_tol, flag(*do_bnd), flag(*use_uv)];
             v.extend([flag(*tgt_only), flag(*has_loops)]);
             let n_loops = m.brep.loops().len();
             let ls: Vec<f64> = loops
@@ -347,9 +344,9 @@ fn op_args(m: &Model, op: &OpIn) -> Result<(Op, Vec<f64>, Vec<FaceId>), HarnessE
             let f1 = face_of(m, *face1)?;
             let f2 = face_of(m, *face2)?;
             let uv = point_of(m, f1, at)?;
-            let mut v = vec![uv.x, uv.y, *tol, f1.index() as f64];
+            let mut v = vec![uv.x, uv.y, *tol, f64::from(f1.index())];
             v.extend(dom_of(m, f1, *dom1)?);
-            v.push(f2.index() as f64);
+            v.push(f64::from(f2.index()));
             v.extend(dom_of(m, f2, *dom2)?);
             Ok((Op::ClassifyParam, v, vec![f1, f2]))
         }
@@ -380,7 +377,7 @@ fn op_args(m: &Model, op: &OpIn) -> Result<(Op, Vec<f64>, Vec<FaceId>), HarnessE
                 let q = s.evaluate_point(b).map_err(|e| harness(e.to_string()))?;
                 ([p.x, p.y, p.z], [q.x, q.y, q.z])
             };
-            let mut v = vec![f.index() as f64, f64::from(*dim)];
+            let mut v = vec![f64::from(f.index()), f64::from(*dim)];
             v.extend(p);
             v.extend(q);
             v.extend([*tol, flag(*do_pc), flag(*big_gaps), flag(*check3d), 1.0]);
@@ -637,7 +634,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             ))
         }
         (OpIn::ClassifyParam { tol, .. }, Op::ClassifyParam) => {
-            let [f1, f2] = [faces.first(), faces.get(1)].map(|f| f.copied());
+            let [f1, f2] = [faces.first(), faces.get(1)].map(Option::copied);
             let (Some(f1), Some(f2)) = (f1, f2) else {
                 return Err(harness("no faces"));
             };
@@ -791,7 +788,7 @@ fn gen_edits(rng: &mut Rng, face: i64, trims: f64) -> Vec<Edit> {
     if rng.chance(0.6) {
         return out;
     }
-    out.extend((0..1 + rng.below(3)).map(|_| Edit {
+    out.extend((0..=rng.below(3)).map(|_| Edit {
         kind: rng.below(3) as u8,
         sel: rng.below(64) as i64,
         value: *rng.choose(&[0.0, 1e-9, 1e-6, 1e-4, 1e-2, 0.1, 1.0]).unwrap_or(&1e-6),

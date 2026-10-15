@@ -35,7 +35,7 @@ struct View {
     const std::vector<SmVertex*>& vertices;
 };
 
-// Append version 3 shell/region state shared by graph exporters. Every value
+// Append version 4 shell/region state shared by graph exporters. Every value
 // comes from the actual native record; an unregistered reference fails setup.
 void append_shell_state(const View& view, std::vector<double>& output);
 

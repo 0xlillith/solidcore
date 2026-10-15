@@ -62,12 +62,8 @@ pub fn evaluate_curve(curve: Option<&Curve>, parameter: f64) -> Result<[Vec3; 3]
     ])
 }
 
-fn face_vertices(_brep: &Brep, _face: FaceId) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.face_p4): SmFace::GetVertices
-    Err(SolidError::unported(
-        "SmFace::GetVertices",
-        "topology.face_p4",
-    ))
+fn face_vertices(brep: &Brep, face: FaceId) -> Result<Vec<VertexId>> {
+    super::p2::face_vertices(brep, face, false, None)
 }
 
 fn face_edges(_brep: &Brep, _face: FaceId) -> Result<Vec<EdgeId>> {
@@ -372,13 +368,34 @@ pub fn edge_curve_on_classify(
     *output = CurveOnClassification::default();
     let edgeuses = &brep.edge(edge)?.edgeuses;
     let upward = face::upward_faceuse(brep, face_id)?;
-    if curve.dim() == 2 {
-        // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::SetAll
-        return Err(SolidError::unported(
-            "SmCrvOnSurf::SetAll",
-            "curve.crv_on_surf",
-        ));
-    }
+    let lifted;
+    let curve = if curve.dim() == 2 {
+        let surface = face::surface(brep, face_id)?.ok_or_else(|| {
+            SolidError::invalid_input(
+                "query::face::p1::edge_curve_on_classify",
+                "face without surface",
+            )
+        })?;
+        let crate::surface::surface::SurfaceKind::BSpline(surface) = surface.kind() else {
+            // DISPATCH GAP: CrvOnSurf currently stores only a BSplineSurface.
+            // SetAll itself is ported; other concrete surfaces need its actual
+            // polymorphic representation, never a B-spline stand-in.
+            return Err(SolidError::unported(
+                "SmCrvOnSurf surface-kind dispatch",
+                "curve.crv_on_surf",
+            ));
+        };
+        // Native SetAll borrows the UV curve (owner flag zero). Clone preserves
+        // geometry but resets the Curve owner; retain that actual metadata here.
+        let mut uv_curve = curve.clone();
+        let _ = uv_curve.set_owner(curve.owner(), None);
+        lifted = Curve::new(crate::curve::curve::CurveKind::CrvOnSurf(Box::new(
+            crate::curve::crv_on_surf::CrvOnSurf::new(kernel, uv_curve, surface.clone(), None, 0)?,
+        )));
+        &lifted
+    } else {
+        curve
+    };
     for &edgeuse in edgeuses {
         if crate::topology::edgeuse::p1::face(brep, edgeuse)? != Some(face_id)
             || crate::topology::edgeuse::p1::faceuse(brep, edgeuse)? != upward
@@ -453,20 +470,17 @@ pub trait FaceClassifyWorld<O: crate::intersect::point_class::ClassObject>:
     /// retaining all caller boundary, tolerance, loop and UV-recovery options.
     ///
     /// # Errors
-    /// A genuine missing callee until the UV classifier is ported.
+    /// Propagates the actual UV classifier's status, retaining its in/out writes.
+    /// Implementations can use [`super::p2::point_classify`] with
+    /// [`crate::intersect::point_class::PointClassification::try_map_objects`]
+    /// to translate between their handles and B-rep entity ids.
     fn classify_uv(
         &self,
-        _face: FaceId,
-        _uv: crate::geom::vector2d::Point2,
-        _options: &FacePointClassifyOptions<'_>,
-        _output: &mut crate::intersect::point_class::PointClassification<O>,
-    ) -> Result<()> {
-        // UNPORTED(query.face_p2): SmFace::PointClassify
-        Err(SolidError::unported(
-            "SmFace::PointClassify",
-            "query.face_p2",
-        ))
-    }
+        face: FaceId,
+        uv: crate::geom::vector2d::Point2,
+        options: &FacePointClassifyOptions<'_>,
+        output: &mut crate::intersect::point_class::PointClassification<O>,
+    ) -> Result<()>;
 }
 
 fn solve_face_point<O: crate::geom::solution_array::SolutionObject>(
