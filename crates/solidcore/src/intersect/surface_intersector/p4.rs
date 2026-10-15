@@ -1200,7 +1200,8 @@ const fn is_offset_surface(surface: &Surface) -> bool {
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::Plane(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => false,
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => false,
     }
 }
 
@@ -1212,7 +1213,8 @@ fn surface_is_singularity(surface: &Surface, uv: Point2) -> Result<bool> {
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular),
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular),
     }
 }
 

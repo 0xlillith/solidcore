@@ -203,7 +203,7 @@ pub(super) const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
     }
 }
 
@@ -249,7 +249,7 @@ fn create_iso_parametric_curve(
             "surface.surface_cache_p1",
         )),
         // the SmSurface body (surface.surface_p5); tolerance 0.0 as upstream's callers
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             let r =
                 surface.create_iso_parametric_curve(k, param, iso, 0.0, domain.as_ref(), false)?;
             match r.curve.into_kind() {
@@ -289,7 +289,7 @@ pub(super) fn calculate_bounding_box(
         // inherited from SmBSplineSurface: none of its virtual calls is overridden
         SurfaceKind::SurfOfRevolution(s) => s.base().calculate_bounding_box(domain, req),
         SurfaceKind::Plane(p) => crate::surface::surface::p1::plane_bounding_box(p, domain, req),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             // SmSurface::CalculateBoundingBox (surface::surface::p1). Its polar box asks the
             // surface's own cache for it, whose build asks this function again: upstream
             // recurses without bound (UB-84), so the request is refused.
@@ -318,7 +318,8 @@ fn is_singularity(surface: &Surface, uv: Point2) -> Result<bool> {
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular),
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular),
     }
 }
 

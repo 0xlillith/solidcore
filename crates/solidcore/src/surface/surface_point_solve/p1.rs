@@ -281,7 +281,7 @@ fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
     }
     .filter(|b| b.gw_nurb().is_some())
 }
@@ -1283,7 +1283,8 @@ fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<bool> {
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             // UNPORTED(surface.surface_p4): SmSurface::IsOnSeam
             Err(SolidError::unported(
                 "SmSurface::IsOnSeam",

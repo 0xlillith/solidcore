@@ -1513,7 +1513,8 @@ fn is_singularity(surface: &Surface, uv: Point2) -> Result<(bool, SurfParamType)
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             let r = surface.is_singularity(uv, EFF_ZERO, false)?;
             Ok((r.singular, r.direction))
         }
