@@ -43,8 +43,43 @@ pub fn query(path: &str, block: &[f64], void_state: Option<i32>) -> Result<Vec<f
     })
 }
 
+/// Native `SmShell::GetWireEdges`, including native stack traversal order.
+///
+/// # Errors
+/// Malformed fixtures, native construction failures or unsafe wire heads.
+pub fn wire_edges(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native topology fixture construction failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: the fixture export validated the complete input. All buffers
+        // and pointers remain live, and the shim guards native wire heads.
+        unsafe {
+            sys::sc_topology_shell_wire_edges(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_wire_edges(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_query(
             path: *const std::ffi::c_char,
             input: *const f64,

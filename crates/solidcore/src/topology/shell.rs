@@ -1,7 +1,9 @@
 //! Shell and region topology, with typed arena links and native traversal order.
 //!
 //! Upstream: `source/SMLib/inc/SmShell.h`, `source/SMLib/src/SmShell.cpp`,
-//! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`.
+//! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`,
+//! and the minimum default-argument branches of `source/SMLib/src/SmEdge.cpp`
+//! and `source/SMLib/src/SmVertex.cpp` used by wire-edge traversal.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
@@ -11,6 +13,9 @@
 //! | [`Shell::wire_edge`], [`Shell::vertex`] | `GetWireEdge`, `GetVertex` |
 //! | [`Shell::is_closed`], [`Shell::mated_shells`] | `IsClosed`, `GetMatedShells` |
 //! | [`shell_region`], [`shell_brep`] | `GetRegion`, `GetBrep` |
+//! | [`wire_edges`] | `SmShell::GetWireEdges` |
+//! | `edge_vertices_for_shell`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (no attribute filter), `IsWire` |
+//! | `vertex_edges_for_shell` | `SmVertex::GetVertexuses`, `GetEdges` (no face filter) |
 //! | [`Region::get_shells`], [`Region::is_void`], [`Region::set_is_void`] | `GetShells`, `IsVoid`, `SetIsVoid` |
 //! | [`Region::is_infinite_region`] | `IsInfiniteRegion` |
 //! | [`Shell::is_inner_shell`], [`order_region_shells`] | `IsInnerShell`, `OrderShells` |
@@ -378,6 +383,106 @@ pub fn order_region_shells(brep: &mut Brep, id: RegionId) -> Result<()> {
         brep.region_mut(id)?.shells.rotate_left(position);
     }
     Ok(())
+}
+
+/// Wire edges of a shell, preserving native stack and first-seen order.
+///
+/// # Errors
+/// Dangling topology links, native undefined pointer accesses, or the missing
+/// vertex edge-list traversal. There is no recursion.
+pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
+    let shell = brep.shell(id)?;
+    let mut output = Vec::new();
+    if shell.is_vertex_shell() {
+        return Ok(output);
+    }
+    if shell.is_wire_shell() {
+        let first = shell.wire_edge(brep)?.ok_or(invalid_members())?;
+        let mut stack = vec![first];
+        let mut seen_vertices = BTreeSet::new();
+        let mut seen_edges = BTreeSet::new();
+        while let Some(edge) = stack.pop() {
+            for vertex in edge_vertices_for_shell(brep, edge)? {
+                if !seen_vertices.insert(vertex) {
+                    continue;
+                }
+                for adjacent in vertex_edges_for_shell(brep, vertex)? {
+                    if seen_edges.insert(adjacent) {
+                        output.push(adjacent);
+                        stack.push(adjacent);
+                    }
+                }
+            }
+        }
+        return Ok(output);
+    }
+    // The shared arena model represents SmBrep's edge list in insertion order.
+    // GetBrep is required even when the edge list happens to be empty.
+    let owner = shell_brep(brep, id)?.ok_or(invalid_members())?;
+    for (edge, _) in owner.edges().iter() {
+        if edge_is_wire_for_shell(owner, edge)? {
+            let primary = crate::topology::edgeuse::p1::primary_edgeuse(owner, edge)?
+                .ok_or(invalid_members())?;
+            if owner.edgeuse(primary)?.owner == crate::topology::EdgeuseOwner::Shell(Some(id)) {
+                output.push(edge);
+            }
+        }
+    }
+    Ok(output)
+}
+
+// Minimal no-attribute GetVertices branch needed by GetWireEdges. Endpoint
+// order follows the primary edge use's orientation, not a guessed vertex pair.
+fn edge_vertices_for_shell(brep: &Brep, edge: EdgeId) -> Result<Vec<VertexId>> {
+    use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+    use crate::topology::edgeuse::p1;
+    let Some(primary) = p1::primary_edgeuse(brep, edge)? else {
+        return Ok(Vec::new());
+    };
+    let mate = p1::mate(brep, primary)?.ok_or(invalid_members())?;
+    let first_use = p1::vertexuse(brep, primary)?.ok_or(invalid_members())?;
+    let second_use = p1::vertexuse(brep, mate)?.ok_or(invalid_members())?;
+    let mut first = brep.vertexuse(first_use)?.vertex;
+    let mut second = brep.vertexuse(second_use)?.vertex;
+    if brep.edgeuse(primary)?.orientation != OrientType::Same {
+        std::mem::swap(&mut first, &mut second);
+    }
+    // Source adds the first pointer unconditionally. GetWireEdges immediately
+    // dereferences it, so NULL is an undefined native input on this path.
+    let first = first.ok_or(invalid_members())?;
+    let mut output = vec![first];
+    if let Some(second) = second {
+        if second != first {
+            output.push(second);
+        }
+    }
+    Ok(output)
+}
+
+fn edge_is_wire_for_shell(brep: &Brep, edge: EdgeId) -> Result<bool> {
+    use crate::topology::edgeuse::p1;
+    match p1::primary_edgeuse(brep, edge)? {
+        Some(primary) => p1::is_shell_edgeuse(brep, primary),
+        None => Ok(false),
+    }
+}
+
+fn vertex_edges_for_shell(brep: &Brep, vertex: VertexId) -> Result<Vec<EdgeId>> {
+    use crate::topology::edgeuse::p1;
+    use crate::topology::VertexuseOwner;
+    let mut output = Vec::new();
+    for &vertexuse in &brep.vertex(vertex)?.vertexuses {
+        if let VertexuseOwner::Edgeuse(edgeuse) = brep.vertexuse(vertexuse)?.owner {
+            let edgeuse = edgeuse.ok_or(invalid_members())?;
+            // Upstream asks for the face even when its optional filter is NULL.
+            let _face = p1::face(brep, edgeuse)?;
+            let edge = brep.edgeuse(edgeuse)?.edge.ok_or(invalid_members())?;
+            if !output.contains(&edge) {
+                output.push(edge);
+            }
+        }
+    }
+    Ok(output)
 }
 
 #[cfg(test)]

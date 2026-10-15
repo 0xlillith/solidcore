@@ -6,7 +6,7 @@ use super::topology_edgeuse_p1::{fixture_input, import};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use solidcore::topology::shell::{shell_brep, shell_region};
+use solidcore::topology::shell::{shell_brep, shell_region, wire_edges};
 use solidcore::topology::{FaceuseId, Region, Shell, ShellId};
 use solidcore_ffi::units::{topology_edgeuse_p1 as graph, topology_shell as ffi};
 
@@ -18,6 +18,8 @@ struct Inputs {
     brep: Value,
     #[serde(default)]
     void_state: Option<i32>,
+    #[serde(default)]
+    wires: bool,
 }
 
 const TYPES: [i64; 5] = [16013, 16012, 16000, 16999, -1];
@@ -42,7 +44,12 @@ impl UnitDiff for Runner {
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let inputs: Inputs = case.parse()?;
         let (path, block) = fixture_input(inputs.brep)?;
-        let native = ffi::query(&path, &block, inputs.void_state).map_err(failure)?;
+        let native = if inputs.wires {
+            ffi::wire_edges(&path, &block)
+        } else {
+            ffi::query(&path, &block, inputs.void_state)
+        }
+        .map_err(failure)?;
         if native
             .iter()
             .any(|v| !v.is_finite() || v.fract() != 0.0 || v.abs() > (1_u64 << 53) as f64)
@@ -60,6 +67,22 @@ impl UnitDiff for Runner {
         let (path, block) = fixture_input(inputs.brep)?;
         let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
         let mut brep = import(&export)?;
+        if inputs.wires {
+            let mut out = vec![brep.shells().len() as i64];
+            for shell in brep.shells().ids() {
+                match wire_edges(&brep, shell) {
+                    Ok(wires) => {
+                        out.push(0);
+                        list(
+                            &mut out,
+                            wires.into_iter().map(solidcore::topology::EdgeId::index),
+                        );
+                    }
+                    Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+                }
+            }
+            return Ok(Output::new().ints("records", out));
+        }
         let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
         for (id, shell) in brep.shells().iter() {
             out.extend([
@@ -135,7 +158,7 @@ impl UnitDiff for Runner {
         let normal = [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), 1.0];
         Some(
             json!({"brep": {"kind":"face", "surface":{"plane":{"o":origin,"n":normal}},
-            "dom":[-scale,-scale,scale,scale]}, "void_state":rng.below(3) as i32}),
+            "dom":[-scale,-scale,scale,scale]}, "void_state":rng.below(3) as i32, "wires":rng.chance(0.5)}),
         )
     }
 }

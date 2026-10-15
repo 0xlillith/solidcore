@@ -784,7 +784,7 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
     }
     // Versioned shell/region extension. Read raw state, never shell operations
     // under test. Keep the existing graph prefix and its entity counts stable.
-    o.push_back(1.0);
+    o.push_back(2.0);
     o.push_back((double)g.find(0, brep->GetInfiniteRegion()));
     for (SmRegion* p : g.regions)
         o.push_back((double)(p->*RegionPeek::is_void()));
@@ -793,6 +793,12 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         SM_TYPE ty = p->*ShPeek::type();
         o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, p->GetList())
                              : ty == SmVertexuse_TYPE ? g.find(8, p->GetList()) : -1));
+    }
+    for (SmVertex* p : g.vertices)
+    {
+        std::vector<int64_t> uses;
+        for (SmTopology* use : list_of(p->GetList())) uses.push_back(g.find(8, use));
+        put_list(o, uses);
     }
 }
 
@@ -821,6 +827,20 @@ SmBrep* build(Rd& rd, const char* path, SmStatus& status)
         SmPoint2d a = rd.uv(), b = rd.uv();
         SmFace* pFace = nullptr;
         status = brep->CreateFaceFromSurface(s, SmExtent2d(a, b), pFace);
+    }
+    else if (kind == 4)
+    {
+        const int64_t count = rd.idx();
+        for (int64_t i = 0; i < count; ++i)
+        {
+            const SmPoint3d point = rd.vec();
+            if (status == SM_SUCCESS)
+            {
+                SmShell* shell = nullptr;
+                SmVertex* vertex = nullptr;
+                status = brep->MakeShellVertex(brep->GetInfiniteRegion(), point, shell, vertex);
+            }
+        }
     }
     else
     {

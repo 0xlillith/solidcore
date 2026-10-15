@@ -12,6 +12,7 @@
 //! | `1 curve t0 t1 validate_only init_gaps`       | `CreateWireEdgeFromCurve(curve, [t0, t1])`|
 //! | `2 surface u0 v0 u1 v1 validate_only init_gaps` | `CreateFaceFromSurface(surface, dom)`   |
 //! | `3 validate_only init_gaps`                   | the wire network of `prog_test` `my_test_topology` |
+//! | `4 n points(x y z)*n validate_only init_gaps` | actual `MakeShellVertex` calls (0..64 vertices) |
 //!
 //! A surface block is `0 oob form n m p q r s cpts(x y z w) u v` (`SmBSplineSurface`) or
 //! `1 O[3] N[3]` (`SmPlane(O, N)`); a curve block `dim n p m cpts(x y z w) knots`
@@ -32,9 +33,10 @@
 //! | `Gaps`      | `eu which flag want_out`                | per `which` (`0` `GetMaxEdgeFaceGap`, `1` `GetEdgeCCWEdgeGap`, `2` `CalcMaxEdgeFaceGap`, `3` `CalcEdgeCCWEdgeGap`) |
 //! | `SetOrient` | `eu orientation`                        | `orient mate radial` |
 //!
-//! The graph export ends with a versioned extension: `1 infinite_region`, then
+//! The graph export ends with a versioned extension: `2 infinite_region`, then
 //! one raw void flag per region and one raw wire-edge-use/vertex-use head index
-//! per shell (`-1` for other member classes). The original graph prefix and the
+//! per shell (`-1` for other member classes), then a vertex-use index list per
+//! vertex in native list order. The original graph prefix and the
 //! ten entity counts remain unchanged. This supplies shell state independently
 //! of the shell operations being compared.
 //!
@@ -324,7 +326,7 @@ fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
 
 /// A B-rep block.
 fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
-    match rd.index(3)? {
+    match rd.index(4)? {
         0 => {
             let p = Path::new(path);
             if p.extension().and_then(|e| e.to_str()) != Some("smb") || !p.is_file() {
@@ -361,6 +363,12 @@ fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
                         return Err(bad("plane face domain too large"));
                     }
                 }
+            }
+        }
+        4 => {
+            let count = rd.index(MAX_LIST)?;
+            for _ in 0..count {
+                rd.vec3()?;
             }
         }
         _ => {}

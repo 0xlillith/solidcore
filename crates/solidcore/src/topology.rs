@@ -242,6 +242,8 @@ pub struct Vertex {
     pub point: Point3,
     /// `m_sZoneTol3d` (CO-PORTED, `SM_USE_OLDTOL`): the vertex tolerance.
     pub tolerance: f64,
+    /// Native vertex-use circular list, in order from its head (CO-PORTED in shell).
+    pub vertexuses: Vec<VertexuseId>,
 }
 
 /// An edge (`SmEdge`): a bounded curve between two vertices.
@@ -792,6 +794,7 @@ impl Brep {
         self.vertices.insert(Vertex {
             point,
             tolerance: ZONE_TOL_3D,
+            vertexuses: Vec::new(),
         })
     }
 

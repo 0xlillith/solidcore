@@ -78,3 +78,23 @@ SC_EXPORT int32_t sc_topology_shell_query(const char* path, const double* input,
         });
     SC_CATCH
 }
+
+SC_EXPORT int32_t sc_topology_shell_wire_edges(const char* path, const double* input,
+    int64_t count, double* output, int64_t cap, int64_t* output_len) {
+    if (!output_len || cap < 0 || (cap && !output)) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path, input, count,
+        [&](const sc_topology_fixture::View& fixture) -> int32_t {
+            std::vector<double> out;
+            out.push_back((double)fixture.shells.size());
+            for (SmShell* shell : fixture.shells) {
+                if (shell->IsWireShell() && !shell->GetWireEdge()) return SC_ERR_ARG;
+                SmTArray<SmEdge*> wires;
+                const SmStatus status = shell->GetWireEdges(wires);
+                out.push_back(status == SM_SUCCESS ? 0.0 : (double)status);
+                list(out, wires, fixture.edges);
+            }
+            return sc_copy_out(out.data(), (int64_t)out.size(), output, cap, output_len);
+        });
+    SC_CATCH
+}

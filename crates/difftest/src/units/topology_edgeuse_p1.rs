@@ -119,6 +119,7 @@ enum BrepIn {
     Wire { curve: CrvIn, t0: f64, t1: f64 },
     Face { surface: SrfIn, dom: [f64; 4] },
     Network,
+    Vertices { points: Vec<[f64; 3]> },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -248,6 +249,10 @@ fn brep_block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
             v.extend(dom);
         }
         BrepIn::Network => v.push(3.0),
+        BrepIn::Vertices { points } => {
+            v.extend([4.0, points.len() as f64]);
+            for point in points { v.extend(point); }
+        }
     }
     v.push(flag(i.validate_only));
     v.push(flag(i.init_gaps));
@@ -867,9 +872,9 @@ pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex { point, tolerance });
+        vertices.push(Vertex { point, tolerance, vertexuses: Vec::new() });
     }
-    if rd.idx()? != 1 {
+    if rd.idx()? != 2 {
         return Err(harness("export: unsupported shell extension version"));
     }
     let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
@@ -888,6 +893,11 @@ pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
         } else if head != -1 {
             return Err(harness("export: unexpected shell head"));
         }
+    }
+    for vertex in &mut vertices {
+        vertex.vertexuses = rd.list()?.into_iter()
+            .map(|v| opt(v, VertexuseId::from_index)?.ok_or_else(|| harness("null vertex use")))
+            .collect::<Result<Vec<_>, _>>()?;
     }
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
