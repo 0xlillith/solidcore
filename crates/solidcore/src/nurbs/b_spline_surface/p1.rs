@@ -123,11 +123,13 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p1::line_point_distance;
+use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::polar_box::{PolarBox, PolarBoxState};
 use crate::geom::pseudo_box::PseudoBox;
 use crate::geom::tol::are_same;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_SQ};
 use crate::nurbs::b_spline_curve::{BSplineCurve, KnotType, NurbCircleParam};
 use crate::nurbs::crv_basic::ConicType;
@@ -537,18 +539,33 @@ fn local_point_solve(
 }
 
 /// `SmSurface::GlobalPointSolve(domain, SM_SO_INTERSECT, point, tol, NULL,
-/// SM_SR_ALL, ..)`: the start parameters of every solution.
+/// SM_SR_ALL, ..)` on `surface` (the surface the B-spline part belongs to): the start
+/// parameters of every solution.
 fn global_point_solve(
-    _srf: &BSplineSurface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _tol_3d: f64,
+    k: &Kernel,
+    surface: &crate::surface::surface::Surface,
+    domain: &Extent2d,
+    point: Point3,
+    tol_3d: f64,
 ) -> Result<Vec<Point2>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::Unported {
-        upstream: "SmSurface::GlobalPointSolve",
-        unit: "surface.surface_p4",
-    })
+    let starts = crate::surface::surface::p4::global_point_solve_starts(
+        k,
+        surface,
+        domain,
+        SolverOperation::Intersect,
+        point,
+        tol_3d,
+        SolutionRequested::All,
+    )?;
+    Ok(starts
+        .iter()
+        .map(|s| {
+            Point2::new(
+                s.parameters.first().copied().unwrap_or(0.0),
+                s.parameters.get(1).copied().unwrap_or(0.0),
+            )
+        })
+        .collect())
 }
 
 /// `SmSurface::IsSingularity(uv, dir)`.
@@ -1742,6 +1759,26 @@ impl BSplineSurface {
     /// `GlobalPointSolve`. `SM_ERR` when no solution is found.
     pub fn step_inversion(
         &self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+        point_on_surf: Point3,
+        tol_3d: f64,
+        uv_guess: Option<Point2>,
+    ) -> Result<(Point2, LocationType)> {
+        let surface = crate::surface::surface::Surface::from(self.clone());
+        self.step_inversion_on(k, &surface, anal_domain, point_on_surf, tol_3d, uv_guess)
+    }
+
+    /// [`BSplineSurface::step_inversion`] where the virtual solves run on `surface`,
+    /// the surface this B-spline part belongs to (a plane's `this`).
+    ///
+    /// # Errors
+    ///
+    /// As [`BSplineSurface::step_inversion`].
+    pub fn step_inversion_on(
+        &self,
+        k: &Kernel,
+        surface: &crate::surface::surface::Surface,
         anal_domain: &Extent2d,
         point_on_surf: Point3,
         tol_3d: f64,
@@ -1765,7 +1802,8 @@ impl BSplineSurface {
 
         if !local_succeeded {
             solutions.extend(global_point_solve(
-                self,
+                k,
+                surface,
                 anal_domain,
                 point_on_surf,
                 tol_3d,

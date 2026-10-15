@@ -95,10 +95,11 @@
 //!   error-reporting macros (`ERR`, `SE`) only log; where the base default returns a
 //!   value after them (`GetNaturalUVDomain`, `GetDegree`, ...) the port returns the
 //!   same value.
-//! - **Unported callees.** The intersection drivers (`GlobalSurfaceIntersect`,
-//!   `PointBasedSurfaceIntersect`) build the `SmAdvSurfaceIntersector` and then need
-//!   `SmSurfaceIntersector::DoIntersection` / `DoPointIntersection`
-//!   (`intersect.surface_intersector_p5` / `_p4`); `CurveOnClassify` needs
+//! - **Unported callees.** `GlobalSurfaceIntersect` runs
+//!   `SmSurfaceIntersector::DoIntersection` (unit `intersect.surface_intersector_p5`),
+//!   whose surface caches need `SmSurface::CalculateContinuities` (`surface.surface_p6`);
+//!   `PointBasedSurfaceIntersect` builds the `SmAdvSurfaceIntersector` and then needs
+//!   `DoPointIntersection` (`intersect.surface_intersector_p4`); `CurveOnClassify` needs
 //!   `SmCurveClassification` (`intersect.curve_class_p*`); `CreatePlaneWith3DCurves`
 //!   needs `SmTrimmingTools` (`topology.trimming_tools`); `smsurf_GetSurfaceCache`
 //!   needs the cache store to make surface caches (`SmSurface::CacheMakeOrValidate`,
@@ -179,6 +180,7 @@ use crate::nurbs::knots::Side;
 use crate::surface::cone::Cone;
 use crate::surface::curve_bounded_surface::CurveBoundedSurface;
 use crate::surface::plane::Plane;
+use crate::surface::srf_in_volume::SrfInVolume;
 use crate::surface::surf_of_extrusion::SurfOfExtrusion;
 use crate::surface::surf_of_revolution::SurfOfRevolution;
 use crate::surface::surface::p1::StepSurface;
@@ -257,6 +259,8 @@ pub enum SurfaceKind {
     /// `SmSTEPSurface` (unit `surface.surface_p1`): another surface in its STEP
     /// parameterisation.
     Step(StepSurface),
+    /// `SmSrfInVolume`.
+    SrfInVolume(Box<SrfInVolume>),
 }
 
 /// A surface (`SmSurface`): its concrete kind and the object owning it (`m_pOwner`:
@@ -452,6 +456,7 @@ impl Surface {
             SurfaceKind::BSpline(_) => BSplineSurface::TYPE,
             SurfaceKind::CurveBounded(s) => s.type_code(),
             SurfaceKind::Step(s) => s.type_code(),
+            SurfaceKind::SrfInVolume(s) => s.type_code(),
             SurfaceKind::Plane(s) => s.type_code(),
             SurfaceKind::SurfOfRevolution(s) => s.type_code(),
         }
@@ -464,6 +469,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.type_string(),
             SurfaceKind::CurveBounded(s) => s.type_string(),
             SurfaceKind::Step(s) => s.type_string(),
+            SurfaceKind::SrfInVolume(s) => s.type_string(),
             SurfaceKind::Plane(s) => s.type_string(),
             SurfaceKind::SurfOfRevolution(s) => s.type_string(),
         }
@@ -476,6 +482,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.class_string(),
             SurfaceKind::CurveBounded(s) => s.class_string(),
             SurfaceKind::Step(s) => s.class_string(),
+            SurfaceKind::SrfInVolume(s) => s.class_string(),
             SurfaceKind::Plane(s) => s.class_string(),
             SurfaceKind::SurfOfRevolution(s) => s.class_string(),
         }
@@ -491,6 +498,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.is_kind_of(t),
             SurfaceKind::CurveBounded(s) => Ok(s.is_kind_of(t)),
             SurfaceKind::Step(_) => Ok(StepSurface::is_kind_of(t)),
+            SurfaceKind::SrfInVolume(s) => Ok(s.is_kind_of(t)),
             SurfaceKind::Plane(s) => s.is_kind_of(t),
             SurfaceKind::SurfOfRevolution(s) => s.is_kind_of(t),
         }
@@ -507,6 +515,7 @@ impl Surface {
         match &self.kind {
             SurfaceKind::BSpline(s) => Ok(Self::from(s.copy())),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_copy(),
+            SurfaceKind::SrfInVolume(s) => Ok(Self::from(s.copy()?)),
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
             SurfaceKind::SurfOfRevolution(s) => Ok(Self::from(s.copy())),
         }
@@ -520,7 +529,9 @@ impl Surface {
     pub fn copy_and_add_analytics(&self) -> Result<Self> {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.copy_and_add_analytics(),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_copy_and_add_analytics(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_copy_and_add_analytics()
+            }
             // SmBSplineSurface::CopyAndAddAnalytics: not SmBSplineSurface_TYPE, so Copy
             SurfaceKind::Plane(s) => Ok(Self::from(s.copy())),
             SurfaceKind::SurfOfRevolution(s) => Ok(Self::from(s.copy())),
@@ -546,6 +557,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags),
             SurfaceKind::CurveBounded(s) => s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags),
             SurfaceKind::Step(s) => s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags),
+            SurfaceKind::SrfInVolume(s) => s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags),
             SurfaceKind::Plane(s) => {
                 s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags.only_upper_half)
             }
@@ -567,6 +579,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.evaluate_point(uv),
             SurfaceKind::CurveBounded(s) => s.evaluate_point(uv),
             SurfaceKind::Step(s) => s.evaluate_point(uv),
+            SurfaceKind::SrfInVolume(s) => s.evaluate_point(uv),
             SurfaceKind::Plane(s) => Ok(s.evaluate_point(uv)),
             SurfaceKind::SurfOfRevolution(s) => s.base().evaluate_point(uv),
         }
@@ -581,6 +594,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.natural_uv_domain(),
             SurfaceKind::CurveBounded(s) => s.natural_uv_domain(),
             SurfaceKind::Step(s) => s.natural_uv_domain(),
+            SurfaceKind::SrfInVolume(s) => s.natural_uv_domain(),
             SurfaceKind::Plane(s) => s.natural_uv_domain(),
             SurfaceKind::SurfOfRevolution(s) => s.base().natural_uv_domain(),
         }
@@ -593,6 +607,7 @@ impl Surface {
         match &self.kind {
             SurfaceKind::Plane(s) => s.step_uv_domain(),
             SurfaceKind::SurfOfRevolution(s) => s.step_uv_domain(),
+            SurfaceKind::SrfInVolume(s) => s.step_uv_domain(),
             SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
                 base_step_uv_domain(self)
             }
@@ -605,6 +620,7 @@ impl Surface {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.degree(param),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_degree(),
+            SurfaceKind::SrfInVolume(s) => s.degree(param),
             SurfaceKind::Plane(s) => s.base_for_query().degree(param),
             SurfaceKind::SurfOfRevolution(s) => s.base().degree(param),
         }
@@ -616,7 +632,9 @@ impl Surface {
     pub fn number_control_points(&self, param: SurfParamType) -> usize {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.number_control_points(param),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_number_control_points(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_number_control_points()
+            }
             SurfaceKind::Plane(s) => s.base_for_query().number_control_points(param),
             SurfaceKind::SurfOfRevolution(s) => s.base().number_control_points(param),
         }
@@ -631,6 +649,7 @@ impl Surface {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.max_analytic_domain(),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Ok(base_max_analytic_domain()),
+            SurfaceKind::SrfInVolume(s) => s.max_analytic_domain(),
             SurfaceKind::Plane(s) => Ok(s.max_analytic_domain()),
             SurfaceKind::SurfOfRevolution(s) => s.max_analytic_domain(),
         }
@@ -641,7 +660,9 @@ impl Surface {
     pub fn is_bilinear(&self) -> bool {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.is_bilinear(),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_is_bilinear(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_is_bilinear()
+            }
             SurfaceKind::Plane(s) => s.base_for_query().is_bilinear(),
             SurfaceKind::SurfOfRevolution(s) => s.base().is_bilinear(),
         }
@@ -655,7 +676,9 @@ impl Surface {
     pub fn is_parallel_to_vector(&self, vector: Vec3) -> Result<bool> {
         match &self.kind {
             SurfaceKind::BSpline(s) => s.is_parallel_to_vector(vector),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Ok(base_is_parallel_to_vector()),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                Ok(base_is_parallel_to_vector())
+            }
             SurfaceKind::Plane(s) => Ok(s.is_parallel_to_vector(vector)),
             // (not a plane: the SmBSplineSurface net test)
             SurfaceKind::SurfOfRevolution(s) => s.base().is_parallel_to_vector(vector),
@@ -677,6 +700,7 @@ impl Surface {
             SurfaceKind::BSpline(s) => s.knots(param, ivl),
             SurfaceKind::CurveBounded(_) => base_knots(),
             SurfaceKind::Step(s) => s.knots(param, ivl),
+            SurfaceKind::SrfInVolume(s) => s.knots(param, ivl),
             SurfaceKind::Plane(s) => s.base_for_query().knots(param, ivl),
             SurfaceKind::SurfOfRevolution(s) => s.base().knots(param, ivl),
         }
@@ -726,16 +750,16 @@ impl Surface {
     ) -> Result<(Point2, LocationType)> {
         match &self.kind {
             SurfaceKind::BSpline(s) => {
-                s.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess)
+                s.step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_step_inversion(),
+            SurfaceKind::SrfInVolume(s) => s.step_inversion(k, anal_domain, point_on_surf, tol_3d),
             // SmBSplineSurface::STEPInversion solves on the plane through the virtual
             // point solvers
-            // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-            SurfaceKind::Plane(_) => Err(SolidError::unported(
-                "SmSurface::GlobalPointSolve",
-                "surface.surface_p4",
-            )),
+            SurfaceKind::Plane(s) => {
+                s.base()
+                    .step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
+            }
             SurfaceKind::SurfOfRevolution(s) => {
                 s.step_inversion(k, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
@@ -781,9 +805,10 @@ impl Surface {
                 requested,
                 None,
             ),
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                base_drop_point_fast()
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => base_drop_point_fast(),
         }
     }
 
@@ -820,9 +845,10 @@ impl Surface {
             SurfaceKind::SurfOfRevolution(s) => {
                 s.intersect_with_plane(k, plane, other_uv_domain, approx_tol_3d)
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                base_intersect_with_plane()
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => base_intersect_with_plane(),
         }
     }
 
@@ -841,7 +867,9 @@ impl Surface {
     ) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.adjust_step_uv_domain(new_step_uv_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_adjust_step_uv_domain(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_adjust_step_uv_domain()
+            }
             SurfaceKind::Plane(s) => s.adjust_step_uv_domain(new_step_uv_domain),
             SurfaceKind::SurfOfRevolution(s) => s.adjust_step_uv_domain(k, new_step_uv_domain),
         }
@@ -858,6 +886,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.reverse(param),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::SrfInVolume(s) => s.reverse(k, param),
             SurfaceKind::Plane(s) => s.reverse(param),
             SurfaceKind::SurfOfRevolution(s) => {
                 // Upstream reaches the NURB through the virtual GetOrCreateGwNurbPointer,
@@ -878,7 +907,9 @@ impl Surface {
     pub fn reparameterize(&mut self, k: &Kernel, new_domain: &Extent2d) -> Result<()> {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.reparameterize(new_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_edit()
+            }
             SurfaceKind::Plane(s) => s.reparameterize(new_domain),
             SurfaceKind::SurfOfRevolution(s) => s.reparameterize(k, new_domain),
         }
@@ -895,6 +926,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.swap_uv(),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::SrfInVolume(s) => s.swap_uv(k),
             SurfaceKind::Plane(s) => s.swap_uv(),
             SurfaceKind::SurfOfRevolution(s) => {
                 // As in `reverse`: the stored NURB stands for GetOrCreateGwNurbPointer.
@@ -920,6 +952,7 @@ impl Surface {
             SurfaceKind::SurfOfRevolution(s) => s.transform(k, rotate_n_move, scale),
             SurfaceKind::BSpline(s) => s.transform(rotate_n_move, scale),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::SrfInVolume(s) => s.transform(rotate_n_move, scale),
             SurfaceKind::Plane(s) => s.transform(rotate_n_move, scale),
         }
     }
@@ -933,6 +966,7 @@ impl Surface {
         match &mut self.kind {
             SurfaceKind::BSpline(s) => s.trim_with_domain(trim_domain),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_edit(),
+            SurfaceKind::SrfInVolume(s) => s.trim_with_domain(k, trim_domain),
             SurfaceKind::Plane(s) => s.trim_with_domain(trim_domain),
             SurfaceKind::SurfOfRevolution(s) => s.trim_with_domain(k, trim_domain),
         }
@@ -953,6 +987,10 @@ impl Surface {
                 Ok((Self::from(l), Self::from(r)))
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_split_at(),
+            SurfaceKind::SrfInVolume(s) => {
+                let (l, r) = s.split_at(param, surf_param)?;
+                Ok((Self::from(l), Self::from(r)))
+            }
             SurfaceKind::Plane(s) => {
                 let (l, r) = s.base_for_query().split_at(param, surf_param)?;
                 Ok((Self::from(l), Self::from(r)))
@@ -978,7 +1016,9 @@ impl Surface {
             SurfaceKind::BSpline(s) => Ok(Self::from(
                 s.create_extended_surface(dist, extension_continuity)?,
             )),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_create_extended_surface(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_create_extended_surface()
+            }
             SurfaceKind::Plane(s) => Ok(Self::from(
                 s.create_extended_surface(dist, extension_continuity)?,
             )),
@@ -1007,7 +1047,9 @@ impl Surface {
                 dist,
                 extension_continuity,
             )?)),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_create_extended_surface(),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                base_create_extended_surface()
+            }
             SurfaceKind::Plane(s) => Ok(Self::from(s.create_extended_surface_dir(
                 ext_direction,
                 dist,
@@ -1090,11 +1132,7 @@ impl Surface {
                 "SmOffsetSurface::ReadFromDB",
                 "surface.offset_surface",
             )),
-            // UNPORTED(surface.srf_in_volume): SmSrfInVolume::ReadFromDB
-            SRF_IN_VOLUME_TYPE => Err(SolidError::unported(
-                "SmSrfInVolume::ReadFromDB",
-                "surface.srf_in_volume",
-            )),
+            SRF_IN_VOLUME_TYPE => Ok(Self::from(SrfInVolume::read_from_db(k, db, version)?)),
             STEP_SURFACE_TYPE => Ok(Self::from(StepSurface::read_from_db(k, db, version)?)),
             _ => Err(SolidError::sm_err(OP_READ)),
         }
@@ -1160,17 +1198,19 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                base_global_surface_intersect(
-                    self,
-                    uv_domain,
-                    other,
-                    other_uv_domain,
-                    use_surface_edges,
-                    approx_tol_3d,
-                    ang_tol_rad,
-                )
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => base_global_surface_intersect(
+                k,
+                self,
+                uv_domain,
+                other,
+                other_uv_domain,
+                use_surface_edges,
+                approx_tol_3d,
+                ang_tol_rad,
+            ),
         }
     }
 
@@ -1219,6 +1259,10 @@ impl Surface {
         let _ssi: AdvSurfaceIntersector<'_, '_, NoSurfaceHandle> =
             AdvSurfaceIntersector::new(self, uv_domain, other, other_uv_domain, false)?;
 
+        // (SurfaceIntersector::do_point_intersection, part 4, is the basic intersector's:
+        // through TraceCurve and ComputePointValues it calls the basic
+        // ComputeSingularityPoint, not SmAdvSurfaceIntersector's override, so it cannot
+        // stand in here until the intersector parts dispatch their virtual calls)
         // UNPORTED(intersect.surface_intersector_p4): SmSurfaceIntersector::DoPointIntersection
         Err(SolidError::unported(
             "SmSurfaceIntersector::DoPointIntersection",
@@ -1561,31 +1605,32 @@ pub const fn base_number_control_points() -> usize {
 /// `SmSurface::GlobalSurfaceIntersect`: the intersection curves of `this` over
 /// `uv_domain` with `other` over `other_uv_domain`, through `SmAdvSurfaceIntersector`
 /// (the general intersection of the kinds without an override, and the fall-back of the
-/// overrides).
+/// overrides): [`crate::intersect::surface_intersector::p5::do_intersection`].
 ///
 /// # Errors
 ///
-/// Those of the intersector's construction; [`SolidError::Unported`]:
-/// `SmSurfaceIntersector::DoIntersection` (`intersect.surface_intersector_p5`).
+/// Those of [`crate::intersect::surface_intersector::p5::do_intersection`].
+#[allow(clippy::too_many_arguments)] // upstream's argument list
 pub fn base_global_surface_intersect(
+    k: &Kernel,
     this: &Surface,
     uv_domain: &Extent2d,
     other: &Surface,
     other_uv_domain: &Extent2d,
     use_surface_edges: [bool; 2],
-    _approx_tol_3d: Option<f64>,
-    _ang_tol_rad: Option<f64>,
+    approx_tol_3d: Option<f64>,
+    ang_tol_rad: Option<f64>,
 ) -> Result<SurfaceIntersection> {
-    let mut ssi: AdvSurfaceIntersector<'_, '_, NoSurfaceHandle> =
-        AdvSurfaceIntersector::new(this, uv_domain, other, other_uv_domain, false)?;
-    ssi.base
-        .set_use_surface_edges(use_surface_edges[0], use_surface_edges[1]);
-
-    // UNPORTED(intersect.surface_intersector_p5): SmSurfaceIntersector::DoIntersection
-    Err(SolidError::unported(
-        "SmSurfaceIntersector::DoIntersection",
-        "intersect.surface_intersector_p5",
-    ))
+    crate::intersect::surface_intersector::p5::do_intersection(
+        k,
+        this,
+        uv_domain,
+        other,
+        other_uv_domain,
+        use_surface_edges,
+        approx_tol_3d,
+        ang_tol_rad,
+    )
 }
 
 /// `SmSurface::GetMaxAnalyticDomain`: reports `SM_ERR` and returns an initialised

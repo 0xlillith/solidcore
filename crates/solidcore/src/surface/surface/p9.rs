@@ -52,7 +52,7 @@ fn bss(surface: &Surface) -> Result<Cow<'_, BSplineSurface>> {
         SurfaceKind::BSpline(s) => Ok(Cow::Borrowed(s)),
         SurfaceKind::Plane(p) => Ok(p.base_for_query()),
         SurfaceKind::SurfOfRevolution(s) => Ok(Cow::Borrowed(s.base())),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -477,18 +477,15 @@ fn filter_solution<O>(
     ))
 }
 fn nearby_intersection(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _uv: Point2,
-    _t: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    uv: Point2,
+    t: f64,
 ) -> Result<Option<(Point2, f64)>> {
-    // UNPORTED(surface.surface_p4): sm_ClassifyCurveSurfaceXSectPoint
-    Err(SolidError::unported(
-        "sm_ClassifyCurveSurfaceXSectPoint",
-        "surface.surface_p4",
-    ))
+    let c = super::p4::classify_curve_surface_xsect_point(surface, domain, curve, interval, uv, t)?;
+    Ok(c.found_guess.then_some((c.new_uv_guess, c.new_t_guess)))
 }
 fn surface_point_solve<O: Copy>(
     _surface: &Surface,

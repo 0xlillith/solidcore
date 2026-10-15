@@ -42,16 +42,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0005",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824781",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -126,16 +122,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0014",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824790",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -146,16 +138,12 @@
       "values_compared": 330
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0016",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824792",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -166,28 +154,20 @@
       "values_compared": 13593
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824794",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0019",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824795",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -274,16 +254,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0030",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824806",
-      "values_compared": 0
+      "values_compared": 136
     },
     {
       "max_rel_err": 0.0,
@@ -302,16 +278,12 @@
       "values_compared": 1369
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0033",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824809",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -462,12 +434,16 @@
       "values_compared": 66
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0051",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824827",
-      "values_compared": 97
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -574,16 +550,12 @@
       "values_compared": 154
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0065",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824841",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -770,12 +742,16 @@
       "values_compared": 697
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0086",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824862",
-      "values_compared": 647
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -806,12 +782,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0090",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824866",
-      "values_compared": 1485
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -870,12 +850,16 @@
       "values_compared": 823
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0098",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824874",
-      "values_compared": 1662
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -894,16 +878,12 @@
       "values_compared": 27
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0101",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824877",
-      "values_compared": 0
+      "values_compared": 219
     },
     {
       "max_rel_err": 0.0,
@@ -1222,16 +1202,12 @@
       "values_compared": 223
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824913",
-      "values_compared": 0
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1274,16 +1250,12 @@
       "values_compared": 246
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0143",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824919",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -1302,16 +1274,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0146",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824922",
-      "values_compared": 0
+      "values_compared": 252
     },
     {
       "max_rel_err": 0.0,
@@ -1338,16 +1306,12 @@
       "values_compared": 72
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824926",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -1398,16 +1362,12 @@
       "values_compared": 162
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0157",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824933",
-      "values_compared": 0
+      "values_compared": 403
     },
     {
       "max_rel_err": 0.0,
@@ -1730,16 +1690,12 @@
       "values_compared": 95
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824972",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -1854,16 +1810,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0209",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801824985",
-      "values_compared": 0
+      "values_compared": 202
     },
     {
       "max_rel_err": 0.0,
@@ -1942,24 +1894,24 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0219",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=17500105236801824995",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0220",
       "outcome": "pass",
       "pass": true,
+      "source": "generated:seed=17500105236801824995",
+      "values_compared": 66
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0220",
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801824996",
-      "values_compared": 313
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2226,16 +2178,12 @@
       "values_compared": 276
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0252",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825028",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -2282,12 +2230,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0258",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825034",
-      "values_compared": 342
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2490,12 +2442,16 @@
       "values_compared": 87
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0281",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825057",
-      "values_compared": 385
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2538,12 +2494,16 @@
       "values_compared": 2981801
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0286",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825062",
-      "values_compared": 330
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2622,16 +2582,12 @@
       "values_compared": 647
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0296",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825072",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -2758,16 +2714,12 @@
       "values_compared": 26
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0311",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825087",
-      "values_compared": 0
+      "values_compared": 126
     },
     {
       "max_rel_err": 0.0,
@@ -2894,12 +2846,16 @@
       "values_compared": 1401
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0327",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825103",
-      "values_compared": 161
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3102,12 +3058,16 @@
       "values_compared": 246
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0351",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825127",
-      "values_compared": 97
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3158,16 +3118,12 @@
       "values_compared": 604
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825133",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -3230,16 +3186,12 @@
       "values_compared": 330
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825141",
-      "values_compared": 0
+      "values_compared": 154
     },
     {
       "max_rel_err": 0.0,
@@ -3322,16 +3274,12 @@
       "values_compared": 246
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0375",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825151",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "deferred": {
@@ -3362,12 +3310,16 @@
       "values_compared": 288
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0379",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825155",
-      "values_compared": 157
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3530,12 +3482,16 @@
       "values_compared": 66
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0398",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825174",
-      "values_compared": 1072
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3670,16 +3626,12 @@
       "values_compared": 426
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0414",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825190",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -3726,16 +3678,12 @@
       "values_compared": 985
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0420",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825196",
-      "values_compared": 0
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -3794,16 +3742,12 @@
       "values_compared": 216
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0428",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825204",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -3830,28 +3774,20 @@
       "values_compared": 154
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825208",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0433",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825209",
-      "values_compared": 0
+      "values_compared": 198
     },
     {
       "max_rel_err": 0.0,
@@ -4150,16 +4086,12 @@
       "values_compared": 95
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0469",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825245",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "deferred": {
@@ -4194,16 +4126,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0473",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825249",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -4354,24 +4282,24 @@
       "values_compared": 131
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0491",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=17500105236801825267",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0492",
       "outcome": "pass",
       "pass": true,
+      "source": "generated:seed=17500105236801825267",
+      "values_compared": 66
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0492",
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825268",
-      "values_compared": 297
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4498,16 +4426,12 @@
       "values_compared": 733
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825283",
-      "values_compared": 0
+      "values_compared": 1705
     },
     {
       "max_rel_err": 0.0,
@@ -4518,12 +4442,16 @@
       "values_compared": 140
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0509",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825285",
-      "values_compared": 684
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4714,12 +4642,16 @@
       "values_compared": 66599
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0531",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=17500105236801825307",
-      "values_compared": 222
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4822,16 +4754,12 @@
       "values_compared": 733
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0543",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825319",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -4850,16 +4778,12 @@
       "values_compared": 372649
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825322",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -5066,16 +4990,12 @@
       "values_compared": 330
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0571",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825347",
-      "values_compared": 0
+      "values_compared": 250
     },
     {
       "deferred": {
@@ -5142,16 +5062,12 @@
       "values_compared": 133
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0579",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825355",
-      "values_compared": 0
+      "values_compared": 331
     },
     {
       "max_rel_err": 0.0,
@@ -5270,28 +5186,20 @@
       "values_compared": 330
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0593",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825369",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmTessSrfCache subdivision surfaces",
-        "unit": "query.tess"
-      },
       "max_rel_err": 0.0,
       "name": "gen0594",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=17500105236801825370",
-      "values_compared": 0
+      "values_compared": 67
     },
     {
       "max_rel_err": 0.0,
@@ -5343,13 +5251,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 135,
+  "cases_deferred": 112,
   "cases_failed": 0,
-  "cases_passed": 465,
+  "cases_passed": 488,
   "cases_total": 600,
   "deferred_by_unit": {
-    "query.tess": 38,
     "surface.surface_cache_p1": 8,
+    "surface.surface_p3": 15,
     "surface.surface_p5": 32,
     "surface.surface_p6": 57
   },

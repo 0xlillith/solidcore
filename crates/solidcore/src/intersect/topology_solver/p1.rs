@@ -70,6 +70,7 @@
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p2::Curve;
 use crate::curve::curve::p8::CurveIntersectOptions;
+use crate::curve::curve::p9::CurveSolveOptions;
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
@@ -1462,7 +1463,8 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let uv_domain = objects.face_uv_domain(face)?;
             let face_tol = objects.face_tolerance(face)?;
             let solutions = surface_global_point_solve(
-                face_surface,
+                ts.kernel,
+                objects.surface(face_surface)?,
                 &uv_domain,
                 op,
                 self.point,
@@ -1625,6 +1627,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             )?
         } else {
             curve_global_curve_solve(
+                ts.kernel,
                 this,
                 this_interval,
                 other,
@@ -1793,19 +1796,24 @@ fn surface_global_line_intersect<O>(
 
 /// `pFace->GetSurface()->GlobalPointSolve(uv_domain, op, point, tol,
 /// pdBestAnswer, SM_SR_ALL, solutions)`.
-fn surface_global_point_solve<O>(
-    _surface: O,
-    _uv_domain: &Extent2d,
-    _op: SolverOperation,
-    _point: Point3,
-    _tol: f64,
-    _best_answer: Option<f64>,
+fn surface_global_point_solve<O: SolutionObject>(
+    kernel: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    op: SolverOperation,
+    point: Point3,
+    tol: f64,
+    best_answer: Option<f64>,
 ) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+    surface.global_point_solve::<O>(
+        kernel,
+        uv_domain,
+        op,
+        point,
+        tol,
+        best_answer,
+        SolutionRequested::All,
+    )
 }
 
 /// The arguments of `SmCurve::GlobalCurveSolve` after the two curves and their
@@ -1825,26 +1833,28 @@ struct CurveSolveArgs<'v> {
 
 /// `this->GlobalCurveSolve(this_interval, *other, other_interval, op, tol,
 /// pdBestAnswer, cpOptVectors, SM_SR_ALL, solutions)`.
-fn curve_global_curve_solve<O>(
-    _this: CurveRef<'_, O>,
-    _this_interval: &Extent1d,
-    _other: CurveRef<'_, O>,
-    _other_interval: &Extent1d,
+fn curve_global_curve_solve<O: SolutionObject>(
+    k: &Kernel,
+    this: CurveRef<'_, O>,
+    this_interval: &Extent1d,
+    other: CurveRef<'_, O>,
+    other_interval: &Extent1d,
     args: &CurveSolveArgs<'_>,
 ) -> Result<SolutionArray<O>> {
-    // (every argument is for the call that replaces this stub)
-    let _ = (
+    this.curve.global_curve_solve(
+        k,
+        this_interval,
+        other.curve,
+        other_interval,
         args.operation,
         args.tolerance_3d,
-        args.best_answer,
-        args.opt_vectors,
+        &CurveSolveOptions {
+            target_distance: args.best_answer,
+            opt_vectors: args.opt_vectors,
+            handles: [Some(this.handle), Some(other.handle)],
+        },
         args.requested,
-    );
-    // UNPORTED(curve.curve_p9): SmCurve::GlobalCurveSolve
-    Err(SolidError::unported(
-        "SmCurve::GlobalCurveSolve",
-        "curve.curve_p9",
-    ))
+    )
 }
 
 /// `SmTol::GetZoneTol3d(m_pPointVertex)`.

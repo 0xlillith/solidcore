@@ -135,7 +135,8 @@ fn evaluate_geometric_at(surface: &Surface, uv: Point2) -> Result<GeometricPrope
         SurfaceKind::BSpline(_)
         | SurfaceKind::Plane(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => surface.evaluate_geometric(uv, Side::Left, Side::Left),
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => surface.evaluate_geometric(uv, Side::Left, Side::Left),
     }
 }
 
@@ -153,7 +154,8 @@ fn evaluate_normal_section(
         SurfaceKind::BSpline(_)
         | SurfaceKind::Plane(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             let n = surface.evaluate_normal_section(uv, Side::Left, Side::Left, direction)?;
             Ok(NormalSection {
                 tangent_plane_direction: n.tangent,
