@@ -1706,8 +1706,10 @@ impl Surface {
                     crv_pt = p;
                 }
 
-                // (SE: status ignored: a failed drop is no success)
-                let drop = ignored(self.drop_point::<BoundaryCurveHandle>(
+                // (SE: status ignored: a failed drop is no success; DropPoint is not
+                // virtual, its solves run with the caller's kernel)
+                let drop = ignored(self.drop_point_with_kernel::<BoundaryCurveHandle>(
+                    k,
                     crv_pt,
                     uv_domain,
                     &DropPointOptions {
