@@ -203,7 +203,7 @@ pub(super) const fn bspline_of(surface: &Surface) -> Option<&BSplineSurface> {
         SurfaceKind::BSpline(b) => Some(b),
         SurfaceKind::Plane(p) => Some(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
     }
 }
 
@@ -248,7 +248,7 @@ fn create_iso_parametric_curve(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
             "surface.surface_cache_p1",
         )),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -285,7 +285,7 @@ pub(super) fn calculate_bounding_box(
         // inherited from SmBSplineSurface: none of its virtual calls is overridden
         SurfaceKind::SurfOfRevolution(s) => s.base().calculate_bounding_box(domain, req),
         SurfaceKind::Plane(p) => crate::surface::surface::p1::plane_bounding_box(p, domain, req),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             // SmSurface::CalculateBoundingBox (surface::surface::p1). Its polar box asks the
             // surface's own cache for it, whose build asks this function again: upstream
             // recurses without bound (UB-84), so the request is refused.
@@ -295,12 +295,17 @@ pub(super) fn calculate_bounding_box(
                     crate::surface::surface::p1::POLAR_RECURSION,
                 ));
             }
-            // The other boxes come from the surface's own cache, whose tree build needs
-            // the continuities.
-            // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
+            // DISPATCH GAP: the other boxes come from the surface's own cache
+            // (Surface::base_calculate_bounding_box, surface::surface::p1), whose build
+            // needs the kernel this signature does not take. No UNPORTED marker: the
+            // callees are ported (the continuities of the tree build are
+            // surface::surface::p6); the error names the owner of the base body. Once the
+            // kernel is plumbed, the next blocker for these kinds is surface.surface_p5:
+            // CalculateContinuities calls the base CreateIsoParametricCurve, which that
+            // unit owns.
             Err(SolidError::unported(
-                "SmSurface::CalculateContinuities",
-                "surface.surface_p6",
+                "SmSurface::CalculateBoundingBox",
+                "surface.surface_p1",
             ))
         }
     }
@@ -314,7 +319,8 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
             Err(SolidError::unported(
                 "SmSurface::IsSingularity",

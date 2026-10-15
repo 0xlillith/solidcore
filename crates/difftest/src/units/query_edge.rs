@@ -23,9 +23,7 @@
 //! Outputs: `failed` (`0` success, `1` a failing status, `-2` where upstream would
 //! dereference null; the shim does not call it, the port returns `InvalidInput`), then
 //! on success the op's values. The radial classifications are deferred
-//! (`SmEdgeuse::EvaluateBinormalStepOff`, unit `topology.edgeuse_p2`), as is the tight
-//! box when the curve's loose box leaves the vertex box (`SmCurve::
-//! CalculateTightBoundingBox`, unit `curve.curve_p9`).
+//! (`SmEdgeuse::EvaluateBinormalStepOff`, unit `topology.edgeuse_p2`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

@@ -1082,7 +1082,12 @@ fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
         // `put_state` of a surface that is not a B-spline
         // an SmSurfOfRevolution is an SmBSplineSurface: its NURB
         Some(sp2::SurfaceKind::SurfOfRevolution(r)) => dump_bss(o, r.base()),
-        Some(sp2::SurfaceKind::CurveBounded(_) | sp2::SurfaceKind::Step(_)) | None => o.push(0.0),
+        Some(
+            sp2::SurfaceKind::CurveBounded(_)
+            | sp2::SurfaceKind::Step(_)
+            | sp2::SurfaceKind::SrfInVolume(_),
+        )
+        | None => o.push(0.0),
     }
 }
 
@@ -1931,6 +1936,8 @@ fn rust_static_op(op: &OpIn) -> Result<Run, HarnessError> {
                 line_interval: ivl.map(|i| Extent1d::from_min_max(i[0], i[1])),
                 ray_fire: *ray,
                 distance_tolerance: *tol,
+                surface_cache: None,
+                kernel: None,
             };
             let mut branch: Branch = Default::default();
             if let Some(slot) = branch.first_mut() {

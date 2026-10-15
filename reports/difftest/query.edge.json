@@ -250,28 +250,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#31",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#32",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -282,16 +274,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#34",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -478,28 +466,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_moved",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#58",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_moved_tiny",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#59",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -510,28 +490,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_arc_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#61",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_arc_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#62",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -542,16 +514,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_arc_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#64",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -746,16 +714,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "circle_arc_moved_tiny",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#89",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -766,28 +730,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellipse_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#91",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellipse_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#92",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -798,16 +754,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellipse_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#94",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1002,16 +954,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellipse_moved_tiny",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#119",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1022,28 +970,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#121",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#122",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1054,16 +994,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#124",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1258,16 +1194,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_moved_tiny",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#149",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1278,28 +1210,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_sub_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#151",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_sub_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#152",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1310,16 +1234,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_sub_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#154",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1514,16 +1434,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "hermite_sub_moved_tiny",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#179",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1622,28 +1538,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "tiny_bbox_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#192",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "tiny_bbox_tight_normal",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#193",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1654,16 +1562,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "tiny_tight",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/edge_cases.json#195",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1898,16 +1802,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#1",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1998,16 +1898,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#13",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2098,16 +1994,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#23",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2126,28 +2018,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#26",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_bbox_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#27",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -2158,16 +2042,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#29",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2186,28 +2066,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#32",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#33",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -2218,16 +2090,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#35",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2246,28 +2114,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#38",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_bbox_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#39",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -2566,16 +2426,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "cone_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#73",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2594,28 +2450,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "cone_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#76",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "cone_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#77",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -2722,16 +2570,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "disk_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#89",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2822,16 +2666,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "disk_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#101",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2922,16 +2762,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#111",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2974,16 +2810,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#117",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3026,16 +2858,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#123",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3126,16 +2954,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#133",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3154,28 +2978,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#136",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_bbox_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#137",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -3186,16 +3002,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#139",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3214,28 +3026,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#142",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#143",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -3246,16 +3050,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#145",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3274,28 +3074,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#148",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_bbox_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#149",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -3546,16 +3338,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#177",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3598,16 +3386,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#183",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3650,16 +3434,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#189",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3798,16 +3578,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#205",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3946,16 +3722,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#221",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -3998,16 +3770,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#227",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4050,16 +3818,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#233",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4150,16 +3914,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#243",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4202,16 +3962,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#249",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4254,16 +4010,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#255",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4354,16 +4106,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#265",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4382,28 +4130,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#268",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_bbox_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#269",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4414,16 +4154,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#271",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4442,28 +4178,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#274",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#275",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4474,16 +4202,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#277",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4502,28 +4226,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#280",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "torus_bbox_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#281",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -4582,16 +4298,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#287",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4610,28 +4322,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#290",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_bbox_tight_inside0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#291",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4642,16 +4346,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#293",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4670,28 +4370,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#296",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#297",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4702,16 +4394,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#299",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4730,28 +4418,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#302",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_bbox_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#303",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -4810,16 +4490,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_tight0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#309",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4862,16 +4538,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_tight1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#315",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4890,28 +4562,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#318",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_bbox_tight_inside1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#319",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4922,16 +4586,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_tight2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#321",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4950,28 +4610,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#324",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_bbox_tight_inside2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#325",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -6770,16 +6422,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0003",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447541",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -6826,16 +6474,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0009",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447547",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -6862,16 +6506,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0013",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447551",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -6918,28 +6558,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0019",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447557",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0020",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447558",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -6970,16 +6602,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0024",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447562",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -7058,16 +6686,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0033",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447571",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7118,16 +6742,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0040",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447578",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7138,16 +6758,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0042",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447580",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7202,16 +6818,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0049",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447587",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7230,64 +6842,44 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0052",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447590",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0053",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447591",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0054",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447592",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0055",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447593",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0056",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447594",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7298,16 +6890,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0058",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447596",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7354,16 +6942,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0063",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447601",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -7402,16 +6986,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0068",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447606",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -7430,16 +7010,12 @@
       "values_compared": 29
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0071",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447609",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7494,16 +7070,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0078",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447616",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -7542,16 +7114,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0083",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447621",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7574,16 +7142,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0086",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447624",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7682,28 +7246,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0097",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447635",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0098",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447636",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7762,16 +7318,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0105",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447643",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -7790,16 +7342,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0108",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447646",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7914,28 +7462,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0122",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447660",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0123",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447661",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7946,16 +7486,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0125",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447663",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7974,16 +7510,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0128",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447666",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8046,28 +7578,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0136",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447674",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447675",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8086,16 +7610,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0140",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447678",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8106,16 +7626,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0142",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447680",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8142,16 +7658,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0146",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447684",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8230,28 +7742,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0156",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447694",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0157",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447695",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8306,28 +7810,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0164",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447702",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0165",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447703",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8338,16 +7834,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0167",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447705",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8458,16 +7950,12 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0180",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447718",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -8506,16 +7994,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0185",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447723",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -8558,40 +8042,28 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0191",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447729",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0192",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447730",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0193",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447731",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -8622,16 +8094,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0197",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447735",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -8670,16 +8138,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0202",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447740",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8734,16 +8198,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0209",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447747",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8846,16 +8306,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0221",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447759",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8866,16 +8322,12 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0223",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447761",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -8954,16 +8406,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0232",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447770",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9082,16 +8530,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0246",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447784",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9142,16 +8586,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0253",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447791",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9246,16 +8686,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0264",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447802",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -9302,16 +8738,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447808",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -9370,16 +8802,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0277",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447815",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9390,16 +8818,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0279",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447817",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -9422,16 +8846,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0282",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447820",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -9554,16 +8974,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0296",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447834",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9582,16 +8998,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0299",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447837",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9682,16 +9094,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0311",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447849",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9714,16 +9122,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0314",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447852",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "deferred": {
@@ -9738,16 +9142,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0316",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447854",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9782,16 +9182,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0321",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447859",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -9846,16 +9242,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0328",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447866",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -10006,16 +9398,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0346",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447884",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -10078,16 +9466,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0354",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447892",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10202,16 +9586,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0368",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447906",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -10222,16 +9602,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0370",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447908",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10258,16 +9634,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0374",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447912",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -10286,16 +9658,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0377",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447915",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10338,16 +9706,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0382",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447920",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10374,16 +9738,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0386",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447924",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10430,16 +9790,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447929",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10518,16 +9874,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0400",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447938",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10622,16 +9974,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0411",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447949",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10670,16 +10018,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447954",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10806,16 +10150,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0431",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447969",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10838,16 +10178,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0434",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447972",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -11022,16 +10358,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0453",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447991",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "deferred": {
@@ -11062,16 +10394,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0457",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447995",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11142,16 +10470,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0465",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448003",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11178,16 +10502,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0469",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448007",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11226,16 +10546,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0474",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448012",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11266,16 +10582,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0478",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448016",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11306,16 +10618,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0482",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448020",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11398,28 +10706,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0492",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448030",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0493",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448031",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11430,28 +10730,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0495",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448033",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0496",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448034",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -11474,16 +10766,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0499",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448037",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11522,16 +10810,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0504",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448042",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11558,16 +10842,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0508",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448046",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11630,16 +10910,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0516",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448054",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11658,16 +10934,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0519",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448057",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -11782,28 +11054,20 @@
       "values_compared": 35
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0532",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448070",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0533",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448071",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11874,16 +11138,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0542",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448080",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -11926,28 +11186,20 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0547",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448085",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0548",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448086",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12034,16 +11286,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0559",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448097",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "deferred": {
@@ -12066,28 +11314,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0562",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448100",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0563",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448101",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12110,28 +11350,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0566",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448104",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0567",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448105",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12142,16 +11374,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0569",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448107",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -12270,16 +11498,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0583",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448121",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12310,16 +11534,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0587",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448125",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -12330,16 +11550,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0589",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448127",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -12354,16 +11570,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0591",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448129",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -12386,16 +11598,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::CalculateTightBoundingBox",
-        "unit": "curve.curve_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0594",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448132",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12451,12 +11659,11 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 376,
+  "cases_deferred": 178,
   "cases_failed": 0,
-  "cases_passed": 992,
+  "cases_passed": 1190,
   "cases_total": 1368,
   "deferred_by_unit": {
-    "curve.curve_p9": 198,
     "topology.edgeuse_p2": 178
   },
   "max_rel_err": 0.0,

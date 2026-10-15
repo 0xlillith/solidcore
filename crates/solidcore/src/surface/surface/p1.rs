@@ -77,7 +77,8 @@
 //!   `SmIsoCurve` over any surface (the ported iso curve holds a B-spline), the zone
 //!   tolerance of a surface with a face needs `SmFace::GetTolerance`
 //!   (`topology.face_p2`): those calls return [`SolidError::Unported`]. Every tree build
-//!   needs `SmSurface::CalculateContinuities` (`surface.surface_p6`).
+//!   needs `SmSurface::CalculateContinuities` (`surface.surface_p6`), whose iso curves
+//!   exist for the B-spline, plane and revolution kinds.
 //!   [`map_to_2d_on_curve`] ports only the UV-curve branch of `SmTol::MapTo2d(..,
 //!   SmCurve, SmSurface)`: the same-surface `SmCrvOnSurf` branch (`SmTol.cpp:1118-1123`)
 //!   is folded into the `UNPORTED(surface.surface_p5)` stub of the general 3D branch
@@ -908,6 +909,7 @@ impl Surface {
             (SurfaceKind::BSpline(a), SurfaceKind::BSpline(b)) => Ok(a.approx_eq(b)),
             // SmPlane::operator==: SmBSplineSurface::operator== first
             (SurfaceKind::Plane(a), SurfaceKind::Plane(b)) => Ok(a.approx_eq(b)),
+            (SurfaceKind::SrfInVolume(a), SurfaceKind::SrfInVolume(b)) => a.approx_eq(b),
             _ => Ok(false),
         }
     }
@@ -1007,7 +1009,10 @@ impl Surface {
                     .map(<[Vec3]>::to_vec)
                     .collect())
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {
                 // pass the call along
                 self.evaluate(
                     uv,
@@ -1032,9 +1037,10 @@ impl Surface {
         match self.kind() {
             SurfaceKind::CurveBounded(s) => s.basis().evaluate_step_point(uv),
             SurfaceKind::SurfOfRevolution(s) => s.evaluate_step_point_at(uv),
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
-                self.evaluate_point(uv)
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => self.evaluate_point(uv),
         }
     }
 
@@ -1077,6 +1083,14 @@ impl Surface {
                 s.basis()
                     .evaluate_simple(uv, highest_u_deriv, highest_v_deriv, flags)
             }
+            SurfaceKind::SrfInVolume(s) => s.evaluate_simple(
+                uv,
+                highest_u_deriv,
+                highest_v_deriv,
+                flags.u_side,
+                flags.v_side,
+                flags.only_upper_half,
+            ),
             SurfaceKind::Step(_) => {
                 // pass the call along
                 self.evaluate(
@@ -1359,7 +1373,7 @@ impl Surface {
                     polar_box: r.polar,
                 })
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 self.base_calculate_bounding_box(k, want, expand_pos_boxes_by_zone_tol_3d)
             }
         }
@@ -1616,7 +1630,7 @@ impl Surface {
             // inherited from SmBSplineSurface
             SurfaceKind::SurfOfRevolution(s) => s.base().is_degenerate_point(tol_3d, uv_domain),
             SurfaceKind::Plane(p) => p.base_for_query().is_degenerate_point(tol_3d, uv_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 base_is_degenerate_point(self, tol_3d, uv_domain)
             }
         }
@@ -1646,7 +1660,7 @@ impl Surface {
                 p.base_for_query()
                     .is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol)
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 base_is_degenerate_curve(self, angle_tol_deg, uv_domain, opt_3d_tol)
             }
         }
@@ -2249,7 +2263,7 @@ pub fn crossed_seam_or_pole(
                 return false;
             }
         }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
     }
 
     // Just look for a big jump.
@@ -2678,6 +2692,8 @@ impl<'t, 's, O: SolutionObject> LsiGlobalSolver<'t, 's, O> {
             line_interval,
             ray_fire,
             distance_tolerance,
+            surface_cache: None,
+            kernel: None,
         }
     }
 }

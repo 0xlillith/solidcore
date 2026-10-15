@@ -20,7 +20,7 @@
 // `C X Y d0 d1 r io`), as unit intersect.topology_solver_p1.
 //
 // The graph walk and export (Graph, walk, export_graph and their helpers) are copies of
-// the harness code of harness/cpp/shim/topology_edgeuse_p1.cpp, so the export has that
+// the harness code of harness/cpp/shim/sc_edgeuse_graph.h, so the export has that
 // unit's layout and traversal order (the Rust side imports it with that unit's
 // importer), except that an edge curve which is not an SmBSplineCurve is exported as
 // none and the curve type of every edge follows the graph. Version 3 shell state
