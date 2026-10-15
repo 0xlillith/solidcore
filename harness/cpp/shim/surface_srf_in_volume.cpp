@@ -15,6 +15,7 @@
 #include <SmBendVolume.h>
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
+#include <SmDatabaseIO.h>
 #include <SmExtent1d.h>
 #include <SmExtent2d.h>
 #include <SmNurbsSrf.h>
@@ -31,6 +32,8 @@
 #include <nurbs.h>
 
 #include <algorithm>
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace
@@ -58,6 +61,8 @@ enum : int32_t
     OP_SET_VOLUME = 17,
     OP_MIRROR = 18,
     OP_EXACT = 19,
+    OP_READ_DB = 40,  // static: SmSrfInVolume::ReadFromDB
+    OP_WRITE_DB = 41, // generator helper: WriteToDB of the object
 };
 
 enum : int64_t
@@ -474,6 +479,22 @@ void siv_op(int32_t op, Rd& rd, const SmContext& ctx, Built& bb, std::vector<dou
         double tol = rd.num();
         SmPoint2d uv;
         SmLocationType loc = SM_LT_EXTERIOR;
+        {
+            // upstream UB (plan/upstream-issues.md): STEPInversion reads sParamPoints[0] of the
+            // volume's inverse even when it succeeded with no points (a null dereference).
+            // Probe the same volume call and report SM_ERR, as the Rust port does.
+            SmBoolean ok = FALSE;
+            SmTArray<SmPoint3d> pts;
+            SmTArray<double> gaps;
+            SmStatus vs = c->GetInParamSpace()
+                              ? c->GetVolume()->InvEvaluatePoint(p, NULL, ok, pts, gaps)
+                              : c->GetVolume()->InvMapPoint(p, NULL, ok, pts, gaps);
+            if (vs == SM_SUCCESS && ok == TRUE && pts.GetSize() == 0)
+            {
+                o.push_back(st(SM_ERR));
+                break;
+            }
+        }
         SmStatus s = c->STEPInversion(dom, p, tol, uv, loc, NULL);
         o.push_back(st(s));
         if (s == SM_SUCCESS)
@@ -637,6 +658,50 @@ void siv_op(int32_t op, Rd& rd, const SmContext& ctx, Built& bb, std::vector<dou
         o.push_back(st(s));
         break;
     }
+    case OP_WRITE_DB:
+    {
+        // generator helper: the bytes upstream WriteToDB produces (ASCII with 17 digits)
+        ULONG version = (ULONG)rd.idx();
+        std::ostringstream oss;
+        oss.precision(17);
+        SmDatabaseIOStream db(SM_ASCII, &oss);
+        SmStatus s = c->WriteToDB(db, version);
+        o.push_back(st(s));
+        std::string bytes = oss.str();
+        for (char ch : bytes)
+            o.push_back((double)(unsigned char)ch);
+        break;
+    }
+    default: o.push_back((double)SC_ERR_ARG); break;
+    }
+}
+
+void static_op(int32_t op, Rd& rd, const SmContext& ctx, std::vector<double>& o)
+{
+    switch (op)
+    {
+    case OP_READ_DB:
+    {
+        ULONG version = (ULONG)rd.idx();
+        int64_t nb = rd.idx();
+        std::string bytes;
+        for (int64_t i = 0; i < nb; i++)
+            bytes.push_back((char)(unsigned char)rd.idx());
+        std::istringstream iss(bytes);
+        SmDatabaseIOStream db(SM_ASCII, &iss);
+        SmSurface* c = NULL;
+        SmStatus s = SmSrfInVolume::ReadFromDB(SmSrfInVolume_TYPE, db, ctx, c, version);
+        o.push_back(st(s));
+        if (s == SM_SUCCESS && c != NULL)
+        {
+            o.push_back(1.0);
+            put_state(o, (SmSrfInVolume*)c);
+            delete c;
+        }
+        else
+            o.push_back(0.0);
+        break;
+    }
     default: o.push_back((double)SC_ERR_ARG); break;
     }
 }
@@ -651,6 +716,11 @@ SC_EXPORT int32_t sc_surface_srf_in_volume_eval(int32_t op, const double* in, in
     SmContext ctx;
     Rd rd{in, 0};
     std::vector<double> o;
+    if (op >= OP_READ_DB && op != OP_WRITE_DB)
+    {
+        static_op(op, rd, ctx, o);
+        return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
+    }
     Built b = read_siv(rd, ctx);
     siv_op(op, rd, ctx, b, o);
     free_siv(b);

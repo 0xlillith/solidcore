@@ -34,9 +34,11 @@
 //!
 //! Deviations:
 //! - **Volumes.** The volume is a [`Volume`] (unit `surface.volume_p1`).
-//!   `SmVolume::InvEvaluatePoint`, `InvMapPoint`, `Mirror`,
-//!   `MakeExactBSplineOutSurfaceFrom{Param,In}Space` and `ReadFromDB` (unit
-//!   `surface.volume_p2`) return [`SolidError::Unported`].
+//!   `InvEvaluatePoint`, `InvMapPoint` and `ReadFromDB` are wired to
+//!   `surface.volume_p2`. `SmVolume::Mirror` and
+//!   `MakeExactBSplineOutSurfaceFrom{Param,In}Space` are in no unit in `units.json`
+//!   (not `surface.volume_p2`), so they stay [`SolidError::Unported`], tagged with this
+//!   unit as a dispatch gap.
 //! - **Ownership.** The base surface and the volume are held by value (the surface
 //!   boxed: it is itself a [`Surface`]). Upstream either shares them with the caller
 //!   or owns (and maybe copies) them, as the copy and owner flags say; here the copy
@@ -99,30 +101,12 @@ const MAX_DERIVS: usize = 3;
 
 // ---- back-edges ----------------------------------------------------------------------
 
-/// `SmVolume::InvEvaluatePoint`: the parameter-space points mapping to `point`.
-fn volume_inv_evaluate_point(_volume: &Volume, _point: Point3) -> Result<Vec<Point3>> {
-    // UNPORTED(surface.volume_p2): SmVolume::InvEvaluatePoint
-    Err(SolidError::unported(
-        "SmVolume::InvEvaluatePoint",
-        "surface.volume_p2",
-    ))
-}
-
-/// `SmVolume::InvMapPoint`: the in-space points mapping to `point`.
-fn volume_inv_map_point(_volume: &Volume, _point: Point3) -> Result<Vec<Point3>> {
-    // UNPORTED(surface.volume_p2): SmVolume::InvMapPoint
-    Err(SolidError::unported(
-        "SmVolume::InvMapPoint",
-        "surface.volume_p2",
-    ))
-}
-
 /// `SmVolume::Mirror`.
 fn volume_mirror(_volume: &mut Volume, _plane: &Axis2Placement) -> Result<()> {
-    // UNPORTED(surface.volume_p2): SmVolume::Mirror
+    // DISPATCH GAP: SmVolume::Mirror is in no unit in units.json
     Err(SolidError::unported(
         "SmVolume::Mirror",
-        "surface.volume_p2",
+        "surface.srf_in_volume",
     ))
 }
 
@@ -132,28 +116,15 @@ fn volume_make_exact_b_spline(
     _surface: &Surface,
     in_param_space: bool,
 ) -> Result<BSplineSurface> {
-    // UNPORTED(surface.volume_p2): SmVolume::MakeExactBSplineOutSurfaceFromParamSpace
-    // UNPORTED(surface.volume_p2): SmVolume::MakeExactBSplineOutSurfaceFromInSpace
+    // DISPATCH GAP: SmVolume::MakeExactBSplineOutSurfaceFrom{Param,In}Space are in no
+    // unit in units.json
     Err(SolidError::unported(
         if in_param_space {
             "SmVolume::MakeExactBSplineOutSurfaceFromParamSpace"
         } else {
             "SmVolume::MakeExactBSplineOutSurfaceFromInSpace"
         },
-        "surface.volume_p2",
-    ))
-}
-
-/// `SmVolume::ReadFromDB` of a volume of type `volume_type`.
-fn volume_read_from_db(
-    _volume_type: i64,
-    _db: &mut DatabaseReader,
-    _version: u64,
-) -> Result<Volume> {
-    // UNPORTED(surface.volume_p2): SmVolume::ReadFromDB
-    Err(SolidError::unported(
-        "SmVolume::ReadFromDB",
-        "surface.volume_p2",
+        "surface.srf_in_volume",
     ))
 }
 
@@ -507,7 +478,7 @@ impl SrfInVolume {
     /// # Errors
     ///
     /// [`SolidError::Unported`]: the volume's `MakeExactBSplineOutSurfaceFrom*Space`
-    /// (`surface.volume_p2`).
+    /// (in no unit: a dispatch gap).
     pub fn make_exact_b_spline_if_possible(&self) -> Result<BSplineSurface> {
         // Ask Volume to make exact BSpline if Possible - handles compounding
         volume_make_exact_b_spline(&self.volume, &self.surface, self.in_param_space)
@@ -519,7 +490,7 @@ impl SrfInVolume {
     /// # Errors
     ///
     /// Those of the copy; [`SolidError::Unported`]: `SmVolume::Mirror`
-    /// (`surface.volume_p2`).
+    /// (in no unit: a dispatch gap).
     pub fn create_mirror_surface(&self, mirror_plane: &Axis2Placement) -> Result<Self> {
         // copy this surface
         let mut new_surface = self.copy()?;
@@ -853,9 +824,9 @@ impl SrfInVolume {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` when the volume finds no inverse; [`SolidError::Unported`]:
-    /// `SmVolume::InvEvaluatePoint` / `InvMapPoint` (`surface.volume_p2`); those of
-    /// the base surface's inversion.
+    /// `SM_ERR` when the volume finds no inverse; the volume inversions' failures
+    /// ([`Volume::inv_evaluate_point`], [`Volume::inv_map_point`]); those of the base
+    /// surface's inversion.
     pub fn step_inversion(
         &self,
         k: &Kernel,
@@ -864,12 +835,18 @@ impl SrfInVolume {
         distance_tolerance: f64,
     ) -> Result<(Point2, LocationType)> {
         // map the point back through the volume
-        let param_points = if self.in_param_space {
-            volume_inv_evaluate_point(&self.volume, point_on_surf)?
+        let inv = if self.in_param_space {
+            self.volume
+                .inv_evaluate_point(k, point_on_surf, None, None, true)?
         } else {
-            volume_inv_map_point(&self.volume, point_on_surf)?
+            self.volume
+                .inv_map_point(k, point_on_surf, None, None, true)?
         };
-        let first = param_points
+        if !inv.success {
+            return Err(SolidError::sm_err(OP_STEP));
+        }
+        let first = inv
+            .points
             .first()
             .copied()
             .ok_or_else(|| SolidError::sm_err(OP_STEP))?;
@@ -968,8 +945,8 @@ impl SrfInVolume {
     ///
     /// # Errors
     ///
-    /// Those of the base surface's reader; [`SolidError::Unported`]:
-    /// `SmVolume::ReadFromDB` (`surface.volume_p2`); [`SolidError::InvalidInput`] for
+    /// Those of the base surface's reader and of [`Volume::read_from_db`];
+    /// [`SolidError::InvalidInput`] for
     /// a header whose extraction was skipped or objects nested too deeply.
     pub fn read_from_db(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Self> {
         let ascii = db.file_type() == FileType::Ascii;
@@ -1005,7 +982,7 @@ impl SrfInVolume {
             .read_type(false)?
             .type_code
             .ok_or_else(|| SolidError::invalid_input(OP_READ, "volume type not read"))?;
-        let volume = volume_read_from_db(volume_type, db, version)?;
+        let volume = Volume::read_from_db(volume_type, db, version)?;
 
         // load the object
         Ok(Self {

@@ -13,14 +13,17 @@
 //! `SM_SUCCESS`, else the `SmStatus`; `1007` for a Rust `InvalidInput`, `-1` for a Rust
 //! error upstream cannot produce) and the rest as `out`.
 //!
-//! Deferred cases: what reaches the unported volume functions (`InvEvaluatePoint`,
-//! `InvMapPoint`, `Mirror`, `MakeExactBSplineOutSurfaceFrom*Space`, `ReadFromDB`:
-//! `surface.volume_p2`) and the plane's `Transform` / `TrimWithDomain`
-//! (`surface.plane_p2`). Volumes are chains of transform, plain, default and component
+//! Deferred cases: `Mirror` and `MakeExactBSplineOutSurfaceFrom*Space` (in no unit in
+//! `units.json`: dispatch gaps), the plane's `Transform` / `TrimWithDomain`
+//! (`surface.plane_p2`) and the base surface's `STEPInversion`, which runs
+//! `SmSurface::GlobalPointSolve` (`surface.surface_p4`) once the volume inversion has
+//! succeeded. Volumes are chains of transform, plain, default and component
 //! twist / unbend / bend maps (the component constructors take a real axis, mid
 //! direction, period or neutral distance and tolerance). B-spline volumes are not
 //! built: they evaluate to `SM_ERR` on both sides (no `USE_VOLUMES` in the reference
-//! build). Hand-built inline cases cover `Evaluate` of orders (0, 0) with
+//! build). `STEPInversion` and `ReadFromDB` run through `surface.volume_p2`; a
+//! `ReadFromDB` case reads the text upstream's `WriteToDB` wrote for a generated object
+//! (no plain volume). Hand-built inline cases cover `Evaluate` of orders (0, 0) with
 //! `bOnlyUpperHalf == FALSE` and `Transform` on chains whose last map is not a
 //! transform. Every run has at least
 //! [`MIN_GENERATED`] generated cases; generated inputs the ffi wrapper rejects are
@@ -46,6 +49,7 @@ use solidcore::surface::surface::p2::{Surface, SurfaceKind};
 use solidcore::surface::twist_volume::TwistVolume;
 use solidcore::surface::unbend_volume::UnbendVolume;
 use solidcore::surface::volume::{Volume, VolumeKind};
+use solidcore::topology::database_io::{DatabaseReader, FileType, InputStream};
 use solidcore::SolidError;
 use solidcore_ffi::units::surface_srf_in_volume::{self as ffi, Op};
 
@@ -201,6 +205,12 @@ enum OpIn {
         y: [f64; 3],
     },
     Exact,
+    /// `SmSrfInVolume::ReadFromDB` of the text upstream's `WriteToDB` wrote for `siv`
+    /// (the object is only the text's source: neither side builds it).
+    ReadDb {
+        version: u64,
+        bytes: Vec<u8>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -289,12 +299,18 @@ fn op_of(op: &OpIn) -> Op {
         OpIn::SetVolume { .. } => Op::SetVolume,
         OpIn::Mirror { .. } => Op::Mirror,
         OpIn::Exact => Op::Exact,
+        OpIn::ReadDb { .. } => Op::ReadDb,
     }
 }
 
 fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
     let op = op_of(&i.op);
     let mut v = Vec::new();
+    if let OpIn::ReadDb { version, bytes } = &i.op {
+        v.extend([*version as f64, bytes.len() as f64]);
+        v.extend(bytes.iter().map(|&x| f64::from(x)));
+        return Ok((op, v));
+    }
     siv_block(&mut v, &i.siv)?;
     match &i.op {
         OpIn::Info { uv, types } => {
@@ -340,7 +356,7 @@ fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
             v.push(*tol);
         }
         OpIn::Reverse { v_dir } => v.push(b(*v_dir)),
-        OpIn::SwapUv | OpIn::Copy | OpIn::MakeOwner | OpIn::Exact => {}
+        OpIn::SwapUv | OpIn::Copy | OpIn::MakeOwner | OpIn::Exact | OpIn::ReadDb { .. } => {}
         OpIn::Trim { dom } => v.extend_from_slice(dom),
         OpIn::Transform {
             origin,
@@ -653,6 +669,23 @@ fn put_derivs(o: &mut Vec<f64>, d: &[Vec<Vec3>], hu: usize, hv: usize, upper: bo
 fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     let mut o: Vec<f64> = Vec::new();
     let k = Kernel::default();
+    if let OpIn::ReadDb { version, bytes } = &i.op {
+        let mut db = DatabaseReader::with_stream(FileType::Ascii, InputStream::new(bytes.clone()));
+        match SrfInVolume::read_from_db(&k, &mut db, *version) {
+            Ok(c) => {
+                o.extend([0.0, 1.0]);
+                put_state(&mut o, &c);
+            }
+            Err(e) => {
+                if let Some(d) = Output::unported(&e) {
+                    return Ok(d);
+                }
+                // status, not made
+                o.extend([status(&e), 0.0]);
+            }
+        }
+        return Ok(to_output(&o));
+    }
     let mut s = Surface::from(build(&i.siv)?);
     match &i.op {
         OpIn::Info { uv, types } => {
@@ -826,6 +859,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             tri!(o, siv_of(&s)?.make_exact_b_spline_if_possible());
             o.push(0.0);
         }
+        OpIn::ReadDb { .. } => return Err(harness("static op")),
     }
     Ok(to_output(&o))
 }
@@ -1007,7 +1041,32 @@ fn gen_placement(rng: &mut Rng) -> ([f64; 3], [f64; 3], [f64; 3]) {
     }
 }
 
+/// A database record upstream's `WriteToDB` wrote for a random object (no plain volume:
+/// reading one fills a null volume).
+fn gen_read_db(rng: &mut Rng) -> Option<Inputs> {
+    let (siv, _) = gen_siv(rng);
+    let version = *rng.choose(&[30u64, 33, 40])?;
+    let mut v = Vec::new();
+    siv_block(&mut v, &siv).ok()?;
+    v.push(version as f64);
+    let out = ffi::eval(Op::WriteDb, &v).ok()?;
+    let (&status, bytes) = out.split_first()?;
+    if status != 0.0 {
+        return None;
+    }
+    let bytes: Vec<u8> = bytes.iter().map(|&x| x as u8).collect();
+    Some(Inputs {
+        siv,
+        op: OpIn::ReadDb { version, bytes },
+    })
+}
+
 fn gen_case(rng: &mut Rng) -> Inputs {
+    if rng.chance(0.04) {
+        if let Some(i) = gen_read_db(rng) {
+            return i;
+        }
+    }
     let (siv, dom) = gen_siv(rng);
     let uv = gen_uv(rng, dom);
     let op = match rng.below(100) {
