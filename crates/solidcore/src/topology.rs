@@ -501,6 +501,8 @@ pub struct Brep {
     vertexuses: Arena<VertexuseId, Vertexuse>,
     /// `m_bValidateOnly`.
     validate_only: bool,
+    /// `m_sThisZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the B-rep's tolerance.
+    tolerance: f64,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
 }
@@ -519,6 +521,7 @@ impl Default for Brep {
             edgeuses: Arena::default(),
             vertexuses: Arena::default(),
             validate_only: false,
+            tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
         }
     }
@@ -747,6 +750,20 @@ impl Brep {
     /// Sets `m_bValidateOnly`.
     pub fn set_validate_only(&mut self, validate_only: bool) {
         self.validate_only = validate_only;
+    }
+
+    /// `SmBrep::GetTolerance` (`SM_USE_OLDTOL`, CO-PORTED by `topology.edgeuse_p2`):
+    /// `m_sThisZoneTol3d`, [`ZONE_TOL_3D`] for a new B-rep (`SmTol::GetZoneTol3d` of
+    /// the default context, as `SmBrep()`).
+    #[must_use]
+    pub const fn tolerance(&self) -> f64 {
+        self.tolerance
+    }
+
+    /// Sets `m_sThisZoneTol3d` (the raw member write; `SmBrep::SetTolerance`, which
+    /// also updates the entities, is unit `topology.brep_*`).
+    pub fn set_tolerance(&mut self, tolerance: f64) {
+        self.tolerance = tolerance;
     }
 
     /// The identity the B-rep is attributed and notified under (an `SmBrep*`).
