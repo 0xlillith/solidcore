@@ -2184,7 +2184,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "180 fns; largest: sm_AreOverlapping, SmProtoTopologyManager::CanCombineEdgeDefinitions, SmProtoTopologyManager::RemoveCoincidentNoEdgeProtoVertex, sm_TransformIndependentObject; entry points: SmApiRotate, SmApiScale, SmApiScaleByPt, SmApiTransform, SmApiTranslate; cycle back-edges (call into later units; stub or co-port): query.poly(9), topology.edge(7), query.face_p2(4), blend.fillet_geom_p1(3), topology.edgeuse_p1(3), topology.vertex(3), topology.shell(2), boolean.topology_intersector_p1(1), topology.brep_p1(1), topology.brep_p2(1), topology.brep_p3(1), topology.brep_p4(1), topology.brep_p5(1), topology.face_p4(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmOwningTopology::IsKindOf -> topology::edgeuse::p1::owning_topology_is_kind_of"
+notes = "180 fns; largest: sm_AreOverlapping, SmProtoTopologyManager::CanCombineEdgeDefinitions, SmProtoTopologyManager::RemoveCoincidentNoEdgeProtoVertex, sm_TransformIndependentObject; entry points: SmApiRotate, SmApiScale, SmApiScaleByPt, SmApiTransform, SmApiTranslate; cycle back-edges (call into later units; stub or co-port): query.poly(9), topology.edge(7), query.face_p2(4), blend.fillet_geom_p1(3), topology.edgeuse_p1(3), topology.vertex(3), topology.shell(2), boolean.topology_intersector_p1(1), topology.brep_p1(1), topology.brep_p2(1), topology.brep_p3(1), topology.brep_p4(1), topology.brep_p5(1), topology.face_p4(1), topology.vertexuse(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmOwningTopology::IsKindOf -> topology::edgeuse::p1::owning_topology_is_kind_of; CO-PORTED in query.poly (PR #73): SmOwningTopology::IsKindOf -> query::poly::owning_topology_is_kind_of (private); SmOwningTopology PostInsert/Remove/GetAll list semantics are re-implemented for poly lists inside query::poly::PolyBrep (Vec / intrusive edge links), not a general port."
 
 [[unit]]
 id = "intersect.adv_surface_intersector"
@@ -2713,10 +2713,10 @@ soft_depends_on = ["geom.extent2d", "geom.geom_utility_p1", "geom.geom_utility_p
 est_lines = 2119
 layer = 44
 tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "127 fns; largest: SmPolyLoop::ContainsPoint, SmPolyFace::GetNormal, SmPolyEdge::IsDegenerate, SmPolyBrep::Transform; unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 671 cases (12 upstream-derived fixtures from TestSmGeneral.cpp transform tests + 59 adversarial fixtures + 600 generated: build/dump, bbox, GetNormal, ComputeSphereBound, ContainsPoint/PointInPolygon, IsDegenerate, Transform, setters/destructors, IsKindOf), 669 bit-identical, 0 failed, 2 deferred (topology.face_p2: SmFace::GetSurface in IsDegenerate with valid back pointers); perturbation 669/669 detected. Nested composite poly faces are rejected (InvalidInput) to bound composite recursion. SetOriginalFace with propagate_attribs stubs SmFace::Notify as UNPORTED(topology.face_p3). sm_IsUniformPositiveScale / sm_ReportInvalidTransformInput (anonymous namespace) unit-tested only. Wired solution_array poly_vertex_point (handle trait) and retagged trim_srf_cache poly-edge stub to topology.face_p2. 127 fns; largest: SmPolyLoop::ContainsPoint, SmPolyFace::GetNormal, SmPolyEdge::IsDegenerate, SmPolyBrep::Transform; unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit"
 
 [[unit]]
 id = "topology.brep_p7"
