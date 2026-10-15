@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**166 / 261 units ported** (92 green, 74 partial), **223,202 / 387,903 upstream lines (57.5%)**. 20 claimed, 0 blocked, 75 todo.
+**166 / 261 units ported** (92 green, 74 partial), **223,202 / 387,903 upstream lines (57.5%)**. 21 claimed, 0 blocked, 74 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -36,7 +36,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edgeuse_p3`, `topology.loopuse`, `topology.shell`
 - [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edgeuse_p3`, `topology.face_p3`, `topology.loopuse`, `topology.shell` +1 more
 - [ ] `heal.face_props` (1410 lines) — missing: `topology.loopuse`
-- [ ] `topology.brep_cache` (389 lines) — missing: `topology.brep_p1`
 - [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.loopuse`, `topology.shell`
 - [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.face_p3`, `topology.loopuse` +1 more
 - [ ] `topology.brep_p2` (2443 lines) — missing: `surface.offset_surface`, `topology.brep_cache`, `topology.brep_p1`, `topology.face_p3` +1 more
@@ -108,6 +107,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `topology.topology_traverser` (784 lines) — in progress: #113 @damgru (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (draft)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
@@ -294,7 +294,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.face_p1` (2171 lines) — waiting
 - [ ] ⏳ `topology.brep_p1` (2454 lines) — waiting
 - [ ] ⏳ `topology.brep_p6` (1479 lines) — waiting
-- [ ] ⏳ `topology.brep_cache` (389 lines) — waiting
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (draft)
 - [ ] ⏳ `topology.brep_p4` (2113 lines) — waiting
 - [ ] ⏳ `topology.brep_p9` (2443 lines) — waiting
 - [ ] ⏳ `topology.brep_p2` (2443 lines) — waiting
