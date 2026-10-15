@@ -2,13 +2,12 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**159 / 261 units ported** (91 green, 68 partial), **210,620 / 387,903 upstream lines (54.3%)**. 16 claimed, 0 blocked, 86 todo.
+**159 / 261 units ported** (91 green, 68 partial), **210,620 / 387,903 upstream lines (54.3%)**. 17 claimed, 0 blocked, 85 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `topology.loopuse` (892 lines) — ready
 - [ ] ▶️ `topology.edge` (2213 lines) — ready
 
 ## Claimable now, dependencies still missing
@@ -115,6 +114,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
+- [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
@@ -287,7 +287,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🟡 `topology.vertexuse` (1429 lines) — partial, 2686 cases
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
-- [ ] ▶️ `topology.loopuse` (892 lines) — ready
+- [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] ▶️ `topology.edge` (2213 lines) — ready
 - [ ] ⏳ `topology.edgeuse_p3` (2273 lines) — waiting
