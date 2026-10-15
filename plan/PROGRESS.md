@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**167 / 261 units ported** (92 green, 75 partial), **223,986 / 387,903 upstream lines (57.7%)**. 22 claimed, 0 blocked, 72 todo.
+**167 / 261 units ported** (92 green, 75 partial), **223,986 / 387,903 upstream lines (57.7%)**. 23 claimed, 0 blocked, 71 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -40,7 +40,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.face_p4`, `topology.shell`
 - [ ] `blend.fillet_geom_p1` (2113 lines) — missing: `surface.offset_surface`, `topology.brep_p1`, `topology.brep_p2`
 - [ ] `heal.heal_data_p2` (2160 lines) — missing: `heal.face_props`
-- [ ] `mass.integrator` (1031 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.face_p1`
 - [ ] `topology.brep_p3` (2503 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.brep_p4`, `topology.brep_p9` +3 more
 - [ ] `blend.fillet_solver_p1` (1861 lines) — missing: `blend.fillet_geom_p1`, `surface.offset_surface`
 - [ ] `blend.hcr` (1875 lines) — missing: `topology.brep_p1`
@@ -107,6 +106,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
+- [ ] 🔨 `mass.integrator` (1031 lines) — in progress: #119 @damgru (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (draft)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
@@ -353,7 +353,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ### mass (0/1)
 
-- [ ] ⏳ `mass.integrator` (1031 lines) — waiting
+- [ ] 🔨 `mass.integrator` (1031 lines) — in progress: #119 @damgru (draft)
 
 ### sweep (1/5)
 
