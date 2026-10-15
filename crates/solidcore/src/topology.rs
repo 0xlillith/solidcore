@@ -11,7 +11,7 @@
 //! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
 //! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Face`] / [`FaceId`]       | `SmFace` (unit `topology.face_p2`)                    |
-//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (minimal)                                 |
+//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (unit `topology.loopuse`)                 |
 //! | [`Loop`] / [`LoopId`]       | `SmLoop`                                              |
 //! | [`Edgeuse`] / [`EdgeuseId`] | `SmEdgeuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Edge`] / [`EdgeId`]       | `SmEdge`                                              |
@@ -40,6 +40,7 @@ pub mod brep_data;
 pub mod database_io;
 pub mod edgeuse;
 pub mod face;
+pub mod loopuse;
 pub mod proto_topology;
 pub mod shell;
 #[allow(clippy::module_inception)]
@@ -382,7 +383,7 @@ pub enum LoopuseStart {
     Vertexuse(Option<VertexuseId>),
 }
 
-/// One use of a loop (`SmLoopuse`, CO-PORTED minimal record).
+/// One use of a loop (`SmLoopuse`; `Default` is `SmLoopuse()`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Loopuse {
     /// `m_pListOwner` as an `SmFaceuse` (`GetFaceuse`).
@@ -393,6 +394,9 @@ pub struct Loopuse {
     pub mate: Option<LoopuseId>,
     /// `m_tLoopuseType` and `m_pEUorVU`.
     pub start: LoopuseStart,
+    /// `m_eOrientation` (unit `topology.loopuse`): [`OrientType::Same`] for an outer
+    /// loop use, [`OrientType::Opposite`] for an inner one.
+    pub orientation: OrientType,
 }
 
 /// What an edge use connects to (`m_tEdgeuseType` and `m_pSorLU`).

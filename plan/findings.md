@@ -4468,3 +4468,103 @@ shell traversal; PR #88's cache-reset scans keep their existing behavior.
   degenerate-interval exit only on the V boundary, the unexpanded pseudo box passed to
   `SimpleCoincidenceChecker`, `IsDegenerate` defaulting to `SM_EFF_ZERO`). Re-run this
   unit's difftest when surface.surface_p6 lands.
+
+
+## topology.loopuse (`SmLoop` / `SmLoopuse`, 2026-10-15; partial, no disagreements)
+
+- **Harness.** The runner reuses unit `topology.edgeuse_p1`'s B-reps (15 upstream `.smb`
+  files with and without `RebuildUVTrimCurves`, the `my_test_topology` wire network, wire
+  edges, plane and B-spline faces incl. the tiny/huge/pinched/sub-domain faces of
+  `topology.edgeuse_p2`'s fixtures) and its export/import. The shared export
+  (`sc_edgeuse_graph.h`, and the copies in the `topology.vertexuse`, `topology.face_p2`
+  and `query.edge` shims) now carries each loop use's `m_eOrientation` (new field
+  `topology::Loopuse::orientation`). The edgeuse export still lacks each face's `m_pFU`;
+  the loopuse shim has a `FaceFu` op and the runner patches it into the import.
+- **Mutating ops** (`FlipLoopOrientation`, `CollectEdgeuses`, `SetEdgeuse`, `SetLoop`)
+  leave graphs `~SmBrep` cannot free (a loop use pointing at another loop is freed
+  twice): the shim snapshots the loop/edge/vertex use links and restores them before
+  deleting the B-rep, after recording the state it compares.
+- **Deferred.** `FlipLoopOrientation` of any loop on a face (`SmFace::Notify`,
+  `topology.face_p3`; every loop of the test B-reps is on a face, so the flip itself is
+  only checked by unit tests), `IsConnectedTo` with vertex/edge targets
+  (`topology.vertex`, `topology.edge`), `GetUVCornerBoundaries` of an edge loop
+  (`GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`), `IsMissingSeamAtVertices` on closed
+  surfaces (sector computation) and the inexact-geometry cases (as `topology.edgeuse_p2`).
+- **Upstream bug.** `IsClosed3d` never reports a loop open (WR-91); ported as is.
+- **Not wired**, still `UNPORTED(topology.loopuse)`: `intersect::point_class`
+  (`SmLoop::IsConnectedTo`, `SmLoopuse::IsConnectedTo`) and `surface::trim_srf_cache`
+  (`GetEdgeuses`, `GetVertexuses`). Those callers hold opaque object handles without a
+  `Brep` (as for `topology.edgeuse_p1` / `topology.vertexuse`). Wired: the co-ports of
+  `topology.edgeuse_p1` (`loopuse_edgeuses`, `loopuse_shell`), `topology.face_p2`
+  (`loopuse_vertexuses`), `query.loop` (`calc_quad_num`) and the
+  `SmLoopuse::GetOrientation` stub of `topology.vertexuse` now call this unit.
+
+## heal.gap (`SmGap`, `SmGapArray`, `SmGapSample`, `SmGapFunction`, 2026-10-15; partial, no disagreements)
+
+- **What is compared.** Gap functions (curve or surface to point, curve or surface)
+  over real `SmBSplineCurve`, `SmHermiteCurve`, `SmLine`, `SmEllipse`, `SmCircle`,
+  `SmCrvOnSurf` curves and `SmBSplineSurface`, `SmPlane`, `SmCurveBoundedSurface`
+  surfaces: status, adjusted sample counts, sample state, extreme indices, all-normal
+  flag, other-parameter ranges and every sample (drop type, both positions, tolerance
+  point, parameters, tolerance, in-tolerance flag), through `GetMaxGapSample` and
+  `GetSampleSet`, with and without stopping at the first big gap, after `SetSampleCnt` /
+  `SetXSectTol3d`; single `Evaluate` calls with and without drop guesses;
+  `sm_AddUniqueGetOrderedIndex`; `SmGapSample::SetCanonical`; `SmGapArray`; and the six
+  gap records set on real B-reps (constructor = `Set`, every accessor,
+  `GetGapEndPoints`, `CacheGap`). All bit-identical (max_rel_err 0).
+- **Topology cases** build the B-rep exactly as the `topology.vertexuse` shim (the code is
+  copied into `harness/cpp/shim/heal_gap.cpp`), and the Rust side imports the same
+  export with that runner's importer (made `pub(crate)`). The importer rebuilds every
+  face surface as a plain B-spline of its NURB (an `SmPlane` as a plane, since the
+  topology.face_p2 merge) and every edge curve as a B-spline (or `SmLine`), so the shim
+  replaces the other analytic face surfaces and non-line edge curves of the C++ B-rep by
+  plain B-spline copies of their NURBs before the op (the originals are leaked). Without that, gaps between nearly coincident points disagreed at ULP level
+  (e.g. `0` vs `8.9e-16` on `disk.smb`): the analytic and NURB evaluations differ in the
+  last bits, which a distance of near-coincident points amplifies. Parameters are given
+  as fractions of the selected edge's interval / the face surface's domain, resolved on
+  the imported graph by both sides.
+- **Deferred:** the surface drops of `SmCrvSrfGapFunction` / `SmSrfSrfGapFunction`
+  (`SmSurface::DropPoint`, `surface.surface_p5`), curve drops onto an `SmCrvOnSurf`
+  (`SmCurveClassification` construction, `intersect.curve_class_p4`), and trim-curve gaps
+  on edge uses without a UV trim curve (creating one in
+  `SmEdgeuse::GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`; the existing-curve branch
+  is read in place).
+- **Back-edges wired:** `SmVertexEdgeGap::Set` / `SmVertexFaceGap::Set` in
+  `topology::vertexuse` (`CalcVertexEdgeGap`, `CalcVertexFaceGap`) and
+  `SmEdgeEdgeGap::SetEdgeEdgeGap` / `SmCrvSrfGapFunction` in `topology::edgeuse::p1`
+  (`CalcEdgeCCWEdgeGap`, `CalcMaxEdgeFaceGap`, which now take the kernel). Their
+  runners compare only the cache states of those gaps, so the gap values are compared
+  here. `CalcMaxEdgeFaceGap` uses the context-less `SmTol::GetXSectTol3d(NULL)` (the
+  records carry no context); it is deferred anyway by the surface drop.
+- **Upstream bugs** ported as is: `plan/upstream-issues.md` WR-88 (non-B-spline `v`
+  samples spaced by array index), WR-89 (B-spline spans walked from the first knot),
+  WR-90 (`SmGapArray::Append` keeps the old longest gap), UB-104 (null dereferences and
+  zero counts; the port returns `InvalidInput`).
+- `SmBrep::ReadFromFile` crashes on `SmallBox.smb` (UB-1), so topology fixtures use the
+  `topology.vertexuse` file list.
+
+## query.face_p2 (`SmFace::PointClassify`, `CurveOnClassify`, `sm_ClassifyParamOnFaces`, `SmProtoVertex` containment, 2026-10-15; partial, no disagreements)
+
+- **Harness.** The shim builds the B-reps of unit `topology.face_p2` (upstream `.smb` files,
+  `CreateFaceFromSurface` over B-spline surfaces and real `SmPlane`s) and exports them in that
+  unit's layout; the runner imports them with that unit's importer. Edits overwrite stored
+  face/edge/vertex tolerances (tolerance-limit cases) and build missing UV trim curves
+  (`GetOrCreateUVTrimCurve`, which the port cannot do yet: unit `topology.edgeuse_p3`).
+- **Trimmed surface caches.** `SmBrep::ReadFromFile` (notably with `RebuildUVTrimCurves`)
+  leaves an `SmTrimSrfCache` on some face surfaces, and `PointClassify` then answers from its
+  leaf nodes first. B-rep surfaces have no object cache in the port (`SmCacheMgr` has no
+  counterpart), so the shim deletes the cache of every face it classifies against: both sides
+  classify through the vertices and loops. The cache branch is ported (the caller passes the
+  cache) but not compared; with the caches left in place, the 7 affected generated cases agreed
+  on the classification anyway.
+- **Inexact faces.** Faces of surfaces of revolution / extrusion, cones, spheres and tori (and
+  their edge curves) are exported as their B-spline parts only; such cases report
+  `inexact_geometry` on both sides and are excluded from the fixtures (`Mouse.smb` faces 0 and
+  1, `box_with_large_fillet.smb` face 6, and the single faces of `cone`, `sphere`,
+  `surf_extrude`, `surf_rev`, `surf_sphere150`, `torus`, `toruswvy`, `vase_rev`).
+- **`SM_ERR` returns** (a loop that cannot classify the point) do not occur on these B-reps;
+  the status is compared on every case.
+- **Not wired**, still `UNPORTED(query.face_p2)`: `surface::trim_srf_cache`,
+  `intersect::ray_tracer` and `intersect::topology_solver::p1` call `PointClassify` on opaque
+  face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
+  reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.

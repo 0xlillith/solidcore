@@ -424,7 +424,7 @@ pub struct FacePointClassifyOptions<'a> {
     pub uv_space_okay: bool,
 }
 
-impl<'a> FacePointClassifyOptions<'a> {
+impl FacePointClassifyOptions<'_> {
     /// Required source data with the upstream optional defaults.
     #[must_use]
     pub const fn new(source_zone_tolerance: f64, boundary_intersections: bool) -> Self {
