@@ -2715,6 +2715,8 @@ impl<'t, 's, O: SolutionObject> LsiGlobalSolver<'t, 's, O> {
             line_interval,
             ray_fire,
             distance_tolerance,
+            surface_cache: None,
+            kernel: None,
         }
     }
 }
