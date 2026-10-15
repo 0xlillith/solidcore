@@ -112,7 +112,7 @@ fn out_of_bounds_enabled(surface: &Surface) -> Option<bool> {
         SurfaceKind::BSpline(s) => Some(s.is_out_of_bounds_enabled()),
         SurfaceKind::Plane(s) => Some(s.is_out_of_bounds_enabled()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.is_out_of_bounds_enabled()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
     }
 }
 
@@ -125,7 +125,7 @@ fn set_out_of_bounds_enabled(surface: &mut Surface, enabled: bool) {
         SurfaceKind::BSpline(s) => *s.out_of_bounds_enabled_mut() = enabled,
         SurfaceKind::Plane(s) => s.set_out_of_bounds_enabled(enabled),
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = enabled,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
     }
 }
 

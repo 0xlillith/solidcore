@@ -205,7 +205,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ) -> Result<Vec<NodeId>> {
         // locals
         self.get_tree(k)?;
-        self.find_uv_nodes_built(uv_domain, check_for_poles)
+        self.find_uv_nodes_built(k, uv_domain, check_for_poles)
     }
 
     /// [`SurfaceCache::find_uv_nodes`] once `GetTree` has run: searches the stored
@@ -218,6 +218,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// [`SurfaceCache::find_uv_nodes`].
     pub fn find_uv_nodes_built(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         check_for_poles: bool,
     ) -> Result<Vec<NodeId>> {
