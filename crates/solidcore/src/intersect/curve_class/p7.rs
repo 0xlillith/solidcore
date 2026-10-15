@@ -964,7 +964,7 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     /// The resolved surface 1, if any.
-    fn surface1_geometry<'g>(
+    pub(super) fn surface1_geometry<'g>(
         &self,
         geometry: &'g impl ClassGeometry<O>,
     ) -> Result<Option<&'g Surface>> {
@@ -1551,7 +1551,7 @@ fn connected_any<O: ClassObject>(
 
 /// `SmTol::IsDegenerate(const SmCurve*, SmExtent1d, SmXSectTol3d*)` with the
 /// tolerance given: true for no curve.
-fn tol_is_degenerate_curve(
+pub(super) fn tol_is_degenerate_curve(
     curve: Option<&Curve>,
     interval: &Extent1d,
     xsect_tol_3d: f64,
