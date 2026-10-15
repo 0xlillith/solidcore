@@ -58,11 +58,11 @@
 //! - **Notify.** The vertex use part (clearing the cached gaps) is applied to the
 //!   record; the `SmTopology::Notify` step runs on the caller's topology records as
 //!   [`topo::notify`] does.
-//! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`),
-//!   `SmLoopuse::GetOrientation` (`topology.loopuse`), `SmSurface::LocalPointSolve` /
-//!   `IsSingularity` (`surface.surface_p5`), `GlobalPointSolve` / `IsOnSeam`
-//!   (`surface.surface_p4`; a plane's overrides are ported), `GetSingularities`
-//!   (`surface.surface_p3`) return [`SolidError::Unported`]. The gap evaluation of
+//! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`) and
+//!   `SmLoopuse::GetOrientation` (`topology.loopuse`) return [`SolidError::Unported`];
+//!   `SmSurface::LocalPointSolve` / `IsSingularity` (`surface.surface_p5`),
+//!   `GlobalPointSolve` / `IsOnSeam` (`surface.surface_p4`; a plane's overrides are
+//!   ported) and `GetSingularities` (`surface.surface_p3`) are wired. The gap evaluation of
 //!   `SmVertexEdgeGap::Set` / `SmVertexFaceGap::Set` is [`crate::heal::gap`].
 //!   `GlobalPointSolve` stands for the surface-cache sequence around it
 //!   (`smsurf_GetSurfaceCache`, the temporary `m_bHaveTSurfaceCache`,
@@ -780,7 +780,12 @@ fn global_point_solve(
 
 /// `pSurface->IsSingularity(uv, eDir, dTol3d)` (virtual: the plane override, the base
 /// body otherwise).
-fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, SurfParamType)> {
+fn is_singularity(
+    k: &Kernel,
+    surface: &Surface,
+    uv: Point2,
+    tol: f64,
+) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
@@ -788,7 +793,7 @@ fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, Surf
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            let r = surface.is_singularity(uv, tol, false)?;
+            let r = surface.is_singularity(k, uv, tol, false)?;
             Ok((r.singular, r.direction))
         }
     }
@@ -1302,7 +1307,7 @@ pub fn compute_uv_sector(
 
             // IsBegVertexUV on a Surface Singularity
             let (on_pole, singular_dir) =
-                is_singularity(surface, io.beg_edge_uv_point, APPROX_TOL_3D)?;
+                is_singularity(k, surface, io.beg_edge_uv_point, APPROX_TOL_3D)?;
             io.vertex_on_pole = on_pole;
             if on_pole {
                 // Find DegenParam for BegEdge and EndEdge (statuses ignored)
@@ -1517,7 +1522,7 @@ pub fn is_on_pole(k: &Kernel, b: &mut Brep, vu: VertexuseId) -> Result<bool> {
                 .ok_or_else(|| null("IsOnPole: no vertex/face gap"))?;
             let face_uv = gap.face_uv;
             if face_uv.is_initialized()
-                && is_singularity(face_surface(b, f)?, face_uv, crate::math::EFF_ZERO)?.0
+                && is_singularity(k, face_surface(b, f)?, face_uv, crate::math::EFF_ZERO)?.0
             {
                 on_pole = true;
             }
