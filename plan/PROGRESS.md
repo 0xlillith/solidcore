@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**160 / 261 units ported** (92 green, 68 partial), **212,770 / 387,903 upstream lines (54.9%)**. 16 claimed, 0 blocked, 85 todo.
+**160 / 261 units ported** (92 green, 68 partial), **212,770 / 387,903 upstream lines (54.9%)**. 17 claimed, 0 blocked, 84 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `topology.edge` (2213 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -115,6 +115,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
+- [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (draft)
 - [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 
@@ -288,7 +289,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] ▶️ `topology.edge` (2213 lines) — ready
+- [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (draft)
 - [ ] ⏳ `topology.edgeuse_p3` (2273 lines) — waiting
 - [ ] ⏳ `topology.trimming_tools` (2878 lines) — waiting
 - [ ] ⏳ `topology.face_p4` (1812 lines) — waiting
