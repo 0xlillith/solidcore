@@ -109,8 +109,9 @@
 //!   `SmSurface::EvaluateNormal` (`surface::surface::p7`); its zone tolerance expansion
 //!   reads `GetFace()`, and a bare B-spline has no owner (the owner is held by the
 //!   [`Surface`](crate::surface::surface::Surface) wrapper), so it uses
-//!   `SM_ZONE_TOL_3D`; `CreateOffsetSurface` passes the call to `SmSurface`, which needs
-//!   `SmOffsetSurface` (`surface.offset_surface`); `STEPInversion` calls
+//!   `SM_ZONE_TOL_3D`; `CreateOffsetSurface` passes the call to `SmSurface`, whose
+//!   `SmOffsetSurface` asks the copy for `GetSingularities` (`surface.surface_p3`);
+//!   `STEPInversion` calls
 //!   `SmSurface::LocalPointSolve` (`surface.surface_p5`) / `GlobalPointSolve`
 //!   (`surface.surface_p4`), `IsSingularity` and `IsClosed` (`surface.surface_p5`).
 //!   Those calls return [`SolidError::Unported`] until the units are ported.

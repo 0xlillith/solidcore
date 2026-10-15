@@ -21,7 +21,7 @@
 //! | `plain_or_simple` (private)                           | `EvaluatePlainOrSimple`                          |
 //! | `find_nonsingular_stepoff` (private)                  | `sm_FindNonsingularStepoff` (static)             |
 //! | [`OffsetSurface::natural_uv_domain`]                  | `GetNaturalUVDomain`                             |
-//! | [`OffsetSurface::reverse`], [`OffsetSurface::split_at`], [`OffsetSurface::step_inversion`], [`OffsetSurface::swap_uv`], [`OffsetSurface::transform`], [`OffsetSurface::trim_with_domain`] | `Reverse`, `SplitAt`, `STEPInversion`, `SwapUV`, `Transform`, `TrimWithDomain` |
+//! | [`OffsetSurface::reverse`], [`OffsetSurface::split_at`], [`OffsetSurface::step_inversion`] (and `_extending`), [`OffsetSurface::swap_uv`], [`OffsetSurface::transform`], [`OffsetSurface::trim_with_domain`] | `Reverse`, `SplitAt`, `STEPInversion`, `SwapUV`, `Transform`, `TrimWithDomain` |
 //! | [`OffsetSurface::create_offset_surface`]              | `CreateOffsetSurface`                            |
 //! | [`OffsetSurface::read_from_db`]                       | `ReadFromDB`                                     |
 //! | [`OffsetSurface::is_kind_of`], [`OffsetSurface::type_code`], [`OffsetSurface::type_string`], [`OffsetSurface::class_string`] | `IsKindOf`, `GetType`, `GetTypeString`, `GetClassString` (`SM_COMMON`) |
@@ -48,7 +48,8 @@
 //!   kernel for the base's `GetSingularities` (unit `surface.surface_p3`, stubbed until
 //!   it lands).
 //! - **Extension cache.** Upstream's `const` evaluators (`EvaluatePoint`, `Evaluate`,
-//!   `EvaluateSimple`, and `EvaluateNormal` through the base body) build an extended
+//!   `EvaluateSimple`, `EvaluateNormal` through the base body, and `STEPInversion` through
+//!   `EvaluatePoint`) build an extended
 //!   base surface when extension is allowed (only the fillet standard solver allows
 //!   it) and the point lies outside the domain, and store it in `m_pExtendedSurface`
 //!   through a `const` cast. The `&self` evaluators carry the extension through the
@@ -72,8 +73,10 @@
 //!   retries on the extended surface with the tolerance not widened by the offset.
 //! - **Recursion.** The pole step-off of `EvaluatePlainOrSimple` evaluates itself at
 //!   the step-off points; its depth is bounded by [`MAX_STEPOFF_DEPTH`] (upstream
-//!   fixtures reach depth 1). Nested offsets read from a database are bounded by the
-//!   reader's nesting limit.
+//!   fixtures reach depth 1). Construction and restoration bound nested surface
+//!   wrappers to [`MAX_SURFACE_NESTING`] (64, versus at most 3 in fixtures), including
+//!   STEP/bounded wrappers and extended bases, before any recursive geometry query.
+//!   Database dispatch also enforces the reader's nesting limit.
 //! - **Database.** `ReadFromDB` always makes a new surface (the fill-an-existing-object
 //!   mode is not used by `SmSurface::ReadFromDB`). An ASCII flag the stream cannot
 //!   extract (uninitialised upstream) reads as `0`.
@@ -271,7 +274,8 @@ impl OffsetSurface {
     ///
     /// # Errors
     ///
-    /// Those of [`Surface::is_periodic`]; [`SolidError::Unported`]:
+    /// `InvalidInput` above [`MAX_SURFACE_NESTING`] nested surface wrappers;
+    /// those of [`Surface::is_periodic`]; [`SolidError::Unported`]:
     /// `SmSurface::GetSingularities` (`surface.surface_p3`) for [`SS_UNKNOWN`].
     pub fn new(
         k: &Kernel,
@@ -280,7 +284,7 @@ impl OffsetSurface {
         owns_surface: bool,
         singularities: u32,
     ) -> Result<Self> {
-        let _ = OP_NEW;
+        check_surface_nesting(&surface, 1, OP_NEW)?;
         let (is_periodic_on_u, is_periodic_on_v, singularities) =
             if let SurfaceKind::OffsetSurface(off) = surface.kind() {
                 (
@@ -1376,8 +1380,10 @@ impl OffsetSurface {
     /// The parameter of `point_on_surf` in `anal_domain` and its location
     /// (`STEPInversion`): the base surface's inversion with the tolerance widened by the
     /// offset distance, retried on the extended surface (unwidened tolerance) when it
-    /// fails or finds the point exterior; a result whose offset point is farther than
-    /// `tol_3d` from `point_on_surf` fails.
+    /// fails or finds the point exterior; a result whose offset point (`EvaluatePoint`,
+    /// which may extend the base for this call only, see
+    /// [`OffsetSurface::step_inversion_extending`]) is farther than `tol_3d` from
+    /// `point_on_surf` fails.
     ///
     /// # Errors
     ///
@@ -1385,6 +1391,46 @@ impl OffsetSurface {
     /// [`OffsetSurface::evaluate_point`].
     pub fn step_inversion(
         &self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+        point_on_surf: Point3,
+        tol_3d: f64,
+        uv_guess: Option<Point2>,
+    ) -> Result<(Point2, LocationType)> {
+        let mut ext = Extension::new(self.extended_surface.as_deref());
+        self.step_inversion_with(&mut ext, k, anal_domain, point_on_surf, tol_3d, uv_guess)
+    }
+
+    /// [`OffsetSurface::step_inversion`], storing an extension its `EvaluatePoint` makes.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`OffsetSurface::step_inversion`].
+    pub fn step_inversion_extending(
+        &mut self,
+        k: &Kernel,
+        anal_domain: &Extent2d,
+        point_on_surf: Point3,
+        tol_3d: f64,
+        uv_guess: Option<Point2>,
+    ) -> Result<(Point2, LocationType)> {
+        let (r, made) = {
+            let mut ext = Extension::new(self.extended_surface.as_deref());
+            let r =
+                self.step_inversion_with(&mut ext, k, anal_domain, point_on_surf, tol_3d, uv_guess);
+            (r, ext.made)
+        };
+        if let Some(m) = made {
+            self.extended_surface = Some(m);
+        }
+        r
+    }
+
+    /// The body of [`OffsetSurface::step_inversion`] with the extension of the call.
+    fn step_inversion_with(
+        &self,
+        ext: &mut Extension<'_>,
+        k: &Kernel,
         anal_domain: &Extent2d,
         point_on_surf: Point3,
         tol_3d: f64,
@@ -1393,19 +1439,19 @@ impl OffsetSurface {
         let offset_tol = tol_3d + self.offset_distance.abs();
         let mut result =
             self.surface
-                .step_inversion(anal_domain, point_on_surf, offset_tol, uv_guess);
+                .step_inversion(k, anal_domain, point_on_surf, offset_tol, uv_guess);
         let retry = match &result {
             Ok((_, location)) => *location == LocationType::Exterior,
             Err(e) if e.is_unported() => return result,
             Err(_) => true,
         };
         if retry {
-            if let Some(e) = self.extended_surface.as_deref() {
-                result = e.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess);
+            if let Some(e) = ext.current() {
+                result = e.step_inversion(k, anal_domain, point_on_surf, tol_3d, uv_guess);
             }
         }
         let (uv, location) = result?;
-        let pt = self.evaluate_point(uv)?;
+        let pt = self.point_with(ext, uv)?;
         if pt.distance(point_on_surf) > tol_3d {
             return Err(SolidError::sm_err(OP_INV));
         }
@@ -1498,7 +1544,7 @@ impl OffsetSurface {
     ///
     /// `SM_ERR` when the base surface is not owned (after the other edits); those of
     /// the evaluations and of [`Surface::trim_with_domain`].
-    pub fn trim_with_domain(&mut self, trim_domain: &mut Extent2d) -> Result<()> {
+    pub fn trim_with_domain(&mut self, k: &Kernel, trim_domain: &mut Extent2d) -> Result<()> {
         let base_domain = self.surface.natural_uv_domain();
         let mut gets_bigger = false;
         if !base_domain.contains_point(trim_domain.min(), 0.0) {
@@ -1510,10 +1556,10 @@ impl OffsetSurface {
             gets_bigger = true;
         }
         if let Some(e) = self.extended_surface.as_deref_mut() {
-            e.trim_with_domain(trim_domain)?;
+            e.trim_with_domain(k, trim_domain)?;
         }
         if self.owns_surface && !gets_bigger {
-            self.surface.trim_with_domain(trim_domain)?;
+            self.surface.trim_with_domain(k, trim_domain)?;
         }
         if !self.owns_surface {
             return Err(SolidError::sm_err(OP_EDIT));
@@ -1539,6 +1585,37 @@ impl OffsetSurface {
         db.leave_nested();
         result
     }
+}
+
+/// Maximum wrapper depth accepted by offset construction and restoration.
+///
+/// Bounds recursive domain queries, edits, cloning and destruction on wasm32.
+pub const MAX_SURFACE_NESTING: usize = 64;
+
+/// Walk wrappers in base-before-extension order, checking before recursive descent.
+fn check_surface_nesting(surface: &Surface, depth: usize, op: &'static str) -> Result<()> {
+    if depth > MAX_SURFACE_NESTING {
+        return Err(SolidError::invalid_input(
+            op,
+            "surface nesting limit exceeded",
+        ));
+    }
+    match surface.kind() {
+        SurfaceKind::OffsetSurface(off) => {
+            check_surface_nesting(off.base_surface(), depth + 1, op)?;
+            if let Some(extended) = off.extended_base_surface() {
+                check_surface_nesting(extended, depth + 1, op)?;
+            }
+        }
+        SurfaceKind::CurveBounded(s) => check_surface_nesting(s.basis(), depth + 1, op)?,
+        SurfaceKind::Step(s) => {
+            if let Some(base) = s.surface() {
+                check_surface_nesting(base, depth + 1, op)?;
+            }
+        }
+        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {}
+    }
+    Ok(())
 }
 
 /// `GetNaturalUVDomain` of an offset over `base` with `extended`.
@@ -1612,6 +1689,10 @@ fn read_body(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Offset
         None
     };
 
+    check_surface_nesting(&base_surface, 1, OP_READ)?;
+    if let Some(extended) = extended_surface.as_deref() {
+        check_surface_nesting(extended, 1, OP_READ)?;
+    }
     // regen here - this data is not persistent
     let singularities = base_singularities(k, &base_surface)?;
 
@@ -1967,6 +2048,28 @@ mod tests {
         assert_eq!(p, Vec3::new(0.5, 0.5, 3.0));
         let twice = OffsetSurface::new(&k, 1.0, Surface::from(outer), true, SS_UNKNOWN).unwrap();
         assert!(twice.evaluate_point(Point2::new(0.5, 0.5)).is_err());
+    }
+
+    #[test]
+    fn constructor_bounds_nesting_before_domain_queries() {
+        let k = Kernel::default();
+        let mut surface = plane();
+        for _ in 0..MAX_SURFACE_NESTING {
+            surface = OffsetSurface::new(&k, 1.0, surface, true, 0)
+                .unwrap()
+                .into();
+        }
+        assert_eq!(surface.natural_uv_domain(), plane().natural_uv_domain());
+        let copy = surface.clone();
+        assert!(matches!(
+            OffsetSurface::new(&k, 1.0, surface, true, 0),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        let wrapped = Surface::from(crate::surface::surface::p1::StepSurface::new(copy, true));
+        assert!(matches!(
+            OffsetSurface::new(&k, 1.0, wrapped, true, 0),
+            Err(SolidError::InvalidInput { .. })
+        ));
     }
 
     #[test]

@@ -1072,15 +1072,18 @@ fn dump_bss(o: &mut Vec<f64>, s: &BSplineSurface) {
     }
 }
 
-/// `put_state`: `0` for the base class, else the B-spline state.
+/// `put_state`: `0` for the base class, else the B-spline state (of a plane's B-spline
+/// part).
 fn dump_state(o: &mut Vec<f64>, s: Option<&Surface>) {
     match s.map(Surface::kind) {
         Some(sp2::SurfaceKind::BSpline(b)) => dump_bss(o, b),
+        // an SmPlane is an SmBSplineSurface: its B-spline part
+        Some(sp2::SurfaceKind::Plane(p)) => dump_bss(o, p.base()),
+        // an SmSurfOfRevolution is an SmBSplineSurface: its NURB
+        Some(sp2::SurfaceKind::SurfOfRevolution(r)) => dump_bss(o, r.base()),
         // `put_state` of a surface that is not a B-spline
         Some(
             sp2::SurfaceKind::CurveBounded(_)
-            | sp2::SurfaceKind::Plane(_)
-            | sp2::SurfaceKind::SurfOfRevolution(_)
             | sp2::SurfaceKind::Step(_)
             | sp2::SurfaceKind::OffsetSurface(_),
         )
@@ -1278,7 +1281,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
         OpIn::Trim { dom } => {
             let mut d = dom_of(*dom);
             let r = match s.as_mut() {
-                Some(x) => x.trim_with_domain(&mut d),
+                Some(x) => x.trim_with_domain(&Kernel::default(), &mut d),
                 None => Err(base_err()),
             };
             match r {
@@ -1305,7 +1308,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
         }
         OpIn::StepInv { dom, p, tol, guess } => record(|o| {
             let (uv, loc) = match &s {
-                Some(x) => x.step_inversion(&dom_of(*dom), v3(*p), *tol, guess.map(p2))?,
+                Some(x) => x.step_inversion(&Kernel::default(), &dom_of(*dom), v3(*p), *tol, guess.map(p2))?,
                 None => sp2::base_step_inversion()?,
             };
             push2(o, uv);
@@ -1335,7 +1338,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
                 Ok(())
             })
         }
-        OpIn::AdjustStep { dom } => edit(&mut s, |x| x.adjust_step_uv_domain(&dom_of(*dom))),
+        OpIn::AdjustStep { dom } => edit(&mut s, |x| x.adjust_step_uv_domain(&Kernel::default(), &dom_of(*dom))),
         OpIn::MaxAnal => record(|o| {
             let d = match &s {
                 Some(x) => x.max_analytic_domain()?,
@@ -1443,6 +1446,7 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             record(|o| {
                 let x = s.as_ref().ok_or_else(base_err)?;
                 let r = x.global_surface_intersect(
+                    &Kernel::default(),
                     &dom_of(*dom),
                     &other,
                     &dom_of(*other_dom),

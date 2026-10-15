@@ -303,15 +303,14 @@ pub(super) fn calculate_bounding_box(
                 "surface.surface_p6",
             ))
         }
-        // UNPORTED(surface.surface_cache_p1): SmOffsetSurface::CalculateBoundingBox.
-        // Ported as OffsetSurface::calculate_bounding_box (surface.offset_surface), but
-        // it takes the kernel (its base surface's boxes may need a surface cache) and
-        // forwards the basis guesses, which this function's requests do not carry. A
-        // cache of an offset surface needs SmSurface::CalculateContinuities
-        // (surface.surface_p6) first, so this arm is not reached before that lands.
+        // DISPATCH GAP: OffsetSurface::calculate_bounding_box is ported, but this
+        // cache callback has no Kernel. Offset cache construction first needs
+        // CalculateContinuities; its porter must thread the Kernel and basis guesses
+        // into this callback before an offset cache can reach it.
+        // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
         SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
-            "SmOffsetSurface::CalculateBoundingBox",
-            "surface.surface_cache_p1",
+            "SmSurface::CalculateContinuities",
+            "surface.surface_p6",
         )),
     }
 }

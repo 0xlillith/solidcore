@@ -74,6 +74,29 @@ The report records `status`, `cases_passed`/`cases_failed`/`cases_deferred`,
 blocking unit lands and its stubs are wired, re-run: the deferred count drops
 and the unit can move from `partial` to `green`.
 
+## Offset reference isolation
+
+`surface.offset_surface` runs its C++ calls, including generation-time database
+serialization, in a disposable `offset-reference` executable built by
+`solidcore-ffi/build.rs`. This currently uses the Linux/GNU linker (`--wrap`). The
+worker links the same unchanged SMLib archive and shim; its binary pipe protocol
+preserves every input/output double bit-for-bit.
+
+The worker's two link wrappers forward `N_CrvExtendByDist` and `N_CrvArcLength`
+unchanged on finite, progressing paths. During extension only, they reject a
+successful nonfinite arc length or an initial G2 parameter step that cannot move
+its endpoint (HANG-6/HANG-13). They do not change numerical tolerances or turn the
+rejection into an SMLib status. The shim separately validates actual box domains
+and zero-offset plane derivative delegation after preceding edits.
+
+The generator preflights state-dependent guards. An explicit unsafe-input
+rejection excludes that candidate; it is not a pass or a deferred comparison.
+Unexpected worker errors, crashes and the five-second deadline remain **harness
+failures**, never silently discarded candidates. The caller kills/reaps only its
+own child. The exact original `gen5909` input is retained as an FFI regression in
+`crates/solidcore-ffi/tests/data/offset-gen5909.txt`; it tests guard rejection,
+not numerical agreement on undefined/nonterminating upstream behavior.
+
 ## Pass criteria (fixed; never weaken)
 
 * **Topology / integers / error strings**: identical, same counts and order.

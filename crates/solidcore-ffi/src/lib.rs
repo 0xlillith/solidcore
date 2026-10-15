@@ -17,6 +17,9 @@
 
 use std::fmt;
 
+#[cfg(feature = "cpp")]
+mod offset_reference;
+
 /// Error returned by a safe FFI wrapper.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FfiError {

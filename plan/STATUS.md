@@ -844,3 +844,48 @@ geom_utility_p2 3270 green; all `max_rel_err` 0. fmt, clippy, tests and wasm32 p
   extend `math.rs`, or re-export from it, rather than create duplicate types, and update
   `rust_module` to match. *Resolved for `Vec2`:* `geom.vector2d` moved `Vec2`/`Point2` into `geom::vector2d`
   and `math` re-exports them; `geom.vector3d` can do the same for `Vec3`.
+- **`SurfOfExtrusion` as a `SurfaceKind` needs an owner.** `Surface::read_from_db` reads
+  `SURF_OF_EXTRUSION_TYPE` records but defers them (a `DISPATCH GAP` whose error names the
+  partial unit `surface.surf_of_extrusion_p2`), because adding the variant means threading a `Kernel` through the
+  `Surface` dispatchers in `surface::surface::p2` and their callers (cross-unit refactor;
+  `plan/findings.md`, `surface.surf_of_extrusion_p2`). The coordinator should assign it to
+  a unit (or a refactor PR); 2 `topology.brep_data` cases wait on it.
+
+## Surface tessellation and iso boundaries (2026-10-14, PR #6 review)
+
+`surface.surface_p9` is partial: 778 cases (178 fixtures and 600 generated),
+727 bit-identical, zero failed and 51 deferred (`intersect.curve_class_p4`: 50;
+`surface.surface_p6`: 1), with no absolute floors. All 96 review regressions
+and all 16 explicit analytic-plane cases without diagonals pass. The regression
+corpus reproduced 32 failures before the degeneracy/max-side fixes.
+
+The solver uses the existing surface_p1 `CsiGlobalSolver` and constructor;
+surface/node/point helpers call the ported p1 implementations. The disjoint CSI
+fixture now passes; crossing reaches `surface.surface_p6`. End-to-end CSI is
+still unverified. `FindTessellationSplits` is wired into block subdivision:
+cache p2 compares 808/905 cases (97 deferred), cache p3 450/600 (150 deferred).
+The latest-main revolution surface also has 18 direct C++ comparisons (canonical
+cylinder, virtual iso curves), all bit-identical. The committed reports give the
+current deferral owners; earlier tables above
+are historical snapshots.
+
+## Topology traversal and public entrypoints (2026-10-14, PR #60)
+
+`intersect.topology_solver_p2` is partial: 2,429 cases, 2,384 bit-identical,
+zero failures and 45 explicit deferrals; no absolute floors. The shared part-1
+runner now compares 3,248/3,532 cases, clearing all 87 previous part-2 deferrals.
+`geom.tree` remains 611/618 with seven existing cache-data deferrals.
+
+Coverage combines traversal, CurveVertex, real C++ shell-vertex B-rep queries,
+empty shapes, face exclusion, operation rejection, all four result requests and
+zero/tiny tolerances, plus 1,080 scale/subdivision fixtures with up to 40/30
+vertices, coordinates scaled by 1e6 and tolerances 2/50. Forty face cases reach surface/query callees; the other
+five deferrals are topology tolerance/edge access. Nonempty Shape construction,
+full face solving and the native undefined EdgeVertex cast are not certified.
+See the committed reports and findings for the exact owners and scope.
+
+Final local gates pass with current official main's shared solver corrections: formatting, strict plain/C++ Clippy, workspace/native tests, wasm and
+license/source checks. Sensitivity detects 2,384/2,384 part-2 cases,
+3,248/3,248 part-1 cases 611/611 tree cases and 721/721 tools cases. Full differential validation:
+142 units, 89 green, 53 partial, zero failed. The four default reports match
+the full-validation reports byte for byte.

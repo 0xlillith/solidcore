@@ -53,7 +53,13 @@
 //! on `surface.surface_p6`), and no planarity test once an extension may exist.
 
 use super::surface_surf_of_revolution_p1 as rev;
-use crate::{call_with_buffer, FfiError};
+use crate::FfiError;
+
+/// Unchanged C++ did not finish within the five-second oracle deadline.
+/// This is a harness error, not a kernel status or a deferred comparison.
+pub const REFERENCE_TIMEOUT: i32 = crate::offset_reference::TIMEOUT;
+/// The isolated reference process crashed or its transport failed.
+pub const REFERENCE_PROCESS_ERROR: i32 = crate::offset_reference::PROCESS_ERROR;
 
 /// Largest control point index.
 pub const MAX_INDEX: usize = 24;
@@ -332,19 +338,6 @@ impl Step {
     }
 }
 
-mod sys {
-    extern "C" {
-        pub fn sc_surface_offset_surface_eval(
-            op: i32,
-            input: *const f64,
-            n_in: i64,
-            out: *mut f64,
-            cap: i64,
-            out_len: *mut i64,
-        ) -> i32;
-    }
-}
-
 fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
@@ -410,7 +403,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -589,15 +584,12 @@ fn max_write_index(hu: usize, hv: usize, upper: bool) -> usize {
     idx.into_iter().max().unwrap_or(0)
 }
 
-fn check_orders(hu: usize, hv: usize, upper: bool, plane: bool) -> Result<(), FfiError> {
+fn check_orders(hu: usize, hv: usize, upper: bool) -> Result<(), FfiError> {
     if hu > 6 || hv > 6 {
         return Err(bad("eval: order above 6"));
     }
-    // SmPlane::Evaluate (a zero offset of a plane) loops to `hv - k` unsigned: it writes
-    // past the array for bOnlyUpperHalf with hu > hv
-    if plane && upper && hu > hv {
-        return Err(bad("eval: upper half with hu > hv over a plane"));
-    }
+    // The shim checks zero-offset delegation to SmPlane against actual current
+    // distances (including nesting and preceding SetDist/Transform operations).
     let hod = if upper { hu.max(hv) } else { hu + hv };
     // (more than 3 fails before anything is written)
     if hod <= 3 && max_write_index(hu, hv, upper) >= (hu + 1) * (hv + 1) {
@@ -628,20 +620,12 @@ fn contained(inner: [f64; 4], outer: Option<[f64; 4]>) -> bool {
     match outer {
         Some([u0, v0, u1, v1]) => {
             let tol = 1e-12;
-            inner[0] >= u0 - tol && inner[1] >= v0 - tol && inner[2] <= u1 + tol && inner[3] <= v1 + tol
+            inner[0] >= u0 - tol
+                && inner[1] >= v0 - tol
+                && inner[2] <= u1 + tol
+                && inner[3] <= v1 + tol
         }
         None => false,
-    }
-}
-
-/// Whether a plane is evaluated for this base (directly, as a basis or nested).
-fn has_plane(s: &Srf) -> bool {
-    match s {
-        Srf::Plane { .. } => true,
-        Srf::BSpline(_) | Srf::Revolution(_) => false,
-        Srf::Bounded { basis, .. } => has_plane(basis),
-        Srf::Step { base } => has_plane(base),
-        Srf::Offset(o) => has_plane(&o.base),
     }
 }
 
@@ -659,9 +643,8 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
     }
     // the base domain as the script goes (unknown once an edit may have changed it)
     let mut dom = info.dom;
-    let mut edited = false;
-    let unboxable = info.unboxable || matches!(box_base(off), Srf::Bounded { .. } | Srf::Step { .. });
-    let plane = has_plane(&off.base);
+    let unboxable =
+        info.unboxable || matches!(box_base(off), Srf::Bounded { .. } | Srf::Step { .. });
     // an extension may exist once an evaluation ran with extension allowed
     let mut allow = off.allow;
     let mut ext_possible = false;
@@ -680,7 +663,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 nzt,
             } => {
                 check_uv(*uv, dom, "eval")?;
-                check_orders(*hu, *hv, *upper, plane)?;
+                check_orders(*hu, *hv, *upper)?;
                 ext_possible |= allow;
                 o.extend_from_slice(uv);
                 o.extend([*hu as f64, *hv as f64, b(*ul), b(*vl), b(*upper), b(*nzt)]);
@@ -694,7 +677,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 upper,
             } => {
                 check_uv(*uv, dom, "eval simple")?;
-                check_orders(*hu, *hv, *upper, plane)?;
+                check_orders(*hu, *hv, *upper)?;
                 ext_possible |= allow;
                 o.extend_from_slice(uv);
                 o.extend([*hu as f64, *hv as f64, b(*ul), b(*vl), b(*upper)]);
@@ -718,22 +701,18 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 finite(&iv, "knots interval")?;
                 o.extend([f64::from(*param), b(ivl.is_some()), iv[0], iv[1]]);
             }
-            Step::BBox { dom: d, want, expand } => {
+            Step::BBox {
+                dom: d,
+                want,
+                expand,
+            } => {
                 domain(*d, "box domain")?;
                 if unboxable {
                     return Err(bad("box: curve-bounded or STEP base (UB-84)"));
                 }
-                // a domain outside the base domain runs the base-class box on the
-                // offset: its surface cache asks the offset again for nodes outside the
-                // base (unbounded recursion with an extension), and its subdivision runs
-                // away for small trimmed bases. A plane's or surface of revolution's
-                // domain is not known here: its boxes pass while it is unedited (the
-                // generator then asks for its natural domain or a part of it).
-                let inside = match dom {
-                    Some(_) => contained(*d, dom),
-                    None => !edited,
-                };
-                if !inside {
+                // Unknown/edited domains are checked against the actual base by the
+                // isolated shim. Unknown is not evidence of containment (UB-100).
+                if dom.is_some() && !contained(*d, dom) {
                     return Err(bad("box: domain may lie outside the base domain"));
                 }
                 o.extend_from_slice(d);
@@ -762,12 +741,10 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("reverse: param"));
                 }
                 dom = None;
-                edited = true;
                 o.push(f64::from(*param));
             }
             Step::Swap => {
                 dom = None;
-                edited = true;
             }
             Step::Transform {
                 origin,
@@ -806,7 +783,6 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 check_uv([d[2], d[3]], dom, "trim max")?;
                 ext_possible |= allow;
                 dom = None;
-                edited = true;
                 o.extend_from_slice(d);
             }
             Step::Split { t, param } => {
@@ -820,13 +796,17 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 let Some(d) = dom else {
                     return Err(bad("split: base domain unknown"));
                 };
-                let (a, z) = if *param == 0 { (d[0], d[2]) } else { (d[1], d[3]) };
+                let (a, z) = if *param == 0 {
+                    (d[0], d[2])
+                } else {
+                    (d[1], d[3])
+                };
                 if *t <= a || *t >= z {
                     return Err(bad("split: parameter not inside the domain"));
                 }
                 o.extend([*t, f64::from(*param)]);
             }
-            Step::CreateOffset { d } => {
+            Step::CreateOffset { d } | Step::SetDist { d } => {
                 finite(&[*d], "offset distance")?;
                 o.push(*d);
             }
@@ -837,17 +817,14 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 o.extend([*dist, f64::from(*cont)]);
             }
             Step::ExtendDir { param, dist, cont } => {
-                if *param > 8 || !(dist.is_finite() && *dist > 0.0 && *dist <= 1.0e3) || *cont > 13 {
+                if *param > 8 || !(dist.is_finite() && *dist > 0.0 && *dist <= 1.0e3) || *cont > 13
+                {
                     return Err(bad("extend: direction, distance or continuity"));
                 }
                 o.extend([f64::from(*param), *dist, f64::from(*cont)]);
             }
             Step::Eq { other } => {
                 push_off(o, other, 1)?;
-            }
-            Step::SetDist { d } => {
-                finite(&[*d], "offset distance")?;
-                o.push(*d);
             }
             Step::SetAllow { b: flag } => {
                 allow = *flag;
@@ -874,25 +851,12 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
 }
 
 fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    let n_in = i64::try_from(input.len()).map_err(|_| bad("input too long"))?;
-    call_with_buffer(4096, |buf, len| {
-        let cap = buf.len() as i64;
-        // SAFETY: `input` is valid for `n_in` reads, `buf` for `cap` writes, `len` for
-        // one; the shim reads exactly the layout validated above.
-        unsafe {
-            sys::sc_surface_offset_surface_eval(
-                op,
-                input.as_ptr(),
-                n_in,
-                buf.as_mut_ptr(),
-                cap,
-                &raw mut *len,
-            )
-        }
-    })
+    crate::offset_reference::call(op, input)
 }
 
-/// Whether [`script`] accepts `off` and `steps` (without calling upstream).
+/// Static validation of `off` and `steps` (without calling upstream).
+///
+/// State-dependent guards run inside [`script`]'s isolated reference worker.
 ///
 /// # Errors
 ///
@@ -909,7 +873,8 @@ pub fn check(off: &Off, steps: &[Step]) -> Result<(), FfiError> {
 /// # Errors
 ///
 /// [`FfiError::InvalidArgument`] for inputs upstream cannot handle (module docs);
-/// [`FfiError::Status`] for a shim failure.
+/// [`FfiError::Status`] for a shim failure, [`REFERENCE_TIMEOUT`], or
+/// [`REFERENCE_PROCESS_ERROR`]. Neither deadline nor crash is a successful comparison.
 pub fn script(off: &Off, steps: &[Step]) -> Result<Vec<f64>, FfiError> {
     let mut input = Vec::new();
     let info = push_off(&mut input, off, 0)?;
@@ -969,4 +934,133 @@ pub fn read_db(off: &Off, binary: bool, version: u32, bytes: &[u8]) -> Result<Ve
     input.push(bytes.len() as f64);
     input.extend(bytes.iter().map(|&x| f64::from(x)));
     call(OP_READ_DB, &input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn plane(d: f64) -> Off {
+        Off {
+            d,
+            owns: true,
+            sing: 0,
+            allow: false,
+            base: Srf::Plane {
+                o: [0.0; 3],
+                n: [0.0, 0.0, 1.0],
+            },
+        }
+    }
+
+    fn upper() -> Step {
+        Step::EvalSimple {
+            uv: [0.5, 0.5],
+            hu: 2,
+            hv: 0,
+            ul: true,
+            vl: true,
+            upper: true,
+        }
+    }
+
+    #[test]
+    fn offset_plane_upper_orders_depend_on_actual_distance() {
+        assert!(script(&plane(1.0), &[upper()]).is_ok());
+        assert!(script(&plane(1e-20), &[upper()]).is_ok());
+        assert!(matches!(
+            script(&plane(0.0), &[upper()]),
+            Err(FfiError::InvalidArgument(_))
+        ));
+        assert!(matches!(
+            script(&plane(1.0), &[Step::SetDist { d: 0.0 }, upper()]),
+            Err(FfiError::InvalidArgument(_))
+        ));
+        assert!(script(&plane(0.0), &[Step::SetDist { d: 1.0 }, upper()]).is_ok());
+        let nested = Off {
+            base: Srf::Offset(Box::new(plane(-1.0))),
+            ..plane(1.0)
+        };
+        assert!(matches!(
+            script(&nested, &[upper()]),
+            Err(FfiError::InvalidArgument(_))
+        ));
+    }
+
+    #[test]
+    fn unknown_revolution_domain_cannot_bypass_polar_guard() {
+        let off = Off {
+            d: 0.25,
+            owns: true,
+            sing: 0,
+            allow: true,
+            base: Srf::Revolution(rev::Surf {
+                gen: rev::Gen::Line {
+                    a: [1.0, 0.0, 0.0],
+                    b: [1.0, 0.0, 1.0],
+                },
+                build: rev::Build::Canonical {
+                    point: [0.0; 3],
+                    axis: [0.0, 0.0, 1.0],
+                },
+                oob: true,
+                swap: false,
+            }),
+        };
+        let steps = [
+            Step::EvalPt { uv: [0.5, 2.0] },
+            Step::BBox {
+                dom: [0.0, 0.0, 1.0, 2.0],
+                want: [false, false, true],
+                expand: true,
+            },
+        ];
+        assert!(check(&off, &steps).is_ok()); // actual domain is a runtime fact
+        assert!(matches!(
+            script(&off, &steps),
+            Err(FfiError::InvalidArgument(_))
+        ));
+        assert!(script(
+            &off,
+            &[Step::BBox {
+                dom: [0.0, 0.0, 1.0, 1.0],
+                want: [false, false, true],
+                expand: true
+            }]
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn tiny_g2_extension_is_rejected_before_a_nonprogressing_search() {
+        assert!(matches!(
+            script(
+                &plane(1.0),
+                &[Step::Extend {
+                    dist: 1e-300,
+                    cont: 5
+                }]
+            ),
+            Err(FfiError::InvalidArgument(_))
+        ));
+        // The rejected child is reaped and does not poison the next call.
+        assert!(script(&plane(1.0), &[upper()]).is_ok());
+    }
+
+    #[test]
+    fn gen5909_is_bounded_and_keeps_exact_input_bits() {
+        let input: Vec<f64> = include_str!("../../tests/data/offset-gen5909.txt")
+            .split_whitespace()
+            .map(|s| s.parse().unwrap())
+            .collect();
+        assert_eq!(input.len(), 60);
+        assert_eq!(
+            input[22].to_bits(),
+            (-0.916_536_277_098_507_5_f64).to_bits()
+        );
+        assert!(matches!(
+            call(OP_SCRIPT, &input),
+            Err(FfiError::InvalidArgument(_))
+        ));
+    }
 }

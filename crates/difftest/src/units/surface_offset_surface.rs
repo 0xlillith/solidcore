@@ -247,7 +247,10 @@ enum Inputs {
 fn numbers(path: &str) -> Result<Vec<f64>, HarnessError> {
     let text = std::fs::read_to_string(path).map_err(|e| harness(format!("{path}: {e}")))?;
     text.split_whitespace()
-        .map(|t| t.parse::<f64>().map_err(|e| harness(format!("{path}: {e}"))))
+        .map(|t| {
+            t.parse::<f64>()
+                .map_err(|e| harness(format!("{path}: {e}")))
+        })
         .collect()
 }
 
@@ -264,7 +267,10 @@ fn count(path: &str, v: f64) -> Result<usize, HarnessError> {
 fn read_sms(path: &str) -> Result<BssIn, HarnessError> {
     let v = numbers(path)?;
     let mut it = v.into_iter();
-    let mut num = || it.next().ok_or_else(|| harness(format!("{path}: truncated")));
+    let mut num = || {
+        it.next()
+            .ok_or_else(|| harness(format!("{path}: truncated")))
+    };
     let n = count(path, num()?)?;
     let m = count(path, num()?)?;
     let p = count(path, num()?)?;
@@ -280,8 +286,12 @@ fn read_sms(path: &str) -> Result<BssIn, HarnessError> {
         }
         net.push(row);
     }
-    let u = (0..n + p + 2).map(|_| num()).collect::<Result<Vec<_>, _>>()?;
-    let v = (0..m + q + 2).map(|_| num()).collect::<Result<Vec<_>, _>>()?;
+    let u = (0..n + p + 2)
+        .map(|_| num())
+        .collect::<Result<Vec<_>, _>>()?;
+    let v = (0..m + q + 2)
+        .map(|_| num())
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(BssIn {
         oob: false,
         form: default_form(),
@@ -542,13 +552,14 @@ fn push_res<T>(
             o.push(0.0);
             f(o, v)
         }
-        Err(e) => match defer(&e) {
-            Some(d) => Err(d),
-            None => {
+        Err(e) => {
+            if let Some(d) = defer(&e) {
+                Err(d)
+            } else {
                 o.push(status(&e));
                 Ok(())
             }
-        },
+        }
     }
 }
 
@@ -564,7 +575,11 @@ fn bss_of(b: &BssIn) -> Result<BSplineSurface, HarnessError> {
     let net = b
         .net
         .iter()
-        .map(|r| r.iter().map(|&[x, y, z, w]| CPoint::new(x, y, z, w)).collect())
+        .map(|r| {
+            r.iter()
+                .map(|&[x, y, z, w]| CPoint::new(x, y, z, w))
+                .collect()
+        })
         .collect();
     let nl = NlSurface::new(net, b.p, b.q, b.u.clone(), b.v.clone())
         .map_err(|e| harness(format!("surface input: {e}")))?;
@@ -583,9 +598,16 @@ fn rust_srf(k: &Kernel, s: &SrfIn) -> Result<solidcore::Result<Surface>, Harness
         SrfIn::Sms(path) => Ok(Surface::from(bss_of(&read_sms(path)?)?)),
         SrfIn::Plane { o, n } => Ok(Surface::from(Plane::from_normal(v3(*o), v3(*n)))),
         SrfIn::Bounded { basis, implicit } => rust_srf(k, basis)?.map(|b| {
-            Surface::from(CurveBoundedSurface::new(b, Vec::new(), Vec::new(), *implicit))
+            Surface::from(CurveBoundedSurface::new(
+                b,
+                Vec::new(),
+                Vec::new(),
+                *implicit,
+            ))
         }),
-        SrfIn::Step { base } => rust_srf(k, base)?.map(|b| Surface::from(StepSurface::new(b, true))),
+        SrfIn::Step { base } => {
+            rust_srf(k, base)?.map(|b| Surface::from(StepSurface::new(b, true)))
+        }
         SrfIn::Revolution(r) => rev::rust_surf(k, r)?.map(Surface::from),
         SrfIn::Offset(o) => rust_off(k, o)?.map(Surface::from),
     })
@@ -653,7 +675,13 @@ fn put_result(o: &mut Vec<f64>, r: &Surface) -> Result<(), Fail> {
 
 /// The entries upstream writes: all, or with `bOnlyUpperHalf` those with `i + j` up to
 /// the larger order (the others are untouched caller memory).
-fn put_matrix(o: &mut Vec<f64>, m: &[Vec<Vec3>], hu: usize, hv: usize, upper: bool) -> Result<(), Fail> {
+fn put_matrix(
+    o: &mut Vec<f64>,
+    m: &[Vec<Vec3>],
+    hu: usize,
+    hv: usize,
+    upper: bool,
+) -> Result<(), Fail> {
     for i in 0..=hu {
         for j in 0..=hv {
             if !upper || i + j <= hu.max(hv) {
@@ -669,7 +697,7 @@ fn put_matrix(o: &mut Vec<f64>, m: &[Vec<Vec3>], hu: usize, hv: usize, upper: bo
     Ok(())
 }
 
-fn flags(ul: bool, vl: bool, upper: bool, nzt: bool) -> EvaluateFlags {
+fn flags([ul, vl, upper, nzt]: [bool; 4]) -> EvaluateFlags {
     EvaluateFlags {
         u_side: side(ul),
         v_side: side(vl),
@@ -678,7 +706,12 @@ fn flags(ul: bool, vl: bool, upper: bool, nzt: bool) -> EvaluateFlags {
     }
 }
 
-fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) -> Result<(), Fail> {
+fn run_step(
+    k: &Kernel,
+    s: &mut OffsetSurface,
+    step: &StepIn,
+    o: &mut Vec<f64>,
+) -> Result<(), Fail> {
     match step {
         StepIn::State => {
             o.push(0.0);
@@ -694,7 +727,7 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
             nzt,
             via,
         } => {
-            let f = flags(*ul, *vl, *upper, *nzt);
+            let f = flags([*ul, *vl, *upper, *nzt]);
             let r = if *via {
                 Surface::from(s.clone()).evaluate(p2(*uv), *hu, *hv, f)
             } else {
@@ -711,7 +744,7 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
             upper,
             via,
         } => {
-            let f = flags(*ul, *vl, *upper, false);
+            let f = flags([*ul, *vl, *upper, false]);
             let r = if *via {
                 Surface::from(s.clone()).evaluate_simple(p2(*uv), *hu, *hv, f)
             } else {
@@ -743,13 +776,17 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
         }
         StepIn::Knots { param, ivl } => {
             let ivl = ivl.map(|[a, b]| Extent1d::from_min_max(a, b));
-            push_res(o, s.knots(param_of(*param)?, ivl.as_ref()), |o, (knots, mults)| {
-                o.push(knots.len() as f64);
-                o.extend(knots);
-                o.push(mults.len() as f64);
-                o.extend(mults.into_iter().map(|m| m as f64));
-                Ok(())
-            })
+            push_res(
+                o,
+                s.knots(param_of(*param)?, ivl.as_ref()),
+                |o, (knots, mults)| {
+                    o.push(knots.len() as f64);
+                    o.extend(knots);
+                    o.push(mults.len() as f64);
+                    o.extend(mults.into_iter().map(|m| m as f64));
+                    Ok(())
+                },
+            )
         }
         StepIn::MaxAnal => push_res(o, s.max_analytic_domain(), |o, d| {
             put_dom(o, &d);
@@ -789,7 +826,7 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
         }
         StepIn::StepInv { dom, p, tol, guess } => push_res(
             o,
-            s.step_inversion(&dom_of(*dom), v3(*p), *tol, guess.map(p2)),
+            s.step_inversion_extending(k, &dom_of(*dom), v3(*p), *tol, guess.map(p2)),
             |o, (uv, loc)| {
                 o.extend([uv.x, uv.y, f64::from(loc as i32)]);
                 Ok(())
@@ -811,7 +848,7 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
         }
         StepIn::Trim { dom } => {
             let mut d = dom_of(*dom);
-            let r = s.trim_with_domain(&mut d);
+            let r = s.trim_with_domain(k, &mut d);
             push_res(o, r, |o, ()| {
                 put_dom(o, &d);
                 Ok(())
@@ -824,9 +861,9 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
                 put_result(o, &r)
             })
         }
-        StepIn::CreateOffset { d } => push_res(o, s.create_offset_surface(k, *d), |o, r| {
-            put_result(o, &r)
-        }),
+        StepIn::CreateOffset { d } => {
+            push_res(o, s.create_offset_surface(k, *d), |o, r| put_result(o, &r))
+        }
         StepIn::Extend { dist, cont } => {
             let c = continuity_of(*cont)?;
             push_res(o, s.create_extended_surface(k, *dist, c), |o, r| {
@@ -849,20 +886,23 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
                 for r in [eq, self_eq] {
                     match r {
                         Ok(b) => o.push(flag(b)),
-                        Err(e) => return Err(defer(&e).unwrap_or_else(|| {
-                            Fail::Harness(harness(format!("operator== failed: {e}")))
-                        })),
+                        Err(e) => {
+                            return Err(defer(&e).unwrap_or_else(|| {
+                                Fail::Harness(harness(format!("operator== failed: {e}")))
+                            }))
+                        }
                     }
                 }
                 Ok(())
             }
-            Err(e) => match defer(&e) {
-                Some(d) => Err(d),
-                None => {
+            Err(e) => {
+                if let Some(d) = defer(&e) {
+                    Err(d)
+                } else {
                     o.push(status(&e));
                     Ok(())
                 }
-            },
+            }
         },
         StepIn::SetDist { d } => {
             s.set_offset_distance(*d);
@@ -884,9 +924,8 @@ fn run_step(k: &Kernel, s: &mut OffsetSurface, step: &StepIn, o: &mut Vec<f64>) 
                     o.push(pl.deviation);
                     Ok(())
                 }
-                Err(e) => Err(defer(&e).unwrap_or_else(|| {
-                    Fail::Harness(harness(format!("IsPlanar failed: {e}")))
-                })),
+                Err(e) => Err(defer(&e)
+                    .unwrap_or_else(|| Fail::Harness(harness(format!("IsPlanar failed: {e}"))))),
             }
         }
         StepIn::IsKindOf { t } => {
@@ -918,7 +957,11 @@ fn rust_script(off: &OffIn, steps: &[StepIn]) -> Result<Vec<f64>, Fail> {
 
 fn rust_read(binary: bool, version: u32, bytes: &[u8]) -> Result<Vec<f64>, Fail> {
     let k = Kernel::default();
-    let ft = if binary { FileType::Binary } else { FileType::Ascii };
+    let ft = if binary {
+        FileType::Binary
+    } else {
+        FileType::Ascii
+    };
     let mut db = DatabaseReader::with_stream(ft, InputStream::new(bytes.to_vec()));
     let mut o = Vec::new();
     push_res(
@@ -1031,7 +1074,11 @@ fn gen_bss(rng: &mut Rng, shape: Shape, scale: f64) -> BssIn {
             let (s, t) = (i as f64 / n as f64, j as f64 / m as f64);
             let pt = match shape {
                 Shape::Smooth | Shape::Flat => {
-                    let h = if flat { 0.0 } else { amp * (f1 * s + ph).sin() * (f2 * t).cos() };
+                    let h = if flat {
+                        0.0
+                    } else {
+                        amp * (f1 * s + ph).sin() * (f2 * t).cos()
+                    };
                     at(c, &f, 2.0 * scale * s, 1.5 * scale * t, h)
                 }
                 Shape::PoleU => {
@@ -1092,7 +1139,7 @@ fn gen_bss(rng: &mut Rng, shape: Shape, scale: f64) -> BssIn {
     // uniform knots keep the closed polygon's end tangents equal
     let u = if shape == Shape::ClosedU {
         let mut u = vec![a; p + 1];
-        for i in 1..n - p + 1 {
+        for i in 1..=(n - p) {
             u.push(a + len * i as f64 / (n - p + 1) as f64);
         }
         u.extend(vec![a + len; p + 1]);
@@ -1223,7 +1270,12 @@ fn gen_inside(rng: &mut Rng, d: [f64; 4]) -> [f64; 2] {
 fn gen_subdomain(rng: &mut Rng, d: [f64; 4]) -> [f64; 4] {
     let [a, b] = gen_inside(rng, d);
     let [c, e] = gen_inside(rng, d);
-    [a.min(c), b.min(e), a.max(c).max(a.min(c) + 1e-3 * (d[2] - d[0])), b.max(e).max(b.min(e) + 1e-3 * (d[3] - d[1]))]
+    [
+        a.min(c),
+        b.min(e),
+        a.max(c).max(a.min(c) + 1e-3 * (d[2] - d[0])),
+        b.max(e).max(b.min(e) + 1e-3 * (d[3] - d[1])),
+    ]
 }
 
 fn gen_orders(rng: &mut Rng) -> (usize, usize, bool) {
@@ -1233,9 +1285,33 @@ fn gen_orders(rng: &mut Rng) -> (usize, usize, bool) {
         return (rng.below(3) as usize + 2, rng.below(3) as usize + 2, false);
     }
     let pairs: &[(usize, usize)] = if upper {
-        &[(0, 0), (1, 1), (2, 2), (3, 3), (1, 0), (2, 0), (3, 0), (2, 1), (3, 1), (3, 2), (2, 3), (1, 2)]
+        &[
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (2, 1),
+            (3, 1),
+            (3, 2),
+            (2, 3),
+            (1, 2),
+        ]
     } else {
-        &[(0, 0), (1, 0), (0, 1), (1, 1), (2, 0), (0, 2), (2, 1), (1, 2), (3, 0), (0, 3)]
+        &[
+            (0, 0),
+            (1, 0),
+            (0, 1),
+            (1, 1),
+            (2, 0),
+            (0, 2),
+            (2, 1),
+            (1, 2),
+            (3, 0),
+            (0, 3),
+        ]
     };
     let &(hu, hv) = rng.choose(pairs).unwrap_or(&(1, 1));
     (hu, hv, upper)
@@ -1290,14 +1366,22 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
         },
         58..=59 => StepIn::MaxAnal,
         60..=66 => StepIn::BBox {
-            dom: if rng.chance(0.85) { d } else { gen_subdomain(rng, d) },
+            dom: if rng.chance(0.85) {
+                d
+            } else {
+                gen_subdomain(rng, d)
+            },
             want: [rng.chance(0.7), rng.chance(0.6), rng.chance(0.5)],
             expand: rng.chance(0.7),
         },
         67..=70 => StepIn::StepInv {
             dom: d,
             p: rng.point3(-3.0 * scale, 3.0 * scale),
-            tol: if rng.chance(0.5) { 1e-6 } else { rng.uniform(1e-4, 0.5) },
+            tol: if rng.chance(0.5) {
+                1e-6
+            } else {
+                rng.uniform(1e-4, 0.5)
+            },
             guess: rng.chance(0.4).then(|| gen_inside(rng, d)),
         },
         71..=72 => StepIn::Reverse {
@@ -1321,7 +1405,11 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
                         Some([s, s, s])
                     }
                     2 => Some([1.0, 1.0, 1.0]),
-                    _ => Some([rng.uniform(0.2, 3.0), rng.uniform(0.2, 3.0), rng.uniform(0.2, 3.0)]),
+                    _ => Some([
+                        rng.uniform(0.2, 3.0),
+                        rng.uniform(0.2, 3.0),
+                        rng.uniform(0.2, 3.0),
+                    ]),
                 },
             }
         }
@@ -1331,19 +1419,32 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
             } else {
                 let lu = d[2] - d[0];
                 let lv = d[3] - d[1];
-                [d[0] - rng.uniform(0.0, 0.5) * lu, d[1], d[2] + rng.uniform(0.0, 0.5) * lu, d[3] + rng.uniform(0.0, 0.2) * lv]
+                [
+                    d[0] - rng.uniform(0.0, 0.5) * lu,
+                    d[1],
+                    d[2] + rng.uniform(0.0, 0.5) * lu,
+                    d[3] + rng.uniform(0.0, 0.2) * lv,
+                ]
             },
         },
         80..=82 => {
             let param = rng.below(2) as u8;
-            let (a, b) = if param == 0 { (d[0], d[2]) } else { (d[1], d[3]) };
+            let (a, b) = if param == 0 {
+                (d[0], d[2])
+            } else {
+                (d[1], d[3])
+            };
             StepIn::Split {
                 t: rng.uniform(a + 0.05 * (b - a), b - 0.05 * (b - a)),
                 param,
             }
         }
         83..=85 => StepIn::CreateOffset {
-            d: if rng.chance(0.2) { 0.0 } else { rng.uniform(-1.0, 1.0) * scale },
+            d: if rng.chance(0.2) {
+                0.0
+            } else {
+                rng.uniform(-1.0, 1.0) * scale
+            },
         },
         86..=87 => StepIn::Extend {
             dist: rng.uniform(0.05, 0.4) * size,
@@ -1413,7 +1514,29 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         });
     }
     let steps = gen_steps(rng, &off, d, scale, size);
-    ffi::check(&foff, &ffi_steps(&steps).ok()?).ok()?;
+    let fsteps = ffi_steps(&steps).ok()?;
+    ffi::check(&foff, &fsteps).ok()?;
+    // Domain/zero-offset guards depend on the actual C++ state after preceding
+    // edits. Preflight candidates requiring those checks, but never discard a
+    // timeout/crash: keep that case so difftest reports the oracle failure.
+    let dynamic_guard = fsteps.iter().any(|s| {
+        matches!(
+            s,
+            ffi::Step::BBox { .. }
+                | ffi::Step::Extend { .. }
+                | ffi::Step::ExtendDir { .. }
+                | ffi::Step::Eval { upper: true, .. }
+                | ffi::Step::EvalSimple { upper: true, .. }
+        )
+    });
+    if dynamic_guard
+        && matches!(
+            ffi::script(&foff, &fsteps),
+            Err(solidcore_ffi::FfiError::InvalidArgument(_))
+        )
+    {
+        return None;
+    }
     Some(Inputs::Script { off, steps })
 }
 
@@ -1434,15 +1557,23 @@ fn fill_placeholders(case: &mut Case) -> Result<(), HarnessError> {
         return Ok(());
     }
     let bad = |what: &str| harness(format!("case {}: {what}", case.name));
-    let off: OffIn = serde_json::from_value(case.inputs.get("off").cloned().ok_or_else(|| bad("no off"))?)
-        .map_err(|e| bad(&e.to_string()))?;
+    let off: OffIn = serde_json::from_value(
+        case.inputs
+            .get("off")
+            .cloned()
+            .ok_or_else(|| bad("no off"))?,
+    )
+    .map_err(|e| bad(&e.to_string()))?;
     let k = Kernel::default();
     let base = rust_srf(&k, &off.base)?.map_err(|e| bad(&format!("base: {e}")))?;
     let d = base.natural_uv_domain();
     let (u0, v0, u1, v1) = (d.min().x, d.min().y, d.max().x, d.max().y);
     let (lu, lv) = (u1 - u0, v1 - v0);
     let on = || -> Result<[f64; 3], HarnessError> {
-        let plain = OffIn { sing: 0, ..off.clone() };
+        let plain = OffIn {
+            sing: 0,
+            ..off.clone()
+        };
         let s = rust_off(&k, &plain)?.map_err(|e| bad(&format!("offset: {e}")))?;
         let p = s
             .evaluate_point(Point2::new(u0 + 0.4 * lu, v0 + 0.6 * lv))
@@ -1457,8 +1588,18 @@ fn fill_placeholders(case: &mut Case) -> Result<(), HarnessError> {
             };
             let v = match tag.as_str() {
                 "NAT" => serde_json::json!([u0, v0, u1, v1]),
-                "SUB" => serde_json::json!([u0 + 0.25 * lu, v0 + 0.25 * lv, u1 - 0.25 * lu, v1 - 0.25 * lv]),
-                "OUT" => serde_json::json!([u0 - 0.25 * lu, v0 - 0.25 * lv, u1 + 0.25 * lu, v1 + 0.25 * lv]),
+                "SUB" => serde_json::json!([
+                    u0 + 0.25 * lu,
+                    v0 + 0.25 * lv,
+                    u1 - 0.25 * lu,
+                    v1 - 0.25 * lv
+                ]),
+                "OUT" => serde_json::json!([
+                    u0 - 0.25 * lu,
+                    v0 - 0.25 * lv,
+                    u1 + 0.25 * lu,
+                    v1 + 0.25 * lv
+                ]),
                 "MID" => serde_json::json!([u0 + 0.5 * lu, v0 + 0.5 * lv]),
                 "VMIN" => serde_json::json!([u0 + 0.5 * lu, v0]),
                 "VMAX" => serde_json::json!([u0 + 0.5 * lu, v1]),
@@ -1528,12 +1669,10 @@ impl UnitDiff for Runner {
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
-        let r = cpp(&case.parse()?);
-        r
+        cpp(&case.parse()?)
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
-        let r = rust(&case.parse()?);
-        r
+        rust(&case.parse()?)
     }
 }

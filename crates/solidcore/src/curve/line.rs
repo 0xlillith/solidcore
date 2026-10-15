@@ -10,6 +10,7 @@
 //! | [`Line`]                                     | `SmLine`                                          |
 //! | [`Line::default`]                            | `SmLine()`                                        |
 //! | [`Line::from_points`]                        | `SmLine(StartPoint, EndPoint, lDimension, cpContext)` |
+//! | [`Line::from_parts`]                         | the members as they are (an importer's constructor) |
 //! | [`Line::infinite`]                           | `SmLine(LinePoint, NonUnitVector, lDim, bMakeNurb, cpContext, bInsideOut)` |
 //! | [`Line::bounded`], [`BoundedLineOptions`]    | `SmLine(LinePoint, UnitVector, AnalDomain, dScale, lDim, cpContext, pOptNurb, bInsideOut)` |
 //! | [`Line::create_line_segment`]                | `CreateLineSegment`                               |
@@ -322,6 +323,29 @@ impl Line {
         }
     }
 
+    /// A line from its members exactly as given (`m_vLinePoint`, the unit
+    /// `m_vLineVector`, `m_vAnalDomain`, `m_dScale`, `m_bInsideOut`) and its B-spline
+    /// part, nothing normalised or rebuilt: for importing a line another kernel made
+    /// (the difftest import of an upstream B-rep's curves). No upstream counterpart.
+    #[must_use]
+    pub fn from_parts(
+        base: BSplineCurve,
+        point: Point3,
+        vector: Vec3,
+        anal_domain: Extent1d,
+        scale: f64,
+        inside_out: bool,
+    ) -> Self {
+        Self {
+            base,
+            point,
+            vector,
+            anal_domain,
+            scale,
+            inside_out,
+        }
+    }
+
     /// The infinite line `point + s * vector` (domain `[-SM_INFINITE_PARAMETER,
     /// SM_INFINITE_PARAMETER]`, scale `|vector|`) with its NURB (`SmLine(LinePoint,
     /// NonUnitVector, lDim, bMakeNurb, cpContext, bInsideOut)`; `bMakeNurb` is not
@@ -471,6 +495,11 @@ impl Line {
     #[must_use]
     pub const fn base(&self) -> &BSplineCurve {
         &self.base
+    }
+
+    /// The `SmBSplineCurve` base object, mutable (for the base-class edits).
+    pub(crate) fn base_mut(&mut self) -> &mut BSplineCurve {
+        &mut self.base
     }
 
     /// Image-space dimension (`SmCurve::GetDim`).

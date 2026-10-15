@@ -13,6 +13,7 @@
 // validates every input so upstream only touches valid memory. The surface-of-revolution
 // block and its builder are those of surface_surf_of_revolution_p1.cpp.
 #include "sc_shim.h"
+#include "sc_offset_guard.h"
 
 #include "StdAfx.h"
 #include <SmAxis2Placement.h>
@@ -41,6 +42,8 @@
 #include <SmVector3d.h>
 #include <nurbs.h>
 
+#include <memory>
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -171,10 +174,28 @@ void put_ivl(std::vector<double>& o, const SmExtent1d& e)
     o.push_back(e.GetMax());
 }
 
-const SmContext& the_context()
+// Bases borrowed by an offset remain owned by its caller. Destroy the offset roots
+// before this list, and the list before the context.
+using BorrowedBases = std::vector<std::unique_ptr<SmSurface>>;
+
+// The nonzero offset evaluator asks its base for a square derivative matrix; only
+// zero-distance delegation reaches SmPlane's unsigned hv-k loop with caller orders.
+bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG hv, bool simple)
 {
-    static SmContext* p = new SmContext();
-    return *p;
+    double distance = s->GetOffsetDistance();
+    SmSurface* base = s->GetBaseSurface();
+    if (auto* nested = SM_CAST_PTR(SmOffsetSurface, base))
+    {
+        distance += nested->GetOffsetDistance();
+        base = nested->GetBaseSurface();
+    }
+    if (std::max(hu, hv) > 3 || distance != 0.0) return false;
+    if (!base->GetNaturalUVDomain().ContainsPoint2d(uv) && s->GetExtendedBaseSurface())
+        base = s->GetExtendedBaseSurface();
+    // SmPlane::EvaluateSimple inherits the same evaluator. Other base kinds have
+    // their own checked derivative layouts; only this direct delegation is UB-99.
+    (void)simple;
+    return SM_CAST_PTR(SmPlane, base) != NULL;
 }
 
 // ---- surface-of-revolution block (as surface_surf_of_revolution_p1.cpp) ----------------
@@ -229,7 +250,7 @@ SmBSplineCurve* read_gen(Rd& rd, const SmContext& ctx)
 SmSurfOfRevolution* read_revolution(Rd& rd, const SmContext& ctx, SmStatus& stt)
 {
     int64_t mode = rd.idx();
-    SmBSplineCurve* gen = read_gen(rd, ctx);
+    std::unique_ptr<SmBSplineCurve> gen(read_gen(rd, ctx));
     bool oob = rd.flag();
     bool swap = rd.flag();
     SmSurfOfRevolution* s = NULL;
@@ -238,7 +259,8 @@ SmSurfOfRevolution* read_revolution(Rd& rd, const SmContext& ctx, SmStatus& stt)
     {
         SmPoint3d p = rd.vec();
         SmVector3d a = rd.vec();
-        stt = SmSurfOfRevolution::CreateCanonical(ctx, gen, p, a, s, swap ? TRUE : FALSE);
+        stt = SmSurfOfRevolution::CreateCanonical(ctx, gen.get(), p, a, s, swap ? TRUE : FALSE);
+        if (s) gen.release(); // ownership transfers even if MakeNurb then fails
     }
     else
     {
@@ -249,21 +271,25 @@ SmSurfOfRevolution* read_revolution(Rd& rd, const SmContext& ctx, SmStatus& stt)
         double b = rd.num();
         double c = rd.num();
         double d = rd.num();
-        s = new (ctx) PeekRev(gen, org, x, y, SmExtent2d(a, b, c, d), swap ? TRUE : FALSE);
+        s = new (ctx) PeekRev(gen.get(), org, x, y, SmExtent2d(a, b, c, d), swap ? TRUE : FALSE);
+        gen.release();
         stt = s->MakeNurb();
     }
     if (stt != SM_SUCCESS)
-        return NULL; // (leaked, as the other construction failures)
+    {
+        delete s;
+        return NULL;
+    }
     s->SetOutOfBoundsEnabled(oob ? TRUE : FALSE);
     return s;
 }
 
 // ---- base and offset blocks -------------------------------------------------------------
 
-SmOffsetSurface* read_offset(Rd& rd, const SmContext& ctx, SmStatus& stt);
+SmOffsetSurface* read_offset(Rd& rd, const SmContext& ctx, SmStatus& stt, BorrowedBases& borrowed);
 
 // A base block; NULL (with `stt`) when a surface of revolution fails to build.
-SmSurface* read_surface(Rd& rd, const SmContext& ctx, SmStatus& stt)
+SmSurface* read_surface(Rd& rd, const SmContext& ctx, SmStatus& stt, BorrowedBases& borrowed)
 {
     int64_t kind = rd.idx();
     switch (kind)
@@ -304,38 +330,44 @@ SmSurface* read_surface(Rd& rd, const SmContext& ctx, SmStatus& stt)
     }
     case 2:
     {
-        SmSurface* basis = read_surface(rd, ctx, stt);
+        std::unique_ptr<SmSurface> basis(read_surface(rd, ctx, stt, borrowed));
         bool implicit = rd.flag();
         if (basis == NULL)
             return NULL;
         SmTArray<SmCurve*> c3d, cuv;
-        return new (ctx) SmCurveBoundedSurface(*basis, &c3d, &cuv, implicit ? TRUE : FALSE);
+        auto* result = new (ctx) SmCurveBoundedSurface(*basis, &c3d, &cuv, implicit ? TRUE : FALSE);
+        basis.release();
+        return result;
     }
     case 3:
     {
-        SmSurface* base = read_surface(rd, ctx, stt);
+        std::unique_ptr<SmSurface> base(read_surface(rd, ctx, stt, borrowed));
         if (base == NULL)
             return NULL;
-        return new (ctx) SmSTEPSurface(*base, TRUE);
+        auto* result = new (ctx) SmSTEPSurface(*base, TRUE);
+        base.release();
+        return result;
     }
     case 4: return read_revolution(rd, ctx, stt);
-    default: return read_offset(rd, ctx, stt);
+    default: return read_offset(rd, ctx, stt, borrowed);
     }
 }
 
 // An offset block `d owns sing allow base`.
-SmOffsetSurface* read_offset(Rd& rd, const SmContext& ctx, SmStatus& stt)
+SmOffsetSurface* read_offset(Rd& rd, const SmContext& ctx, SmStatus& stt, BorrowedBases& borrowed)
 {
     double d = rd.num();
     SmBoolean owns = rd.bflag();
     ULONG sing = (ULONG)rd.idx();
     SmBoolean allow = rd.bflag();
-    SmSurface* base = read_surface(rd, ctx, stt);
+    std::unique_ptr<SmSurface> base(read_surface(rd, ctx, stt, borrowed));
     if (base == NULL)
         return NULL;
-    SmOffsetSurface* off = new (ctx) SmOffsetSurface(d, *base, owns, sing);
+    std::unique_ptr<SmOffsetSurface> off(new (ctx) SmOffsetSurface(d, *base, owns, sing));
+    if (owns) base.release();
+    else borrowed.push_back(std::move(base));
     off->SetAllowExtension(allow);
-    return off;
+    return off.release();
 }
 
 // ---- outputs ------------------------------------------------------------------------------
@@ -426,6 +458,7 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         SmBoolean ul = rd.bflag();
         SmBoolean vl = rd.bflag();
         SmBoolean upper = rd.bflag();
+        if (upper && hu > hv && delegates_to_plane(s, uv, hu, hv, step == S_EVAL_SIMPLE)) throw ScOffsetUnsafeInput{};
         std::vector<SmVector3d> a((hu + 1) * (hv + 1)); // SM_UNDEF_DOUBLE entries
         SmStatus stt;
         if (step == S_EVAL)
@@ -497,6 +530,13 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         bool w1 = rd.flag();
         bool w2 = rd.flag();
         SmBoolean expand = rd.bflag();
+        // Check the actual base after all preceding edits/evaluations, not a guessed
+        // domain in the Rust serializer. Outside-domain offset caches can recurse
+        // (UB-100) or subdivide without progress (HANG-12).
+        SmSurface* base = s->GetBaseSurface();
+        while (auto* nested = SM_CAST_PTR(SmOffsetSurface, base))
+            base = nested->GetBaseSurface();
+        if (!d.IsContainedBy(base->GetNaturalUVDomain(), SM_EFF_ZERO)) throw ScOffsetUnsafeInput{};
         SmExtent3d nb;
         SmPseudoBox pb;
         SmPolarBox qb;
@@ -579,13 +619,13 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         SmSurface* l = NULL;
         SmSurface* r = NULL;
         SmStatus stt = s->SplitAt(ctx, t, param, l, r);
+        std::unique_ptr<SmSurface> left(l), right(r);
         o.push_back(st(stt));
         if (stt == SM_SUCCESS)
         {
             put_result(o, l);
             put_result(o, r);
-            delete l;
-            delete r;
+
         }
         break;
     }
@@ -618,24 +658,25 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         {
             stt = s->Copy(ctx, r);
         }
+        std::unique_ptr<SmSurface> result(r);
         o.push_back(st(stt));
         if (stt == SM_SUCCESS && r)
         {
             put_result(o, r);
-            delete r;
         }
         break;
     }
     case S_EQ:
     {
         SmStatus bst = SM_SUCCESS;
-        SmOffsetSurface* other = read_offset(rd, ctx, bst);
+        BorrowedBases borrowed;
+        std::unique_ptr<SmOffsetSurface> other(read_offset(rd, ctx, bst, borrowed));
         o.push_back(st(bst));
         if (other)
         {
             o.push_back(flg(*s == *other));
             o.push_back(flg(*s == *s));
-            delete other;
+
         }
         break;
     }
@@ -672,7 +713,8 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
 void run_script(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 {
     SmStatus bst = SM_SUCCESS;
-    SmOffsetSurface* s = read_offset(rd, ctx, bst);
+    BorrowedBases borrowed;
+    std::unique_ptr<SmOffsetSurface> s(read_offset(rd, ctx, bst, borrowed));
     o.push_back(st(bst));
     int64_t n_steps = rd.idx();
     if (s == NULL)
@@ -682,14 +724,14 @@ void run_script(Rd& rd, const SmContext& ctx, std::vector<double>& o)
         return;
     }
     for (int64_t i = 0; i < n_steps; i++)
-        run_step(rd.idx(), rd, ctx, s, o);
-    delete s; // its base when owned, and its extended surface
+        run_step(rd.idx(), rd, ctx, s.get(), o);
 }
 
 void write_db(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 {
     SmStatus bst = SM_SUCCESS;
-    SmOffsetSurface* s = read_offset(rd, ctx, bst);
+    BorrowedBases borrowed;
+    std::unique_ptr<SmOffsetSurface> s(read_offset(rd, ctx, bst, borrowed));
     bool binary = rd.flag();
     ULONG version = (ULONG)rd.idx();
     o.push_back(st(bst));
@@ -703,7 +745,6 @@ void write_db(Rd& rd, const SmContext& ctx, std::vector<double>& o)
     std::string bytes = oss.str();
     for (char ch : bytes)
         o.push_back((double)(unsigned char)ch);
-    delete s;
 }
 
 void read_db(Rd& rd, const SmContext& ctx, std::vector<double>& o)
@@ -731,7 +772,7 @@ SC_EXPORT int32_t sc_surface_offset_surface_eval(int32_t op, const double* in, i
     if (in == NULL || n_in < 1 || out_len == NULL)
         return SC_ERR_ARG;
     SC_TRY
-    const SmContext& ctx = the_context();
+    SmContext ctx;
     Rd rd{in, 0};
     std::vector<double> o;
     switch (op)
@@ -748,5 +789,15 @@ SC_EXPORT int32_t sc_surface_offset_surface_eval(int32_t op, const double* in, i
         return SC_ERR_ARG;
     }
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
-    SC_CATCH
+    }
+    catch (const ScOffsetUnsafeInput&)
+    {
+        *out_len = 0;
+        return SC_ERR_ARG;
+    }
+    catch (...)
+    {
+        *out_len = 0;
+        return SC_ERR_EXCEPTION;
+    }
 }
