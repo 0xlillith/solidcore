@@ -2294,9 +2294,8 @@ mod tests {
         let mut uv = Vec2::ZERO;
         assert!(!t.does_point_lie_on_curve(&k, &mut uv, true).unwrap());
         assert!(!t.test_iso_curve(&k, SurfParamType::U, 0.0).unwrap());
-        assert!(tracer_surface_cache::<()>(&k, &t)
-            .unwrap_err()
-            .is_unported());
+        // (the cache builds: its continuities are surface::surface::p6)
+        assert!(tracer_surface_cache::<()>(&k, &t).is_ok());
     }
 
     #[test]

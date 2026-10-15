@@ -3179,6 +3179,40 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   Difftest: 20694 cases, 20173 pass bit-identically, 0 failed, 521 deferred
   (`surface.surf_of_revolution_p2` 456, `_p3` 65); perturbation 20173/20173.
 
+## surface.surface_p6 (`SmSurface`, part 6; partial, no disagreements)
+
+- **Coverage.** Every non-deferred case agrees bit for bit (`max_rel_err 0`). Most of the
+  unit sits behind `surface.surface_p4`/`_p5`: `GetSampleValues` defers at `DropPoint`
+  once its input checks pass, `LocalCurveIntersect` always defers
+  (`SmCSIntersectENFO::Evaluate`), `SimpleCoincidenceChecker` compares only disjoint boxes
+  (`GlobalPointSolve` next), `ClassifyIntersectingRangeSolution` only point solutions
+  (`LocalPointSolve` next), `SmSSGlobalSolver::IdenticalSolutions` defers at the
+  singularity test of non-plane surfaces, and `sm_SCLocalSolve` compares the boundary
+  curve/curve solves with `bSkipNormalize` (the point solves and the curve/surface solves
+  defer). `CalculateContinuities` and `CreateNaturalUVTrimCurves` compare fully on
+  B-spline, plane and revolution surfaces.
+- **`CreateIsoParametricCurve` dispatch.** The base body is `surface.surface_p5`; the
+  B-spline, plane (`SmLine`) and revolution (`SmCircle`) overrides are ported and are what
+  both functions call, so the iso curves keep their own `IsDegenerate`, `GetKnots` and
+  `CalculateContinuities`.
+- **`sm_SCLocalSolve` shim.** The verbatim copy takes the evaluated surface, the patch
+  surface and the node boxes instead of the tree nodes, and stops with status `-2` where it
+  would call `sm_SpLocalSolve` (static, `surface.surface_p5`); the Rust side defers there.
+- **Upstream quirks kept.** `SmSSGlobalSolver::IdenticalSolutions` reads the surface
+  parameters from `m_vStart[1..4]` (the solutions hold them in `[0..3]`);
+  `CalculateContinuities` keeps the knots of a replaced degenerate iso curve;
+  `GetSampleValues`' degenerate-tangent test scales `SM_EFF_ZERO` by `1.0 *` (not `1.0 +`)
+  the position's largest coordinate.
+- **Upstream crash.** UB-99: `GetSampleValues` with `SM_TT_DIR_TO_REFERENCE_CURVE` and no
+  reference curve dereferences `NULL` (found by a generated case); the shim refuses it.
+- **Wiring.** Surface caches now build (their tree needs `CalculateContinuities`), so
+  `intersect.surface_tracer`'s runner runs `DoTrace` on the cache instead of a placeholder
+  harness error, and `curve.iso_curve` has no deferred case left (green). The two
+  remaining `UNPORTED(surface.surface_p6)` markers in `surface_cache::p1` and
+  `surface::p7::is_planar` stood for the base `CalculateBoundingBox` of curve-bounded and
+  STEP surfaces, which needs a kernel those signatures do not take: now DISPATCH GAP notes
+  naming `surface.surface_p1`.
+
 ## surface.surface_p7 (`SmSurface`, part 7)
 
 - **Co-ported callees.** `SmSurface::Evaluate1stDerivatives`, `Evaluate2ndDerivatives` and
