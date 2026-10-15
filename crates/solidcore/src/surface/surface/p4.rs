@@ -1306,6 +1306,13 @@ impl Surface {
                 if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
                     surface_cache::<NoObject>(k, self, None)?;
                     // UNPORTED(query.face_p2): SmFace::PointClassify
+                    // NOTE for the face_p2 porter: upstream callers disable the surface
+                    // cache's point test (`m_bPointTestEnabled`, SmTemporaryChangeValue)
+                    // around GlobalPointSolve so every solution is kept unclassified:
+                    // SmCurveClass.cpp:1040, SmTopologySolver.cpp:1665 and
+                    // SmVertexUse.cpp:471-480 (Rust: `intersect::curve_class::p1`,
+                    // `intersect::topology_solver::p2`, `topology::vertexuse`). The Rust
+                    // cache has no such switch yet; add it when this stub is wired.
                     return Err(SolidError::unported(
                         "SmFace::PointClassify",
                         "query.face_p2",
@@ -1900,12 +1907,26 @@ pub fn global_point_solve_starts(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::nurbs::b_spline_surface::LocationType;
 
     fn plane() -> Surface {
         Surface::from(Plane::from_normal(
             Vec3::new(0.0, 0.0, 0.0),
             Vec3::new(0.0, 0.0, 1.0),
         ))
+    }
+
+    #[test]
+    fn plane_step_inversion_uses_the_plane_overrides() {
+        // GlobalPointSolve finds the point, then the plane's own (virtual) IsSingularity
+        // and IsClosed answer FALSE instead of reaching the unported base bodies
+        let s = plane();
+        let k = Kernel::default();
+        let dom = Extent2d::from_points(Point2::new(-2.0, -2.0), Point2::new(2.0, 2.0));
+        let p = s.evaluate_point(Point2::new(0.25, 0.5)).unwrap();
+        let (uv, loc) = s.step_inversion(&k, &dom, p, 1e-6, None).unwrap();
+        assert!((uv.x - 0.25).abs() < 1e-9 && (uv.y - 0.5).abs() < 1e-9);
+        assert_eq!(loc, LocationType::Interior);
     }
 
     #[test]
