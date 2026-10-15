@@ -2650,6 +2650,11 @@ pub struct CsGlobalSolver<'t, 's, O> {
     pub interval: Extent1d,
     /// `m_crUVDomain`.
     pub uv_domain: Extent2d,
+    /// The curve of the curve tree (its owner object), for the leaf solve (part 11).
+    pub curve: Option<&'s Curve>,
+    /// The cache holding the patches of the surface tree's nodes, for the leaf solve
+    /// (part 11; upstream reaches it through the node's tree owner).
+    pub surface_cache: Option<&'s SurfaceCache<O>>,
 }
 
 impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
@@ -2667,6 +2672,8 @@ impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
             surface,
             interval,
             uv_domain,
+            curve: None,
+            surface_cache: None,
         }
     }
 
@@ -2757,6 +2764,7 @@ impl<'t, 's, O: SolutionObject> SsGlobalSolver<'t, 's, O> {
             uv_domain1,
             uv_domain2,
             kernel,
+            caches: [None, None],
         }
     }
 }

@@ -591,10 +591,12 @@ impl SurfaceIntersector<'_> {
             return Err(SolidError::sm_err(OP_FIC));
         }
 
-        // Find node pairs in the tree
-        let solutions = self
+        // Find node pairs in the tree (SER: checked; surface::surface::p7, its leaf
+        // solve SmSSGlobalSolver::LocalSolve in surface::surface::p11)
+        let (_, nodes) = self
             .surface(SrfIndex::First)
-            .global_surface_solve::<SolveSurface>(
+            .global_surface_solve_with::<SolveSurface>(
+                k,
                 &self.uv_domains[0],
                 self.surface(SrfIndex::Second),
                 &self.uv_domains[1],
@@ -603,16 +605,18 @@ impl SurfaceIntersector<'_> {
                 None,
                 &[],
                 SolutionRequested::Nodes,
+                [Some(SolveSurface(0)), Some(SolveSurface(1))],
             )?;
-        let _ = (solutions, k, out);
-        // (each solution's two tree nodes: their boxes and Bezier patch UV domains,
-        // then find_interior_curves_from_node_pairs; the solve itself is stubbed in
-        // surface.surface_p11, which must return the SM_SR_NODES node pairs with it)
-        // UNPORTED(surface.surface_p11): SmSurface::GlobalSurfaceSolve (SM_SR_NODES tree nodes)
-        Err(SolidError::unported(
-            "SmSurface::GlobalSurfaceSolve",
-            "surface.surface_p11",
-        ))
+
+        // each solution's two tree nodes: their boxes and Bezier patch UV domains
+        let pairs: Vec<InteriorNodePair> = nodes
+            .iter()
+            .map(|n| InteriorNodePair {
+                bboxes: n.bboxes,
+                uv_domains: n.uv_domains,
+            })
+            .collect();
+        self.find_interior_curves_from_node_pairs(k, &pairs, out)
     }
 
     /// The loop of `FindInteriorCurves` over the node pairs of the global solve: a

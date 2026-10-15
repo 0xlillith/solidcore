@@ -1,13 +1,27 @@
 //! `SmSurface`, part 11: the local surface/surface intersection from a pair of guess
-//! points.
+//! points, and the leaf solves of the curve/surface and surface/surface global
+//! solvers.
 //!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`.
 //!
 //! | Rust                                              | Upstream                                         |
 //! |---------------------------------------------------|--------------------------------------------------|
-//! | [`Surface::local_surface_intersect`], [`SurfaceIntersection`], [`LocalSurfaceIntersectOptions`] | `SmSurface::LocalSurfaceIntersect` (not virtual) |
+//! | [`Surface::local_surface_intersect`], [`SurfaceIntersection`], [`LocalSurfaceIntersectOptions`] | `SmSurface::LocalSurfaceIntersect` (declared virtual; no class overrides it) |
+//! | [`CsGlobalSolver::local_solve_branch`] (and its `GlobalSolve` impl) | `SmCSGlobalSolver::LocalSolve`   |
+//! | [`SsGlobalSolver::local_solve_branch`]            | `SmSSGlobalSolver::LocalSolve`                   |
 //!
 //! Deviations:
+//! - **Patch data.** The leaf solves read the nodes' `SmBezierPatch` through the
+//!   solvers' borrowed surface caches (`CsGlobalSolver::surface_cache`,
+//!   `SsGlobalSolver::caches`; upstream casts `m_pData`), as `SmLSIGlobalSolver`'s
+//!   (unit `surface.surface_p10`). The surface evaluated and the original surface
+//!   (`sm_GetSurfaceToEvaluate`, `sm_GetOriginalSurface`) are the cache's surface; the
+//!   patch surface (`mBA_pSurface`) is the node's surface held by the cache. Polar
+//!   boxes are computed without being stored
+//!   ([`SurfaceCache::polar_box_unstored`]; the values are the same). The curve span's
+//!   ends (`GetEnds`) are the ones stored when the curve tree was built.
+//! - **Out-param.** `LocalSolve`'s `rbNeedsMoreSubdivision` is the return value
+//!   (always false, as upstream).
 //! - **Out-params** become return values: `LocalSurfaceIntersect` returns `None` for
 //!   `rbFoundAnswer == FALSE` and otherwise the solution it writes (`m_vStart[0..4]`
 //!   and its value, the distance between the two surface points) as a
@@ -19,31 +33,55 @@
 //!   depth and returns `SM_ERR` past [`MAX_RECURSION`] calls (upstream reaches depth 1).
 //! - **Statuses.** Every status upstream checks (`SER`) is propagated; the two
 //!   `Unitize` calls of the plane normal ignore theirs (a zero normal becomes
-//!   `(0, 0, 1)`, [`Vec3::unitize_or_z`]).
+//!   `(0, 0, 1)`, [`Vec3::unitize_or_z`]), and the leaf solves ignore
+//!   `SmExtent2d::Intersect`'s (a failure leaves the patch domain).
+//!   `AddSortedSolution` returns `void` upstream; its Rust errors (bad solution data)
+//!   are propagated as in the sibling leaf solves. [`SolidError::Unported`] always
+//!   propagates.
+//! - **Signed directed solves** without a vector (`m_cpOptVectors == NULL`, which
+//!   upstream dereferences) are `InvalidInput`.
 //! - **Unported callees** (return [`SolidError::Unported`]): the file-static
 //!   `sm_IntersectSrfBndryCrv` (boundary iso curve against the other surface, only with
 //!   `do_boundary_testing`; unit `surface.surface_p8`) and `SmSurface::LocalSurfaceSolve`
 //!   (the tangent-touching refinements when the normals at the solution are within 3
-//!   degrees of parallel; unit `surface.surface_p3`).
-//! - Debug-only work (`SM_ASSERT`) is not ported.
+//!   degrees of parallel, and the last step of every non-intersect surface/surface
+//!   leaf solve; unit `surface.surface_p3`).
+//! - Debug-only work (`SM_ASSERT`, `SM_DEBUG_CODE` drawing) is not ported.
 
-use crate::error::{Result, SolidError};
+use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentNd};
 use crate::geom::extent2d::Extent2d;
-use crate::geom::global_solver::SolverOperation;
+use crate::geom::extent3d::Extent3d;
+use crate::geom::geom_utility::p2::ContinuityType;
+use crate::geom::global_solver::{
+    Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolverOperation,
+};
 use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd, TerminationReason};
+use crate::geom::pseudo_box::{Projection, PseudoBox};
+use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType, SortKey};
 use crate::geom::tol::are_same;
+use crate::geom::tree::{NodeData, NodeId, Tree};
 use crate::geom::vector2d::Point2;
-use crate::geom::vector3d::{Point3, Vec3};
-use crate::math::{EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::geom::vector3d::{sqrt, Point3, Vec3};
+use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
+use crate::surface::surface_cache::p1::{BezierPatch, SurfaceCache};
 
-use super::p1::{SsiNormalizeEnfo, SspIntersectEnfo};
+use super::p1::{
+    is_node_valid, is_point_valid, surface_to_evaluate, CsGlobalSolver, SsiNormalizeEnfo,
+    SspIntersectEnfo,
+};
+use super::p2::{cs_are_perpen_disjoint_in, original_surface};
+use super::p5::cs_identical_solutions;
+use super::p6::{boundary_iso_curve, sc_local_solve, ScLocalSolveNodes};
+use super::p7::{pass_ss_convergence_test, SsGlobalSolver};
 use super::Surface;
 
 const OP_LSI: &str = "surface::surface::p11::Surface::local_surface_intersect";
+const OP_CS: &str = "surface::surface::p11::CsGlobalSolver::local_solve_branch";
+const OP_SS: &str = "surface::surface::p11::SsGlobalSolver::local_solve_branch";
 
 /// The deepest `LocalSurfaceIntersect` self call accepted (upstream reaches 1).
 pub const MAX_RECURSION: usize = 16;
@@ -108,7 +146,16 @@ fn local_surface_solve(
     uv: Point2,
     other_uv: Point2,
 ) -> Result<Option<([f64; 4], f64)>> {
-    let _ = (surface, uv_domain, other, other_uv_domain, op, tol, uv, other_uv);
+    let _ = (
+        surface,
+        uv_domain,
+        other,
+        other_uv_domain,
+        op,
+        tol,
+        uv,
+        other_uv,
+    );
     // UNPORTED(surface.surface_p3): SmSurface::LocalSurfaceSolve
     Err(SolidError::unported(
         "SmSurface::LocalSurfaceSolve",
@@ -249,8 +296,7 @@ impl Surface {
         //       for 1st boundaryCurve/Surface intersection
         if do_boundary {
             // when guessPoint is on Surface1 U Boundary
-            if are_same(uv_guess.x, uv_domain.min().x) || are_same(uv_guess.x, uv_domain.max().x)
-            {
+            if are_same(uv_guess.x, uv_domain.min().x) || are_same(uv_guess.x, uv_domain.max().x) {
                 tried_boundary = true;
                 this_on_boundary = true;
 
@@ -647,8 +693,13 @@ impl Surface {
 
                     // set up surf/surf/plane intersection NewtonRaphson solver using
                     // different eqns
-                    let mut eval_fun2 =
-                        SsiNormalizeEnfo::new(self, other, EFF_ZERO * EFF_ZERO, plane_norm, plane_d);
+                    let mut eval_fun2 = SsiNormalizeEnfo::new(
+                        self,
+                        other,
+                        EFF_ZERO * EFF_ZERO,
+                        plane_norm,
+                        plane_d,
+                    );
                     let r2 = {
                         let mut ls2 =
                             LocalSolveNd::new(&mut eval_fun2, Some(&ivls2), Some(&periodicities2));
@@ -721,6 +772,761 @@ impl Surface {
 
         // all done
         Ok(None)
+    }
+}
+
+// ---- the global solvers' local solves -------------------------------------------------------
+
+/// `SmContinuityType` order (`<=` compares the upstream values).
+const fn ct(c: ContinuityType) -> i32 {
+    c as i32
+}
+
+/// Copies the node ids of `branch` into `solution.nodes[0..2]`.
+fn set_nodes<O>(solution: &mut Solution<O>, branch: &Branch) {
+    for (slot, id) in solution
+        .nodes
+        .iter_mut()
+        .zip(branch.iter().copied())
+        .take(2)
+    {
+        *slot = id;
+    }
+}
+
+/// The patch of a surface tree node and the surfaces it refers to: the cache's
+/// surface for `sm_GetOriginalSurface` / `sm_GetSurfaceToEvaluate` and the patch's
+/// `mBA_pSurface`.
+struct PatchView<'c, O> {
+    patch: BezierPatch<O>,
+    eval: &'c Surface,
+    patch_surface: &'c Surface,
+}
+
+/// Resolves the patch of surface node `id` in `cache` (upstream casts `m_pData` and
+/// reads `mBA_pSurface`; the tree's original surface must be the cache's).
+fn patch_view<'c, O: SolutionObject>(
+    op: &'static str,
+    tree: &Tree<O>,
+    cache: &'c SurfaceCache<O>,
+    id: NodeId,
+) -> Result<PatchView<'c, O>> {
+    let node = tree.node(id)?;
+    let patch = cache.patch(id)?.clone();
+    if Some(surface_to_evaluate(tree, node)?) != cache.surface_handle() {
+        return Err(SolidError::invalid_input(
+            op,
+            "surface cache does not own the tree's surface",
+        ));
+    }
+    let handle = match node.data {
+        NodeData::Surface(aux) => aux.surface,
+        _ => None,
+    };
+    let patch_surface = cache.node_surface(handle)?;
+    Ok(PatchView {
+        patch,
+        eval: cache.surface(),
+        patch_surface,
+    })
+}
+
+/// The tight box test of the signed directed solves: the first box, grown by
+/// `tol`, and the second projected along `vector` are disjoint
+/// (`AreProjectDisjoint(.., SM_PT_PARALLEL, &center, &m_cpOptVectors[0], NULL)`).
+fn project_disjoint(first: &PseudoBox, second: &PseudoBox, tol: f64, vector: Vec3) -> bool {
+    let mut tmp = *first;
+    tmp.expand_absolute(tol);
+    let proj_point = tmp.evaluate(0.5, 0.5, 0.5);
+    let proj = Projection::Parallel {
+        point: proj_point,
+        normal: vector,
+    };
+    tmp.are_project_disjoint(second, &proj)
+}
+
+/// `m_cpOptVectors[0]` (upstream dereferences `NULL` without vectors).
+fn first_vector(op: &'static str, vectors: &[Vec3]) -> Result<Vec3> {
+    vectors
+        .first()
+        .copied()
+        .ok_or_else(|| SolidError::invalid_input(op, "signed directed solve without a vector"))
+}
+
+/// The minimize cull of both local solves: the boxes, each grown by half of the best
+/// distance so far plus the tolerance, are disjoint.
+fn best_answer_disjoint(first: &PseudoBox, second: &PseudoBox, best_sq: f64, tol: f64) -> bool {
+    let mut b1 = *first;
+    let mut b2 = *second;
+    b1.expand_absolute((sqrt(best_sq) + tol) / 2.0);
+    b2.expand_absolute((sqrt(best_sq) + tol) / 2.0);
+    b1.are_disjoint(&b2, None)
+}
+
+/// The patch domain limited to the solve domain with the patch side continuities
+/// (sides on the solve domain's boundary become discontinuous); `None` when the
+/// limited domain has a zero length side (no work).
+fn limit_domain(
+    patch_domain: Extent2d,
+    solve_domain: &Extent2d,
+    mut u_conts: [ContinuityType; 2],
+    mut v_conts: [ContinuityType; 2],
+) -> Result<Option<(Extent2d, [ContinuityType; 2], [ContinuityType; 2])>> {
+    let mut domain = patch_domain;
+    if solve_domain.min().x >= domain.min().x {
+        u_conts[0] = ContinuityType::Discontinuous;
+    }
+    if solve_domain.max().x <= domain.max().x {
+        u_conts[1] = ContinuityType::Discontinuous;
+    }
+    if solve_domain.min().y >= domain.min().y {
+        v_conts[0] = ContinuityType::Discontinuous;
+    }
+    if solve_domain.max().y <= domain.max().y {
+        v_conts[1] = ContinuityType::Discontinuous;
+    }
+    if !domain.is_contained_by(solve_domain, EFF_ZERO) {
+        // (SE: SmExtent2d::Intersect's status is ignored; a failure leaves the domain)
+        if let Some(d) = ignored(domain.intersect(solve_domain))? {
+            domain = d;
+        }
+        // Check for zero in either domain bound
+        if are_same(domain.max().x, domain.min().x) || are_same(domain.max().y, domain.min().y) {
+            return Ok(None);
+        }
+    }
+    Ok(Some((domain, u_conts, v_conts)))
+}
+
+impl<'t, O: SolutionObject + 't> CsGlobalSolver<'t, '_, O> {
+    /// `SmCSGlobalSolver::LocalSolve`: solves the curve span of `branch[0]` against
+    /// the Bezier patch of `branch[1]` (culling by node class, domains, boxes and, for
+    /// signed directed minimizes, the projected boxes and the patch's normal cone; for
+    /// minimizes a curve/surface intersection first), then `sm_SCLocalSolve`, adding the
+    /// solutions `[t, u, v]` inside the face to `base.solutions`. Returns the request
+    /// for more subdivision (always false).
+    ///
+    /// Dispatch: the evaluations run on the cache's surface (`sm_GetSurfaceToEvaluate`,
+    /// its own kind) and `self.curve`.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR_NULL_POINTER` without `curve` or `surface_cache`; `InvalidInput` when the
+    /// nodes are not a span and a patch of those caches, or for a signed directed
+    /// solve without a vector; those of the checked (`SER`) calls:
+    /// `SmExtent1d::Intersect`, `LocalCurveIntersect` and `sm_SCLocalSolve`.
+    #[allow(clippy::too_many_lines)]
+    pub fn local_solve_branch(&mut self, branch: &Branch) -> Result<bool> {
+        let curve_node = *self.base.branch_node(branch, 0)?;
+        let surface_node = *self.base.branch_node(branch, 1)?;
+        let surface_id = branch
+            .get(1)
+            .copied()
+            .flatten()
+            .ok_or(SolidError::null_pointer(OP_CS))?;
+        let cache = self.surface_cache.ok_or(SolidError::null_pointer(OP_CS))?;
+        let curve = self.curve.ok_or(SolidError::null_pointer(OP_CS))?;
+        let curve_tree = self.base.tree(0)?;
+        let surface_tree = self.base.tree(1)?;
+        let span = *curve_tree.curve_span(&curve_node)?;
+        let view = patch_view(OP_CS, surface_tree, cache, surface_id)?;
+        let patch = &view.patch;
+
+        // If the classification of the node is outside then we can quit here
+        if !is_node_valid(surface_tree.owner(), cache, &surface_node)? {
+            return Ok(false);
+        }
+
+        let surface_handle = original_surface(surface_tree, &surface_node)?;
+        let curve_handle = curve_tree.owner_object()?;
+        let mut ivl = *span.aux.interval();
+        let op = self.base.operation;
+        let tol = self.base.tolerance_3d;
+
+        // Do interval tests and reject if disjoint
+        if patch.aux.uv_domain.are_disjoint(&self.uv_domain, 0.0) {
+            return Ok(false);
+        }
+        if self.interval.are_disjoint(&ivl, 0.0) {
+            return Ok(false);
+        }
+
+        if op == SolverOperation::Signed3dDirectedMinimize {
+            // Do a tight bounding box test in projected space to see if they are
+            // disjoint
+            let vector = first_vector(OP_CS, &self.base.opt_vectors)?;
+            if project_disjoint(&span.pseudo_box, &patch.pseudo_box, tol, vector) {
+                return Ok(false);
+            }
+            // Do a test to see if the range of vectors possible with the curve do not
+            // cross the perpendicular of the normal field.
+            let polar = cache.polar_box_unstored(surface_id)?;
+            let [start, end] = span.aux.ends;
+            let line_vec = end - start;
+            if line_vec.length_squared() > EFF_ZERO_SQ {
+                let mut curve_angle = span.aux.max_turning_angle_deg * PI / 180.0;
+                curve_angle += 3.0 * PI / 180.0;
+                if polar.is_perpendicular_disjoint_with_cone(line_vec, curve_angle) {
+                    return Ok(false);
+                }
+            }
+        }
+
+        let mut t_conts = span.aux.conts;
+        let Some((uv_domain, u_conts, v_conts)) = limit_domain(
+            patch.aux.uv_domain,
+            &self.uv_domain,
+            patch.u_curve_conts,
+            patch.v_curve_conts,
+        )?
+        else {
+            return Ok(false);
+        };
+
+        if self.interval.min() >= ivl.min() {
+            t_conts[0] = ContinuityType::Discontinuous;
+        }
+        if self.interval.max() <= ivl.max() {
+            t_conts[1] = ContinuityType::Discontinuous;
+        }
+        if !ivl.is_contained_by(&self.interval, EFF_ZERO) {
+            // (SER: checked)
+            ivl = ivl.intersect(&self.interval)?;
+            // Check for zero length intervals
+            if are_same(ivl.max(), ivl.min()) {
+                return Ok(false);
+            }
+        }
+
+        if op == SolverOperation::Minimize {
+            // If we are minimizing and the bounding boxes intersect then we should try
+            // to intersect the curve and surface to see if we have a zero length
+            // minimization.
+            let mut box0 = patch.pseudo_box;
+            box0.expand_absolute(tol);
+            if !box0.are_disjoint(&span.pseudo_box, None) {
+                let uv_guess = uv_domain.evaluate(0.5, 0.5);
+                let t_guess = ivl.evaluate(0.5);
+                // (SER: checked; LocalCurveIntersect is not overridden)
+                let hit = view
+                    .eval
+                    .local_curve_intersect(&uv_domain, curve, &ivl, tol, uv_guess, t_guess)?;
+                if let Some(h) = hit {
+                    // for points within the surface's trim boundary
+                    if is_point_valid(surface_tree.owner(), cache, h.uv) {
+                        let mut solution = Solution::new();
+                        solution.num_variables = 3;
+                        *solution.start.param_mut(0)? = h.t;
+                        *solution.start.param_mut(1)? = h.uv.x;
+                        *solution.start.param_mut(2)? = h.uv.y;
+                        solution.start.solution_value = h.deviation;
+                        solution.solution_type = SolutionType::SingleValue;
+                        solution.num_objects = 2;
+                        solution.objects[0] = curve_handle;
+                        solution.objects[1] = Some(surface_handle);
+                        set_nodes(&mut solution, branch);
+                        self.add_sorted_solution(&solution, SortKey::ByValueWithParameter, true)?;
+                    }
+                }
+            }
+
+            if self.base.best_answer_so_far_sq < BIG_DOUBLE / 10.0
+                && best_answer_disjoint(
+                    &patch.pseudo_box,
+                    &span.pseudo_box,
+                    self.base.best_answer_so_far_sq,
+                    tol,
+                )
+            {
+                return Ok(false);
+            }
+        }
+
+        // The following loop will do all of the extra work required if there are
+        // discontinuities at the ends of the curves or boundaries of the patches.
+        let mut skip_normalize = false;
+        if (op == SolverOperation::Minimize || op == SolverOperation::Maximize)
+            && cs_are_perpen_disjoint_in(curve_tree, &curve_node, &surface_node, cache, surface_id)?
+        {
+            skip_normalize = true;
+        }
+
+        let nodes = ScLocalSolveNodes {
+            eval_surface: view.eval,
+            patch_surface: view.patch_surface,
+            surface_box: surface_node.bbox,
+            curve_box: Some(curve_node.bbox),
+        };
+        // (SER: checked)
+        let solutions: SolutionArray<O> = sc_local_solve(
+            &nodes,
+            &uv_domain,
+            u_conts,
+            v_conts,
+            curve,
+            &ivl,
+            t_conts,
+            tol,
+            &self.base.opt_vectors,
+            op,
+            skip_normalize,
+            cache.process_boundary_curves,
+        )?;
+
+        for solution in solutions.as_slice() {
+            let mut solution = *solution;
+            solution.num_variables = 3;
+            solution.num_objects = 2;
+            solution.objects[0] = curve_handle;
+            solution.objects[1] = Some(surface_handle);
+            set_nodes(&mut solution, branch);
+
+            // for points within the surface's trim boundary
+            let uv_found = Point2::new(solution.start.param(1)?, solution.start.param(2)?);
+            if is_point_valid(surface_tree.owner(), cache, uv_found) {
+                let key = if op == SolverOperation::Minimize
+                    || op == SolverOperation::Maximize
+                    || op == SolverOperation::Signed3dDirectedMinimize
+                {
+                    SortKey::ByValueWithParameter
+                } else {
+                    SortKey::ByFirstParameter
+                };
+                self.add_sorted_solution(&solution, key, true)?;
+            }
+        }
+
+        Ok(false)
+    }
+}
+
+impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for CsGlobalSolver<'t, '_, O> {
+    fn solver(&self) -> &GlobalSolver<'t, O> {
+        &self.base
+    }
+
+    fn solver_mut(&mut self) -> &mut GlobalSolver<'t, O> {
+        &mut self.base
+    }
+
+    fn branch_may_contain_answers(&mut self, branch: &Branch) -> Result<bool> {
+        // (surface::surface::p1)
+        CsGlobalSolver::branch_may_contain_answers(self, branch)
+    }
+
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.local_solve_branch(branch)
+    }
+
+    fn identical_solutions(
+        &self,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
+    ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
+        // (surface::surface::p5)
+        cs_identical_solutions(&self.base, self.surface, sol1, sol2)
+    }
+}
+
+/// One boundary iso curve solve of `SmSSGlobalSolver::LocalSolve`: which surface's
+/// patch side (`own`), in which direction.
+#[derive(Debug, Clone, Copy)]
+enum Side4 {
+    /// Surface 1, constant `u`.
+    U1,
+    /// Surface 1, constant `v`.
+    V1,
+    /// Surface 2, constant `u`.
+    U2,
+    /// Surface 2, constant `v`.
+    V2,
+}
+
+impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
+    /// The boundary iso curve solves of `SmSSGlobalSolver::LocalSolve` (minimize and
+    /// maximize with boundary processing): the patch sides of one surface with
+    /// position discontinuities against the other patch (`sm_SCLocalSolve`), the
+    /// solutions remapped to `[u1, v1, u2, v2]`. Upstream's `continue` for an interior
+    /// side at `j == 1` skips the rest of that pass.
+    #[allow(clippy::too_many_arguments)]
+    fn boundary_solves(
+        &mut self,
+        branch: &Branch,
+        views: [&PatchView<'_, O>; 2],
+        boxes: [Extent3d; 2],
+        domains: [Extent2d; 2],
+        conts: [[ContinuityType; 2]; 4],
+        objects: [Option<O>; 2],
+        process_boundary_curves: bool,
+    ) -> Result<()> {
+        let op = self.base.operation;
+        let tol = self.base.tolerance_3d;
+        let c0 = ct(ContinuityType::C0);
+        let [u_conts, v_conts, u_conts2, v_conts2] = conts;
+        let [dom1, dom2] = domains;
+        // To prevent from solving same low level solutions twice
+        let tmp_conts = [ContinuityType::C1C2; 2];
+        let vectors = self.base.opt_vectors.clone();
+        let [view1, view2] = views;
+        let [box1, box2] = boxes;
+
+        'pass: for j in 0..2_usize {
+            // Only do this discontinuity checking if performing min/max
+            if op != SolverOperation::Minimize && op != SolverOperation::Maximize {
+                continue;
+            }
+            if !process_boundary_curves {
+                continue;
+            }
+            let from_left = j == 0;
+            for side in [Side4::U1, Side4::V1, Side4::U2, Side4::V2] {
+                let side_conts = match side {
+                    Side4::U1 => u_conts,
+                    Side4::V1 => v_conts,
+                    Side4::U2 => u_conts2,
+                    Side4::V2 => v_conts2,
+                };
+                let c = side_conts
+                    .get(j)
+                    .copied()
+                    .ok_or(SolidError::sm_err(OP_SS))?;
+                if ct(c) > c0 {
+                    continue;
+                }
+                // Only solve for internal curves once
+                if j == 1 && c != ContinuityType::Discontinuous {
+                    continue 'pass;
+                }
+                // the iso curve's surface and domain, and the patch it is solved against
+                let (own_view, own_dom, other_view, other_dom, other_box) = match side {
+                    Side4::U1 | Side4::V1 => (view1, dom1, view2, dom2, box2),
+                    Side4::U2 | Side4::V2 => (view2, dom2, view1, dom1, box1),
+                };
+                let (dir, value, ic_ivl) = match side {
+                    Side4::U1 | Side4::U2 => (
+                        SurfParamType::U,
+                        if from_left {
+                            own_dom.min().x
+                        } else {
+                            own_dom.max().x
+                        },
+                        Extent1d::from_min_max(own_dom.min().y, own_dom.max().y),
+                    ),
+                    Side4::V1 | Side4::V2 => (
+                        SurfParamType::V,
+                        if from_left {
+                            own_dom.min().y
+                        } else {
+                            own_dom.max().y
+                        },
+                        Extent1d::from_min_max(own_dom.min().x, own_dom.max().x),
+                    ),
+                };
+                // SmIsoCurve(*pSrfEval, dir, value, bFlag) over the evaluated surface
+                let ic = boundary_iso_curve(own_view.eval, dir, value, from_left)?;
+                // (IsDegenerate's default tolerance SM_EFF_ZERO; the iso curve's kind)
+                if ic.is_degenerate(EFF_ZERO, None)? {
+                    continue;
+                }
+                // the patch continuities and the curve's (the other direction's)
+                let (pu, pv, t_conts) = match side {
+                    Side4::U1 => (u_conts2, v_conts2, v_conts),
+                    Side4::V1 => (u_conts2, v_conts2, u_conts),
+                    Side4::U2 => (tmp_conts, tmp_conts, v_conts2),
+                    Side4::V2 => (tmp_conts, tmp_conts, u_conts2),
+                };
+                let nodes = ScLocalSolveNodes {
+                    eval_surface: other_view.eval,
+                    patch_surface: other_view.patch_surface,
+                    surface_box: other_box,
+                    curve_box: None,
+                };
+                // (SER: checked)
+                let sols: SolutionArray<O> = sc_local_solve(
+                    &nodes,
+                    &other_dom,
+                    pu,
+                    pv,
+                    &ic,
+                    &ic_ivl,
+                    t_conts,
+                    tol,
+                    &vectors,
+                    op,
+                    false,
+                    process_boundary_curves,
+                )?;
+                for sol in sols.as_slice() {
+                    let mut r = *sol;
+                    r.num_variables = 4;
+                    set_nodes(&mut r, branch);
+                    r.num_objects = 2;
+                    r.objects[0] = objects[0];
+                    r.objects[1] = objects[1];
+                    // the solution [t, u, v] of the iso curve and the other patch
+                    let s0 = r.start.param(0)?;
+                    let s1 = r.start.param(1)?;
+                    let s2 = r.start.param(2)?;
+                    let new = match side {
+                        Side4::U1 => [value, s0, s1, s2],
+                        // (upstream leaves m_vStart[0], the curve parameter: u1)
+                        Side4::V1 => [s0, value, s1, s2],
+                        Side4::U2 => [s1, s2, value, s0],
+                        Side4::V2 => [s1, s2, s0, value],
+                    };
+                    for (i, v) in new.into_iter().enumerate() {
+                        *r.start.param_mut(i)? = v;
+                    }
+                    r.solution_type = SolutionType::SingleValue;
+                    self.add_sorted_solution(&r, SortKey::ByValueWithParameter, true)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// `SmSSGlobalSolver::LocalSolve`: solves the Bezier patches of `branch[0]` and
+    /// `branch[1]` (culling by node class, domains, boxes and the patches' normal
+    /// cones; for intersections only the node pair is recorded; for minimizes a local
+    /// surface/surface intersection first and the boundary iso curves with position
+    /// discontinuities), then the local surface/surface solve from the patch middles,
+    /// adding the solutions `[u1, v1, u2, v2]` inside both faces to `base.solutions`.
+    /// Returns the request for more subdivision (always false).
+    ///
+    /// Dispatch: the evaluations run on the caches' surfaces (`sm_GetOriginalSurface`
+    /// / `sm_GetSurfaceToEvaluate`, each its own kind).
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR_NULL_POINTER` without both `caches`; `InvalidInput` when a node is not a
+    /// patch of its cache or for a signed directed solve without a vector; those of
+    /// the checked (`SER`) calls: `ComputeConeBoundTo`, `LocalSurfaceIntersect`,
+    /// `sm_SCLocalSolve`, `LocalSurfaceSolve` and `sm_PassSSConvergenceTest`;
+    /// [`SolidError::Unported`]: `SmSurface::LocalSurfaceSolve` (`surface.surface_p3`).
+    #[allow(clippy::too_many_lines)]
+    pub fn local_solve_branch(&mut self, branch: &Branch) -> Result<bool> {
+        let node1 = *self.base.branch_node(branch, 0)?;
+        let node2 = *self.base.branch_node(branch, 1)?;
+        let id1 = branch
+            .first()
+            .copied()
+            .flatten()
+            .ok_or(SolidError::null_pointer(OP_SS))?;
+        let id2 = branch
+            .get(1)
+            .copied()
+            .flatten()
+            .ok_or(SolidError::null_pointer(OP_SS))?;
+        let [Some(cache1), Some(cache2)] = self.caches else {
+            return Err(SolidError::null_pointer(OP_SS));
+        };
+        let tree1 = self.base.tree(0)?;
+        let tree2 = self.base.tree(1)?;
+        let view1 = patch_view(OP_SS, tree1, cache1, id1)?;
+        let view2 = patch_view(OP_SS, tree2, cache2, id2)?;
+
+        // If the classification of the node is outside then we can quit here
+        if !is_node_valid(tree1.owner(), cache1, &node1)? {
+            return Ok(false);
+        }
+        if !is_node_valid(tree2.owner(), cache2, &node2)? {
+            return Ok(false);
+        }
+
+        let objects = [tree1.owner_object()?, tree2.owner_object()?];
+        let op = self.base.operation;
+        let tol = self.base.tolerance_3d;
+        let patch1 = &view1.patch;
+        let patch2 = &view2.patch;
+
+        // Do interval tests and reject if disjoint
+        if patch1.aux.uv_domain.are_disjoint(&self.uv_domain1, 0.0) {
+            return Ok(false);
+        }
+        if patch2.aux.uv_domain.are_disjoint(&self.uv_domain2, 0.0) {
+            return Ok(false);
+        }
+
+        if op == SolverOperation::Intersect {
+            let mut box0 = patch1.pseudo_box;
+            box0.expand_absolute(tol);
+            if !box0.are_disjoint(&patch2.pseudo_box, None) {
+                let mut solution = Solution::new();
+                set_nodes(&mut solution, branch);
+                solution.start.solution_value = 0.0;
+                solution.solution_type = SolutionType::SingleValue;
+                solution.num_objects = 2;
+                solution.objects[0] = objects[0];
+                solution.objects[1] = objects[1];
+                solution.num_variables = 0;
+                self.add_sorted_solution(&solution, SortKey::BySolutionValue, true)?;
+            }
+            return Ok(false);
+        }
+
+        let Some((dom1, u_conts, v_conts)) = limit_domain(
+            patch1.aux.uv_domain,
+            &self.uv_domain1,
+            patch1.u_curve_conts,
+            patch1.v_curve_conts,
+        )?
+        else {
+            return Ok(false);
+        };
+        let Some((dom2, u_conts2, v_conts2)) = limit_domain(
+            patch2.aux.uv_domain,
+            &self.uv_domain2,
+            patch2.u_curve_conts,
+            patch2.v_curve_conts,
+        )?
+        else {
+            return Ok(false);
+        };
+
+        if op == SolverOperation::Minimize {
+            // If we are minimizing and the bounding boxes intersect then we should try
+            // to intersect the curve and surface to see if we have a zero length
+            // minimization.
+            let mut box0 = patch1.pseudo_box;
+            box0.expand_absolute(tol);
+            if !box0.are_disjoint(&patch2.pseudo_box, None) {
+                let uv_guess1 = dom1.evaluate(0.5, 0.5);
+                let uv_guess2 = dom2.evaluate(0.5, 0.5);
+                // (SER: checked; cpSurf1/cpSurf2 are the original surfaces, over their
+                // natural domains, with boundary testing)
+                let found = view1.eval.local_surface_intersect(
+                    &view1.eval.natural_uv_domain(),
+                    view2.eval,
+                    &view2.eval.natural_uv_domain(),
+                    tol,
+                    uv_guess1,
+                    uv_guess2,
+                    &LocalSurfaceIntersectOptions {
+                        plane_normal: None,
+                        previous_uv: None,
+                        do_boundary_testing: true,
+                    },
+                )?;
+                if let Some(x) = found {
+                    if is_point_valid(tree1.owner(), cache1, x.uv)
+                        && is_point_valid(tree2.owner(), cache2, x.other_uv)
+                    {
+                        let mut solution = Solution::new();
+                        solution.num_variables = 4;
+                        solution.solution_type = SolutionType::SingleValue;
+                        solution.start.solution_value = x.deviation;
+                        for (i, v) in [x.uv.x, x.uv.y, x.other_uv.x, x.other_uv.y]
+                            .into_iter()
+                            .enumerate()
+                        {
+                            *solution.start.param_mut(i)? = v;
+                        }
+                        solution.num_objects = 2;
+                        solution.objects[0] = objects[0];
+                        solution.objects[1] = objects[1];
+                        set_nodes(&mut solution, branch);
+                        self.add_sorted_solution(&solution, SortKey::ByValueWithParameter, true)?;
+                    }
+                }
+            }
+
+            if self.base.best_answer_so_far_sq < BIG_DOUBLE / 10.0
+                && best_answer_disjoint(
+                    &patch1.pseudo_box,
+                    &patch2.pseudo_box,
+                    self.base.best_answer_so_far_sq,
+                    tol,
+                )
+            {
+                return Ok(false);
+            }
+        }
+
+        // The following loop will do all of the extra work required if there are
+        // discontinuities at the ends of the curves or boundaries of the patches.
+        // (GetProcessBoundaryCurves of the first node's cache)
+        let process_boundary_curves = cache1.process_boundary_curves;
+        self.boundary_solves(
+            branch,
+            [&view1, &view2],
+            [node1.bbox, node2.bbox],
+            [dom1, dom2],
+            [u_conts, v_conts, u_conts2, v_conts2],
+            objects,
+            process_boundary_curves,
+        )?;
+
+        let polar1 = cache1.polar_box_unstored(id1)?;
+        let polar2 = cache2.polar_box_unstored(id2)?;
+        if op == SolverOperation::Signed3dDirectedMinimize {
+            // Do a tight bounding box test in projected space to see if they are
+            // disjoint
+            let vector = first_vector(OP_SS, &self.base.opt_vectors)?;
+            if project_disjoint(&patch1.pseudo_box, &patch2.pseudo_box, tol, vector) {
+                return Ok(false); // No answer
+            }
+            // Check to see if gauss maps are disjoint.
+            if polar1.are_disjoint(&polar2) {
+                return Ok(false); // No answer
+            }
+        } else {
+            // Minimize, normalize, maximize (SER: checked)
+            let (cone_vec, cone_angle) = node1.bbox.cone_bound_to(&node2.bbox)?;
+            if polar1.is_disjoint_with_cone(cone_vec, cone_angle) {
+                return Ok(false);
+            }
+            if polar2.is_disjoint_with_cone(cone_vec, cone_angle) {
+                return Ok(false);
+            }
+            if polar1.are_disjoint(&polar2) {
+                return Ok(false); // No answer
+            }
+        }
+
+        // one guess: the patch middles
+        let uv_guess1 = dom1.evaluate(0.5, 0.5);
+        let uv_guess2 = dom2.evaluate(0.5, 0.5);
+        // (SER: checked; pSrfEval1->LocalSurfaceSolve, not virtual)
+        let mut found = local_surface_solve(
+            view1.eval, &dom1, view2.eval, &dom2, op, tol, uv_guess1, uv_guess2,
+        )?;
+        // Have to check for normalized answers here
+        if let Some((x, _)) = found {
+            if op != SolverOperation::Signed3dDirectedMinimize {
+                let (uv, uv2) = split(&x);
+                // (SER: checked)
+                if !pass_ss_convergence_test(view1.eval, uv, view2.eval, uv2)? {
+                    found = None;
+                }
+            }
+        }
+        if let Some((x, value)) = found {
+            let mut solution = Solution::new();
+            // (the solution LocalSurfaceSolve writes: single valued, four variables)
+            solution.solution_type = SolutionType::SingleValue;
+            solution.start.solution_value = value;
+            for (i, v) in x.into_iter().enumerate() {
+                *solution.start.param_mut(i)? = v;
+            }
+            solution.num_variables = 4;
+            set_nodes(&mut solution, branch);
+            solution.num_objects = 2;
+            solution.objects[0] = objects[0];
+            solution.objects[1] = objects[1];
+            let (uv1, uv2) = split(&x);
+            if is_point_valid(tree1.owner(), cache1, uv1)
+                && is_point_valid(tree2.owner(), cache2, uv2)
+            {
+                let key = if op == SolverOperation::Minimize || op == SolverOperation::Maximize {
+                    SortKey::ByValueWithParameter
+                } else {
+                    SortKey::ByFirstTwoParameters
+                };
+                self.add_sorted_solution(&solution, key, true)?;
+            }
+        }
+
+        Ok(false)
     }
 }
 

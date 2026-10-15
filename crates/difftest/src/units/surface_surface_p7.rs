@@ -707,6 +707,40 @@ impl SolutionObject for Obj {
     }
 }
 
+/// The handles of the global curve and surface solves (wired by unit
+/// `surface.surface_p11`): the solved curve or surface, with the natural interval or
+/// domain upstream reads through the object pointer.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Handle {
+    id: u8,
+    interval: Option<Extent1d>,
+    domain: Option<Extent2d>,
+}
+
+impl SolutionObject for Handle {
+    fn kind(&self) -> ObjectKind {
+        if self.interval.is_some() {
+            ObjectKind::Curve
+        } else {
+            ObjectKind::Surface
+        }
+    }
+    fn natural_interval(&self) -> Option<Extent1d> {
+        self.interval
+    }
+    fn natural_uv_domain(&self) -> Option<Extent2d> {
+        self.domain
+    }
+}
+
+fn surface_handle(id: u8, s: &Surface) -> Option<Handle> {
+    Some(Handle {
+        id,
+        interval: None,
+        domain: Some(s.natural_uv_domain()),
+    })
+}
+
 fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
     let s = surface_of(&i.surface)?;
     let mut o = Vec::new();
@@ -919,7 +953,14 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         } => {
             let c = curve_of(curve)?;
             let vecs: Vec<Vec3> = vecs.iter().map(|p| v3(*p)).collect();
-            let r: solidcore::Result<SolutionArray<Obj>> = s.global_curve_solve(
+            let k = solidcore::kernel::Kernel::default();
+            let curve_handle = Some(Handle {
+                id: 0,
+                interval: Some(c.natural_interval()),
+                domain: None,
+            });
+            let r: solidcore::Result<SolutionArray<Handle>> = s.global_curve_solve(
+                &k,
                 &dom_of(*dom),
                 &c,
                 &Extent1d::from_min_max(ivl[0], ivl[1]),
@@ -928,6 +969,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 *target,
                 &vecs,
                 req_of(*req)?,
+                [curve_handle, surface_handle(1, &s)],
             );
             match st(r)? {
                 Ok(a) => o.extend([0.0, a.len() as f64]),
@@ -946,7 +988,10 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         } => {
             let s2 = surface_of(other)?;
             let vecs: Vec<Vec3> = vecs.iter().map(|p| v3(*p)).collect();
-            let r: solidcore::Result<SolutionArray<Obj>> = s.global_surface_solve(
+            let k = solidcore::kernel::Kernel::default();
+            let handles = [surface_handle(1, &s), surface_handle(2, &s2)];
+            let r: solidcore::Result<SolutionArray<Handle>> = s.global_surface_solve(
+                &k,
                 &dom_of(*dom),
                 &s2,
                 &dom_of(*dom2),
@@ -955,6 +1000,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 *target,
                 &vecs,
                 req_of(*req)?,
+                handles,
             );
             match st(r)? {
                 Ok(a) => o.extend([0.0, a.len() as f64]),
