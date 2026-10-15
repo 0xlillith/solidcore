@@ -105,7 +105,7 @@ impl PropertyAttributes<'_> {
             .get(h)
             .map(crate::geom::attribute::Attribute::value)
         {
-            Some(AttributeValue::Vector3d(v)) => Ok(*v),
+            Some(AttributeValue::Vector3d(v) | AttributeValue::Color(v)) => Ok(*v),
             _ => Err(SolidError::invalid_input(
                 OP,
                 "mass attribute is not a vector",
@@ -690,4 +690,34 @@ pub fn brep_mass_properties(
         inertia,
         products,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geom::attribute::{Attribute, Behavior};
+
+    #[test]
+    fn vector_attribute_subclasses_supply_mass_values() {
+        let value = Vec3::new(2.0, 0.3, 0.0);
+        for attribute in [
+            Attribute::vector3d(ids::MASS_PROPERTIES, value, Behavior::Copy),
+            Attribute::color(ids::MASS_PROPERTIES, value, Behavior::Copy),
+        ] {
+            let mut store = AttributeStore::default();
+            let key = ObjectKey(7);
+            let handle = store.insert(attribute).unwrap();
+            store.add_attribute(key, handle).unwrap();
+            let attrs = PropertyAttributes {
+                store: &store,
+                key_of: &|_| key,
+            };
+            assert_eq!(
+                attrs
+                    .mass_vector(EntityRef::Edge(EdgeId::from_index(0)), Vec3::ZERO)
+                    .unwrap(),
+                value
+            );
+        }
+    }
 }
