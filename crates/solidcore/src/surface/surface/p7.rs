@@ -2171,6 +2171,8 @@ pub struct SsGlobalSolver<'t, 's, O> {
     pub uv_domain1: Extent2d,
     /// `m_crUVDomain2`.
     pub uv_domain2: Extent2d,
+    /// The kernel (upstream's `SmContext`), for the surfaces' seam tests.
+    pub kernel: &'s crate::kernel::Kernel,
 }
 
 impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
