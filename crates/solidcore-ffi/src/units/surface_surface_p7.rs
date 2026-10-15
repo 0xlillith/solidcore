@@ -59,8 +59,8 @@ pub const MAX_COORD: f64 = 1.0e6;
 /// Largest vector count.
 pub const MAX_VECS: usize = 16;
 
-const NOW: f64 = -f64::MAX;
-const NOZ: f64 = f64::MAX;
+pub(crate) const NOW: f64 = -f64::MAX;
+pub(crate) const NOZ: f64 = f64::MAX;
 
 /// Shim operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -113,18 +113,18 @@ mod sys {
     }
 }
 
-fn bad(msg: impl Into<String>) -> FfiError {
+pub(crate) fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
 /// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
+pub(crate) struct Reader<'a> {
+    pub(crate) input: &'a [f64],
+    pub(crate) at: usize,
 }
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
+    pub(crate) fn num(&mut self) -> Result<f64, FfiError> {
         let v = self
             .input
             .get(self.at)
@@ -134,7 +134,7 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    fn finite(&mut self) -> Result<f64, FfiError> {
+    pub(crate) fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
             return Err(bad("non-finite or huge value"));
@@ -142,11 +142,11 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
+    pub(crate) fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
         (0..k).map(|_| self.finite()).collect()
     }
 
-    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
+    pub(crate) fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
         Ok([self.finite()?, self.finite()?, self.finite()?])
     }
 
@@ -163,7 +163,7 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
+    pub(crate) fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
         let v = self.vec3()?;
         if v.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
             return Err(bad("zero vector"));
@@ -171,7 +171,7 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
+    pub(crate) fn index(&mut self, max: usize) -> Result<usize, FfiError> {
         let v = self.num()?;
         if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
             return Err(bad(format!("bad index/count {v} (max {max})")));
@@ -179,11 +179,11 @@ impl Reader<'_> {
         Ok(v as usize)
     }
 
-    fn flag(&mut self) -> Result<bool, FfiError> {
+    pub(crate) fn flag(&mut self) -> Result<bool, FfiError> {
         Ok(self.index(1)? == 1)
     }
 
-    fn positive(&mut self, what: &str) -> Result<f64, FfiError> {
+    pub(crate) fn positive(&mut self, what: &str) -> Result<f64, FfiError> {
         let v = self.finite()?;
         if v <= 0.0 {
             return Err(bad(format!("{what}: need a positive value")));
@@ -191,7 +191,7 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    fn done(&self) -> Result<(), FfiError> {
+    pub(crate) fn done(&self) -> Result<(), FfiError> {
         if self.at != self.input.len() {
             return Err(bad("trailing input"));
         }
@@ -265,17 +265,35 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
 }
 
 /// The parameter domain `[u0, v0, u1, v1]` of a surface block, `None` for a plane.
-type Domain = Option<[f64; 4]>;
+pub(crate) type Domain = Option<[f64; 4]>;
 
 /// A surface block (no nested curve-bounded surfaces): its domain (`None` for a plane
 /// basis) and whether it is a plain B-spline.
-fn surface_kind(rd: &mut Reader<'_>, nested: bool) -> Result<(Domain, bool), FfiError> {
-    let kind = rd.index(2)?;
+///
+/// Kind 3 (a surface of revolution) is accepted only when `revolution` is set: only the
+/// `surface_p3` shim builds one; the `surface_p4`/`surface_p7` shims have no such branch.
+pub(crate) fn surface_kind(
+    rd: &mut Reader<'_>,
+    nested: bool,
+    revolution: bool,
+) -> Result<(Domain, bool), FfiError> {
+    let kind = rd.index(if revolution { 3 } else { 2 })?;
+    if kind == 3 {
+        // a surface of revolution of the line a-b about the axis p, axis (domain: its own)
+        for _ in 0..3 {
+            rd.vec3()?;
+        }
+        rd.nonzero3()?;
+        rd.flag()?;
+        rd.flag()?;
+        // an `SmBSplineSurface` subclass: the `SmBSplineSurface` members apply
+        return Ok((None, true));
+    }
     if kind == 2 {
         if nested {
             return Err(bad("nested curve-bounded surface"));
         }
-        let (dom, _) = surface_kind(rd, true)?;
+        let (dom, _) = surface_kind(rd, true, revolution)?;
         rd.flag()?;
         return Ok((dom, false));
     }
@@ -306,12 +324,17 @@ fn surface_kind(rd: &mut Reader<'_>, nested: bool) -> Result<(Domain, bool), Ffi
 }
 
 /// A surface block; returns its parameter domain (`None` for a plane basis).
-fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
-    Ok(surface_kind(rd, false)?.0)
+pub(crate) fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
+    Ok(surface_kind(rd, false, false)?.0)
+}
+
+/// As [`surface`], also accepting kind 3 (a surface of revolution; `surface_p3` only).
+pub(crate) fn surface_rev(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
+    Ok(surface_kind(rd, false, true)?.0)
 }
 
 /// A B-spline curve block; returns its parameter range.
-fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
+pub(crate) fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     let dim = rd.index(3)?;
     if dim < 2 {
         return Err(bad("curve: dimension must be 2 or 3"));
@@ -328,7 +351,7 @@ fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
 }
 
 /// A `uv` point within one domain length of `dom` (anywhere bounded for a plane).
-fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
+pub(crate) fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
     let u = rd.finite()?;
     let v = rd.finite()?;
     if let Some([u0, v0, u1, v1]) = dom {
@@ -343,7 +366,7 @@ fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
 }
 
 /// A non-degenerate domain, inside `dom` for a B-spline.
-fn domain_in(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
+pub(crate) fn domain_in(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
     let d = rd.finites(4)?;
     let (Some(&a), Some(&b), Some(&c), Some(&e)) = (d.first(), d.get(1), d.get(2), d.get(3)) else {
         return Err(bad("domain too short"));
@@ -362,7 +385,7 @@ fn domain_in(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
 }
 
 /// `n` then `n` vectors.
-fn vectors(rd: &mut Reader<'_>) -> Result<usize, FfiError> {
+pub(crate) fn vectors(rd: &mut Reader<'_>) -> Result<usize, FfiError> {
     let n = rd.index(MAX_VECS)?;
     for _ in 0..n {
         rd.vec3()?;
@@ -371,14 +394,14 @@ fn vectors(rd: &mut Reader<'_>) -> Result<usize, FfiError> {
 }
 
 /// An optional target distance `has value`.
-fn target(rd: &mut Reader<'_>) -> Result<bool, FfiError> {
+pub(crate) fn target(rd: &mut Reader<'_>) -> Result<bool, FfiError> {
     let has = rd.flag()?;
     rd.finite()?;
     Ok(has)
 }
 
 /// A solver operation from `allowed`.
-fn sop(rd: &mut Reader<'_>, allowed: &[usize]) -> Result<usize, FfiError> {
+pub(crate) fn sop(rd: &mut Reader<'_>, allowed: &[usize]) -> Result<usize, FfiError> {
     let v = rd.index(15)?;
     if !allowed.contains(&v) {
         return Err(bad(format!("solver operation {v} not supported here")));
@@ -388,12 +411,12 @@ fn sop(rd: &mut Reader<'_>, allowed: &[usize]) -> Result<usize, FfiError> {
 
 /// `SM_SO_INTERSECT`, `SM_SO_MINIMIZE`, `SM_SO_MAXIMIZE`, `SM_SO_NORMALIZE`,
 /// `SM_SO_AT_DISTANCE`, `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE`.
-const SO_INTERSECT: usize = 0;
-const SO_MINIMIZE: usize = 3;
-const SO_MAXIMIZE: usize = 4;
-const SO_NORMALIZE: usize = 5;
-const SO_AT_DISTANCE: usize = 6;
-const SO_SIGNED_MIN: usize = 9;
+pub(crate) const SO_INTERSECT: usize = 0;
+pub(crate) const SO_MINIMIZE: usize = 3;
+pub(crate) const SO_MAXIMIZE: usize = 4;
+pub(crate) const SO_NORMALIZE: usize = 5;
+pub(crate) const SO_AT_DISTANCE: usize = 6;
+pub(crate) const SO_SIGNED_MIN: usize = 9;
 
 /// Checks `input` for `op` (see the module docs).
 ///
@@ -402,7 +425,7 @@ const SO_SIGNED_MIN: usize = 9;
 /// [`FfiError::InvalidArgument`] for anything the shim must not see.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
     let mut rd = Reader { input, at: 0 };
-    let (dom, is_bspline) = surface_kind(&mut rd, false)?;
+    let (dom, is_bspline) = surface_kind(&mut rd, false, false)?;
     let bspline_only = |dom: Domain| {
         dom.filter(|_| is_bspline)
             .ok_or_else(|| bad("this op needs a B-spline surface"))
@@ -508,7 +531,7 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         Op::Gss => {
             let d = bspline_only(dom)?;
             domain_in(&mut rd, Some(d))?;
-            let (d2, b2) = surface_kind(&mut rd, false)?;
+            let (d2, b2) = surface_kind(&mut rd, false, false)?;
             let d2 = d2
                 .filter(|_| b2)
                 .ok_or_else(|| bad("this op needs a B-spline surface"))?;
@@ -588,4 +611,26 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
             )
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The p7 (and p4) shims have no surface-of-revolution branch, so kind 3 must be
+    /// rejected by their validators.
+    #[test]
+    fn kind_3_rejected() {
+        let probe = [
+            3.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.5, 0.5,
+            0.0, 0.0,
+        ];
+        assert!(validate(Op::Eval1, &probe).is_err());
+        assert!(validate(Op::Normal, &probe).is_err());
+        assert!(super::super::surface_surface_p4::validate(
+            super::super::surface_surface_p4::Op::NormalEval,
+            &probe
+        )
+        .is_err());
+    }
 }

@@ -536,7 +536,7 @@ fn run_op(
             let mut p = TracePoint::new();
             p.curve_parameter = *param;
             let mut prev = if *use_prev { r.last } else { None };
-            match st(t.compute_point_values_with_prev(p2(*uv), &mut p, prev.as_mut()))? {
+            match st(t.compute_point_values_with_prev(k, p2(*uv), &mut p, prev.as_mut()))? {
                 Ok(()) => {
                     o.push(0.0);
                     put_point(o, &p);
@@ -583,7 +583,7 @@ fn run_op(
         OpIn::Lps { param, guess } => {
             let mut nb = TracePoint::new();
             nb.curve_parameter = *param;
-            match st(t.drop_local_point_solve(p2(*guess), &mut nb))? {
+            match st(t.drop_local_point_solve(k, p2(*guess), &mut nb))? {
                 Ok(found) => {
                     o.extend([0.0, b(found.is_some())]);
                     put_point(o, &nb);
@@ -607,7 +607,7 @@ fn run_op(
                 t.base.add_point_to_curve(id);
             }
             let mut nx = TracePoint::new();
-            match st(t.next_point(id, *step, &mut nx))? {
+            match st(t.next_point(k, id, *step, &mut nx))? {
                 Ok(np) => {
                     o.extend([
                         0.0,
@@ -632,7 +632,7 @@ fn run_op(
                 o.push(-1.0);
                 return Ok(());
             };
-            match st(t.span_deviation(&lp, &lp, *step))? {
+            match st(t.span_deviation(k, &lp, &lp, *step))? {
                 Ok((dev, ok)) => {
                     o.extend([0.0, b(ok)]);
                     if ok {

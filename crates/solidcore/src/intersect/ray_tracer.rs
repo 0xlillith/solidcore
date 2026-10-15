@@ -69,7 +69,6 @@
 //!   passes as the skip element is `m_apNodes[0]`, which `FireRay` always clears, so
 //!   no element is skipped; unsigned products wrap as upstream's `ULONG`.
 //! - **Unported callees.** `SmSurface::LocalLineIntersect` (`surface.surface_p8`),
-//!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`),
 //!   `SmFace::PointClassify` (`query.face_p2`), `Grid::expand_hierarchy` and the poly
 //!   types return [`SolidError::Unported`] (see the `UNPORTED` markers). The surface
 //!   cache and its tree (`smsurf_GetSurfaceCache`, `GetTree`) are ported.
@@ -199,15 +198,16 @@ fn surface_local_line_intersect(
 
 /// `SmSurface::EvaluateNormalSection` (`bUFromLeft`, `bVFromLeft` both true).
 fn surface_evaluate_normal_section(
-    _surface: &Surface,
-    _uv: Point2,
-    _direction: Vec3,
+    surface: &Surface,
+    uv: Point2,
+    direction: Vec3,
 ) -> Result<NormalSection> {
-    // UNPORTED(surface.surface_p3): SmSurface::EvaluateNormalSection
-    Err(SolidError::unported(
-        "SmSurface::EvaluateNormalSection",
-        "surface.surface_p3",
-    ))
+    let s = surface.evaluate_normal_section(uv, Side::Left, Side::Left, direction)?;
+    Ok(NormalSection {
+        tangent_plane_direction: s.tangent,
+        curvature: s.curvature,
+        normal: s.normal,
+    })
 }
 
 /// `SmSurface::GetFace`: the face owning the surface, if any.
