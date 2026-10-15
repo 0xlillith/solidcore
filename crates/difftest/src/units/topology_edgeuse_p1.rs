@@ -794,6 +794,7 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
             loop_,
             mate,
             start,
+            orientation: orient_of(rd.idx()?)?,
         });
     }
     let mut loop_lus = Vec::new();

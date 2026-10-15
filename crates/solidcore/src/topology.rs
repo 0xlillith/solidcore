@@ -40,6 +40,7 @@ pub mod brep_data;
 pub mod database_io;
 pub mod edgeuse;
 pub mod face;
+pub mod loopuse;
 pub mod proto_topology;
 #[allow(clippy::module_inception)]
 pub mod topology;
@@ -379,6 +380,8 @@ pub struct Loopuse {
     pub mate: Option<LoopuseId>,
     /// `m_tLoopuseType` and `m_pEUorVU`.
     pub start: LoopuseStart,
+    /// `m_eOrientation`: outer/inner loop orientation, independently of face use.
+    pub orientation: OrientType,
 }
 
 /// What an edge use connects to (`m_tEdgeuseType` and `m_pSorLU`).

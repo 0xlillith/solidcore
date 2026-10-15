@@ -538,6 +538,7 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         o.push_back((double)ty);
         SmTopology* start = p->*LuPeek::start();
         o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, start) : ty == SmVertexuse_TYPE ? g.find(8, start) : -1));
+        o.push_back((double)p->GetOrientation());
     }
     for (SmLoop* p : g.loops)
         o.push_back((double)g.find(4, p->GetLoopuse()));

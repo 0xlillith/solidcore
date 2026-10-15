@@ -1,0 +1,1384 @@
+{
+  "cases": [
+    {
+      "name": "loop_queries_001_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_001_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_001_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_001_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_002_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_002_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_002_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_002_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Mouse.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_003_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_003_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_003_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_003_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_004_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_004_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_004_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_004_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "Endcap.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_005_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_005_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_005_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_005_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_006_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_006_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_006_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_006_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "box_with_large_fillet.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_007_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_007_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_007_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_007_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_008_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_008_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_008_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_008_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "cone.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_009_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_009_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_009_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_009_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_010_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_010_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_010_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_010_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "disk.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_011_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_011_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_011_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_011_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_012_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_012_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_012_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_012_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "ellips_ts2.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_013_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_013_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_013_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_013_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_014_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_014_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_014_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_014_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_circ.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_015_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_015_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_015_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_015_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_016_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_016_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_016_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_016_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "plane_square.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_017_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_017_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_017_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_017_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_018_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_018_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_018_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_018_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "sphere.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_019_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_019_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_019_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_019_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_020_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_020_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_020_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_020_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_extrude.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_021_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_021_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_021_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_021_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_022_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_022_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_022_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_022_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_023_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_023_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_023_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_023_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_024_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_024_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_024_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_024_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "surf_sphere150.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_025_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_025_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_025_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_025_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_026_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_026_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_026_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_026_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "torus.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_027_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_027_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_027_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_027_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_028_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_028_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_028_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_028_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "toruswvy.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_029_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb"
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_029_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb"
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_029_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb"
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_029_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb"
+        },
+        "orientation": 2
+      }
+    },
+    {
+      "name": "loop_queries_030_None",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb",
+          "rebuild": true
+        },
+        "orientation": null
+      }
+    },
+    {
+      "name": "loop_queries_030_0",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 0
+      }
+    },
+    {
+      "name": "loop_queries_030_1",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 1
+      }
+    },
+    {
+      "name": "loop_queries_030_2",
+      "upstream_ref": "tests/prog_test/src/smFeatureTest.cpp:63",
+      "inputs": {
+        "brep": {
+          "kind": "file",
+          "file": "vase_rev.smb",
+          "rebuild": true
+        },
+        "orientation": 2
+      }
+    }
+  ]
+}

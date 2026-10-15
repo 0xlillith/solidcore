@@ -23,7 +23,6 @@ use solidcore::curve::curve::Curve as SmCurve;
 use solidcore::curve::line::Line;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent1d::Extent1d;
-use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::geom::vector2d::{Point2, Vec2};
 use solidcore::geom::extent2d::Extent2d;
@@ -482,6 +481,7 @@ fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
             loop_,
             mate,
             start,
+            orientation: orient_of(rd.idx()?)?,
         });
     }
     let mut loop_lus = Vec::new();

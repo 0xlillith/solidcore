@@ -722,12 +722,8 @@ fn face_tolerance(b: &Brep, f: FaceId) -> Result<f64> {
 }
 
 /// `pLoopuse->GetOrientation()`.
-fn loopuse_orientation(_b: &Brep, _lu: LoopuseId) -> Result<OrientType> {
-    // UNPORTED(topology.loopuse): SmLoopuse::GetOrientation
-    Err(SolidError::unported(
-        "SmLoopuse::GetOrientation",
-        "topology.loopuse",
-    ))
+fn loopuse_orientation(b: &Brep, lu: LoopuseId) -> Result<OrientType> {
+    crate::topology::loopuse::orientation(b, lu)
 }
 
 /// `pEdgeuse->NormalizedEvaluate(t, TRUE, rUVPnt, &rUVTan, bOKToMakeUVTrimCurve)`: the

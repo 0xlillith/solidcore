@@ -1594,6 +1594,7 @@ mod tests {
                 loop_: Some(LoopId::from_index(0)),
                 mate: Some(LoopuseId::from_index(1 - k)),
                 start: LoopuseStart::Edgeuse(Some(id(if k == 0 { 0 } else { 7 }))),
+                orientation: OrientType::Same,
             })
             .unwrap();
         }
