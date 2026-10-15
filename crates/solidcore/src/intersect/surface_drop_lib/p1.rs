@@ -40,9 +40,12 @@
 //!   `sm_PopStack` / `sm_StackLook` on a short stack are `SM_ERR`.
 //! - **Ignored statuses.** `IsMovingAlongBoundary` ignores the statuses of its
 //!   surface evaluations and `TestSpanAccuracy` those of the two `EvaluatePoint`s of
-//!   its domain clamp check; upstream then reads uninitialised vectors. Here a
-//!   failed evaluation propagates its error (the difftest shim rejects those inputs
-//!   as undefined). `AngleBetween`'s status is ignored as upstream (angle `0`).
+//!   its domain clamp check; upstream then goes on with whatever the failed
+//!   evaluator left in its outputs (the `SM_UNDEF_DOUBLE` member defaults, or values
+//!   it wrote before failing). That failure path is not ported: here a failed
+//!   evaluation propagates its error, and the difftest shim rejects those inputs. No
+//!   generated or review case (poles, cone apex, collapsed B-spline edge) reaches it.
+//!   `AngleBetween`'s status is ignored as upstream (angle `0`).
 //! - **`sm_FixBoundaryCurves`.** A polygon of `3k` points (`k >= 2`) makes upstream
 //!   read one point past the array (`SM_ASSERT(lNumPts == 1 + 3 * lNumSpans)` is
 //!   compiled out); that is [`SolidError::InvalidInput`] here, before any change.

@@ -20,8 +20,10 @@
 // op per call. The layouts are documented in
 // crates/solidcore-ffi/src/units/intersect_surface_drop_lib_p1.rs, which validates the
 // inputs; every read here is bounds checked as well (a bad program is SC_ERR_ARG). Inputs
-// whose upstream behaviour is undefined (a surface evaluation whose ignored failure leaves
-// vectors uninitialised; sm_FixBoundaryCurves reading past its array) report REJECTED.
+// that reach a path the port does not model (a surface evaluation whose failure upstream
+// ignores, going on with the SM_UNDEF_DOUBLE defaults or whatever the evaluator wrote before
+// failing) or that are undefined upstream (sm_FixBoundaryCurves reading past its array)
+// report REJECTED.
 #define DropCurve sc_sdl1_DropCurve
 #define DropAndTrimCurve sc_sdl1_DropAndTrimCurve
 #define DropIsoCurve sc_sdl1_DropIsoCurve
@@ -428,8 +430,9 @@ bool first_inside(double ang, double lim, bool inside_first)
     return false;
 }
 
-// True when IsMovingAlongBoundary would read a vector a failed (ignored) evaluation left
-// uninitialised: the evaluations it makes, in its order.
+// True when one of IsMovingAlongBoundary's evaluations (whose status it ignores) fails, so
+// it would go on with the vectors' SM_UNDEF_DOUBLE defaults or partial writes (not ported):
+// the evaluations it makes, in its order.
 bool moving_undefined(const SmSurface& s, const sc_sdl1_SmDropPt& p, const SmExtent2d& d, double tx,
                       double ty, double ang_deg, SmSurfParamType e)
 {
@@ -484,7 +487,8 @@ bool moving_undefined(const SmSurface& s, const sc_sdl1_SmDropPt& p, const SmExt
 }
 
 // True when one of TestSpanAccuracy's domain clamp checks would evaluate a point that fails
-// to evaluate (an ignored status, the point is then read uninitialised): any of the three
+// to evaluate (an ignored status; the point keeps its SM_UNDEF_DOUBLE defaults or partial
+// writes, a path not ported): any of the three
 // Hermite samples outside the domain whose point or clamped point does not evaluate.
 bool span_undefined(const SmSurface& s, const SmExtent2d& d, const sc_sdl1_SmDropPt& a,
                     const sc_sdl1_SmDropPt& b)

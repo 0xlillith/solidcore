@@ -35,7 +35,8 @@
 //! with a positive radius, an increasing interval and independent axes, segments of
 //! positive length, and at most [`MAX_ITEMS`] stack ops, polygon points or solutions. The
 //! shim does not run (record [[`REJECTED`]]): `Moving` when an evaluation it makes fails
-//! (upstream ignores the status and reads uninitialised vectors), `Span` when a Hermite
+//! (upstream ignores the status and goes on with the vectors' `SM_UNDEF_DOUBLE` defaults
+//! or partial writes, a path the port does not model), `Span` when a Hermite
 //! sample outside the domain or its clamp does not evaluate (same), `FixCurves` of `3k`
 //! points, `k >= 2` (upstream reads past the array).
 

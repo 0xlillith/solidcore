@@ -3,6 +3,2794 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_0_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#0 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#1 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_2_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#2 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_3_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#3 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_5_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#4 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0.5_5_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#5 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0.5_0_4_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#6 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0_0_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#7 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_0_1_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#8 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_0_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#9 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_0_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#10 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_0_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#11 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_2_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#12 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#13 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_1_1_5_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#14 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_cone_0_1_4_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#15 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_cone_0.25x0.5_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#16 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0_0.5_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#17 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_1_0.5_2_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#18 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_1_0.5_4_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#19 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_0_2_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#20 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_0_3_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#21 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_0_4_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#22 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_0_4_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#23 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_0_4_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#24 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_1_0_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#25 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0.5_1_4_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#26 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0_0_4_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#27 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_1_1_4_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#28 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_1_1_5_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#29 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_conesw_0_1_5_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#30 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_conesw_0.25x0.5_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#31 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_conesw_0.75x0.5_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#32 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_conesw_0.5x0.25_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#33 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_0.5_1_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#34 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_0.5_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#35 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_0.5_5_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#36 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_1_0.5_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#37 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0.5_0_1_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#38 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0.5_0_1_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#39 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0.5_0_3_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#40 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0.5_0_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#41 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_0_1_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#42 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_0_2_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#43 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_1_1_1_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#44 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_1_1_2_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#45 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_1_2_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#46 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sph_0_1_5_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#47 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_sph_0.25x0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#48 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_sph_0.5x0.75_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#49 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sub_sph_0.5x0.75_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#50 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0.5_2_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#51 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0.5_2_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#52 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0.5_3_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#53 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_1_0.5_4_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#54 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0.5_1_0_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#55 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0.5_1_1_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#56 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0.5_1_3_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#57 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0.5_1_5_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#58 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0_1_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#59 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#60 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_0_4_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#61 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_1_1_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#62 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_1_1_2_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#63 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_1_1_5_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#64 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_1_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#65 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_1_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#66 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_sphsw_0_1_4_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#67 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0.5_0_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#68 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0.5_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#69 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0.5_5_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#70 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_1_0.5_2_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#71 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_1_0.5_5_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#72 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0.5_0_1_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#73 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0.5_0_2_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#74 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0.5_1_0_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#75 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0_0_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#76 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0_3_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#77 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0_4_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#78 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_0_5_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#79 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_1_1_0_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#80 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_1_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#81 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_1_1_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#82 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_bigsph_0_1_1_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#83 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0.5_3_3_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#84 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0.5_4_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#85 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0.5_4_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#86 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_1_0.5_3_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#87 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_1_0.5_3_1_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#88 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0.5_0_5_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#89 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0.5_1_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#90 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0.5_1_5_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#91 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0_2_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#92 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0_4_0_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#93 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_0_4_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#94 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_1_1_0_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#95 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_1_1_2_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#96 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_1_0_3_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#97 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_1_1_0_90.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#98 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_moving_coll_0_1_5_1_45.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#99 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_line_0.5_0.2_0.9x0.1_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#100 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_line_0.2_0.2000000001_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#101 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_line_0_1_0x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#102 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_line_0_1_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#103 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_line_0_1_0.9x0.1_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#104 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0.5_0.2_0.5x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#105 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0.5_0.2_0.9x0.1_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#106 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0_1_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#107 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0_1_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#108 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0_1_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#109 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_cone_circ_0_1_0.9x0.1_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#110 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_line_0_0_0x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#111 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_line_0_1_0x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#112 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_line_0_1_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#113 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_line_0_1_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#114 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_line_0_1_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#115 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0_0_0.9x0.1_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#116 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0.5_0.2_0x0.5_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#117 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0.2_0.2000000001_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#118 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0.2_0.2000000001_0.0x0.0_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#119 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0_1_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#120 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_conesw_circ_0_1_0.0x0.0_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#121 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0_0_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#122 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0_0_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#123 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0.5_0.2_0x0.5_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#124 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0.5_0.2_0.5x0.5_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#125 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0.2_0.2000000001_0x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#126 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_line_0_1_0.9x0.1_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#127 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_circ_0_0_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#128 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_circ_0.5_0.2_0.5x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#129 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_circ_0.5_0.2_0.9x0.1_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#130 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_circ_0.2_0.2000000001_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#131 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sph_circ_0_1_0x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#132 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_line_0.5_0.2_0x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#133 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_line_0.5_0.2_0.5x0.5_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#134 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_line_0.2_0.2000000001_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#135 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_line_0.2_0.2000000001_0.9x0.1_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#136 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_line_0_1_0.9x0.1_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#137 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0_0_0x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#138 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0_0_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#139 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0_0_0.9x0.1_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#140 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0.5_0.2_0.0x0.0_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#141 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0.2_0.2000000001_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#142 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_sphsw_circ_0_1_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#143 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.5_0.2_0.5x0.5_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#144 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.5_0.2_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#145 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.5_0.2_0.9x0.1_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#146 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.5_0.2_0.9x0.1_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#147 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.2_0.2000000001_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#148 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_line_0.2_0.2000000001_0.0x0.0_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#149 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_circ_0_0_0x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#150 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_circ_0_0_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#151 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_circ_0.5_0.2_0.5x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#152 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_circ_0.5_0.2_0.0x0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#153 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_bigsph_circ_0_1_0.5x0.5_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#154 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0_0_0x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#155 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0_0_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#156 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0.2_0.2000000001_0.0x0.0_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#157 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0.2_0.2000000001_0.9x0.1_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#158 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0_1_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#159 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_line_0_1_0.0x0.0_10.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#160 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_circ_0_0_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#161 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_circ_0.5_0.2_0.5x0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#162 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_circ_0.5_0.2_0.0x0.0_10.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#163 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_circ_0.2_0.2000000001_0.5x0.5_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#164 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "smsurf_IsPointOnNormal",
+        "unit": "surface.surface_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_span_coll_circ_0.2_0.2000000001_0.0x0.0_1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#165 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0x0_1x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#166 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0x0.5_1x0.5_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#167 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0x0.5_1x0.5_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#168 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0.5x0_0.5x1_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#169 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0.1x0.1_0.9x0.9_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#170 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_0_0.3x0_0.9x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#171 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_1_0x0_1x1_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#172 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_1_0x0_1x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#173 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_1_0.1x0.1_0.9x0.9_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#174 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_2_0x0_1x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#175 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_2_0.5x0_0.5x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#176 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_2_0.1x0.1_0.9x0.9_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#177 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_3_0x0_1x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#178 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_cone_3_0.5x0_0.5x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#179 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_0x0_1x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#180 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_0x0_1x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#181 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_1e-12x0.3_0.999999999999x0.3_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#182 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_0.1x0.1_0.9x0.9_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#183 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_0.3x0_0.9x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#184 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_0_0.3x0_0.9x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#185 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_1_0x0_1x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#186 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_1_0.5x0_0.5x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#187 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0x0_1x1_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#188 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0x0.5_1x0.5_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#189 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0.5x0_0.5x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#190 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0.1x0.1_0.9x0.9_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#191 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0.1x0.1_0.9x0.9_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#192 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_conesw_3_0.1x0.1_0.9x0.9_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#193 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_0_0x0.5_1x0.5_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#194 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_0_0.5x0_0.5x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#195 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_0_1e-12x0.3_0.999999999999x0.3_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#196 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_0_0.3x0_0.9x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#197 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_0_0.3x0_0.9x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#198 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_1_0x0.5_1x0.5_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#199 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_2_0x0_1x1_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#200 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_2_0x0.5_1x0.5_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#201 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_2_1e-12x0.3_0.999999999999x0.3_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#202 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_2_0.3x0_0.9x1_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#203 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_2_0.3x0_0.9x1_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#204 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_3_0x0_1x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#205 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_3_0x0.5_1x0.5_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#206 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sph_3_0.1x0.1_0.9x0.9_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#207 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_0_0.1x0.1_0.9x0.9_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#208 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0x0_1x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#209 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0x0_1x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#210 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0x0.5_1x0.5_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#211 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0.5x0_0.5x1_1x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#212 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0.5x0_0.5x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#213 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_1_0.3x0_0.9x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#214 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_2_0x0.5_1x0.5_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#215 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_2_0x0.5_1x0.5_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#216 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_2_1e-12x0.3_0.999999999999x0.3_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#217 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_2_0.1x0.1_0.9x0.9_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#218 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_2_0.3x0_0.9x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#219 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_3_0x0_1x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#220 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_sphsw_3_0x0.5_1x0.5_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#221 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_0_0x0_1x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#222 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_0_0.5x0_0.5x1_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#223 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_0_1e-12x0.3_0.999999999999x0.3_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#224 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_0_0.1x0.1_0.9x0.9_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#225 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_0_0.1x0.1_0.9x0.9_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#226 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_1_0x0_1x1_2x2_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#227 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_1_0x0.5_1x0.5_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#228 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_1_0.5x0_0.5x1_0x0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#229 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_1_0.1x0.1_0.9x0.9_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#230 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_2_0x0_1x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#231 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_2_0x0.5_1x0.5_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#232 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_3_0x0.5_1x0.5_1x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#233 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_3_0.5x0_0.5x1_0x0_1000000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#234 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_bigsph_3_0.3x0_0.9x1_2x2_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#235 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 39
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_line_0.5x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#236 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_lineR_0x0.5_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#237 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_lineR_1x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#238 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_circ_0x0.5_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#239 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_merid_0x0.5_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#240 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_merid_0x0.5_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#241 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_par_0x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#242 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_par_1x1_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#243 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_bs60_0.5x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#244 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_bs60_0.5x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#245 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_bs60_1x1_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#246 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_cone_bs60_1x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#247 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_line_0x0.5_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#248 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_line_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#249 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_line_0.5x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#250 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_lineR_0x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#251 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_lineR_0x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#252 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_lineR_0x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#253 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_circ_0.5x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#254 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_circ_0x1_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#255 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_par_1x1_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#256 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_bs60_0x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#257 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_bs60_1x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#258 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_conesw_bs60_1x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#259 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_line_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#260 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_lineR_1x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#261 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_lineR_0x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#262 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_circ_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#263 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_circ_0x1_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#264 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_circ_1x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#265 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_merid_0x0.5_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#266 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_par_0x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#267 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_par_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#268 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_par_1x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#269 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_bs60_0x0.5_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#270 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sph_bs60_1x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#271 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_line_0x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#272 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_line_1x1_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#273 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_lineR_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#274 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_lineR_0.5x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#275 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_circ_0x0.5_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#276 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_circ_0.5x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#277 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_circ_0x1_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#278 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_merid_0.5x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#279 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_merid_1x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#280 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_par_0.5x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#281 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_par_1x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#282 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_sphsw_bs60_1x1_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#283 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_line_1x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#284 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_lineR_0x1_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#285 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_lineR_1x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#286 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_circ_0x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#287 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_merid_1x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#288 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_par_0x0.5_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#289 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_par_0.5x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#290 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_par_1x1_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#291 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_par_1x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#292 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_par_0x1_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#293 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_bs60_0x0.5_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#294 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_bigsph_bs60_0x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#295 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_line_0.5x0_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#296 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_line_0.5x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#297 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_circ_0.5x0_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#298 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_circ_1x1_1x0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#299 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_merid_0.5x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#300 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_merid_1x1_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#301 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_merid_1x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#302 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_merid_1x0_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#303 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_par_0x0_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#304 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_par_0x0.5_0x1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#305 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_bs60_0x0.5_0.25x0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#306 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_iso_coll_bs60_1x1_0x1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#307 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_4_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#308 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_4_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#309 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_4_0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#310 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_4_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#311 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_7_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#312 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_7_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#313 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_7_0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#314 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_7_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#315 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_10_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#316 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_10_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#317 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_10_0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#318 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_10_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#319 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_13_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#320 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_13_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#321 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_13_0.3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#322 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_fixc_13_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#323 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 40
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_dups_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#324 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_dups_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#325 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_dups_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#326 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_dups_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_lib_p1/review_poles.json#327 (upstream review of PR #98 (adversarial): poles (cone apex, spheres r=1 and 1e3, both swaps), a B-spline with a collapsed u=0 edge, sm_FixBoundaryCurves and duplicate-solution edge cases)",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "rectangle_bottom_edge_iso",
       "outcome": "pass",
       "pass": true,
@@ -12827,13 +15615,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 138,
+  "cases_deferred": 179,
   "cases_failed": 0,
-  "cases_passed": 1396,
-  "cases_total": 1534,
+  "cases_passed": 1683,
+  "cases_total": 1862,
   "deferred_by_unit": {
     "intersect.surface_drop_curve": 15,
-    "surface.surface_p3": 123
+    "surface.surface_p3": 164
   },
   "max_rel_err": 0.0,
   "pass": true,

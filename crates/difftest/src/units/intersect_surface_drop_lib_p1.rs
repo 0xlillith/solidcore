@@ -671,11 +671,11 @@ fn span_undefined(
         let nt = (f64::from(ii) + 1.0) / (3.0 + 1.0);
         let hp = h.evaluate_point(nt);
         let uv = Point2::new(hp.x, hp.y);
-        if !d.contains_point(uv, EFF_ZERO) {
-            if st(s.evaluate_point(uv))?.is_err() || st(s.evaluate_point(d.clamp_point(uv)))?.is_err()
-            {
-                return Ok(true);
-            }
+        if !d.contains_point(uv, EFF_ZERO)
+            && (st(s.evaluate_point(uv))?.is_err()
+                || st(s.evaluate_point(d.clamp_point(uv)))?.is_err())
+        {
+            return Ok(true);
         }
     }
     Ok(false)
@@ -1073,14 +1073,18 @@ fn gen_bspline_surface(rng: &mut Rng, s: f64) -> SurfIn {
     let kind = rng.below(3);
     if kind == 1 {
         // bilinear patch
-        let c: Vec<[f64; 3]> = (0..4).map(|_| scale3(rng.point3(-1.0, 1.0), s)).collect();
+        let mut c = [[0.0; 3]; 4];
+        for p in &mut c {
+            *p = scale3(rng.point3(-1.0, 1.0), s);
+        }
+        let [c0, c1, c2, c3] = c;
         let w = |p: [f64; 3]| [p[0], p[1], p[2], NOW];
         let (a0, a1) = (rng.uniform(-1.0, 0.0), rng.uniform(0.5, 2.0));
         let (b0, b1) = (rng.uniform(-1.0, 0.0), rng.uniform(0.5, 2.0));
         return SurfIn::Bspline {
             p: 1,
             q: 1,
-            net: vec![vec![w(c[0]), w(c[1])], vec![w(c[2]), w(c[3])]],
+            net: vec![vec![w(c0), w(c1)], vec![w(c2), w(c3)]],
             u: vec![a0, a0, a1, a1],
             v: vec![b0, b0, b1, b1],
         };
@@ -1375,8 +1379,13 @@ fn gen_seam(rng: &mut Rng, k: &Kernel) -> Option<Inputs> {
     let end = gen_pt(rng, uvb, [0.0, 0.0], crv, 1.0);
     if rng.chance(0.8) {
         // from-left flags as SetProperties sets them (0 or 1)
-        start[24] = pick(rng, &[0.0, 1.0], 1.0);
-        start[25] = pick(rng, &[0.0, 1.0], 1.0);
+        // (PT_LEN values, so both indices exist)
+        if let Some(f) = start.get_mut(24) {
+            *f = pick(rng, &[0.0, 1.0], 1.0);
+        }
+        if let Some(f) = start.get_mut(25) {
+            *f = pick(rng, &[0.0, 1.0], 1.0);
+        }
     }
     Some(Inputs::Seam {
         surface,
