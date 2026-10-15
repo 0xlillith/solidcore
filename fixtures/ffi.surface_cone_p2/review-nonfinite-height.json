@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "name": "review2_nonfinite_exact_repro_4",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002,
+        "guard_reason": "offset_nonfinite_height"
+      }
+    },
+    {
+      "name": "review2_nonfinite_exact_repro_6",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002,
+        "guard_reason": "offset_nonfinite_height"
+      }
+    }
+  ]
+}

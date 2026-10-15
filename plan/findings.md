@@ -3884,7 +3884,7 @@ native offset call, and the linear-axis guard follows UV swapping. Four initiall
 mislabeled collapsed-angular fixtures collapsed the linear axis after swapping;
 the preflight correctly rejected the unset line-plane parameter. Their domains
 were transposed to collapse the actual angular axis, retaining all cases and the
-fixed tolerance. See upstream-issues UB-101 and WR-83.
+fixed tolerance. See upstream-issues UB-102 and WR-84.
 
 Final review verification includes official main 881c913c (its delta from
 8d9d4042 is documentation and the generated checklist only). Cone part 2 compares
@@ -3897,6 +3897,7 @@ tests, 19 native FFI tests, wasm and license/source checks pass. Twelve explicit
 ignored harness debugging aids are not part of the certification cases.
 The inversion helper retains actual optional classification writes. Issue #76
 remains the shared-dispatch follow-up; no external SSI corpus is fetched or run.
+
 ## surface.cone_p2: review regressions and native default points (PR #71)
 
 Maintainer review 5526926792 found unbounded-cone disagreements beyond the
@@ -3919,17 +3920,16 @@ Offset truncation dispatches through the cone/revolution reparameterizer.
 
 The matrix contains 116 defined differential cases and 44 native guard inputs:
 40 cannot construct the required NURB and four reach the already documented
-NULL truncation factory (UB-101). All 160 inputs are retained. The latter 44 live
+NULL truncation factory (UB-102). All 160 inputs are retained. The latter 44 live
 in fixtures/ffi.surface_cone_p2 and are executable harness guard regressions,
 separate from differential certification; they are neither passed geometry cases
 nor dependency deferrals. The guard test must fail if native setup/NULL-factory
-rejection stops occurring. The original failing reports remain outside the repo
-under ~/.config/solidcore/cone-review-baseline and cone-review-fixed.
+rejection stops occurring. The original failing reports are retained as local validation evidence, outside the repository.
 
 The trim API accepts an Ellipse whose frame has already normalized its axes.
 The upstream free helper accepts raw axes; this limitation is explicit in the
 Rust file's Deviations. Scaled trim fixtures exercise 1e-7 through 1e6 without
-changing comparison tolerances. All 3,586 defined comparisons and the separate 44-input guard test pass. The complete 151-unit run has zero failures; affected reports match it byte for byte. UB-101 / WR-83 avoid both merged and pending contributions' issue numbers.
+changing comparison tolerances. All 3,586 defined comparisons and the separate 44-input guard test pass. The complete 151-unit run has zero failures; affected reports match it byte for byte. UB-102 / WR-84 are renumbered after the subsequent polygon and vertex-use merges.
 
 ## intersect.surface_intersector_p5 (`SmSurfaceIntersector::DoIntersection`, 2026-10-14; partial, no disagreements)
 
@@ -4093,3 +4093,35 @@ changing comparison tolerances. All 3,586 defined comparisons and the separate 4
   (`intersect.surface_intersector_p5`), 24 on spheres (`surface.sphere`), 21 on cones and
   cylinders (`surface.cone_p3`), 9 on tori (`SmTorus` is ported but has no `SurfaceKind`
   variant yet; deferred on `surface.surface_p2`, which owns the enum).
+
+## surface.cone_p2: second-review lazy factory and truncation guard
+
+Review 5528724940 found that an uncached tiny-radius cone's offset must continue
+after a failed lazy NURB build: SmBSplineSurface::GetNaturalUVDomain ignores the
+factory status and returns a zero domain without a NURB. The Rust working copy
+now ignores ordinary factory failures and continues with that same domain;
+Unported dependencies still propagate. Recognition likewise preserves the native
+B-spline copy constructor's ignored lazy factory status and compares the actual
+recognition result, instead of reporting a setup error for a defined operation.
+Explicit cached setup requirements remain harness failures.
+
+The offset preflight checks the native truncation formula's height for finiteness
+before CreateCanonical. The previous preflight could itself overflow the C++ stack
+on NaN heights; see HANG-13. Safe inputs yielding empty offsets remain differential
+cases rather than guards. New cases and final counts are reported in the PR after
+validation. UB-102 and WR-84 avoid current main's polygon/vertex-use entries.
+
+### Second-review WIP handoff (not a certification)
+
+The initial 3886-case expansion had 3848 passing cases and 38 failures. Native
+preflight diagnostics prove 24 NULL-factory inputs; two additional cached negative
+angle inputs fail required native and Rust setup. They are retained in the separate
+guard fixtures, together with the two exact non-finite-height reproductions.
+The guard tests compare the actual native rejection causes. No failed case was
+discarded or converted to a dependency deferral.
+
+The next 3860-case run after adding virtual lazy cache creation during state
+extraction has 3834 passing cases and 26 failures (including regressions in the
+earlier unbounded fixtures). This newer state-extraction change needs correction;
+the unit is blocked and the PR stays draft. All failed reports are retained locally.
+The user requested switching units; this working state is preserved for continuation.

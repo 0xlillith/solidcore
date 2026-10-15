@@ -919,5 +919,5 @@ changes only after the 8d9d4042 code baseline). Formatting, strict plain/C++
 workspace Clippy, 1,030 kernel tests, 21 plain harness tests, 89 C++ harness tests
 plus three harness integration tests, 19 native FFI tests, wasm and license/source checks pass.
 The full differential suite covers 151 units: 90 green, 61 partial, zero failed.
-See findings and upstream-issues UB-101/WR-83. SSI work remains deferred under
+See findings and upstream-issues UB-102/WR-84. SSI work remains deferred under
 issue #17; no external corpus is fetched or run.

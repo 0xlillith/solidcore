@@ -714,7 +714,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Surfaces and volumes
 
-#### UB-101. Cone offset dereferences a failed truncation factory
+#### UB-102. Cone offset dereferences a failed truncation factory
 - **Location:** `SmCone.cpp:623-645`, `SmCone::CreateOffsetSurface`.
 - **What happens:** The apex-truncation branch ignores CreateCanonical's status and dereferences pOffCone even when the factory returns NULL.
 - **Trigger:** A near-collapse inward offset of a bounded cone (bottom radius 1, top radius 2, height 4, zero tolerance); the fixture advances the collapse distance by four floating-point successors.
@@ -1101,6 +1101,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (the C++ reference run did not finish).
 - **Severity:** hang.
 - **Rust port:** Same loop (the Rust run of the same script did not finish either; the loop belongs to the curve point-solve units). The shim refuses a zero-length `Reparameterize` domain.
+
+
+#### HANG-13. Cone offset truncation with NaN height exhausts the native stack
+- **Location:** `source/SMLib/src/SmCone.cpp:607-622`, `SmCone::CreateOffsetSurface` / `CreateCanonical`.
+- **Trigger:** unbounded cone, radius 0.001, half-angle -1e-8 radians, swap false and inside-out true, offset -0.002, tolerance 1e-7. GetHeight returns zero after ignored evaluation errors and the old bottom radius is zero; the truncation computes 0/0 and a NaN height.
+- **What happens:** CreateCanonical selects a bounded cone because `NaN <= 0` is false. The NURB/parameter-domain construction recurses through SmLine::MakeNurb, AdjustSTEPInterval, MakeNurbWithSweepParams and GetNaturalUVDomain until stack overflow.
+- **How found:** maintainer's PR #71 re-review 5528724940 of commit 90f45e1f, with 29 triggering inputs; confirmed there against the C++ build (over 90,000 frames). This contribution does not deliberately repeat that crash.
+- **Confirmed:** native stack overflow confirmed by the maintainer; the corrected local reference preflight separately rejects non-finite truncation heights before the dangerous factory.
+- **Rust port:** returns a controlled construction error (Upstream 1001); no unbounded recursion. Guard inputs stay separate from certified comparisons.
+
 
 ## Nondeterminism
 
@@ -1644,7 +1654,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Faithful (evaluates the unclamped parameters).
 
-#### WR-83. Apex-truncated cone offsets discard the angular trim
+#### WR-84. Apex-truncated cone offsets discard the angular trim
 - **Location:** `SmCone.cpp:623-661`, `SmCone::CreateOffsetSurface`.
 - **What happens:** The canonical truncation factory creates a full 0..360-degree cone; the input angular interval is never reapplied despite the nearby preservation assertion.
 - **Trigger:** Cone bottom radius 2, top radius 1, height 4, angular interval 20..250 degrees, offset -1.5 and tolerance 1e-7.

@@ -1733,10 +1733,10 @@ soft_depends_on = ["curve.curve_p2", "curve.curve_p5", "curve.ellipse_p1", "curv
 est_lines = 1656
 layer = 25
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "green"
+status = "blocked"
 claimed_by = ""
 claimed_at = ""
-notes = "GREEN: PR #71 review verification on official main 881c913c: 3586 cases, 3586 passed, 0 failed, 0 deferred (none); max_rel_err=0.0; no absolute floors; every compared case sensitive; affected/full reports byte-identical; four owned functions ported with real SmCone/SmCylinder/SmEllipse comparisons; analytic rebuild dispatch and initialized UNDEF height defaults corrected from review; 116 defined unbounded review cases, 80 scaled trim cases and 44 separately tested native setup/null-factory guard inputs; Kernel-aware Surface dispatch coordinated in issue #76; no external SSI corpus fetched or run"
+notes = "WIP second review: newer regression matrix is not certified. Native guard causes are tested separately; state extraction after lazy cache creation still has 26 failures in the latest 3860-case local run. Preserved for continuation while working on another unit at user request. Previous 3586-case certification applies only to commit 90f45e1f. GREEN: PR #71 review verification on official main 881c913c: 3586 cases, 3586 passed, 0 failed, 0 deferred (none); max_rel_err=0.0; no absolute floors; every compared case sensitive; affected/full reports byte-identical; four owned functions ported with real SmCone/SmCylinder/SmEllipse comparisons; analytic rebuild dispatch and initialized UNDEF height defaults corrected from review; 116 defined unbounded review cases, 80 scaled trim cases and 44 separately tested native setup/null-factory guard inputs; Kernel-aware Surface dispatch coordinated in issue #76; no external SSI corpus fetched or run"
 
 [[unit]]
 id = "surface.surf_of_revolution_p2"

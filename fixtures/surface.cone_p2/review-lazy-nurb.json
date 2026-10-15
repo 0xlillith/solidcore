@@ -1,0 +1,8128 @@
+{
+  "cases": [
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-09_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_1e-06_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-12_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_recognize",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "recognize",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_rebuild",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005
+      }
+    },
+    {
+      "name": "review2_lazy_7_0.001_1e-08_1_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 7,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.002
+      }
+    },
+    {
+      "name": "review2_negative_angle_4_1e-09_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-09
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_1e-09_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-09
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_1e-09_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-09
+      }
+    },
+    {
+      "name": "review2_negative_angle_4_1e-06_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-06
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_1e-06_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-06
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_1e-06_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-06
+      }
+    },
+    {
+      "name": "review2_negative_angle_4_0.001_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002
+      }
+    },
+    {
+      "name": "review2_negative_angle_4_0.001_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_0.001_-1e-08",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-08,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002
+      }
+    },
+    {
+      "name": "review2_negative_angle_6_0.001_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.002
+      }
+    }
+  ]
+}

@@ -194,6 +194,35 @@ pub fn eval_analytic(
     })
 }
 
+/// Run the real native offset preflight without executing a dangerous offset.
+/// Returns 0 for a defined factory, 1 for a NULL factory, 2 for non-finite height.
+///
+/// # Errors
+/// Malformed records, failed native setup, or an unexpected diagnostic result.
+pub fn offset_guard_reason(
+    input: &[f64], kind: i32, mutation: i32, scale: f64, distance: f64, tolerance: f64,
+) -> Result<u8, FfiError> {
+    validate_analytic(input, 3, kind, mutation, scale, distance, tolerance)?;
+    let result = call_with_buffer(1, |out, len| {
+        // SAFETY: the same complete validation as the offset operation applies;
+        // diagnostic op 4 stops before the unsafe factory and bounds its output.
+        unsafe {
+            analytic_sys::sc_surface_cone_p2_analytic(
+                4, kind, mutation, scale, distance, tolerance, input.as_ptr(),
+                input.len() as i64, out.as_mut_ptr(), out.len() as i64, &raw mut *len,
+            )
+        }
+    })?;
+    if result.len() == 1 {
+        if let Some(&value) = result.first() {
+            if value == 0.0 || value == 1.0 || value == 2.0 {
+                return Ok(value as u8);
+            }
+        }
+    }
+    Err(FfiError::InvalidArgument("unexpected native offset guard reason".into()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

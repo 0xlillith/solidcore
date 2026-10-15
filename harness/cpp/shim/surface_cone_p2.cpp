@@ -509,19 +509,20 @@ void cone_mutate(SmCone& cone,int mutation) {
 
 namespace {
 // The native offset path ignores CreateCanonical's status and dereferences its
-// output. Reject only a NULL result from that actual factory, before executing
-// the unsafe offset call. The probe uses the source's exact truncation formulas.
-bool offset_factory_defined(const SmContext& context,const SmCone& cone,double distance,double tolerance) {
+// output. Reject a NULL result or a non-finite height before the unsafe factory.
+// Return 0 for defined, 1 for NULL factory, 2 for non-finite truncation height.
+// The probe uses the source's exact truncation formulas.
+int offset_factory_defined(const SmContext& context,const SmCone& cone,double distance,double tolerance) {
     SmAxis2Placement placement;double base=0,semi=0;SmBoolean swap=FALSE,inside=FALSE;
-    if(cone.GetCanonical(placement,base,semi,&swap,&inside)!=SM_SUCCESS) return false;
+    if(cone.GetCanonical(placement,base,semi,&swap,&inside)!=SM_SUCCESS) return 1;
     const double sign=1.0*(swap?-1.0:1.0)*(inside?-1.0:1.0);
     const double sine=std::sin(semi*SM_PI/180.0),cosine=std::cos(semi*SM_PI/180.0);
     const double height=cone.GetHeight(),offset_z=-sine*sign*distance;
     const double radial=cosine*sign*distance;
     const double old_bottom=cone.GetBotRadius(),old_top=cone.GetTopRadius();
     double bottom=old_bottom+radial,top=old_top+radial;
-    if(bottom<tolerance && top<tolerance) return true;
-    if(bottom>=tolerance && top>=tolerance) return true;
+    if(bottom<tolerance && top<tolerance) return 0;
+    if(bottom>=tolerance && top>=tolerance) return 0;
     double new_height;SmPoint3d origin;
     const SmVector3d axis=placement.GetZAxis();
     if(bottom<tolerance) {
@@ -531,11 +532,14 @@ bool offset_factory_defined(const SmContext& context,const SmCone& cone,double d
         const double tangent=height/old_bottom;new_height=bottom*tangent;
         origin=placement.GetOriginRef()+offset_z*axis;top=0.0;
     }
+    // NaN height makes the bounded native factory recurse until stack overflow.
+    // This is an undefined reference input, never a compared operation status.
+    if(!std::isfinite(new_height)) return 2;
     SmAxis2Placement target;target.SetCanonical(origin,placement.GetXAxisRef(),placement.GetYAxisRef());
     SmCone* raw=NULL;
     SmCone::CreateCanonical(context,target,bottom,top,new_height,raw,swap,inside);
     std::unique_ptr<SmCone> probe(raw);
-    return raw!=NULL;
+    return raw ? 0 : 1;
 }
 }
 
@@ -571,8 +575,12 @@ SC_EXPORT int32_t sc_surface_cone_p2_analytic(int32_t op,int32_t kind,int32_t mu
         result.reset(recognized);selected=result.get();
     } else if(op==2) {
         status=(double)input->RebuildSTEPFromNURBParameters();selected=input.get();
+    } else if(op==4) {
+        // Diagnostic used to prove why an input cannot safely run the offset.
+        const double reason=offset_factory_defined(context,*input,distance,SmApproxTol3d(tolerance));
+        return sc_copy_out(&reason,1,out,cap,out_len);
     } else if(op==3) {
-        if(!offset_factory_defined(context,*input,distance,SmApproxTol3d(tolerance))) return SC_ERR_ARG;
+        if(offset_factory_defined(context,*input,distance,SmApproxTol3d(tolerance))!=0) return SC_ERR_ARG;
         SmSurface* offset=NULL;
         status=(double)input->CreateOffsetSurface(context,distance,tolerance,offset);
         if(offset && !offset->IsKindOf(SmCone_TYPE)) {delete offset;return SC_ERR_ARG;}

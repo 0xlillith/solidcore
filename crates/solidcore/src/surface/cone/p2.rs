@@ -24,6 +24,9 @@
 //! normalized during construction; this API cannot recover raw constructor axes.
 //! Cone STEP inversion deliberately uses the cone's own analytic domain, as its
 //! native override ignores the domain argument passed by this helper.
+//! Non-finite truncation heights return a controlled construction error where
+//! the native bounded factory can recurse until stack overflow. A failed lazy
+//! NURB build retains the native zero-domain fallback and continues the offset.
 
 use super::p1::Cone;
 use crate::curve::ellipse::{Ellipse, EllipseOptions};
@@ -627,12 +630,9 @@ impl Cone {
         let height = self.height(kernel)?;
         if self.rev.base.gw_nurb().is_none() {
             let mut ready = self.clone();
-            ready.make_nurb(kernel)?;
-            if ready.rev.base.gw_nurb().is_none() {
-                return Err(SolidError::null_pointer(
-                    "surface::cone::p2::Cone::create_offset_surface",
-                ));
-            }
+            // GetNaturalUVDomain ignores the lazy factory status and returns
+            // a zero domain when no NURB was produced (SmBSplineSurface.cpp:4339).
+            crate::error::ignore_status(ready.make_nurb(kernel))?;
             return ready.offset_with_height(kernel, distance, tolerance, height);
         }
         self.offset_with_height(kernel, distance, tolerance, height)

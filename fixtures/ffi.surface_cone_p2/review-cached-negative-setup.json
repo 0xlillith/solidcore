@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "name": "review2_negative_angle_4_1e-09_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review2_negative_angle_4_1e-06_-1e-12",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          -1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -2e-06,
+        "guard_reason": "setup"
+      }
+    }
+  ]
+}

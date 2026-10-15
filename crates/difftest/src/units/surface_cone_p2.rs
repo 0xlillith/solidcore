@@ -283,7 +283,19 @@ fn analytic_state(
     state_vec(out, position.origin());
     state_vec(out, position.x_axis());
     state_vec(out, position.y_axis());
-    for domain in [rev.step_uv_domain(), rev.base().natural_uv_domain()] {
+    // Native state extraction calls virtual GetNaturalUVDomain after writing
+    // canonical state and the STEP domain. It may now build a previously
+    // missing NURB on an offset whose new radius supports that construction.
+    let step_domain = rev.step_uv_domain();
+    let mut queried = cone.clone();
+    if queried.rev().base().gw_nurb().is_none() {
+        if let Err(error) = queried.make_nurb(kernel) {
+            if error.is_unported() { return Err(error); }
+        }
+    }
+    let cone = &queried;
+    let rev = cone.rev();
+    for domain in [step_domain, rev.base().natural_uv_domain()] {
         out.extend([
             domain.min().x,
             domain.min().y,
@@ -434,9 +446,17 @@ fn rust_analytic(case: &Case) -> Result<Output, HarnessError> {
     };
     // The native SmBSplineSurface copy constructor forces the source's
     // virtual NURB factory before producing recognition's pure B-spline input.
-    if o.kind & 2 == 0 || op == 1 {
+    if o.kind & 2 == 0 {
         cone.make_nurb(&kernel)
             .map_err(|e| HarnessError::new(e.to_string()))?;
+    } else if op == 1 {
+        // The native B-spline copy constructor ignores this lazy build status.
+        // Recognition then compares the actual empty-source result.
+        if let Err(error) = cone.make_nurb(&kernel) {
+            if let Some(output) = Output::unported(&error) {
+                return Ok(output);
+            }
+        }
     }
     mutate_cone(&mut cone, o.mutation).map_err(|e| HarnessError::new(e.to_string()))?;
     let mut status = 1000.0;
@@ -542,6 +562,19 @@ fn generated_analytic(rng: &mut crate::Rng) -> Value {
 mod review_tests {
     use super::*;
     #[test]
+    fn review_offset_comparisons_have_defined_native_factories() {
+        let context = crate::case::CaseContext { root: crate::case::repo_root(), seeds: 0 };
+        let mut rejected = 0;
+        for case in context.fixture_cases("surface.cone_p2").expect("fixtures load") {
+            if !case.name.starts_with("review2_") || case.inputs.get("op").and_then(Value::as_str) != Some("offset") { continue; }
+            let values = input(&case).expect("valid input");
+            let (_, o) = analytic_options(&case, &values).expect("valid options");
+            let reason = ffi::offset_guard_reason(&values,o.kind,o.mutation,o.scale,o.distance,o.tolerance).expect("native setup");
+            if reason != 0 { eprintln!("NATIVE_GUARD {} {}",case.name,reason); rejected += 1; }
+        }
+        assert_eq!(rejected, 0, "unsafe factory inputs belong in the separate guard fixtures");
+    }
+    #[test]
     fn unbounded_native_setup_and_null_factory_guards_remain_harness_errors() {
         let context = crate::case::CaseContext {
             root: crate::case::repo_root(),
@@ -550,9 +583,10 @@ mod review_tests {
         let cases = context
             .fixture_cases("ffi.surface_cone_p2")
             .expect("guard fixtures load");
-        assert_eq!(cases.len(), 44);
+        assert_eq!(cases.len(), 72);
         let mut setup = 0;
         let mut null_factory = 0;
+        let mut nonfinite_height = 0;
         for mut case in cases {
             let reason = case
                 .inputs
@@ -578,8 +612,15 @@ mod review_tests {
                     case.name
                 );
             } else {
-                assert_eq!(reason, "offset_null_factory");
-                null_factory += 1;
+                let values = input(&case).expect("valid guard input");
+                let (_, o) = analytic_options(&case, &values).expect("valid guard options");
+                let native = ffi::offset_guard_reason(&values,o.kind,o.mutation,o.scale,o.distance,o.tolerance).expect("native guard setup");
+                assert_eq!(native, if reason == "offset_nonfinite_height" { 2 } else { 1 }, "{} actual native rejection cause",case.name);
+                match reason.as_str() {
+                    "offset_null_factory" => null_factory += 1,
+                    "offset_nonfinite_height" => nonfinite_height += 1,
+                    _ => panic!("unknown guard reason: {reason}"),
+                }
                 let result = rust.expect("safe Rust offset returns a controlled operation status");
                 let status = result
                     .values
@@ -588,9 +629,12 @@ mod review_tests {
                     .copied()
                     .expect("offset status");
                 assert_ne!(status, 1000.0, "{} must not report success", case.name);
+                if reason == "offset_nonfinite_height" {
+                    assert_eq!(status, 1001.0, "{} controlled construction error", case.name);
+                }
                 assert!(result.deferred.is_none());
             }
         }
-        assert_eq!((setup, null_factory), (40, 4));
+        assert_eq!((setup, null_factory, nonfinite_height), (42, 28, 2));
     }
 }

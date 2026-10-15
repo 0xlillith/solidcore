@@ -1,0 +1,748 @@
+{
+  "cases": [
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-10,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-09,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-10,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-09_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-09,
+          1e-09,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_0_1_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          0,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 5e-07,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_0_offset_2",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 2e-06,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -5e-07,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_1e-06_1e-12_1_1_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          1e-06,
+          1e-06,
+          4,
+          0,
+          360,
+          1,
+          1,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_offset_-0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": -0.0005,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_0_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          0,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_offset_0",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review2_lazy_6_0.001_1e-12_1_0_offset_0.5",
+      "upstream_ref": "SmCone.cpp:607-622; SmBSplineSurface.cpp:4339-4342; PR #71 second review 5528724940",
+      "inputs": {
+        "op": "offset",
+        "kind": 6,
+        "trim": [
+          0.001,
+          0.001,
+          4,
+          0,
+          360,
+          1,
+          0,
+          1e-12,
+          2,
+          1,
+          1,
+          0,
+          360,
+          0,
+          0,
+          1,
+          1,
+          1e-07
+        ],
+        "tolerance": 1e-07,
+        "distance": 0.0005,
+        "guard_reason": "offset_null_factory"
+      }
+    }
+  ]
+}
