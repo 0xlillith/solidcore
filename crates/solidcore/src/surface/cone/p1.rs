@@ -66,7 +66,7 @@
 //!   arguments upstream marks `NotUsed` are dropped. Calls whose status upstream
 //!   ignores keep upstream's values, except that [`SolidError::Unported`] always
 //!   propagates and a failure whose output upstream would read uninitialised (a failed
-//!   point evaluation in `CreateIsoParametricCurve` and `GetHeight`, a failed STEP
+//!   point evaluation in `CreateIsoParametricCurve`, a failed STEP
 //!   inversion in `CreateIsoCircleFromPoint`) is returned. `GetApex` of a cylinder and
 //!   `STEPInversion` of a point outside the sweep return `SM_ERR` upstream with their
 //!   outputs set (callers use them): here they return the outputs ([`Apex::is_cylinder`],
@@ -1098,8 +1098,8 @@ impl Cone {
     ///
     /// # Errors
     ///
-    /// Those of [`Self::evaluate_point`] (whose status upstream ignores, then reading
-    /// uninitialised points).
+    /// Missing evaluation dependencies. Other evaluation errors retain the native
+    /// default `UNDEF` point, as `GetHeight` ignores their status.
     pub fn height(&self, k: &Kernel) -> Result<f64> {
         if self.rev.base.gw_nurb().is_none() {
             return Ok(self.rev.anal_uv_domain.max().y - self.rev.anal_uv_domain.min().y);
@@ -1110,8 +1110,8 @@ impl Cone {
         } else {
             (nurb_domain.max(), nurb_domain.min())
         };
-        let top = self.evaluate_point(k, top_uv)?;
-        let bot = self.evaluate_point(k, bot_uv)?;
+        let top = ignored(self.evaluate_point(k, top_uv))?.unwrap_or(Vec3::UNDEF);
+        let bot = ignored(self.evaluate_point(k, bot_uv))?.unwrap_or(Vec3::UNDEF);
         Ok((top - bot).dot(self.rev.position.z_axis()))
     }
 

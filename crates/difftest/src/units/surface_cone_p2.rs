@@ -311,7 +311,12 @@ fn analytic_state(
         nurb.max(),
     ]);
     for fraction in [0.0, 0.4, 1.0] {
-        state_vec(out, generator.evaluate_point(nurb.evaluate(fraction))?);
+        let point = match generator.evaluate_point(nurb.evaluate(fraction)) {
+            Ok(point) => point,
+            Err(error) if !error.is_unported() => Vec3::UNDEF,
+            Err(error) => return Err(error),
+        };
+        state_vec(out, point);
     }
     let angles = rev.polar_converter().angles();
     out.extend([
@@ -531,4 +536,61 @@ fn generated_analytic(rng: &mut crate::Rng) -> Value {
     serde_json::json!({"op":op,"kind":kind,"mutation":mutation,"scale":1.0,
         "distance":distance,"tolerance":tolerance,
         "trim":[bottom,top,height,start,end,swap,inside,0.0,height/2.0,scale,scale,0.0,360.0,0.0,0.0,1.0,1.0,1e-7*scale]})
+}
+
+#[cfg(test)]
+mod review_tests {
+    use super::*;
+    #[test]
+    fn unbounded_native_setup_and_null_factory_guards_remain_harness_errors() {
+        let context = crate::case::CaseContext {
+            root: crate::case::repo_root(),
+            seeds: 0,
+        };
+        let cases = context
+            .fixture_cases("ffi.surface_cone_p2")
+            .expect("guard fixtures load");
+        assert_eq!(cases.len(), 44);
+        let mut setup = 0;
+        let mut null_factory = 0;
+        for mut case in cases {
+            let reason = case
+                .inputs
+                .get("guard_reason")
+                .and_then(Value::as_str)
+                .expect("guard reason")
+                .to_owned();
+            case.inputs
+                .as_object_mut()
+                .expect("input object")
+                .remove("guard_reason");
+            assert!(
+                Runner.run_cpp(&case).is_err(),
+                "{} must be rejected by the actual native preflight",
+                case.name
+            );
+            let rust = Runner.run_rust(&case);
+            if reason == "setup" {
+                setup += 1;
+                assert!(
+                    rust.is_err(),
+                    "{} setup must fail rather than become a certified error result",
+                    case.name
+                );
+            } else {
+                assert_eq!(reason, "offset_null_factory");
+                null_factory += 1;
+                let result = rust.expect("safe Rust offset returns a controlled operation status");
+                let status = result
+                    .values
+                    .get("state")
+                    .and_then(|v| v.first())
+                    .copied()
+                    .expect("offset status");
+                assert_ne!(status, 1000.0, "{} must not report success", case.name);
+                assert!(result.deferred.is_none());
+            }
+        }
+        assert_eq!((setup, null_factory), (40, 4));
+    }
 }

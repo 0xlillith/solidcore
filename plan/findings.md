@@ -3862,3 +3862,37 @@ Clippy, formatting, workspace tests (1,003 kernel tests and 10 harness tests),
 returns status and the actual optional classification together; it does not use
 an output argument or invent unset UV values. Issue #76 remains the explicit
 shared-dispatch follow-up, and no external SSI corpus is used.
+
+## surface.cone_p2: review regressions and native default points (PR #71)
+
+Maintainer review 5526926792 found unbounded-cone disagreements beyond the
+previous 3,390-case coverage. A 160-input cross product of radii 2/1e-9,
+positive/negative ordinary/near-cylinder half-angles, swap/inside-out states and
+recognition/rebuild/offset operations reproduced 54 failures before correction.
+The archived baseline report includes both numeric disagreements and harness
+failures; a setup failure was never a certified operation result.
+
+RebuildSTEPFromNURBParameters calls virtual SmCone::EvaluatePoint at the domain
+corners (SmCone.cpp:4730-4731), while recognition evaluates its plain B-spline.
+The rebuild now preserves that distinction and ignores ordinary evaluation
+statuses as upstream does. SmVector3d's members explicitly initialize to
+SM_UNDEF_DOUBLE (SmVector3d.h:56-58); failed cone point evaluation therefore leaves
+a defined UNDEF point, not uninitialized memory. Cone::height (owned by
+surface.cone_p1) now preserves those default points before the native subtraction
+and dot product. Missing dependencies still propagate. Native and Rust state
+sampling use the same initialized UNDEF points after failed generator evaluation.
+Offset truncation dispatches through the cone/revolution reparameterizer.
+
+The matrix contains 116 defined differential cases and 44 native guard inputs:
+40 cannot construct the required NURB and four reach the already documented
+NULL truncation factory (UB-98). All 160 inputs are retained. The latter 44 live
+in fixtures/ffi.surface_cone_p2 and are executable harness guard regressions,
+separate from differential certification; they are neither passed geometry cases
+nor dependency deferrals. The guard test must fail if native setup/NULL-factory
+rejection stops occurring. The original failing reports remain outside the repo
+under ~/.config/solidcore/cone-review-baseline and cone-review-fixed.
+
+The trim API accepts an Ellipse whose frame has already normalized its axes.
+The upstream free helper accepts raw axes; this limitation is explicit in the
+Rust file's Deviations. Scaled trim fixtures exercise 1e-7 through 1e6 without
+changing comparison tolerances. Final counts and complete gates are pending.

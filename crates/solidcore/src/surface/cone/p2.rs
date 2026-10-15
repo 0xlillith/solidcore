@@ -18,6 +18,10 @@
 //! working copy instead of mutating the input cache. Native attribute notifications
 //! have no Rust equivalent. Offset homogeneous conversion preserves the direct
 //! divisions of `TO_EUCLID`, which differs from `N_CPtToPtEuclid`'s reciprocal multiply.
+//! Rebuild corner evaluation dispatches to the analytic cone; height queries
+//! preserve native default UNDEF points after ignored evaluation errors.
+//! Ellipse plane normals use the supplied Ellipse frame, whose axes were already
+//! normalized during construction; this API cannot recover raw constructor axes.
 //! Cone STEP inversion deliberately uses the cone's own analytic domain, as its
 //! native override ignores the domain argument passed by this helper.
 
@@ -286,6 +290,7 @@ fn detect_cone(
     surface: &BSplineSurface,
     scale: f64,
     strict: bool,
+    analytic: Option<&Cone>,
 ) -> Result<Option<ConeDetection>> {
     let degree_u = surface.degree(SurfParamType::U);
     let degree_v = surface.degree(SurfParamType::V);
@@ -318,8 +323,21 @@ fn detect_cone(
             return Ok(None);
         }
     }
-    let min = surface.evaluate_point(domain.min())?;
-    let max = surface.evaluate_point(domain.max())?;
+    // Recognition owns a plain B-spline; rebuilding dispatches virtually to
+    // the analytic cone and ignores status, retaining SmPoint3d's UNDEF default.
+    let (min, max) = if let Some(cone) = analytic {
+        (
+            crate::error::ignored(cone.evaluate_point(kernel, domain.min()))?
+                .unwrap_or(crate::math::Vec3::UNDEF),
+            crate::error::ignored(cone.evaluate_point(kernel, domain.max()))?
+                .unwrap_or(crate::math::Vec3::UNDEF),
+        )
+    } else {
+        (
+            surface.evaluate_point(domain.min())?,
+            surface.evaluate_point(domain.max())?,
+        )
+    };
     let angle_tolerance = scale * EFF_ZERO_SQRT;
     let zero = scale * 100.0 * EFF_ZERO * (1.0 + min.max_dimension() + max.max_dimension());
     let (swap_uv, sweep, bottom_parameter, top_parameter) = if degree_u == 1 {
@@ -437,7 +455,7 @@ impl Cone {
         surface: &BSplineSurface,
         tolerance_scale: f64,
     ) -> Result<Option<Self>> {
-        let Some(detection) = detect_cone(kernel, surface, tolerance_scale, true)? else {
+        let Some(detection) = detect_cone(kernel, surface, tolerance_scale, true, None)? else {
             return Ok(None);
         };
         let d = detection;
@@ -509,7 +527,7 @@ impl Cone {
         if self.rev.base.gw_nurb().is_none() {
             self.make_nurb(kernel)?;
         }
-        let Some(d) = detect_cone(kernel, &self.rev.base, 1000.0, false)? else {
+        let Some(d) = detect_cone(kernel, &self.rev.base, 1000.0, false, Some(self))? else {
             return Err(SolidError::sm_err(
                 "surface::cone::p2::Cone::rebuild_step_from_nurb_parameters",
             ));
@@ -691,7 +709,7 @@ impl Cone {
                     domain.min().y + new_height / height * domain.max().y,
                 )
             };
-            ignore_status(cone.rev.base.reparameterize(&target))?;
+            ignore_status(cone.reparameterize(kernel, &target))?;
             let generator_interval = if self.rev.swap_uv {
                 target.u_interval()
             } else {

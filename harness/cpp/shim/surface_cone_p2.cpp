@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 // surface.cone_p2: actual sm_GetEllipseTrimIntervals (SmCone.cpp:5282).
 #include "sc_shim.h"
@@ -454,7 +455,7 @@ bool cone_state(std::vector<double>& out,const SmCone& cone) {
     out.insert(out.end(),{(double)generator->GetType(),step.GetMin(),step.GetMax(),nurb.GetMin(),nurb.GetMax()});
     for(double fraction:{0.0,0.4,1.0}) {
         SmPoint3d point;
-        if(generator->EvaluatePoint(nurb.Evaluate(fraction),point)!=SM_SUCCESS) return false;
+        generator->EvaluatePoint(nurb.Evaluate(fraction),point); // native UNDEF default on error
         cone_vec(out,point);
     }
     const SmPolarConversion& polar=cone.*ConeStateAccess::polar();

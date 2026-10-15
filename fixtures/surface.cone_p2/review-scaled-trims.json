@@ -1,0 +1,2084 @@
+{
+  "cases": [
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2e-07,
+          2e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2e-07,
+          2e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2e-07,
+          1.7e-07,
+          1.7e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2e-07,
+          1.7e-07,
+          1.7e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2e-07,
+          1.5e-07,
+          1.5e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2e-07,
+          1.5e-07,
+          1.5e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4e-07,
+          1e-07,
+          1e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4e-07,
+          1e-07,
+          1e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2e-07,
+          2e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2e-07,
+          2e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2e-07,
+          1.7e-07,
+          1.7e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2e-07,
+          1.7e-07,
+          1.7e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2e-07,
+          1.5e-07,
+          1.5e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2e-07,
+          1.5e-07,
+          1.5e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4e-07,
+          1e-07,
+          1e-07,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2e-07,
+          1e-07,
+          4e-07,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4e-07,
+          1e-07,
+          1e-07,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          0.002,
+          0.002,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          0.002,
+          0.002,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0012,
+          0.0017,
+          0.0017,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0012,
+          0.0017,
+          0.0017,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.002,
+          0.0015,
+          0.0015,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.002,
+          0.0015,
+          0.0015,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.004,
+          0.001,
+          0.001,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.004,
+          0.001,
+          0.001,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          0.002,
+          0.002,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          0.002,
+          0.002,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0012,
+          0.0017,
+          0.0017,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0012,
+          0.0017,
+          0.0017,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.002,
+          0.0015,
+          0.0015,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.002,
+          0.0015,
+          0.0015,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.004,
+          0.001,
+          0.001,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          0.002,
+          0.001,
+          0.004,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.004,
+          0.001,
+          0.001,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2.0,
+          2.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1.2,
+          1.7,
+          1.7,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2.0,
+          1.5,
+          1.5,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2.0,
+          1.0,
+          4.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4.0,
+          1.0,
+          1.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000.0,
+          2000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000.0,
+          2000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1200.0,
+          1700.0,
+          1700.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1200.0,
+          1700.0,
+          1700.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2000.0,
+          1500.0,
+          1500.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2000.0,
+          1500.0,
+          1500.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4000.0,
+          1000.0,
+          1000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4000.0,
+          1000.0,
+          1000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000.0,
+          2000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000.0,
+          2000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1200.0,
+          1700.0,
+          1700.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1200.0,
+          1700.0,
+          1700.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2000.0,
+          1500.0,
+          1500.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2000.0,
+          1500.0,
+          1500.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4000.0,
+          1000.0,
+          1000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000.0,
+          1000.0,
+          4000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4000.0,
+          1000.0,
+          1000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000000.0,
+          2000000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000000.0,
+          2000000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1200000.0,
+          1700000.0,
+          1700000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          1200000.0,
+          1700000.0,
+          1700000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2000000.0,
+          1500000.0,
+          1500000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          2000000.0,
+          1500000.0,
+          1500000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4000000.0,
+          1000000.0,
+          1000000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          0,
+          360,
+          0,
+          0,
+          0.0,
+          4000000.0,
+          1000000.0,
+          1000000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000000.0,
+          2000000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          0.0,
+          2000000.0,
+          2000000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.3_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1200000.0,
+          1700000.0,
+          1700000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.3_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          1200000.0,
+          1700000.0,
+          1700000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.5_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2000000.0,
+          1500000.0,
+          1500000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.5_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          2000000.0,
+          1500000.0,
+          1500000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_1.0_0",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4000000.0,
+          1000000.0,
+          1000000.0,
+          0,
+          360,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    },
+    {
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_1.0_20",
+      "upstream_ref": "SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review",
+      "inputs": {
+        "trim": [
+          2000000.0,
+          1000000.0,
+          4000000.0,
+          15,
+          250,
+          0,
+          0,
+          0.0,
+          4000000.0,
+          1000000.0,
+          1000000.0,
+          20,
+          200,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1324 @@
+{
+  "cases": [
+    {
+      "name": "review_unbounded_2.0_1e-12_0_0_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review_unbounded_2.0_1e-12_0_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review_unbounded_2.0_1e-12_1_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review_unbounded_2.0_1e-12_1_0_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          2.0,
+          2.0,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "offset_null_factory"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_0_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_0_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_0_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_0_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_1_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_1_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_1_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_1_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_0_1_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_0_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_0_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_0_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_0_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_1_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_1_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_1_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_1_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_-1e-12_1_1_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          -1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_0_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_0_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_0_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_0_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_1_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_1_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_1_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_1_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_0_1_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          0,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_0_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_0_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_0_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_0_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_0_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          0,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_1_recognize_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "recognize",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_1_rebuild_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "rebuild",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_1_offset_-1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": -1e-09,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_1_offset_0.0",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 0.0,
+        "guard_reason": "setup"
+      }
+    },
+    {
+      "name": "review_unbounded_1e-09_1e-12_1_1_offset_1e-09",
+      "upstream_ref": "SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792",
+      "inputs": {
+        "op": "offset",
+        "kind": 4,
+        "trim": [
+          1e-09,
+          1e-09,
+          4.0,
+          0.0,
+          360.0,
+          1,
+          1,
+          1e-12,
+          2.0,
+          1.0,
+          1.0,
+          0.0,
+          360.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1e-07
+        ],
+        "distance": 1e-09,
+        "guard_reason": "setup"
+      }
+    }
+  ]
+}
