@@ -2551,7 +2551,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#318 (upstream edge case)",
-      "values_compared": 14
+      "values_compared": 247
     },
     {
       "max_rel_err": 0.0,
@@ -2563,7 +2563,7 @@
     },
     {
       "max_rel_err": 0.0,
-      "name": "torus_full_circle_quarter",
+      "name": "torus_sub_arc",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#320 (upstream edge case)",
@@ -2571,18 +2571,26 @@
     },
     {
       "max_rel_err": 0.0,
-      "name": "circle_touching_axis",
+      "name": "torus_full_circle_quarter",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#321 (upstream edge case)",
-      "values_compared": 14
+      "values_compared": 359
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "circle_touching_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#322 (upstream edge case)",
+      "values_compared": 247
     },
     {
       "max_rel_err": 0.0,
       "name": "circle_touching_axis_same",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#322 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#323 (upstream edge case)",
       "values_compared": 47
     },
     {
@@ -2590,7 +2598,7 @@
       "name": "circle_perp_axis",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#323 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#324 (upstream edge case)",
       "values_compared": 359
     },
     {
@@ -2598,7 +2606,7 @@
       "name": "vertex_higher_axis_0",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#324 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#325 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2606,7 +2614,7 @@
       "name": "vertex_same_axis_0",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#325 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#326 (upstream edge case)",
       "values_compared": 6
     },
     {
@@ -2614,7 +2622,7 @@
       "name": "vertex_higher_axis_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#326 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#327 (upstream edge case)",
       "values_compared": 3
     },
     {
@@ -2622,7 +2630,7 @@
       "name": "vertex_same_axis_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#327 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#328 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2630,7 +2638,7 @@
       "name": "vertex_higher_axis_2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#328 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#329 (upstream edge case)",
       "values_compared": 35
     },
     {
@@ -2638,7 +2646,7 @@
       "name": "vertex_same_axis_2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#329 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#330 (upstream edge case)",
       "values_compared": 6
     },
     {
@@ -2646,7 +2654,7 @@
       "name": "vertex_higher_axis_3",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#330 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#331 (upstream edge case)",
       "values_compared": 35
     },
     {
@@ -2654,7 +2662,7 @@
       "name": "vertex_same_axis_3",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#331 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#332 (upstream edge case)",
       "values_compared": 6
     },
     {
@@ -2662,7 +2670,7 @@
       "name": "start_cs_on_axis",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#332 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#333 (upstream edge case)",
       "values_compared": 1
     },
     {
@@ -2670,7 +2678,7 @@
       "name": "end_cs_full",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#333 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#334 (upstream edge case)",
       "values_compared": 10
     },
     {
@@ -2678,7 +2686,7 @@
       "name": "is_closed_quarter_0",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#334 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#335 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2686,7 +2694,7 @@
       "name": "is_closed_quarter_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#335 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#336 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2694,7 +2702,7 @@
       "name": "is_closed_quarter_4",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#336 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#337 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2702,7 +2710,7 @@
       "name": "is_closed_quarter_5",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#337 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#338 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2710,7 +2718,7 @@
       "name": "zero_axis_transform",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#338 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#339 (upstream edge case)",
       "values_compared": 10
     },
     {
@@ -2718,7 +2726,7 @@
       "name": "zero_axis_copy",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#339 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#340 (upstream edge case)",
       "values_compared": 10
     },
     {
@@ -2730,7 +2738,7 @@
       "name": "face_same_nurb_twisted",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#340 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#341 (upstream edge case)",
       "values_compared": 0
     },
     {
@@ -2738,7 +2746,7 @@
       "name": "face_same_nurb_flat",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#341 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#342 (upstream edge case)",
       "values_compared": 109
     },
     {
@@ -2746,7 +2754,7 @@
       "name": "face_same_full_turn",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#342 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#343 (upstream edge case)",
       "values_compared": 3
     },
     {
@@ -2754,7 +2762,7 @@
       "name": "disc_analytics",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#343 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#344 (upstream edge case)",
       "values_compared": 167
     },
     {
@@ -2762,7 +2770,7 @@
       "name": "annulus_analytics",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#344 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#345 (upstream edge case)",
       "values_compared": 263
     },
     {
@@ -2770,7 +2778,7 @@
       "name": "hermite_edge",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#345 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#346 (upstream edge case)",
       "values_compared": 14
     },
     {
@@ -2778,7 +2786,7 @@
       "name": "hermite_check",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#346 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#347 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2786,7 +2794,7 @@
       "name": "cone_scale_0.0001",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#347 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#348 (upstream edge case)",
       "values_compared": 359
     },
     {
@@ -2794,7 +2802,7 @@
       "name": "disc_scale_0.0001",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#348 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#349 (upstream edge case)",
       "values_compared": 167
     },
     {
@@ -2802,7 +2810,7 @@
       "name": "cone_scale_100000",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#349 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#350 (upstream edge case)",
       "values_compared": 359
     },
     {
@@ -2810,7 +2818,7 @@
       "name": "disc_scale_100000",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#350 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#351 (upstream edge case)",
       "values_compared": 167
     },
     {
@@ -2818,7 +2826,7 @@
       "name": "nurb_bulge_ends_on_axis",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#351 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#352 (upstream edge case)",
       "values_compared": 247
     },
     {
@@ -2826,7 +2834,7 @@
       "name": "nurb_bulge_ends_on_axis_same",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#352 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#353 (upstream edge case)",
       "values_compared": 47
     },
     {
@@ -2834,7 +2842,7 @@
       "name": "nurb_bulge_check",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#353 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#354 (upstream edge case)",
       "values_compared": 2
     },
     {
@@ -2842,7 +2850,7 @@
       "name": "nurb_partly_on_axis",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#354 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#355 (upstream edge case)",
       "values_compared": 247
     },
     {
@@ -2850,7 +2858,7 @@
       "name": "nurb_partly_on_axis_same",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#355 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#356 (upstream edge case)",
       "values_compared": 47
     },
     {
@@ -2858,7 +2866,7 @@
       "name": "nurb_back_on_axis_big_eps",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#356 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#357 (upstream edge case)",
       "values_compared": 303
     },
     {
@@ -2866,7 +2874,7 @@
       "name": "nurb_back_on_axis_big_eps_same",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#357 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#358 (upstream edge case)",
       "values_compared": 47
     },
     {
@@ -2874,7 +2882,7 @@
       "name": "nurb_zigzag_on_axis",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#358 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#359 (upstream edge case)",
       "values_compared": 30
     },
     {
@@ -2882,7 +2890,7 @@
       "name": "nurb_zigzag_on_axis_big_eps",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#359 (upstream edge case)",
+      "source": "fixture:fixtures/sweep.rotational_sweep_geometry/cases.json#360 (upstream edge case)",
       "values_compared": 30
     },
     {
@@ -3019,7 +3027,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811160",
-      "values_compared": 47
+      "values_compared": 359
     },
     {
       "deferred": {
@@ -3195,7 +3203,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811181",
-      "values_compared": 2
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -3247,7 +3255,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811187",
-      "values_compared": 35
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3335,7 +3343,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811198",
-      "values_compared": 47
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -3415,7 +3423,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811208",
-      "values_compared": 47
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -3450,12 +3458,16 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0069",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=15377569132031811213",
-      "values_compared": 10
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3635,7 +3647,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811235",
-      "values_compared": 109
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -3855,7 +3867,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811261",
-      "values_compared": 2
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -4187,7 +4199,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811301",
-      "values_compared": 2
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -4287,7 +4299,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811313",
-      "values_compared": 10
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -4327,7 +4339,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811318",
-      "values_compared": 359
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -4510,12 +4522,16 @@
       "values_compared": 359
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=15377569132031811340",
-      "values_compared": 263
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4598,16 +4614,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0206",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=15377569132031811350",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4655,7 +4667,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811356",
-      "values_compared": 359
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -4663,7 +4675,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811357",
-      "values_compared": 10
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -4743,7 +4755,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811367",
-      "values_compared": 247
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -4807,7 +4819,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811375",
-      "values_compared": 303
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -4867,7 +4879,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811382",
-      "values_compared": 10
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5079,7 +5091,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811407",
-      "values_compared": 10
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5119,7 +5131,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811412",
-      "values_compared": 3
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5267,7 +5279,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811429",
-      "values_compared": 2
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5379,7 +5391,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811442",
-      "values_compared": 10
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5418,12 +5430,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0303",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=15377569132031811447",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5495,7 +5511,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811455",
-      "values_compared": 359
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5655,7 +5671,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811474",
-      "values_compared": 1
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5663,7 +5679,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811475",
-      "values_compared": 109
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -5703,7 +5719,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811480",
-      "values_compared": 359
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -5787,7 +5803,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811489",
-      "values_compared": 35
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5855,7 +5871,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811497",
-      "values_compared": 10
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -5939,7 +5955,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811507",
-      "values_compared": 14
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -6023,7 +6039,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=15377569132031811517",
-      "values_compared": 109
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -6126,12 +6142,16 @@
       "values_compared": 359
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0386",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=15377569132031811530",
-      "values_compared": 359
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6243,12 +6263,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 40,
+  "cases_deferred": 43,
   "cases_failed": 0,
-  "cases_passed": 720,
-  "cases_total": 760,
+  "cases_passed": 718,
+  "cases_total": 761,
   "deferred_by_unit": {
-    "surface.cone_p2": 40
+    "surface.cone_p2": 43
   },
   "max_rel_err": 0.0,
   "pass": true,
