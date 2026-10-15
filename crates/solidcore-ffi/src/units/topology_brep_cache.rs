@@ -24,7 +24,8 @@ fn invalid() -> FfiError {
 }
 
 /// Runs a checked cache description. Counts are bounded to 4096, coordinates
-/// to 1e100, tolerances nonnegative, polygon loops closed with at least 3 vertices.
+/// to 1e100, polygon loops closed with at least 3 vertices. Tolerances retain
+/// native `fabs` / `SM_USE_DEFAULT` handling, including negative inputs.
 /// These limits bound the test wrapper, not the kernel's supported geometry.
 pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     if input.iter().any(|v| !v.is_finite() || v.abs() > 1e100) {
@@ -33,9 +34,7 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let mut r = Reader { input, pos: 0 };
     let exact = r.flag()?;
     r.flag()?;
-    if r.num()? < 0.0 {
-        return Err(invalid());
-    }
+    r.num()?;
     let nv = r.count()?;
     if exact && nv != 0 {
         return Err(invalid());
@@ -69,9 +68,7 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
             return Err(invalid());
         }
         for _ in 0..3 {
-            if r.num()? < 0.0 {
-                return Err(invalid());
-            }
+            r.num()?;
         }
     }
     let nq = r.count()?;
@@ -127,9 +124,7 @@ impl Reader<'_> {
             for _ in 0..3 {
                 self.num()?;
             }
-            if self.num()? < 0.0 {
-                return Err(invalid());
-            }
+            self.num()?;
         }
         Ok(())
     }

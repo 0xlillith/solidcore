@@ -4480,6 +4480,10 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   (`query.face_p1`, PR #105) and `SmFace::GetEdges` (`topology.face_p4`). Those
   calls retain correctly owned `UNPORTED` markers. `BuildPolyTrees`, `GetBBox`,
   drawing and memory accounting are not functions assigned to this unit.
+- The checked FFI retains native negative-tolerance (`fabs`) and
+  `SM_USE_DEFAULT` handling. A separate native differential regression compares
+  full Rust/C++ cache outputs for both; exact fixture tolerances go through
+  `zone_tol3d` just like their native typed arguments.
 - Geometry owner keys need not equal arena indices. Build/resize and the solver
   adapter take an explicit identity mapping; resize cases use keys offset by
   1,000,000,000. Cache invalidation and source identity remain with the caller,

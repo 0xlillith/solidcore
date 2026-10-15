@@ -204,13 +204,13 @@ fn run(i: &Inputs) -> SolidResult<Output> {
         for &[x, y, z, t] in &i.resize {
             ids.push(b.add_vertex_record(Vertex {
                 point: Point3::new(x, y, z),
-                tolerance: t,
+                tolerance: solidcore::geom::tol::zone_tol3d(&k, t),
                 ..Vertex::default()
             })?);
         }
         let mut edge_ids = Vec::new();
         for &edge in &i.resize_edges {
-            edge_ids.push(add_wire(&mut b, edge)?);
+            edge_ids.push(add_wire(&k, &mut b, edge)?);
         }
         cache.resize_trees(&k, &b, &[], &edge_ids, &ids, &identity)?;
     }
@@ -233,7 +233,7 @@ fn identity(object: CacheObject) -> solidcore::geom::object::ObjectRef {
     r
 }
 
-fn add_wire(b: &mut Brep, data: [f64; 9]) -> SolidResult<solidcore::topology::EdgeId> {
+fn add_wire(k: &Kernel, b: &mut Brep, data: [f64; 9]) -> SolidResult<solidcore::topology::EdgeId> {
     use solidcore::curve::curve::Curve;
     use solidcore::curve::line::Line;
     use solidcore::geom::attribute::ObjectKey;
@@ -241,6 +241,9 @@ fn add_wire(b: &mut Brep, data: [f64; 9]) -> SolidResult<solidcore::topology::Ed
     use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
     use solidcore::topology::{Edge, Edgeuse, EdgeuseOwner, Shell, Vertexuse, VertexuseOwner};
     let [ax, ay, az, bx, by, bz, et, at, bt] = data;
+    let et = solidcore::geom::tol::zone_tol3d(k, et);
+    let at = solidcore::geom::tol::zone_tol3d(k, at);
+    let bt = solidcore::geom::tol::zone_tol3d(k, bt);
     let a = Point3::new(ax, ay, az);
     let c = Point3::new(bx, by, bz);
     let first = b.add_vertex_record(Vertex {
@@ -397,5 +400,44 @@ impl UnitDiff for Runner {
             queries,
         })
         .ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn native_tolerance_normalization_matches_rust() {
+        for tolerance in [-0.001, solidcore::geom::tol::USE_DEFAULT] {
+            let input = Inputs {
+                exact: false,
+                build: true,
+                tol: tolerance,
+                vertices: vec![
+                    [0.0, 0.0, 0.0, tolerance],
+                    [1.0, 0.0, 0.0, tolerance],
+                    [0.0, 1.0, 0.0, tolerance],
+                ],
+                faces: vec![vec![0, 1, 2]],
+                resize: vec![[20.0, 0.0, 0.0, tolerance]],
+                resize_edges: vec![[
+                    1.0, 1.0, 1.0, 5.0, 6.0, 7.0, tolerance, tolerance, tolerance,
+                ]],
+                queries: Vec::new(),
+            };
+            let case = Case {
+                unit: Runner.id().into(),
+                name: format!("tolerance_{tolerance}"),
+                source: crate::case::CaseSource::Inline,
+                inputs: serde_json::to_value(input).unwrap(),
+            };
+            let cpp = Runner.run_cpp(&case).unwrap();
+            let rust = Runner.run_rust(&case).unwrap();
+            assert!(cpp
+                .values
+                .get("boxes")
+                .is_some_and(|values| !values.is_empty()));
+            assert_eq!(cpp, rust);
+        }
     }
 }
