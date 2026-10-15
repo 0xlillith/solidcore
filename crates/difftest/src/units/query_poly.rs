@@ -375,13 +375,13 @@ fn code_of(e: &SolidError) -> f64 {
 
 /// Unported errors abort the case (deferred); others become a status.
 enum Fail {
-    Deferred(Output),
+    Deferred(Box<Output>),
     Harness(HarnessError),
 }
 
 fn rs<T>(r: solidcore::Result<T>) -> Result<T, Fail> {
     r.map_err(|e| match Output::unported(&e) {
-        Some(o) => Fail::Deferred(o),
+        Some(o) => Fail::Deferred(Box::new(o)),
         None => Fail::Harness(harness(format!("rust error: {e}"))),
     })
 }
@@ -778,7 +778,7 @@ fn run_op(k: &Kernel, b: &mut Built, op: &OpIn, out: &mut Secs) -> Result<(), Fa
                     }
                     Err(e) => {
                         if let Some(d) = Output::unported(&e) {
-                            return Err(Fail::Deferred(d));
+                            return Err(Fail::Deferred(Box::new(d)));
                         }
                         o.push(code_of(&e));
                         o.push(-1.0);
@@ -821,7 +821,7 @@ fn run_op(k: &Kernel, b: &mut Built, op: &OpIn, out: &mut Secs) -> Result<(), Fa
                 Ok(()) => 0.0,
                 Err(e) => {
                     if let Some(d) = Output::unported(&e) {
-                        return Err(Fail::Deferred(d));
+                        return Err(Fail::Deferred(Box::new(d)));
                     }
                     code_of(&e)
                 }
@@ -834,7 +834,7 @@ fn run_op(k: &Kernel, b: &mut Built, op: &OpIn, out: &mut Secs) -> Result<(), Fa
                 match *c {
                     MutIn::SetPoint { v, p: q } => rs(p.vertex_set_point(vid(v), v3(q)))?,
                     MutIn::SetVertexTolerance { v, t } => {
-                        rs(p.vertex_set_tolerance(vid(v), tol::zone_tol3d(k, t), true))?
+                        rs(p.vertex_set_tolerance(vid(v), tol::zone_tol3d(k, t), true))?;
                     }
                     MutIn::DeleteEdge { e } => rs(p.delete_edge(eid(e)))?,
                     MutIn::DeleteFace { f } => rs(p.delete_face(fid(f)))?,
@@ -844,10 +844,10 @@ fn run_op(k: &Kernel, b: &mut Built, op: &OpIn, out: &mut Secs) -> Result<(), Fa
                     }
                     MutIn::SetNormalUninit { f } => rs(p.face_set_normal_uninit(fid(f)))?,
                     MutIn::SetEdgeTolerance { e, t } => {
-                        rs(p.edge_set_tolerance(eid(e), tol::zone_tol3d(k, t)))?
+                        rs(p.edge_set_tolerance(eid(e), tol::zone_tol3d(k, t)))?;
                     }
                     MutIn::SetFaceTolerance { f, t } => {
-                        rs(p.face_set_tolerance(fid(f), tol::zone_tol3d(k, t)))?
+                        rs(p.face_set_tolerance(fid(f), tol::zone_tol3d(k, t)))?;
                     }
                     MutIn::SetOriginalFace { f, label } => rs(p.face_set_original_face(
                         fid(f),
@@ -922,7 +922,7 @@ impl UnitDiff for Runner {
         })();
         match res {
             Ok(s) => to_output(&s.0),
-            Err(Fail::Deferred(o)) => Ok(o),
+            Err(Fail::Deferred(o)) => Ok(*o),
             Err(Fail::Harness(h)) => Err(h),
         }
     }
@@ -1013,7 +1013,7 @@ mod gen {
         ]
     }
 
-    struct B {
+    struct Gen {
         b: BrepIn,
         /// `(start, end)` vertex of every edge, creation order.
         edges: Vec<(usize, usize)>,
@@ -1022,7 +1022,7 @@ mod gen {
         frame: Frame,
     }
 
-    impl B {
+    impl Gen {
         fn vert(&mut self, rng: &mut Rng, p: [f64; 3]) -> usize {
             let t = if rng.chance(0.8) { 1.0e-5 } else { tol(rng) };
             self.b.vertices.push([p[0], p[1], p[2], t]);
@@ -1043,7 +1043,9 @@ mod gen {
                 let k = verts.len();
                 let ne = if mode == 2 { k - 1 } else { k };
                 for j in 0..ne {
-                    self.edges.push((verts[j], verts[(j + 1) % k]));
+                    if let (Some(&a), Some(&b)) = (verts.get(j), verts.get((j + 1) % k)) {
+                        self.edges.push((a, b));
+                    }
                 }
                 self.loops += 1;
                 let edge_tol = if rng.chance(0.85) { 1.0e-5 } else { tol(rng) };
@@ -1064,21 +1066,23 @@ mod gen {
         /// Radial rings: edges joining the same two vertices.
         fn stitch(&mut self, rng: &mut Rng) {
             let mut used = vec![false; self.edges.len()];
-            for i in 0..self.edges.len() {
-                if used[i] {
+            for (i, &(a, b)) in self.edges.iter().enumerate() {
+                if used.get(i).copied().unwrap_or(true) {
                     continue;
                 }
-                let (a, b) = self.edges[i];
                 let mut ring = vec![i];
-                for j in i + 1..self.edges.len() {
-                    let (c, d) = self.edges[j];
-                    if !used[j] && ((c == a && d == b) || (c == b && d == a)) {
+                for (j, &(c, d)) in self.edges.iter().enumerate().skip(i + 1) {
+                    if !used.get(j).copied().unwrap_or(true)
+                        && ((c == a && d == b) || (c == b && d == a))
+                    {
                         ring.push(j);
                     }
                 }
                 if ring.len() >= 2 && rng.chance(0.9) {
                     for &r in &ring {
-                        used[r] = true;
+                        if let Some(u) = used.get_mut(r) {
+                            *u = true;
+                        }
                     }
                     if rng.chance(0.2) {
                         ring.reverse();
@@ -1094,7 +1098,6 @@ mod gen {
         for i in 0..n {
             let a = std::f64::consts::TAU * i as f64 / n as f64;
             let r = match kind {
-                0 => 1.0,
                 1 => {
                     if i % 2 == 0 {
                         1.0
@@ -1115,8 +1118,8 @@ mod gen {
         pts
     }
 
-    fn build(rng: &mut Rng) -> B {
-        let mut s = B {
+    fn build(rng: &mut Rng) -> Gen {
+        let mut s = Gen {
             b: BrepIn {
                 tol: if rng.chance(0.8) { 1.0e-5 } else { tol(rng) },
                 ..BrepIn::default()
@@ -1165,7 +1168,7 @@ mod gen {
                     vec![vec![0, 2, 1], vec![0, 1, 3], vec![1, 2, 3], vec![2, 0, 3]]
                 };
                 for f in faces {
-                    let loop_v: Vec<usize> = f.iter().map(|&i| vs[i]).collect();
+                    let loop_v: Vec<usize> = f.iter().filter_map(|&i| vs.get(i).copied()).collect();
                     s.face(rng, 0, vec![(1, loop_v)]);
                 }
             }
@@ -1235,7 +1238,7 @@ mod gen {
             6 => {
                 s.b.regions = vec![1];
                 let raw = rng.chance(0.5);
-                let v = |rng: &mut Rng, s: &mut B, u: f64, w: f64| {
+                let v = |rng: &mut Rng, s: &mut Gen, u: f64, w: f64| {
                     let q = if raw { [u, w, 0.0] } else { at(&s.frame, u, w, 0.0) };
                     s.vert(rng, q)
                 };
@@ -1257,7 +1260,9 @@ mod gen {
                 s.b.regions = (0..nr).map(|_| rng.below(3) as usize).collect();
                 let n_shells: usize = s.b.regions.iter().sum();
                 if n_shells == 0 {
-                    s.b.regions[0] = 1;
+                    if let Some(r) = s.b.regions.first_mut() {
+                        *r = 1;
+                    }
                 }
                 let n_shells: usize = s.b.regions.iter().sum();
                 let nf = 1 + rng.below(4) as usize;
@@ -1353,7 +1358,7 @@ mod gen {
                 let pts = match rng.below(3) {
                     0 => None,
                     1 => Some(Vec::new()),
-                    _ => Some((0..1 + rng.below(6)).map(|_| rng.point3(-10.0, 10.0)).collect()),
+                    _ => Some((0..=rng.below(6)).map(|_| rng.point3(-10.0, 10.0)).collect()),
                 };
                 OpIn::Bbox {
                     pseudo: pts.is_some() && rng.chance(0.5),
@@ -1367,29 +1372,30 @@ mod gen {
                 }
             }
             2 => OpIn::Normal {
-                calls: (0..1 + rng.below(4))
+                calls: (0..=rng.below(4))
                     .map(|_| (pick(rng, nf), rng.chance(0.5), rng.chance(0.7)))
                     .collect(),
             },
             3 => OpIn::Sphere {
-                calls: (0..1 + rng.below(3))
+                calls: (0..=rng.below(3))
                     .map(|_| (pick(rng, nf), rng.chance(0.5)))
                     .collect(),
             },
             4 => {
                 let mut queries = Vec::new();
-                for _ in 0..1 + rng.below(6) {
+                for _ in 0..=rng.below(6) {
                     let face = nl == 0 || rng.chance(0.4);
                     let id = if face { pick(rng, nf) } else { pick(rng, nl) };
                     // near a vertex, an edge midpoint, inside, or far
                     let point = match rng.below(4) {
                         0 if nv > 0 => {
-                            let v = s.b.vertices[pick(rng, nv)];
+                            let v = s.b.vertices.get(pick(rng, nv)).copied().unwrap_or_default();
                             [v[0], v[1], v[2]]
                         }
                         1 if ne > 0 => {
-                            let (a, b) = s.edges[pick(rng, ne)];
-                            let (pa, pb) = (s.b.vertices[a], s.b.vertices[b]);
+                            let (a, b) = s.edges.get(pick(rng, ne)).copied().unwrap_or_default();
+                            let pa = s.b.vertices.get(a).copied().unwrap_or_default();
+                            let pb = s.b.vertices.get(b).copied().unwrap_or_default();
                             [(pa[0] + pb[0]) / 2.0, (pa[1] + pb[1]) / 2.0, (pa[2] + pb[2]) / 2.0]
                         }
                         2 => {
@@ -1416,7 +1422,7 @@ mod gen {
                 OpIn::Contains { queries }
             }
             5 => OpIn::Degenerate {
-                calls: (0..1 + rng.below(6))
+                calls: (0..=rng.below(6))
                     .map(|_| {
                         let t = match rng.below(4) {
                             0 => None,
