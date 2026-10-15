@@ -5,8 +5,8 @@
 //! `SmLoopProps.cpp`) on a one-face B-rep (a plane with one vertex loop). Rust:
 //! `solidcore::heal::face_props`.
 //!
-//! Two kinds of case. `props`: a script of ops on one face props object (SetProps and its
-//! three stages, ReSet, HasProps, HasProblems, IsPoint3dOnPole, field seeds); the outputs are
+//! Two kinds of case. `props`: a script of ops on one face props object (`SetProps` and its
+//! three stages, `ReSet`, `HasProps`, `HasProblems`, `IsPoint3dOnPole`, field seeds); the outputs are
 //! each op's result and a snapshot of the props after it. `tree`: building a loop tree with
 //! `AddChild` / `AddSibling` / `AddPartner` and `FindItem` queries (fake loop numbers).
 //!
@@ -200,8 +200,7 @@ fn status(r: solidcore::Result<()>) -> Result<f64, solidcore::SolidError> {
 
 fn snapshot(p: &FaceProps<H>, face: FaceId) -> Vec<f64> {
     let t = |x: solidcore::heal::face_props::Tri| x.code() as f64;
-    let mut o: Vec<f64> = Vec::new();
-    o.push(p.prop_stage.code() as f64);
+    let mut o: Vec<f64> = vec![p.prop_stage.code() as f64];
     o.push(p.not_yet_face_type.code() as f64);
     o.push(t(p.bad_has_not_yet_prob));
     o.push(t(p.bad_degen_face));
@@ -330,7 +329,7 @@ fn rust_props(f: &FaceIn, ops: &[[f64; 5]]) -> Result<Output, HarnessError> {
                 Ok(0.0)
             }
             2 => Ok(f64::from(u8::from(
-                p.has_props(stage, if o[2] != 0.0 { Some(face) } else { None }),
+                p.has_props(stage, (o[2] != 0.0).then_some(face)),
             ))),
             3 => Ok(f64::from(u8::from(p.has_problems(o[1] as u64)))),
             4 => Ok(f64::from(u8::from(
@@ -451,7 +450,7 @@ fn gen_face(rng: &mut Rng) -> FaceIn {
 
 fn gen_op(rng: &mut Rng) -> [f64; 5] {
     let heal_ops = [0, 1, 4, 5, 6, 12, 17, 18, 19, 20, 21, 26];
-    let heal = *rng.choose(&heal_ops).unwrap_or(&26) as f64;
+    let heal = f64::from(*rng.choose(&heal_ops).unwrap_or(&26));
     let stage = rng.range_i64(0, 6) as f64;
     match rng.below(14) {
         0 | 1 => [0.0, stage, heal, rng.range_i64(0, 5) as f64, 0.0],
@@ -473,8 +472,7 @@ fn gen_op(rng: &mut Rng) -> [f64; 5] {
                 3 | 9 => rng.range_i64(0, 15) as f64,
                 4 => rng.uniform(-1.0, 1.0),
                 7 | 8 => rng.range_i64(0, 5) as f64,
-                12..=15 | 17..=19 => rng.range_i64(0, 3) as f64,
-                21 => rng.range_i64(0, 3) as f64,
+                12..=15 | 17..=19 | 21 => rng.range_i64(0, 3) as f64,
                 24 => 1.0,
                 _ => rng.range_i64(0, 2) as f64,
             };

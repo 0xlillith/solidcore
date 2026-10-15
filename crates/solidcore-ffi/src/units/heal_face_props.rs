@@ -9,11 +9,11 @@
 //! | [`tree`]  | `sc_heal_face_props_tree`   | `SmLooptreeItem` building and `FindItem`  |
 //!
 //! Script input (all `f64`): `face_tol`, the plane `O[3] X[3] Y[3] umin vmin umax vmax`, `n_ops`,
-//! then per op `op p0 p1 p2 p3`: `0` SetProps(stage p0, heal op p1, index p2), `1` ReSet(stage
-//! p0), `2` HasProps(stage p0, face p1 != 0), `3` HasProblems(bits p0), `4` IsPoint3dOnPole(p0, p1,
-//! p2), `5` seed field p0 (index p1, value p2; see [`SEED_FIELDS`]), `6` SetProps_Gaps /
-//! Stage2 / Stage3 directly (which p0 in 1..=3, heal op p1, index p2), `7` IsPeriodicU +
-//! 2 IsPeriodicV. Output per op: the result then [`SNAP_LEN`] snapshot values.
+//! then per op `op p0 p1 p2 p3`: `0` `SetProps`(stage p0, heal op p1, index p2), `1` `ReSet`(stage
+//! p0), `2` `HasProps`(stage p0, face p1 != 0), `3` `HasProblems`(bits p0), `4` `IsPoint3dOnPole`(p0, p1,
+//! p2), `5` seed field p0 (index p1, value p2; see [`SEED_FIELDS`]), `6` `SetProps_Gaps` /
+//! `Stage2` / `Stage3` directly (which p0 in 1..=3, heal op p1, index p2), `7` `IsPeriodicU` +
+//! 2 `IsPeriodicV`. Output per op: the result then [`SNAP_LEN`] snapshot values.
 //!
 //! Guards: finite values, a plane with non-parallel axes and a non-empty domain, stage and heal
 //! op codes in range, field ids in range. The one-face B-rep has a vertex loop only, so the
@@ -109,8 +109,7 @@ pub fn validate(face: &FaceSpec, ops: &[Op]) -> Result<(), FfiError> {
         }
         let ok = match o.op {
             0 => (0.0..=6.0).contains(&o.p[0]) && (0.0..=26.0).contains(&o.p[1]),
-            1 => (0.0..=6.0).contains(&o.p[0]),
-            2 => (0.0..=6.0).contains(&o.p[0]),
+            1 | 2 => (0.0..=6.0).contains(&o.p[0]),
             3 | 4 | 7 => true,
             5 => (0.0..SEED_FIELDS as f64).contains(&o.p[0]),
             6 => (1.0..=3.0).contains(&o.p[0]) && (0.0..=26.0).contains(&o.p[1]),
@@ -204,44 +203,53 @@ pub fn tree_validate(
         if !(0..=1).contains(&kind) || !(0..n).contains(&a) || !(0..n).contains(&c) || a == c {
             return bad("link");
         }
-        if linked[c as usize] {
+        let Some(flag) = usize::try_from(c).ok().and_then(|c| linked.get_mut(c)) else {
+            return bad("link");
+        };
+        if *flag {
             return bad("item linked twice");
         }
-        linked[c as usize] = true;
+        *flag = true;
     }
-    // no cycles: follow child/sibling edges from every item
-    let mut next: Vec<Vec<usize>> = vec![Vec::new(); items.len()];
-    // AddSibling/AddChild splice, so simulate the pointers
+    // no cycles: simulate the pointers AddChild / AddSibling leave; every item is the
+    // target of at most one pointer, so there is a cycle exactly when the items reachable
+    // from the items nothing points to are not all of them
     let mut child = vec![None::<usize>; items.len()];
     let mut sib = vec![None::<usize>; items.len()];
     for &(kind, a, c) in links {
-        let (a, c) = (a as usize, c as usize);
-        if kind == 0 {
-            sib[c] = child[a];
-            child[a] = Some(c);
-        } else {
-            sib[c] = sib[a];
-            sib[a] = Some(c);
+        let (Ok(a), Ok(c)) = (usize::try_from(a), usize::try_from(c)) else {
+            return bad("link");
+        };
+        let old = if kind == 0 { child.get(a) } else { sib.get(a) }
+            .copied()
+            .flatten();
+        if let Some(slot) = sib.get_mut(c) {
+            *slot = old;
+        }
+        let target = if kind == 0 { child.get_mut(a) } else { sib.get_mut(a) };
+        if let Some(slot) = target {
+            *slot = Some(c);
         }
     }
-    for i in 0..items.len() {
-        next[i].extend(child[i]);
-        next[i].extend(sib[i]);
-    }
-    let mut state = vec![0u8; items.len()];
-    fn dfs(i: usize, next: &[Vec<usize>], state: &mut [u8]) -> bool {
-        if state[i] == 1 {
-            return false;
+    let mut pointed = vec![false; items.len()];
+    for t in child.iter().chain(sib.iter()).flatten() {
+        if let Some(p) = pointed.get_mut(*t) {
+            *p = true;
         }
-        if state[i] == 2 {
-            return true;
-        }
-        state[i] = 1;
-        let ok = next[i].iter().all(|&j| dfs(j, next, state));
-        state[i] = 2;
-        ok
     }
-    if !(0..items.len()).all(|i| dfs(i, &next, &mut state)) {
+    let mut stack: Vec<usize> = (0..items.len())
+        .filter(|i| !pointed.get(*i).copied().unwrap_or(true))
+        .collect();
+    let mut reached = 0usize;
+    while let Some(i) = stack.pop() {
+        reached += 1;
+        stack.extend(child.get(i).copied().flatten());
+        stack.extend(sib.get(i).copied().flatten());
+        if reached > items.len() {
+            return bad("cycle");
+        }
+    }
+    if reached != items.len() {
         return bad("cycle");
     }
     for it in items {
