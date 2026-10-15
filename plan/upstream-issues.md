@@ -964,7 +964,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** undefined behavior.
 - **Rust port:** validates the selected operand's class and returns InvalidInput. Separate native class-probe and Rust regressions cover both orders; there is no fabricated native solver answer.
 
-#### UB-97. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
+#### UB-98. `SmCopyBrepMap::SetAt` / `GetAt` release `SM_ASSERT`s dereference null objects
+- **Location:** `source/SMLib/src/SmCopyBrepMap.cpp:21` `SetAt`, `:48` `GetAt`; the release `SM_ASSERT(a)` is `if(a) {}` (`source/SMLib/inc/SmMessages.h:714`), so its expression is still evaluated.
+- **What happens:** `SetAt` evaluates `pCopyObj->GetType() == pOrigObj->GetType()`, a virtual call through a null pointer when either object is null. `GetAt` does the same with the original it looks up, which is null for an object the map has no entry for.
+- **Trigger:** `SetAt(NULL, p)`, `SetAt(p, NULL)`, or `GetAt(p)` for a `p` never passed to `SetAt`.
+- **How found:** crash in the C++ reference run (`topology.proto_topology_p1` list scripts).
+- **Confirmed:** yes (segfault in `SmCopyBrepMap::SetAt`).
+- **Severity:** crash/UB.
+- **Rust port:** `CopyBrepMap::set_at` takes non-null objects; `get_at` of an object without an entry is `InvalidInput`. The shim refuses both.
+
+#### UB-99. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
 - **Location:** `source/SMLib/src/SmPoly.cpp:2734` (`SmPointSet3d sPointSet(*pOptPolyPoints, FALSE)`), `SmPolyBrep::CalculateBoundingBox`.
 - **What happens:** In the branch without `pOptPolyPoints`, a requested pseudo box fills a local `sPolyPoints` and then builds the point set from `*pOptPolyPoints`, which is `NULL` in that branch.
 - **Trigger:** `CalculateBoundingBox(box, &pseudoBox)` (no point array).
@@ -973,7 +982,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** `PolyBrep::calculate_bounding_box` returns `InvalidInput`.
 
-#### UB-98. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
+#### UB-100. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
 - **Location:** `source/SMLib/src/SmPoly.cpp:6505` (`(SmPolyEdge*) pPolyFace->GetList()`), `SmPolyBrep::GetPolyEdges`.
 - **What happens:** The filtered branch walks each face's `m_pList`, which holds the face's loops, casts them to `SmPolyEdge*`, reads `GetOriginalEdgeuse()` at the edge member offset of an `SmPolyLoop`, and would add loop pointers to the edge array.
 - **Trigger:** `GetPolyEdges(edges, pEdgeuse)` with a non-null edge use.
@@ -1082,6 +1091,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes.
 - **Severity:** hang.
 - **Rust port:** `SmSurfOfRevolution::AdjustSTEPUVDomain` is not ported yet (`Unported`); the FFI rejects a reversed sweep.
+
+#### HANG-12. `DropPoint` never returns on a curve reparameterised to a zero-length interval
+- **Location:** `SmProtoTopology.cpp:1206` `SmEdgeDefinition::Reparameterize` (calls `SmCurve::EditParameterization` with the new domain, unchecked); the loop is in the curve's local point solve (`SmCurve::LocalPointSolve` -> `SmLocalSolve1d::SolveIt` with the `FindPCExtrema` evaluation), reached from `SmCurve::DropPoint`.
+- **What happens:** `Reparameterize(SmExtent1d(a, a))` collapses a line to a point (every evaluation returns the same point). A later `DropPoint` on it, e.g. from `SmEdgeDefinition::IsInteriorPoint`, does not return.
+- **Trigger:** An edge definition on a bounded `SmLine`, `Reparameterize(SmExtent1d(-2.4753, -2.4753), FALSE)`, then `IsInteriorPoint` on a definition using the same line (any tolerance).
+- **How found:** generated difftest case (`topology.proto_topology_p1`).
+- **Confirmed:** yes (the C++ reference run did not finish).
+- **Severity:** hang.
+- **Rust port:** Same loop (the Rust run of the same script did not finish either; the loop belongs to the curve point-solve units). The shim refuses a zero-length `Reparameterize` domain.
 
 ## Nondeterminism
 
@@ -1661,6 +1679,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (the box stays `Extent3d::new()`); `SolidError::Unported` still propagates.
 
+#### WR-73. `RemoveCoincidentNoEdgeProtoVertex` returns `SM_SUCCESS` as TRUE
+- **Location:** `SmProtoTopology.cpp:6925` `SmProtoTopologyManager::RemoveCoincidentNoEdgeProtoVertex`: `if(eStat != SM_SUCCESS || sSols.GetSize() == 0) { return SM_SUCCESS; }` in a function returning `SmBoolean`.
+- **What happens:** When the point solve fails or the proto vertex is not on the proto edge's curve, the function reports `TRUE` ("coincident and removed"), although nothing was removed.
+- **Trigger:** A proto vertex off the first edge definition's curve.
+- **How found:** generated difftest case (`topology.proto_topology_p1`).
+- **Confirmed:** yes (the C++ run returns 1 with the proto vertex still listed).
+- **Severity:** wrong result.
+- **Rust port:** Same result (`true`), for parity.
+
 ### Intersection
 
 #### WR-65. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
@@ -1787,7 +1814,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** returns `Err(SM_ERR)` from `test_for_iso_circles`; the difftest shim records the C++ return value as is.
 
-#### WR-69. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
+#### WR-74. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
 - **Location:** `source/SMLib/src/SmPoly.cpp:13195` `SmCPolyFace::RemovePolyFace`.
 - **What happens:** The status of `FindElement` is ignored and the index starts at 0, so a face that is not a member removes member 0. `~SmPolyFace` calls it for any face whose `m_pCPolyFace` still points at the composite, for example after an earlier `RemovePolyFace` of that face.
 - **Trigger:** `RemovePolyFace(f)` twice, or deleting a face after removing it from its composite.
@@ -1796,7 +1823,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Faithful.
 
-#### WR-70. `SmCPolyFace::AddPolyFace` accepts a composite face, so composite queries recurse without bound
+#### WR-75. `SmCPolyFace::AddPolyFace` accepts a composite face, so composite queries recurse without bound
 - **Location:** `source/SMLib/src/SmPoly.cpp` `SmCPolyFace::AddPolyFace`, and the composite overrides of `GetPolyEdges`, `GetNormal`, `CalculateBoundingBox` and `GetOKBackPtrs`.
 - **What happens:** `AddPolyFace` takes any `SmPolyFace`, including another composite or the composite itself, and sets that face's `m_pCPolyFace` (overwriting a composite's own). The composite overrides then call the same virtual on every member, so a composite that contains itself recurses until the stack overflows.
 - **Trigger:** `c->AddPolyFace(c)` followed by `c->GetPolyEdges(...)` (or `GetNormal`, `CalculateBoundingBox`, `GetOKBackPtrs`). Upstream callers only add shell faces (`SmLineSegClass.cpp:1879-1883`).
