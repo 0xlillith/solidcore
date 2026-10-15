@@ -4388,6 +4388,12 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `topology.vertex`, `topology.edge` and `heal.gap` shims and their importers.
   `topology::vertex::loopuse_vertices` and the private `topology::edge::loopuse_edges`
   (co-ports) duplicate this unit's `GetVertices` / `GetEdges` walk; merge them later.
+- **`surface.surface_p5` merged, `DropPoint` stub kept.** `GetUVCornerBoundaries`'s
+  `UNPORTED(surface.surface_p5)` `drop_point` stays a stub: it is reached only after
+  `GetOrCreateUVTrimCurve` (`UNPORTED(topology.edgeuse_p3)`), so no case can compare it,
+  and it needs "was the out-param written" (upstream writes `rResultUV` with a NULL guess
+  only on success paths), which `Surface::drop_point` does not report (it returns
+  `Vec2::UNDEF`). Wire it with that distinction when `topology.edgeuse_p3` lands.
 
 ## intersect.surface_drop_lib_p1 (`SmSurfaceDropLib.cpp` part 1, 2026-10-15; partial, no disagreements)
 
