@@ -361,7 +361,7 @@ pub fn point_classify(
                 if tsc.base().tree().is_none() {
                     tsc.build_tree(k)?;
                 }
-                let nodes = tsc.base().find_uv_nodes_built(&uv_ext, false)?;
+                let nodes = tsc.base().find_uv_nodes_built(k, &uv_ext, false)?;
                 let tree = tsc
                     .base()
                     .tree()
