@@ -221,6 +221,15 @@ pub mod pool {
 /// | 88 | `c tol a b pc ed` | `sm_AreOverlapping` (interval as in 78) | `flag` |
 /// | 89 | | the manager's type queries (as list op 18) | |
 /// | 90 | | `GetWhichBrep(1) == brep1`, `GetWhichBrep(2) == brep2`, `GetTolerance`, `GetCaptureDistance` | 4 values |
+/// | 120 | `pc pc` | `FindOrCreateProtoVertex(pc1, pc2, ..)` | `pv created` |
+/// | 121 | `c tol a b pc*6` | `FindOrCreateProtoEdge` (interval `[a, b]` of a classification of curve `c` with source tolerance `tol`; start, mid and end classifications of the first, then of the second interval) | `pe created` |
+/// | 122 | `pe t` | `SmProtoEdge::Split` | `pv pe` |
+/// | 123 | `ed t pv pe` | `SmEdgeDefinition::Split` | `vd ed` |
+/// | 124 | `pe pe` | `SplitIntersectingProtoEdges` | `n c*n` (curves deleted, sorted) |
+/// | 125 | | `GlueCoincidentBrepVertices` (refused when it would glue) | `n c*n` |
+/// | 126 | | `ResolveOverlappingProtoEdges` (refused for edge sources) | `n c*n` |
+///
+/// Objects the p3 ops create are not numbered: the ops after one are refused.
 ///
 /// A point classification state is `class obj t u v param_set deviation src_tol`. The final
 /// state is `alive` (the manager), then when alive `tol capture n pv*n n pe*n n pf*n`; then
@@ -322,7 +331,14 @@ pub mod proto_op {
     pub const ARE_OVERLAPPING: i64 = 88;
     pub const MGR_TYPE: i64 = 89;
     pub const MGR_GET: i64 = 90;
-    pub const LAST: i64 = 90;
+    pub const FOC_PV: i64 = 120;
+    pub const FOC_PE: i64 = 121;
+    pub const PE_SPLIT: i64 = 122;
+    pub const ED_SPLIT: i64 = 123;
+    pub const SPLIT_INT: i64 = 124;
+    pub const GLUE: i64 = 125;
+    pub const RESOLVE: i64 = 126;
+    pub const LAST: i64 = 126;
 }
 
 /// Transform-script object kinds.
@@ -601,7 +617,9 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             | p::MGR_ALL_VDS
             | p::MGR_ALL_EDS
             | p::MGR_TYPE
-            | p::MGR_GET => "",
+            | p::MGR_GET
+            | p::GLUE
+            | p::RESOLVE => "",
             p::PV_ADD_PE
             | p::PV_ADD_VD
             | p::PE_ADD_ED
@@ -650,6 +668,11 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             p::SAME_CURVE => "iffifff",
             p::IS_INTERIOR => "iffff",
             p::ARE_OVERLAPPING => "ifffci",
+            p::FOC_PV => "cc",
+            p::FOC_PE => "ifffcccccc",
+            p::PE_SPLIT => "if",
+            p::ED_SPLIT => "ifii",
+            p::SPLIT_INT => "ii",
             _ => return Err(bad("op")),
         };
         for ch in shape.chars() {
