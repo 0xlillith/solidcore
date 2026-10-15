@@ -1056,6 +1056,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `SolidError::InvalidInput`.
 
+#### UB-107. `SmTrimmingTools::FindOuterLoops` reads past its output arrays for a zero-area loop
+- **Location:** `source/SMLib/src/SmTrimmingTools.cpp:2275` (`if(sLoopAreas[ii] <= 0.0) continue;`), `:2426`-`2427` (`rsInLoopCounts[0] = sOutLoops[0]`, `sOutLoops[ii] - sOutLoops[ii-1]`).
+- **What happens:** A loop whose tessellation encloses zero area has `sLoopAreas[ii] == 0` and is skipped as if already processed: it is never classified, so `sOutLoops` gets fewer entries than there are loops (none at all when every loop has zero area). The translation back to counts still reads `sOutLoops[0 .. lNumLoops-1]`, past its size (inside its reserved capacity: uninitialised values), and writes them to `rsInLoopCounts`; the curves of the dropped loop vanish from `rsInCurves`.
+- **Trigger:** `FindOuterLoops` on a loop of collinear curves (e.g. `(0,0)-(2,0)`, `(2,0)-(1,0)`, `(1,0)-(0,0)`), alone or beside a real loop.
+- **How found:** adversarial / edge-case fixture `outer_zero_area_loop` (unit `topology.trimming_tools`).
+- **Confirmed:** no (the shim sees the dropped curves and reports the call instead of the garbage counts).
+- **Severity:** UB (uninitialised read).
+- **Rust port:** `topology::trimming_tools::find_outer_loops` returns `SolidError::InvalidInput`.
+
+#### UB-108. `SmTrimmingTools::OrderCurvesIntoLoops` mishandles a NULL curve
+- **Location:** `source/SMLib/src/SmTrimmingTools.cpp:1800` (`if (pC == NULL) continue;`), `:1890` (`sVertexPoints[2*nCurveIndex]`), `:1871` (`if(pC == NULL) break;`), `:2078` (`pC->IsOnPlane(...)`).
+- **What happens:** A NULL entry adds no end points, so every later curve reads the end points of the curve after it (and the last ones read past the array); in the loop search a NULL curve that is the first unseen one ends the search early; the planarity test finally dereferences it.
+- **Trigger:** `crCurves` with a NULL entry.
+- **How found:** read during porting (unit `topology.trimming_tools`).
+- **Confirmed:** no (the difftest wrapper never passes NULL curves).
+- **Severity:** crash.
+- **Rust port:** takes a slice of curves (no NULL entries).
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1429,6 +1447,33 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes for the cusp case (the C++ returns `TRUE`).
 - **Severity:** wrong result.
 - **Rust port:** Faithful.
+
+#### WR-94. `SmCurveLoops::GetLoopStartEnd` starts a later loop at the previous loop's last curve
+- **Location:** `source/SMLib/src/SmTrimmingTools.cpp:4127` (`rlStart = rlEnd;`).
+- **What happens:** `rlEnd` is the index of the last curve of the loop just passed, so `rlStart` of the next loop should be `rlEnd + 1`; it is one less. For loops of 3 and 4 curves, curve 4 gets the range `[2, 6]`. `FindAdjacentLoopCurve` then steps from the first curve of a later loop to its predecessor in the previous loop instead of wrapping to the loop's last curve (and a first loop of zero curves wraps `rlEnd` below zero).
+- **Trigger:** `GetLoopStartEnd` / `FindAdjacentLoopCurve` / `SampleNearbyPoints` on any loop after the first.
+- **How found:** read during porting (unit `topology.trimming_tools`).
+- **Confirmed:** yes (fixture `loops_start_end_second_loop`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful to the code (`CurveLoops::loop_start_end`).
+
+#### WR-95. `SmTrimmingTools::IsIsoCurve(curve, side, low, tol)` returns an error status as `TRUE`
+- **Location:** `source/SMLib/src/SmTrimmingTools.cpp:3632` (`SER (cpUVCurve->GetCanonical (...))` in a function returning `SmBoolean`).
+- **What happens:** When `GetCanonical` fails its nonzero status is returned as the `SmBoolean`, so a curve whose control points cannot be read counts as an iso curve (and `FixBackwardsOuterLoopOnSeam` then mirrors it).
+- **Trigger:** a UV trim curve without NURB.
+- **How found:** read during porting (unit `topology.trimming_tools`).
+- **Confirmed:** no (the difftest wrapper only passes curves with a NURB).
+- **Severity:** wrong result.
+- **Rust port:** Faithful to the code (`is_iso_curve_at` returns `true`).
+
+#### WR-96. `SmTrimmingTools::MirrorCurve` divides rational control points by their weights twice
+- **Location:** `source/SMLib/src/SmTrimmingTools.cpp:3516`-`3517`.
+- **What happens:** `GetCanonical` already returns Euclidean control points; the loop divides each one by its weight again before `SetCanonical`, so a rational UV curve is moved and distorted, not just mirrored.
+- **Trigger:** `MirrorCurve` (reached from `FixBackwardsOuterLoopOnSeam`) on a rational UV curve with weights other than 1.
+- **How found:** read during porting (unit `topology.trimming_tools`).
+- **Confirmed:** yes (fixture `mirror_rational_divides_twice`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful to the code (`mirror_curve`).
 
 ### NLib
 
