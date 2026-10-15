@@ -27,6 +27,7 @@ use solidcore::topology::{Brep, BrepId};
 use solidcore::{Result, SolidError};
 use solidcore_ffi::units::query_api_queries as ffi;
 
+/// Differential coverage of the public geometry and topology queries.
 pub struct Runner;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -187,10 +188,10 @@ impl<'a> Objects<'a> {
         })
     }
     fn build(&mut self, k: &Kernel) -> Result<()> {
-        for (i, cache) in self.caches.iter_mut().enumerate() {
+        for (i, (cache, brep)) in self.caches.iter_mut().zip(&self.breps).enumerate() {
             cache.build_trees(
                 k,
-                CacheSource::Brep(self.breps[i]),
+                CacheSource::Brep(brep),
                 |o| Object(i, o),
                 &arena_identity,
             )?;
@@ -542,7 +543,7 @@ impl UnitDiff for Runner {
         let kind = if op <= 2 {
             rng.below(4)
         } else if op == 3 {
-            [4, 5, 8, 9][rng.below(4) as usize]
+            *rng.choose(&[4, 5, 8, 9])?
         } else if [11, 16, 17, 18, 19].contains(&op) {
             if rng.below(2) == 0 {
                 5
@@ -552,7 +553,7 @@ impl UnitDiff for Runner {
         } else {
             rng.below(8)
         };
-        let scale = [1e-5, 0.25, 1., 100., 1e5][rng.below(5) as usize];
+        let scale = *rng.choose(&[1e-5, 0.25, 1., 100., 1e5])?;
         let mut a = [0.; 22];
         a[0..3].copy_from_slice(&rng.point3(-2. * scale, 2. * scale));
         a[3] = 1.;

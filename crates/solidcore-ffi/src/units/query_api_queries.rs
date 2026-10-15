@@ -3,7 +3,8 @@
 //! Fixed layout: origin[3], direction[3], scale, domain[4], query[3], parameter,
 //! tight, null, remove_curve, inside_out, edge_tolerance, selector, kind.
 //! Kinds: 0 line, 1 circle, 2 ellipse, 3 cubic B-spline, 4 plane, 5 quadratic
-//! B-spline surface, 6 box, 7 empty B-rep, 8 rational cylinder, 9 rational sphere. Op 0 exports the native graph; 1..25
+//! B-spline surface, 6 box, 7 empty B-rep, 8 rational cylinder, 9 rational sphere.
+//! Op 0 exports the native graph; 1..25
 //! call SmApi queries (see the runner). Op 26 exports the graph with the selected
 //! face boundary's last orientation set to Unknown when inside_out is true, as
 //! op 11 does before querying. Results start with the exact SmStatus.
@@ -32,7 +33,7 @@ pub fn eval(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     {
         return Err(bad());
     }
-    let a = input;
+    let a: &[f64; 22] = input.try_into().map_err(|_| bad())?;
     if !(0.0..=9.0).contains(&a[21])
         || a[21].fract() != 0.0
         || a[6] <= 1e-10
@@ -40,7 +41,9 @@ pub fn eval(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         || a[20] < 0.0
         || a[20].fract() != 0.0
         || a[20] > 1000.0
-        || [15, 16, 17, 18].iter().any(|&i| a[i] != 0.0 && a[i] != 1.0)
+        || [a[15], a[16], a[17], a[18]]
+            .iter()
+            .any(|&flag| flag != 0.0 && flag != 1.0)
         || a[19] < 0.0
         || a[19] > 1.0
     {

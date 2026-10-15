@@ -23,7 +23,7 @@ namespace
         if (kind == 2) return new (ctx) SmEllipse(p, SmVector3d(1, 0, 0), SmVector3d(0, 1, 0), SmExtent1d(0, 360), s, s*0.5, 3, &ctx, nullptr, a[18]?TRUE:FALSE);
         // Cubic Bezier, also exercising zero endpoint derivatives when v is zero.
         gw_CURVE* c = sm_AllocateNurbCurve(3, 3, 7);
-        const SmPoint3d pts[] = 
+        const SmPoint3d pts[] =
         {
             p, p+s*v, p+SmVector3d(s, s, 0), p+SmVector3d(2*s, 0, s)
         };
@@ -59,11 +59,11 @@ namespace
                 s->net->Pw[i][j].z = (a[2]+a[6]*z)*weight;
                 s->net->Pw[i][j].w = weight;
             }
-            const double ku_sphere[8] = 
+            const double ku_sphere[8] =
             {
                 0, 0, 0, 0.5, 0.5, 1, 1, 1
             };
-            const double kv[12] = 
+            const double kv[12] =
             {
                 0, 0, 0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1, 1, 1
             };
@@ -233,11 +233,9 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
                 }
                 case 7:case 8:
                 {
-                    SmBrep* other = new (ctx) SmBrep();
-                    SmBrep* box = nullptr;
-                    SmApiCreateBox(SmPoint3d(a[0]+3*a[6], a[1], a[2]), a[6], a[6], a[6], box);
-                    delete other;
-                    other = box;
+                    SmBrep* other = nullptr;
+                    SmStatus build_status = SmApiCreateBox(SmPoint3d(a[0]+3*a[6], a[1], a[2]), a[6], a[6], a[6], other);
+                    if (build_status != SM_SUCCESS || !other) return SC_ERR_ARG;
                     status = op == 7?SmApiBrepRelationship(bp, other, cl, d):SmApiBrepDistance(bp, other, d);
                     delete other;
                     o.push_back(st(status));
