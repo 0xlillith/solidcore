@@ -1028,10 +1028,11 @@ impl SurfPtGlobalSolver<'_> {
             } else {
                 self.base.test_point()
             };
-            match local_point_solve(surface, this_domain, op, pt_for_local, uv_guess, &sol) {
+            match local_point_solve(k, surface, this_domain, op, pt_for_local, uv_guess, &sol) {
                 Ok((found, s)) => {
                     found_answer = found;
                     sol = s;
+                    set_first_object(&mut sol, surface_obj);
                     stat_ok = true;
                 }
                 Err(e) if e.is_unported() => return Err(e),
@@ -1085,11 +1086,19 @@ impl SurfPtGlobalSolver<'_> {
                 stat_ok = true;
 
                 if !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
-                    match local_point_solve(surface, this_domain, op, pt_for_local, uv_guess, &sol)
-                    {
+                    match local_point_solve(
+                        k,
+                        surface,
+                        this_domain,
+                        op,
+                        pt_for_local,
+                        uv_guess,
+                        &sol,
+                    ) {
                         Ok((found, s)) => {
                             found_answer = found;
                             sol = s;
+                            set_first_object(&mut sol, surface_obj);
                             stat_ok = true;
                             if found_answer {
                                 surf_eval
@@ -1167,7 +1176,7 @@ fn set_first_object<O: SolutionObject>(sol: &mut Solution<O>, surface_obj: Optio
 /// A copy of `surface` with out-of-bounds evaluation enabled, when it is an
 /// `SmBSplineSurface` (B-spline, plane, surface of revolution) without it; `None`
 /// when nothing changes (`SmTemporaryChangeValue` on `GetOutOfBoundsEnabled()`).
-fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
+pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
     let enabled = match surface.kind() {
         SurfaceKind::BSpline(b) => b.is_out_of_bounds_enabled(),
         SurfaceKind::Plane(p) => p.base().is_out_of_bounds_enabled(),
@@ -1179,7 +1188,7 @@ fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
     if enabled {
         return None;
     }
-    let mut copy = surface.clone();
+    let mut copy = surface.clone_for_evaluation();
     match copy.kind_mut() {
         SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
@@ -1201,6 +1210,7 @@ fn eval_point(surface: &Surface, uv: Point2, prev: Point3) -> Result<Point3> {
 /// `m_pSrf->LocalPointSolve(domain, op, point, guess, bFoundAnswer, sSol)`: whether
 /// an answer was found and the solution.
 fn local_point_solve<O: SolutionObject>(
+    k: &Kernel,
     surface: &Surface,
     domain: &Extent2d,
     op: SolverOperation,
@@ -1210,7 +1220,7 @@ fn local_point_solve<O: SolutionObject>(
 ) -> Result<(bool, Solution<O>)> {
     // (upstream's LocalPointSolve overwrites the solution with its own, default when
     // nothing was found)
-    let r = surface.local_point_solve::<O>(domain, op, point, guess)?;
+    let r = surface.local_point_solve_with_kernel::<O>(k, domain, op, point, guess)?;
     Ok((r.found, r.solution))
 }
 
@@ -2118,9 +2128,13 @@ mod tests {
         let sols = g.check_seams(&k, 1e-12, &sol, Some(Srf)).unwrap();
         assert_eq!(sols.len(), 1);
 
-        // the local solve is not ported yet
-        let err = g.solve(&k, Some(Srf)).unwrap_err();
-        assert!(err.is_unported());
+        let solved = g.solve(&k, Some(Srf)).unwrap();
+        assert_eq!(solved.len(), 1);
+        let solution = solved.get(0).unwrap();
+        assert_eq!(solution.start.parameters[0], 0.0);
+        assert_eq!(solution.start.parameters[1], 0.5);
+        assert_eq!(solution.start.solution_value, 0.0);
+        assert_eq!(solution.objects[0], Some(Srf));
     }
 
     #[test]

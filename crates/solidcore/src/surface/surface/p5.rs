@@ -32,10 +32,8 @@
 //! - **File-static functions** take what their callers resolve: `sm_SpLocalSolve` gets
 //!   the surface `sm_GetSurfaceToEvaluate(node, patch surface)` returns (unit
 //!   `surface.surface_p1`) instead of the tree node and Bezier patch.
-//! - **Iso curves** (`SmIsoCurve`) hold a B-spline surface only: planes are queried
-//!   through their NURB, and the iso curve of a curve-bounded surface is
-//!   [`SolidError::Unported`] (`curve.iso_curve`, whose Deviations record the limit;
-//!   plan/findings.md has an entry).
+//! - **Iso curves** keep their original concrete surface through `Surface` dispatch
+//!   (`curve.iso_curve` extended by `surface.surface_point_solve_p3`, PR #106).
 //! - **`m_bUseNewPointSolvers`** has no field: its upstream default (`TRUE`) is used and
 //!   the only setter (`SetUseNewPointSolvers`) has no caller. `LocalPointSolve` therefore
 //!   runs `LocalPointSolve_0` only for [`SolverOperation::Maximize`].
@@ -82,7 +80,6 @@ use super::p7::{good_drop_result, load_guesses, SpGlobalSolver};
 use super::{Surface, SurfaceKind};
 
 const OP_SING: &str = "surface::surface::p5::Surface::is_singularity";
-const OP_LPS: &str = "surface::surface::p5::Surface::local_point_solve";
 const OP_LPS0: &str = "surface::surface::p5::Surface::local_point_solve_0";
 const OP_DROP: &str = "surface::surface::p5::Surface::drop_point";
 const OP_SP_LOCAL: &str = "surface::surface::p5::sp_local_solve";
@@ -428,38 +425,9 @@ pub struct IsoParametricCurve {
     pub uv_iso_curve: Option<Curve>,
 }
 
-/// An `SmIsoCurve` of `surface` (its B-spline form; see the module deviations).
-fn iso_curve_of(
-    surface: &Surface,
-    param: SurfParamType,
-    iso: f64,
-    from_left: bool,
-) -> Result<IsoCurve> {
-    match surface.kind() {
-        SurfaceKind::BSpline(b) => Ok(IsoCurve::new(b.clone_exact(), param, iso, from_left, false)),
-        SurfaceKind::Plane(_) => {
-            // upstream's SmIsoCurve evaluates through SmPlane::Evaluate (analytic); the
-            // Rust SmIsoCurve holds the plane's NURB, whose rounding differs, so a solve
-            // over it would not be comparable (plan/findings.md, surface.surface_p5)
-            // UNPORTED(curve.iso_curve): SmIsoCurve over an SmPlane
-            Err(SolidError::unported(
-                "SmIsoCurve::SmIsoCurve(SmPlane)",
-                "curve.iso_curve",
-            ))
-        }
-        SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_)
-        | SurfaceKind::SrfInVolume(_) => {
-            // `SmIsoCurve` holds an `SmBSplineSurface` only (see plan/findings.md,
-            // surface.surface_p5), so these kinds have no iso curve to build.
-            // UNPORTED(curve.iso_curve): SmIsoCurve::SmIsoCurve over a non-B-spline surface
-            Err(SolidError::unported(
-                "SmIsoCurve::SmIsoCurve(non-B-spline surface)",
-                "curve.iso_curve",
-            ))
-        }
-    }
+/// An `SmIsoCurve` of the original concrete surface.
+fn iso_curve_of(surface: &Surface, param: SurfParamType, iso: f64, from_left: bool) -> IsoCurve {
+    IsoCurve::from_surface(surface.clone_for_evaluation(), param, iso, from_left, false)
 }
 
 impl Surface {
@@ -524,7 +492,7 @@ impl Surface {
 
         // when asked - build OptUVIsoCurve (status ignored)
         let uv_iso_curve = if want_uv_iso_curve {
-            ignored(iso.as_ref().map_err(Clone::clone)?.create_uv_iso_line())?
+            ignored(iso.create_uv_iso_line())?
         } else {
             None
         };
@@ -565,7 +533,6 @@ impl Surface {
 
         // Select a tolerance (SM_USE_OLDTOL)
         let mut approx_tol = approx_tol_3d;
-        let iso = iso?;
         if approx_tol == 0.0 {
             let iso_curve = Curve::from(iso.clone());
             let (length, _) =
@@ -774,17 +741,34 @@ impl Surface {
         test_point: Point3,
         guess_uv: Point2,
     ) -> Result<PointSolve<O>> {
+        self.local_point_solve_with_kernel(&Kernel::default(), domain, op, test_point, guess_uv)
+    }
+
+    /// [`Surface::local_point_solve`] using the caller's kernel for tolerance and cache queries.
+    ///
+    /// # Errors
+    ///
+    /// Those of the selected local solver.
+    pub fn local_point_solve_with_kernel<O: Copy>(
+        &self,
+        k: &Kernel,
+        domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        guess_uv: Point2,
+    ) -> Result<PointSolve<O>> {
         // Don't use new solvers for MAXIMIZE, but always use them for DIRECTED
         let use_new =
             op != SolverOperation::Maximize || op == SolverOperation::Signed3dDirectedMaximize;
 
         if use_new {
-            // UNPORTED(surface.surface_point_solve_p3): SmSurface::LocalPointSolve_1
-            let _ = (domain, test_point, guess_uv, OP_LPS);
-            return Err(SolidError::unported(
-                "SmSurface::LocalPointSolve_1",
-                "surface.surface_point_solve_p3",
-            ));
+            let r = self.local_point_solve_1(k, domain, op, test_point, guess_uv, None)?;
+            let mut solution = r.solution;
+            solution.num_variables = 2;
+            return Ok(PointSolve {
+                found: r.found,
+                solution,
+            });
         }
 
         let r = self.local_point_solve_0(domain, op, test_point, guess_uv)?;
@@ -1660,7 +1644,7 @@ pub fn sp_local_solve<O: SolutionObject>(
                         kk == 0,
                     )
                 };
-                let iso = Curve::from(iso_curve_of(surface, dir, param_value, from_left)?);
+                let iso = Curve::from(iso_curve_of(surface, dir, param_value, from_left));
 
                 // for NonDegenerate Boundary Curves
                 if !iso.is_degenerate(EFF_ZERO, None)? {
@@ -2092,7 +2076,7 @@ mod tests {
     }
 
     #[test]
-    fn new_point_solvers_are_not_ported() {
+    fn new_point_solver_projects_to_the_plane() {
         let s = xy_plane();
         let dom = s.natural_uv_domain();
         let r = s.local_point_solve::<Obj>(
@@ -2101,7 +2085,12 @@ mod tests {
             Vec3::new(0.0, 0.0, 1.0),
             Point2::new(0.0, 0.0),
         );
-        assert!(r.unwrap_err().is_unported());
+        let result = r.unwrap();
+        assert!(result.found);
+        assert_eq!(result.solution.solution_type, SolutionType::SingleValue);
+        assert_eq!(result.solution.start.parameters[0], 0.0);
+        assert_eq!(result.solution.start.parameters[1], 0.0);
+        assert_eq!(result.solution.start.solution_value, 1.0);
         // a maximise solve runs LocalPointSolve_0, whose Newton solve is not ported
         let r = s.local_point_solve::<Obj>(
             &dom,

@@ -381,8 +381,8 @@ fn surf_param(code: i32) -> Result<SurfParamType, HarnessError> {
     })
 }
 
-fn make(srf: BSplineSurface, p: &Params0) -> Result<IsoCurve, HarnessError> {
-    Ok(IsoCurve::new(srf, surf_param(p.sp)?, p.iso, p.from_left, p.clamp))
+fn make(srf: impl Into<solidcore::surface::surface::Surface>, p: &Params0) -> Result<IsoCurve, HarnessError> {
+    Ok(IsoCurve::from_surface(srf.into(), surf_param(p.sp)?, p.iso, p.from_left, p.clamp))
 }
 
 fn build(c: &CurveIn) -> Result<IsoCurve, HarnessError> {

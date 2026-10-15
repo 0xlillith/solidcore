@@ -775,7 +775,7 @@ impl Curve {
             (CurveKind::Hyperbola(a), CurveKind::Hyperbola(b)) => Ok(a.approx_eq(b)),
             (CurveKind::Conic(a), CurveKind::Conic(b)) => Ok(a.approx_eq(b)),
             (CurveKind::Projected(a), CurveKind::Projected(b)) => a.approx_eq(b),
-            (CurveKind::Iso(a), CurveKind::Iso(b)) => Ok(a.approx_eq(b)),
+            (CurveKind::Iso(a), CurveKind::Iso(b)) => a.approx_eq(b),
             (CurveKind::Offset(a), CurveKind::Offset(b)) => a.approx_eq(b),
             (CurveKind::CrvInVolume(a), CurveKind::CrvInVolume(b)) => a.approx_eq(b),
             (CurveKind::CrvOnSurf(a), CurveKind::CrvOnSurf(b)) => a.approx_eq(b),
@@ -3774,7 +3774,7 @@ mod tests {
     }
 
     #[test]
-    fn split_and_unported_paths() {
+    fn split_and_surface_distance() {
         let k = Kernel::default();
         let mut b = cubic();
         let tail = b.create_by_split_curve(&k, 0.5).unwrap();
@@ -3790,13 +3790,19 @@ mod tests {
             Vec3::new(1.0, 1.0, 0.0),
         )
         .unwrap();
-        let s = b.surface_max_distance_between(
-            &Extent1d::from_min_max(0.0, 0.5),
-            &srf,
-            &Extent2d::new(),
-            0,
-            None,
+        let line = Curve::from(
+            Line::create_line_segment(3, Vec3::new(0.0, 0.0, 1.0), Vec3::new(1.0, 0.0, 1.0), None)
+                .unwrap(),
         );
-        assert!(matches!(s, Err(SolidError::Unported { .. })));
+        let gap = line
+            .surface_max_distance_between(
+                &Extent1d::from_min_max(0.0, 1.0),
+                &srf,
+                &srf.natural_uv_domain(),
+                2,
+                None,
+            )
+            .unwrap();
+        assert_eq!(gap.max_distance, 1.0);
     }
 }

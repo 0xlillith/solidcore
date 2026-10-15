@@ -932,6 +932,9 @@ impl Surface {
             (SurfaceKind::BSpline(a), SurfaceKind::BSpline(b)) => Ok(a.approx_eq(b)),
             // SmPlane::operator==: SmBSplineSurface::operator== first
             (SurfaceKind::Plane(a), SurfaceKind::Plane(b)) => Ok(a.approx_eq(b)),
+            (SurfaceKind::SurfOfRevolution(a), SurfaceKind::SurfOfRevolution(b)) => {
+                a.approx_eq(&Kernel::default(), b)
+            }
             (SurfaceKind::SrfInVolume(a), SurfaceKind::SrfInVolume(b)) => a.approx_eq(b),
             _ => Ok(false),
         }

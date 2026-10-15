@@ -283,6 +283,24 @@ impl Clone for Surface {
     }
 }
 
+impl Surface {
+    /// A temporary evaluation copy: retain the owner and exact NURBS data rather
+    /// than invoking the upstream copy constructor's knot fix-up.
+    pub(crate) fn clone_for_evaluation(&self) -> Self {
+        let kind = match &self.kind {
+            SurfaceKind::BSpline(s) => SurfaceKind::BSpline(s.clone_exact()),
+            SurfaceKind::SurfOfRevolution(s) => {
+                SurfaceKind::SurfOfRevolution(Box::new(s.clone_exact()))
+            }
+            kind => kind.clone(),
+        };
+        Self {
+            kind,
+            owner: self.owner,
+        }
+    }
+}
+
 impl From<BSplineSurface> for Surface {
     fn from(s: BSplineSurface) -> Self {
         Self::new(SurfaceKind::BSpline(s))
