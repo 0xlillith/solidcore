@@ -287,8 +287,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "combine_leading_point_classifies",
@@ -299,8 +299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "combine_gap_drops_to_surface",
@@ -495,8 +495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_swap_point_range2",
@@ -507,8 +507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_swap_range_point",
@@ -567,8 +567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_small_range_devs2",
@@ -579,8 +579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_point_invalid_nodes_cull",
@@ -591,8 +591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_point_before_range",
@@ -611,8 +611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_many_tiny",
@@ -759,8 +759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0014",
@@ -802,24 +802,24 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=13939700598562587989",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0019",
       "outcome": "pass",
       "pass": true,
+      "source": "generated:seed=13939700598562587989",
+      "values_compared": 32
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0019",
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=13939700598562587990",
-      "values_compared": 47
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -871,8 +871,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0025",
@@ -883,8 +883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0026",
@@ -895,8 +895,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0027",
@@ -979,8 +979,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0036",
@@ -1035,8 +1035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -1059,8 +1059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0044",
@@ -1111,8 +1111,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0050",
@@ -1167,8 +1167,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0056",
@@ -1203,8 +1203,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0060",
@@ -1247,8 +1247,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -1259,8 +1259,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0066",
@@ -1271,8 +1271,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0067",
@@ -1283,8 +1283,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0068",
@@ -1303,8 +1303,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0070",
@@ -1323,8 +1323,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0072",
@@ -1363,8 +1363,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0076",
@@ -1403,8 +1403,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0080",
@@ -1447,8 +1447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -1466,16 +1466,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0087",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588058",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -1531,8 +1527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0094",
@@ -1543,8 +1539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0095",
@@ -1555,8 +1551,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -1587,8 +1583,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0099",
@@ -1598,12 +1594,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0100",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=13939700598562588071",
-      "values_compared": 32
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1687,8 +1687,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0109",
@@ -1759,8 +1759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -1787,8 +1787,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0119",
@@ -1807,8 +1807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0121",
@@ -1819,8 +1819,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0122",
@@ -1891,8 +1891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0130",
@@ -1911,8 +1911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0132",
@@ -1967,8 +1967,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -1979,8 +1979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0139",
@@ -2019,8 +2019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0143",
@@ -2031,8 +2031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0144",
@@ -2043,8 +2043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -2055,8 +2055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0146",
@@ -2171,8 +2171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0159",
@@ -2283,8 +2283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0171",
@@ -2295,8 +2295,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0172",
@@ -2315,8 +2315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0174",
@@ -2359,8 +2359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0178",
@@ -2371,8 +2371,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0179",
@@ -2383,8 +2383,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0180",
@@ -2499,8 +2499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0192",
@@ -2535,8 +2535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -2558,16 +2558,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0198",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588169",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
@@ -2678,16 +2674,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0211",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588182",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -2699,8 +2691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -2711,8 +2703,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0214",
@@ -2723,8 +2715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0215",
@@ -2791,8 +2783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0223",
@@ -2819,8 +2811,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0226",
@@ -2907,8 +2899,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -3083,8 +3075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0254",
@@ -3147,8 +3139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0261",
@@ -3195,8 +3187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0266",
@@ -3207,8 +3199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0267",
@@ -3262,12 +3254,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0273",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=13939700598562588244",
-      "values_compared": 32
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3339,8 +3335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0281",
@@ -3375,8 +3371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0285",
@@ -3387,8 +3383,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0286",
@@ -3431,8 +3427,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3451,8 +3447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -3471,8 +3467,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0294",
@@ -3503,8 +3499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0297",
@@ -3515,8 +3511,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0298",
@@ -3527,8 +3523,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0299",
@@ -3547,8 +3543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0301",
@@ -3619,8 +3615,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -3647,8 +3643,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0312",
@@ -3667,8 +3663,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0314",
@@ -3711,8 +3707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0319",
@@ -3763,8 +3759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -3791,8 +3787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0328",
@@ -3803,8 +3799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0329",
@@ -3847,8 +3843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0334",
@@ -3867,8 +3863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0336",
@@ -3939,8 +3935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0344",
@@ -3995,8 +3991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0350",
@@ -4007,8 +4003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -4019,8 +4015,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0352",
@@ -4039,8 +4035,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0354",
@@ -4079,8 +4075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -4123,8 +4119,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0363",
@@ -4143,8 +4139,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0365",
@@ -4215,8 +4211,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0372",
@@ -4227,8 +4223,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0373",
@@ -4239,8 +4235,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0374",
@@ -4251,8 +4247,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0375",
@@ -4294,21 +4290,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0379",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588350",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0380",
@@ -4387,8 +4379,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0389",
@@ -4407,8 +4399,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0391",
@@ -4435,8 +4427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -4483,8 +4475,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0399",
@@ -4495,8 +4487,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0400",
@@ -4523,8 +4515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0403",
@@ -4583,8 +4575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0409",
@@ -4595,8 +4587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0410",
@@ -4683,8 +4675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0419",
@@ -4695,8 +4687,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0420",
@@ -4715,8 +4707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0422",
@@ -4807,8 +4799,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0431",
@@ -4875,8 +4867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -5023,8 +5015,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0455",
@@ -5051,8 +5043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0458",
@@ -5063,8 +5055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -5083,8 +5075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0461",
@@ -5291,8 +5283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0484",
@@ -5339,8 +5331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0489",
@@ -5379,8 +5371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0493",
@@ -5426,16 +5418,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0498",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588469",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5447,8 +5435,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0500",
@@ -5459,8 +5447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0501",
@@ -5471,8 +5459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0502",
@@ -5555,8 +5543,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0511",
@@ -5575,8 +5563,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0513",
@@ -5627,8 +5615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0518",
@@ -5651,8 +5639,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0520",
@@ -5687,8 +5675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0524",
@@ -5715,8 +5703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0527",
@@ -5743,8 +5731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0530",
@@ -5755,8 +5743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0531",
@@ -5775,8 +5763,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0533",
@@ -5823,8 +5811,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0538",
@@ -5851,8 +5839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0541",
@@ -5887,8 +5875,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0545",
@@ -5979,8 +5967,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0554",
@@ -6019,8 +6007,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0558",
@@ -6071,8 +6059,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0563",
@@ -6195,8 +6183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -6207,8 +6195,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0578",
@@ -6235,8 +6223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0581",
@@ -6291,8 +6279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0587",
@@ -6359,8 +6347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0594",
@@ -6371,8 +6359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0595",
@@ -6539,8 +6527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0614",
@@ -6706,16 +6694,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0632",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588603",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -6766,12 +6750,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0639",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=13939700598562588610",
-      "values_compared": 32
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6803,8 +6791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0643",
@@ -6851,8 +6839,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0648",
@@ -6919,8 +6907,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0655",
@@ -6939,8 +6927,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0657",
@@ -6951,8 +6939,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0658",
@@ -6963,8 +6951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0659",
@@ -6975,8 +6963,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0660",
@@ -6987,8 +6975,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0661",
@@ -7187,8 +7175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0683",
@@ -7219,8 +7207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0686",
@@ -7279,8 +7267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0692",
@@ -7311,8 +7299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0695",
@@ -7347,8 +7335,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0699",
@@ -7439,8 +7427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0708",
@@ -7467,8 +7455,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0711",
@@ -7507,8 +7495,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
+        "unit": "surface.surface_p6"
       },
       "max_rel_err": 0.0,
       "name": "gen0715",
@@ -7527,8 +7515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0717",
@@ -7547,8 +7535,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0719",
@@ -7566,12 +7554,16 @@
       "values_compared": 32
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0721",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=13939700598562588692",
-      "values_compared": 47
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7599,8 +7591,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0725",
@@ -7611,8 +7603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0726",
@@ -7623,8 +7615,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0727",
@@ -7739,8 +7731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0740",
@@ -7799,8 +7791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0746",
@@ -7855,8 +7847,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0752",
@@ -7899,8 +7891,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0756",
@@ -7919,8 +7911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0758",
@@ -7970,16 +7962,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0764",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588735",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "deferred": {
@@ -7995,8 +7983,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -8027,8 +8015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0769",
@@ -8075,8 +8063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0774",
@@ -8103,8 +8091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0777",
@@ -8167,8 +8155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0784",
@@ -8179,8 +8167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0785",
@@ -8191,8 +8179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0786",
@@ -8227,8 +8215,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0790",
@@ -8255,8 +8243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0793",
@@ -8279,8 +8267,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurface::DropAndTrimCurve",
+        "unit": "intersect.surface_drop_lib_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0795",
@@ -8315,8 +8303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurface::DropPoint",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0799",
@@ -8327,15 +8315,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 347,
+  "cases_deferred": 344,
   "cases_failed": 0,
-  "cases_passed": 520,
+  "cases_passed": 523,
   "cases_total": 867,
   "deferred_by_unit": {
-    "intersect.surface_drop_lib_p1": 83,
-    "surface.surface_p4": 84,
-    "surface.surface_p6": 131,
-    "surface.surface_point_solve_p3": 49
+    "intersect.surface_drop_lib_p1": 85,
+    "surface.surface_p5": 139,
+    "surface.surface_p6": 120
   },
   "max_rel_err": 0.0,
   "pass": true,
