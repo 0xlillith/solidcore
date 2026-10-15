@@ -24,6 +24,8 @@
 //!   [`IsoCurve::new`] retains the B-spline constructor; [`IsoCurve::from_surface`]
 //!   also supports the other concrete surface kinds through the same virtual dispatch.
 //!   This extension is needed by `surface.surface_point_solve_p3` boundary solves.
+//!   The general constructor bounds owned geometry nesting to 64 levels before
+//!   any recursive surface dispatch; the B-spline constructor cannot nest.
 //! - **Equality.** `operator==` accepts identical surface pointers before comparing the
 //!   surfaces (`SmBSplineSurface::operator==`); the port always compares the surfaces
 //!   ([`Surface::approx_eq`]; comparison failures propagate).
@@ -94,7 +96,7 @@ impl IsoCurve {
         from_left: bool,
         clamp_input: bool,
     ) -> Self {
-        Self::from_surface(
+        Self::from_surface_inner(
             Surface::from(surface),
             surf_param,
             iso_parameter,
@@ -104,8 +106,28 @@ impl IsoCurve {
     }
 
     /// The implicit iso curve of any concrete surface, preserving its evaluation dispatch.
-    #[must_use]
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` when owned geometry nesting exceeds 64 levels.
     pub fn from_surface(
+        surface: Surface,
+        surf_param: SurfParamType,
+        iso_parameter: f64,
+        from_left: bool,
+        clamp_input: bool,
+    ) -> Result<Self> {
+        surface.check_evaluation_copy_depth(0)?;
+        Ok(Self::from_surface_inner(
+            surface,
+            surf_param,
+            iso_parameter,
+            from_left,
+            clamp_input,
+        ))
+    }
+
+    fn from_surface_inner(
         surface: Surface,
         surf_param: SurfParamType,
         iso_parameter: f64,
@@ -350,14 +372,14 @@ impl IsoCurve {
         let surface = surface_read_from_db(k, surface_type, db, version)?;
 
         // load obj
-        Ok(Self {
-            surface: Box::new(surface),
+        Self::from_surface(
+            surface,
             // a code outside the enum behaves as a non-`SM_SP_U` value everywhere here
-            surf_param: SurfParamType::from_code(surf_param).unwrap_or(SurfParamType::Unknown),
+            SurfParamType::from_code(surf_param).unwrap_or(SurfParamType::Unknown),
             iso_parameter,
-            from_left: from_left != 0,
-            // m_bOwnsSurface = TRUE
-        })
+            from_left != 0,
+            false,
+        )
     }
 
     /// `SmIsoCurve_TYPE` (`GetType`).

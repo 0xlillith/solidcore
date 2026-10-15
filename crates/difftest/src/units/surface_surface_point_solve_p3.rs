@@ -221,7 +221,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                         "bad request",
                     ),
                 )?;
-                let result = surface.global_point_solve_1(
+                let result = match surface.global_point_solve_1(
                     &k,
                     &domain,
                     operation,
@@ -230,7 +230,19 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                     target,
                     requested,
                     Some(object),
-                )?;
+                ) {
+                    Ok(result) => result,
+                    Err(error) if error.is_unported() => return Err(error),
+                    Err(error) => {
+                        // The global solver clears its output before finding a rough
+                        // guess; an ordinary failure retains the empty solution array.
+                        return Ok(vec![
+                            super::surface_surface_cache_p1::status(&error),
+                            0.0,
+                            flag(oob(&surface) == before),
+                        ]);
+                    }
+                };
                 out.push(result.len() as f64);
                 for solution in result.as_slice() {
                     put_solution(&mut out, solution, object)?;

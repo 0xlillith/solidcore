@@ -4432,3 +4432,20 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   zero counts; the port returns `InvalidInput`).
 - `SmBrep::ReadFromFile` crashes on `SmallBox.smb` (UB-1), so topology fixtures use the
   `topology.vertexuse` file list.
+
+- Full-suite integration regressions exposed two existing dispatch/output gaps.
+  `BSplineSurface::STEPInversion`'s guessed local solve now uses the original
+  concrete surface (and caller kernel), retaining `SmPlane`'s virtual evaluator.
+  `SmSurfaceEval` now retains the B-spline position/derivative matrix written
+  before zero-tangent correction returns `SM_ERR`. C++ accessors ignore that
+  failure and read those values; discarding them caused false convergence on
+  collapsed surfaces. Native regressions cover the initial norms, next step,
+  local driver and callers (`surface.surface_p4/p5`).
+- `SurfPtSolveStepper::Normal` now ignores ordinary failed-normal status and
+  reads the cached normal, like C++ (missing dependencies still propagate).
+  A source audit also corrected `SurfPtGlobalSolver::Solve` to retain a failed
+  `RefineGuessByGrid` status internally rather than returning it from `Solve`.
+- The collapsed Normalize regression has no usable rough guess: both engines
+  return `SM_ERR` with an empty solution array. The p3 and existing p4 runners
+  now retain that array count on error, matching their C++ wire format; p3 also
+  compares restoration of out-of-bounds evaluation on this failure path.

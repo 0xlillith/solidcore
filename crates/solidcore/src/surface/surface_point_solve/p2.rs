@@ -1080,12 +1080,18 @@ impl SurfPtGlobalSolver<'_> {
 
             if try_again {
                 let save_guess = uv_guess;
-                uv_guess = self.refine_guess_by_grid(uv_guess, best_idx_u, best_idx_v)?;
-                // (upstream's eStat is now RefineGuessByGrid's SM_SUCCESS, even when
-                // the guess did not move and the first local solve failed)
-                stat_ok = true;
+                match self.refine_guess_by_grid(uv_guess, best_idx_u, best_idx_v) {
+                    Ok(refined) => {
+                        uv_guess = refined;
+                        // eStat is now RefineGuessByGrid's status, even if the
+                        // guess did not move and the first local solve failed.
+                        stat_ok = true;
+                    }
+                    Err(error) if error.is_unported() => return Err(error),
+                    Err(_) => stat_ok = false,
+                }
 
-                if !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
+                if stat_ok && !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
                     match local_point_solve(
                         k,
                         surface,

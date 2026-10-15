@@ -64,7 +64,9 @@
 //!
 //! Deviations:
 //! - Evaluation copies check all owned surface, curve and volume branches against a
-//!   64-level depth bound before invoking recursive copies.
+//!   64-level depth bound before invoking recursive copies. The surface evaluator
+//!   also bounds its wrapper traversal to 64 levels and retains B-spline output
+//!   written before zero-tangent correction fails, as upstream accessors do.
 //! - **Object model.** `SmSurface` is not abstract upstream, but every ported surface
 //!   is a derived class: the [`SurfaceKind`] variants. The ported kinds are
 //!   [`BSplineSurface`], [`CurveBoundedSurface`] (unit
@@ -295,7 +297,7 @@ impl Surface {
 
     /// Check every owned geometry branch before invoking recursive `Clone` impls.
     /// This includes trim curves and volume chains, not only the surface basis.
-    fn check_evaluation_copy_depth(&self, initial_depth: usize) -> Result<()> {
+    pub(crate) fn check_evaluation_copy_depth(&self, initial_depth: usize) -> Result<()> {
         use crate::curve::curve::CurveKind;
         enum Geometry<'a> {
             Surface(&'a Surface),
@@ -2178,14 +2180,25 @@ impl<'s> SurfaceEval<'s> {
             only_upper_half: true,
             non_zero_tangents: self.non_zero_tangents,
         };
-        let derivs = match surface.evaluate(self.uv, 2, 2, flags) {
-            Ok(d) => d,
-            Err(e) if e.is_unported() => return Err(e),
-            Err(_) => {
-                self.fails_eval = true;
-                return Err(SolidError::sm_err(OP_EVAL));
+        let (status, derivs) = eval_second_derivatives_with_output(surface, self.uv, flags);
+        // Upstream Evaluate writes this array even when zero-tangent correction
+        // ultimately fails. Its accessors still read the partially written values.
+        if let Err(error) = status {
+            if error.is_unported() {
+                return Err(error);
             }
-        };
+            for (i, row) in self.pvv.iter_mut().enumerate() {
+                for (j, slot) in row.iter_mut().enumerate() {
+                    if i + j <= 2 {
+                        if let Some(value) = derivs.get(i).and_then(|r| r.get(j)) {
+                            *slot = *value;
+                        }
+                    }
+                }
+            }
+            self.fails_eval = true;
+            return Err(SolidError::sm_err(OP_EVAL));
+        }
         for (i, row) in self.pvv.iter_mut().enumerate() {
             for (j, slot) in row.iter_mut().enumerate() {
                 if i + j <= 2 {
@@ -2201,6 +2214,60 @@ impl<'s> SurfaceEval<'s> {
         self.uv_set = true;
         Ok(())
     }
+}
+
+/// Preserve partial B-spline output through virtual surface wrappers. The walk is
+/// bounded to 64 levels, matching evaluation copies and general iso constructors.
+fn eval_second_derivatives_with_output(
+    mut surface: &Surface,
+    uv: Point2,
+    flags: EvaluateFlags,
+) -> (Result<()>, Vec<Vec<Vec3>>) {
+    let mut step = false;
+    for _ in 0..64 {
+        match surface.kind() {
+            SurfaceKind::BSpline(s) => {
+                let flags = if step {
+                    EvaluateFlags {
+                        non_zero_tangents: true,
+                        ..flags
+                    }
+                } else {
+                    flags
+                };
+                return s.evaluate_with_partial_output(uv, flags);
+            }
+            SurfaceKind::SurfOfRevolution(s) if !step => {
+                return s.base().evaluate_with_partial_output(uv, flags);
+            }
+            SurfaceKind::CurveBounded(s) => surface = s.basis(),
+            SurfaceKind::Step(s) => {
+                let Some(base) = s.surface() else {
+                    return (Err(SolidError::sm_err(OP_EVAL)), Vec::new());
+                };
+                surface = base;
+                step = true;
+            }
+            _ => {
+                let result = if step {
+                    surface.evaluate_step(uv, 2, 2, flags)
+                } else {
+                    surface.evaluate(uv, 2, 2, flags)
+                };
+                return match result {
+                    Ok(values) => (Ok(()), values),
+                    Err(error) => (Err(error), Vec::new()),
+                };
+            }
+        }
+    }
+    (
+        Err(SolidError::invalid_input(
+            OP_EVAL,
+            "surface evaluation nesting exceeds 64",
+        )),
+        Vec::new(),
+    )
 }
 
 // ---- SmDerivSurfDefinition ----------------------------------------------------------------
@@ -4172,6 +4239,15 @@ mod tests {
             surface.clone_for_evaluation(),
             Err(SolidError::InvalidInput { .. })
         ));
+        // The general iso constructor checks before clamping through nested bases.
+        assert!(crate::curve::iso_curve::IsoCurve::from_surface(
+            surface,
+            SurfParamType::U,
+            0.5,
+            true,
+            true,
+        )
+        .is_err());
     }
 
     #[test]
@@ -4204,6 +4280,21 @@ mod tests {
             SrfInVolume::new(Surface::from(BSplineSurface::new()), true, volume, 0, 3).unwrap(),
         );
         assert!(surface.clone_for_evaluation().is_err());
+    }
+
+    #[test]
+    fn failed_zero_tangent_eval_keeps_the_written_position_and_derivatives() {
+        let surface = Surface::from(
+            BSplineSurface::create_bilinear_surface(Vec3::ZERO, Vec3::ZERO, Vec3::Y, Vec3::Y)
+                .unwrap(),
+        );
+        let mut eval = SurfaceEval::new(Some(&surface));
+        eval.set_uv(Point2::new(0.5, 0.5));
+        assert!(eval.eval().is_err());
+        assert_eq!(eval.values()[0][0], Vec3::new(0.0, 0.5, 0.0));
+        assert_eq!(eval.values()[1][0], Vec3::ZERO);
+        assert_eq!(eval.values()[0][1], Vec3::Y);
+        assert!(eval.fails_eval);
     }
 
     #[test]

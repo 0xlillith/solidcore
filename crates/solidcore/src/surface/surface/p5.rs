@@ -432,13 +432,13 @@ fn iso_curve_of(
     iso: f64,
     from_left: bool,
 ) -> Result<IsoCurve> {
-    Ok(IsoCurve::from_surface(
+    IsoCurve::from_surface(
         surface.clone_for_evaluation()?,
         param,
         iso,
         from_left,
         false,
-    ))
+    )
 }
 
 impl Surface {

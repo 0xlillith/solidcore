@@ -149,7 +149,7 @@ impl SurfPtSolveStepper<'_> {
             iso,
             iso < cross_domain.mid(),
             true,
-        ));
+        )?);
         let mut sol: Solution<()> = Solution::new();
         let found = if self.base.solver_op() == SolverOperation::Signed3dDirectedMaximize {
             boundary_or_false(local_property_analysis(
