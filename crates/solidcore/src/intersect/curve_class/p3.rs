@@ -33,7 +33,9 @@
 //!   status of its two `FindInterval` calls and uses the outputs they leave, as upstream.
 //! - **Recursion.** `sm_FixProblemsBySqueezing` ends with a tail call that restarts the
 //!   scan after it removed an interval; it is a `loop` here that restarts at the same
-//!   point, so the order is unchanged and the depth no longer depends on the input.
+//!   point, so the order is unchanged and the depth no longer depends on the input. The
+//!   restarts are bounded by the interval count plus one (each squeeze removes an
+//!   interval); past it `SM_ERR` is returned where upstream would recurse without end.
 //! - **Pointers into the interval array.** `GetPointClassByIndex` /
 //!   `GetPointClassMateByIndex` return pointers; the unported stubs below return a
 //!   [`PointClassLoc`] (interval, end) that [`CurveClassification::pc_at`] /
@@ -58,7 +60,7 @@
 //!   case this file needs (an explicit tolerance).
 
 use crate::curve::curve::p2::Curve;
-use crate::error::{ignore_status, ignored, Result, SolidError};
+use crate::error::{ignore_status, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::geom_utility::p1::line_closest_point;
 use crate::geom::global_solver::SolverOperation;
@@ -915,7 +917,8 @@ impl<O: ClassObject> CurveClassification<O> {
                 let ivl_end_pt_point = vertex_point(
                     ivl_end_pt_object.ok_or_else(|| SolidError::null_pointer(OP_INSERT))?,
                 )?;
-                let pt_class_point = vertex_point(
+                // (the second vertex's point is only read by the SE_MSG test below)
+                let _pt_class_point = vertex_point(
                     point_class
                         .object()
                         .ok_or_else(|| SolidError::null_pointer(OP_INSERT))?,
@@ -1671,7 +1674,8 @@ pub fn change_edge_point_class_to_near_vertex<O: ClassObject>(
                 IntervalPosition::End
             };
 
-            cc.remove_point_class(index, which)?;
+            // (RemovePointClass is called without SER: its status is ignored)
+            ignore_status(cc.remove_point_class(index, which))?;
         } // end when next interval has both ends classifying to the same vertex
 
         // when previous interval has both ends classifying to the same vertex
@@ -1698,7 +1702,7 @@ pub fn change_edge_point_class_to_near_vertex<O: ClassObject>(
                     IntervalPosition::End
                 };
 
-                cc.remove_point_class(prev, which)?;
+                ignore_status(cc.remove_point_class(prev, which))?;
             } // end when previous interval has both ends classifying to the same vertex
         }
     } // end need to review intervals after pointClassification change check
@@ -1725,6 +1729,9 @@ pub fn fix_problems_by_squeezing<O: ClassObject>(
 ) -> Result<()> {
     // upstream recurses after a squeeze of cc; restarting the scan here visits the same
     // intervals in the same order
+    // Bound (see the Deviations line): every squeeze of `cc` removes an interval, so more
+    // restarts than it had intervals mean upstream would recurse without end.
+    let mut restarts_left = cc.size().saturating_add(1);
     'restart: loop {
         // for every CurveClass Interval
         for ii in 0..cc.size() {
@@ -1809,6 +1816,9 @@ pub fn fix_problems_by_squeezing<O: ClassObject>(
                 connect_intervals(cc, ii, squeeze_pos, true)?;
 
                 // after modifying ThisCurve - start over
+                restarts_left = restarts_left
+                    .checked_sub(1)
+                    .ok_or_else(|| SolidError::sm_err(OP_SQUEEZE))?;
                 continue 'restart;
             } // end thisCurveInterval is equivalent to zero length
         } // end iter every CurveClass interval
@@ -1860,7 +1870,7 @@ mod tests {
     }
 
     fn setup(k: &Kernel, bounds: &[f64]) -> (Geo, CurveClassification<H>) {
-        let line = Line::new(Point3::new(0.0, 0.0, 0.0), Point3::new(1.0, 0.0, 0.0), 3);
+        let line = Line::from_points(Point3::new(0.0, 0.0, 0.0), Point3::new(1.0, 0.0, 0.0), 3);
         let geo = Geo(vec![Curve::from(line)]);
         let mut cc = CurveClassification::<H>::new(k);
         cc.set_curve(Some(H(0, ClassObjectKind::Curve)), false);
