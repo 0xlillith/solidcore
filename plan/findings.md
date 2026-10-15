@@ -4330,6 +4330,29 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   (`GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`), `IsMissingSeamAtVertices` on closed
   surfaces (sector computation) and the inexact-geometry cases (as `topology.edgeuse_p2`).
 - **Upstream bug.** `IsClosed3d` never reports a loop open (WR-88); ported as is.
+- **Review fixes (PR #102).** No case had reached `IsClosed3d`'s over-tolerance branch
+  (`SmLoopuse.cpp:851-866`): over 3,600 closed3d cases the largest gap was 0.039 of its
+  `XSectTol3d`. The `Closed3d` op now takes an optional `edge_tol` that sets every
+  `SmEdge::m_sZoneTol3d` (stored as `fabs`) / `Edge::tolerance` first;
+  `fixtures/topology.loopuse/tolerance_limit.json` (1,984 cases: 0, 1e-15, -1e-12, 1e-9,
+  `bCheckAllGaps` both ways, loop and loop use) reaches the branch 176 times (88 with the
+  early stop), all bit-identical. The shim's `closed3d_safe` now predicts that early stop
+  from `SmTol::GetXSectTol3d(GetZoneTol3d(a), GetZoneTol3d(b))`, as upstream, not the raw
+  edge use tolerances. `fixtures/topology.loopuse/review_adversarial.json` keeps a
+  deterministic 4,712-case subset of the reviewer's 78,120-case sweep (every op on loop
+  indices 0..23 of each B-rep; the full sweep passed with 0 failures).
+- **Guard wider than the C++.** In `FlipLoopOrientation`'s vertex branch, both the shim
+  and the Rust reject a mate vertex use that is not owned by a loop use. Upstream only
+  reassigns `m_pSorLUorEU` there (not undefined); `topology::VertexuseOwner` cannot hold
+  that state and the input is malformed, so the case stays rejected on both sides.
+- **For `surface.surface_p5`.** `GetUVCornerBoundaries` uses the UV point `DropPoint`
+  writes whether or not `bSuccess` is set (statuses ignored by `SE` in release); the
+  `drop_point` stub must return `Some` for any written point, `None` only when the
+  out-param is left unwritten. Unreachable today
+  (`GetOrCreateUVTrimCurve` is `UNPORTED(topology.edgeuse_p3)`).
+- **Duplicate to merge.** `query::r#loop::uv_corner_boundaries` (co-ported on the borrowed
+  `FaceLoop` view) duplicates `topology::loopuse::uv_corner_boundaries`; merge them when
+  `query.loop` moves to the arena topology.
 - **Not wired**, still `UNPORTED(topology.loopuse)`: `intersect::point_class`
   (`SmLoop::IsConnectedTo`, `SmLoopuse::IsConnectedTo`) and `surface::trim_srf_cache`
   (`GetEdgeuses`, `GetVertexuses`). Those callers hold opaque object handles without a

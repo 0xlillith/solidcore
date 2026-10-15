@@ -1097,7 +1097,9 @@ fn get_or_create_uv_trim_curve(
 }
 
 /// `pS->DropPoint(point, domain, NULL, bSuccess, uv, dGap, bIsMulti)` (unit
-/// `surface.surface_p5`): the dropped UV point when one was found.
+/// `surface.surface_p5`): the UV point it writes to its out-param, or `None` only when
+/// it leaves the out-param unwritten. Upstream ignores both the status and `bSuccess`
+/// here, so a point written by a failed drop must still be returned.
 fn drop_point(_k: &Kernel, _s: &Surface, _dom: &Extent2d, _p: Point3) -> Result<Option<Point2>> {
     // UNPORTED(surface.surface_p5): SmSurface::DropPoint
     Err(SolidError::unported(

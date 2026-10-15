@@ -13,7 +13,10 @@
 //! compare the loop, edge and vertex use links of the whole B-rep afterwards.
 //!
 //! `LuLists` attaches an attribute (id 777) to the selected objects on the C++ side; the
-//! Rust filter is the predicate "is one of those objects".
+//! Rust filter is the predicate "is one of those objects". `Closed3d` with `edge_tol`
+//! first sets every edge's tolerance to it (`fixtures/topology.loopuse/tolerance_limit.json`:
+//! zero, tiny and negative tolerances), so that gaps exceed their `XSectTol3d` and the
+//! over-tolerance branch (with its early stop when `check_all` is false) is compared.
 //!
 //! Deferred: `IsConnectedTo` with a vertex or edge target (`topology.vertex`,
 //! `topology.edge`), `FlipLoopOrientation` of a loop on a face (`SmFace::Notify`,
@@ -100,11 +103,14 @@ enum OpIn {
         l: i64,
         target: TargetIn,
     },
+    /// `edge_tol`: every edge's tolerance is set to it first (tolerance-limit cases).
     Closed3d {
         of_loop: bool,
         index: i64,
         check_all: bool,
         want: [bool; 3],
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        edge_tol: Option<f64>,
     },
     MissingSeam {
         lu: i64,
@@ -156,7 +162,7 @@ enum Resolved {
     LuConnected(i64, TargetIn),
     LoopQuery(i64),
     LoopConnected(i64, TargetIn),
-    Closed3d(bool, i64, bool, [bool; 3]),
+    Closed3d(bool, i64, bool, [bool; 3], Option<f64>),
     MissingSeam(i64),
     UvCorners(i64, [f64; 4], f64),
     Flip(i64),
@@ -231,11 +237,13 @@ fn resolve(op: &OpIn, c: [usize; 10], b: &Brep) -> Option<Resolved> {
             index,
             check_all,
             want,
+            edge_tol,
         } => Resolved::Closed3d(
             *of_loop,
             req(*index, if *of_loop { n_l } else { n_lu })?,
             *check_all,
             *want,
+            *edge_tol,
         ),
         OpIn::MissingSeam { lu } => Resolved::MissingSeam(req(*lu, n_lu)?),
         OpIn::UvCorners { l, dom, tol } => {
@@ -368,9 +376,10 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
             t(&mut input, *target);
             Op::LoopConnected
         }
-        Resolved::Closed3d(of_loop, index, all, want) => {
+        Resolved::Closed3d(of_loop, index, all, want, edge_tol) => {
             input.extend([flag(*of_loop), *index as f64, flag(*all)]);
             input.extend(want.map(flag));
+            input.extend([flag(edge_tol.is_some()), edge_tol.unwrap_or(0.0)]);
             Op::Closed3d
         }
         Resolved::MissingSeam(lu) => {
@@ -693,7 +702,14 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
             let l = LoopId::from_index(u(*l));
             bool_slot(&mut o, lu1::loop_is_connected_to(b, l, entity(*target)))?;
         }
-        Resolved::Closed3d(of_loop, index, all, want) => {
+        Resolved::Closed3d(of_loop, index, all, want, edge_tol) => {
+            if let Some(t) = edge_tol {
+                // `m_sZoneTol3d = t` (`SmZoneTol3d::operator=` stores `fabs`)
+                for e in 0..b.edges().len() {
+                    let e = EdgeId::from_index(u(e as i64));
+                    b.edge_mut(e).map_err(|e| fail(&e))?.tolerance = t.abs();
+                }
+            }
             let r = if *of_loop {
                 slot(lu1::loop_is_closed_3d(&k, b, LoopId::from_index(u(*index)), *all))?
             } else {
@@ -885,6 +901,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             index: gen_sel(rng),
             check_all: rng.chance(0.5),
             want: [rng.chance(0.8), rng.chance(0.8), rng.chance(0.8)],
+            edge_tol: None,
         },
         17 => OpIn::MissingSeam { lu: gen_sel(rng) },
         18 => {
