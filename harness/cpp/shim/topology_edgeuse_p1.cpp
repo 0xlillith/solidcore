@@ -527,7 +527,12 @@ void walk(SmBrep* brep, Graph& g)
     brep->GetRegions(regs);
     for (ULONG i = 0; i < regs.GetSize(); i++)
         g.region(regs[i]);
-    size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0;
+    // Brep's global edge-list order is observable in GetWireEdges, and wires
+    // owned by a face shell are not necessarily reachable from its faceuses.
+    SmTArray<SmEdge*> all_edges;
+    brep->GetEdges(all_edges);
+    for (ULONG i = 0; i < all_edges.GetSize(); ++i) g.edge(all_edges[i]);
+    size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0, v = 0;
     bool more = true;
     while (more)
     {
@@ -593,6 +598,12 @@ void walk(SmBrep* brep, Graph& g)
             g.vertex((SmVertex*)p->GetOwner());
             g.typed(p->GetVertexuseType(), p->*VuPeek::owner());
         }
+        // A vertex can connect to more wire edges than the shell's initial
+        // radial head reaches. Register every native vertex-use list member,
+        // then let the next iteration follow its edge-use/owner links.
+        for (; v < g.vertices.size(); v++, more = true)
+            for (SmTopology* t : list_of(g.vertices[v]->GetList()))
+                g.vertexuse((SmVertexuse*)t);
         for (; l < g.loops.size(); l++, more = true)
             g.loopuse(g.loops[l]->GetLoopuse());
         for (; f < g.faces.size(); f++)
