@@ -193,7 +193,7 @@ bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG
     if (!base->GetNaturalUVDomain().ContainsPoint2d(uv) && s->GetExtendedBaseSurface())
         base = s->GetExtendedBaseSurface();
     // SmPlane::EvaluateSimple inherits the same evaluator. Other base kinds have
-    // their own checked derivative layouts; only this direct delegation is UB-99.
+    // their own checked derivative layouts; only this direct delegation is UB-100.
     (void)simple;
     return SM_CAST_PTR(SmPlane, base) != NULL;
 }
@@ -532,7 +532,7 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         SmBoolean expand = rd.bflag();
         // Check the actual base after all preceding edits/evaluations, not a guessed
         // domain in the Rust serializer. Outside-domain offset caches can recurse
-        // (UB-100) or subdivide without progress (HANG-12).
+        // (UB-101) or subdivide without progress (HANG-13).
         SmSurface* base = s->GetBaseSurface();
         while (auto* nested = SM_CAST_PTR(SmOffsetSurface, base))
             base = nested->GetBaseSurface();

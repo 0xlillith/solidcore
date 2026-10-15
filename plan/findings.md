@@ -3845,6 +3845,77 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
 
+## topology.proto_topology_p1 (`SmOwningTopology`, `SmAssembly`, `SmCopyBrepMap`, `SmProtoTopology` part 1, API transforms, 2026-10-14; partial, no disagreements)
+
+- **Harness.** One shim entry runs scripts of three kinds (list, proto, transform); the
+  runner interprets the same script against the port and applies the shim's run-time
+  refusals to its own state, so an op the shim refuses as undefined upstream (null or
+  deleted pointer dereference, use after free in a destructor, a list walk that would
+  not end) ends both records with `-2`, and a state divergence shows up as a mismatch.
+  Proto ops are `[code, args...]` arrays exactly as the shim reads them.
+- **Upstream defects found:** UB-98 (`SmCopyBrepMap` release asserts call `GetType()`
+  on null objects; crashed the reference run), HANG-12 (`DropPoint` never returns after
+  `Reparameterize` to a zero-length domain; the Rust curve point solve loops the same
+  way, which belongs to the curve units), WR-73 (`RemoveCoincidentNoEdgeProtoVertex`
+  returns `SM_SUCCESS` as TRUE; ported for parity). The shim refuses the UB-98 calls and
+  zero-length `Reparameterize`.
+- **Deferred** (`Unported`): the B-rep walks of `sm_AreConnected` and point
+  classifications on bare topology objects (topology.vertex, topology.edge,
+  topology.face_p2), `SmProtoVertex::ContainsPoint` (query.face_p2), surface point
+  solves (surface.surface_p4), `SmBrep::Transform` (topology.brep_p5) and
+  `SmPolyBrep::Transform` (query.poly).
+- **Co-port wired:** `topology::edgeuse::p1::owning_topology_is_kind_of` (CO-PORTED in
+  topology.edgeuse_p1, PR #55) now calls `owning_topology::is_kind_of`; edgeuse_p1
+  difftest unchanged (2449 pass, 273 deferred).
+
+## boolean.api_brep (`SmApiBrep.cpp` boolean entry points, PR #81, 2026-10-14)
+
+- **Scope.** Thin wrappers over `SmMerge`; everything past input validation is deferred
+  (`boolean.merge_p2` for the `SmMerge` constructor, `boolean.merge_p3` for
+  `merge_breps` / `BooleanLists` / `BooleanTrees`). `SmMergeOptions` is co-ported in
+  `boolean::merge::p1`. The C++ shim already runs real box/sphere booleans and emits
+  `status, has, is_first, kept, faces, edges, vertices, regions, manifold_solid` (see
+  `crates/solidcore-ffi/src/units/boolean_api_brep.rs`), so the deferred cases become
+  comparisons as soon as the merge units land and `primitive.api_primitives` lets the
+  runner build the same operands in Rust (today the Rust side passes empty `Brep`s).
+- **Unrepresentable checks.** `NULL` operands, the same B-rep passed twice and `NULL` /
+  duplicate list entries (`SmApiValidateBooleanOperands`,
+  `SmApiMergeBrepsInputsAreValid`) cannot occur with owned Rust values; those upstream
+  test cases (`TestSmBoolean`, `TestSmMergeBreps`) have no difftest counterpart.
+- **Not owned.** `SmApiBooleanWithCurves`, `SmApiNonManifoldBoolean` and
+  `SmApiPiecewiseMerge` (same file) are in no unit of `harness/callgraph/units.json`.
+- **Performance.** Upstream `SmApiCreateSphere` takes 15-30 s at radius ~5e-5 (scale
+  1e-4); the generator stops tiny scales at 1e-3. Not investigated further (unit
+  `primitive.api_primitives`).
+
+## blend.fillet_custom_solver (PR #78 review fixes, 2026-10-14)
+
+- **Corpus.** 448 cases (48 fixture, 400 generated): 359 pass at max_rel_err 0, 89
+  deferred (surface.offset_surface). The earlier note's "17 fixture, 405 generated"
+  split was wrong (it was 22 + 400). 26 review fixtures (`adv_*`) cover antiparallel,
+  identical and nearly parallel line rails, zero radius, `P2 == P1`, collinear
+  points, rational / double-knot / polyline / quadratic rails, tolerance equal to the
+  rail gap, `r2 > r1`, angles past pi, arc + line, non-coaxial and reversed arcs,
+  multi-span arcs and tolerance 0.
+- **FFI guard for `CreateSurface` intervals.** Rails over different natural
+  intervals are undefined in C++ only in the skinning branch (rail synchronisation
+  reads `pIntersectionsWithRails` past `k`). The guard now also admits two
+  non-rational 2-point degree-1 rails at least `1e-7` long whose directions agree to
+  within `5e-7` rad (half the `SM_EFF_ZERO_SQRT` sweep test, so they always take the
+  ruled branch); `EvaluatePoint` clamps rail 2's off-domain parameters. The
+  surface-of-revolution branch (both rails arcs) is also valid with different
+  intervals but stays guarded, because predicting `IsArc` in the guard is not cheap.
+- **Not compared yet.** The C++ shim clears the solvers' edge uses, so the
+  edge-use / `GlobalPointSolve` / `IsClosed` / `DropPoint` branch of both
+  `LoadInitialValues` is never run on either side (Rust reaches it only after the
+  Unported offset `EvaluatePoint`). A static review found it matches upstream
+  (`IsClosed` tol 0.0, `Evaluate`'s `bNonZeroTangents = TRUE`, the face/surface
+  identity test, `EFF_ZERO_SQ` for the base `GlobalPointSolve`, the pre-extension
+  domain for `LocalPointSolve`). Compare it once surface.offset_surface lands.
+- **Wiring note.** `offset_compute_inward_vector` is tagged
+  `UNPORTED(surface.offset_surface)` (`SmOffsetSurface::Evaluate`). Wire it
+  through the ported `surface::surface::p7::compute_inward_vector`, not a new copy.
+
 ## surface.offset_surface (`SmOffsetSurface`, PR #62, 2026-10-14)
 
 - **Review repair:** merged main, resolved both surface dispatcher/runner conflicts,
@@ -3854,7 +3925,7 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   6060 cases, 3046 passed, 0 failed, 3014 deferred; compared values bit-identical.
 - **Exact replay:** `serde_json/float_roundtrip` preserves the eight doubles that
   previously changed by one ULP on fixture reload. A regression checks input bits.
-- **Reference safety:** `gen5909` is HANG-13, a successful NaN arc length entering
+- **Reference safety:** `gen5909` is HANG-14, a successful NaN arc length entering
   a nonterminating extension search, reproduced without earlier cases or a shared
   context. The isolated worker forwards unmodified upstream numerics and rejects
   this invalid state and HANG-6's exact nonprogressing initial step. The original
@@ -3887,7 +3958,7 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   caller-set surface owner now returns `InvalidInput` instead of an `Unported` marker.
 - **Fixes in other units found by this difftest** (their difftests re-run, still green):
   `nlib.srf_nurb` / `nlib.srf_adv_p1`: `N_SrfIsClosedSmooth` stores its flag before
-  returning a failed-angle error (WR-79); `Surface::is_closed_smooth_flag` returns both and
+  returning a failed-angle error (WR-80); `Surface::is_closed_smooth_flag` returns both and
   `eval_pt_derivs_unbounded` keeps the copy and flag, so a retry extends it as upstream
   (this also changes `EvaluatePointOnExtendedSurface`'s retry). `surface.surface_p1`: the
   base `CalculateBoundingBox` maps a failed surface cache to `SM_ERR_NULL_POINTER`
@@ -3895,9 +3966,9 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   where upstream recurses (curve-bounded and STEP surfaces, offsets whose extension reaches
   past the base domain). `surface.surface_point_solve_p1`: the solver's B-spline is an
   offset's base surface's, as upstream.
-- **Upstream bugs kept:** WR-73 (`Cuuv` / `Cuvv` coefficients), WR-74 (`Duvv` / `Dvvv` add
-  `Buuv`), WR-75 (`Duv` over `Duu`), WR-76 (`SplitAt` extension), WR-77 (`SwapUV` double
-  negation), WR-78 (`STEPInversion` retry tolerance). UB-98 to UB-101, HANG-12 and HANG-6
+- **Upstream bugs kept:** WR-74 (`Cuuv` / `Cuvv` coefficients), WR-75 (`Duvv` / `Dvvv` add
+  `Buuv`), WR-76 (`Duv` over `Duu`), WR-77 (`SplitAt` extension), WR-78 (`SwapUV` double
+  negation), WR-79 (`STEPInversion` retry tolerance). UB-99 to UB-102, HANG-13 and HANG-6
   (small distances) are kept away from the C++ side by the harness.
 - **Harness.** The shim and runner compare, for `bOnlyUpperHalf`, only the entries upstream
   writes (`i + j` up to the larger order); untouched entries are caller memory upstream and
@@ -3905,8 +3976,8 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   `"VMIN"`, `"VMAX"`, `"ON"`) are filled from the base built on the Rust side. Generated
   extension distances are a fraction of the base's size (HANG-6). The FFI guard tracks the
   base domain through the script (unknown after `TrimWithDomain`, `SwapUV`, `Reverse`) and
-  rejects boxes that may leave it (UB-100, HANG-12), a split once it is unknown, and the
-  orders of UB-98 / UB-99.
+  rejects boxes that may leave it (UB-101, HANG-13), a split once it is unknown, and the
+  orders of UB-99 / UB-100.
 - **Deferred:** most cases wait on `SmSurface::GetSingularities` (`surface.surface_p3`, PR
   #52): every constructor call with `SM_SS_UNKNOWN`, so `Copy`, `SplitAt`,
   `CreateOffsetSurface`, `CreateExtendedSurface` and `ReadFromDB` too. Every offset box
