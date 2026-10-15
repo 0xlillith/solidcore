@@ -623,6 +623,8 @@ impl Surface {
         // the complete range of coincidence)
         let mut sampled_ivl = Extent1d::new();
         let mut num_hits: u64 = 0;
+        // sNorm: one variable for every (status ignored) normal evaluation
+        let mut norm = Vec3::UNDEF;
 
         // First drop the Curve MidPoint to Surface. Use a Global point solve, because
         // we have no guess uv.
@@ -652,7 +654,7 @@ impl Surface {
             if mag > EFF_ZERO {
                 mid_pt1 /= mag;
             }
-            let norm = normal_ignored(self, mid_uv, Vec3::UNDEF)?;
+            norm = normal_ignored(self, mid_uv, norm)?;
             let dot = mid_pt1.dot(norm);
 
             found = dot.abs() < 0.017; // about 1 degree
@@ -717,7 +719,7 @@ impl Surface {
                     st_pnt1 /= mag;
                 }
                 let uv = Point2::new(sol.start.param(0)?, sol.start.param(1)?);
-                let norm = normal_ignored(self, uv, Vec3::UNDEF)?;
+                norm = normal_ignored(self, uv, norm)?;
                 let dot = st_pnt1.dot(norm);
 
                 found_start = dot.abs() < 0.017; // about 1 degree
@@ -771,7 +773,7 @@ impl Surface {
                     en_pnt1 /= mag;
                 }
                 let uv = Point2::new(sol.start.param(0)?, sol.start.param(1)?);
-                let norm = normal_ignored(self, uv, Vec3::UNDEF)?;
+                norm = normal_ignored(self, uv, norm)?;
                 let dot = en_pnt1.dot(norm);
 
                 found_end = dot.abs() < 0.017; // about 1 degree
