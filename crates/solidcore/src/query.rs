@@ -6,3 +6,5 @@
 
 pub mod edge;
 pub mod r#loop;
+pub mod poly;
+pub mod tess;

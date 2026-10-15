@@ -527,6 +527,20 @@ pub enum AttributeValue {
     Tag(TagData),
     /// `SmColorAttribute` (a vector attribute with colour-averaging propagation).
     Color(Vec3),
+    /// `SmPolyToEUVUAttr` (unit `query.tess`, [`crate::query::tess`]): the edge use
+    /// and vertex use of the tessellation B-rep behind a poly edge.
+    PolyToEuVu {
+        /// `m_pEdgeuse`.
+        edgeuse: Option<ObjectKey>,
+        /// `m_pVertexuse`.
+        vertexuse: Option<ObjectKey>,
+    },
+    /// `SmPolyEdgeToVertexUseAttr` (unit `query.tess`, [`crate::query::tess`]): the
+    /// vertex use of the tessellation B-rep behind a poly edge.
+    PolyEdgeToVertexUse {
+        /// `m_pVertexuse`.
+        vertexuse: Option<ObjectKey>,
+    },
 }
 
 /// An attribute: an id naming its purpose, a [`Behavior`], the list of objects
@@ -546,7 +560,7 @@ impl Attribute {
         Self::with_value(attribute_id, behavior, AttributeValue::None)
     }
 
-    fn with_value(attribute_id: u64, behavior: Behavior, value: AttributeValue) -> Self {
+    pub(crate) fn with_value(attribute_id: u64, behavior: Behavior, value: AttributeValue) -> Self {
         Self {
             id: attribute_id,
             behavior,
@@ -690,7 +704,9 @@ impl Attribute {
     #[must_use]
     pub const fn type_code(&self) -> i64 {
         match self.value {
-            AttributeValue::None => type_code::ATTRIBUTE,
+            AttributeValue::None
+            | AttributeValue::PolyToEuVu { .. }
+            | AttributeValue::PolyEdgeToVertexUse { .. } => type_code::ATTRIBUTE,
             AttributeValue::Generic { .. } => type_code::GENERIC,
             AttributeValue::Long(_) => type_code::LONG,
             AttributeValue::Pointer(_) | AttributeValue::MergeRegion(_) => type_code::POINTER,
@@ -704,7 +720,9 @@ impl Attribute {
     #[must_use]
     pub const fn type_string(&self) -> &'static str {
         match self.value {
-            AttributeValue::None => "SmAttribute_TYPE",
+            AttributeValue::None
+            | AttributeValue::PolyToEuVu { .. }
+            | AttributeValue::PolyEdgeToVertexUse { .. } => "SmAttribute_TYPE",
             AttributeValue::Generic { .. } => "SmGenericAttribute_TYPE",
             AttributeValue::Long(_) => "SmLongAttribute_TYPE",
             AttributeValue::Pointer(_) | AttributeValue::MergeRegion(_) => {
@@ -723,7 +741,9 @@ impl Attribute {
     #[must_use]
     pub fn is_kind_of(&self, t: i64) -> bool {
         let own: &[i64] = match self.value {
-            AttributeValue::None => &[],
+            AttributeValue::None
+            | AttributeValue::PolyToEuVu { .. }
+            | AttributeValue::PolyEdgeToVertexUse { .. } => &[],
             AttributeValue::Generic { .. } => &[type_code::GENERIC],
             AttributeValue::Long(_) => &[type_code::LONG],
             AttributeValue::Pointer(_) => &[type_code::POINTER],
