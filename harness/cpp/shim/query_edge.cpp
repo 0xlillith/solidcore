@@ -20,7 +20,7 @@
 // `C X Y d0 d1 r io`), as unit intersect.topology_solver_p1.
 //
 // The graph walk and export (Graph, walk, export_graph and their helpers) are copies of
-// the harness code of harness/cpp/shim/topology_edgeuse_p1.cpp, so the export has that
+// the harness code of harness/cpp/shim/sc_edgeuse_graph.h, so the export has that
 // unit's layout and traversal order (the Rust side imports it with that unit's
 // importer), except that an edge curve which is not an SmBSplineCurve is exported as
 // none and the curve type of every edge follows the graph. They read raw members
@@ -528,7 +528,16 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_list(o, v);
     }
     for (SmFace* p : g.faces)
+    {
         put_surface(o, p->GetSurface());
+        SmExtent2d d = p->GetUVDomain();
+        o.push_back(d.GetMin().x);
+        o.push_back(d.GetMin().y);
+        o.push_back(d.GetMax().x);
+        o.push_back(d.GetMax().y);
+        o.push_back((double)p->GetTolerance());
+        o.push_back(p->GetSurface() ? (double)p->GetSurface()->GetType() : -1.0);
+    }
     for (SmLoopuse* p : g.loopuses)
     {
         o.push_back((double)g.find(2, p->GetOwner()));
@@ -594,6 +603,7 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
     }
+    o.push_back((double)brep->GetTolerance());
     // the curve type of every edge (-1 none), after the graph
     for (SmEdge* p : g.edges)
         o.push_back(p->GetCurve() ? (double)p->GetCurve()->GetType() : -1.0);
