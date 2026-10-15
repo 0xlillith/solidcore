@@ -2,13 +2,13 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**166 / 261 units ported** (92 green, 74 partial), **223,202 / 387,903 upstream lines (57.5%)**. 19 claimed, 0 blocked, 76 todo.
+**166 / 261 units ported** (92 green, 74 partial), **223,202 / 387,903 upstream lines (57.5%)**. 20 claimed, 0 blocked, 75 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-- [ ] ▶️ `topology.proto_topology_p2` (2091 lines) — ready
+_None right now; see the next section._
 
 ## Claimable now, dependencies still missing
 
@@ -109,6 +109,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.topology_traverser` (784 lines) — in progress: #113 @damgru (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
+- [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (draft)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
@@ -299,7 +300,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.brep_p2` (2443 lines) — waiting
 - [ ] ⏳ `topology.brep_p5` (2193 lines) — waiting
 - [ ] ⏳ `topology.brep_p3` (2503 lines) — waiting
-- [ ] ▶️ `topology.proto_topology_p2` (2091 lines) — ready
+- [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (draft)
 - [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
 
 ### intersect (14/25)
