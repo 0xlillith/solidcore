@@ -61,7 +61,7 @@
 //!   record; the `SmTopology::Notify` step runs on the caller's topology records as
 //!   [`topo::notify`] does.
 //! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`),
-//!   `SmLoopuse::GetOrientation` (`topology.loopuse`), `SmSurface::LocalPointSolve` /
+//!   `SmSurface::LocalPointSolve` /
 //!   `IsSingularity` (`surface.surface_p5`), `GlobalPointSolve` / `IsOnSeam`
 //!   (`surface.surface_p4`; a plane's overrides are ported), `GetSingularities`
 //!   (`surface.surface_p3`) and the gap evaluation of `SmVertexEdgeGap::Set` /
@@ -721,13 +721,9 @@ fn face_tolerance(b: &Brep, f: FaceId) -> Result<f64> {
     crate::topology::face::p2::tolerance(b, f)
 }
 
-/// `pLoopuse->GetOrientation()`.
-fn loopuse_orientation(_b: &Brep, _lu: LoopuseId) -> Result<OrientType> {
-    // UNPORTED(topology.loopuse): SmLoopuse::GetOrientation
-    Err(SolidError::unported(
-        "SmLoopuse::GetOrientation",
-        "topology.loopuse",
-    ))
+/// `pLoopuse->GetOrientation()` (unit `topology.loopuse`).
+fn loopuse_orientation(b: &Brep, lu: LoopuseId) -> Result<OrientType> {
+    crate::topology::loopuse::orientation(b, lu)
 }
 
 /// `pEdgeuse->NormalizedEvaluate(t, TRUE, rUVPnt, &rUVTan, bOKToMakeUVTrimCurve)`: the
