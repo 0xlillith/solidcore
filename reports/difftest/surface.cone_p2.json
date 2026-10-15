@@ -15747,6 +15747,1574 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#0 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#1 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#2 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#3 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#4 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#5 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#6 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_0_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#7 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#8 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#9 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#10 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#11 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#12 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#13 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#14 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1e-07_horizontal_0_0_0_15_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#15 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#16 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#17 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#18 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#19 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#20 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#21 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#22 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_0_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#23 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#24 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#25 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#26 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#27 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#28 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#29 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#30 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_0.001_horizontal_0_0_0_15_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#31 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#32 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#33 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#34 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#35 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#36 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#37 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#38 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_0_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#39 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#40 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#41 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#42 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#43 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#44 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#45 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#46 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1.0_horizontal_0_0_0_15_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#47 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#48 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#49 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#50 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#51 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#52 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#53 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#54 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_0_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#55 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#56 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#57 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#58 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#59 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#60 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#61 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#62 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000.0_horizontal_0_0_0_15_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#63 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#64 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#65 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#66 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#67 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#68 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#69 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#70 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_0_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#71 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#72 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#73 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#74 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.3_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#75 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.5_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#76 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_0.5_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#77 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_1.0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#78 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_scaled_1000000.0_horizontal_0_0_0_15_1.0_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-scaled-trims.json#79 (upstream SmCone.cpp:5282 sm_GetEllipseTrimIntervals; PR #71 trim scale review)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#0 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#1 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#2 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#3 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#4 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#5 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#6 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#7 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#8 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#9 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#10 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#11 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#12 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#13 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#14 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#15 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#16 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#17 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#18 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-0.5_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#19 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#20 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#21 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#22 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#23 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#24 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#25 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#26 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#27 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#28 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#29 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#30 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#31 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#32 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#33 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#34 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#35 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#36 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#37 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#38 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_-1e-12_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#39 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#40 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#41 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#42 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#43 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#44 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#45 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#46 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#47 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#48 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#49 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#50 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#51 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#52 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#53 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#54 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_1e-12_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#55 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#56 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#57 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#58 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#59 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#60 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#61 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#62 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#63 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#64 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#65 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#66 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#67 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#68 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#69 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#70 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#71 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#72 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#73 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#74 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_2.0_0.5_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#75 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#76 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#77 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#78 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#79 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#80 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#81 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#82 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 138
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#83 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#84 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#85 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#86 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#87 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#88 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#89 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#90 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#91 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#92 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 138
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#93 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#94 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_-0.5_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#95 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#96 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#97 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#98 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#99 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#100 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#101 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#102 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#103 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#104 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_0_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#105 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_0_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#106 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_0_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#107 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_0_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#108 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_0_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#109 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_0_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#110 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_1_recognize_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#111 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_1_rebuild_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#112 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_1_offset_-1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#113 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_1_offset_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#114 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_unbounded_1e-09_0.5_1_1_offset_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/review-unbounded-regressions.json#115 (upstream SmCone.cpp:2251 GetHeight, 4730 RebuildSTEPFromNURBParameters virtual EvaluatePoint; PR #71 review 5526926792)",
+      "values_compared": 140
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "offset_0_2_1_0_0_0_-4.0_approx_tol_-1e-07",
       "outcome": "pass",
       "pass": true,
@@ -27125,8 +28693,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 3390,
-  "cases_total": 3390,
+  "cases_passed": 3586,
+  "cases_total": 3586,
   "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,

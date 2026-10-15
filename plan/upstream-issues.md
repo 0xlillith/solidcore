@@ -714,7 +714,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Surfaces and volumes
 
-#### UB-99. Cone offset dereferences a failed truncation factory
+#### UB-101. Cone offset dereferences a failed truncation factory
 - **Location:** `SmCone.cpp:623-645`, `SmCone::CreateOffsetSurface`.
 - **What happens:** The apex-truncation branch ignores CreateCanonical's status and dereferences pOffCone even when the factory returns NULL.
 - **Trigger:** A near-collapse inward offset of a bounded cone (bottom radius 1, top radius 2, height 4, zero tolerance); the fixture advances the collapse distance by four floating-point successors.
@@ -1644,7 +1644,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Faithful (evaluates the unclamped parameters).
 
-#### WR-81. Apex-truncated cone offsets discard the angular trim
+#### WR-83. Apex-truncated cone offsets discard the angular trim
 - **Location:** `SmCone.cpp:623-661`, `SmCone::CreateOffsetSurface`.
 - **What happens:** The canonical truncation factory creates a full 0..360-degree cone; the input angular interval is never reapplied despite the nearby preservation assertion.
 - **Trigger:** Cone bottom radius 2, top radius 1, height 4, angular interval 20..250 degrees, offset -1.5 and tolerance 1e-7.

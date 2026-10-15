@@ -3884,19 +3884,19 @@ native offset call, and the linear-axis guard follows UV swapping. Four initiall
 mislabeled collapsed-angular fixtures collapsed the linear axis after swapping;
 the preflight correctly rejected the unset line-plane parameter. Their domains
 were transposed to collapse the actual angular axis, retaining all cases and the
-fixed tolerance. See upstream-issues UB-99 and WR-81.
+fixed tolerance. See upstream-issues UB-101 and WR-83.
 
-Final verification on official main 4b9da2c5: cone part 2 compares all 3,390 cases
-with exact numeric agreement, zero failures/deferrals and no absolute floors.
-All six affected reports match the complete run byte for byte; perturbation
-detects every compared case. The full suite covers exactly the 147 green/partial
-plan units (90 green, 57 partial), with zero failures. Strict plain/C++ workspace
-Clippy, formatting, workspace tests (1,003 kernel tests and 10 harness tests),
-19 native FFI tests, wasm and license/source checks pass. The inversion helper
-returns status and the actual optional classification together; it does not use
-an output argument or invent unset UV values. Issue #76 remains the explicit
-shared-dispatch follow-up, and no external SSI corpus is used.
-
+Final review verification includes official main 881c913c (its delta from
+8d9d4042 is documentation and the generated checklist only). Cone part 2 compares
+all 3,586 cases exactly, with zero failures/deferrals and no absolute floors.
+All six affected reports reproduce byte for byte in the full run; perturbation
+detects every compared case. The full suite covers 151 plan units (90 green,
+61 partial), with zero failures. Formatting, strict plain/C++ workspace Clippy,
+1,030 kernel tests, 21 plain harness tests, 89 C++ harness tests plus three harness integration
+tests, 19 native FFI tests, wasm and license/source checks pass. Twelve explicitly
+ignored harness debugging aids are not part of the certification cases.
+The inversion helper retains actual optional classification writes. Issue #76
+remains the shared-dispatch follow-up; no external SSI corpus is fetched or run.
 ## surface.cone_p2: review regressions and native default points (PR #71)
 
 Maintainer review 5526926792 found unbounded-cone disagreements beyond the
@@ -3919,7 +3919,7 @@ Offset truncation dispatches through the cone/revolution reparameterizer.
 
 The matrix contains 116 defined differential cases and 44 native guard inputs:
 40 cannot construct the required NURB and four reach the already documented
-NULL truncation factory (UB-99). All 160 inputs are retained. The latter 44 live
+NULL truncation factory (UB-101). All 160 inputs are retained. The latter 44 live
 in fixtures/ffi.surface_cone_p2 and are executable harness guard regressions,
 separate from differential certification; they are neither passed geometry cases
 nor dependency deferrals. The guard test must fail if native setup/NULL-factory
@@ -3929,7 +3929,7 @@ under ~/.config/solidcore/cone-review-baseline and cone-review-fixed.
 The trim API accepts an Ellipse whose frame has already normalized its axes.
 The upstream free helper accepts raw axes; this limitation is explicit in the
 Rust file's Deviations. Scaled trim fixtures exercise 1e-7 through 1e6 without
-changing comparison tolerances. Final counts and complete gates are pending.
+changing comparison tolerances. All 3,586 defined comparisons and the separate 44-input guard test pass. The complete 151-unit run has zero failures; affected reports match it byte for byte. UB-101 / WR-83 avoid both merged and pending contributions' issue numbers.
 
 ## intersect.surface_intersector_p5 (`SmSurfaceIntersector::DoIntersection`, 2026-10-14; partial, no disagreements)
 

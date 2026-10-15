@@ -899,21 +899,25 @@ the full-validation reports byte for byte.
 
 ## Cone recognition, rebuilding and offsets (2026-10-15, PR #71)
 
-`surface.cone_p2` is green: all 3,390 native comparisons pass, with exact numeric
-agreement, zero failures/deferrals and no absolute floors. Coverage includes
-cached/lazy and bounded/unbounded cones and real cylinders, rigid poses,
-1e-7/1/1e6 scales, trims/apices, UV swaps, tolerance conversion, non-cone NURBs
-and fixed-seed generated cases. Four native adapter regressions pass.
+`surface.cone_p2` is green: all 3,586 native comparisons pass exactly, with zero
+failures/deferrals and no absolute floors. Review regressions cover analytic
+virtual rebuild evaluation, initialized UNDEF points after ignored height errors,
+near-cylinder/tiny-radius unbounded cones, and virtual offset reparameterization.
+The 160 exploratory inputs are retained as 116 defined differential cases and
+44 separately tested native setup/NULL-factory rejections. Another 80 trim cases
+cover scales 1e-7..1e6. Existing cached/lazy, rigid-pose, UV-swap, cylinder, apex,
+non-cone NURB and generated coverage remains.
 
-The six affected default reports match the complete verification byte for byte:
-cone p1 20,694/20,694; revolution p2 1,099/1,167 (68 deferred); B-spline surface
-p2 749/763 (14); Surface p2 808/869 (61); curve-bounded surface 469/535 (66).
-Perturbation detects every compared case. Existing deferrals remain explicit;
-the Kernel-aware analytic Surface dispatch is coordinated separately in #76.
+The six affected reports match the complete run byte for byte: cone p1
+20,694/20,694; revolution p2 1,099/1,167 (68 deferred); B-spline surface p2
+749/763 (14); Surface p2 808/869 (61); curve-bounded surface 469/535 (66).
+Perturbation detects every compared case. Deferrals identify actual dependencies;
+Kernel-aware analytic Surface dispatch remains coordinated in #76.
 
-Final local verification includes official main 4b9da2c5: formatting, strict
-plain/C++ workspace Clippy, workspace tests (1,003 kernel tests and 10 harness
-tests), 19 native FFI tests, wasm and license/source checks all pass. Full
-differential verification covers exactly 147 plan units: 90 green, 57 partial,
-zero failed. See findings and upstream-issues UB-98/WR-73 for scope and native
-defects. SSI work remains deferred under issue #17; no external corpus is used.
+Final review verification includes official main 881c913c (documentation/checklist
+changes only after the 8d9d4042 code baseline). Formatting, strict plain/C++
+workspace Clippy, 1,030 kernel tests, 21 plain harness tests, 89 C++ harness tests
+plus three harness integration tests, 19 native FFI tests, wasm and license/source checks pass.
+The full differential suite covers 151 units: 90 green, 61 partial, zero failed.
+See findings and upstream-issues UB-101/WR-83. SSI work remains deferred under
+issue #17; no external corpus is fetched or run.
