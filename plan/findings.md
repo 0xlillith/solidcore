@@ -4564,11 +4564,11 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   upstream, then stubs the `SmPrimitiveCreation` sweep it wraps
   (`primitive.primitive_creation_p2` / `_p3`); the compared cases are the API-level
   rejections and copy failures.
-- **Kernel crashes fenced off by the FFI** (`plan/upstream-issues.md`): UB-107 (`Draft`
-  with no curves), UB-108 (`Draft` / `Taper` on a profile curve below about
+- **Kernel crashes fenced off by the FFI** (`plan/upstream-issues.md`): UB-111 (`Draft`
+  with no curves), UB-112 (`Draft` / `Taper` on a profile curve below about
   `2 * SM_ZONE_TOL_3D`), HANG-13 (negative-distance linear sweep of a full circle),
-  UB-109 (`PlanarPath` with a Hermite curve in either list: the failed profile `Copy`
-  and the unchecked `SmBSplineCurve*` cast), UB-110 (`CurveSweep` whose profile holds no
+  UB-113 (`PlanarPath` with a Hermite curve in either list: the failed profile `Copy`
+  and the unchecked `SmBSplineCurve*` cast), UB-114 (`CurveSweep` whose profile holds no
   B-spline curve reads `sNurbs[0]` of an empty list unless `bMoveProfileCenterToPath`).
   Each guard fires only where the kernel is reached: a list holding a `Null` or
   `Hermite` curve fails in `SmApiCopyCurvesForConsumingSweep` first, and a capped
@@ -4788,3 +4788,28 @@ mutated scales and accepted/reduced step counts are compared.
   `surface::surface::p4` (`GlobalPointSolve` on a face-owned surface), `intersect::ray_tracer` and `intersect::topology_solver::p1` call `PointClassify` on opaque
   face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
   reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.
+
+## query.api_queries
+
+- **Native missing-curve crashes (2026-10-16, PR #125).** Clearing an edge's
+  curve with `SetCurve(nullptr, TRUE, FALSE, FALSE)` leaves topology that several
+  public queries dereference. The review identified closest B-rep queries,
+  B-rep relationship/distance, edge/face picking and edge closest point. An
+  additional 220 isolated native probes (line/B-spline wires, boxes, a face with
+  vertex loops and a holed face; both box modes) confirmed crashes in face closest
+  point on boxes and in interior-point/classification/closest-point paths on the
+  latter faces. Extending the probes to 308 inputs also found tight B-rep/face
+  bounding-box crashes on the curved quadratic patch. These are native SIGSEGVs,
+  not Rust/C++ numerical disagreements.
+  The FFI rejects those missing-curve combinations before construction; native
+  null-input checks and the defined missing-curve edge queries remain testable.
+  After the guards were expanded, 396 isolated probes over nine construction kinds
+  and both box modes completed without a crash or timeout (192 rejected by guards,
+  204 native calls completed).
+- **Solution point extraction.** The query adapter follows `SmSolution::GetPoint`'s
+  zero parameter advance for a preceding Surface (Face advances by two), and its
+  ignored ordinary evaluation failures leave the point undefined. Unported
+  geometry still propagates. Two core regression tests cover both behaviors.
+- **Null-pointer coverage.** Typed Rust APIs cannot receive native null pointers.
+  The 25 native null contracts are FFI tests, not differential passes with a
+  synthesized Rust status.
