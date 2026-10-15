@@ -15,7 +15,8 @@
 //! returns zero on numerical failure. Unported callees still propagate. Algorithm
 //! selection is ignored upstream. Disabled Romberg/Simpson and Bulirsch–Stoer paths
 //! are not exposed. No recursion; dimensions are bounded at 4096, steps at 1,000,000,
-//! and rejected step retries at 1024 to bound malformed/non-finite caller input.
+//! and rejected step retries at 1024 to bound malformed caller input. Infinite error
+//! scales/accuracy and unused initial values retain their upstream behavior.
 
 use crate::geom::tol::are_same;
 use crate::math::{EFF_ZERO, EFF_ZERO_SQ};
@@ -113,16 +114,17 @@ impl OdeIntegrator {
     where
         F: FnMut(f64, &[f64], &mut [f64]) -> Result<()>,
     {
-        validate(initial)?;
-        if ![
-            x1,
-            x2,
-            options.accuracy,
-            options.initial_step,
-            options.minimum_step,
-        ]
-        .iter()
-        .all(|v| v.is_finite())
+        // Upstream never reads initial values unless it returns before integrating.
+        if initial.len() > MAX_COMPONENTS {
+            return Err(SolidError::invalid_input(OP, "too many components"));
+        }
+        if are_same(x1, x2) || are_same(options.initial_step, EFF_ZERO) {
+            return Ok(StepCounts::default());
+        }
+        if ![x1, x2, options.initial_step, options.minimum_step]
+            .iter()
+            .all(|v| v.is_finite())
+            || options.accuracy.is_nan()
         {
             return Err(SolidError::invalid_input(
                 OP,
@@ -130,13 +132,10 @@ impl OdeIntegrator {
             ));
         }
         if let Some(scale) = options.scale {
-            validate(scale)?;
+            validate_scale(scale)?;
             if scale.len() != initial.len() {
                 return Err(SolidError::invalid_input(OP, "scale dimension mismatch"));
             }
-        }
-        if are_same(x1, x2) || are_same(options.initial_step, EFF_ZERO) {
-            return Ok(StepCounts::default());
         }
         let mut y = vec![0.0; initial.len()];
         let mut dydx = y.clone();
@@ -198,10 +197,11 @@ impl OdeIntegrator {
     {
         validate(y)?;
         validate(dydx)?;
-        validate(scale)?;
+        validate_scale(scale)?;
         if y.len() != dydx.len()
             || y.len() != scale.len()
-            || ![x, htry, accuracy].iter().all(|v| v.is_finite())
+            || ![x, htry].iter().all(|v| v.is_finite())
+            || accuracy.is_nan()
         {
             return Err(SolidError::invalid_input(
                 OP,
@@ -262,6 +262,13 @@ fn finite(values: &[f64]) -> Result<()> {
         Err(SolidError::sm_err(OP))
     }
 }
+fn validate_scale(scale: &[f64]) -> Result<()> {
+    if scale.len() > MAX_COMPONENTS || scale.iter().any(|v| v.is_nan()) {
+        return Err(SolidError::invalid_input(OP, "invalid error scale"));
+    }
+    Ok(())
+}
+
 fn validate(values: &[f64]) -> Result<()> {
     if values.len() > MAX_COMPONENTS {
         return Err(SolidError::invalid_input(OP, "too many components"));
@@ -376,9 +383,56 @@ where
     }
 }
 
+/// Precise geometric and mass properties built on the integrator.
+pub mod properties;
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn unused_initial_and_infinite_controls_follow_upstream() {
+        let integrator = OdeIntegrator::default();
+        for (accuracy, scale) in [(1e-6, f64::INFINITY), (f64::INFINITY, 1.0)] {
+            let mut y = [f64::NAN];
+            integrator
+                .integrate(
+                    &mut y,
+                    0.0,
+                    1.0,
+                    OdeOptions {
+                        accuracy,
+                        initial_step: 0.1,
+                        minimum_step: 0.0,
+                        scale: Some(&[scale]),
+                    },
+                    |_, _, dy| {
+                        dy[0] = 1.0;
+                        Ok(())
+                    },
+                )
+                .unwrap();
+            assert!((y[0] - 1.0).abs() < 1e-14);
+        }
+        let mut y = [f64::INFINITY];
+        assert_eq!(
+            integrator
+                .integrate(
+                    &mut y,
+                    2.0,
+                    2.0,
+                    OdeOptions {
+                        accuracy: f64::NAN,
+                        initial_step: f64::NAN,
+                        minimum_step: f64::NAN,
+                        scale: Some(&[f64::NAN]),
+                    },
+                    |_, _, _| panic!("early return must not evaluate")
+                )
+                .unwrap(),
+            StepCounts::default()
+        );
+        assert_eq!(y, [f64::INFINITY]);
+    }
     #[test]
     fn safety_and_upstream_quirks() {
         let mut y = [7.0];
@@ -426,6 +480,3 @@ mod tests {
         );
     }
 }
-
-/// Precise geometric and mass properties built on the integrator.
-pub mod properties;

@@ -2063,7 +2063,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ### Numerical integration
 
-#### WR-91. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero
+#### WR-94. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero
 - **Location:** `SmIntegrator.cpp:108-122`, `SmIntegrator::IntegrateIt`.
 - **What happens:** If `RungeKuttaODEIntegrate` fails, the scalar wrapper sets its
   result to `0.0` and returns `SM_SUCCESS`. A failed numerical integral is therefore

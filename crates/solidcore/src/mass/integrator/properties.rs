@@ -284,6 +284,15 @@ pub fn boundary_properties(
                         scale: Some(&scale),
                     },
                     |t, _, dy| {
+                        // A zero U tangent leaves the caller's derivative array
+                        // untouched upstream. Preserve this particular stage's
+                        // values, rather than another stage's shared scratch.
+                        if let Some(unused) = scratch.first_mut() {
+                            *unused = 0.0;
+                        }
+                        for (s, d) in scratch.iter_mut().skip(1).zip(dy.iter()) {
+                            *s = *d;
+                        }
                         eval.evaluate(t, &mut scratch)?;
                         for (d, v) in dy.iter_mut().zip(scratch.iter().skip(1)) {
                             *d = *v;

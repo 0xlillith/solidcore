@@ -92,10 +92,13 @@ SC_EXPORT int32_t sc_mass_integrator_eval(int32_t op, int32_t kind, const double
 #include <SmFace.h>
 #include <SmLine.h>
 #include <SmPlane.h>
+#include <SmCircle.h>
+#include <SmBSplineSurface.h>
 #include <SmBSplineCurve.h>
 #include <SmContext.h>
 #include <SmApiQueries.h>
 #include <SmNurbsCrv.h>
+#include <SmNurbsSrf.h>
 #include <nurbs.h>
 #include <memory>
 
@@ -138,24 +141,57 @@ SC_EXPORT int32_t sc_mass_integrator_edge(int32_t op,int32_t kind,const double* 
 
 // p: plane origin[3], UV scales[2], UV domain[4], computation origin[3], accuracy,
 // thickness, orientation (0 SAME, 1 OPPOSITE), property flags.
-// op 0 properties, 1 export actual oriented trims, 2 API area, 3 API centroid,
-// 4 API Brep area, 5 API Brep volume, 6 API Brep mass properties (sheet rejection).
-SC_EXPORT int32_t sc_mass_integrator_face(int32_t op,const double* p,double* out,int64_t cap,int64_t* len){
-    if(op<0||op>6)return SC_ERR_ARG;
+// kind 0 rectangle, 1 disk, 2 annulus, 3 quadratic B-spline patch, 4 rotated plane.
+// op 0 properties, 1 export input UV domain/bbox scale/oriented trims, 2 API area, 3 API centroid,
+// 4 API Brep area, 5 API Brep volume, 6 API Brep mass properties (sheet rejection), 7 Surface::Area.
+SC_EXPORT int32_t sc_mass_integrator_face(int32_t op,int32_t kind,const double* p,double* out,int64_t cap,int64_t* len){
+    if(op<0||op>7||kind<0||kind>4)return SC_ERR_ARG;
     SC_TRY
     SmContext ctx;
     std::unique_ptr<SmBrep> brep(new(ctx)SmBrep());
     SmExtent2d dom(SmPoint2d(p[5],p[6]),SmPoint2d(p[7],p[8]));
-    SmPlane* plane=new(ctx)SmPlane(SmPoint3d(p[0],p[1],p[2]),SmVector3d(1,0,0),SmVector3d(0,1,0),SmVector2d(p[3],p[4]),dom,&ctx);
+    SmVector3d xaxis=kind==4?SmVector3d(.6,.8,0):SmVector3d(1,0,0);
+    SmVector3d yaxis=kind==4?SmVector3d(-.8,.6,0):SmVector3d(0,1,0);
+    SmSurface* surface=nullptr;
+    if(kind==3){
+        gw_SURFACE* s=sm_AllocateNurbSurface(2,2,2,2,5,5);
+        for(int i=0;i<3;++i)for(int j=0;j<3;++j){
+            s->net->Pw[i][j].x=p[0]+i*.5*p[3];
+            s->net->Pw[i][j].y=p[1]+j*.5*p[4];
+            s->net->Pw[i][j].z=p[2]+(i==1&&j==1?2.0:0.0);
+            s->net->Pw[i][j].w=1.0;
+        }
+        for(int i=0;i<6;++i){s->knu->U[i]=i<3?0:1;s->knv->U[i]=i<3?0:1;}
+        surface=new(ctx)SmBSplineSurface(s,FALSE,NULL);
+    }else surface=new(ctx)SmPlane(SmPoint3d(p[0],p[1],p[2]),xaxis,yaxis,SmVector2d(p[3],p[4]),dom,&ctx);
     SmFace* face=nullptr;
-    SmStatus st=brep->CreateFaceFromSurface(plane,dom,face);
+    SmStatus st;
+    if(kind==1||kind==2){
+        SmTArray<ULONG> loops;SmTArray<SmCurve*> curves;SmTArray<SmOrientType> orientations;
+        for(int i=0;i<(kind==2?2:1);++i){
+            loops.Add(1);orientations.Add(i==0?SM_OT_SAME:SM_OT_OPPOSITE);
+            curves.Add(new(ctx)SmCircle(SmPoint3d(p[0],p[1],p[2]),xaxis,yaxis,SmExtent1d(0,360),i==0?.5:.2,3,&ctx));
+        }
+        SmShell* shell=nullptr;SmTArray<SmFace*> faces;
+        st=brep->CreateFacesWithCurves(NULL,loops,&curves,orientations,surface,shell,faces);
+        if(st==SM_SUCCESS&&faces.GetSize()==1)face=faces[0];else if(st==SM_SUCCESS)st=SM_ERR;
+    }else st=brep->CreateFaceFromSurface(surface,dom,face);
     std::vector<double> result;
     if(st!=SM_SUCCESS){result.push_back(st==SM_SUCCESS?0.0:(double)st);return sc_copy_out(result.data(),result.size(),out,cap,len);}
     if(op==1){
         SmTArray<ULONG> loops;SmTArray<SmBSplineCurve*> curves;
+        // Match op 0's order: estimate the scale before creating oriented trims.
+        SmExtent3d bbox;face->CalculateBoundingBox(bbox);SmVector3d size=bbox.GetSize();
+        double d=smos_Max(size.z,smos_Max(size.x,size.y));
         st=face->CreateOrientedTrimBoundary(ctx,TRUE,TRUE,loops,curves);
         result.push_back(st==SM_SUCCESS?0.0:(double)st);
-        if(st==SM_SUCCESS){result.push_back(curves.GetSize());for(ULONG i=0;i<curves.GetSize();++i){gw_CURVE* c=curves[i]->GetGwNurbPointer();result.push_back(c->pol->n);result.push_back(c->p);result.push_back(c->knt->m);
+        if(st==SM_SUCCESS){
+            // Export integration inputs only: actual UV domain and bbox-derived scale.
+            result.push_back(d*d/100.0);
+            SmExtent2d domain=face->GetUVDomain();
+            result.push_back(domain.GetMin().x);result.push_back(domain.GetMin().y);
+            result.push_back(domain.GetMax().x);result.push_back(domain.GetMax().y);
+            result.push_back(curves.GetSize());for(ULONG i=0;i<curves.GetSize();++i){gw_CURVE* c=curves[i]->GetGwNurbPointer();result.push_back(c->pol->n);result.push_back(c->p);result.push_back(c->knt->m);
             for(gw_INDEX j=0;j<=c->pol->n;++j){result.push_back(c->pol->Pw[j].x);result.push_back(c->pol->Pw[j].y);result.push_back(c->pol->Pw[j].z);result.push_back(c->pol->Pw[j].w);}
             for(gw_INDEX j=0;j<=c->knt->m;++j)result.push_back(c->knt->U[j]);}}
         for(ULONG i=0;i<curves.GetSize();++i)delete curves[i];
@@ -164,6 +200,7 @@ SC_EXPORT int32_t sc_mass_integrator_face(int32_t op,const double* p,double* out
         SmPoint3d origin(p[9],p[10],p[11]);
         if(op==0){SmExtent3d bbox;face->CalculateBoundingBox(bbox);SmVector3d s=bbox.GetSize();double d=smos_Max(s.z,smos_Max(s.x,s.y));
             st=face->ComputePreciseProperties(p[14]==0?SM_OT_SAME:SM_OT_OPPOSITE,p[12],origin,d*d/100.0,p[13],area,volume,moments,(ULONG)p[15]);}
+        if(op==7)st=face->GetSurface()->Area(dom,p[12],area);
         if(op==2)st=SmApiFaceComputeArea(face,p[12],area);
         if(op==3)st=SmApiFaceComputeCentroid(face,p[12],area,centroid);
         if(op==4)st=SmApiBrepComputeArea(brep.get(),p[12],area);

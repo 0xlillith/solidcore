@@ -35,6 +35,7 @@ pub fn eval(
     max_steps: u32,
 ) -> Result<Vec<f64>, FfiError> {
     let n = initial.len();
+    let early = op == 1 && controls[0] == controls[1];
     if !(0..=2).contains(&op)
         || !(0..=3).contains(&kind)
         || n > 4096
@@ -43,12 +44,17 @@ pub fn eval(
         || (op == 0 && n != 1)
         || (op == 2 && scale.len() != n)
         || max_steps > 1_000_000
-        || !coefficients
-            .iter()
-            .chain(initial)
-            .chain(scale)
-            .chain(controls)
-            .all(|v| v.is_finite())
+        || (!early
+            && (!coefficients.iter().all(|v| v.is_finite())
+                || (op == 2 && !initial.iter().all(|v| v.is_finite()))
+                || scale.iter().any(|v| v.is_nan())
+                || controls.iter().enumerate().any(|(i, v)| {
+                    if i == 2 {
+                        v.is_nan()
+                    } else {
+                        !v.is_finite()
+                    }
+                })))
     {
         return Err(FfiError::InvalidArgument(
             "integrator dimensions/controls".into(),
@@ -90,6 +96,7 @@ mod geometry_sys {
         ) -> i32;
         pub fn sc_mass_integrator_face(
             op: i32,
+            kind: i32,
             p: *const f64,
             out: *mut f64,
             cap: i64,
@@ -140,14 +147,20 @@ pub fn edge(
         }
     })
 }
-/// Precise plane-face properties (0), actual oriented trim export (1), API area
-/// (2), centroid (3), B-rep area (4), volume (5), mass properties (6).
+/// Face kinds: rectangular plane (0), disk (1), annulus (2), quadratic B-spline
+/// patch (3), rotated plane (4). Disk radii are 0.5 and 0.2.
+/// Precise face properties (0), actual oriented trim export (1), API area
+/// (2), centroid (3), B-rep area (4), volume (5), mass properties (6), rectangular surface area (7).
 /// Input: plane origin xyz, UV scales, domain u0 v0 u1 v1, computation origin xyz,
 /// accuracy, thickness, orientation (0 same, 1 opposite), precise-property flags.
-pub fn face(op: i32, p: &[f64; 16]) -> Result<Vec<f64>, FfiError> {
+pub fn face(op: i32, kind: i32, p: &[f64; 16]) -> Result<Vec<f64>, FfiError> {
     let [_, _, _, sx, sy, u0, v0, u1, v1, _, _, _, _, _, orientation, flags] = *p;
-    if !(0..=6).contains(&op)
+    if !(0..=7).contains(&op)
+        || !(0..=4).contains(&kind)
         || !p.iter().all(|v| v.is_finite())
+        || ((kind == 1 || kind == 2)
+            && (sx != 1.0 || sy != 1.0 || u0 > -0.5 || v0 > -0.5 || u1 < 0.5 || v1 < 0.5))
+        || (kind == 3 && (u0 < 0.0 || v0 < 0.0 || u1 > 1.0 || v1 > 1.0))
         || sx <= 0.0
         || sy <= 0.0
         || u0 >= u1
@@ -163,6 +176,7 @@ pub fn face(op: i32, p: &[f64; 16]) -> Result<Vec<f64>, FfiError> {
         unsafe {
             geometry_sys::sc_mass_integrator_face(
                 op,
+                kind,
                 p.as_ptr(),
                 out.as_mut_ptr(),
                 out.len() as i64,

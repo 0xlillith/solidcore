@@ -180,6 +180,7 @@ impl UnitDiff for Runner {
                 }
             } else {
                 Geometry::Face {
+                    kind: 0,
                     parameters: [
                         rng.uniform(-3.0, 3.0),
                         rng.uniform(-3.0, 3.0),
@@ -267,6 +268,8 @@ enum Geometry {
         query: i32,
     },
     Face {
+        #[serde(default)]
+        kind: i32,
         parameters: [f64; 16],
         query: i32,
     },
@@ -280,7 +283,11 @@ fn geometry_cpp(g: &Geometry) -> Result<Output, HarnessError> {
             controls,
             query,
         } => ffi::edge(*query, *kind, p, weights, controls),
-        Geometry::Face { parameters, query } => ffi::face(*query, parameters),
+        Geometry::Face {
+            kind,
+            parameters,
+            query,
+        } => ffi::face(*query, *kind, parameters),
     };
     result
         .map(output)
@@ -360,11 +367,12 @@ fn geometry_rust(g: &Geometry) -> Output {
                 Ok(out)
             }
             Geometry::Face {
+                kind,
                 parameters: p,
                 query,
             } => {
                 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
-                if *query != 0 {
+                if *query != 0 && *query != 7 {
                     let store = solidcore::geom::attribute::AttributeStore::default();
                     let attrs = props::PropertyAttributes {
                         store: &store,
@@ -401,11 +409,24 @@ fn geometry_rust(g: &Geometry) -> Output {
                 }
                 // Import only input geometry: C++ constructs and exports its actual
                 // oriented trims. Both sides then integrate those same boundaries.
-                let raw = ffi::face(1, p).map_err(|_| SolidError::sm_err("trim export"))?;
+                let raw = ffi::face(1, *kind, p).map_err(|_| SolidError::sm_err("trim export"))?;
                 let mut it = raw.into_iter();
                 if it.next() != Some(0.0) {
                     return Err(SolidError::sm_err("trim construction"));
                 }
+                let estimated_area = it.next().ok_or_else(|| SolidError::sm_err("bbox export"))?;
+                let u0 = it
+                    .next()
+                    .ok_or_else(|| SolidError::sm_err("domain export"))?;
+                let v0 = it
+                    .next()
+                    .ok_or_else(|| SolidError::sm_err("domain export"))?;
+                let u1 = it
+                    .next()
+                    .ok_or_else(|| SolidError::sm_err("domain export"))?;
+                let v1 = it
+                    .next()
+                    .ok_or_else(|| SolidError::sm_err("domain export"))?;
                 let n = it.next().unwrap_or(0.0) as usize;
                 let mut curves = Vec::new();
                 for _ in 0..n {
@@ -428,19 +449,73 @@ fn geometry_rust(g: &Geometry) -> Output {
                         2, n, m, degree, &cp, &knots,
                     )?));
                 }
-                let domain = Extent2d::from_points(Vec2::new(p[5], p[6]), Vec2::new(p[7], p[8]));
-                let surface = solidcore::surface::surface::Surface::from(
-                    solidcore::surface::plane::Plane::new(
-                        Vec3::new(p[0], p[1], p[2]),
-                        Vec3::X,
-                        Vec3::Y,
-                        Vec2::new(p[3], p[4]),
-                        &domain,
-                    ),
-                );
-                let size_x = (p[7] - p[5]) * p[3];
-                let size_y = (p[8] - p[6]) * p[4];
-                let size = size_x.max(size_y);
+                let domain = Extent2d::from_points(Vec2::new(u0, v0), Vec2::new(u1, v1));
+                let surface = if *kind == 3 {
+                    let cp: Vec<Vec<_>> = (0..3)
+                        .map(|i| {
+                            (0..3)
+                                .map(|j| {
+                                    CPoint::new(
+                                        p[0] + f64::from(i) * 0.5 * p[3],
+                                        p[1] + f64::from(j) * 0.5 * p[4],
+                                        p[2] + if i == 1 && j == 1 { 2.0 } else { 0.0 },
+                                        1.0,
+                                    )
+                                })
+                                .collect()
+                        })
+                        .collect();
+                    solidcore::surface::surface::Surface::from(
+                        solidcore::nurbs::b_spline_surface::BSplineSurface::from_data(
+                            2,
+                            2,
+                            2,
+                            2,
+                            5,
+                            5,
+                            &cp,
+                            &[0., 0., 0., 1., 1., 1.],
+                            &[0., 0., 0., 1., 1., 1.],
+                        )?,
+                    )
+                } else {
+                    solidcore::surface::surface::Surface::from(
+                        solidcore::surface::plane::Plane::new(
+                            Vec3::new(p[0], p[1], p[2]),
+                            if *kind == 4 {
+                                Vec3::new(0.6, 0.8, 0.0)
+                            } else {
+                                Vec3::X
+                            },
+                            if *kind == 4 {
+                                Vec3::new(-0.8, 0.6, 0.0)
+                            } else {
+                                Vec3::Y
+                            },
+                            Vec2::new(p[3], p[4]),
+                            &domain,
+                        ),
+                    )
+                };
+                if *query == 7 {
+                    let eval = solidcore::surface::surface::p1::AreaIntegrand {
+                        surface: &surface,
+                        uv_domain: domain,
+                        iso_curve_accuracy: p[12] / 100.0,
+                    };
+                    let area = integrate(
+                        domain.min().x,
+                        domain.max().x,
+                        IntegrationAlgorithm::Romberg,
+                        p[12],
+                        |t| eval.evaluate(t),
+                    )?;
+                    return Ok(if area == 0.0 {
+                        vec![1001.0]
+                    } else {
+                        vec![0.0, area]
+                    });
+                }
                 let properties = props::boundary_properties(
                     &surface,
                     &curves,
@@ -452,7 +527,7 @@ fn geometry_rust(g: &Geometry) -> Output {
                     },
                     p[12],
                     Vec3::new(p[9], p[10], p[11]),
-                    size * size / 100.0,
+                    estimated_area,
                     p[13],
                     p[15] as u64,
                 )?;
@@ -467,5 +542,61 @@ fn geometry_rust(g: &Geometry) -> Output {
     match result {
         Ok(v) => output(v),
         Err(e) => Output::unported(&e).unwrap_or_else(|| output(vec![status(&e)])),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nonfinite_values_unused_or_supported_by_upstream() {
+        for (accuracy, floor) in [(1e-6, f64::INFINITY), (f64::INFINITY, 1.0)] {
+            let controls = [0.0, 1.0, accuracy, 0.1, 0.0, 1e-24, 0.0];
+            let cpp = ffi::eval(
+                1,
+                0,
+                &[1.0, 0.0, 0.0, 0.0],
+                &[f64::NAN],
+                &[floor],
+                &controls,
+                10000,
+            )
+            .unwrap();
+            let mut y = [f64::NAN];
+            let count = OdeIntegrator::default()
+                .integrate(
+                    &mut y,
+                    0.0,
+                    1.0,
+                    OdeOptions {
+                        accuracy,
+                        initial_step: 0.1,
+                        minimum_step: 0.0,
+                        scale: Some(&[floor]),
+                    },
+                    |_, _, dy| {
+                        dy[0] = 1.0;
+                        Ok(())
+                    },
+                )
+                .unwrap();
+            assert_eq!(
+                cpp,
+                vec![0.0, y[0], f64::from(count.good), f64::from(count.reduced)]
+            );
+        }
+        let controls = [2.0, 2.0, f64::NAN, f64::NAN, f64::NAN, 1e-24, 0.0];
+        let cpp = ffi::eval(
+            1,
+            0,
+            &[f64::NAN; 4],
+            &[f64::INFINITY],
+            &[f64::NAN],
+            &controls,
+            10000,
+        )
+        .unwrap();
+        assert_eq!(cpp, vec![0.0, f64::INFINITY, 0.0, 0.0]);
     }
 }
