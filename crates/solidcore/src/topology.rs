@@ -332,6 +332,9 @@ pub struct Faceuse {
     pub orientation: OrientType,
     /// `m_pList`: the loop uses, outer loop use first.
     pub loopuses: Vec<LoopuseId>,
+    /// Literal sibling links when present, even if the owner has no list head.
+    /// `None` uses the owner's canonical face-use vector during construction.
+    pub sibling_links: Option<shell::FaceuseSiblingLinks>,
 }
 
 /// What a loop use starts from (`m_tLoopuseType` and `m_pEUorVU`).

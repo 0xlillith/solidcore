@@ -748,6 +748,7 @@ pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
             mate,
             orientation,
             loopuses,
+            sibling_links: None,
         });
     }
     let mut surfaces = Vec::new();
@@ -874,7 +875,7 @@ pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
         let tolerance = rd.num()?;
         vertices.push(Vertex { point, tolerance, vertexuses: Vec::new() });
     }
-    if rd.idx()? != 2 {
+    if rd.idx()? != 3 {
         return Err(harness("export: unsupported shell extension version"));
     }
     let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
@@ -898,6 +899,10 @@ pub(crate) fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
         vertex.vertexuses = rd.list()?.into_iter()
             .map(|v| opt(v, VertexuseId::from_index)?.ok_or_else(|| harness("null vertex use")))
             .collect::<Result<Vec<_>, _>>()?;
+    }
+    for faceuse in &mut faceuses {
+        faceuse.sibling_links = Some((opt(rd.idx()?, FaceuseId::from_index)?,
+            opt(rd.idx()?, FaceuseId::from_index)?));
     }
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));

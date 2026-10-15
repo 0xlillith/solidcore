@@ -98,3 +98,183 @@ SC_EXPORT int32_t sc_topology_shell_wire_edges(const char* path, const double* i
         });
     SC_CATCH
 }
+// Raw mutation snapshots: independent of shell operations being compared.
+#include <SmContext.h>
+#include <SmRegion.h>
+#include <SmEdgeuse.h>
+#include <SmVertexuse.h>
+#include <memory>
+#include <functional>
+
+namespace transfer_detail {
+struct NodePeek : SmTopology {
+    static SmOwningTopology* SmTopology::*owner() { return &NodePeek::m_pListOwner; }
+    static SmTopology* SmTopology::*next() { return &NodePeek::m_pNext; }
+    static SmTopology* SmTopology::*last() { return &NodePeek::m_pLast; }
+};
+struct OwnerPeek : SmOwningTopology {
+    static SmTopology* SmOwningTopology::*head() { return &OwnerPeek::m_pList; }
+    static ULONG SmOwningTopology::*size() { return &OwnerPeek::m_lListSize; }
+};
+struct ShellPeek : SmShell {
+    static SM_TYPE SmShell::*type() { return &ShellPeek::m_tShellType; }
+};
+struct EuPeek : SmEdgeuse {
+    static SmTopology* SmEdgeuse::*owner() { return &EuPeek::m_pSorLU; }
+};
+struct VuPeek : SmVertexuse {
+    static SmTopology* SmVertexuse::*owner() { return &VuPeek::m_pSorLUorEU; }
+};
+// Expose the real SmShell constructor, with its real context and region owner.
+struct EmptyShell : SmShell { EmptyShell() : SmShell() {} };
+
+struct Restore {
+    std::vector<std::function<void()>> actions;
+    Restore(const sc_topology_fixture::View& view, const std::vector<SmShell*>& shells) {
+        for (SmShell* p : shells) {
+            const auto type=p->*ShellPeek::type();
+            const auto head=p->*OwnerPeek::head();
+            const auto size=p->*OwnerPeek::size();
+            actions.push_back([p,type,head,size] {
+                p->*ShellPeek::type()=type;
+                p->*OwnerPeek::head()=head;
+                p->*OwnerPeek::size()=size;
+            });
+        }
+        for (SmFaceuse* p : view.faceuses) {
+            const auto owner=p->*NodePeek::owner();
+            const auto next=p->*NodePeek::next();
+            const auto last=p->*NodePeek::last();
+            actions.push_back([p,owner,next,last] {
+                p->*NodePeek::owner()=owner; p->*NodePeek::next()=next; p->*NodePeek::last()=last;
+            });
+        }
+        for (SmEdgeuse* p : view.edgeuses) {
+            const auto owner=p->*EuPeek::owner();
+            actions.push_back([p,owner] { p->*EuPeek::owner()=owner; });
+        }
+        for (SmVertexuse* p : view.vertexuses) {
+            const auto owner=p->*VuPeek::owner();
+            actions.push_back([p,owner] { p->*VuPeek::owner()=owner; });
+        }
+    }
+    ~Restore() { for (const auto& action : actions) action(); }
+};
+
+void snapshot(std::vector<double>& out, const sc_topology_fixture::View& view,
+              const std::vector<SmShell*>& shells) {
+    out.insert(out.end(), {(double)shells.size(), (double)view.faceuses.size(),
+        (double)view.edgeuses.size(), (double)view.vertexuses.size(), (double)view.regions.size()});
+    for (SmShell* p : shells) {
+        SmTopology* head=p->*OwnerPeek::head();
+        const SM_TYPE kind=head ? head->GetType() : 0;
+        double id=-1;
+        if (kind==SmFaceuse_TYPE) id=identity(view.faceuses,(SmFaceuse*)head);
+        else if (kind==SmEdgeuse_TYPE) id=identity(view.edgeuses,(SmEdgeuse*)head);
+        else if (kind==SmVertexuse_TYPE) id=identity(view.vertexuses,(SmVertexuse*)head);
+        else if (head) throw 1;
+        out.insert(out.end(), {(double)(p->*ShellPeek::type()), (double)(p->*OwnerPeek::size()),
+            identity(view.regions,(SmRegion*)(p->*NodePeek::owner())), (double)kind, id});
+    }
+    for (SmFaceuse* p : view.faceuses) {
+        out.insert(out.end(), {identity(shells,(SmShell*)(p->*NodePeek::owner())),
+            identity(view.faceuses,(SmFaceuse*)(p->*NodePeek::next())),
+            identity(view.faceuses,(SmFaceuse*)(p->*NodePeek::last()))});
+    }
+    for (SmEdgeuse* p : view.edgeuses) {
+        const SM_TYPE kind=p->GetEdgeuseType();
+        SmTopology* owner=p->*EuPeek::owner();
+        const double id=kind==SmShell_TYPE ? identity(shells,(SmShell*)owner)
+            : kind==SmLoopuse_TYPE ? identity(view.loopuses,(SmLoopuse*)owner) : -1;
+        out.insert(out.end(), {(double)kind,id});
+    }
+    for (SmVertexuse* p : view.vertexuses) {
+        const SM_TYPE kind=p->GetVertexuseType();
+        SmTopology* owner=p->*VuPeek::owner();
+        const double id=kind==SmShell_TYPE ? identity(shells,(SmShell*)owner)
+            : kind==SmLoopuse_TYPE ? identity(view.loopuses,(SmLoopuse*)owner)
+            : kind==SmEdgeuse_TYPE ? identity(view.edgeuses,(SmEdgeuse*)owner) : -1;
+        out.insert(out.end(), {(double)kind,id});
+    }
+    for (SmRegion* p : view.regions) {
+        SmTopology* head=p->*OwnerPeek::head();
+        out.insert(out.end(), {(double)(p->*OwnerPeek::size()), identity(shells,(SmShell*)head)});
+        std::vector<double> members;
+        SmTopology* node=head;
+        while (node) {
+            if (members.size()>=100000 || node->GetType()!=SmShell_TYPE) throw 1;
+            members.push_back(identity(shells,(SmShell*)node));
+            node=node->*NodePeek::next();
+            if (node==head) break;
+        }
+        out.push_back((double)members.size());
+        out.insert(out.end(),members.begin(),members.end());
+    }
+}
+}
+
+SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* input,
+    int64_t count, int32_t extra_empty, int64_t source, int64_t recipient,
+    int32_t has_candidates, const int64_t* candidates, int64_t candidate_count,
+    int32_t split_faceuse, double* output, int64_t cap, int64_t* output_len) {
+    if (!output_len || cap<0 || (cap && !output) || extra_empty<0 || extra_empty>64
+        || source<0 || recipient<0 || (has_candidates!=0 && has_candidates!=1)
+        || candidate_count<0 || candidate_count>64 || (candidate_count && !candidates)
+        || (!has_candidates && candidate_count) || (split_faceuse!=0 && split_faceuse!=1)) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,
+        [&](const sc_topology_fixture::View& view)->int32_t {
+            std::vector<SmShell*> shells=view.shells;
+            SmRegion* region=view.brep.GetInfiniteRegion();
+            if (!region || !view.brep.GetContext()) return SC_ERR_ARG;
+            for (int32_t i=0;i<extra_empty;++i) {
+                std::unique_ptr<transfer_detail::EmptyShell> shell(
+                    new (&view.brep) transfer_detail::EmptyShell());
+                shells.push_back(shell.get());
+                if (region->PostInsert(shell.get())!=SM_SUCCESS) return SC_ERR_ARG;
+                shell.release();
+            }
+            if (split_faceuse) {
+                if (view.shells.empty() || extra_empty<1) return SC_ERR_ARG;
+                SmShell* original=view.shells.front();
+                SmShell* extra=shells[view.shells.size()];
+                SmTopology* head=original->GetList();
+                if (!original->IsFaceuseShell() || original->GetSize()<2 || !head
+                    || head->GetType()!=SmFaceuse_TYPE) return SC_ERR_ARG;
+                // Fixture construction uses the already-existing base list
+                // operations, never TransferChildrenTo under test.
+                if (original->Remove(head)!=SM_SUCCESS) return SC_ERR_ARG;
+                extra->*transfer_detail::ShellPeek::type()=SmFaceuse_TYPE;
+                if (extra->PostInsert(head)!=SM_SUCCESS) return SC_ERR_ARG;
+            }
+            if (source>=(int64_t)shells.size() || recipient>=(int64_t)shells.size()) return SC_ERR_ARG;
+            SmShell* from=shells[(size_t)source];
+            SmShell* to=shells[(size_t)recipient];
+            const bool reads_candidates=!(to->GetSize()==0 && from->IsVertexShell())
+                && !(to->GetSize()!=0 && (to->IsVertexShell() || from->IsVertexShell()));
+            SmTArray<SmEdge*> wires;
+            for (int64_t i=0;i<candidate_count;++i) {
+                const auto index=candidates[i];
+                if (index < -1 || index >= (int64_t)view.edges.size()) return SC_ERR_ARG;
+                SmEdge* edge=index==-1 ? nullptr : view.edges[(size_t)index];
+                if (reads_candidates && (!edge || !edge->GetPrimaryEdgeuse())) return SC_ERR_ARG;
+                wires.Add(edge);
+            }
+            // Snapshot the result before restoring canonical links for deletion.
+            // Self-transfer is compared, including its detached face-use cycle.
+            transfer_detail::Restore restore(view,shells);
+            const auto status=from->TransferChildrenTo(to,has_candidates ? &wires : nullptr);
+            std::vector<double> out{status==SM_SUCCESS ? 0.0 : (double)status};
+            transfer_detail::snapshot(out,view,shells);
+            // Exercise both connected-wire traversal and global ownership
+            // filtering on the actual post-transfer topology.
+            for (SmShell* shell : shells) {
+                SmTArray<SmEdge*> after;
+                const auto query_status=shell->GetWireEdges(after);
+                out.push_back(query_status==SM_SUCCESS ? 0.0 : (double)query_status);
+                list(out,after,view.edges);
+            }
+            return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
+        });
+    SC_CATCH
+}

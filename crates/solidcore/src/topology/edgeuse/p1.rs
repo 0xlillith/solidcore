@@ -1589,6 +1589,7 @@ mod tests {
                 mate: Some(FaceuseId::from_index(1 - k)),
                 orientation: o,
                 loopuses: vec![LoopuseId::from_index(k)],
+                sibling_links: None,
             })
             .unwrap();
             b.add_loopuse_record(Loopuse {

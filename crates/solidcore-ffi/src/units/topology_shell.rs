@@ -70,8 +70,103 @@ pub fn wire_edges(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
     })
 }
 
+/// Native child transfer plus all affected raw topology state and wire queries.
+/// Empty shells use the real native constructor in the B-rep's context. At most
+/// 64 extra shells and 64 candidate entries are accepted by this fixture adapter.
+///
+/// # Errors
+/// Malformed fixture data, out-of-range identities, failed native setup or a
+/// nullable candidate on a branch that would dereference it in native code.
+pub fn transfer(
+    path: &str,
+    block: &[f64],
+    extra_empty: usize,
+    source: usize,
+    recipient: usize,
+    candidates: Option<&[Option<usize>]>,
+    split_faceuse: bool,
+) -> Result<Vec<f64>, FfiError> {
+    let export = fixture::eval(Op::Export, path, block)?;
+    let counts = fixture::counts(&export)
+        .ok_or_else(|| invalid("native topology fixture construction failed"))?;
+    if split_faceuse && extra_empty == 0 {
+        return Err(invalid("split fixture needs an extra shell"));
+    }
+    if extra_empty > 64 {
+        return Err(invalid("too many extra shells"));
+    }
+    let shell_count = counts
+        .get(1)
+        .copied()
+        .and_then(|n| n.checked_add(extra_empty))
+        .ok_or_else(|| invalid("shell count overflow"))?;
+    let edge_count = counts
+        .get(7)
+        .copied()
+        .ok_or_else(|| invalid("missing edge count"))?;
+    if source >= shell_count || recipient >= shell_count {
+        return Err(invalid("shell index out of range"));
+    }
+    let entries = candidates.unwrap_or(&[]);
+    if entries.len() > 64 {
+        return Err(invalid("too many wire candidates"));
+    }
+    let mut flat = Vec::new();
+    for &entry in entries {
+        flat.push(match entry {
+            None => -1,
+            Some(index) if index < edge_count => {
+                i64::try_from(index).map_err(|_| invalid("edge index overflow"))?
+            }
+            Some(_) => return Err(invalid("edge index out of range")),
+        });
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    let source = i64::try_from(source).map_err(|_| invalid("shell index overflow"))?;
+    let recipient = i64::try_from(recipient).map_err(|_| invalid("shell index overflow"))?;
+    call_with_buffer(4096, |buffer, len| {
+        // SAFETY: the existing fixture wrapper validated the entire block.
+        // All identities, lengths and flags are bounded above; the native shim
+        // guards nullable candidates before unsafe branches, keeps native objects
+        // inside its callback and honours the output capacity.
+        unsafe {
+            sys::sc_topology_shell_transfer(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                extra_empty as i32,
+                source,
+                recipient,
+                i32::from(candidates.is_some()),
+                flat.as_ptr(),
+                flat.len() as i64,
+                i32::from(split_faceuse),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_transfer(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            extra_empty: i32,
+            source: i64,
+            recipient: i64,
+            has_candidates: i32,
+            candidates: *const i64,
+            candidate_count: i64,
+            split_faceuse: i32,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_wire_edges(
             path: *const std::ffi::c_char,
             input: *const f64,

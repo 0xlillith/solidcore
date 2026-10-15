@@ -3,7 +3,9 @@
 //! Upstream: `source/SMLib/inc/SmShell.h`, `source/SMLib/src/SmShell.cpp`,
 //! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`,
 //! and the minimum default-argument branches of `source/SMLib/src/SmEdge.cpp`
-//! and `source/SMLib/src/SmVertex.cpp` used by wire-edge traversal.
+//! and `source/SMLib/src/SmVertex.cpp` used by wire-edge traversal;
+//! `source/SMLib/inc/SmTopology.h` supplies literal sibling links and
+//! `source/SMLib/inc/SmObject.h` defines the checked `SM_CAST_PTR` semantics.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
@@ -14,6 +16,8 @@
 //! | [`Shell::is_closed`], [`Shell::mated_shells`] | `IsClosed`, `GetMatedShells` |
 //! | [`shell_region`], [`shell_brep`] | `GetRegion`, `GetBrep` |
 //! | [`wire_edges`] | `SmShell::GetWireEdges` |
+//! | [`transfer_children`] | `SmShell::TransferChildrenTo` |
+//! | [`faceuse_sibling_links`] | typed `SmTopology::GetNext` / `GetLast` for face uses |
 //! | `edge_vertices_for_shell`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (no attribute filter), `IsWire` |
 //! | `vertex_edges_for_shell` | `SmVertex::GetVertexuses`, `GetEdges` (no face filter) |
 //! | [`Region::get_shells`], [`Region::is_void`], [`Region::set_is_void`] | `GetShells`, `IsVoid`, `SetIsVoid` |
@@ -24,6 +28,7 @@
 //! shared Brep arena model. Temporary marks use a local set without changing
 //! first-seen order. Invalid native pointer casts return `InvalidInput`. Native
 //! notification/logging side effects are not represented by these arena records.
+//! Face-use sibling links survive a cleared owner head, as in native self-transfer.
 //! There is no recursion. This is WIP; remaining operations and native gates are pending.
 
 use crate::error::{Result, SolidError};
@@ -161,15 +166,25 @@ impl Shell {
     }
     /// First face use; native logging-only errors retain the NULL result.
     ///
+    /// A head-class mismatch retains native NULL rather than becoming an error.
+    ///
     /// # Errors
-    /// A native list head of an incompatible class.
+    /// This compatibility result succeeds; native logging-only errors yield `None`.
     pub fn first_faceuse(&self) -> Result<Option<FaceuseId>> {
-        Ok(self.get_faceuses()?.first().copied())
+        if !self.is_faceuse_shell() {
+            return Ok(None);
+        }
+        // SM_CAST_PTR checks the actual head class and returns NULL on mismatch.
+        // Unlike the reinterpret-cast GetFaceuses array, this is a defined path.
+        Ok(match &self.members {
+            ShellMembers::Faceuses(ids) => ids.first().copied(),
+            _ => None,
+        })
     }
     /// First wire edge, preserving NULL for empty or other-kind shells.
     ///
     /// # Errors
-    /// Incompatible member class or dangling arena references.
+    /// Dangling arena references; a head-class mismatch retains native NULL.
     pub fn wire_edge(&self, brep: &Brep) -> Result<Option<EdgeId>> {
         if !self.is_wire_shell() {
             return Ok(None);
@@ -177,13 +192,13 @@ impl Shell {
         match self.members {
             ShellMembers::Empty => Ok(None),
             ShellMembers::Edgeuse(id) => Ok(brep.edgeuse(id)?.edge),
-            _ => Err(invalid_members()),
+            _ => Ok(None),
         }
     }
     /// Vertex of a vertex shell, preserving NULL for empty or other-kind shells.
     ///
     /// # Errors
-    /// Incompatible member class or dangling arena references.
+    /// Dangling arena references; a head-class mismatch retains native NULL.
     pub fn vertex(&self, brep: &Brep) -> Result<Option<VertexId>> {
         if !self.is_vertex_shell() {
             return Ok(None);
@@ -191,7 +206,7 @@ impl Shell {
         match self.members {
             ShellMembers::Empty => Ok(None),
             ShellMembers::Vertexuse(id) => Ok(brep.vertexuse(id)?.vertex),
-            _ => Err(invalid_members()),
+            _ => Ok(None),
         }
     }
     /// Whether a face in this shell has a mate belonging to a different shell.
@@ -483,6 +498,180 @@ fn vertex_edges_for_shell(brep: &Brep, vertex: VertexId) -> Result<Vec<EdgeId>> 
         }
     }
     Ok(output)
+}
+
+/// Move a shell's vertex, wire edges and face uses to another shell.
+///
+/// `wire_candidates` is the native optional list of B-rep wire edges. When it
+/// is present, ownership filters it in caller order; otherwise `GetWireEdges`
+/// gathers the source's wires. It is never replaced by an empty default list.
+/// Nullable list entries are only rejected if the native branch reads them.
+///
+/// # Errors
+/// Native `SM_ERR` for an illegal vertex-shell move, dangling graph links, or
+/// incompatible native list classes. The caller must supply connected topology.
+pub fn transfer_children(
+    brep: &mut Brep,
+    source: ShellId,
+    recipient: ShellId,
+    wire_candidates: Option<&[Option<EdgeId>]>,
+) -> Result<()> {
+    use crate::topology::edgeuse::p1;
+    use crate::topology::{EdgeuseOwner, VertexuseOwner};
+    const OP: &str = "topology::shell::transfer_children";
+    brep.shell(source)?;
+    if shell_list_size(brep, recipient)? == 0 {
+        brep.shell_mut(recipient)?.shell_type = ShellType::Unknown;
+        if brep.shell(source)?.is_vertex_shell() {
+            let ShellMembers::Vertexuse(vertexuse) = brep.shell(source)?.members else {
+                return Err(invalid_members());
+            };
+            brep.vertexuse(vertexuse)?;
+            let target = brep.shell_mut(recipient)?;
+            target.shell_type = ShellType::Vertex;
+            target.members = ShellMembers::Vertexuse(vertexuse);
+            brep.vertexuse_mut(vertexuse)?.owner = VertexuseOwner::Shell(Some(recipient));
+            clear_shell_members(brep, source)?;
+            return Ok(());
+        }
+    } else {
+        if brep.shell(recipient)?.is_vertex_shell() {
+            return if shell_list_size(brep, source)? == 0 {
+                Ok(())
+            } else {
+                Err(SolidError::sm_err(OP))
+            };
+        }
+        if brep.shell(source)?.is_vertex_shell() {
+            return Err(SolidError::sm_err(OP));
+        }
+    }
+
+    let wires = if let Some(candidates) = wire_candidates {
+        let mut wires = Vec::new();
+        for &edge in candidates {
+            let edge = edge.ok_or(invalid_members())?;
+            let primary = p1::primary_edgeuse(brep, edge)?.ok_or(invalid_members())?;
+            if brep.edgeuse(primary)?.owner == EdgeuseOwner::Shell(Some(source)) {
+                wires.push(edge);
+            }
+        }
+        wires
+    } else {
+        wire_edges(brep, source)?
+    };
+    if let Some(&first) = wires.first() {
+        if brep.shell(recipient)?.is_unknown_shell() {
+            let primary = p1::primary_edgeuse(brep, first)?.ok_or(invalid_members())?;
+            let target = brep.shell_mut(recipient)?;
+            target.members = ShellMembers::Edgeuse(primary);
+            target.shell_type = ShellType::Wire;
+            // UpdateListSize counts this edge's radial list; the shared arena
+            // model retains that list on Edge::edgeuses rather than separately.
+        }
+        for edge in wires {
+            // SmEdge::GetEdgeuses with neither optional filter. The shared edge
+            // record already retains its native circular radial list order.
+            let edgeuses = brep.edge(edge)?.edgeuses.clone();
+            for edgeuse in edgeuses {
+                brep.edgeuse_mut(edgeuse)?.owner = EdgeuseOwner::Shell(Some(recipient));
+            }
+        }
+    }
+
+    let faceuses = brep.shell(source)?.get_faceuses()?;
+    if !faceuses.is_empty() {
+        if !brep.shell(recipient)?.is_faceuse_shell() {
+            let target = brep.shell_mut(recipient)?;
+            target.shell_type = ShellType::Faceuse;
+            target.members = ShellMembers::Empty;
+        }
+        for faceuse in faceuses {
+            if brep.faceuse(faceuse)?.shell != Some(source) {
+                return Err(invalid_members());
+            }
+            // Remove, then PostInsert: the member moves to the recipient's tail
+            // without changing either list's remaining relative order.
+            match &mut brep.shell_mut(source)?.members {
+                ShellMembers::Faceuses(members) => {
+                    let index = members
+                        .iter()
+                        .position(|id| *id == faceuse)
+                        .ok_or(invalid_members())?;
+                    members.remove(index);
+                }
+                _ => return Err(invalid_members()),
+            }
+            let target = &mut brep.shell_mut(recipient)?.members;
+            match target {
+                ShellMembers::Empty => *target = ShellMembers::Faceuses(vec![faceuse]),
+                ShellMembers::Faceuses(members) => members.push(faceuse),
+                _ => return Err(invalid_members()),
+            }
+            brep.faceuse_mut(faceuse)?.shell = Some(recipient);
+        }
+        // Self-transfer clears the shell head but leaves this face-use cycle
+        // connected. Preserve those native links independently of the head.
+        refresh_faceuse_sibling_links(brep, recipient)?;
+    }
+    clear_shell_members(brep, source)
+}
+
+fn clear_shell_members(brep: &mut Brep, id: ShellId) -> Result<()> {
+    let shell = brep.shell_mut(id)?;
+    shell.shell_type = ShellType::Unknown;
+    shell.members = ShellMembers::Empty;
+    Ok(())
+}
+
+fn shell_list_size(brep: &Brep, id: ShellId) -> Result<usize> {
+    match &brep.shell(id)?.members {
+        ShellMembers::Empty => Ok(0),
+        ShellMembers::Faceuses(members) => Ok(members.len()),
+        ShellMembers::Vertexuse(_) => Ok(1),
+        ShellMembers::Edgeuse(id) => {
+            let edge = brep.edgeuse(*id)?.edge.ok_or(invalid_members())?;
+            Ok(brep.edge(edge)?.edgeuses.len())
+        }
+    }
+}
+
+/// Native next/previous face-use links, independently of a shell's list head.
+pub type FaceuseSiblingLinks = (Option<FaceuseId>, Option<FaceuseId>);
+
+/// Typed adapter for a face use's native `GetNext` and `GetLast` links.
+///
+/// # Errors
+/// A dangling id or a constructed owner vector that does not contain its member.
+pub fn faceuse_sibling_links(brep: &Brep, id: FaceuseId) -> Result<FaceuseSiblingLinks> {
+    let faceuse = brep.faceuse(id)?;
+    if let Some(links) = faceuse.sibling_links {
+        return Ok(links);
+    }
+    let Some(owner) = faceuse.shell else {
+        return Ok((None, None));
+    };
+    let ShellMembers::Faceuses(members) = &brep.shell(owner)?.members else {
+        return Err(invalid_members());
+    };
+    let mut previous = members.last().copied();
+    for (&member, &next) in members.iter().zip(members.iter().cycle().skip(1)) {
+        if member == id {
+            return Ok((Some(next), previous));
+        }
+        previous = Some(member);
+    }
+    Err(invalid_members())
+}
+
+fn refresh_faceuse_sibling_links(brep: &mut Brep, owner: ShellId) -> Result<()> {
+    let members = brep.shell(owner)?.get_faceuses()?;
+    let mut previous = members.last().copied();
+    for (&member, &next) in members.iter().zip(members.iter().cycle().skip(1)) {
+        brep.faceuse_mut(member)?.sibling_links = Some((Some(next), previous));
+        previous = Some(member);
+    }
+    Ok(())
 }
 
 #[cfg(test)]

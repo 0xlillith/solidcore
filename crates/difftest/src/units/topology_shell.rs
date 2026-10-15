@@ -14,12 +14,15 @@ use solidcore_ffi::units::{topology_edgeuse_p1 as graph, topology_shell as ffi};
 pub struct Runner;
 
 #[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 struct Inputs {
     brep: Value,
     #[serde(default)]
     void_state: Option<i32>,
     #[serde(default)]
     wires: bool,
+    #[serde(default)]
+    transfer: Option<TransferInputs>,
 }
 
 const TYPES: [i64; 5] = [16013, 16012, 16000, 16999, -1];
@@ -36,6 +39,237 @@ fn list(out: &mut Vec<i64>, values: impl IntoIterator<Item = u32>) {
     out.extend(values.into_iter().map(i64::from));
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TransferInputs {
+    #[serde(default)]
+    split_faceuse: bool,
+    #[serde(default)]
+    require_faceuse_pair: bool,
+    #[serde(default)]
+    extra_empty: usize,
+    source: usize,
+    recipient: usize,
+    candidates: Option<Vec<i64>>,
+}
+
+struct ResolvedTransfer {
+    split_faceuse: bool,
+    require_faceuse_pair: bool,
+    extra_empty: usize,
+    source: usize,
+    recipient: usize,
+    candidates: Option<Vec<Option<usize>>>,
+}
+
+fn resolve_transfer(
+    input: &TransferInputs,
+    counts: [usize; 10],
+) -> Result<ResolvedTransfer, HarnessError> {
+    if input.extra_empty > 64 {
+        return Err(failure("too many empty shells"));
+    }
+    let shells = counts
+        .get(1)
+        .copied()
+        .and_then(|n| n.checked_add(input.extra_empty))
+        .ok_or_else(|| failure("shell count overflow"))?;
+    if shells == 0 {
+        return Err(failure("transfer fixture has no shells"));
+    }
+    let edges = counts
+        .get(7)
+        .copied()
+        .ok_or_else(|| failure("missing edge count"))?;
+    let candidates = if let Some(list) = &input.candidates {
+        let mut resolved = Vec::new();
+        for &entry in list {
+            resolved.push(if entry == -1 {
+                None
+            } else if entry < 0 || edges == 0 {
+                return Err(failure("invalid wire candidate selector"));
+            } else {
+                Some(usize::try_from(entry).map_err(failure)? % edges)
+            });
+        }
+        Some(resolved)
+    } else {
+        None
+    };
+    Ok(ResolvedTransfer {
+        split_faceuse: input.split_faceuse,
+        require_faceuse_pair: input.require_faceuse_pair,
+        extra_empty: input.extra_empty,
+        source: input.source % shells,
+        recipient: input.recipient % shells,
+        candidates,
+    })
+}
+
+fn rust_transfer_records(
+    brep: &mut solidcore::topology::Brep,
+    options: &ResolvedTransfer,
+) -> Result<Output, HarnessError> {
+    use solidcore::topology::shell::{faceuse_sibling_links, transfer_children, ShellMembers};
+    use solidcore::topology::{EdgeId, EdgeuseOwner, VertexuseOwner};
+    use solidcore::SolidError;
+    let region = brep
+        .infinite_region()
+        .ok_or_else(|| failure("fixture has no infinite region"))?;
+    for _ in 0..options.extra_empty {
+        let shell = brep
+            .add_shell_record(Shell {
+                region: Some(region),
+                ..Shell::new()
+            })
+            .map_err(failure)?;
+        brep.region_mut(region).map_err(failure)?.shells.push(shell);
+    }
+    if options.split_faceuse {
+        if options.extra_empty == 0 {
+            return Err(failure("split fixture needs an extra shell"));
+        }
+        let original = ShellId::from_index(0);
+        let extra_index = brep
+            .shells()
+            .len()
+            .checked_sub(options.extra_empty)
+            .ok_or_else(|| failure("extra shell index underflow"))?;
+        let extra = ShellId::from_index(u32::try_from(extra_index).map_err(failure)?);
+        let members = match &mut brep.shell_mut(original).map_err(failure)?.members {
+            ShellMembers::Faceuses(members) if members.len() >= 2 => members,
+            _ => return Err(failure("split fixture needs a face-use cycle")),
+        };
+        let moved = members.remove(0);
+        let target = brep.shell_mut(extra).map_err(failure)?;
+        target.shell_type = solidcore::topology::shell::ShellType::Faceuse;
+        target.members = ShellMembers::Faceuses(vec![moved]);
+        brep.faceuse_mut(moved).map_err(failure)?.shell = Some(extra);
+        // Construct the two baseline cycles independently of the transfer port.
+        for id in [original, extra] {
+            let members = match &brep.shell(id).map_err(failure)?.members {
+                ShellMembers::Faceuses(members) => members.clone(),
+                _ => return Err(failure("split fixture lost its cycle")),
+            };
+            let mut previous = members.last().copied();
+            for (&member, &next) in members.iter().zip(members.iter().cycle().skip(1)) {
+                brep.faceuse_mut(member).map_err(failure)?.sibling_links =
+                    Some((Some(next), previous));
+                previous = Some(member);
+            }
+        }
+    }
+    let candidates = if let Some(list) = &options.candidates {
+        let mut ids = Vec::new();
+        for &entry in list {
+            ids.push(match entry {
+                None => None,
+                Some(index) => Some(EdgeId::from_index(u32::try_from(index).map_err(failure)?)),
+            });
+        }
+        Some(ids)
+    } else {
+        None
+    };
+    let source = ShellId::from_index(u32::try_from(options.source).map_err(failure)?);
+    let recipient = ShellId::from_index(u32::try_from(options.recipient).map_err(failure)?);
+    if options.require_faceuse_pair {
+        let source_record = brep.shell(source).map_err(failure)?;
+        let target_record = brep.shell(recipient).map_err(failure)?;
+        if source == recipient
+            || source_record.shell_type.code() != 16022
+            || target_record.shell_type.code() != 16022
+            || !matches!(&source_record.members,ShellMembers::Faceuses(ids) if !ids.is_empty())
+            || !matches!(&target_record.members,ShellMembers::Faceuses(ids) if !ids.is_empty())
+        {
+            return Err(failure(
+                "fixture must contain two distinct nonempty face-use shells",
+            ));
+        }
+    }
+    let status = match transfer_children(brep, source, recipient, candidates.as_deref()) {
+        Ok(()) => 0,
+        Err(SolidError::Upstream { code, .. }) => i64::from(code),
+        Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+    };
+    let mut out = vec![
+        status,
+        brep.shells().len() as i64,
+        brep.faceuses().len() as i64,
+        brep.edgeuses().len() as i64,
+        brep.vertexuses().len() as i64,
+        brep.regions().len() as i64,
+    ];
+    for (_, shell) in brep.shells().iter() {
+        let (size, kind, head) = match &shell.members {
+            ShellMembers::Empty => (0, 0, -1),
+            ShellMembers::Faceuses(ids) => (
+                ids.len(),
+                if ids.is_empty() { 0 } else { 16022 },
+                ids.first().map_or(-1, |id| i64::from(id.index())),
+            ),
+            ShellMembers::Edgeuse(id) => {
+                let edge = brep
+                    .edgeuse(*id)
+                    .map_err(failure)?
+                    .edge
+                    .ok_or_else(|| failure("wire head has no edge"))?;
+                (
+                    brep.edge(edge).map_err(failure)?.edgeuses.len(),
+                    16005,
+                    i64::from(id.index()),
+                )
+            }
+            ShellMembers::Vertexuse(id) => (1, 16006, i64::from(id.index())),
+        };
+        out.extend([
+            shell.shell_type.code(),
+            size as i64,
+            shell.region.map_or(-1, |id| i64::from(id.index())),
+            kind,
+            head,
+        ]);
+    }
+    for (id, faceuse) in brep.faceuses().iter() {
+        let (next, last) = faceuse_sibling_links(brep, id).map_err(failure)?;
+        out.extend([
+            faceuse.shell.map_or(-1, |id| i64::from(id.index())),
+            next.map_or(-1, |id| i64::from(id.index())),
+            last.map_or(-1, |id| i64::from(id.index())),
+        ]);
+    }
+    for (_, edgeuse) in brep.edgeuses().iter() {
+        let (kind, id) = match edgeuse.owner {
+            EdgeuseOwner::Shell(id) => (16013, id.map_or(-1, |id| i64::from(id.index()))),
+            EdgeuseOwner::Loopuse(id) => (16004, id.map_or(-1, |id| i64::from(id.index()))),
+            EdgeuseOwner::Unknown => (16999, -1),
+        };
+        out.extend([kind, id]);
+    }
+    for (_, vertexuse) in brep.vertexuses().iter() {
+        let (kind, id) = match vertexuse.owner {
+            VertexuseOwner::Shell(id) => (16013, id.map_or(-1, |id| i64::from(id.index()))),
+            VertexuseOwner::Loopuse(id) => (16004, id.map_or(-1, |id| i64::from(id.index()))),
+            VertexuseOwner::Edgeuse(id) => (16005, id.map_or(-1, |id| i64::from(id.index()))),
+            VertexuseOwner::Unknown => (16999, -1),
+        };
+        out.extend([kind, id]);
+    }
+    for (_, region) in brep.regions().iter() {
+        out.extend([
+            region.shells.len() as i64,
+            region.shells.first().map_or(-1, |id| i64::from(id.index())),
+        ]);
+        list(&mut out, region.shells.iter().copied().map(ShellId::index));
+    }
+    for shell in brep.shells().ids() {
+        let wires = wire_edges(brep, shell).map_err(failure)?;
+        out.push(0);
+        list(&mut out, wires.into_iter().map(EdgeId::index));
+    }
+    Ok(Output::new().ints("records", out))
+}
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.shell"
@@ -44,7 +278,24 @@ impl UnitDiff for Runner {
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let inputs: Inputs = case.parse()?;
         let (path, block) = fixture_input(inputs.brep)?;
-        let native = if inputs.wires {
+        if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
+            return Err(failure("transfer cannot be combined with query mutations"));
+        }
+        let native = if let Some(transfer) = inputs.transfer {
+            let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
+            let counts = graph::counts(&export)
+                .ok_or_else(|| failure("native transfer fixture build failed"))?;
+            let options = resolve_transfer(&transfer, counts)?;
+            ffi::transfer(
+                &path,
+                &block,
+                options.extra_empty,
+                options.source,
+                options.recipient,
+                options.candidates.as_deref(),
+                options.split_faceuse,
+            )
+        } else if inputs.wires {
             ffi::wire_edges(&path, &block)
         } else {
             ffi::query(&path, &block, inputs.void_state)
@@ -67,6 +318,14 @@ impl UnitDiff for Runner {
         let (path, block) = fixture_input(inputs.brep)?;
         let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
         let mut brep = import(&export)?;
+        if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
+            return Err(failure("transfer cannot be combined with query mutations"));
+        }
+        if let Some(transfer) = inputs.transfer {
+            let counts = graph::counts(&export)
+                .ok_or_else(|| failure("native transfer fixture build failed"))?;
+            return rust_transfer_records(&mut brep, &resolve_transfer(&transfer, counts)?);
+        }
         if inputs.wires {
             let mut out = vec![brep.shells().len() as i64];
             for shell in brep.shells().ids() {
@@ -156,9 +415,15 @@ impl UnitDiff for Runner {
         let scale = [1e-3, 1.0, 1e3].get(rng.below(3) as usize).copied()?;
         let origin = rng.point3(-2.0, 2.0).map(|v| v * scale);
         let normal = [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), 1.0];
+        let wires = rng.chance(0.5);
+        let void_state = if wires {
+            None
+        } else {
+            Some(rng.below(3) as i32)
+        };
         Some(
             json!({"brep": {"kind":"face", "surface":{"plane":{"o":origin,"n":normal}},
-            "dom":[-scale,-scale,scale,scale]}, "void_state":rng.below(3) as i32, "wires":rng.chance(0.5)}),
+            "dom":[-scale,-scale,scale,scale]}, "void_state":void_state, "wires":wires}),
         )
     }
 }

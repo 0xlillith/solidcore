@@ -795,7 +795,7 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
     }
     // Versioned shell/region extension. Read raw state, never shell operations
     // under test. Keep the existing graph prefix and its entity counts stable.
-    o.push_back(2.0);
+    o.push_back(3.0);
     o.push_back((double)g.find(0, brep->GetInfiniteRegion()));
     for (SmRegion* p : g.regions)
         o.push_back((double)(p->*RegionPeek::is_void()));
@@ -810,6 +810,11 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         std::vector<int64_t> uses;
         for (SmTopology* use : list_of(p->GetList())) uses.push_back(g.find(8, use));
         put_list(o, uses);
+    }
+    for (SmFaceuse* p : g.faceuses)
+    {
+        o.push_back((double)g.find(2, p->GetNext()));
+        o.push_back((double)g.find(2, p->GetLast()));
     }
 }
 
