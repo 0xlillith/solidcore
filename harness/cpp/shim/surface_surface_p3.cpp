@@ -29,7 +29,9 @@
 #include <SmLocalSolveNd.h>
 #include <SmMatrix.h>
 #include <SmNurbsSrf.h>
+#include <SmLine.h>
 #include <SmPlane.h>
+#include <SmSurfOfRevolution.h>
 #include <SmSolutionArray.h>
 #include <SmSurface.h>
 #include <SmSurfTypes.h>
@@ -541,6 +543,24 @@ SmSurface* read_surface(Rd& rd, const SmContext& ctx)
         bool implicit = rd.flag();
         SmTArray<SmCurve*> c3d, cuv;
         return new (ctx) SmCurveBoundedSurface(*basis, &c3d, &cuv, implicit ? TRUE : FALSE);
+    }
+    if (kind == 3)
+    {
+        // a surface of revolution of the line a-b (NURB made) about the axis P, A
+        SmPoint3d a = rd.vec();
+        SmPoint3d b = rd.vec();
+        SmPoint3d p = rd.vec();
+        SmVector3d ax = rd.vec();
+        bool swap = rd.flag();
+        bool oob = rd.flag();
+        SmLine* l = new (ctx) SmLine(a, b, 3, &ctx);
+        l->GetOrCreateGwNurbPointer();
+        SmSurfOfRevolution* s = NULL;
+        SmStatus stt = SmSurfOfRevolution::CreateCanonical(ctx, l, p, ax, s, swap ? TRUE : FALSE);
+        if (stt != SM_SUCCESS || !s)
+            return NULL;
+        s->SetOutOfBoundsEnabled(oob ? TRUE : FALSE); // the surface and its generator
+        return s;
     }
     if (kind == 1)
     {

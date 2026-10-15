@@ -116,12 +116,15 @@ fn out_of_bounds_enabled(surface: &Surface) -> Option<bool> {
     }
 }
 
-/// Sets the out-of-bounds flag member of a B-spline based surface (no-op for other kinds).
+/// Sets the `m_bOutOfBoundsEnabled` member of a B-spline based surface (no-op for other
+/// kinds). Only the `SmBSplineSurface` member changes, as `SmTemporaryChangeValue`
+/// through `GetOutOfBoundsEnabled()` does: a surface of revolution's generator keeps its
+/// own flag (the virtual `SmSurfOfRevolution::SetOutOfBoundsEnabled` is not called).
 fn set_out_of_bounds_enabled(surface: &mut Surface, enabled: bool) {
     match surface.kind_mut() {
         SurfaceKind::BSpline(s) => *s.out_of_bounds_enabled_mut() = enabled,
         SurfaceKind::Plane(s) => s.set_out_of_bounds_enabled(enabled),
-        SurfaceKind::SurfOfRevolution(s) => s.set_out_of_bounds_enabled(enabled),
+        SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = enabled,
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
     }
 }
@@ -1330,9 +1333,6 @@ impl EvalNFunctions for FindPsNormalEnfo<'_> {
     }
 }
 
-/// `SmSSSIntersectENFO::Evaluate` (the struct is `surface.surface_p1`): `x = [u1 v1 u2 v2
-/// u3 v3]`, `F = [S1 - S2, S1 - S3]`; keeps the surface points and tangents of the last
-/// evaluation (`m_sSrfPoint*`, `m_sDU*`, `m_sDV*`).
 /// A tangent with its near-zero components forced to zero (prevents matrix inversions
 /// of non-invertible matrices).
 fn snap_tangent(v: Vec3) -> Vec3 {
@@ -1340,6 +1340,9 @@ fn snap_tangent(v: Vec3) -> Vec3 {
     Vec3::new(snap(v.x), snap(v.y), snap(v.z))
 }
 
+/// `SmSSSIntersectENFO::Evaluate` (the struct is `surface.surface_p1`): `x = [u1 v1 u2 v2
+/// u3 v3]`, `F = [S1 - S2, S1 - S3]`; keeps the surface points and tangents of the last
+/// evaluation (`m_sSrfPoint*`, `m_sDU*`, `m_sDV*`).
 impl EvalNFunctions for SssIntersectEnfo<'_> {
     /// `Evaluate`: never reports an answer found.
     fn evaluate(
@@ -1431,5 +1434,45 @@ impl EvalNFunctions for SssIntersectEnfo<'_> {
         }
 
         Ok(false)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::curve::curve::Curve;
+    use crate::curve::line::Line;
+    use crate::nurbs::b_spline_curve::BSplineCurve as Bsc;
+    use crate::surface::surf_of_revolution::p1::gen_base;
+    use crate::surface::surf_of_revolution::SurfOfRevolution;
+
+    /// The temporary out-of-bounds change sets only the surface's own flag member: a
+    /// surface of revolution's generator keeps its flag (upstream
+    /// `SmTemporaryChangeValue` never calls the virtual `SetOutOfBoundsEnabled`).
+    #[test]
+    fn out_of_bounds_change_leaves_the_generator_flag() {
+        let k = Kernel::default();
+        let mut l = Line::from_points(Vec3::new(0.0, 1.0, 0.0), Vec3::new(0.0, 1.0, 2.0), 3);
+        l.make_nurb().unwrap();
+        let mut rev =
+            SurfOfRevolution::create_canonical(&k, Curve::from(l), Vec3::ZERO, Vec3::Z, false)
+                .unwrap();
+        rev.set_out_of_bounds_enabled(false);
+        let gen_flag = |s: &Surface| match s.kind() {
+            SurfaceKind::SurfOfRevolution(r) => r
+                .gen_curve()
+                .and_then(|g| gen_base(g).ok())
+                .map(Bsc::is_out_of_bounds_enabled),
+            _ => None,
+        };
+        let mut s = Surface::from(rev);
+        assert_eq!(out_of_bounds_enabled(&s), Some(false));
+        assert_eq!(gen_flag(&s), Some(false));
+        let copy = out_of_bounds_copy(&s).unwrap();
+        assert_eq!(out_of_bounds_enabled(&copy), Some(true));
+        assert_eq!(gen_flag(&copy), Some(false));
+        set_out_of_bounds_enabled(&mut s, true);
+        set_out_of_bounds_enabled(&mut s, false);
+        assert_eq!(gen_flag(&s), Some(false));
     }
 }

@@ -270,7 +270,18 @@ pub(crate) type Domain = Option<[f64; 4]>;
 /// A surface block (no nested curve-bounded surfaces): its domain (`None` for a plane
 /// basis) and whether it is a plain B-spline.
 pub(crate) fn surface_kind(rd: &mut Reader<'_>, nested: bool) -> Result<(Domain, bool), FfiError> {
-    let kind = rd.index(2)?;
+    let kind = rd.index(3)?;
+    if kind == 3 {
+        // a surface of revolution of the line a-b about the axis p, axis (domain: its own)
+        for _ in 0..3 {
+            rd.vec3()?;
+        }
+        rd.nonzero3()?;
+        rd.flag()?;
+        rd.flag()?;
+        // an `SmBSplineSurface` subclass: the `SmBSplineSurface` members apply
+        return Ok((None, true));
+    }
     if kind == 2 {
         if nested {
             return Err(bad("nested curve-bounded surface"));

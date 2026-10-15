@@ -479,10 +479,51 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
 
 // ---- generators ---------------------------------------------------------------------
 
+/// A surface of revolution of a line about an axis: the line's first end lies on the axis
+/// a third of the time (a pole, for `GetSingularities`), the out-of-bounds flag is random.
+fn gen_revolution(rng: &mut Rng) -> SrfIn {
+    let mut axis = rng.point3(-1.0, 1.0);
+    if axis.iter().map(|c| c * c).sum::<f64>() < 1e-2 {
+        axis = [0.0, 0.0, 1.0];
+    }
+    let p = rng.point3(-2.0, 2.0);
+    let r = [0.3, 0.5, 0.8];
+    let perp = [
+        axis[1] * r[2] - axis[2] * r[1],
+        axis[2] * r[0] - axis[0] * r[2],
+        axis[0] * r[1] - axis[1] * r[0],
+    ];
+    let at = |h: f64, w: f64| {
+        [
+            p[0] + axis[0] * h + perp[0] * w,
+            p[1] + axis[1] * h + perp[1] * w,
+            p[2] + axis[2] * h + perp[2] * w,
+        ]
+    };
+    let w0 = if rng.chance(0.33) { 0.0 } else { rng.uniform(0.2, 2.0) };
+    SrfIn::Revolution {
+        a: at(rng.uniform(-2.0, 2.0), w0),
+        b: at(rng.uniform(-2.0, 2.0), rng.uniform(0.2, 2.0)),
+        p,
+        axis,
+        swap: rng.chance(0.3),
+        oob: rng.chance(0.5),
+    }
+}
+
+/// [`gen_surface`] with some surfaces of revolution.
+fn gen_surface3(rng: &mut Rng) -> SrfIn {
+    if rng.chance(0.15) {
+        gen_revolution(rng)
+    } else {
+        gen_surface(rng)
+    }
+}
+
 /// A domain to solve in: the surface's own sub-domain, or a small window of a plane's
 /// unbounded one.
 fn gen_solve_dom(rng: &mut Rng, s: &SrfIn) -> [f64; 4] {
-    if matches!(s, SrfIn::Plane { .. }) {
+    if matches!(s, SrfIn::Plane { .. } | SrfIn::Revolution { .. }) {
         let (a, bb) = (rng.uniform(-4.0, 0.0), rng.uniform(-4.0, 0.0));
         return [a, bb, a + rng.uniform(0.5, 6.0), bb + rng.uniform(0.5, 6.0)];
     }
@@ -533,7 +574,7 @@ fn gen_other(rng: &mut Rng, s: &SrfIn) -> (SrfIn, bool) {
     match rng.below(10) {
         0..=2 => (s.clone(), true),
         3..=6 => (gen_plane(rng), false),
-        _ => (gen_surface(rng), false),
+        _ => (gen_surface3(rng), false),
     }
 }
 
@@ -565,7 +606,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
             pts: rng.chance(0.7),
             nrm: rng.chance(0.7),
         },
-        15..=19 if is_bspline => {
+        15..=19 if is_bspline || matches!(s, SrfIn::Revolution { .. }) => {
             let (other, same) = gen_other(rng, s);
             let tol = *rng.choose(&[1e-9, 1e-7, 1e-5, 1e-3]).unwrap_or(&1e-5);
             let dom = if rng.chance(0.5) { Some(gen_dom(rng, &other)) } else { None };
@@ -668,7 +709,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
 }
 
 fn gen_case(rng: &mut Rng) -> Inputs {
-    let surface = gen_surface(rng);
+    let surface = gen_surface3(rng);
     let op = gen_op(rng, &surface);
     Inputs { surface, op }
 }
