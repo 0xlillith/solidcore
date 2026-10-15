@@ -80,12 +80,11 @@
 //!   ([`SolidError::Unported`] still propagates), leaving the outputs of a failed
 //!   evaluation at their `SM_UNDEF_DOUBLE` defaults. `sm_AreSeamCurves`' unused
 //!   edge use argument is dropped.
-//! - **Unported callees.** `SmEdge::SetTolerance` (`topology.edge`),
-//!   `SmSurface::DropPoint` (`surface.surface_p5`) and `SmEdgeuse::EvaluateBinormal`
-//!   (`topology.edgeuse_p3`) return [`SolidError::Unported`]. The gap computations are
-//!   [`crate::heal::gap`]; `CalcMaxEdgeFaceGap`'s cross-section tolerance is the
-//!   context one with no context (`SmTol::GetXSectTol3d(NULL)`: the B-rep records
-//!   carry no context).
+//! - **Unported callees.** `SmSurface::DropPoint` (`surface.surface_p5`) and
+//!   `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`) return
+//!   [`SolidError::Unported`]. The gap computations are [`crate::heal::gap`];
+//!   `CalcMaxEdgeFaceGap`'s cross-section tolerance is the context one with no
+//!   context (`SmTol::GetXSectTol3d(NULL)`: the B-rep records carry no context).
 //! - **Co-ports.** The small accessors of other units this unit reaches are ported
 //!   here (table above) and recorded as CO-PORTED in `plan/modules.toml`.
 //!   [`loopuse_edgeuses`] (no attribute or connection filter; callers here pass none)
@@ -94,6 +93,7 @@
 use crate::curve::curve::Curve;
 use crate::error::{EntityRef, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::global_solver::SolverOperation;
 use crate::geom::local_solve_nd::EvalNFunctions;
 use crate::geom::matrix::Matrix;
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject};
@@ -105,6 +105,8 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p1::evaluate_1st_derivatives;
 use crate::surface::surface::p2::DropCurveFail;
+use crate::surface::surface::p4::NoObject;
+use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::Surface;
 use crate::topology::{
     topology as topo, Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
@@ -709,8 +711,8 @@ pub(crate) fn brep_handle(b: &Brep, eu: EdgeuseId) -> Result<Option<ObjectHandle
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no edge, primary edge use, vertex use or B-rep);
-/// [`SolidError::Unported`] when the edge tolerance must grow (`SmEdge::SetTolerance`,
-/// unit `topology.edge`).
+/// [`SolidError::Unported`] when growing the edge tolerance must grow a vertex
+/// tolerance (`SmVertex::SetTolerance`, unit `topology.vertex`).
 pub fn set_uv_trim_curve(
     b: &mut Brep,
     eu: EdgeuseId,
@@ -809,11 +811,13 @@ pub fn set_uv_trim_curve(
             let e = edge(b, eu)?.ok_or_else(|| null("SetUVTrimCurve: edge use without edge"))?;
             let curr_tol = b.edge(e)?.tolerance;
             if curr_tol < TOL_FACTOR * max_dist_to_surface {
-                // UNPORTED(topology.edge): SmEdge::SetTolerance
-                return Err(SolidError::unported(
-                    "SmEdge::SetTolerance",
-                    "topology.edge",
-                ));
+                crate::topology::edge::set_tolerance(
+                    b,
+                    e,
+                    TOL_FACTOR * max_dist_to_surface,
+                    true,
+                    true,
+                )?;
             }
         }
     }
@@ -1133,9 +1137,9 @@ pub fn start_point_uv_loop_gap(b: &Brep, eu: EdgeuseId) -> Result<f64> {
             None => None,
         };
         // check state - must have a surface
-        if surface.is_none() {
+        let Some(surface) = surface else {
             return Ok(0.0);
-        }
+        };
         // evaluate Edgeuse End 3dPoints
         let curve_of = |x: EdgeuseId| -> Result<_> {
             let e = edge(b, x)?.ok_or_else(|| null("GetStartPointUVLoopGap: no edge"))?;
@@ -1144,13 +1148,29 @@ pub fn start_point_uv_loop_gap(b: &Brep, eu: EdgeuseId) -> Result<f64> {
                 .as_ref()
                 .ok_or_else(|| null("GetStartPointUVLoopGap: edge without curve"))
         };
-        let _start_3d = point_or_undef(curve_of(eu)?.evaluate_point(start_param))?;
-        let _cw_end_3d = point_or_undef(curve_of(cw)?.evaluate_point(cw_end_param))?;
-        // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-        return Err(SolidError::unported(
-            "SmSurface::DropPoint",
-            "surface.surface_p5",
-        ));
+        let start_3d = point_or_undef(curve_of(eu)?.evaluate_point(start_param))?;
+        let cw_end_3d = point_or_undef(curve_of(cw)?.evaluate_point(cw_end_param))?;
+
+        // drop point to Surface (statuses ignored, as upstream)
+        let domain = surface.natural_uv_domain();
+        let start_opts = DropPointOptions {
+            operation: SolverOperation::Minimize,
+            ..Default::default()
+        };
+        let start_drop =
+            crate::error::ignored(surface.drop_point::<NoObject>(start_3d, &domain, &start_opts))?;
+        // `sStart2d` stays default-constructed when the call fails
+        let start_2d = start_drop.map_or(Point2::UNDEF, |d| d.result_uv);
+        let cw_opts = DropPointOptions {
+            guess_uv: Some(start_2d),
+            operation: SolverOperation::Minimize,
+            ..Default::default()
+        };
+        let cw_drop =
+            crate::error::ignored(surface.drop_point::<NoObject>(cw_end_3d, &domain, &cw_opts))?;
+        // upstream's DropPoint sets rResultUV to the guess before anything can fail
+        let cw_end_2d = cw_drop.map_or(start_2d, |d| d.result_uv);
+        return Ok(start_2d.distance(cw_end_2d));
     };
     let start_uv = point_or_undef(tc.evaluate_point(start_param))?;
     let cw_end_uv = point_or_undef(cc.evaluate_point(cw_end_param))?;
@@ -1626,6 +1646,7 @@ mod tests {
             b.add_vertex_record(Vertex {
                 point: Vec3::new(c[0], c[1], 0.0),
                 tolerance: ZONE_TOL_3D,
+                ..Vertex::default()
             })
             .unwrap();
             let i = i as u32;
@@ -1842,16 +1863,18 @@ mod tests {
         assert!(old.is_some());
         assert!(drop_curve_fail(&b, a0).unwrap().0.is_none());
 
-        // growing the edge tolerance needs SmEdge::SetTolerance
-        let e = set_uv_trim_curve(
+        // growing the edge tolerance grows the vertex tolerances: SmVertex::SetTolerance
+        set_uv_trim_curve(
             &mut b,
             a0,
             UvTrimCurveArg::New(Box::new(uv_line([0.0, 1.0], [1.0, 1.0]))),
             1.0,
             true,
             None,
-        );
-        assert!(e.unwrap_err().is_unported());
+        )
+        .unwrap();
+        let e = edge(&b, a0).unwrap().unwrap();
+        assert_eq!(b.edge(e).unwrap().tolerance, 2.0);
         b.set_validate_only(true);
         set_uv_trim_curve(
             &mut b,
@@ -1923,7 +1946,7 @@ mod tests {
             calc_edge_ccw_edge_gap(&mut b, a0, true, false),
             Err(SolidError::InvalidInput { .. })
         ));
-        // with curves: the edge/edge gap; the edge/face gap needs the surface drop
+        // with curves: the edge/edge gap and the edge/face gap
         for i in 0..4u32 {
             let e = EdgeId::from_index(i);
             let [v0, v1] = b.edge(e).unwrap().vertices;
@@ -1937,9 +1960,9 @@ mod tests {
             .unwrap();
         assert!(g.is_init() && g.gap_3d.abs() < 1e-12);
         assert_eq!(b.edgeuse(a0).unwrap().edge_ccw_edge_gap, g);
-        assert!(max_edge_face_gap(&k, &mut b, a0, true)
-            .unwrap_err()
-            .is_unported());
+        // the edge/face gap drops through the surface (`SmSurface::DropPoint`)
+        let fg = max_edge_face_gap(&k, &mut b, a0, true).unwrap().unwrap();
+        assert!(fg.gap_3d.abs() < 1e-12);
         // a degenerate edge interval fails before the gap function
         b.edge_mut(EdgeId::from_index(0)).unwrap().interval = Extent1d::from_value(0.5);
         assert!(matches!(

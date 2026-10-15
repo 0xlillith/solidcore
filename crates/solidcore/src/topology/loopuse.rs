@@ -70,8 +70,7 @@
 //!   reads the missing-seam flags of the sector it returns.
 //! - **Unported callees.** `SmFace::Notify` (`topology.face_p3`, the `PRE_EDIT` /
 //!   `POST_EDIT` around `FlipLoopOrientation` of a loop on a face),
-//!   `SmVertex::IsConnectedTo` (`topology.vertex`), `SmEdge::IsConnectedTo`
-//!   (`topology.edge`), `SmEdgeuse::GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`)
+//!   `SmEdgeuse::GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`)
 //!   and `SmSurface::DropPoint` (`surface.surface_p5`) return
 //!   [`SolidError::Unported`]. `SmShell::GetRegion` is the co-port
 //!   [`eu1::shell_region`].
@@ -715,21 +714,13 @@ pub fn is_closed_ptrs(b: &Brep, lu: LoopuseId) -> Result<bool> {
 }
 
 /// `SmVertex::IsConnectedTo` (unit `topology.vertex`).
-fn vertex_is_connected_to(_b: &Brep, _v: VertexId, _target: EntityRef) -> Result<bool> {
-    // UNPORTED(topology.vertex): SmVertex::IsConnectedTo
-    Err(SolidError::unported(
-        "SmVertex::IsConnectedTo",
-        "topology.vertex",
-    ))
+fn vertex_is_connected_to(b: &Brep, v: VertexId, target: EntityRef) -> Result<bool> {
+    crate::topology::vertex::is_connected_to(b, v, Some(target))
 }
 
 /// `SmEdge::IsConnectedTo` (unit `topology.edge`).
-fn edge_is_connected_to(_b: &Brep, _e: EdgeId, _target: EntityRef) -> Result<bool> {
-    // UNPORTED(topology.edge): SmEdge::IsConnectedTo
-    Err(SolidError::unported(
-        "SmEdge::IsConnectedTo",
-        "topology.edge",
-    ))
+fn edge_is_connected_to(b: &Brep, e: EdgeId, target: EntityRef) -> Result<bool> {
+    crate::topology::edge::is_connected_to(b, e, Some(target))
 }
 
 /// `IsConnectedTo`: whether the loop use connects to `target` (its vertex uses,
@@ -739,8 +730,7 @@ fn edge_is_connected_to(_b: &Brep, _e: EdgeId, _target: EntityRef) -> Result<boo
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] for a face target and a loop use without face use;
-/// [`SolidError::Unported`] for vertex and edge targets; those of the target's own
-/// `IsConnectedTo`; [`SolidError::NotFound`] for a dangling id.
+/// those of the target's own `IsConnectedTo`; [`SolidError::NotFound`] for a dangling id.
 pub fn is_connected_to(b: &Brep, lu: LoopuseId, target: Option<EntityRef>) -> Result<bool> {
     // no work - no Topo
     let Some(target) = target else {
@@ -1023,8 +1013,7 @@ pub fn loop_is_closed_ptrs(b: &Brep, l: LoopId) -> Result<bool> {
 ///
 /// [`SolidError::InvalidInput`] where upstream dereferences null (no loop use, face
 /// use, face, or a face use without shell for shell and region targets);
-/// [`SolidError::Unported`] for vertex and edge targets; those of the target's own
-/// `IsConnectedTo`; [`SolidError::NotFound`] for a dangling id.
+/// those of the target's own `IsConnectedTo`; [`SolidError::NotFound`] for a dangling id.
 pub fn loop_is_connected_to(b: &Brep, l: LoopId, target: Option<EntityRef>) -> Result<bool> {
     // no work - no Topo
     let Some(target) = target else {
@@ -1097,7 +1086,9 @@ fn get_or_create_uv_trim_curve(
 }
 
 /// `pS->DropPoint(point, domain, NULL, bSuccess, uv, dGap, bIsMulti)` (unit
-/// `surface.surface_p5`): the dropped UV point when one was found.
+/// `surface.surface_p5`): the UV point it writes to its out-param, or `None` only when
+/// it leaves the out-param unwritten. Upstream ignores both the status and `bSuccess`
+/// here, so a point written by a failed drop must still be returned.
 fn drop_point(_k: &Kernel, _s: &Surface, _dom: &Extent2d, _p: Point3) -> Result<Option<Point2>> {
     // UNPORTED(surface.surface_p5): SmSurface::DropPoint
     Err(SolidError::unported(
@@ -1318,6 +1309,7 @@ mod tests {
             b.add_vertex_record(Vertex {
                 point: p(i as usize),
                 tolerance: 1e-4,
+                ..Vertex::default()
             })
             .unwrap();
             let (next, prev) = ((i + 1) % 4, (i + 3) % 4);
@@ -1485,11 +1477,7 @@ mod tests {
         assert!(
             is_connected_to(&b, lu(1), Some(EntityRef::Region(RegionId::from_index(0)))).unwrap()
         );
-        assert!(
-            is_connected_to(&b, lu(0), Some(EntityRef::Edge(EdgeId::from_index(0))))
-                .unwrap_err()
-                .is_unported()
-        );
+        assert!(is_connected_to(&b, lu(0), Some(EntityRef::Edge(EdgeId::from_index(0)))).unwrap());
         assert!(loop_is_connected_to(&b, l, Some(EntityRef::Loopuse(lu(1)))).unwrap());
         assert!(
             loop_is_connected_to(&b, l, Some(EntityRef::Shell(ShellId::from_index(0)))).unwrap()
@@ -1499,9 +1487,7 @@ mod tests {
                 .unwrap()
         );
         assert!(
-            loop_is_connected_to(&b, l, Some(EntityRef::Vertex(VertexId::from_index(0))))
-                .unwrap_err()
-                .is_unported()
+            loop_is_connected_to(&b, l, Some(EntityRef::Vertex(VertexId::from_index(0)))).unwrap()
         );
     }
 

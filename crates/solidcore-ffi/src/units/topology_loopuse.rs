@@ -18,7 +18,7 @@
 //! | `LuConnected`   | `lu type index`                              | `IsConnectedTo` |
 //! | `LoopQuery`     | `l`                                          | `lu face lu1 lu2 outer closed_ptrs type class_type kind_of*8 type_string class_string`, then the lists vertices, edges, edge uses |
 //! | `LoopConnected` | `l type index`                               | `IsConnectedTo` |
-//! | `Closed3d`      | `of_loop index check_all want_eu want_gap want_tol` | `closed eu gap xsect_tol` (unwritten out-params: `-5`, `-7`, `777`) or `-2` |
+//! | `Closed3d`      | `of_loop index check_all want_eu want_gap want_tol set_tol edge_tol` (`set_tol`: every edge's `m_sZoneTol3d = edge_tol` first) | `closed eu gap xsect_tol` (unwritten out-params: `-5`, `-7`, `777`) or `-2` |
 //! | `MissingSeam`   | `lu`                                         | `IsMissingSeamAtVertices` or `-2` |
 //! | `UvCorners`     | `l u0 v0 u1 v1 tol`                          | `boundaries` and the lists edges, sides, then `n params*n`; or `-2` / `-3` |
 //! | `Flip`          | `l`                                          | `status` and the use state, or `-2` |
@@ -137,9 +137,10 @@ fn args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError> {
         Op::Closed3d => {
             let of_loop = rd.flag()?;
             rd.below(if of_loop { n_l } else { n_lu })?;
-            for _ in 0..4 {
+            for _ in 0..5 {
                 rd.flag()?;
             }
+            rd.finites(1)?;
         }
         Op::UvCorners => {
             rd.below(n_l)?;

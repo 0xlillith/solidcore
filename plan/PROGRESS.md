@@ -2,120 +2,112 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**162 / 261 units ported** (92 green, 70 partial), **216,417 / 387,903 upstream lines (55.8%)**. 19 claimed, 0 blocked, 80 todo.
+**169 / 261 units ported** (92 green, 77 partial), **227,199 / 387,903 upstream lines (58.6%)**. 25 claimed, 0 blocked, 67 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
 ## Ready to claim now
 
-_None right now; see the next section._
+- [ ] ▶️ `topology.trimming_tools` (2878 lines) — ready
 
 ## Claimable now, dependencies still missing
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
-- [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p3`, `surface.surface_p5`
-- [ ] `surface.surface_p8` (2374 lines) — missing: `surface.surface_p3`, `surface.surface_p4`, `surface.surface_p5`
-- [ ] `intersect.surface_drop_lib_p2` (1080 lines) — missing: `intersect.surface_drop_lib_p1`, `surface.surface_p5`
-- [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p1`, `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3` +2 more
-- [ ] `intersect.curve_class_p3` (1986 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
+- [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3`
 - [ ] `intersect.curve_class_p4` (2022 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p5` (2017 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p6`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p8` (1900 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `intersect.curve_class_p9` (1220 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
-- [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`
-- [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.loopuse`
-- [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`, `topology.loopuse`, `topology.vertex`
-- [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.shell`, `topology.vertex`
-- [ ] `topology.face_p3` (1881 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.face_p4`, `topology.loopuse` +1 more
-- [ ] `topology.topology_traverser` (784 lines) — missing: `topology.edge`, `topology.vertex`
-- [ ] `query.face_p3` (1620 lines) — missing: `query.face_p2`, `topology.edge`, `topology.face_p4`, `topology.loopuse`
-- [ ] `topology.brep_p7` (2503 lines) — missing: `topology.brep_p10`, `topology.edge`, `topology.shell`
-- [ ] `topology.face_p1` (2171 lines) — missing: `topology.face_p3`, `topology.face_p4`, `topology.loopuse`
-- [ ] `query.face_p4` (1432 lines) — missing: `query.face_p3`, `topology.loopuse`
-- [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.loopuse`, `topology.shell` +1 more
-- [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.face_p3`, `topology.loopuse` +3 more
-- [ ] `heal.face_props` (1410 lines) — missing: `topology.loopuse`
-- [ ] `topology.brep_cache` (389 lines) — missing: `topology.brep_p1`, `topology.edge`
-- [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.edge`, `topology.face_p1`, `topology.loopuse` +2 more
-- [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.edge`, `topology.face_p1`, `topology.face_p3` +3 more
-- [ ] `topology.brep_p2` (2443 lines) — missing: `surface.offset_surface`, `topology.brep_cache`, `topology.brep_p1`, `topology.edge` +3 more
-- [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.edge`, `topology.face_p4` +2 more
-- [ ] `blend.fillet_geom_p1` (2113 lines) — missing: `surface.offset_surface`, `topology.brep_p1`, `topology.brep_p2`, `topology.edge` +1 more
-- [ ] `heal.heal_data_p2` (2160 lines) — missing: `heal.face_props`, `topology.edge`, `topology.vertex`
-- [ ] `mass.integrator` (1031 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.edge`, `topology.face_p1`
-- [ ] `topology.brep_p3` (2503 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.brep_p4`, `topology.brep_p9` +6 more
-- [ ] `topology.proto_topology_p2` (2091 lines) — missing: `topology.edge`
-- [ ] `blend.fillet_solver_p1` (1861 lines) — missing: `blend.fillet_geom_p1`, `surface.offset_surface`, `topology.edge`, `topology.vertex`
-- [ ] `blend.hcr` (1875 lines) — missing: `topology.brep_p1`, `topology.edge`
-- [ ] `heal.heal_data_p1` (922 lines) — missing: `heal.heal_data_p2`, `topology.brep_p1`
-- [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.edge`, `topology.face_p4` +1 more
-- [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`, `topology.edge`
-- [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `topology.brep_p1`, `topology.edge`
-- [ ] `topology.proto_topology_p3` (1577 lines) — missing: `topology.edge`, `topology.proto_topology_p2`
-- [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge`
-- [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`, `topology.edge`
+- [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`
+- [ ] `topology.brep_p10` (1890 lines) — missing: `topology.shell`
+- [ ] `topology.face_p3` (1881 lines) — missing: `topology.edgeuse_p3`, `topology.face_p4`
+- [ ] `query.face_p3` (1620 lines) — missing: `query.face_p2`, `topology.face_p4`
+- [ ] `topology.brep_p7` (2503 lines) — missing: `topology.brep_p10`, `topology.shell`
+- [ ] `topology.face_p1` (2171 lines) — missing: `topology.face_p3`, `topology.face_p4`
+- [ ] `query.face_p4` (1432 lines) — missing: `query.face_p3`
+- [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edgeuse_p3`, `topology.shell`
+- [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edgeuse_p3`, `topology.face_p3`, `topology.shell`
+- [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.shell`
+- [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.face_p3`, `topology.shell`
+- [ ] `topology.brep_p2` (2443 lines) — missing: `surface.offset_surface`, `topology.brep_cache`, `topology.brep_p1`, `topology.face_p3` +1 more
+- [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.face_p4`, `topology.shell`
+- [ ] `blend.fillet_geom_p1` (2113 lines) — missing: `surface.offset_surface`, `topology.brep_p1`, `topology.brep_p2`
+- [ ] `heal.heal_data_p2` (2160 lines) — missing: `heal.face_props`
+- [ ] `topology.brep_p3` (2503 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.brep_p4`, `topology.brep_p9` +2 more
+- [ ] `blend.fillet_solver_p1` (1861 lines) — missing: `blend.fillet_geom_p1`, `surface.offset_surface`
+- [ ] `blend.hcr` (1875 lines) — missing: `topology.brep_p1`
+- [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.face_p4`
+- [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`
+- [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `topology.brep_p1`
+- [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
+- [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `blend.fillet_standard_solver_p1` (2336 lines) — missing: `blend.fillet_solver_p1`, `surface.offset_surface`
-- [ ] `boolean.topology_intersector_p1` (2491 lines) — missing: `topology.edge`, `topology.face_p4`, `topology.proto_topology_p2`, `topology.proto_topology_p3` +1 more
-- [ ] `heal.heal_data_p3` (1967 lines) — missing: `heal.face_props`, `heal.heal_data_p1`, `heal.heal_data_p2`, `topology.brep_p5` +2 more
-- [ ] `heal.stitch_p2` (1906 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.edge`, `topology.face_p3` +1 more
-- [ ] `blend.fillet_solver_p4` (1404 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_intersector`, `blend.fillet_solver_p1`, `surface.offset_surface` +1 more
-- [ ] `boolean.topology_intersector_p2` (2195 lines) — missing: `boolean.topology_intersector_p1`, `topology.edge`, `topology.face_p4`, `topology.proto_topology_p3` +1 more
-- [ ] `offset.offset_geometry_creation` (2652 lines) — missing: `surface.offset_surface`, `topology.edge`, `topology.vertex`
-- [ ] `sweep.topology_sweep` (2456 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.brep_p3`, `topology.brep_p5` +5 more
-- [ ] `boolean.topology_intersector_p3` (1849 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `topology.edge`
-- [ ] `sweep.rotational_sweep_geometry` (1542 lines) — missing: `sweep.topology_sweep`, `topology.edge`
-- [ ] `sweep.trans_sweep_geometry` (817 lines) — missing: `sweep.topology_sweep`, `topology.edge`
-- [ ] `boolean.merge_p1` (993 lines) — missing: `boolean.topology_intersector_p1`, `topology.brep_p1`, `topology.edge`, `topology.shell` +1 more
+- [ ] `boolean.topology_intersector_p1` (2491 lines) — missing: `topology.face_p4`, `topology.proto_topology_p2`, `topology.proto_topology_p3`
+- [ ] `heal.heal_data_p3` (1967 lines) — missing: `heal.face_props`, `heal.heal_data_p1`, `heal.heal_data_p2`, `topology.brep_p5`
+- [ ] `heal.stitch_p2` (1906 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.face_p3`
+- [ ] `blend.fillet_solver_p4` (1404 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_intersector`, `blend.fillet_solver_p1`, `surface.offset_surface`
+- [ ] `boolean.topology_intersector_p2` (2195 lines) — missing: `boolean.topology_intersector_p1`, `topology.face_p4`, `topology.proto_topology_p3`
+- [ ] `offset.offset_geometry_creation` (2652 lines) — missing: `surface.offset_surface`
+- [ ] `sweep.topology_sweep` (2456 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.brep_p3`, `topology.brep_p5` +2 more
+- [ ] `boolean.topology_intersector_p3` (1849 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`
+- [ ] `sweep.rotational_sweep_geometry` (1542 lines) — missing: `sweep.topology_sweep`
+- [ ] `sweep.trans_sweep_geometry` (817 lines) — missing: `sweep.topology_sweep`
+- [ ] `boolean.merge_p1` (993 lines) — missing: `boolean.topology_intersector_p1`, `topology.brep_p1`, `topology.shell`
 - [ ] `primitive.primitive_creation_p3` (1842 lines) — missing: `primitive.primitive_creation_p1`, `sweep.topology_sweep`, `topology.brep_p1`, `topology.brep_p5` +1 more
-- [ ] `blend.fillet_executive_p3` (1608 lines) — missing: `blend.fillet_solver_p1`, `boolean.merge_p1`, `boolean.topology_intersector_p1`, `heal.stitch_p1` +3 more
-- [ ] `boolean.merge_p2` (1967 lines) — missing: `boolean.merge_p1`, `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `heal.stitch_p1` +5 more
-- [ ] `boolean.merge_p5` (475 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.topology_intersector_p1`, `topology.edge`
-- [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +5 more
+- [ ] `blend.fillet_executive_p3` (1608 lines) — missing: `blend.fillet_solver_p1`, `boolean.merge_p1`, `boolean.topology_intersector_p1`, `heal.stitch_p1` +2 more
+- [ ] `boolean.merge_p2` (1967 lines) — missing: `boolean.merge_p1`, `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `heal.stitch_p1` +3 more
+- [ ] `boolean.merge_p5` (475 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.topology_intersector_p1`
+- [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +4 more
 - [ ] `boolean.merge_p3` (1152 lines) — missing: `boolean.merge_p2`, `boolean.merge_p4`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +2 more
-- [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +8 more
-- [ ] `primitive.primitive_creation_p2` (2258 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p3`, `topology.brep_p1`, `topology.brep_p4` +3 more
-- [ ] `blend.fillet_corner_p1` (1971 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +2 more
-- [ ] `blend.fillet_solver_p2` (1939 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge` +1 more
-- [ ] `blend.fillet_solver_p3` (1112 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`, `topology.edge` +1 more
-- [ ] `offset.offset_executive_p1` (2107 lines) — missing: `offset.offset_geometry_creation`, `surface.offset_surface`, `topology.brep_p1`, `topology.edge` +1 more
+- [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +6 more
+- [ ] `primitive.primitive_creation_p2` (2258 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p3`, `topology.brep_p1`, `topology.brep_p4` +2 more
+- [ ] `blend.fillet_corner_p1` (1971 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1`
+- [ ] `blend.fillet_solver_p2` (1939 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
+- [ ] `blend.fillet_solver_p3` (1112 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
+- [ ] `offset.offset_executive_p1` (2107 lines) — missing: `offset.offset_geometry_creation`, `surface.offset_surface`, `topology.brep_p1`
 - [ ] `primitive.api_primitives` (885 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p2`
-- [ ] `sweep.api_brep` (529 lines) — missing: `primitive.primitive_creation_p2`, `primitive.primitive_creation_p3`
-- [ ] `blend.fillet_geom_p3` (1032 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`, `topology.edge` +1 more
-- [ ] `blend.fillet_geom_p4` (2074 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.edge` +1 more
-- [ ] `blend.fillet_geom_p6` (1813 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.brep_p3`, `topology.edge` +1 more
-- [ ] `blend.fillet_standard_solver_p2` (1989 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_solver_p3` +3 more
+- [ ] `blend.fillet_geom_p3` (1032 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
+- [ ] `blend.fillet_geom_p4` (2074 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
+- [ ] `blend.fillet_geom_p6` (1813 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.brep_p3`
+- [ ] `blend.fillet_standard_solver_p2` (1989 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_solver_p3` +2 more
 - [ ] `offset.offset_executive_p2` (1846 lines) — missing: `offset.offset_executive_p1`, `offset.offset_geometry_creation`, `topology.brep_p1`, `topology.brep_p2` +3 more
-- [ ] `blend.fillet_corner_p3` (1697 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1` +2 more
-- [ ] `blend.fillet_executive_p2` (1152 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +4 more
-- [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +3 more
-- [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +4 more
-- [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1` +2 more
+- [ ] `blend.fillet_corner_p3` (1697 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
+- [ ] `blend.fillet_executive_p2` (1152 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +3 more
+- [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +1 more
+- [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +2 more
+- [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1`
 - [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `heal.heal_data_p3` +9 more
 
 ## In progress
 
 - [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
-- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
-- [ ] 🔨 `intersect.surface_drop_lib_p1` (1478 lines) — in progress: #98 @bherbruck (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
+- [ ] 🔨 `surface.surface_p11` (1789 lines) — in progress: #120 @froglemonade2 (draft)
+- [ ] 🔨 `surface.surface_p8` (2374 lines) — in progress: #118 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
-- [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (draft)
+- [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
+- [ ] 🔨 `intersect.surface_drop_lib_p2` (1080 lines) — in progress: #112 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
-- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (draft)
+- [ ] 🔨 `intersect.curve_class_p3` (1986 lines) — in progress: #123 @froglemonade2 (draft)
+- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
-- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
-- [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (ready for review)
-- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
+- [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
+- [ ] 🔨 `mass.integrator` (1031 lines) — in progress: #119 @damgru (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
+- [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
+- [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
+- [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
+- [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
 ## By module
 
@@ -230,7 +222,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `curve.curve_p5` (2299 lines) — partial, 3097 cases
 - [x] ✅ `curve.curve_p9` (1783 lines) — green, 3093 cases
 
-### surface (30/40)
+### surface (32/40)
 
 - [ ] 🟡 `surface.volume_p1` (2014 lines) — partial, 2886 cases
 - [x] ✅ `surface.b_spline_volume` (1226 lines) — green, 2333 cases
@@ -256,10 +248,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.volume_p2` (1490 lines) — partial, 11220 cases
 - [ ] 🟡 `surface.surface_p7` (2406 lines) — partial, 3660 cases
 - [ ] 🟡 `surface.plane_p2` (1627 lines) — partial, 2218 cases
-- [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
+- [ ] 🟡 `surface.surface_p4` (2270 lines) — partial, 3000 cases
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🟡 `surface.surf_of_extrusion_p2` (1420 lines) — partial, 1359 cases
-- [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
+- [ ] 🟡 `surface.surface_p5` (2321 lines) — partial, 3046 cases
 - [ ] ⏳ `surface.cone_p3` (1939 lines) — waiting
 - [ ] 🟡 `surface.surface_p1` (2458 lines) — partial, 806 cases
 - [ ] 🟡 `surface.surface_p6` (2150 lines) — partial, 2099 cases
@@ -267,13 +259,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_p10` (2172 lines) — partial, 867 cases
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
-- [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
-- [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
+- [ ] 🔨 `surface.surface_p11` (1789 lines) — in progress: #120 @froglemonade2 (draft)
+- [ ] 🔨 `surface.surface_p8` (2374 lines) — in progress: #118 @froglemonade2 (draft)
 - [ ] 🟡 `surface.surface_point_solve_p1` (1771 lines) — partial, 1035 cases
 - [ ] 🟡 `surface.surface_point_solve_p2` (1882 lines) — partial, 1320 cases
-- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (draft)
+- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (ready for review)
 
-### topology (8/31)
+### topology (12/31)
 
 - [x] ✅ `topology.database_io` (363 lines) — green, 2059 cases
 - [x] ✅ `topology.topology` (389 lines) — green, 657 cases
@@ -284,47 +276,47 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.edgeuse_p2` (600 lines) — partial, 4583 cases
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🟡 `topology.vertexuse` (1429 lines) — partial, 2686 cases
-- [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
-- [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
+- [ ] 🟡 `topology.vertex` (824 lines) — partial, 5508 cases
+- [ ] 🟡 `topology.loopuse` (892 lines) — partial, 8854 cases
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (ready for review)
-- [ ] ⏳ `topology.edgeuse_p3` (2273 lines) — waiting
-- [ ] ⏳ `topology.trimming_tools` (2878 lines) — waiting
+- [ ] 🟡 `topology.edge` (2213 lines) — partial, 1787 cases
+- [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
+- [ ] ▶️ `topology.trimming_tools` (2878 lines) — ready
 - [ ] ⏳ `topology.face_p4` (1812 lines) — waiting
 - [ ] ⏳ `topology.brep_p10` (1890 lines) — waiting
 - [ ] ⏳ `topology.face_p3` (1881 lines) — waiting
-- [ ] ⏳ `topology.topology_traverser` (784 lines) — waiting
+- [ ] 🟡 `topology.topology_traverser` (784 lines) — partial, 909 cases
 - [ ] ⏳ `topology.brep_p7` (2503 lines) — waiting
 - [ ] ⏳ `topology.face_p1` (2171 lines) — waiting
 - [ ] ⏳ `topology.brep_p1` (2454 lines) — waiting
 - [ ] ⏳ `topology.brep_p6` (1479 lines) — waiting
-- [ ] ⏳ `topology.brep_cache` (389 lines) — waiting
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
 - [ ] ⏳ `topology.brep_p4` (2113 lines) — waiting
 - [ ] ⏳ `topology.brep_p9` (2443 lines) — waiting
 - [ ] ⏳ `topology.brep_p2` (2443 lines) — waiting
 - [ ] ⏳ `topology.brep_p5` (2193 lines) — waiting
 - [ ] ⏳ `topology.brep_p3` (2503 lines) — waiting
-- [ ] ⏳ `topology.proto_topology_p2` (2091 lines) — waiting
-- [ ] ⏳ `topology.proto_topology_p3` (1577 lines) — waiting
+- [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
+- [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
 
-### intersect (13/25)
+### intersect (14/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] 🟡 `intersect.curve_class_p1` (2087 lines) — partial, 2125 cases
-- [ ] 🔨 `intersect.surface_drop_lib_p1` (1478 lines) — in progress: #98 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.surface_drop_lib_p1` (1478 lines) — partial, 1862 cases
 - [ ] 🟡 `intersect.surface_silhouette` (979 lines) — partial, 709 cases
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🟡 `intersect.ray_tracer` (1246 lines) — partial, 421 cases
-- [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (draft)
-- [ ] ⏳ `intersect.surface_drop_lib_p2` (1080 lines) — waiting
+- [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
+- [ ] 🔨 `intersect.surface_drop_lib_p2` (1080 lines) — in progress: #112 @bherbruck (ready for review)
 - [ ] 🟡 `intersect.surface_intersector_p1` (1816 lines) — partial, 1510 cases
 - [ ] 🟡 `intersect.topology_solver_p1` (1838 lines) — partial, 3532 cases
 - [ ] 🟡 `intersect.adv_surface_intersector` (1646 lines) — partial, 1931 cases
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] ⏳ `intersect.surface_drop_lib_p3` (2062 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p2` (1677 lines) — partial, 1660 cases
-- [ ] ⏳ `intersect.curve_class_p3` (1986 lines) — waiting
+- [ ] 🔨 `intersect.curve_class_p3` (1986 lines) — in progress: #123 @froglemonade2 (draft)
 - [ ] ⏳ `intersect.curve_class_p4` (2022 lines) — waiting
 - [ ] 🟡 `intersect.surface_intersector_p3` (1932 lines) — partial, 1527 cases
 - [ ] ⏳ `intersect.curve_class_p6` (2213 lines) — waiting
@@ -347,7 +339,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `query.edge` (1025 lines) — partial, 1368 cases
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
-- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] 🟡 `query.poly` (2119 lines) — partial, 671 cases
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
@@ -358,22 +350,22 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ### mass (0/1)
 
-- [ ] ⏳ `mass.integrator` (1031 lines) — waiting
+- [ ] 🔨 `mass.integrator` (1031 lines) — in progress: #119 @damgru (ready for review)
 
 ### sweep (1/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
-- [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
+- [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
 ### heal (1/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
-- [ ] ⏳ `heal.face_props` (1410 lines) — waiting
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
 - [ ] ⏳ `heal.heal_data_p2` (2160 lines) — waiting
-- [ ] ⏳ `heal.heal_data_p1` (922 lines) — waiting
+- [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
 - [ ] ⏳ `heal.heal_data_p3` (1967 lines) — waiting
 - [ ] ⏳ `heal.stitch_p2` (1906 lines) — waiting

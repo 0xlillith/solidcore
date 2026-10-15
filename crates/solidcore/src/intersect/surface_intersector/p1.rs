@@ -91,7 +91,7 @@ use crate::error::{Result, SolidError, SM_ERR_NULL_POINTER};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
-use crate::geom::global_solver::SolverOperation;
+use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::tol::is_zero;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
@@ -828,6 +828,7 @@ impl<'s> SurfaceIntersector<'s> {
     /// parameter found there in that point.
     pub fn step_back_from_singularity(
         &mut self,
+        k: &Kernel,
         sing_dir: SurfParamType,
         srf: SrfIndex,
         step_off_current: bool,
@@ -838,6 +839,7 @@ impl<'s> SurfaceIntersector<'s> {
         let mut prev = self.point(previous)?.clone();
         let mut curr = self.point(current)?.clone();
         let r = self.step_back_from_singularity_points(
+            k,
             sing_dir,
             srf,
             step_off_current,
@@ -860,6 +862,7 @@ impl<'s> SurfaceIntersector<'s> {
     /// (upstream takes the points by reference).
     pub(crate) fn step_back_from_singularity_points(
         &self,
+        k: &Kernel,
         sing_dir: SurfParamType,
         srf: SrfIndex,
         step_off_current: bool,
@@ -891,7 +894,7 @@ impl<'s> SurfaceIntersector<'s> {
             surface_local_point_solve(surface, &domain, pnt, prev.uv_pos(srf))?;
         if !found_answer {
             let solutions =
-                surface_global_point_solve(surface, &domain, pnt, self.this_approx_tol_3d)?;
+                surface_global_point_solve(k, surface, &domain, pnt, self.this_approx_tol_3d)?;
             if let Some(first) = solutions.first() {
                 solution = *first;
                 found_answer = true;
@@ -1774,45 +1777,60 @@ fn evaluate_normal_section(eval: &[[Vec3; 3]; 3], direction: Vec3) -> Result<f64
 /// `crSurface.LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, ..)`: found flag
 /// and the solution's start parameters.
 fn surface_local_point_solve(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, [f64; 2])> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        domain,
+        SolverOperation::Minimize,
+        point,
+        guess,
+    )?;
+    Ok((
+        r.found,
+        [r.solution.start.param(0)?, r.solution.start.param(1)?],
     ))
 }
 
 /// `crSurface.GlobalPointSolve(domain, SM_SO_MINIMIZE, point, tol, NULL, SM_SR_ALL,
 /// ..)`: the solutions' start parameters.
 fn surface_global_point_solve(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    tol: f64,
 ) -> Result<Vec<[f64; 2]>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+    let starts = crate::surface::surface::p4::global_point_solve_starts(
+        k,
+        surface,
+        domain,
+        SolverOperation::Minimize,
+        point,
+        tol,
+        SolutionRequested::All,
+    )?;
+    starts
+        .iter()
+        .map(|s| Ok([s.param(0)?, s.param(1)?]))
+        .collect()
 }
 
 /// `crSurface.DropPoint(point, domain, guess, ..)`: the UV point and its gap.
 fn surface_drop_point(
-    _surface: &Surface,
-    _point: Point3,
-    _domain: &Extent2d,
-    _guess: Option<Point2>,
+    surface: &Surface,
+    point: Point3,
+    domain: &Extent2d,
+    guess: Option<Point2>,
 ) -> Result<(Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        guess_uv: guess,
+        ..Default::default()
+    };
+    let r = surface.drop_point::<crate::surface::surface::p4::NoObject>(point, domain, &opts)?;
+    Ok((r.result_uv, r.gap))
 }
 
 /// `m_cpSurface[0]->LocalSurfaceIntersect(..)`: found flag and the solution's start
