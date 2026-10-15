@@ -91,7 +91,7 @@ use crate::error::{Result, SolidError, SM_ERR_NULL_POINTER};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
-use crate::geom::global_solver::SolverOperation;
+use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::tol::is_zero;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
@@ -101,6 +101,7 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::TsectCurveType;
+use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
 
 const OP_POINT: &str = "intersect::surface_intersector::p1::SurfaceIntersector::point";
@@ -1794,21 +1795,25 @@ fn surface_local_point_solve(
 /// `crSurface.GlobalPointSolve(domain, SM_SO_MINIMIZE, point, tol, NULL, SM_SR_ALL,
 /// ..)`: the solutions' start parameters.
 fn surface_global_point_solve(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _tol: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    tol: f64,
 ) -> Result<Vec<[f64; 2]>> {
-    // UNPORTED(surface.surface_p5): SmSurface::GlobalPointSolve
-    // `surface::surface::p4::global_point_solve_starts` is ported but needs a `&Kernel`,
-    // which `SurfaceIntersector::step_back_from_singularity_points` (this function's only
-    // caller) does not have: wire it when the kernel is threaded through
-    // `compute_point_values`. Until `SmSurface::LocalPointSolve` (`surface.surface_p5`) is
-    // ported, `surface_local_point_solve` fails first, so this is not reached.
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p5",
-    ))
+    // `step_back_from_singularity_points` has no kernel to thread through, so use the
+    // default one (as the reviewed fix suggests).
+    Ok(global_point_solve_starts(
+        &Kernel::default(),
+        surface,
+        domain,
+        SolverOperation::Minimize,
+        point,
+        tol,
+        SolutionRequested::All,
+    )?
+    .iter()
+    .map(|s| [s.parameters[0], s.parameters[1]])
+    .collect())
 }
 
 /// `crSurface.DropPoint(point, domain, guess, ..)`: the UV point and its gap.
