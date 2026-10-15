@@ -529,7 +529,8 @@ impl Surface {
                             )?;
                         }
                     }
-                    if new_uv == uv {
+                    // SmVector2d::operator!= scales its tolerance from the left operand.
+                    if !new_uv.approx_ne(uv) {
                         reason = OutOfBounds;
                         break;
                     }
