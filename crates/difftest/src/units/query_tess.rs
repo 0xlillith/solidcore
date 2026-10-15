@@ -25,7 +25,7 @@ use solidcore::geom::tree::{
     TreeOwner,
 };
 use solidcore::kernel::Kernel;
-use solidcore::math::{Point3, Vec3};
+use solidcore::math::{Point3, Vec2, Vec3};
 use solidcore::nurbs::b_spline_surface::{BSplineSurface, BSplineSurfaceForm};
 use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
@@ -34,6 +34,7 @@ use solidcore::query::tess::{
     self, SurfaceTessDriver, SurfaceTessDriverOptions, TessHandle, TessSrfCache,
     ViewBasedTessDriverOptions,
 };
+use solidcore::surface::plane::p1::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::surface_cache::p1::FaceContainment;
 use solidcore::surface::surface_cache::{BezierAux2d, SurfaceCacheOptions};
@@ -92,6 +93,16 @@ struct BssIn {
 
 fn default_form() -> u8 {
     BSplineSurfaceForm::Unspecified as u8
+}
+
+/// A bounded plane `SmPlane(o, x, y, scale, dom)` (an `SmBSplineSurface`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct PlaneIn {
+    o: [f64; 3],
+    x: [f64; 3],
+    y: [f64; 3],
+    scale: [f64; 2],
+    dom: [f64; 4],
 }
 
 /// The tessellation driver: `kind` 0 none, 1 plain, 2 view based.
@@ -158,7 +169,12 @@ struct StateIn {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Setup {
-    srf: BssIn,
+    /// The B-spline surface (ignored when `plane` is set).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    srf: Option<BssIn>,
+    /// A plane surface instead of `srf`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    plane: Option<PlaneIn>,
     /// `ch ang max_edge min_edge ratio aspect` (constructor order).
     opts: [f64; 6],
     driver: DriverIn,
@@ -315,7 +331,17 @@ fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
         return Ok((Op::Attr, o));
     }
     let s = i.setup.as_ref().ok_or_else(|| harness("missing setup"))?;
-    push_srf(&mut o, &s.srf)?;
+    if let Some(p) = &s.plane {
+        o.push(1.0);
+        o.extend(p.o);
+        o.extend(p.x);
+        o.extend(p.y);
+        o.extend(p.scale);
+        o.extend(p.dom);
+    } else {
+        o.push(0.0);
+        push_srf(&mut o, s.srf.as_ref().ok_or_else(|| harness("missing surface"))?)?;
+    }
     o.extend(s.opts);
     let d = &s.driver;
     o.push(f64::from(d.kind));
@@ -525,36 +551,35 @@ fn driver_of(d: &DriverIn) -> Option<SurfaceTessDriver> {
     }
 }
 
-fn hs(e: SolidError) -> HarnessError {
+fn hs(e: &SolidError) -> HarnessError {
     harness(format!("poly construction: {e}"))
 }
 
 /// The poly B-rep and its edges in creation order.
 fn poly_of(k: &Kernel, p: &PolyIn) -> Result<(PolyBrep, Vec<PolyEdgeId>), HarnessError> {
     let mut b = PolyBrep::new(k, p.brep_tol);
-    let r = b.add_region().map_err(hs)?;
-    let sh = b.add_shell(r).map_err(hs)?;
-    let f = b.add_face(k, sh, p.face_tol, None).map_err(hs)?;
+    let r = b.add_region().map_err(|e| hs(&e))?;
+    let sh = b.add_shell(r).map_err(|e| hs(&e))?;
+    let f = b.add_face(k, sh, p.face_tol, None).map_err(|e| hs(&e))?;
     let label = (p.label > 0).then_some(ObjectKey(p.label));
-    b.face_set_original_face(f, label, false).map_err(hs)?;
+    b.face_set_original_face(f, label, false).map_err(|e| hs(&e))?;
     let mut edges = Vec::new();
     for l in &p.loops {
         let mut vs = Vec::new();
         for pt in &l.pts {
             let v = b
                 .add_vertex(k, Point3::new(pt[0], pt[1], pt[2]), pt[3])
-                .map_err(hs)?;
+                .map_err(|e| hs(&e))?;
             vs.push((v, Point3::new(pt[0], pt[1], pt[2])));
         }
-        let lp = b.start_poly_edge_loop(f).map_err(hs)?;
-        let n = vs.len();
-        for j in 0..n {
-            let (v0, p0) = vs[j];
-            let (_, p1) = vs[(j + 1) % n];
-            let e = b.add_poly_edge(k, lp, l.etol, p0, p1, v0).map_err(hs)?;
+        let lp = b.start_poly_edge_loop(f).map_err(|e| hs(&e))?;
+        // each point to the next, the last back to the first
+        let next = vs.iter().cycle().skip(1);
+        for (&(v0, p0), &(_, p1)) in vs.iter().zip(next) {
+            let e = b.add_poly_edge(k, lp, l.etol, p0, p1, v0).map_err(|e| hs(&e))?;
             edges.push(e);
         }
-        b.finish_poly_edge_loop(lp).map_err(hs)?;
+        b.finish_poly_edge_loop(lp).map_err(|e| hs(&e))?;
     }
     Ok((b, edges))
 }
@@ -755,7 +780,26 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
     let s = i.setup.as_ref().ok_or_else(|| harness("missing setup"))?;
     let k = Kernel::default();
-    let bss = bss_of(&s.srf)?;
+    // the cache surface, and the B-spline (part) handed to BuildTreeWithSubdivision
+    let (surface, bss) = if let Some(p) = &s.plane {
+        let v3 = |a: [f64; 3]| Vec3::new(a[0], a[1], a[2]);
+        let plane = Plane::new(
+            v3(p.o),
+            v3(p.x),
+            v3(p.y),
+            Vec2::new(p.scale[0], p.scale[1]),
+            &dom_of(p.dom),
+        );
+        // (upstream's GetNaturalUVDomain and copy constructor make the plane's NURB)
+        let bss = plane
+            .base_with_nurb()
+            .map_err(|e| harness(format!("plane NURB: {e}")))?
+            .into_owned();
+        (Surface::from(plane), bss)
+    } else {
+        let bss = bss_of(s.srf.as_ref().ok_or_else(|| harness("missing surface"))?)?;
+        (Surface::from(bss.copy()), bss)
+    };
     let (poly, edges) = match &s.poly {
         None => (None, Vec::new()),
         Some(p) => {
@@ -774,7 +818,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     };
     let mut c = TessSrfCache::new(
         FACE_KEY,
-        Surface::from(bss.copy()),
+        surface,
         poly,
         driver_of(&s.driver),
         opts,
@@ -986,6 +1030,28 @@ fn gen_srf(rng: &mut Rng, max_deg: usize, scale: f64) -> InlineSrf {
         q,
         u: gen_knots(rng, p, n, ue),
         v: gen_knots(rng, q, m, ve),
+    }
+}
+
+/// A bounded plane (unit or skew axes, scaled) of coordinates about `scale`.
+fn gen_plane(rng: &mut Rng, scale: f64) -> PlaneIn {
+    let v = |rng: &mut Rng| {
+        [
+            rng.uniform(-1.0, 1.0),
+            rng.uniform(-1.0, 1.0),
+            rng.uniform(-1.0, 1.0),
+        ]
+    };
+    let x = if rng.chance(0.5) { [1.0, 0.0, 0.0] } else { v(rng) }.map(|c| c * scale);
+    let y = if rng.chance(0.5) { [0.0, 1.0, 0.0] } else { v(rng) }.map(|c| c * scale);
+    let o = v(rng).map(|c| c * 5.0 * scale);
+    let (a, b) = (rng.uniform(-2.0, 2.0), rng.uniform(-2.0, 2.0));
+    PlaneIn {
+        o,
+        x,
+        y,
+        scale: [rng.uniform(0.2, 3.0), rng.uniform(0.2, 3.0)],
+        dom: [a, b, a + rng.uniform(0.1, 4.0), b + rng.uniform(0.1, 4.0)],
     }
 }
 
@@ -1206,7 +1272,12 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         _ => 1.0,
     };
     let s = gen_srf(rng, 3, scale);
-    let d = domain_of_srf(&s);
+    let mut d = domain_of_srf(&s);
+    let plane = rng.chance(0.12).then(|| {
+        let p = gen_plane(rng, scale);
+        d = p.dom;
+        p
+    });
     let srf = BssIn {
         oob: rng.chance(0.1),
         form: if rng.chance(0.85) {
@@ -1229,7 +1300,8 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         dom: None,
     };
     let base = Setup {
-        srf,
+        srf: Some(srf),
+        plane,
         opts,
         driver,
         poly: None,

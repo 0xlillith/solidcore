@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // difftest shim for unit `query.tess`: SmTessSrfCache, SmSurfaceTessDriver,
 // SmViewBasedTessDriver and SmPolyToEUVUAttr (source/SMLib/src/SmTess.cpp,
-// source/SMLib/inc/SmTess.h) over an SmBSplineSurface.
+// source/SMLib/inc/SmTess.h) over an SmBSplineSurface or an SmPlane.
 //
 // One entry point, sc_query_tess_eval(op, in, n_in, out, cap, out_len). Layouts are documented
 // in crates/solidcore-ffi/src/units/query_tess.rs, which validates every input. Every op reads
@@ -31,6 +31,7 @@
 #include <SmExtent2d.h>
 #include <SmFace.h>
 #include <SmNurbsSrf.h>
+#include <SmPlane.h>
 #include <SmPoly.h>
 #include <SmSurface.h>
 #include <SmSurfaceCache.h>
@@ -89,6 +90,13 @@ struct Rd
     double num() { return in[at++]; }
     int64_t idx() { return (int64_t)in[at++]; }
     bool flag() { return in[at++] != 0.0; }
+    SmVector3d vec()
+    {
+        double x = num();
+        double y = num();
+        double z = num();
+        return SmVector3d(x, y, z);
+    }
     SmExtent2d domain()
     {
         double a = num();
@@ -171,6 +179,23 @@ SmBSplineSurface* read_bspline(Rd& rd, const SmContext& ctx)
     s->GetOutOfBoundsEnabled() = oob ? TRUE : FALSE;
     s->SetBSplineSurfaceForm(form);
     return s;
+}
+
+// A surface `kind ...`: 0 B-spline `oob form nurb`; 1 bounded plane `o x y sx sy D` (an
+// SmPlane is an SmBSplineSurface).
+SmBSplineSurface* read_surface(Rd& rd, const SmContext& ctx)
+{
+    if (rd.idx() == 1)
+    {
+        SmPoint3d o = rd.vec();
+        SmVector3d x = rd.vec();
+        SmVector3d y = rd.vec();
+        double sx = rd.num();
+        double sy = rd.num();
+        SmExtent2d d = rd.domain();
+        return new (ctx) SmPlane(o, x, y, SmVector2d(sx, sy), d, &ctx);
+    }
+    return read_bspline(rd, ctx);
 }
 
 struct Model
@@ -410,7 +435,7 @@ SC_EXPORT int32_t sc_query_tess_eval(int32_t op, const double* in, int64_t n_in,
         op_attr(rd, ctx, o);
         return sc_copy_out(o.o.data(), (int64_t)o.o.size(), out, cap, out_len);
     }
-    SmBSplineSurface* s = read_bspline(rd, ctx);
+    SmBSplineSurface* s = read_surface(rd, ctx);
 
     // cache tolerances: ch ang max_edge min_edge ratio aspect
     double t[6];

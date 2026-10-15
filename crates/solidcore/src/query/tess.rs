@@ -52,7 +52,9 @@
 //!   the cache's surface: the constructor builds the cache from that surface, so they
 //!   are the same object upstream. `SM_CAST_PTR(SmBSplineSurface, pSurface)` holds for
 //!   B-splines, planes and surfaces of revolution (their B-spline part is copied, as
-//!   the slicing `SmBSplineSurface` copy constructor does).
+//!   the slicing `SmBSplineSurface` copy constructor does, with the NURB that
+//!   `GetOrCreateGwNurbPointer` makes when it is missing; upstream makes it on the face
+//!   surface itself, the port on the copy; a failed `MakeNurb` copies the part as is).
 //! - **Temporary state.** `SmTemporaryChangeValue` becomes explicit save / restore,
 //!   also on errors; the face containment guard of `BuildTree` is cleared on success.
 //! - **Ignored statuses** stay ignored (`CalculateBoundingBox` of the subdivision copy,
@@ -110,6 +112,7 @@ const OP_SUB: &str = "query::tess::TessSrfCache::build_tree_with_subdivision";
 const OP_BUILD: &str = "query::tess::TessSrfCache::build_tree";
 const OP_UV: &str = "query::tess::TessSrfCache::implant_uv_segment";
 const OP_MARK: &str = "query::tess::TessSrfCache::mark_face_containment";
+const OP_GET_TREE: &str = "query::tess::TessSrfCache::get_tree";
 
 /// `SmTessSrfCache::IsKindOf`: the tessellation cache or a base type.
 #[must_use]
@@ -589,10 +592,24 @@ impl TessSrfCache {
     fn build_tree_body(&mut self, k: &Kernel) -> Result<bool> {
         // Build the m_pTree subdivision tree of the surface
         if self.base().tree().is_none() {
+            // (`GetNaturalUVDomain` and the copy constructor read the NURB through
+            // `GetOrCreateGwNurbPointer`, which makes a plane's or a surface of
+            // revolution's missing NURB first)
             let bss: Option<BSplineSurface> = match self.base().surface().kind() {
                 SurfaceKind::BSpline(b) => Some(b.clone()),
-                SurfaceKind::Plane(p) => Some(p.base().clone()),
-                SurfaceKind::SurfOfRevolution(s) => Some(s.base().clone()),
+                SurfaceKind::Plane(p) => Some(match ignore(p.base_with_nurb())? {
+                    Some(b) => b.into_owned(),
+                    None => p.base().clone(),
+                }),
+                SurfaceKind::SurfOfRevolution(s) => Some(if s.base().gw_nurb().is_some() {
+                    s.base().clone()
+                } else {
+                    let mut c = s.as_ref().clone();
+                    match ignore(c.make_nurb(k))? {
+                        Some(()) => c.base().clone(),
+                        None => s.base().clone(),
+                    }
+                }),
                 SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
             };
             if let Some(bss) = bss {
@@ -685,7 +702,7 @@ impl TessSrfCache {
             self.build_tree(k)?;
         }
         if self.base().tree().is_none() {
-            return Err(invalid(OP_MARK, "cache has no tree"));
+            return Err(invalid(OP_GET_TREE, "cache has no tree"));
         }
         Ok(())
     }

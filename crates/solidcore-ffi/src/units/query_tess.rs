@@ -5,8 +5,10 @@
 //!
 //! Every op but `Attr` reads the same blocks:
 //!
-//! * `S`: a B-spline surface `oob form n m p q r s cpts(x y z w) u v`
-//!   (`SmBSplineSurface(gw_SURFACE*, FALSE, NULL)`, control points with the v index fastest);
+//! * `S`: the surface `kind ...`: `0 oob form n m p q r s cpts(x y z w) u v`, a B-spline
+//!   surface (`SmBSplineSurface(gw_SURFACE*, FALSE, NULL)`, control points with the v index
+//!   fastest), or `1 o x y sx sy D`, a bounded `SmPlane(o, x, y, (sx, sy), D)` (an
+//!   `SmBSplineSurface`);
 //! * the cache tolerances `ch ang max_edge min_edge ratio aspect` (the `SmTessSrfCache`
 //!   constructor's order);
 //! * the driver `kind vx vy vz sil_ch sil_ang ch ang max_edge min_edge ratio aspect` (`kind` 0 =
@@ -171,6 +173,10 @@ impl Reader<'_> {
         Ok(v as i64)
     }
 
+    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
+        Ok([self.finite()?, self.finite()?, self.finite()?])
+    }
+
     fn flag(&mut self) -> Result<bool, FfiError> {
         Ok(self.index(1)? == 1)
     }
@@ -283,6 +289,47 @@ fn bspline_block(rd: &mut Reader<'_>) -> Result<[f64; 4], FfiError> {
     Ok([u0, v0, u1, v1])
 }
 
+/// Squared length of a vector.
+fn len2(v: [f64; 3]) -> f64 {
+    v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+}
+
+fn cross(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
+    [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
+}
+
+/// The surface block `kind ...` (a B-spline or a bounded plane); returns its domain.
+fn surface_block(rd: &mut Reader<'_>) -> Result<[f64; 4], FfiError> {
+    if rd.index(1)? == 0 {
+        return bspline_block(rd);
+    }
+    rd.vec3()?;
+    let x = rd.vec3()?;
+    let y = rd.vec3()?;
+    let (lx, ly) = (len2(x), len2(y));
+    if !(1e-6..=1e6).contains(&lx) || !(1e-6..=1e6).contains(&ly) {
+        return Err(bad("plane: axis length out of range"));
+    }
+    if len2(cross(x, y)) < 1e-6 * lx * ly {
+        return Err(bad("plane: axes (nearly) parallel"));
+    }
+    for _ in 0..2 {
+        let s = rd.finite()?;
+        if !(1e-3..=1e3).contains(&s) {
+            return Err(bad("plane: scale out of range"));
+        }
+    }
+    let d = rd.domain()?;
+    if d[2] - d[0] < 1e-6 || d[3] - d[1] < 1e-6 || d.iter().any(|v| v.abs() > 1e4) {
+        return Err(bad("plane: domain size out of range"));
+    }
+    Ok(d)
+}
+
 /// The poly B-rep block; returns its edge count (`None` without poly B-rep).
 fn poly(rd: &mut Reader<'_>) -> Result<Option<usize>, FfiError> {
     if !rd.flag()? {
@@ -374,7 +421,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         rd.index(1_000_000)?;
         return Ok(());
     }
-    let srf = bspline_block(rd)?;
+    let srf = surface_block(rd)?;
     rd.finites(6)?;
     let driver = rd.index(2)?;
     rd.finites(11)?;
@@ -477,7 +524,7 @@ mod tests {
     use super::*;
 
     fn common(driver: f64, n_tree: usize) -> Vec<f64> {
-        let mut input = vec![0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 3.0, 3.0];
+        let mut input = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 3.0, 3.0];
         for (x, y) in [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)] {
             input.extend([x, y, 0.0, NOW]);
         }
