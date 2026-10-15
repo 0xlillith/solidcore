@@ -1515,7 +1515,7 @@ fn surface_evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
 
 /// `crSurface.IsSingularity(uv, eSingDir)`: the plane override (none); other kinds
 /// run `SmSurface::IsSingularity`.
-fn is_singularity(surface: &Surface, _uv: Point2) -> Result<(bool, SurfParamType)> {
+fn is_singularity(surface: &Surface, uv: Point2) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
@@ -1523,11 +1523,8 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<(bool, SurfParamType
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            let r = surface.is_singularity(uv, EFF_ZERO, false)?;
+            Ok((r.singular, r.direction))
         }
     }
 }
@@ -1535,16 +1532,25 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<(bool, SurfParamType
 /// `crSurface.LocalPointSolve(domain, SM_SO_NORMALIZE, point, guess, found, sol)`:
 /// the solution's start parameters when found.
 fn surface_local_point_solve_normalize(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<Option<[f64; 2]>> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        domain,
+        crate::geom::global_solver::SolverOperation::Normalize,
+        point,
+        guess,
+    )?;
+    if r.found {
+        Ok(Some([
+            r.solution.start.param(0)?,
+            r.solution.start.param(1)?,
+        ]))
+    } else {
+        Ok(None)
+    }
 }
 
 /// `surface.LocalSurfaceSolve(domain, other, other_domain, SM_SO_NORMALIZE, tol, NULL,
