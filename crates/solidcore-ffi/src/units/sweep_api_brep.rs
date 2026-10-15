@@ -49,8 +49,9 @@
 //! B-spline kind (not `Hermite`) where upstream takes `SmBSplineCurve*`; no `Null`
 //! curve in the lists of `PlanarPath`, which upstream dereferences unchecked; at most 16
 //! positive-radius planar circles; a cap selector in `-16..=16` and at most `2^20`
-//! repetitions (shim bounds). Three kernel defects (`plan/upstream-issues.md`) are
-//! fenced off:
+//! repetitions (shim bounds). Five kernel defects (`plan/upstream-issues.md`) are
+//! fenced off (each only where the kernel is reached: a list holding a `Null` or
+//! `Hermite` curve fails in `SmApiCopyCurvesForConsumingSweep` before it):
 //! - `Draft` with no curves (unlike `Taper`, the API does not reject it) crashes in
 //!   `SmPrimitiveCreation::CreateTaperExtrude`;
 //! - `Draft` / `Taper` crash on a profile curve smaller than about `2 * SM_ZONE_TOL_3D`
@@ -58,7 +59,15 @@
 //!   (line length, arc / circle diameter, the bounding-box diagonal of the
 //!   `SmApiCreateCurve` points) is below [`MIN_TAPER_EXTENT`] are rejected;
 //! - `Linear` / `LinearReps` with a negative distance and a full circle (B-spline or
-//!   analytic circle, or an arc spanning 360 degrees or more) never return.
+//!   analytic circle, or an arc spanning 360 degrees or more) never return (not
+//!   rejected for a capped `LinearReps` with other than one repetition, which
+//!   `CreateLinearSweep` refuses with `SM_ERR` first);
+//! - `PlanarPath` with a `Hermite` curve crashes: `CreateSweepAlongPlanarPath` uses the
+//!   `NULL` result of the profile `Copy` and casts the path curves to `SmBSplineCurve*`
+//!   unchecked;
+//! - `CurveSweep` whose profile holds no B-spline curve (only `Null` / `Hermite`
+//!   entries, which `CreateCurveSweep` skips) crashes on `sNurbs[0]` unless the options
+//!   move the profile center to the path.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -387,6 +396,7 @@ fn push_curve(o: &mut Vec<f64>, c: &CurveSpec) {
 fn push_curves(
     o: &mut Vec<f64>,
     curves: &[CurveSpec],
+    bspline: bool,
     nullable: bool,
     non_empty: bool,
 ) -> Result<(), FfiError> {
@@ -397,7 +407,7 @@ fn push_curves(
         return Err(bad("empty curve list (upstream crash)"));
     }
     for c in curves {
-        check_curve(c, false, nullable)?;
+        check_curve(c, bspline, nullable)?;
     }
     o.push(curves.len() as f64);
     for c in curves {
@@ -463,9 +473,37 @@ fn extent(c: &CurveSpec) -> Option<f64> {
     }
 }
 
+/// Whether `SmApiCopyCurvesForConsumingSweep` copies every curve, so the call reaches
+/// the kernel (a `Null` curve or one without `Copy` fails first).
+fn copies_ok(curves: &[CurveSpec]) -> bool {
+    !curves
+        .iter()
+        .any(|c| matches!(c, CurveSpec::Null | CurveSpec::Hermite { .. }))
+}
+
+/// Whether a curve reaches `CreateCurveSweep` as a profile curve (an
+/// `SmBSplineCurve`; `NULL` and the Hermite curve are skipped).
+fn is_bspline(c: &CurveSpec) -> bool {
+    !matches!(c, CurveSpec::Null | CurveSpec::Hermite { .. })
+}
+
+/// Rejects a curve-sweep profile without a B-spline curve, on which `CreateCurveSweep`
+/// reads `sNurbs[0]` of an empty list, unless the profile center is moved to the path.
+fn check_curve_sweep_profile(profile: &[CurveSpec], a: &SweepArgs) -> Result<(), FfiError> {
+    let move_center = a.options.is_some_and(|f| f[2]);
+    let reaches_kernel = !profile.is_empty() && !matches!(a.path, CurveSpec::Null);
+    if reaches_kernel && !move_center && !profile.iter().any(is_bspline) {
+        return Err(bad(
+            "curve sweep: profile without a B-spline curve (upstream crash)",
+        ));
+    }
+    Ok(())
+}
+
 /// Rejects the tiny profile curves `CreateTaperExtrude` crashes on.
 fn check_taper_curves(curves: &[CurveSpec]) -> Result<(), FfiError> {
-    if curves
+    if copies_ok(curves)
+        && curves
         .iter()
         .filter_map(extent)
         .any(|e| e < MIN_TAPER_EXTENT)
@@ -476,7 +514,9 @@ fn check_taper_curves(curves: &[CurveSpec]) -> Result<(), FfiError> {
 }
 
 /// Rejects the negative-distance sweeps of a full circle that never return.
-fn check_linear(curves: &[CurveSpec], dist: f64) -> Result<(), FfiError> {
+/// `refused`: `CreateLinearSweep` refuses the call before sweeping (capped with
+/// other than one repetition).
+fn check_linear(curves: &[CurveSpec], dist: f64, refused: bool) -> Result<(), FfiError> {
     let full_circle = |c: &CurveSpec| match c {
         CurveSpec::ApiCircle { .. } | CurveSpec::AnalyticCircle { .. } => true,
         CurveSpec::ApiArc {
@@ -484,7 +524,7 @@ fn check_linear(curves: &[CurveSpec], dist: f64) -> Result<(), FfiError> {
         } => (end_deg - start_deg).abs() >= 360.0,
         _ => false,
     };
-    if dist < 0.0 && curves.iter().any(full_circle) {
+    if dist < 0.0 && !refused && copies_ok(curves) && curves.iter().any(full_circle) {
         return Err(bad("linear sweep: negative distance with a full circle (upstream hang)"));
     }
     Ok(())
@@ -526,9 +566,13 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             let reps = matches!(call, Call::LinearReps { .. });
             finite(dir, "sweep direction")?;
             finite(&[*dist], "sweep distance")?;
-            check_linear(curves, *dist)?;
+            let refused = match call {
+                Call::LinearReps { reps, cap, .. } => *cap && *reps != 1,
+                _ => false,
+            };
+            check_linear(curves, *dist, refused)?;
             o.push(if reps { 10.0 } else { 1.0 });
-            push_curves(&mut o, curves, true, false)?;
+            push_curves(&mut o, curves, false, true, false)?;
             o.extend_from_slice(dir);
             o.push(*dist);
             if let Call::LinearReps { reps, .. } = call {
@@ -556,7 +600,7 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             finite(axis, "axis")?;
             finite(&[*angle_deg], "angle")?;
             o.push(if reps { 11.0 } else { 2.0 });
-            push_curves(&mut o, curves, true, false)?;
+            push_curves(&mut o, curves, false, true, false)?;
             o.extend_from_slice(base);
             o.extend_from_slice(axis);
             o.push(*angle_deg);
@@ -583,7 +627,7 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             finite(&[*height, *angle_deg], "height / angle")?;
             check_taper_curves(curves)?;
             o.push(if draft { 3.0 } else { 9.0 });
-            push_curves(&mut o, curves, true, draft)?;
+            push_curves(&mut o, curves, false, true, draft)?;
             o.extend([*height, *angle_deg, flag(*corner), caps_of(*caps)?]);
         }
         Call::Pipe { radius, path, cap } => {
@@ -600,13 +644,14 @@ fn encode(call: &Call) -> Result<Vec<f64>, FfiError> {
             caps,
         } => {
             o.push(5.0);
-            push_curves(&mut o, profile, false, false)?;
-            push_curves(&mut o, path, false, false)?;
+            push_curves(&mut o, profile, true, false, false)?;
+            push_curves(&mut o, path, true, false, false)?;
             o.extend([flag(*move_profile), caps_of(*caps)?]);
         }
         Call::CurveSweep { profile, args } => {
+            check_curve_sweep_profile(profile, args)?;
             o.push(6.0);
-            push_curves(&mut o, profile, true, false)?;
+            push_curves(&mut o, profile, false, true, false)?;
             push_sweep_args(&mut o, args)?;
         }
         Call::FromFaces { circles, args } | Call::FromEdges { circles, args } => {

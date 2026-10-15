@@ -347,7 +347,9 @@ pub fn create_curve_sweep(
 
     // Arguments of the unported call: the profile, path and scale curves, an
     // approximation tolerance of SM_ZONE_TOL_3D and the options
-    // (SmPrimitiveCreation(region) with its default arguments).
+    // (SmPrimitiveCreation(region) with its default arguments). CreateCurveSweep's
+    // trailing bTestContinuity is left at its default, TRUE: the p3 porter must pass
+    // true there.
     let approx_tol = ZONE_TOL_3D;
     let _ = (k, profile_curves, path_curve, scale_reference, scale_curve);
     let _ = (approx_tol, options);
