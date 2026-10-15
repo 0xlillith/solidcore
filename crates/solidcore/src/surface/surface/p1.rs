@@ -54,7 +54,8 @@
 //!   constructor's null pointer, where upstream would crash the methods return
 //!   [`SolidError::InvalidInput`] (or an uninitialised domain). `GetMemoryUsed` and
 //!   `WriteToDB` have no counterpart. Nested STEP surfaces read from a database are
-//!   bounded by the reader's nesting limit.
+//!   bounded by the reader's nesting limit. Temporary evaluation copies retain
+//!   exact nested geometry and share `Surface`'s 64-level owned-geometry bound.
 //! - **Caches.** Upstream keeps a surface's cache on the surface and reuses it until it
 //!   changes. [`make_surface_cache`] and [`make_trim_srf_cache`] build a fresh cache for
 //!   the caller (the build is deterministic); [`validate_surface_cache`] is the rest of

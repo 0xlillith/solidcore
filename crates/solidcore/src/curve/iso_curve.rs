@@ -6,7 +6,7 @@
 //! | Rust                                   | Upstream                                       |
 //! |----------------------------------------|------------------------------------------------|
 //! | [`IsoCurve`]                           | `SmIsoCurve`                                   |
-//! | [`IsoCurve::new`]                      | `SmIsoCurve(crSurface, eSurfParam, dIsoParameter, bFromLeft, bClampInput)` |
+//! | [`IsoCurve::new`], [`IsoCurve::from_surface`] | `SmIsoCurve(crSurface, eSurfParam, dIsoParameter, bFromLeft, bClampInput)` |
 //! | `Drop` (implicit)                      | `~SmIsoCurve`                                  |
 //! | [`IsoCurve::approx_eq`]                | `SmIsoCurve::operator==`                       |
 //! | [`IsoCurve::create_uv_iso_line`]       | `SmIsoCurve::CreateUVIsoLine`                  |
