@@ -125,9 +125,12 @@ use crate::surface::volume::Volume;
 // (GetFace/GetEdge), SmBrep, SmBrepData and SmCurveClassification; those classes have
 // no Rust object type yet.
 // UNPORTED(curve.curve_p2): SmTol::IsDegenerate(const SmCurve*, SmExtent1d, ..),
-// SmTol::MapTo1d(SmTol3d&, double, const SmCurve&), SmTol::MapTo2d(.., double, const
-// SmCurve&, const SmSurface&) and SmTol::GetScaledZero(const SmCurve&) need
-// SmCurve::IsDegenerate / Evaluate / GetNaturalInterval / ApproximateLength.
+// SmTol::MapTo1d(SmTol3d&, double, const SmCurve&) and SmTol::GetScaledZero(const
+// SmCurve&) need SmCurve::IsDegenerate / Evaluate / GetNaturalInterval /
+// ApproximateLength.
+// CO-PORTED in intersect.curve_class_p1: SmTol::MapTo2d(const SmTol3d&, double, const
+// SmCurve&, const SmSurface&) is surface::surface::p1::map_to_2d_on_curve (its UV-curve
+// branch; the SmCrvOnSurf and 3D branches are UNPORTED(surface.surface_p5) there).
 // CO-PORTED in intersect.curve_class_p7: SmTol::IsDegenerate(const SmCurve*, SmExtent1d,
 // SmXSectTol3d*) and SmTol::IsClosed(const SmObject*, SmXSectTol3d*) for a curve, with the
 // tolerance given, are intersect::curve_class::p7's tol_is_degenerate_curve /
