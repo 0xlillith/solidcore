@@ -37330,50 +37330,34 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_torus_rb_23_lucon_16021_23",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#3943 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_torus_rb_23_lcon_16021_23",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#3944 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_torus_rb_23_lucon_16021_24",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#3945 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_torus_rb_23_lcon_16021_24",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#3946 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
@@ -38658,50 +38642,34 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_22_lucon_16021_22",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4095 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_22_lcon_16021_22",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4096 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_22_lucon_16021_23",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4097 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_22_lcon_16021_23",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4098 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
@@ -39986,50 +39954,34 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_rb_21_lucon_16021_21",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4247 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_rb_21_lcon_16021_21",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4248 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_rb_21_lucon_16021_22",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4249 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_toruswvy_rb_21_lcon_16021_22",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4250 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
@@ -41206,50 +41158,34 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_20_lucon_16021_20",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4387 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_20_lcon_16021_20",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4388 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_20_lucon_16021_21",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4389 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_20_lcon_16021_21",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4390 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
@@ -42534,50 +42470,34 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_rb_19_lucon_16021_19",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4539 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_rb_19_lcon_16021_19",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4540 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_rb_19_lucon_16021_20",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4541 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "rv_vase_rev_rb_19_lcon_16021_20",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/review_adversarial.json#4542 (upstream review adversarial sweep (PR #102): every op on loop index 0..23 of each B-rep)",
       "values_compared": 0
     },
@@ -60162,14 +60082,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#15 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -60318,14 +60234,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#34 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -60442,14 +60354,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#48 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -60510,14 +60418,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#55 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -60806,14 +60710,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#89 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -60962,14 +60862,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#108 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61086,14 +60982,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#122 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61154,14 +61046,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#129 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61446,14 +61334,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#163 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61602,14 +61486,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#182 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61726,14 +61606,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#196 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -61794,14 +61670,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#203 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -62094,14 +61966,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "cone_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#237 (upstream tests/prog_test/src/smAdvancedTest.cpp:235)",
       "values_compared": 0
     },
@@ -62258,14 +62126,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "cone_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#256 (upstream tests/prog_test/src/smAdvancedTest.cpp:235)",
       "values_compared": 0
     },
@@ -62382,14 +62246,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "cone_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#270 (upstream tests/prog_test/src/smAdvancedTest.cpp:235)",
       "values_compared": 0
     },
@@ -62450,14 +62310,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "cone_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#277 (upstream tests/prog_test/src/smAdvancedTest.cpp:235)",
       "values_compared": 0
     },
@@ -62746,14 +62602,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "disk_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#311 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -62902,14 +62754,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "disk_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#330 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -63026,14 +62874,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "disk_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#344 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -63094,14 +62938,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "disk_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#351 (upstream tests/prog_test/src/smFeatureTest.cpp:63)",
       "values_compared": 0
     },
@@ -63386,14 +63226,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#385 (upstream tests/prog_test/src/smTessTest.cpp:3923)",
       "values_compared": 0
     },
@@ -63542,14 +63378,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#404 (upstream tests/prog_test/src/smTessTest.cpp:3923)",
       "values_compared": 0
     },
@@ -63666,14 +63498,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#418 (upstream tests/prog_test/src/smTessTest.cpp:3923)",
       "values_compared": 0
     },
@@ -63734,14 +63562,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#425 (upstream tests/prog_test/src/smTessTest.cpp:3923)",
       "values_compared": 0
     },
@@ -64026,14 +63850,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#459 (upstream tests/prog_test/src/smAdvancedTest.cpp:339)",
       "values_compared": 0
     },
@@ -64182,14 +64002,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#478 (upstream tests/prog_test/src/smAdvancedTest.cpp:339)",
       "values_compared": 0
     },
@@ -64306,14 +64122,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#492 (upstream tests/prog_test/src/smAdvancedTest.cpp:339)",
       "values_compared": 0
     },
@@ -64374,14 +64186,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#499 (upstream tests/prog_test/src/smAdvancedTest.cpp:339)",
       "values_compared": 0
     },
@@ -64666,14 +64474,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#533 (upstream tests/prog_test/src/smAdvancedTest.cpp:443)",
       "values_compared": 0
     },
@@ -64822,14 +64626,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#552 (upstream tests/prog_test/src/smAdvancedTest.cpp:443)",
       "values_compared": 0
     },
@@ -64946,14 +64746,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#566 (upstream tests/prog_test/src/smAdvancedTest.cpp:443)",
       "values_compared": 0
     },
@@ -65014,14 +64810,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#573 (upstream tests/prog_test/src/smAdvancedTest.cpp:443)",
       "values_compared": 0
     },
@@ -65314,14 +65106,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#607 (upstream tests/prog_test/src/smTessTest.cpp:3883)",
       "values_compared": 0
     },
@@ -65478,14 +65266,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#626 (upstream tests/prog_test/src/smTessTest.cpp:3883)",
       "values_compared": 0
     },
@@ -65602,14 +65386,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#640 (upstream tests/prog_test/src/smTessTest.cpp:3883)",
       "values_compared": 0
     },
@@ -65670,14 +65450,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#647 (upstream tests/prog_test/src/smTessTest.cpp:3883)",
       "values_compared": 0
     },
@@ -65974,14 +65750,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#681 (upstream tests/prog_test/src/smAdvancedTest.cpp:2406)",
       "values_compared": 0
     },
@@ -66138,14 +65910,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#700 (upstream tests/prog_test/src/smAdvancedTest.cpp:2406)",
       "values_compared": 0
     },
@@ -66262,14 +66030,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#714 (upstream tests/prog_test/src/smAdvancedTest.cpp:2406)",
       "values_compared": 0
     },
@@ -66330,14 +66094,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#721 (upstream tests/prog_test/src/smAdvancedTest.cpp:2406)",
       "values_compared": 0
     },
@@ -66634,14 +66394,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#755 (upstream tests/prog_test/src/smAdvancedTest.cpp:2543)",
       "values_compared": 0
     },
@@ -66798,14 +66554,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#774 (upstream tests/prog_test/src/smAdvancedTest.cpp:2543)",
       "values_compared": 0
     },
@@ -66922,14 +66674,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#788 (upstream tests/prog_test/src/smAdvancedTest.cpp:2543)",
       "values_compared": 0
     },
@@ -66990,14 +66738,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#795 (upstream tests/prog_test/src/smAdvancedTest.cpp:2543)",
       "values_compared": 0
     },
@@ -67294,14 +67038,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#829 (upstream tests/prog_test/src/smAdvancedTest.cpp:2188)",
       "values_compared": 0
     },
@@ -67458,14 +67198,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#848 (upstream tests/prog_test/src/smAdvancedTest.cpp:2188)",
       "values_compared": 0
     },
@@ -67582,14 +67318,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#862 (upstream tests/prog_test/src/smAdvancedTest.cpp:2188)",
       "values_compared": 0
     },
@@ -67650,14 +67382,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#869 (upstream tests/prog_test/src/smAdvancedTest.cpp:2188)",
       "values_compared": 0
     },
@@ -67954,14 +67682,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "torus_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#903 (upstream tests/prog_test/src/smAdvancedTest.cpp:41)",
       "values_compared": 0
     },
@@ -68118,14 +67842,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "torus_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#922 (upstream tests/prog_test/src/smAdvancedTest.cpp:41)",
       "values_compared": 0
     },
@@ -68242,14 +67962,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "torus_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#936 (upstream tests/prog_test/src/smAdvancedTest.cpp:41)",
       "values_compared": 0
     },
@@ -68310,14 +68026,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "torus_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#943 (upstream tests/prog_test/src/smAdvancedTest.cpp:41)",
       "values_compared": 0
     },
@@ -68614,14 +68326,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#977 (upstream tests/prog_test/src/smAdvancedTest.cpp:547)",
       "values_compared": 0
     },
@@ -68778,14 +68486,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#996 (upstream tests/prog_test/src/smAdvancedTest.cpp:547)",
       "values_compared": 0
     },
@@ -68902,14 +68606,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1010 (upstream tests/prog_test/src/smAdvancedTest.cpp:547)",
       "values_compared": 0
     },
@@ -68970,14 +68670,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1017 (upstream tests/prog_test/src/smAdvancedTest.cpp:547)",
       "values_compared": 0
     },
@@ -69274,14 +68970,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_015_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1051 (upstream tests/prog_test/src/smAdvancedTest.cpp:703)",
       "values_compared": 0
     },
@@ -69438,14 +69130,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_034_lu_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1070 (upstream tests/prog_test/src/smAdvancedTest.cpp:703)",
       "values_compared": 0
     },
@@ -69562,14 +69250,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_048_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1084 (upstream tests/prog_test/src/smAdvancedTest.cpp:703)",
       "values_compared": 0
     },
@@ -69630,14 +69314,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_055_loop_connected",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.loopuse/upstream_files.json#1091 (upstream tests/prog_test/src/smAdvancedTest.cpp:703)",
       "values_compared": 0
     },
@@ -69835,14 +69515,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "gen0003",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2530586264791566162",
       "values_compared": 0
     },
@@ -70051,14 +69727,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -70337,14 +70009,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00044",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -70643,14 +70311,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00080",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -71045,14 +70709,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00127",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -71372,14 +71032,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00164",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -71721,14 +71377,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00204",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -72286,26 +71938,18 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00268",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00269",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -73167,14 +72811,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00369",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -73665,14 +73305,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00427",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -73798,14 +73434,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00442",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74145,14 +73777,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00480",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74490,14 +74118,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00520",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74526,14 +74150,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00524",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74637,14 +74257,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00537",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74665,14 +74281,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00540",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -74862,26 +74474,18 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::IsConnectedTo",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "extra00564",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::IsConnectedTo",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "extra00565",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=269157856",
       "values_compared": 0
     },
@@ -75180,19 +74784,17 @@
     }
   ],
   "cases_both_errored": 333,
-  "cases_deferred": 1003,
+  "cases_deferred": 904,
   "cases_failed": 0,
-  "cases_passed": 7851,
+  "cases_passed": 7950,
   "cases_total": 8854,
   "deferred_by_unit": {
     "surface.cone_p1": 25,
     "surface.sphere": 45,
     "surface.surf_of_extrusion_p2": 33,
     "topology.brep_p7": 87,
-    "topology.edge": 52,
     "topology.edgeuse_p3": 348,
-    "topology.face_p3": 366,
-    "topology.vertex": 47
+    "topology.face_p3": 366
   },
   "max_rel_err": 0.0,
   "pass": true,
