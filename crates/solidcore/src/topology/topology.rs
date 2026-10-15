@@ -284,7 +284,6 @@ impl Topology {
     pub fn is_marked(&self, context: &Context, mark_type: MarkType) -> bool {
         self.get_mark(mark_type) == context.current_mark(mark_type)
     }
-
 }
 
 /// Where [`notify`] finds the [`Topology`] record of an object.
