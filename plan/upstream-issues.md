@@ -397,6 +397,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (stack buffer overflow).
 - **Rust port:** Rejects `der >= 5`. The harness limits offset evaluation to 4 derivatives.
 
+#### UB-99. `CreateSkinnedSurface` retries skinning with derivative surfaces whose knot vector was freed
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:5613` and `:5636` (`SmBSplineSurface::CreateSkinnedSurface`: the first `N_CreateSkinSrfBoundaryContinuity` call, then the retry without knots, both with the same `pDirArray`); `NL_SrfAdv.cpp:14275` (`N_CrvFromCPolygonAndKnotVector( &curA, pol, qs, knv )`), `:14434` (`N_CrvsMakeCompatibleKnotTol`), `:13316` (`N_AdjustDerivSrf( der[0], ... )`); `NL_CrvTool.cpp:1502` (`N_CrvRefine` frees the old curve in place).
+- **What happens:** In `N_CreateSkinSrfBoundaryContinuity` the cross-boundary derivative curve `curA` is built over `der[0]`'s own `NL_KNOTVECTOR` (pointer shared, not copied). Making the curves compatible refines `curA` in place, and `N_CrvRefine` frees the old knot vector, so `der[0]` is left pointing at freed memory. If that first call then fails, `CreateSkinnedSurface` calls it again with the same derivative surfaces, and `N_AdjustDerivSrf` → `N_BezSrfExtend4D` → `N_SrfGetCPtsDegreesAndKnots` reads the freed knot vector.
+- **Trigger:** `SmEiffelTowerCrossSectionFSG::CreateSurface` (`SmFilletCustomSolver.cpp:845`) on two quadratic, 4-point, non-rational rails over the same knot vector `[-0.9038, x3, 0.6515, 2.2069 x3]` with three fillet points, `tol = 1e-6`: the `blend.fillet_custom_solver` difftest case `gen0137` (seed `12772265007024949959`). That input is valid; the skinning branch's first attempt fails and the retry reads freed memory. Other callers that pass derivative surfaces to `CreateSkinnedSurface` (`SmFilletStandardSolver.cpp:3904`, `:4458`, `SmPrimitiveCreation.cpp:6811`, `SmSurface.cpp:3536`) may reach the same retry; not tested.
+- **How found:** ASan build of the C++ reference (SMLib, SM_API and the shims built with `-fsanitize=address`) running the `blend.fillet_custom_solver` difftest corpus.
+- **Confirmed:** yes. ASan reports `heap-use-after-free` (16-byte region allocated in `N_BezSrfExtend4D` via `N_AdjustDerivSrf` in the first call, freed by `N_FreeCrv` in `N_CrvRefine` from `N_CrvsMakeCompatibleKnotTol`, read in the retry). The release build does not crash on this case and its output matches the Rust port, but that result depends on the freed memory's contents.
+- **Severity:** crash/UB (heap use after free).
+- **Rust port:** Retries with the derivative surfaces as the first attempt left them; it reads no freed storage. The FFI guard cannot predict a failed first skinning attempt without running it, so it does not reject such inputs (see `plan/findings.md`, `blend.fillet_custom_solver`).
+
 ### Spatial structures and small geometry
 
 #### UB-34. `SmObjsInVoxels::IncMaxItemCount` re-points buckets into the array it is about to free
@@ -972,6 +981,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (segfault in `SmCopyBrepMap::SetAt`).
 - **Severity:** crash/UB.
 - **Rust port:** `CopyBrepMap::set_at` takes non-null objects; `get_at` of an object without an entry is `InvalidInput`. The shim refuses both.
+
+#### UB-100. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
+- **Location:** `source/SMLib/src/SmPoly.cpp:2734` (`SmPointSet3d sPointSet(*pOptPolyPoints, FALSE)`), `SmPolyBrep::CalculateBoundingBox`.
+- **What happens:** In the branch without `pOptPolyPoints`, a requested pseudo box fills a local `sPolyPoints` and then builds the point set from `*pOptPolyPoints`, which is `NULL` in that branch.
+- **Trigger:** `CalculateBoundingBox(box, &pseudoBox)` (no point array).
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the FFI wrapper rejects the combination).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** `PolyBrep::calculate_bounding_box` returns `InvalidInput`.
+
+#### UB-101. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
+- **Location:** `source/SMLib/src/SmPoly.cpp:6505` (`(SmPolyEdge*) pPolyFace->GetList()`), `SmPolyBrep::GetPolyEdges`.
+- **What happens:** The filtered branch walks each face's `m_pList`, which holds the face's loops, casts them to `SmPolyEdge*`, reads `GetOriginalEdgeuse()` at the edge member offset of an `SmPolyLoop`, and would add loop pointers to the edge array.
+- **Trigger:** `GetPolyEdges(edges, pEdgeuse)` with a non-null edge use.
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the harness never passes an edge use).
+- **Severity:** crash/UB (type confusion, out-of-object read).
+- **Rust port:** `PolyBrep::poly_edges(Some(..))` returns `InvalidInput`.
 
 ## Hang
 
@@ -1796,7 +1823,97 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** returns `Err(SM_ERR)` from `test_for_iso_circles`; the difftest shim records the C++ return value as is.
 
-#### WR-73. `SmEdgeuse::IsConvexRadialSector` reports a failed binormal evaluation as convex
+#### WR-74. `GlobalSurfaceIntersect` misses isolated tangential contact points
+- **Location:** `SmSurface::GlobalSurfaceIntersect` (`SmSurface.cpp`) and what it dispatches to: `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection` (`SmSurfaceIntersector.cpp`) for B-spline pairs, and the `SmSurfOfRevolution` override (inherited by `SmTorus`) for the torus/sphere pair. Cause not traced.
+- **What happens:** Two surfaces that touch at single points (normals parallel there, no curve) come back with no output, or with only some of the points. Called with `SmApproxTol3d(1e-6)`, edges on, natural domains.
+- **Trigger (ssi-corpus cases):** `c3_sphere_torus_outer`, `c3n_four_points` (0 of 4 points), `c3n_parab_apex`, `c3n_parab_parab_apex`, `y23_t6_ex4_tangential_point`: no output at all. `y23_fig1g_three_points`: one `TOUCHING` point, about 1.9 away from two of the three true points. `y23_t2_ex6_loop_and_point`: the crossing loop is found, the isolated point (0.41 away) is not. Verdict `INCOMPLETE` for all 7.
+- **How found:** ssi-corpus, exact ground truth (jyviko's corpus, commit `b04c8a6`, run with difftest `--ssi-corpus`; same verdicts as the corpus' own `score.py`).
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (missed intersection).
+- **Rust port:** not reached yet (the general path needs `intersect.surface_intersector_p5`, the torus and sphere are not surface kinds yet); `--ssi-corpus` shows whether the port reproduces it.
+
+#### WR-75. `GlobalSurfaceIntersect` misses tangential intersection curves or reduces them to points
+- **Location:** `SmSurface::GlobalSurfaceIntersect` -> `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection` (`SmSurfaceIntersector.cpp`). Cause not traced.
+- **What happens:** Where two surfaces are tangent along a curve, the curve is not traced. Either nothing comes back, or a few `TOUCHING` points or a short piece of the curve.
+- **Trigger (ssi-corpus cases):** `c2n_quartic_circle` (a closed tangent circle; no output). `y23_fig1f_high_order_contact` (two `TOUCHING` points; the branch is 1% covered). `y23_t2_ex1_tangent_line` (points and short pieces; 2% covered). `y23_t2_ex2_tangential_curve` (23% covered). Verdict `INCOMPLETE` for all 4.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (missed intersection).
+- **Rust port:** not reached yet (`intersect.surface_intersector_p5`).
+
+#### WR-76. `GlobalSurfaceIntersect` returns tangent curves twice
+- **Location:** `SmSurface::GlobalSurfaceIntersect` -> `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection`. Cause not traced; the duplicates suggest tracing from both ends of a tangent branch without merging.
+- **What happens:** A tangent branch comes back as two (or more) curves lying on top of each other, sometimes also about 3.4e-5 off the surfaces (approximation tolerance 1e-6). An open tangent line overlaid by its own copy also reads as a closed curve.
+- **Trigger (ssi-corpus cases):** `c2n_cylN_on_planeN` (a NURBS cylinder lying on a NURBS plane: two `TANGENT` curves, 100% overlap), `y23_t6_ex1_tangent_line` (100% overlap, up to 3.44e-5 from the surfaces), `y23_t2_ex4_tangential_curve_saddle` (58% overlap, up to 3.40e-5 off): verdict `WRONG TOPOLOGY`. `y23_t6_ex6_four_boundary_curves`: several `CROSSING` curves are copies of one another and branch 1 is only 88% covered: verdict `INCOMPLETE`.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (duplicated topology).
+- **Rust port:** not reached yet (`intersect.surface_intersector_p5`).
+
+#### WR-77. `GlobalSurfaceIntersect` runs curves through singular points instead of splitting them there
+- **Location:** `SmSurface::GlobalSurfaceIntersect` and its dispatch: the `SmCone` override (cylinder/cylinder), the `SmSphere` override (sphere/cylinder), `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection` (B-spline and torus pairs). Cause not traced.
+- **What happens:** Where intersection branches cross (a singular point of the intersection, with the surfaces tangent there), the output curves pass through the crossing instead of ending at it, so no curve end lies at the singular point and the branch structure is wrong.
+- **Trigger (ssi-corpus cases):** `c4_steinmetz` (two equal cylinders; 1 of 2 crossings not split), `c4_viviani_figure8` and `c4n_viviani_nurbs` (Viviani's curve; the double point not split), `y23_fig1a_two_loops_cross`, `y23_t6_ex3_two_crossing_curves`, `y23_t3_ex4_torus_ellipsoid`: verdict `WRONG TOPOLOGY`. In `y23_t2_ex3_loop_two_curves` (8% of a branch covered) and `y23_fig1d_two_quads` (one branch 1% covered) the crossings are also not split, next to missed branches: verdict `INCOMPLETE`. 8 cases.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (wrong topology).
+- **Rust port:** not reached yet (`surface.cone_p3`, `surface.sphere`, `intersect.surface_intersector_p5`).
+
+#### WR-78. Surfaces within the approximation tolerance of each other come back as coincident regions
+- **Location:** `SmSurface::GlobalSurfaceIntersect` (plane against a NURBS plane through the general path; the `SmSphere` override for two spheres). Cause not traced.
+- **What happens:** Two planes at an angle of 1e-6 to 1e-8 rad, and two planes or spheres 1e-7 apart, are reported as coincident: four `COINCIDENT` region boundary curves along the domain edges. The crossing line of the tilted planes is missed (half of it covered by chance), and the parallel pairs, which do not intersect at all, get a spurious region. Run at `SmApproxTol3d(1e-6)`: the surfaces stay within that tolerance of each other, so this may be the intended tolerance semantics. It is listed because the exact answer differs.
+- **Trigger (ssi-corpus cases):** `c7_angle_planes_1e-6`, `c7_angle_planes_1e-7`, `c7_angle_planes_1e-8` (verdict `INCOMPLETE`). `c7_offset_planes_1e-7`, `c7_offset_spheres_1e-7` (verdict `WRONG TOPOLOGY`). The same pairs at 1e-3 to 1e-5 pass.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (near-degenerate input).
+- **Rust port:** not reached yet (`intersect.surface_intersector_p5`, `surface.sphere`).
+
+#### WR-79. Small closed intersection loops are missed or collapsed to one point
+- **Location:** `SmSurface::GlobalSurfaceIntersect`: the `SmPlane` override (plane/sphere) and `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection` (NURBS paraboloid/plane). Cause not traced.
+- **What happens:** A closed loop of radius 1e-4 to 1e-7 is either not found or comes back as one `TOUCHING` point at its centre. This happens even when the radius (1e-4, 1e-5) is far above the approximation tolerance (1e-6).
+- **Trigger (ssi-corpus cases):** `c7_tiny_loop_sphere_1e-4`, `_1e-5`, `_1e-6`, `_1e-7` (a sphere dipping just into a plane, a loop of diameter 2e-4 down to 2e-7: one `TOUCHING` point at the loop's centre, as far from the loop as its radius). `c7_tiny_loop_parab_1e-4`, `_1e-5`, `_1e-6`, `_1e-7` (a NURBS paraboloid cut by the plane `z = 1e-8` and the like, just above its apex: no output). Verdict `INCOMPLETE` for all 8.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (missed intersection).
+- **Rust port:** not reached yet (`surface.sphere`, `intersect.surface_intersector_p5`).
+
+#### WR-80. `GlobalSurfaceIntersect` fails with `SM_ERR_NULL_POINTER` on two B-spline pairs
+- **Location:** `SmSurface::GlobalSurfaceIntersect` -> `SmAdvSurfaceIntersector` / `SmSurfaceIntersector::DoIntersection`. The NULL that triggers the status was not traced.
+- **What happens:** The call returns `SM_ERR_NULL_POINTER` (1006) with no curves, although the surfaces are valid and the intersection exists: two NURBS sheets in 4th-order contact along a parabola, and two tube-like arms crossing in an X (two loops with two singular points).
+- **Trigger (ssi-corpus cases):** `c2n_quartic_contact_parabola`, `y23_t2_ex5_two_loops`. Verdict `ERROR`.
+- **How found:** ssi-corpus, exact ground truth.
+- **Confirmed:** yes, by the C++ build.
+- **Severity:** wrong result (failure on valid input).
+- **Rust port:** not reached yet (`intersect.surface_intersector_p5`).
+
+#### WR-81. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
+- **Location:** `source/SMLib/src/SmPoly.cpp:13195` `SmCPolyFace::RemovePolyFace`.
+- **What happens:** The status of `FindElement` is ignored and the index starts at 0, so a face that is not a member removes member 0. `~SmPolyFace` calls it for any face whose `m_pCPolyFace` still points at the composite, for example after an earlier `RemovePolyFace` of that face.
+- **Trigger:** `RemovePolyFace(f)` twice, or deleting a face after removing it from its composite.
+- **How found:** generated difftest case (`query.poly` mutate ops).
+- **Confirmed:** yes (`query.poly` generated `cpoly_remove` cases agree with the port, which keeps the behaviour).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-82. `SmCPolyFace::AddPolyFace` accepts a composite face, so composite queries recurse without bound
+- **Location:** `source/SMLib/src/SmPoly.cpp` `SmCPolyFace::AddPolyFace`, and the composite overrides of `GetPolyEdges`, `GetNormal`, `CalculateBoundingBox` and `GetOKBackPtrs`.
+- **What happens:** `AddPolyFace` takes any `SmPolyFace`, including another composite or the composite itself, and sets that face's `m_pCPolyFace` (overwriting a composite's own). The composite overrides then call the same virtual on every member, so a composite that contains itself recurses until the stack overflows.
+- **Trigger:** `c->AddPolyFace(c)` followed by `c->GetPolyEdges(...)` (or `GetNormal`, `CalculateBoundingBox`, `GetOKBackPtrs`). Upstream callers only add shell faces (`SmLineSegClass.cpp:1879-1883`).
+- **How found:** review of the `query.poly` port; the Rust mirror overflowed its stack on the same sequence.
+- **Confirmed:** no (by reading; not run against the C++ build).
+- **Severity:** crash (stack overflow) on misuse.
+- **Rust port:** Deviates: `add_cpoly_face` / `cpoly_add_poly_face` return `InvalidInput` for a composite face.
+
+#### WR-83. `SmVertexuse::ComputeUVSector` miscounts opposite orientations (operator precedence)
+- **Location:** `source/SMLib/src/SmVertexuse.cpp:993`-`994`.
+- **What happens:** `lOppositeCount = FU == OPP ? 1 : 0 + LU == OPP ? 1 : 0` parses as `FU == OPP ? 1 : (LU == OPP ? 1 : 0)`, so the count is never 2: a sector whose face use and loop use are both opposite gets the complementary angle (`EndTan` to `BegTan`) instead of `BegTan` to `EndTan`.
+- **Trigger:** an edge vertex use on an opposite face use of an opposite (inner) loop use.
+- **How found:** read during porting.
+- **Confirmed:** no (the path is deferred in the difftest until `topology.face_p2` lands).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::vertexuse::compute_uv_sector`).
+
+#### WR-84. `SmEdgeuse::IsConvexRadialSector` reports a failed binormal evaluation as convex
 - **Location:** `source/SMLib/src/SmEdgeuse.cpp:3592` `SmEdgeuse::IsConvexRadialSector` (the two `SER(EvaluateBinormalStepOff(...))`).
 - **What happens:** `SER` returns the non-zero `SmStatus` from a function returning `SmBoolean`, so a failing step-off evaluation (stepping off the face's UV domain, a degenerate binormal) makes the sector count as convex (`TRUE`), as in WR-52.
 - **Trigger:** A sample whose step-off point leaves the face's UV domain (large edge tolerance with `bOptStepOff`, sliver faces), or an edge use whose binormal cannot be evaluated.
@@ -1805,7 +1922,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Faithful (`Ok(true)` on such an error).
 
-#### WR-74. `SmEdgeuse::CheckAndSetUVTrimCurve` deletes the curve it says the caller keeps
+#### WR-85. `SmEdgeuse::CheckAndSetUVTrimCurve` deletes the curve it says the caller keeps
 - **Location:** `source/SMLib/src/SmEdgeuse.cpp:4732` `SmEdgeuse::CheckAndSetUVTrimCurve`; contract in `SmEdgeuse.h:160`.
 - **What happens:** The header says a rejected `pUVTrimCurve` stays "managed by caller", but the curve was attached first and the restoring `SetUVTrimCurve(pOldUVTrimCurve, 0.0, TRUE, ...)` deletes it (it is the attached curve), so a caller that deletes it frees it twice. Passing the curve already attached is worse: the first `SetUVTrimCurve` does nothing and the accepted branch then deletes `pOldUVTrimCurve`, the attached curve, leaving a dangling pointer. An `SER` return inside the accepted branch (the precise distance measurement, `CreateUVTrimCurve`) leaks the detached old curve.
 - **Trigger:** Any UV curve that is not good enough; any call with `GetUVTrimCurve()` as the argument.

@@ -29,7 +29,7 @@
 //!   `CheckAndSetUVTrimCurve` takes the curve by value (upstream deletes it on every
 //!   path except an error return before the restore: either it stays attached, or the
 //!   restoring `SetUVTrimCurve(old, 0.0, TRUE)` deletes it, although the header says
-//!   the caller keeps it; `plan/upstream-issues.md` WR-74) and returns
+//!   the caller keeps it; `plan/upstream-issues.md` WR-85) and returns
 //!   `rdMaxDistToSurf` as an `Option` (upstream leaves the caller's value when the
 //!   curve is not good enough) with `rbTrimReplaced`. Its returned status (that of the
 //!   first sampled distance measurement) is the `Err` returned after the old curve is
@@ -41,7 +41,7 @@
 //!   (`SmVector3d() = default`); the port returns that error instead.
 //!   `IsConvexRadialSector` likewise ignores its `Unitize` statuses, and returns a
 //!   failing `EvaluateBinormalStepOff` status through `SER` from an `SmBoolean`
-//!   function, i.e. as `TRUE` (`plan/upstream-issues.md` WR-73); the port returns
+//!   function, i.e. as `TRUE` (`plan/upstream-issues.md` WR-84); the port returns
 //!   `Ok(true)` for such an error.
 //! - **Unported callees.** `SmEdgeuse::EvaluateBinormal` and
 //!   `SmEdgeuse::CreateUVTrimCurve` (unit `topology.edgeuse_p3`),
