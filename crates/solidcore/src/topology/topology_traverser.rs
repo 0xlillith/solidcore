@@ -493,8 +493,8 @@ pub fn is_inner_shell(k: &mut Kernel, b: &Brep, faceuses: &[FaceuseId]) -> Resul
     if faceuses.len() < 3 {
         samples *= 2;
     }
-    let mut forward = 0;
-    let mut backward = 0;
+    let mut forward = 0_u64;
+    let mut backward = 0_u64;
     for &source in faceuses {
         let source = b.faceuse(source)?;
         let f = required(source.face)?;
