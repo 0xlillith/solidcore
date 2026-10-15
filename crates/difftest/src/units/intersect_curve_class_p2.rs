@@ -457,7 +457,9 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
         o.push(code as f64);
         match x {
             OpIn::Assign { .. } => {
-                must(cc.assign_from(&k, &other))?;
+                // the shim disowns the target's curve first (it may be a pool object)
+                cc.set_curve(cc.curve(), false);
+                must(cc.assign_from(&k, &pool, &other))?;
                 o.push(0.0);
             }
             OpIn::ObjTol { j, .. } => {
@@ -765,7 +767,8 @@ fn edit_param(rng: &mut Rng, lo: f64, hi: f64) -> f64 {
 #[allow(clippy::too_many_lines)]
 fn gen_op(rng: &mut Rng, objs: &[ObjIn], n_cos: usize, ccs: &[CcIn; 2]) -> OpIn {
     let t = rng.below(2) as usize;
-    let c = &ccs[t];
+    let [c0, c1] = ccs;
+    let c = if t == 0 { c0 } else { c1 };
     let size = c.ivls.len();
     let j = rng.below(size as u64 + 1) as usize;
     let mut curves = of_kind(objs, kind::CURVE);

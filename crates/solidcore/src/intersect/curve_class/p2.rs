@@ -24,8 +24,11 @@
 //! Deviations:
 //! - **Handles.** As in part 1, every object is a caller handle `O` resolved through a
 //!   [`ClassGeometry`]. `operator=` copies the curve handle also for an owned curve
-//!   (upstream deep-copies it; the copy has the same geometry), and `m_cpContext` is not
-//!   stored. `SmCurveInterval::GetMinUV` / `GetMaxUV` reach the classification through
+//!   (upstream deep-copies it; the copy has the same geometry) when `SmCurve::Copy`
+//!   succeeds ([`Curve::copy`](crate::curve::curve::p2::Curve::copy)); when it fails
+//!   (status ignored: `SmHermiteCurve`, `SmConic` and `SmIsoCurve` have no `Copy`) the
+//!   curve stays what it was, `NULL` if the old curve was owned (freed). `m_cpContext` is
+//!   not stored. `SmCurveInterval::GetMinUV` / `GetMaxUV` reach the classification through
 //!   the interval's back pointer, which is not ported: they are members of the
 //!   classification taking the interval index.
 //! - **Borrowed interval storage** (`ReSet`'s `nDataSize` / `pOptBorrowedData`) is a
@@ -146,17 +149,42 @@ pub struct RefineCci {
 impl<O: ClassObject> CurveClassification<O> {
     /// Makes this classification a copy of `other` (`operator=`): every member, the
     /// target loops and the intervals (the interval array is sized with
-    /// [`CurveClassification::set_size`], so an empty `other` frees it).
+    /// [`CurveClassification::set_size`], so an empty `other` frees it). An owned curve
+    /// of `other` is deep-copied upstream: its handle is copied when the curve can be
+    /// copied, else (`SmCurve::Copy` fails, status ignored) this classification keeps its
+    /// curve, or none when it owned it (upstream freed it first).
     ///
     /// # Errors
     ///
-    /// Those of [`CurveClassification::set_size`] (none for a valid `other`).
-    pub fn assign_from(&mut self, k: &Kernel, other: &Self) -> Result<()> {
-        // (when needed - free old curve: nothing to free for a handle)
+    /// [`SolidError::InvalidInput`] when `other` owns a handle that is not a curve; those
+    /// of [`CurveClassification::set_size`] (none for a valid `other`).
+    pub fn assign_from(
+        &mut self,
+        k: &Kernel,
+        geometry: &impl ClassGeometry<O>,
+        other: &Self,
+    ) -> Result<()> {
+        // when needed - free old curve
+        if self.is_curve_owned && self.curve.is_some() {
+            self.curve = None;
+        }
 
-        // copy member values (an owned curve is deep-copied upstream; a handle is copied)
+        // copy member values
         self.is_curve_owned = other.is_curve_owned;
-        self.curve = other.curve;
+        match other.curve {
+            Some(c) if self.is_curve_owned => {
+                // deep copy (the handle stands for the copy); on failure m_cpCurve is
+                // left unchanged (status ignored)
+                let curve = geometry.curve(c).ok_or(SolidError::invalid_input(
+                    OP_CC,
+                    "owned classification curve is not a curve",
+                ))?;
+                if ignored(curve.copy(k))?.is_some() {
+                    self.curve = Some(c);
+                }
+            }
+            _ => self.curve = other.curve,
+        }
 
         self.uv_curve1 = other.uv_curve1;
         self.is_curve_current = other.is_curve_current;
@@ -322,20 +350,26 @@ impl<O: ClassObject> CurveClassification<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::InvalidInput`] for a new curve without `options.interval`.
+    /// [`SolidError::InvalidInput`] for a new curve without `options.interval` (nothing
+    /// is changed).
     pub fn reset(&mut self, k: &Kernel, options: &ResetOptions<O>) -> Result<()> {
+        let is_new_curve = options.curve.is_some() || options.uv_curve.is_some();
+        // (checked before any change, so the error leaves the classification unchanged;
+        // upstream dereferences the missing interval)
+        if is_new_curve && options.interval.is_none() {
+            return Err(SolidError::invalid_input(
+                OP_RESET,
+                "a new curve needs its interval",
+            ));
+        }
+
         // set the modified curve bit
         self.is_curve_current = options.is_curve_current;
 
         let zone_tol_3d = options.zone_tol_3d;
 
         // when new curve is given - reset to default constructor state
-        if options.curve.is_some() || options.uv_curve.is_some() {
-            let interval = options.interval.ok_or(SolidError::invalid_input(
-                OP_RESET,
-                "a new curve needs its interval",
-            ))?;
-
+        if let Some(interval) = options.interval.filter(|_| is_new_curve) {
             // remove existing curve and data
             self.data.clear();
             self.allocated = false;
@@ -883,7 +917,7 @@ mod tests {
         assert_eq!(c.size(), 6);
 
         let mut d = CurveClassification::new(&k);
-        d.assign_from(&k, &c).unwrap();
+        d.assign_from(&k, &line(), &c).unwrap();
         assert_eq!(d, c);
 
         c.reset(&k, &ResetOptions::default()).unwrap();
@@ -903,6 +937,39 @@ mod tests {
         assert_eq!(c.curve(), None);
         assert_eq!(c.src_zone_tol_3d(), UNINIT_TOL);
         assert_eq!(c.interval().max(), 2.0);
+    }
+
+    #[test]
+    fn assign_owned_curve_without_copy() {
+        use crate::curve::hermite_curve::HermiteCurve;
+        let k = Kernel::default();
+        let mut g = line();
+        let h = HermiteCurve::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(1.0, 1.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            3,
+        );
+        g.0.push(Curve::from(h));
+        let line_h = H(0, ClassObjectKind::Curve);
+        let herm_h = H(1, ClassObjectKind::Curve);
+        let mut src = CurveClassification::new(&k);
+        src.set_curve(Some(herm_h), true);
+        // SmHermiteCurve::Copy fails: a non-owned curve stays, an owned one is freed
+        let mut d = CurveClassification::new(&k);
+        d.set_curve(Some(line_h), false);
+        d.assign_from(&k, &g, &src).unwrap();
+        assert_eq!(d.curve(), Some(line_h));
+        assert!(d.is_curve_owned());
+        let mut d = CurveClassification::new(&k);
+        d.set_curve(Some(line_h), true);
+        d.assign_from(&k, &g, &src).unwrap();
+        assert_eq!(d.curve(), None);
+        // a line copies
+        src.set_curve(Some(line_h), true);
+        d.assign_from(&k, &g, &src).unwrap();
+        assert_eq!(d.curve(), Some(line_h));
     }
 
     #[test]

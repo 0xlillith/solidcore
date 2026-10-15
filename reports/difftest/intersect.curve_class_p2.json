@@ -3,6 +3,278 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_stale_both_degenerate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#0",
+      "values_compared": 130
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_stale_classified",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#1",
+      "values_compared": 207
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_inverted_min_in",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#2",
+      "values_compared": 390
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_inverted_min_lo",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#3",
+      "values_compared": 231
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_inverted_max_in",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#4",
+      "values_compared": 390
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_inverted_max_lo",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#5",
+      "values_compared": 390
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_inverted_min0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#6",
+      "values_compared": 390
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_circle_mate_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#7",
+      "values_compared": 915
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_circle_mate_100000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#8",
+      "values_compared": 915
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_circle_mate_1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#9",
+      "values_compared": 809
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ellipse_open_mate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#10",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_uv_2d_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#11",
+      "values_compared": 422
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_uv_cos_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#12",
+      "values_compared": 396
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_uv_3d_noface",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#13",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_connect_size1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#14",
+      "values_compared": 510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_insert_unalloc",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#15",
+      "values_compared": 2423
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_2d_edit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#16",
+      "values_compared": 337
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_0.0001_1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#17",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_0.0001_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#18",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_0.0001_1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#19",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_0.0001_1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#20",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_10000.0_1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#21",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_10000.0_1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#22",
+      "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_10000.0_1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#23",
+      "values_compared": 366
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_herm_10000.0_1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#24",
+      "values_compared": 366
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reset_uvonly",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#25",
+      "values_compared": 231
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_refine",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#26",
+      "values_compared": 267
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_assign_owned_hermite_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#27",
+      "values_compared": 470
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_assign_owned_hermite_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#28",
+      "values_compared": 470
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_assign_owned_hermite_10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#29",
+      "values_compared": 470
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_regress_gen8797",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#30",
+      "values_compared": 450
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_regress_gen10415",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#31",
+      "values_compared": 548
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_regress_gen11711",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#32",
+      "values_compared": 154
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_regress_gen21161",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p2/adv.json#33",
+      "values_compared": 308
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "face_grid_reset_crv_on_surf",
       "outcome": "pass",
       "pass": true,
@@ -12913,8 +13185,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 209,
   "cases_failed": 0,
-  "cases_passed": 1300,
-  "cases_total": 1509,
+  "cases_passed": 1334,
+  "cases_total": 1543,
   "deferred_by_unit": {
     "topology.brep_p1": 20,
     "topology.edge": 36,
