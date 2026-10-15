@@ -1,6 +1,7 @@
 //! Native wrappers for the five `surface.surface_point_solve_p3` functions.
 //!
-//! Common input is p1's validated problem `W S D solver test(3) loose`.
+//! Common input is `W S D solver test(3) loose`, with structural NURBS guards
+//! shared with p1 and finite plane scales unrestricted by cache-building limits.
 //! Global adds `has_target target request`; local adds `guess(2)`; stepper
 //! operations add `uv(2) tight next_uv(2) iteration hits_u hits_v`.
 //! Outputs retain upstream statuses, termination reasons, iteration counts,

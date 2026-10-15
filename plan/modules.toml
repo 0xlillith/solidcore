@@ -2321,10 +2321,10 @@ soft_depends_on = ["curve.curve_p3", "curve.curve_p5", "curve.iso_curve", "geom.
 est_lines = 1282
 layer = 34
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "5 fns; largest: SmSurfPtSolveStepper::FindNextStep, SmSurfPtSolveStepper::CheckCrease, SmSurface::LocalPointSolve_1, SmSurfPtSolveStepper::FindBoundarySolution; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "PARTIAL: native difftest 1314 cases, 1208 pass bit-identical, 106 deferred (surface.surface_p3 96, surface.surface_p8 10), 0 failed. Ports all five assigned functions, including the upstream-disabled CheckCrease; exact geometry evaluation copies with a 64-level owned-geometry bound, analytic/STEP/revolution iso curves, and sweep-only STEP derivatives. Wires LocalPointSolve_1 and GlobalPointSolve_1 in surface.surface_p4/p5 and the global solver. Tests include Surface.sms, fixed-seed geometry, tiny/huge scales, domain boundaries, counters, out-of-domain guesses and two revolution/STEP regressions. PR #106; 5 fns; largest: SmSurfPtSolveStepper::FindNextStep, SmSurfPtSolveStepper::CheckCrease, SmSurface::LocalPointSolve_1, SmSurfPtSolveStepper::FindBoundarySolution; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "intersect.curve_class_p6"

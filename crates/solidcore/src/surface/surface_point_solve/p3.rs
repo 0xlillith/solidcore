@@ -13,10 +13,11 @@
 //! Deviations: out-parameters become result records; object pointers become caller
 //! handles. Direct local solutions retain the default variable count; the existing
 //! `LocalPointSolve` dispatcher sets it to two, as upstream does. Out-of-bounds
-//! evaluation uses a private surface copy, restoring the
-//! caller's state by construction. Compound surface copying has a 64-level depth bound. `CheckCrease` returns immediately because upstream
-//! disables it with `constexpr sbDoCreaseSubdomains = FALSE`. The local iteration has
-//! upstream's fixed bound of 35; no input-dependent recursion is introduced.
+//! evaluation uses a private surface copy, restoring the caller's state by
+//! construction. Copying checks every owned geometry branch against a 64-level
+//! depth bound. `CheckCrease` returns immediately because upstream disables it with
+//! `constexpr sbDoCreaseSubdomains = FALSE`. The local driver is iterative with
+//! upstream's fixed bound of 35.
 
 use super::p1::ErrorNormType;
 use super::p2::with_out_of_bounds_enabled;

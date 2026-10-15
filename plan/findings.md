@@ -4386,7 +4386,8 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   release C++; other unequal orders retain `SmVector3d`'s default `UNDEF` values
   for generator derivatives beyond `min(hu, hv)`, as upstream does.
 - Evaluation copies of nested STEP, curve-bounded and volume surfaces preserve
-  exact nested geometry and ownership; the explicit depth bound is 64 surfaces.
+  exact nested geometry and ownership; a preflight walk bounds every owned
+  surface, trim-curve and volume-map branch to 64 levels before recursive copying.
 
 ## heal.gap (`SmGap`, `SmGapArray`, `SmGapSample`, `SmGapFunction`, 2026-10-15; partial, no disagreements)
 

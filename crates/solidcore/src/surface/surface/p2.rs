@@ -63,7 +63,8 @@
 //! | [`IsoCurveLengthIntegrand`]                       | `SmIsoCurveLengthIFEO` (constructor)             |
 //!
 //! Deviations:
-//! - Compound evaluation copies carry a depth counter capped at 64 by `Surface`.
+//! - Evaluation copies check all owned surface, curve and volume branches against a
+//!   64-level depth bound before invoking recursive copies.
 //! - **Object model.** `SmSurface` is not abstract upstream, but every ported surface
 //!   is a derived class: the [`SurfaceKind`] variants. The ported kinds are
 //!   [`BSplineSurface`], [`CurveBoundedSurface`] (unit
@@ -292,14 +293,87 @@ impl Surface {
         self.clone_for_evaluation_depth(0)
     }
 
+    /// Check every owned geometry branch before invoking recursive `Clone` impls.
+    /// This includes trim curves and volume chains, not only the surface basis.
+    fn check_evaluation_copy_depth(&self, initial_depth: usize) -> Result<()> {
+        use crate::curve::curve::CurveKind;
+        enum Geometry<'a> {
+            Surface(&'a Surface),
+            Curve(&'a Curve),
+            Volume(&'a crate::surface::volume::Volume),
+        }
+        let mut pending = vec![(Geometry::Surface(self), initial_depth)];
+        while let Some((geometry, depth)) = pending.pop() {
+            if depth >= 64 {
+                return Err(SolidError::invalid_input(
+                    "surface::surface::p2::clone_for_evaluation",
+                    "owned geometry nesting exceeds 64",
+                ));
+            }
+            let mut push = |geometry| pending.push((geometry, depth + 1));
+            match geometry {
+                Geometry::Surface(surface) => match surface.kind() {
+                    SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) => {}
+                    SurfaceKind::SurfOfRevolution(s) => {
+                        if let Some(c) = s.gen_curve() {
+                            push(Geometry::Curve(c));
+                        }
+                    }
+                    SurfaceKind::Step(s) => {
+                        if let Some(s) = s.surface() {
+                            push(Geometry::Surface(s));
+                        }
+                    }
+                    SurfaceKind::CurveBounded(s) => {
+                        for c in s.boundaries_3d().iter().chain(s.boundaries_uv()) {
+                            push(Geometry::Curve(c));
+                        }
+                        push(Geometry::Surface(s.basis()));
+                    }
+                    SurfaceKind::SrfInVolume(s) => {
+                        push(Geometry::Volume(s.volume()));
+                        push(Geometry::Surface(s.surface()));
+                    }
+                },
+                Geometry::Curve(curve) => match curve.kind() {
+                    CurveKind::Projected(c) => push(Geometry::Curve(c.curve())),
+                    CurveKind::Iso(c) => push(Geometry::Surface(c.surface())),
+                    CurveKind::Offset(c) => {
+                        if let Some(c) = c.base_curve() {
+                            push(Geometry::Curve(c));
+                        }
+                    }
+                    CurveKind::CrvInVolume(c) => {
+                        push(Geometry::Volume(c.volume()));
+                        push(Geometry::Curve(c.curve()));
+                    }
+                    CurveKind::CrvOnSurf(c) => push(Geometry::Curve(c.uv_curve())),
+                    CurveKind::Composite(c) => {
+                        for segment in c.segments() {
+                            push(Geometry::Curve(&segment.curve));
+                        }
+                    }
+                    CurveKind::BSpline(_)
+                    | CurveKind::Hermite(_)
+                    | CurveKind::Hyperbola(_)
+                    | CurveKind::Conic(_)
+                    | CurveKind::Line(_)
+                    | CurveKind::Ellipse(_)
+                    | CurveKind::Parabola(_) => {}
+                },
+                Geometry::Volume(volume) => {
+                    if let Some(next) = volume.next_map() {
+                        push(Geometry::Volume(next));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Bounded traversal of compound surfaces for an evaluation copy (at most 64).
     pub(crate) fn clone_for_evaluation_depth(&self, depth: usize) -> Result<Self> {
-        if depth >= 64 {
-            return Err(SolidError::invalid_input(
-                "surface::surface::p2::clone_for_evaluation",
-                "compound surface nesting exceeds 64",
-            ));
-        }
+        self.check_evaluation_copy_depth(depth)?;
         let kind = match &self.kind {
             SurfaceKind::BSpline(s) => SurfaceKind::BSpline(s.clone_exact()),
             SurfaceKind::Plane(s) => SurfaceKind::Plane(s.clone_exact()),
@@ -4098,6 +4172,38 @@ mod tests {
             surface.clone_for_evaluation(),
             Err(SolidError::InvalidInput { .. })
         ));
+    }
+
+    #[test]
+    fn evaluation_copy_bounds_nested_trim_curves_and_volume_maps() {
+        use crate::curve::offset_curve::OffsetCurve;
+        use crate::surface::volume::{Volume, VolumeKind};
+        let mut curve = Curve::from(BSplineCurve::new(3));
+        for _ in 0..64 {
+            curve = Curve::from(OffsetCurve::new(
+                3,
+                curve,
+                Extent1d::from_raw(0.0, 1.0),
+                Vec3::Z,
+                1.0,
+                true,
+            ));
+        }
+        let surface = Surface::from(CurveBoundedSurface::new(
+            Surface::from(BSplineSurface::new()),
+            vec![curve],
+            vec![],
+            true,
+        ));
+        assert!(surface.clone_for_evaluation().is_err());
+        let mut volume = Volume::new(VolumeKind::Base);
+        for _ in 0..64 {
+            volume = Volume::with_maps(VolumeKind::Base, None, Some(volume));
+        }
+        let surface = Surface::from(
+            SrfInVolume::new(Surface::from(BSplineSurface::new()), true, volume, 0, 3).unwrap(),
+        );
+        assert!(surface.clone_for_evaluation().is_err());
     }
 
     #[test]
