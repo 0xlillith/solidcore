@@ -4,6 +4,8 @@
 //! tight, null, `remove_curve`, `inside_out`, `edge_tolerance`, selector, kind.
 //! Kinds: 0 line, 1 circle, 2 ellipse, 3 cubic B-spline, 4 plane, 5 quadratic
 //! B-spline surface, 6 box, 7 empty B-rep, 8 rational cylinder, 9 rational sphere.
+//! Graph exports append `(upward_faceuse, rectangular_trim)` per face to the
+//! shared `topology_edgeuse_p1` format.
 //! Op 0 exports the native graph; 1..25
 //! call `SmApi` queries (see the runner). Op 26 exports the graph with the selected
 //! face boundary's last orientation set to Unknown when `inside_out` is true, as

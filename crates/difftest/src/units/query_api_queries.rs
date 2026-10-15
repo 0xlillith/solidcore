@@ -16,14 +16,16 @@ use solidcore::intersect::topology_solver::p1::TopologyObjects;
 use solidcore::kernel::Kernel;
 use solidcore::math::{Point3, Vec3};
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
+use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::crv_basic::Curve as NlCurve;
 use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::query::api_queries as api;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep_cache::BrepCache;
 use solidcore::topology::brep_cache::{arena_identity, CacheObject, CacheSource};
-use solidcore::topology::{Brep, BrepId};
+use solidcore::topology::{Brep, BrepId, FaceuseId};
 use solidcore::{Result, SolidError};
 use solidcore_ffi::units::query_api_queries as ffi;
 
@@ -151,15 +153,150 @@ fn curve(k: &Kernel, a: &[f64; 22]) -> Result<Curve> {
     }
 }
 
+// Same control nets, operation order and concrete types as api_surface in the
+// C++ shim. Surface queries have no topology owner on either side.
+fn surface(a: &[f64; 22]) -> Result<Surface> {
+    if a[21] == 4. {
+        return Ok(Surface::from(Plane::from_normal(
+            v([a[0], a[1], a[2]]),
+            v([a[3], a[4], a[5]]),
+        )));
+    }
+    let (net, p, q, u, w) = if a[21] == 8. || a[21] == 9. {
+        let sphere = a[21] == 9.;
+        let n = if sphere { 4 } else { 1 };
+        let xy = [
+            (1., 0.),
+            (1., 1.),
+            (0., 1.),
+            (-1., 1.),
+            (-1., 0.),
+            (-1., -1.),
+            (0., -1.),
+            (1., -1.),
+            (1., 0.),
+        ];
+        let radial = [0., 1., 1., 1., 0.];
+        let height = [1., 1., 0., -1., -1.];
+        let weight = 0.5_f64.sqrt();
+        let mut net = Vec::new();
+        for i in 0..=n {
+            let mut row = Vec::new();
+            for (j, &(x, y)) in xy.iter().enumerate() {
+                let wi = if sphere && i % 2 != 0 { weight } else { 1. };
+                let wj = if j % 2 != 0 { weight } else { 1. };
+                let w = wi * wj;
+                let rad = if sphere {
+                    radial.get(i).copied().unwrap_or(0.)
+                } else {
+                    1.
+                };
+                let z = if sphere {
+                    height.get(i).copied().unwrap_or(0.)
+                } else {
+                    i as f64
+                };
+                row.push(CPoint::new(
+                    (a[0] + a[6] * rad * x) * w,
+                    (a[1] + a[6] * rad * y) * w,
+                    (a[2] + a[6] * z) * w,
+                    w,
+                ));
+            }
+            net.push(row);
+        }
+        (
+            net,
+            if sphere { 2 } else { 1 },
+            2,
+            if sphere {
+                vec![0., 0., 0., 0.5, 0.5, 1., 1., 1.]
+            } else {
+                vec![0., 0., 1., 1.]
+            },
+            vec![0., 0., 0., 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1., 1., 1.],
+        )
+    } else {
+        let net = (0..3)
+            .map(|i| {
+                (0..3)
+                    .map(|j| {
+                        CPoint::new(
+                            a[0] + a[6] * f64::from(i),
+                            a[1] + a[6] * f64::from(j),
+                            a[2] + if i == 1 && j == 1 { a[6] } else { 0. },
+                            1.,
+                        )
+                    })
+                    .collect()
+            })
+            .collect();
+        (
+            net,
+            2,
+            2,
+            vec![0., 0., 0., 1., 1., 1.],
+            vec![0., 0., 0., 1., 1., 1.],
+        )
+    };
+    Ok(Surface::from(BSplineSurface::from_nurb(
+        NlSurface::new(net, p, q, u, w)?,
+        false,
+    )))
+}
+
 fn imported(k: &Kernel, a: &[f64; 22], export_op: i32) -> std::result::Result<Brep, HarnessError> {
     let raw = ffi::eval(export_op, a).map_err(|e| HarnessError::new(e.to_string()))?;
-    let mut b = crate::units::topology_edgeuse_p1::import(&raw)?;
+    let counts = solidcore_ffi::units::topology_edgeuse_p1::counts(&raw)
+        .ok_or_else(|| HarnessError::new("invalid topology export"))?;
+    let count = counts
+        .get(3)
+        .copied()
+        .ok_or_else(|| HarnessError::new("missing face count"))?;
+    let tail = count
+        .checked_mul(2)
+        .ok_or_else(|| HarnessError::new("face metadata overflow"))?;
+    let split = raw
+        .len()
+        .checked_sub(tail)
+        .ok_or_else(|| HarnessError::new("missing face metadata"))?;
+    let (graph, metadata) = raw.split_at(split);
+    let (mut b, types) = crate::units::topology_edgeuse_p1::import_with_types(graph)?;
+    let faces: Vec<_> = b.faces().ids().collect();
+    let (metadata, remainder) = metadata.as_chunks::<2>();
+    if !remainder.is_empty() {
+        return Err(HarnessError::new("incomplete face metadata"));
+    }
+    for (id, &[fu, rect]) in faces.iter().zip(metadata) {
+        let face = b
+            .face_mut(*id)
+            .map_err(|e| HarnessError::new(e.to_string()))?;
+        face.faceuse = (fu >= 0.).then(|| FaceuseId::from_index(fu as u32));
+        face.rectangular_trim = rect as i32;
+    }
     if a[21] <= 3. && a[17] == 0. {
         let ids: Vec<_> = b.edges().ids().collect();
         for id in ids {
             b.edge_mut(id)
                 .map_err(|e| HarnessError::new(e.to_string()))?
                 .curve = Some(curve(k, a).map_err(|e| HarnessError::new(e.to_string()))?);
+        }
+    }
+    // Reject a lossy import instead of comparing a virtual call on a stand-in.
+    for ((_, edge), &native) in b.edges().iter().zip(&types.edge_curve_types) {
+        let rust = edge.curve.as_ref().map_or(-1, Curve::type_code);
+        if rust != native {
+            return Err(HarnessError::new(format!(
+                "native edge curve type {native} imported as {rust}"
+            )));
+        }
+    }
+    for ((_, face), &native) in b.faces().iter().zip(&types.face_surface_types) {
+        let rust = face.surface.as_ref().map_or(-1, Surface::type_code);
+        if rust != native {
+            return Err(HarnessError::new(format!(
+                "native face surface type {native} imported as {rust}"
+            )));
         }
     }
     let edges: Vec<_> = b.edges().ids().collect();
@@ -524,25 +661,9 @@ impl UnitDiff for Runner {
                     }
                     o
                 }),
-            3 => {
-                let s = if a[21] == 4. {
-                    Surface::from(Plane::from_normal(
-                        v([a[0], a[1], a[2]]),
-                        v([a[3], a[4], a[5]]),
-                    ))
-                } else {
-                    let b = imported(&k, a, 0)?;
-                    let mut surface = b
-                        .faces()
-                        .iter()
-                        .find_map(|(_, f)| f.surface.clone())
-                        .ok_or_else(|| HarnessError::new("missing patch"))?;
-                    // The native surface query uses an unowned surface, before
-                    // any face is built; preserve that ownership on the Rust side.
-                    let _ = surface.set_owner(None);
-                    surface
-                };
-                api::surface_closest_point(&k, &s, point).map(|p| {
+            3 => surface(a)
+                .and_then(|s| api::surface_closest_point(&k, &s, point))
+                .map(|p| {
                     let mut o = vec![0.];
                     closest(&mut o, p.closest);
                     o.push(p.uvs.len() as f64);
@@ -550,8 +671,7 @@ impl UnitDiff for Runner {
                         o.extend([uv.x, uv.y]);
                     }
                     o
-                })
-            }
+                }),
             _ => {
                 let b = imported(&k, a, if i.op == 11 { 26 } else { 0 })?;
                 let mut other = *a;

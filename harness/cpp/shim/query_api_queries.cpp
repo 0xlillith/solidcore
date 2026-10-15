@@ -195,6 +195,12 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
         {
             o.push_back(0);
             export_graph(b.brep, g, o);
+            // Face back-links and trim flags are absent from the shared exporter.
+            for (SmFace* face : g.faces)
+            {
+                o.push_back(g.find(2, face->GetUpwardFaceuse()));
+                o.push_back(face->GetRectangularTrim());
+            }
         }
         else
         {
@@ -275,7 +281,12 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
                     SmTArray<ULONG> ns;
                     SmTArray<SmEdge*> es;
                     SmTArray<SmOrientType> os;
+                    // The API resets pre-existing outputs, including on failure.
+                    ns.Add(99); es.Add(nullptr); os.Add(SM_OT_UNKNOWN);
                     status = SmApiFaceGetBoundaryLoops(f, ns, es, os);
+                    if (status != SM_SUCCESS &&
+                        (ns.GetSize() != 0 || es.GetSize() != 0 || os.GetSize() != 0))
+                        return SC_ERR_ARG;
                     o.push_back(st(status));
                     if (status == SM_SUCCESS)
                     {

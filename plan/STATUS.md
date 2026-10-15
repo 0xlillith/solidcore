@@ -901,3 +901,33 @@ and topology-solver back-edges are wired; face picking uses caller-supplied
 kernel, B-rep identity and owner mappings.
 The four affected units keep their existing pass/deferred counts; 131
 `geom.a_object` deferrals now correctly name `query.brep` instead of the cache.
+
+## Public geometry and topology queries (2026-10-15, PR #125)
+
+`query.api_queries` is partial: 1,091 cases (291 fixed and 800 fixed-seed
+generated), 497 compared bit-identical, zero failed and 594 explicit deferrals.
+The native oracle calls the real `SmApi*` entrypoints. Curve and surface inputs
+use concrete lines, circles, ellipses, cubic B-splines, planes, quadratic patches,
+and rational cylinder/sphere surfaces. Topology inputs include boxes, empty
+B-reps and an open spherical band. No absolute floors were added.
+
+The corpus covers subdomains, reversed curves, zero endpoint derivatives,
+vertex tolerance boundaries, missing curves, poles and seams. Surface queries
+construct unowned surfaces directly; topology imports restore native face-use
+back-links, trim flags and geometry owners, and assert the exact concrete type
+codes. Boundary-loop tests seed the C++ output arrays and check cleanup after
+an invalid final orientation.
+
+`DropPoint` now has a caller-kernel entry point for the public surface query;
+its existing entry point retains the default-kernel behavior. `FindFace` uses
+the already available B-rep tolerance getter. The non-empty face `Shape`
+deferral names `query.face_p1`'s missing bounding-box query.
+
+All compared cases in the touched units pass bit-identically: `geom.object`
+593/624 (31 deferred), `geom.tools` 781/913 (132 deferred), and
+`surface.surface_p5` 2,477/3,046 (569 deferred). Perturbation detects all
+4,348 compared cases across these units and `query.api_queries`.
+
+Local workflow gates pass: formatting, plain/C++ Clippy, workspace tests
+(1,160 including doc tests), the FFI layout test, WASM, publish dry-run and
+cargo-deny licenses/bans/sources. Full native --green: 172 units (97 green, 75 partial), 421,232 passing cases, 12,584 deferred cases, zero failures.
