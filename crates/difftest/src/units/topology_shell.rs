@@ -7,7 +7,7 @@ use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::topology::shell::{shell_brep, shell_region};
-use solidcore::topology::{Region, Shell};
+use solidcore::topology::{FaceuseId, Region, Shell, ShellId};
 use solidcore_ffi::units::{topology_edgeuse_p1 as graph, topology_shell as ffi};
 
 /// The shell/region unit runner (coverage is still under development).
@@ -93,7 +93,7 @@ impl UnitDiff for Runner {
                     .get_faceuses()
                     .map_err(failure)?
                     .into_iter()
-                    .map(|v| v.index()),
+                    .map(FaceuseId::index),
             );
             list(
                 &mut out,
@@ -101,7 +101,7 @@ impl UnitDiff for Runner {
                     .mated_shells(&brep)
                     .map_err(failure)?
                     .into_iter()
-                    .map(|v| v.index()),
+                    .map(ShellId::index),
             );
         }
         let regions: Vec<_> = brep.regions().ids().collect();
@@ -123,7 +123,7 @@ impl UnitDiff for Runner {
                     .get_shells(None, |_, _| Ok(false))
                     .map_err(failure)?
                     .into_iter()
-                    .map(|v| v.index()),
+                    .map(ShellId::index),
             );
         }
         Ok(Output::new().ints("records", out))
