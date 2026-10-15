@@ -390,6 +390,11 @@ impl UnitDiff for Runner {
                 q[3] = w;
             }
         }
+        let kind = rng.below(5) as u8;
+        if kind == 2 {
+            // Circle entries encode a center and a radius, not homogeneous points.
+            p[0][3] = rng.uniform(0.5, 2.) * scale;
+        }
         let i = Input {
             op,
             sweep: [
@@ -401,7 +406,7 @@ impl UnitDiff for Runner {
             tolerances: [scale * 1e-6; 4],
             epsilon: scale * 1e-5,
             analytics: rng.below(2) == 0,
-            kind: 1,
+            kind,
             points: p,
             interval: if rng.below(2) == 0 {
                 [0., 1.]
@@ -409,7 +414,9 @@ impl UnitDiff for Runner {
                 [0.2, 0.8]
             },
             swap: rng.below(2) == 0,
-            face_kind: rng.below(2) as u8,
+            // SmHermiteCurve does not derive from SmBSplineCurve, which the native
+            // face-fixture extrusion requires. Its sweep dispatch is still tested.
+            face_kind: if kind == 3 { 0 } else { rng.below(2) as u8 },
         };
         serde_json::to_value(i).ok()
     }

@@ -364,6 +364,36 @@ mod tests {
     }
 
     #[test]
+    fn incomplete_topology_and_unknown_ids_return_errors() {
+        let k = Kernel::default();
+        let sweep = TranslationalSweepGeometry::new(Vec3::Z);
+        let mut b = Brep::new();
+        let v = b.add_vertex(Vec3::ZERO).unwrap();
+        let z = b.add_vertex(Vec3::X).unwrap();
+        let e = b.add_edge(v, z).unwrap();
+        assert!(sweep.edge_sweep_same(&k, &b, e).is_err());
+        assert!(sweep.edge_sweep_higher(&k, &b, e).is_err());
+        b.edge_mut(e).unwrap().curve = Some(Curve::from(
+            Line::create_line_segment(3, Vec3::ZERO, Vec3::X, None).unwrap(),
+        ));
+        b.edge_mut(e).unwrap().interval = Extent1d::from_min_max(0.0, 1.0);
+        // Geometry exists, but there are no edgeuses / vertexuses to traverse.
+        assert!(sweep.edge_sweep_higher(&k, &b, e).is_err());
+        let shell = b.add_shell().unwrap();
+        let f = b.add_face(shell).unwrap();
+        assert!(sweep.face_sweep_same(&k, &b, f).is_err());
+        let bad_vertex = VertexId::from_index(u32::MAX);
+        assert!(sweep.vertex_sweep_same(&b, bad_vertex).is_err());
+        assert!(sweep.vertex_sweep_higher(&b, bad_vertex).is_err());
+        let bad_edge = EdgeId::from_index(u32::MAX);
+        assert!(sweep.edge_sweep_same(&k, &b, bad_edge).is_err());
+        assert!(sweep.edge_sweep_higher(&k, &b, bad_edge).is_err());
+        assert!(sweep
+            .face_sweep_same(&k, &b, FaceId::from_index(u32::MAX))
+            .is_err());
+    }
+
+    #[test]
     fn copy_retains_configuration_and_frames_translate() {
         let mut sweep = TranslationalSweepGeometry::new(Vec3::new(-1.0, 2.0, -3.0));
         sweep.make_analytics = false;

@@ -28,7 +28,8 @@ mod sys {
 ///
 /// # Errors
 /// Invalid layouts or inputs that cannot construct a curve without undefined reads;
-/// native shim failures.
+/// native shim failures. A rejected native geometry constructor returns a shim error
+/// before its null result can reach a topology builder.
 pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let bad = || FfiError::InvalidArgument("invalid translational sweep layout".into());
     if input.len() < 19 || input.iter().any(|v| !v.is_finite()) {
@@ -77,6 +78,72 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
 #[cfg(test)]
 mod tests {
     use super::eval;
+    use crate::{FfiError, SC_ERR_ARG};
+
+    fn line_input() -> Vec<f64> {
+        let mut input = vec![0.0; 27];
+        input[3] = 1.0;
+        input[7..12].fill(1e-5);
+        input[14] = 2.0;
+        input[16] = 1.0;
+        input[22] = 1.0;
+        input[23] = 1.0;
+        input[26] = 1.0;
+        input
+    }
+
+    #[test]
+    fn rejected_native_constructors_never_reach_topology_builders() {
+        // These pass the layout guard. Before the shim checked build(), operations
+        // 6 and 7 dereferenced null and terminated the process with SIGSEGV.
+        for kind in [0.0, 2.0] {
+            for op in 0..=8 {
+                for face_kind in [0.0, 1.0] {
+                    let mut input = line_input();
+                    input[0] = f64::from(op);
+                    input[13] = kind;
+                    input[18] = face_kind;
+                    if kind == 0.0 {
+                        input[23] = 1e-15;
+                    } else {
+                        input[22] = 1e-15;
+                    }
+                    let result = eval(&input);
+                    if (5..=7).contains(&op) || (op == 8 && face_kind == 1.0) {
+                        assert_eq!(result, Err(FfiError::Status(SC_ERR_ARG)), "{input:?}");
+                    } else {
+                        assert!(result.is_ok(), "{input:?}: {result:?}");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn native_operations_cover_every_curve_kind_and_flag_combination() {
+        for kind in 0..=4 {
+            for op in 0..=8 {
+                for analytics in [0.0, 1.0] {
+                    for swap in [0.0, 1.0] {
+                        for face_kind in [0.0, 1.0] {
+                            let mut input = line_input();
+                            input[0] = f64::from(op);
+                            input[12] = analytics;
+                            input[13] = f64::from(kind);
+                            input[17] = swap;
+                            input[18] = face_kind;
+                            // Hermite is not B-spline-derived in this reference.
+                            if op == 8 && kind == 3 && face_kind == 1.0 {
+                                assert_eq!(eval(&input), Err(FfiError::Status(SC_ERR_ARG)));
+                            } else {
+                                assert!(eval(&input).is_ok(), "{input:?}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     #[test]
     fn rejects_layouts_before_native_indexing() {

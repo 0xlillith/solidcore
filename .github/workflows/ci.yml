@@ -130,6 +130,12 @@ jobs:
         if: steps.green.outputs.any == 'true'
         run: cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
 
+      # The ordinary test job builds without cpp, so it cannot exercise native
+      # guard regressions. C++ API contexts have global state: run serially.
+      - name: Native FFI safety tests
+        if: steps.green.outputs.any == 'true'
+        run: cargo test --profile difftest -p solidcore-ffi --features cpp -- --test-threads=1
+
       - name: Difftest green units
         if: steps.green.outputs.any == 'true'
         # Optimised profile (Cargo.toml [profile.difftest]): identical results, about 20x

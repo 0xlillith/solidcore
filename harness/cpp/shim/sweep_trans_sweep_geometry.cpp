@@ -159,13 +159,20 @@ SC_EXPORT int32_t sc_sweep_trans_sweep_geometry_eval(const double *in,
   } else if (op <= 7) {
     std::unique_ptr<SmBrep> b(new (ctx) SmBrep());
     SmEdge *e = nullptr;
-    st = b->CreateWireEdgeFromCurve(build(ctx, in), SmExtent1d(in[15], in[16]),
-                                    e);
+    SmCurve *c = build(ctx, in);
+    // CreateWireEdgeFromCurve dereferences its consumed argument before
+    // checking any status. Constructors can reject finite, distinct points /
+    // positive radii.
+    if (!c)
+      return SC_ERR_ARG;
+    st = b->CreateWireEdgeFromCurve(c, SmExtent1d(in[15], in[16]), e);
     if (st != SM_SUCCESS || !e)
       return SC_ERR_ARG;
     e->SetTolerance(in[9], FALSE, FALSE);
     SmVertex *a = e->GetStartVertex();
     SmVertex *z = e->GetOtherVertex(a);
+    if (!a || !z)
+      return SC_ERR_ARG;
     a->SetTolerance(in[7], FALSE, FALSE);
     if (z != a)
       z->SetTolerance(in[8], FALSE, FALSE);
