@@ -14,9 +14,12 @@
 //! runner reports it as the `out` values. A Rust error maps to its `SmStatus` (`1007` for
 //! `InvalidInput`, `-1` for one upstream cannot return); `Unported` defers the case.
 //!
-//! Deferred cases: `IsOnSeam` (`SmSurface::IsOnBoundary`, `SmTol::MapTo2d`), the global point
-//! solve of non-planar surfaces (`GlobalPointSolve_1`, the surface cache), and a drop point
-//! found on a plane that needs the tolerance test of `IsInDomain`.
+//! `StepInv` runs only on planes (`SmBSplineSurface::STEPInversion` dispatching to the
+//! plane's virtual `IsSingularity` / `IsClosed`); a guess defers it (`LocalPointSolve`).
+//!
+//! Deferred cases: the global point solve of face-owned surfaces (`SmFace::PointClassify`)
+//! and what needs the unported `surface.surface_p5` (`LocalPointSolve`, the base
+//! `IsSingularity`), e.g. a drop point or a guessed inversion.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -115,6 +118,14 @@ enum OpIn {
         ivl: [f64; 2],
         uv: [f64; 2],
         t: f64,
+    },
+    /// `STEPInversion` of a plane (the B-spline base's, with the plane's virtual
+    /// `IsSingularity` / `IsClosed`).
+    StepInv {
+        dom: [f64; 4],
+        p: [f64; 3],
+        tol: f64,
+        guess: Option<[f64; 2]>,
     },
 }
 
@@ -230,6 +241,13 @@ fn cpp_input(i: &Inputs) -> Result<(Op, Vec<f64>), HarnessError> {
             v.extend_from_slice(uv);
             v.push(*t);
             Op::Classify
+        }
+        OpIn::StepInv { dom, p, tol, guess } => {
+            v.extend_from_slice(dom);
+            v.extend_from_slice(p);
+            v.extend([*tol, b(guess.is_some())]);
+            v.extend_from_slice(&guess.unwrap_or([0.0, 0.0]));
+            Op::StepInv
         }
     };
     Ok((op, v))
@@ -461,6 +479,13 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                         ]);
                     }
                 }
+                Err(c) => o.push(c),
+            }
+        }
+        OpIn::StepInv { dom, p, tol, guess } => {
+            let k = Kernel::new(&KernelOptions::default());
+            match stat(s.step_inversion(&k, &dom_of(*dom), v3(*p), *tol, guess.map(p2)))? {
+                Ok((uv, loc)) => o.extend([0.0, uv.x, uv.y, f64::from(loc as i32)]),
                 Err(c) => o.push(c),
             }
         }
@@ -829,6 +854,27 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         if let OpIn::Gps { sop, .. } = &mut op {
             *sop = *rng.choose(&[0u8, 3, 3, 3]).unwrap_or(&3);
         }
+        return Inputs { surface, op };
+    }
+    // STEPInversion is only comparable on planes (the B-spline path needs the local solve)
+    if rng.chance(0.06) {
+        let surface = gen_plane(rng);
+        let dom = gen_solve_dom(rng, &surface);
+        let uv = [rng.uniform(dom[0], dom[2]), rng.uniform(dom[1], dom[3])];
+        let on = surface_of(&surface)
+            .ok()
+            .and_then(|srf| srf.evaluate_point(p2(uv)).ok())
+            .map(|q| [q.x, q.y, q.z]);
+        let p = match on {
+            Some(q) if rng.chance(0.8) => q,
+            _ => gen_point_near(rng, &surface),
+        };
+        let op = OpIn::StepInv {
+            dom,
+            p,
+            tol: *rng.choose(&[1e-9, 1e-6, 1e-3]).unwrap_or(&1e-6),
+            guess: rng.chance(0.15).then(|| [rng.uniform(dom[0], dom[2]), rng.uniform(dom[1], dom[3])]),
+        };
         return Inputs { surface, op };
     }
     let surface = gen_surface(rng);

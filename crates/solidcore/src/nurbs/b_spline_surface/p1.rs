@@ -110,10 +110,11 @@
 //!   reads `GetFace()`, and a bare B-spline has no owner (the owner is held by the
 //!   [`Surface`](crate::surface::surface::Surface) wrapper), so it uses
 //!   `SM_ZONE_TOL_3D`; `CreateOffsetSurface` passes the call to `SmSurface`, which needs
-//!   `SmOffsetSurface` (`surface.offset_surface`); `STEPInversion` calls
-//!   `SmSurface::LocalPointSolve` (`surface.surface_p5`) / `GlobalPointSolve`
-//!   (`surface.surface_p4`), `IsSingularity` and `IsClosed` (`surface.surface_p5`).
-//!   Those calls return [`SolidError::Unported`] until the units are ported.
+//!   `SmOffsetSurface` (`surface.offset_surface`); `STEPInversion` runs
+//!   `GlobalPointSolve` (`surface.surface_p4`) and `IsClosed` (`surface.surface_p7`) on
+//!   the owning surface (a plane's `IsSingularity` / `IsClosed` overrides included), but
+//!   calls `SmSurface::LocalPointSolve` and the base `IsSingularity`
+//!   (`surface.surface_p5`). Those calls return [`SolidError::Unported`] until the units are ported.
 //!   `IsDegenerateCurve` runs the `SmSurface` base body on a copy of the B-spline
 //!   wrapped as a `Surface` (without owner).
 
@@ -575,15 +576,31 @@ fn global_point_solve(
         .collect())
 }
 
-/// `SmSurface::IsSingularity(uv, dir)`.
-fn is_singularity(srf: &BSplineSurface, uv: Point2) -> Result<bool> {
-    // the SmSurface body (surface.surface_p5), on a surface holding a copy
-    let surface = crate::surface::surface::Surface::from(srf.clone_exact());
+/// `SmSurface::IsSingularity(uv, dir)`, virtual: `SmPlane::IsSingularity` is an inline
+/// override returning FALSE (`SmPlane.h:369`), so a plane answers it here.
+fn is_singularity(
+    surface: &crate::surface::surface::Surface,
+    _srf: &BSplineSurface,
+    uv: Point2,
+) -> Result<bool> {
+    if let crate::surface::surface::SurfaceKind::Plane(p) = surface.kind() {
+        return Ok(p.is_singularity().0);
+    }
+    // the SmSurface body (surface.surface_p5)
     Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
 }
 
-/// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`).
-fn is_closed(srf: &BSplineSurface, domain: &Extent2d, dir: SurfParamType) -> Result<bool> {
+/// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`), virtual:
+/// `SmPlane::IsClosed` is an inline override returning FALSE (`SmPlane.h:432`).
+fn is_closed(
+    surface: &crate::surface::surface::Surface,
+    srf: &BSplineSurface,
+    domain: &Extent2d,
+    dir: SurfParamType,
+) -> Result<bool> {
+    if let crate::surface::surface::SurfaceKind::Plane(p) = surface.kind() {
+        return Ok(p.is_closed().0);
+    }
     Ok(crate::surface::surface::p7::base_is_closed(srf, domain, dir, None, false)?.0)
 }
 
@@ -1775,8 +1792,11 @@ impl BSplineSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the solves call `SmSurface::LocalPointSolve` /
-    /// `GlobalPointSolve`. `SM_ERR` when no solution is found.
+    /// [`SolidError::Unported`]: a guess calls `SmSurface::LocalPointSolve`
+    /// (`surface.surface_p5`), and so does the base `IsSingularity` of a B-spline
+    /// (a plane uses its override). `SM_ERR` when no
+    /// solution is found. This base entry point runs on a plain B-spline surface; the
+    /// plane dispatch is [`BSplineSurface::step_inversion_on`].
     pub fn step_inversion(
         &self,
         k: &Kernel,
@@ -1836,7 +1856,7 @@ impl BSplineSurface {
         };
 
         // when point is on a singular boundary
-        if is_singularity(self, uv)? {
+        if is_singularity(surface, self, uv)? {
             location = LocationType::Pole;
         }
 
@@ -1846,7 +1866,7 @@ impl BSplineSurface {
         }
 
         // when surface is closed in U direction and solution on Seam
-        if is_closed(self, anal_domain, SurfParamType::U)? {
+        if is_closed(surface, self, anal_domain, SurfParamType::U)? {
             let ivl = Extent1d::from_min_max(anal_domain.min().x, anal_domain.max().x);
             if ivl.is_value_on_boundary(uv.x, EFF_ZERO).0 {
                 location = LocationType::USeam;
@@ -1854,7 +1874,7 @@ impl BSplineSurface {
         }
 
         // when surface is closed in V direction and solution on Seam
-        if is_closed(self, anal_domain, SurfParamType::V)? {
+        if is_closed(surface, self, anal_domain, SurfParamType::V)? {
             let ivl = Extent1d::from_min_max(anal_domain.min().y, anal_domain.max().y);
             if ivl.is_value_on_boundary(uv.y, EFF_ZERO).0 {
                 location = if location == LocationType::Interior {
