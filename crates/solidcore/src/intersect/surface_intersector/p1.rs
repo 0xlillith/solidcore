@@ -75,7 +75,6 @@
 //!   (`surface.surface_p3`), `smsurf_EvaluateNormalSection` (`surface.surface_p1`),
 //!   `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
-//!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
 //!   `SmSurface::LocalPlaneSurfaceIntersect` (`surface.surface_p3`),
 //!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
 //!   `SmOffsetSurface::SetOffsetDistance` (`surface.offset_surface`) return

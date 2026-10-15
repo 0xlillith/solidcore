@@ -4485,3 +4485,33 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   zero counts; the port returns `InvalidInput`).
 - `SmBrep::ReadFromFile` crashes on `SmallBox.smb` (UB-1), so topology fixtures use the
   `topology.vertexuse` file list.
+
+## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
+
+- **Known disagreement (not generated): boundaries of an `SmPlane`.** In
+  `IntersectSurfaceBoundaries` the other surface's boundary curves come from
+  `CreateIsoBoundaries`; for an `SmPlane` upstream they are `SmLine`s (the plane's
+  `CreateIsoParametricCurve` override), while the port's `Surface::create_iso_boundaries`
+  (unit `surface.surface_p9`) returns `BSplineCurve`s. Copy, trim and evaluation then run
+  as B-splines: plane/plane cases differ near zero coordinates (e.g. `cpp=0`,
+  `rust=2.78e-17`, relative error 1; four of the first 600 generated cases with a plane as
+  the other surface). The generator therefore uses patches for the other surface (this
+  surface may be a plane). Fix belongs to `surface.surface_p9`: return the typed iso curve
+  (`SmLine` / `SmCircle`) from `create_iso_boundaries`.
+- **Global solves wired.** `Surface::global_curve_solve` / `global_surface_solve` (unit
+  `surface.surface_p7`) now take the kernel and the solution handles, build the surface
+  (and curve) caches for the solve (no cache store: `CacheMakeOrValidate`, unit
+  `surface.surface_p1`) and run `SmCSGlobalSolver` / `SmSSGlobalSolver` with the leaf
+  solves of this unit; the solvers borrow the caches (`CsGlobalSolver::curve` /
+  `surface_cache`, `SsGlobalSolver::caches`), as `SmLSIGlobalSolver` does.
+  `SmSSGlobalSolver::BranchMayContainAnswers` uses the caches' polar boxes when it has
+  them. `global_surface_solve_with` also returns the solution nodes' boxes and patch
+  domains (`SM_SR_NODES`, read by `SmSurfaceIntersector::FindInteriorCurves`, now wired).
+- **Unported callees** (deferred): `sm_IntersectSrfBndryCrv` and `sm_ExtractIsoCurve`
+  (`surface.surface_p8`; `LiftCurve` defers at its first call), `SmSurface::LocalSurfaceSolve`
+  (`surface.surface_p3`; every non-intersect surface/surface leaf solve ends with it),
+  and `LocalPointSolve` through `DropPoint` of a B-spline in `IntersectSurfaceBoundaries`
+  (`surface.surface_point_solve_p3`).
+- **Upstream issues:** UB-107 (`IntersectSurfaceBoundaries` dereferences a NULL curve
+  array), WR-94 (`LocalSurfaceIntersect` boundary retries: `!bFoundSolution` binds to
+  the minimum test only; reproduced).

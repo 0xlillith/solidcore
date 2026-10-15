@@ -14,10 +14,15 @@
 #include "StdAfx.h"
 #include <SmBSplineSurface.h>
 #include <SmContext.h>
+#include <SmCurve.h>
+#include <SmExtent1d.h>
 #include <SmExtent2d.h>
 #include <SmPlane.h>
 #include <SmSolutionArray.h>
 #include <SmSurface.h>
+#include <SmSurfTypes.h>
+#include <SmTArray.h>
+#include <SmTol.h>
 #include <SmVector2d.h>
 #include <SmVector3d.h>
 #include <nurbs.h>
@@ -92,6 +97,66 @@ SC_EXPORT int32_t sc_surface_surface_p11_lsi(const int32_t* kinds, const double*
     }
     delete a;
     delete b;
+    return sc_copy_out(out.data(), (int64_t)out.size(), output, cap, out_len);
+    SC_CATCH
+}
+
+// SmSurface::IntersectSurfaceBoundaries (SmSurface.cpp:21745) of surface a with b (same
+// layout as above). Output: [status, n, per curve: deviation, interval min, max, 5 points
+// at the interval's quarters (x, y, z)]. The 3D curve array is always passed (upstream
+// dereferences it unconditionally); the UV curves and types are always NULL / SM_TC_TANGENT.
+SC_EXPORT int32_t sc_surface_surface_p11_isb(const int32_t* kinds, const double* xyz,
+                                             const double* domains, double tol, double* output,
+                                             int64_t cap, int64_t* out_len)
+{
+    SC_TRY
+    SmContext context;
+    SmSurface* a = sc_p11_surface(context, kinds[0], xyz);
+    SmSurface* b = sc_p11_surface(context, kinds[1], xyz + 27);
+    if (a == NULL || b == NULL)
+    {
+        delete a;
+        delete b;
+        return SC_ERR_ARG;
+    }
+    SmExtent2d dom_a(domains[0], domains[1], domains[2], domains[3]);
+    SmExtent2d dom_b(domains[4], domains[5], domains[6], domains[7]);
+    SmTArray<SmCurve*> curves;
+    SmTArray<SmTsectCurveType> types;
+    SmTArray<double> deviations;
+    SmStatus r = a->IntersectSurfaceBoundaries(context, dom_a, *b, dom_b, SmApproxTol3d(tol), &curves, NULL,
+                                               NULL, &types, &deviations);
+    std::vector<double> out;
+    out.push_back(r == SM_SUCCESS ? 0.0 : (double)r);
+    bool bad = false;
+    if (r == SM_SUCCESS)
+    {
+        out.push_back((double)curves.GetSize());
+        for (ULONG i = 0; i < curves.GetSize(); i++)
+        {
+            SmCurve* c = curves[i];
+            out.push_back(deviations[i]);
+            out.push_back((double)types[i]);
+            SmExtent1d ivl = c->GetNaturalInterval();
+            out.push_back(ivl.GetMin());
+            out.push_back(ivl.GetMax());
+            for (int j = 0; j <= 4; j++)
+            {
+                SmPoint3d p;
+                if (c->EvaluatePoint(ivl.Evaluate((double)j / 4.0), p) != SM_SUCCESS)
+                    bad = true;
+                out.push_back(p.x);
+                out.push_back(p.y);
+                out.push_back(p.z);
+            }
+        }
+    }
+    for (ULONG i = 0; i < curves.GetSize(); i++)
+        delete curves[i];
+    delete a;
+    delete b;
+    if (bad)
+        return SC_ERR_ARG;
     return sc_copy_out(out.data(), (int64_t)out.size(), output, cap, out_len);
     SC_CATCH
 }

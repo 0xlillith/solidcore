@@ -48,17 +48,17 @@
 //!   2 does.
 //! - **Interior node pairs.** `FindInteriorCurves` walks the tree node pairs of an
 //!   `SM_SR_NODES` global surface solve, reading each node's box and Bezier patch UV
-//!   domain. [`Surface::global_surface_solve`] does not return its trees yet, so the
-//!   walk over the pairs is [`SurfaceIntersector::find_interior_curves_from_node_pairs`]
-//!   and the step from the solutions to the pairs is unported.
+//!   domain: [`Surface::global_surface_solve_with`] returns them with the solutions,
+//!   and the walk over the pairs is
+//!   [`SurfaceIntersector::find_interior_curves_from_node_pairs`].
 //! - **Offset surfaces.** `DoLawIntersection` needs both surfaces to be
 //!   `SmOffsetSurface`s (else `SM_ERR_NULL_POINTER`). No [`SurfaceKind`] is one yet
 //!   (unit `surface.offset_surface`), so with the surfaces that exist the call ends
 //!   there.
 //! - **Unported callees.** `SmSurface::IsSingularity` of a surface that is not a plane
-//!   (`surface.surface_p5`), `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`,
-//!   through part 1) and the global surface solve (`surface.surface_p11`, through
-//!   `surface.surface_p7`) return [`SolidError::Unported`], which always propagates
+//!   (`surface.surface_p5`) and the callees of `SmSurface::LocalSurfaceIntersect` and of
+//!   the global surface solve's leaf solve that are not ported yet (`surface.surface_p3`,
+//!   `surface.surface_p8`) return [`SolidError::Unported`], which always propagates
 //!   (also where upstream ignores the status).
 //! - **Not ported here.** The `SM_DEBUG_CODE` blocks (graphics, dumps), the
 //!   `SM_ASSERT`s and the point-count warnings (`MSG`).

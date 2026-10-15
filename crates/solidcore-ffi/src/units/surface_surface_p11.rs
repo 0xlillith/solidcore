@@ -25,7 +25,67 @@ mod sys {
             cap: i64,
             out_len: *mut i64,
         ) -> i32;
+        pub fn sc_surface_surface_p11_isb(
+            kinds: *const i32,
+            xyz: *const f64,
+            domains: *const f64,
+            tol: f64,
+            output: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
     }
+}
+
+/// `a.IntersectSurfaceBoundaries(ctx, a.domain, b, b.domain, tol, ..)`: `[status, n,
+/// per curve: deviation, type, interval min, max, 5 points]`.
+///
+/// # Errors
+/// Invalid data is rejected before C++ (as [`local_surface_intersect`], plus a
+/// positive tolerance: `SmApproxTol3d` treats other values as its default);
+/// shim failures return `FfiError::Status`.
+pub fn intersect_surface_boundaries(
+    a: &SurfaceInput,
+    b: &SurfaceInput,
+    tol: f64,
+) -> Result<Vec<f64>, FfiError> {
+    for s in [a, b] {
+        check_surface(s)?;
+    }
+    if !(tol.is_finite() && tol > 0.0) {
+        return Err(FfiError::InvalidArgument("unsafe surface p11 input".into()));
+    }
+    let kinds = [a.kind, b.kind];
+    let xyz: Vec<f64> = a.net.iter().chain(b.net.iter()).flatten().copied().collect();
+    let domains: Vec<f64> = a.domain.iter().chain(b.domain.iter()).copied().collect();
+    call_with_buffer(64, |buffer, len| {
+        // SAFETY: fixed-length inputs (2 kinds, 54 net values, 8 domain values) checked
+        // above; the shim copies output only within the buffer capacity.
+        unsafe {
+            sys::sc_surface_surface_p11_isb(
+                kinds.as_ptr(),
+                xyz.as_ptr(),
+                domains.as_ptr(),
+                tol,
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
+fn check_surface(s: &SurfaceInput) -> Result<(), FfiError> {
+    if !(0..=1).contains(&s.kind)
+        || s.net.iter().flatten().any(|v| !v.is_finite())
+        || s.domain.iter().any(|v| !v.is_finite())
+        || s.domain[0] > s.domain[2]
+        || s.domain[1] > s.domain[3]
+        || (s.kind == 1 && !plane_ok(&s.net))
+    {
+        return Err(FfiError::InvalidArgument("unsafe surface p11 input".into()));
+    }
+    Ok(())
 }
 
 /// One surface of a case: kind 0 (Bezier patch) or 1 (plane), and its 3x3 net.
@@ -68,15 +128,7 @@ pub fn local_surface_intersect(
 ) -> Result<Vec<f64>, FfiError> {
     let invalid = || FfiError::InvalidArgument("unsafe surface p11 input".into());
     for s in [a, b] {
-        if !(0..=1).contains(&s.kind)
-            || s.net.iter().flatten().any(|v| !v.is_finite())
-            || s.domain.iter().any(|v| !v.is_finite())
-            || s.domain[0] > s.domain[2]
-            || s.domain[1] > s.domain[3]
-            || (s.kind == 1 && !plane_ok(&s.net))
-        {
-            return Err(invalid());
-        }
+        check_surface(s)?;
     }
     if !tol.is_finite()
         || guesses.iter().any(|v| !v.is_finite())

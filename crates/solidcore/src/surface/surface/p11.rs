@@ -9,6 +9,15 @@
 //! | [`Surface::local_surface_intersect`], [`SurfaceIntersection`], [`LocalSurfaceIntersectOptions`] | `SmSurface::LocalSurfaceIntersect` (declared virtual; no class overrides it) |
 //! | [`CsGlobalSolver::local_solve_branch`] (and its `GlobalSolve` impl) | `SmCSGlobalSolver::LocalSolve`   |
 //! | [`SsGlobalSolver::local_solve_branch`]            | `SmSSGlobalSolver::LocalSolve`                   |
+//! | [`Surface::intersect_surface_boundaries`], [`BoundaryIntersections`] | `SmSurface::IntersectSurfaceBoundaries` (not virtual) |
+//! | [`Surface::lift_curve`], [`LiftedCurve`]          | `SmSurface::LiftCurve` (not virtual)             |
+//!
+//! Out-params of the last two: `IntersectSurfaceBoundaries` returns the 3D curves and
+//! deviations (its UV curves are always `NULL` and its types `SM_TC_TANGENT`; the
+//! context only chooses where upstream allocates and is the kernel here); `LiftCurve`
+//! returns the curve and its deviation. `IntersectSurfaceBoundaries` sorts the split
+//! parameters with `f64::total_cmp` (upstream's shell sort with `<`; equal for finite
+//! values).
 //!
 //! Deviations:
 //! - **Patch data.** The leaf solves read the nodes' `SmBezierPatch` through the
@@ -48,6 +57,10 @@
 //!   leaf solve; unit `surface.surface_p3`).
 //! - Debug-only work (`SM_ASSERT`, `SM_DEBUG_CODE` drawing) is not ported.
 
+use crate::curve::composite_curve::CompositeCurve;
+use crate::curve::crv_on_surf::{CrvOnSurf, CONTINUITY_ANGLE};
+use crate::curve::curve::p8::CurveIntersectOptions;
+use crate::curve::curve::{Curve, CurveKind};
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentNd};
 use crate::geom::extent2d::Extent2d;
@@ -58,30 +71,37 @@ use crate::geom::global_solver::{
 };
 use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd, TerminationReason};
 use crate::geom::pseudo_box::{Projection, PseudoBox};
-use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType, SortKey};
+use crate::geom::solution_array::{
+    ObjectKind, Solution, SolutionArray, SolutionObject, SolutionType, SortKey,
+};
 use crate::geom::tol::are_same;
 use crate::geom::tree::{NodeData, NodeId, Tree};
-use crate::geom::vector2d::Point2;
+use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{sqrt, Point3, Vec3};
-use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::kernel::Kernel;
+use crate::math::{max2, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::nurbs::b_spline_curve::BSplineCurve;
+use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
 use crate::surface::surface_cache::p1::{BezierPatch, SurfaceCache};
 
 use super::p1::{
-    is_node_valid, is_point_valid, surface_to_evaluate, CsGlobalSolver, SsiNormalizeEnfo,
-    SspIntersectEnfo,
+    get_surface_cache, is_node_valid, is_point_valid, surface_to_evaluate, CsGlobalSolver,
+    SsiNormalizeEnfo, SspIntersectEnfo,
 };
-use super::p2::{cs_are_perpen_disjoint_in, original_surface};
-use super::p5::cs_identical_solutions;
+use super::p2::{cs_are_perpen_disjoint_in, intersect_and_split, original_surface, set_up_breaks};
+use super::p5::{cs_identical_solutions, DropPointOptions};
 use super::p6::{boundary_iso_curve, sc_local_solve, ScLocalSolveNodes};
 use super::p7::{pass_ss_convergence_test, SsGlobalSolver};
-use super::Surface;
+use super::{Surface, SurfaceKind};
 
 const OP_LSI: &str = "surface::surface::p11::Surface::local_surface_intersect";
 const OP_CS: &str = "surface::surface::p11::CsGlobalSolver::local_solve_branch";
 const OP_SS: &str = "surface::surface::p11::SsGlobalSolver::local_solve_branch";
+const OP_LIFT: &str = "surface::surface::p11::Surface::lift_curve";
+const OP_ISB: &str = "surface::surface::p11::Surface::intersect_surface_boundaries";
 
 /// The deepest `LocalSurfaceIntersect` self call accepted (upstream reaches 1).
 pub const MAX_RECURSION: usize = 16;
@@ -1527,6 +1547,448 @@ impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
         }
 
         Ok(false)
+    }
+}
+
+// ---- IntersectSurfaceBoundaries --------------------------------------------------------------
+
+/// The boundary curves of the other surface lying on this one, found by
+/// [`Surface::intersect_surface_boundaries`] (upstream's output arrays; the UV
+/// curves are always `NULL` and the types always `SM_TC_TANGENT`, so they are not
+/// returned).
+#[derive(Debug, Clone, Default)]
+pub struct BoundaryIntersections {
+    /// `pOpt3DCurves`: the trimmed copies of the other surface's boundary curves.
+    pub curves_3d: Vec<Curve>,
+    /// `pOptDeviations`: the drop distance of each curve's middle point.
+    pub deviations: Vec<f64>,
+}
+
+/// The handles of the boundary curves in their curve/curve intersection.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct BoundaryCurveHandle(u8, Extent1d);
+
+impl SolutionObject for BoundaryCurveHandle {
+    fn kind(&self) -> ObjectKind {
+        ObjectKind::Curve
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        Some(self.1)
+    }
+}
+
+/// `CreateIsoBoundaries` in `U` and `V`: the boundary curves `[u min, v min, u max,
+/// v max]` (`pCrv0, pCrv1, pCrv2, pCrv3`) and the list of those used, skipping the
+/// maximum boundary in a closed direction (`IsClosed` over `uv_domain`, default
+/// tolerance).
+fn boundary_curves(
+    k: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    tol: f64,
+) -> Result<Vec<Curve>> {
+    // (SER: checked)
+    let u = surface.create_iso_boundaries(k, SurfParamType::U, tol)?;
+    let v = surface.create_iso_boundaries(k, SurfParamType::V, tol)?;
+    let (Some((c0, c2)), Some((c1, c3))) = (u, v) else {
+        return Err(SolidError::sm_err(OP_ISB));
+    };
+    let mut out = vec![Curve::from(c0), Curve::from(c1)];
+    // (IsClosed of the surface's own kind, default tolerance, no continuity)
+    if !surface
+        .is_closed(uv_domain, SurfParamType::U, None, false)?
+        .0
+    {
+        out.push(Curve::from(c2));
+    }
+    if !surface
+        .is_closed(uv_domain, SurfParamType::V, None, false)?
+        .0
+    {
+        out.push(Curve::from(c3));
+    }
+    Ok(out)
+}
+
+impl Surface {
+    /// The boundary curves of `other` (over `other_uv_domain`) that lie on this
+    /// surface over `uv_domain` (`IntersectSurfaceBoundaries`, for coincident
+    /// surfaces): each boundary curve of `other` is split at its intersections with
+    /// this surface's boundary curves, and every piece whose middle point drops into
+    /// `uv_domain` (and is longer than `approx_tol_3d`) is kept as a trimmed copy with
+    /// that drop distance.
+    ///
+    /// Dispatch: `CreateIsoBoundaries`, `IsClosed` and `DropPoint` of each surface's
+    /// kind; the boundary curves are B-spline curves.
+    ///
+    /// # Errors
+    ///
+    /// Those of the checked (`SER`) calls `CreateIsoBoundaries` and `IsClosed`
+    /// (upstream ignores the statuses of `GlobalCurveIntersect`, `EvaluatePoint`,
+    /// `DropPoint`, `Copy` and `Trim`); [`SolidError::Unported`] always propagates.
+    pub fn intersect_surface_boundaries(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        other: &Surface,
+        other_uv_domain: &Extent2d,
+        approx_tol_3d: f64,
+    ) -> Result<BoundaryIntersections> {
+        let mut out = BoundaryIntersections::default();
+        let this_bdry = boundary_curves(k, self, uv_domain, approx_tol_3d)?;
+        let that_bdry = boundary_curves(k, other, other_uv_domain, approx_tol_3d)?;
+
+        // sCrvPt keeps its last value when an evaluation fails
+        let mut crv_pt = Point3::UNDEF;
+
+        // For every other-surface boundary, intersect it with all of our boundaries
+        // and classify each segment as In or Out. Save the Ins.
+        for other_crv in &that_bdry {
+            let domain0 = other_crv.natural_interval();
+            let mut params = vec![domain0.min(), domain0.max()];
+
+            for this_crv in &this_bdry {
+                let domain1 = this_crv.natural_interval();
+                let opts = CurveIntersectOptions {
+                    skip_global_coincidence_check: true,
+                    handles: [
+                        Some(BoundaryCurveHandle(0, domain0)),
+                        Some(BoundaryCurveHandle(1, domain1)),
+                    ],
+                    analytic_handles: [
+                        Some(BoundaryCurveHandle(2, domain0)),
+                        Some(BoundaryCurveHandle(3, domain1)),
+                    ],
+                };
+                // (SE: status ignored; a failed intersection adds no parameters)
+                let sols = ignored(other_crv.global_curve_intersect(
+                    k,
+                    &domain0,
+                    this_crv,
+                    &domain1,
+                    approx_tol_3d,
+                    &opts,
+                ))?;
+                for sol in sols.iter().flat_map(SolutionArray::as_slice) {
+                    params.push(sol.start.param(0)?);
+                    if sol.solution_type == SolutionType::RangeOfValues {
+                        params.push(sol.end.param(0)?);
+                    }
+                }
+            }
+
+            // Classify each segment as in or out of the this surface.
+            // (ShellSort with smgu_DoubleLessThan: ascending)
+            params.sort_by(f64::total_cmp);
+
+            for pair in params.windows(2) {
+                let [p0, p1] = pair else {
+                    continue;
+                };
+                let mut ivl = Extent1d::from_min_max(*p0, *p1);
+                if ivl.length() < domain0.length() * EFF_ZERO {
+                    continue;
+                }
+
+                let crv_t = ivl.mid();
+                // (SE: status ignored)
+                if let Some(p) = ignored(other_crv.evaluate_point(crv_t))? {
+                    crv_pt = p;
+                }
+
+                // (SE: status ignored: a failed drop is no success)
+                let drop = ignored(self.drop_point::<BoundaryCurveHandle>(
+                    crv_pt,
+                    uv_domain,
+                    &DropPointOptions {
+                        guess_uv: None,
+                        operation: SolverOperation::Intersect,
+                        ..DropPointOptions::default()
+                    },
+                ))?;
+                let Some(drop) = drop else {
+                    continue;
+                };
+
+                if drop.success && uv_domain.contains_point(drop.result_uv, 0.0) {
+                    // (Copy's status: a failure skips the piece)
+                    let Some(mut copy) = ignored(other_crv.copy(k))? else {
+                        continue;
+                    };
+
+                    if copy.approximate_length(&ivl, 4, false)?.0 < approx_tol_3d {
+                        continue;
+                    }
+
+                    // may snap sIvl by tol to existing knots (SE: status ignored)
+                    ignored(copy.trim(k, &mut ivl, TrimMode::Notify))?;
+
+                    out.curves_3d.push(copy);
+                    out.deviations.push(drop.gap);
+                }
+            }
+        }
+
+        Ok(out)
+    }
+}
+
+// ---- LiftCurve -------------------------------------------------------------------------------
+
+/// `sm_ExtractIsoCurve(ctx, surface, domain, uv_curve, interval, tol, ..)`: the 3D
+/// curve and its deviation when the UV curve is an iso parameter line; `None`
+/// otherwise.
+fn extract_iso_curve(
+    k: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    uv_curve: &Curve,
+    interval: &Extent1d,
+    approx_tol_3d: f64,
+) -> Result<Option<(BSplineCurve, f64)>> {
+    let _ = (k, surface, uv_domain, uv_curve, interval, approx_tol_3d);
+    // UNPORTED(surface.surface_p8): sm_ExtractIsoCurve
+    Err(SolidError::unported(
+        "sm_ExtractIsoCurve",
+        "surface.surface_p8",
+    ))
+}
+
+/// The lifted curve of [`Surface::lift_curve`].
+#[derive(Debug, Clone)]
+pub struct LiftedCurve {
+    /// `rp3dCurve`: the 3D curve `surface(uv_curve(interval))`.
+    pub curve: BSplineCurve,
+    /// `rdMaxApproxDev`: the largest distance from the curve to the surface.
+    pub max_approx_dev: f64,
+}
+
+impl Surface {
+    /// The 3D curve of the UV curve `uv_curve` over `interval` on this surface over
+    /// `uv_domain`, approximated to `approx_tol_3d` (`LiftCurve`): an iso parameter
+    /// curve when the UV curve is an iso line, else the curve on surface approximated
+    /// per segment between the surface's C0 knot lines (unless
+    /// `skip_continuity_checks`) and joined into one curve.
+    ///
+    /// Dispatch: `GetKnots` of the surface's own kind; the curve on surface holds a
+    /// B-spline surface.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when no segment could be lifted or a segment's continuous domain is
+    /// empty; `SM_ERR_NULL_POINTER` without a surface cache; those of the checked
+    /// (`SER`) calls; [`SolidError::Unported`]: `sm_ExtractIsoCurve`
+    /// (`surface.surface_p8`), and a curve on a surface that is not a B-spline
+    /// (`SmCrvOnSurf` holds an `SmBSplineSurface` here).
+    #[allow(clippy::too_many_lines)]
+    pub fn lift_curve(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        uv_curve: &Curve,
+        interval: &Extent1d,
+        approx_tol_3d: f64,
+        skip_continuity_checks: bool,
+    ) -> Result<LiftedCurve> {
+        let mut max_approx_dev = 0.0;
+
+        // Test to see if the UV curve corresponds to an ISO curve
+        if let Some((curve, dev)) =
+            extract_iso_curve(k, self, uv_domain, uv_curve, interval, approx_tol_3d)?
+        {
+            return Ok(LiftedCurve {
+                curve,
+                max_approx_dev: dev,
+            });
+        }
+
+        // sSegments: parameter values where the projected 3D curve is only C0
+        let mut segments = vec![interval.min(), interval.max()];
+        let mut break_params: Vec<f64> = Vec::new();
+
+        // when asked to do continuity checks load the break parameters with all param
+        // values where the lifted curve is only C0 continuous
+        if skip_continuity_checks {
+            // load sBreakParameters with lift curve begin/end points
+            break_params.extend_from_slice(&segments);
+        } else {
+            // Right now step surfaces will not be created that have discontinuities.
+            if !matches!(self.kind(), SurfaceKind::Step(_)) {
+                // NER: no surface cache
+                let cache = match get_surface_cache::<()>(k, self, None) {
+                    Ok(c) => c,
+                    Err(e) if e.is_unported() => return Err(e),
+                    Err(_) => return Err(SolidError::null_pointer(OP_LIFT)),
+                };
+
+                // for every U knot (SER: checked)
+                let (knots, _) = self.knots(SurfParamType::U, None)?;
+                let u_conts = cache.u_continuities();
+                let size = u_conts.len().saturating_sub(1);
+                for iu in 1..size {
+                    // when surface U knot is C0 or discontinuous
+                    if ct(*u_conts.get(iu).ok_or(SolidError::sm_err(OP_LIFT))?)
+                        < ct(ContinuityType::C1)
+                    {
+                        // split the UVcurve at the Surface discontinuity (SER: checked)
+                        let knot = *knots.get(iu).ok_or(SolidError::sm_err(OP_LIFT))?;
+                        intersect_and_split::<BoundaryCurveHandle>(
+                            k,
+                            uv_curve,
+                            interval,
+                            Point3::new(knot, 0.0, 0.0),
+                            Vec3::new(1.0, 0.0, 0.0),
+                            &mut segments,
+                        )?;
+                    }
+                }
+
+                // for every V knot (SER: checked)
+                let (knots, _) = self.knots(SurfParamType::V, None)?;
+                let v_conts = cache.v_continuities();
+                let size = v_conts.len().saturating_sub(1);
+                for iv in 1..size {
+                    // when surface V knot is C0 or discontinuous
+                    if ct(*v_conts.get(iv).ok_or(SolidError::sm_err(OP_LIFT))?)
+                        < ct(ContinuityType::C1)
+                    {
+                        // (SER: checked)
+                        let knot = *knots.get(iv).ok_or(SolidError::sm_err(OP_LIFT))?;
+                        intersect_and_split::<BoundaryCurveHandle>(
+                            k,
+                            uv_curve,
+                            interval,
+                            Point3::new(0.0, knot, 0.0),
+                            Vec3::new(0.0, 1.0, 0.0),
+                            &mut segments,
+                        )?;
+                    }
+                }
+            }
+
+            // get UVCurve knots and associated continuities (SER: checked; default
+            // angle SM_CONTINUITY_ANGLE)
+            let (knots, _) = uv_curve.knots(None)?;
+            let (_, curve_conts) = uv_curve.calculate_continuities(CONTINUITY_ANGLE)?;
+
+            // for every curve knot: the projected 3D curve's C0 break points
+            for (j, c) in curve_conts.iter().enumerate() {
+                if ct(*c) < ct(ContinuityType::C1) {
+                    break_params.push(*knots.get(j).ok_or(SolidError::sm_err(OP_LIFT))?);
+                }
+            }
+        }
+
+        let bss = match self.kind() {
+            SurfaceKind::BSpline(b) => b,
+            SurfaceKind::Plane(_)
+            | SurfaceKind::SurfOfRevolution(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::SrfInVolume(_)
+            | SurfaceKind::Step(_) => {
+                // DISPATCH GAP: SmCrvOnSurf over a surface that is not a B-spline (the
+                // ported CrvOnSurf holds an SmBSplineSurface and would drop the kind's
+                // evaluation overrides). No UNPORTED marker: SmCrvOnSurf is ported; the
+                // error names its unit.
+                return Err(SolidError::unported(
+                    "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+                    "curve.crv_on_surf",
+                ));
+            }
+        };
+
+        let mut curves_3d: Vec<Curve> = Vec::new();
+
+        // For each segment in list trace the curve
+        for pair in segments.windows(2) {
+            let [s0, s1] = pair else {
+                continue;
+            };
+            // get this segment's interval
+            let ivl = Extent1d::from_min_max(*s0, *s1);
+
+            // Remove any break parameters which are outside of domain (SER: checked)
+            let mut ivl_breaks = break_params.clone();
+            set_up_breaks(&mut ivl_breaks, &ivl)?;
+
+            // skip very small segments
+            if ivl_breaks.len() < 2 {
+                continue;
+            }
+
+            // the UV curve point and (non-zero) tangent just inside the segment
+            // (SER: checked)
+            let pv = uv_curve.evaluate(ivl.min() + EFF_ZERO_SQRT, 1, true, true)?;
+            let (Some(p0), Some(p1)) = (pv.first(), pv.get(1)) else {
+                return Err(SolidError::sm_err(OP_LIFT));
+            };
+            let pnt = Point2::new(p0.x, p0.y);
+            let vec = Vec2::new(p1.x, p1.y);
+
+            // get surface domain enclosing pnt that is at least SM_CT_C1 continuous
+            let seg_domain = self.domain_with_continuity(k, ContinuityType::C1, pnt, vec)?;
+
+            // If we don't get some sort of a domain then error out.
+            if seg_domain.size().length_squared() < EFF_ZERO_SQ {
+                return Err(SolidError::sm_err(OP_LIFT));
+            }
+
+            // define 3DCurve = SmCrvOnSurf(segment, thisSurface)
+            let mut trace = CrvOnSurf::new(k, uv_curve.clone(), bss.copy(), Some(seg_domain), 0)?;
+
+            // Check for degenerate curve segment (SER: checked)
+            let pnt1 = trace.evaluate_point(ivl.min())?;
+            let mut degenerate = true;
+
+            // check 10 sample points until 1 is found that is more than tol dist from
+            // begin point
+            for ii in 1..=10_u32 {
+                // (SER: checked)
+                let pnt2 = trace.evaluate_point(ivl.evaluate(f64::from(ii) / 10.0))?;
+                if pnt2.distance(pnt1) > approx_tol_3d / 100.0 {
+                    degenerate = false;
+                    break;
+                }
+            }
+
+            // skip degenerate curves
+            if degenerate {
+                continue;
+            }
+
+            // approximate the trace with a 3D BSplineCurve to approx_tol_3d (SER:
+            // checked; bOptMatchParameterization FALSE)
+            let (curve, max_dist) =
+                trace.approximate_curve(k, &ivl_breaks, approx_tol_3d, false)?;
+            max_approx_dev = max2(max_approx_dev, max_dist);
+
+            // save lifted curve approximations
+            curves_3d.push(Curve::from(curve));
+        }
+
+        // set output based on the number of lifted segments
+        let curve = match curves_3d.len() {
+            // signal error
+            0 => return Err(SolidError::sm_err(OP_LIFT)),
+            // output = 1 lifted BSpline approximation curve
+            1 => match curves_3d.pop().map(Curve::into_kind) {
+                Some(CurveKind::BSpline(b)) => b,
+                _ => return Err(SolidError::sm_err(OP_LIFT)),
+            },
+            // output = 1 composite curve (IsClosed default tolerance 0.0)
+            _ => {
+                let closed = uv_curve.is_closed(interval, 0.0)?;
+                let mut composite = CompositeCurve::with_curves(3, curves_3d, closed, None, None)?;
+                // (SER: checked)
+                composite.make_composite_nurb()?
+            }
+        };
+
+        Ok(LiftedCurve {
+            curve,
+            max_approx_dev,
+        })
     }
 }
 

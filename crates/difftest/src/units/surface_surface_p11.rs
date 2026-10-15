@@ -10,6 +10,7 @@ use serde_json::Value;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::vector2d::{Point2, Vec2};
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
@@ -31,6 +32,9 @@ struct SurfaceIn {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
+    /// 0: `LocalSurfaceIntersect`; 1: `IntersectSurfaceBoundaries`.
+    #[serde(default)]
+    op: i32,
     a: SurfaceIn,
     b: SurfaceIn,
     tol: f64,
@@ -104,7 +108,52 @@ fn output(flat: &[f64]) -> Output {
     }
 }
 
+/// `[status, n, per curve: deviation, type, interval min, max, 5 points]` as an
+/// output.
+fn isb_output(flat: &[f64]) -> Output {
+    match flat {
+        [status, ..] if *status != 0.0 => Output::err("IntersectSurfaceBoundaries failed"),
+        [_, n, rest @ ..] => Output::new()
+            .int("curves", *n as i64)
+            .values("data", rest.to_vec()),
+        _ => Output::err("short output"),
+    }
+}
+
+fn run_rust_isb(i: &Inputs) -> Result<Output, HarnessError> {
+    let a = surface(&i.a)?;
+    let b = surface(&i.b)?;
+    let k = Kernel::default();
+    let r = a.intersect_surface_boundaries(
+        &k,
+        &domain(i.a.domain),
+        &b,
+        &domain(i.b.domain),
+        i.tol,
+    );
+    let r = r.and_then(|found| {
+        let mut flat = vec![0.0, found.curves_3d.len() as f64];
+        for (c, dev) in found.curves_3d.iter().zip(&found.deviations) {
+            let ivl = c.natural_interval();
+            // (SM_TC_TANGENT)
+            flat.extend([*dev, 3.0, ivl.min(), ivl.max()]);
+            for j in 0..=4 {
+                let p = c.evaluate_point(ivl.evaluate(f64::from(j) / 4.0))?;
+                flat.extend([p.x, p.y, p.z]);
+            }
+        }
+        Ok(flat)
+    });
+    Ok(match r {
+        Ok(flat) => isb_output(&flat),
+        Err(e) => Output::unported(&e).unwrap_or_else(|| isb_output(&[1.0])),
+    })
+}
+
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
+    if i.op == 1 {
+        return run_rust_isb(i);
+    }
     let a = surface(&i.a)?;
     let b = surface(&i.b)?;
     let opts = LocalSurfaceIntersectOptions {
@@ -198,6 +247,12 @@ impl UnitDiff for Runner {
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
+        if i.op == 1 {
+            let flat =
+                ffi::intersect_surface_boundaries(&ffi_surface(&i.a), &ffi_surface(&i.b), i.tol)
+                    .map_err(harness)?;
+            return Ok(isb_output(&flat));
+        }
         let flat = ffi::local_surface_intersect(
             &ffi_surface(&i.a),
             &ffi_surface(&i.b),
@@ -216,6 +271,9 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
+        if rng.chance(0.2) {
+            return generate_isb(rng);
+        }
         let scale = if rng.chance(0.1) {
             rng.uniform(1e-4, 1e-2)
         } else if rng.chance(0.1) {
@@ -305,6 +363,7 @@ impl UnitDiff for Runner {
             .chance(0.25)
             .then(|| guess_in(rng, dom_a, false));
         serde_json::to_value(Inputs {
+            op: 0,
             a: SurfaceIn {
                 kind: kind_a,
                 net: net_a,
@@ -323,4 +382,80 @@ impl UnitDiff for Runner {
         })
         .ok()
     }
+}
+
+/// An `IntersectSurfaceBoundaries` case: coincident surfaces (a flat patch in the
+/// plane z = 0 and that plane, a patch and itself or a shifted copy) or crossing
+/// ones. The other surface is always a patch: an `SmPlane`'s boundary curves are
+/// `SmLine`s upstream, and `Surface::create_iso_boundaries` (unit
+/// `surface.surface_p9`) returns them as B-spline curves (plan/findings.md).
+fn generate_isb(rng: &mut Rng) -> Option<Value> {
+    let scale = if rng.chance(0.1) {
+        rng.uniform(1e-3, 1e-2)
+    } else {
+        rng.uniform(0.5, 3.0)
+    };
+    let plane_a = rng.chance(0.5);
+    let flat = plane_a || rng.chance(0.5);
+    let height = if flat { 0.0 } else { scale * rng.uniform(0.0, 0.4) };
+    let net_a = patch(rng, scale, height);
+    let (kind_b, net_b) = match rng.below(4) {
+        // another flat patch in the plane z = 0 (or a curved one)
+        0 => (0, patch(rng, scale, height)),
+        // the same patch
+        1 => (0, net_a),
+        // the patch shifted a little in its plane (flat) or in z
+        2 => {
+            let mut n = net_a;
+            let d = [rng.uniform(-0.3, 0.3) * scale, rng.uniform(-0.3, 0.3) * scale];
+            for p in &mut n {
+                p[0] += d[0];
+                p[1] += d[1];
+            }
+            (0, n)
+        }
+        // a crossing patch
+        _ => {
+            let mut n = patch(rng, scale, height);
+            stand_up(&mut n, rng.uniform(0.2, 0.8) * scale);
+            (0, n)
+        }
+    };
+    let dom_b = sub_domain(rng);
+    let tol = scale * [1e-6, 1e-4, 1e-3][rng.below(3) as usize];
+    // this surface: the patch, or (dropping through the plane's DropPointFast) the
+    // plane z = 0 over a domain around the patch
+    let (kind_a, net_a, dom_a) = if plane_a {
+        let mut n = [[0.0; 3]; 9];
+        n[1] = [1.0, 0.0, 0.0];
+        n[2] = [0.0, 1.0, 0.0];
+        let dom = [
+            -scale * rng.uniform(0.0, 0.5),
+            -scale * rng.uniform(0.0, 0.5),
+            scale * rng.uniform(0.5, 1.5),
+            scale * rng.uniform(0.5, 1.5),
+        ];
+        (1, n, dom)
+    } else {
+        (0, net_a, sub_domain(rng))
+    };
+    serde_json::to_value(Inputs {
+        op: 1,
+        a: SurfaceIn {
+            kind: kind_a,
+            net: net_a,
+            domain: dom_a,
+        },
+        b: SurfaceIn {
+            kind: kind_b,
+            net: net_b,
+            domain: dom_b,
+        },
+        tol,
+        guesses: [0.0; 4],
+        plane_normal: None,
+        previous_uv: None,
+        boundary_testing: false,
+    })
+    .ok()
 }

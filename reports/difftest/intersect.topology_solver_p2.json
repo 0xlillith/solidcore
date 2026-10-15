@@ -2559,8 +2559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_3_0",
@@ -2571,8 +2571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_3_1",
@@ -2583,8 +2583,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmFindPSNormalENFO::Evaluate",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_4_0",
@@ -2595,8 +2595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmFindPSNormalENFO::Evaluate",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_4_1",
@@ -2606,28 +2606,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_5_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#136 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_5_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#137 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -2679,8 +2671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_3_0",
@@ -2691,8 +2683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_3_1",
@@ -2703,8 +2695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmFindPSNormalENFO::Evaluate",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_4_0",
@@ -2715,8 +2707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmFindPSNormalENFO::Evaluate",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_4_1",
@@ -2726,28 +2718,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_5_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#146 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmCSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_5_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#147 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -2774,33 +2758,25 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#150 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
-      },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.topology_solver_p2/static-shell-vertices.json#151 (upstream source/SMLib/src/SmTopologySolver.cpp:944,1412,1803,1859 (real CreateFaceFromSurface fixtures; missing Rust solver callees explicitly defer))",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmIsoCurve::SmIsoCurve (non-B-spline surface)",
+        "unit": "curve.iso_curve"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_3_0",
@@ -2811,8 +2787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmIsoCurve::SmIsoCurve (non-B-spline surface)",
+        "unit": "curve.iso_curve"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_3_1",
@@ -2823,8 +2799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmIsoCurve::SmIsoCurve (non-B-spline surface)",
+        "unit": "curve.iso_curve"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_4_0",
@@ -2835,8 +2811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmIsoCurve::SmIsoCurve (non-B-spline surface)",
+        "unit": "curve.iso_curve"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_4_1",
@@ -2847,8 +2823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalSurfaceSolve",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_5_0",
@@ -2859,8 +2835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSSGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p11"
+        "symbol": "SmSurface::LocalSurfaceSolve",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_8_5_1",
@@ -19615,15 +19591,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 45,
+  "cases_deferred": 39,
   "cases_failed": 0,
-  "cases_passed": 2384,
+  "cases_passed": 2390,
   "cases_total": 2429,
   "deferred_by_unit": {
+    "curve.iso_curve": 4,
     "intersect.surface_silhouette": 8,
-    "surface.surface_p11": 20,
+    "surface.surface_p3": 6,
     "surface.surface_p8": 6,
-    "surface.surface_point_solve_p3": 4,
+    "surface.surface_point_solve_p3": 8,
     "topology.brep_p1": 4,
     "topology.edge": 3
   },
