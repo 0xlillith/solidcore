@@ -302,7 +302,7 @@ impl Sphere {
         // negative radius -> inside-out sphere of the absolute radius
         let inside_out = radius < 0.0;
         let abs_radius = radius.abs();
-        if !(abs_radius > EFF_ZERO) {
+        if abs_radius.is_nan() || abs_radius <= EFF_ZERO {
             return Err(SolidError::sm_err(OP_CANONICAL));
         }
 
@@ -2260,7 +2260,7 @@ impl Sphere {
         }
 
         // drop point to Sphere - Remember when Point was not initially on Surface
-        vec = vec * (self.radius / length);
+        vec *= self.radius / length;
         if (length - self.radius).abs() > d3_tolerance {
             on_surf = false;
         }
