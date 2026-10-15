@@ -3,210 +3,10 @@
   "cases": [
     {
       "max_rel_err": 0.0,
-      "name": "null_01",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#0",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_02",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#1",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_03",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#2",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_04",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#3",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_05",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#4",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_06",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#5",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_07",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#6",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_08",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#7",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_09",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#8",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_10",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#9",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_11",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#10",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_12",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#11",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_13",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#12",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_14",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#13",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_15",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#14",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_16",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#15",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_17",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#16",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_18",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#17",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_19",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#18",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_20",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#19",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_21",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#20",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_22",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#21",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_23",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#22",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_24",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#23",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "null_25",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#24",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
       "name": "kind0_scale1e-05_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#25",
+      "source": "fixture:fixtures/query.api_queries/queries.json#0",
       "values_compared": 5
     },
     {
@@ -214,7 +14,7 @@
       "name": "kind0_scale1e-05_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#26",
+      "source": "fixture:fixtures/query.api_queries/queries.json#1",
       "values_compared": 5
     },
     {
@@ -222,7 +22,7 @@
       "name": "kind0_scale1e-05_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#27",
+      "source": "fixture:fixtures/query.api_queries/queries.json#2",
       "values_compared": 6
     },
     {
@@ -230,7 +30,7 @@
       "name": "kind0_scale1e-05_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#28",
+      "source": "fixture:fixtures/query.api_queries/queries.json#3",
       "values_compared": 5
     },
     {
@@ -238,7 +38,7 @@
       "name": "kind0_scale1e-05_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#29",
+      "source": "fixture:fixtures/query.api_queries/queries.json#4",
       "values_compared": 2
     },
     {
@@ -246,7 +46,7 @@
       "name": "kind0_scale1e-05_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#30",
+      "source": "fixture:fixtures/query.api_queries/queries.json#5",
       "values_compared": 0
     },
     {
@@ -254,7 +54,7 @@
       "name": "kind0_scale1e-05_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#31",
+      "source": "fixture:fixtures/query.api_queries/queries.json#6",
       "values_compared": 3
     },
     {
@@ -262,7 +62,7 @@
       "name": "kind0_scale1e-05_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#32",
+      "source": "fixture:fixtures/query.api_queries/queries.json#7",
       "values_compared": 3
     },
     {
@@ -270,7 +70,7 @@
       "name": "kind0_scale1_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#33",
+      "source": "fixture:fixtures/query.api_queries/queries.json#8",
       "values_compared": 5
     },
     {
@@ -278,7 +78,7 @@
       "name": "kind0_scale1_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#34",
+      "source": "fixture:fixtures/query.api_queries/queries.json#9",
       "values_compared": 5
     },
     {
@@ -286,7 +86,7 @@
       "name": "kind0_scale1_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#35",
+      "source": "fixture:fixtures/query.api_queries/queries.json#10",
       "values_compared": 6
     },
     {
@@ -294,7 +94,7 @@
       "name": "kind0_scale1_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#36",
+      "source": "fixture:fixtures/query.api_queries/queries.json#11",
       "values_compared": 5
     },
     {
@@ -302,7 +102,7 @@
       "name": "kind0_scale1_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#37",
+      "source": "fixture:fixtures/query.api_queries/queries.json#12",
       "values_compared": 2
     },
     {
@@ -310,7 +110,7 @@
       "name": "kind0_scale1_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#38",
+      "source": "fixture:fixtures/query.api_queries/queries.json#13",
       "values_compared": 0
     },
     {
@@ -318,7 +118,7 @@
       "name": "kind0_scale1_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#39",
+      "source": "fixture:fixtures/query.api_queries/queries.json#14",
       "values_compared": 3
     },
     {
@@ -326,7 +126,7 @@
       "name": "kind0_scale1_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#40",
+      "source": "fixture:fixtures/query.api_queries/queries.json#15",
       "values_compared": 3
     },
     {
@@ -334,7 +134,7 @@
       "name": "kind0_scale100000_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#41",
+      "source": "fixture:fixtures/query.api_queries/queries.json#16",
       "values_compared": 5
     },
     {
@@ -342,7 +142,7 @@
       "name": "kind0_scale100000_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#42",
+      "source": "fixture:fixtures/query.api_queries/queries.json#17",
       "values_compared": 5
     },
     {
@@ -350,7 +150,7 @@
       "name": "kind0_scale100000_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#43",
+      "source": "fixture:fixtures/query.api_queries/queries.json#18",
       "values_compared": 6
     },
     {
@@ -358,7 +158,7 @@
       "name": "kind0_scale100000_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#44",
+      "source": "fixture:fixtures/query.api_queries/queries.json#19",
       "values_compared": 5
     },
     {
@@ -366,7 +166,7 @@
       "name": "kind0_scale100000_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#45",
+      "source": "fixture:fixtures/query.api_queries/queries.json#20",
       "values_compared": 2
     },
     {
@@ -374,7 +174,7 @@
       "name": "kind0_scale100000_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#46",
+      "source": "fixture:fixtures/query.api_queries/queries.json#21",
       "values_compared": 0
     },
     {
@@ -382,7 +182,7 @@
       "name": "kind0_scale100000_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#47",
+      "source": "fixture:fixtures/query.api_queries/queries.json#22",
       "values_compared": 3
     },
     {
@@ -390,7 +190,7 @@
       "name": "kind0_scale100000_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#48",
+      "source": "fixture:fixtures/query.api_queries/queries.json#23",
       "values_compared": 3
     },
     {
@@ -398,7 +198,7 @@
       "name": "kind1_scale1e-05_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#49",
+      "source": "fixture:fixtures/query.api_queries/queries.json#24",
       "values_compared": 5
     },
     {
@@ -406,7 +206,7 @@
       "name": "kind1_scale1e-05_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#50",
+      "source": "fixture:fixtures/query.api_queries/queries.json#25",
       "values_compared": 10
     },
     {
@@ -414,7 +214,7 @@
       "name": "kind1_scale1e-05_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#51",
+      "source": "fixture:fixtures/query.api_queries/queries.json#26",
       "values_compared": 6
     },
     {
@@ -422,7 +222,7 @@
       "name": "kind1_scale1e-05_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#52",
+      "source": "fixture:fixtures/query.api_queries/queries.json#27",
       "values_compared": 5
     },
     {
@@ -430,7 +230,7 @@
       "name": "kind1_scale1e-05_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#53",
+      "source": "fixture:fixtures/query.api_queries/queries.json#28",
       "values_compared": 2
     },
     {
@@ -438,7 +238,7 @@
       "name": "kind1_scale1e-05_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#54",
+      "source": "fixture:fixtures/query.api_queries/queries.json#29",
       "values_compared": 0
     },
     {
@@ -446,7 +246,7 @@
       "name": "kind1_scale1e-05_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#55",
+      "source": "fixture:fixtures/query.api_queries/queries.json#30",
       "values_compared": 3
     },
     {
@@ -454,7 +254,7 @@
       "name": "kind1_scale1e-05_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#56",
+      "source": "fixture:fixtures/query.api_queries/queries.json#31",
       "values_compared": 3
     },
     {
@@ -462,7 +262,7 @@
       "name": "kind1_scale1_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#57",
+      "source": "fixture:fixtures/query.api_queries/queries.json#32",
       "values_compared": 5
     },
     {
@@ -470,7 +270,7 @@
       "name": "kind1_scale1_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#58",
+      "source": "fixture:fixtures/query.api_queries/queries.json#33",
       "values_compared": 5
     },
     {
@@ -478,7 +278,7 @@
       "name": "kind1_scale1_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#59",
+      "source": "fixture:fixtures/query.api_queries/queries.json#34",
       "values_compared": 6
     },
     {
@@ -486,7 +286,7 @@
       "name": "kind1_scale1_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#60",
+      "source": "fixture:fixtures/query.api_queries/queries.json#35",
       "values_compared": 5
     },
     {
@@ -494,7 +294,7 @@
       "name": "kind1_scale1_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#61",
+      "source": "fixture:fixtures/query.api_queries/queries.json#36",
       "values_compared": 2
     },
     {
@@ -502,7 +302,7 @@
       "name": "kind1_scale1_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#62",
+      "source": "fixture:fixtures/query.api_queries/queries.json#37",
       "values_compared": 0
     },
     {
@@ -510,7 +310,7 @@
       "name": "kind1_scale1_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#63",
+      "source": "fixture:fixtures/query.api_queries/queries.json#38",
       "values_compared": 3
     },
     {
@@ -518,7 +318,7 @@
       "name": "kind1_scale1_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#64",
+      "source": "fixture:fixtures/query.api_queries/queries.json#39",
       "values_compared": 3
     },
     {
@@ -526,7 +326,7 @@
       "name": "kind1_scale100000_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#65",
+      "source": "fixture:fixtures/query.api_queries/queries.json#40",
       "values_compared": 5
     },
     {
@@ -534,7 +334,7 @@
       "name": "kind1_scale100000_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#66",
+      "source": "fixture:fixtures/query.api_queries/queries.json#41",
       "values_compared": 5
     },
     {
@@ -542,7 +342,7 @@
       "name": "kind1_scale100000_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#67",
+      "source": "fixture:fixtures/query.api_queries/queries.json#42",
       "values_compared": 6
     },
     {
@@ -550,7 +350,7 @@
       "name": "kind1_scale100000_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#68",
+      "source": "fixture:fixtures/query.api_queries/queries.json#43",
       "values_compared": 5
     },
     {
@@ -558,7 +358,7 @@
       "name": "kind1_scale100000_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#69",
+      "source": "fixture:fixtures/query.api_queries/queries.json#44",
       "values_compared": 2
     },
     {
@@ -566,7 +366,7 @@
       "name": "kind1_scale100000_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#70",
+      "source": "fixture:fixtures/query.api_queries/queries.json#45",
       "values_compared": 0
     },
     {
@@ -574,7 +374,7 @@
       "name": "kind1_scale100000_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#71",
+      "source": "fixture:fixtures/query.api_queries/queries.json#46",
       "values_compared": 3
     },
     {
@@ -582,7 +382,7 @@
       "name": "kind1_scale100000_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#72",
+      "source": "fixture:fixtures/query.api_queries/queries.json#47",
       "values_compared": 3
     },
     {
@@ -590,7 +390,7 @@
       "name": "kind2_scale1e-05_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#73",
+      "source": "fixture:fixtures/query.api_queries/queries.json#48",
       "values_compared": 5
     },
     {
@@ -598,7 +398,7 @@
       "name": "kind2_scale1e-05_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#74",
+      "source": "fixture:fixtures/query.api_queries/queries.json#49",
       "values_compared": 130
     },
     {
@@ -606,7 +406,7 @@
       "name": "kind2_scale1e-05_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#75",
+      "source": "fixture:fixtures/query.api_queries/queries.json#50",
       "values_compared": 6
     },
     {
@@ -614,7 +414,7 @@
       "name": "kind2_scale1e-05_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#76",
+      "source": "fixture:fixtures/query.api_queries/queries.json#51",
       "values_compared": 5
     },
     {
@@ -622,7 +422,7 @@
       "name": "kind2_scale1e-05_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#77",
+      "source": "fixture:fixtures/query.api_queries/queries.json#52",
       "values_compared": 2
     },
     {
@@ -630,7 +430,7 @@
       "name": "kind2_scale1e-05_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#78",
+      "source": "fixture:fixtures/query.api_queries/queries.json#53",
       "values_compared": 0
     },
     {
@@ -638,7 +438,7 @@
       "name": "kind2_scale1e-05_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#79",
+      "source": "fixture:fixtures/query.api_queries/queries.json#54",
       "values_compared": 3
     },
     {
@@ -646,7 +446,7 @@
       "name": "kind2_scale1e-05_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#80",
+      "source": "fixture:fixtures/query.api_queries/queries.json#55",
       "values_compared": 3
     },
     {
@@ -654,7 +454,7 @@
       "name": "kind2_scale1_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#81",
+      "source": "fixture:fixtures/query.api_queries/queries.json#56",
       "values_compared": 5
     },
     {
@@ -662,7 +462,7 @@
       "name": "kind2_scale1_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#82",
+      "source": "fixture:fixtures/query.api_queries/queries.json#57",
       "values_compared": 5
     },
     {
@@ -670,7 +470,7 @@
       "name": "kind2_scale1_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#83",
+      "source": "fixture:fixtures/query.api_queries/queries.json#58",
       "values_compared": 6
     },
     {
@@ -678,7 +478,7 @@
       "name": "kind2_scale1_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#84",
+      "source": "fixture:fixtures/query.api_queries/queries.json#59",
       "values_compared": 5
     },
     {
@@ -686,7 +486,7 @@
       "name": "kind2_scale1_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#85",
+      "source": "fixture:fixtures/query.api_queries/queries.json#60",
       "values_compared": 2
     },
     {
@@ -694,7 +494,7 @@
       "name": "kind2_scale1_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#86",
+      "source": "fixture:fixtures/query.api_queries/queries.json#61",
       "values_compared": 0
     },
     {
@@ -702,7 +502,7 @@
       "name": "kind2_scale1_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#87",
+      "source": "fixture:fixtures/query.api_queries/queries.json#62",
       "values_compared": 3
     },
     {
@@ -710,7 +510,7 @@
       "name": "kind2_scale1_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#88",
+      "source": "fixture:fixtures/query.api_queries/queries.json#63",
       "values_compared": 3
     },
     {
@@ -718,7 +518,7 @@
       "name": "kind2_scale100000_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#89",
+      "source": "fixture:fixtures/query.api_queries/queries.json#64",
       "values_compared": 5
     },
     {
@@ -726,7 +526,7 @@
       "name": "kind2_scale100000_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#90",
+      "source": "fixture:fixtures/query.api_queries/queries.json#65",
       "values_compared": 5
     },
     {
@@ -734,7 +534,7 @@
       "name": "kind2_scale100000_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#91",
+      "source": "fixture:fixtures/query.api_queries/queries.json#66",
       "values_compared": 6
     },
     {
@@ -742,7 +542,7 @@
       "name": "kind2_scale100000_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#92",
+      "source": "fixture:fixtures/query.api_queries/queries.json#67",
       "values_compared": 5
     },
     {
@@ -750,7 +550,7 @@
       "name": "kind2_scale100000_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#93",
+      "source": "fixture:fixtures/query.api_queries/queries.json#68",
       "values_compared": 2
     },
     {
@@ -758,7 +558,7 @@
       "name": "kind2_scale100000_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#94",
+      "source": "fixture:fixtures/query.api_queries/queries.json#69",
       "values_compared": 0
     },
     {
@@ -766,7 +566,7 @@
       "name": "kind2_scale100000_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#95",
+      "source": "fixture:fixtures/query.api_queries/queries.json#70",
       "values_compared": 3
     },
     {
@@ -774,7 +574,7 @@
       "name": "kind2_scale100000_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#96",
+      "source": "fixture:fixtures/query.api_queries/queries.json#71",
       "values_compared": 3
     },
     {
@@ -782,7 +582,7 @@
       "name": "kind3_scale1e-05_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#97",
+      "source": "fixture:fixtures/query.api_queries/queries.json#72",
       "values_compared": 5
     },
     {
@@ -790,7 +590,7 @@
       "name": "kind3_scale1e-05_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#98",
+      "source": "fixture:fixtures/query.api_queries/queries.json#73",
       "values_compared": 60
     },
     {
@@ -798,7 +598,7 @@
       "name": "kind3_scale1e-05_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#99",
+      "source": "fixture:fixtures/query.api_queries/queries.json#74",
       "values_compared": 6
     },
     {
@@ -806,7 +606,7 @@
       "name": "kind3_scale1e-05_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#100",
+      "source": "fixture:fixtures/query.api_queries/queries.json#75",
       "values_compared": 5
     },
     {
@@ -814,7 +614,7 @@
       "name": "kind3_scale1e-05_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#101",
+      "source": "fixture:fixtures/query.api_queries/queries.json#76",
       "values_compared": 2
     },
     {
@@ -822,7 +622,7 @@
       "name": "kind3_scale1e-05_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#102",
+      "source": "fixture:fixtures/query.api_queries/queries.json#77",
       "values_compared": 0
     },
     {
@@ -830,7 +630,7 @@
       "name": "kind3_scale1e-05_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#103",
+      "source": "fixture:fixtures/query.api_queries/queries.json#78",
       "values_compared": 3
     },
     {
@@ -838,7 +638,7 @@
       "name": "kind3_scale1e-05_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#104",
+      "source": "fixture:fixtures/query.api_queries/queries.json#79",
       "values_compared": 3
     },
     {
@@ -846,7 +646,7 @@
       "name": "kind3_scale1_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#105",
+      "source": "fixture:fixtures/query.api_queries/queries.json#80",
       "values_compared": 5
     },
     {
@@ -854,7 +654,7 @@
       "name": "kind3_scale1_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#106",
+      "source": "fixture:fixtures/query.api_queries/queries.json#81",
       "values_compared": 5
     },
     {
@@ -862,7 +662,7 @@
       "name": "kind3_scale1_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#107",
+      "source": "fixture:fixtures/query.api_queries/queries.json#82",
       "values_compared": 6
     },
     {
@@ -870,7 +670,7 @@
       "name": "kind3_scale1_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#108",
+      "source": "fixture:fixtures/query.api_queries/queries.json#83",
       "values_compared": 5
     },
     {
@@ -878,7 +678,7 @@
       "name": "kind3_scale1_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#109",
+      "source": "fixture:fixtures/query.api_queries/queries.json#84",
       "values_compared": 2
     },
     {
@@ -886,7 +686,7 @@
       "name": "kind3_scale1_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#110",
+      "source": "fixture:fixtures/query.api_queries/queries.json#85",
       "values_compared": 0
     },
     {
@@ -894,7 +694,7 @@
       "name": "kind3_scale1_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#111",
+      "source": "fixture:fixtures/query.api_queries/queries.json#86",
       "values_compared": 3
     },
     {
@@ -902,7 +702,7 @@
       "name": "kind3_scale1_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#112",
+      "source": "fixture:fixtures/query.api_queries/queries.json#87",
       "values_compared": 3
     },
     {
@@ -910,7 +710,7 @@
       "name": "kind3_scale100000_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#113",
+      "source": "fixture:fixtures/query.api_queries/queries.json#88",
       "values_compared": 5
     },
     {
@@ -918,7 +718,7 @@
       "name": "kind3_scale100000_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#114",
+      "source": "fixture:fixtures/query.api_queries/queries.json#89",
       "values_compared": 5
     },
     {
@@ -926,7 +726,7 @@
       "name": "kind3_scale100000_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#115",
+      "source": "fixture:fixtures/query.api_queries/queries.json#90",
       "values_compared": 6
     },
     {
@@ -934,7 +734,7 @@
       "name": "kind3_scale100000_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#116",
+      "source": "fixture:fixtures/query.api_queries/queries.json#91",
       "values_compared": 5
     },
     {
@@ -942,7 +742,7 @@
       "name": "kind3_scale100000_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#117",
+      "source": "fixture:fixtures/query.api_queries/queries.json#92",
       "values_compared": 2
     },
     {
@@ -950,7 +750,7 @@
       "name": "kind3_scale100000_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#118",
+      "source": "fixture:fixtures/query.api_queries/queries.json#93",
       "values_compared": 0
     },
     {
@@ -958,7 +758,7 @@
       "name": "kind3_scale100000_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#119",
+      "source": "fixture:fixtures/query.api_queries/queries.json#94",
       "values_compared": 3
     },
     {
@@ -966,7 +766,7 @@
       "name": "kind3_scale100000_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#120",
+      "source": "fixture:fixtures/query.api_queries/queries.json#95",
       "values_compared": 3
     },
     {
@@ -974,7 +774,7 @@
       "name": "face_kind4_op3",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#121",
+      "source": "fixture:fixtures/query.api_queries/queries.json#96",
       "values_compared": 6
     },
     {
@@ -986,7 +786,7 @@
       "name": "face_kind4_op4",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#122",
+      "source": "fixture:fixtures/query.api_queries/queries.json#97",
       "values_compared": 0
     },
     {
@@ -998,7 +798,7 @@
       "name": "face_kind4_op5",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#123",
+      "source": "fixture:fixtures/query.api_queries/queries.json#98",
       "values_compared": 0
     },
     {
@@ -1010,7 +810,7 @@
       "name": "face_kind4_op6",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#124",
+      "source": "fixture:fixtures/query.api_queries/queries.json#99",
       "values_compared": 0
     },
     {
@@ -1022,7 +822,7 @@
       "name": "face_kind4_op7",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#125",
+      "source": "fixture:fixtures/query.api_queries/queries.json#100",
       "values_compared": 0
     },
     {
@@ -1034,7 +834,7 @@
       "name": "face_kind4_op8",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#126",
+      "source": "fixture:fixtures/query.api_queries/queries.json#101",
       "values_compared": 0
     },
     {
@@ -1046,7 +846,7 @@
       "name": "face_kind4_op9",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#127",
+      "source": "fixture:fixtures/query.api_queries/queries.json#102",
       "values_compared": 0
     },
     {
@@ -1058,7 +858,7 @@
       "name": "face_kind4_op10",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#128",
+      "source": "fixture:fixtures/query.api_queries/queries.json#103",
       "values_compared": 0
     },
     {
@@ -1066,7 +866,7 @@
       "name": "face_kind4_op11",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#129",
+      "source": "fixture:fixtures/query.api_queries/queries.json#104",
       "values_compared": 0
     },
     {
@@ -1078,7 +878,7 @@
       "name": "face_kind4_op12",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#130",
+      "source": "fixture:fixtures/query.api_queries/queries.json#105",
       "values_compared": 0
     },
     {
@@ -1090,7 +890,7 @@
       "name": "face_kind4_op13",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#131",
+      "source": "fixture:fixtures/query.api_queries/queries.json#106",
       "values_compared": 0
     },
     {
@@ -1102,7 +902,7 @@
       "name": "face_kind4_op14",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#132",
+      "source": "fixture:fixtures/query.api_queries/queries.json#107",
       "values_compared": 0
     },
     {
@@ -1114,7 +914,7 @@
       "name": "face_kind4_op15",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#133",
+      "source": "fixture:fixtures/query.api_queries/queries.json#108",
       "values_compared": 0
     },
     {
@@ -1126,7 +926,7 @@
       "name": "face_kind4_op16",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#134",
+      "source": "fixture:fixtures/query.api_queries/queries.json#109",
       "values_compared": 0
     },
     {
@@ -1138,31 +938,31 @@
       "name": "face_kind4_op17",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#135",
+      "source": "fixture:fixtures/query.api_queries/queries.json#110",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op18",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#136",
+      "source": "fixture:fixtures/query.api_queries/queries.json#111",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op19",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#137",
+      "source": "fixture:fixtures/query.api_queries/queries.json#112",
       "values_compared": 0
     },
     {
@@ -1170,7 +970,7 @@
       "name": "face_kind4_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#138",
+      "source": "fixture:fixtures/query.api_queries/queries.json#113",
       "values_compared": 6
     },
     {
@@ -1178,7 +978,7 @@
       "name": "face_kind4_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#139",
+      "source": "fixture:fixtures/query.api_queries/queries.json#114",
       "values_compared": 5
     },
     {
@@ -1186,7 +986,7 @@
       "name": "face_kind4_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#140",
+      "source": "fixture:fixtures/query.api_queries/queries.json#115",
       "values_compared": 2
     },
     {
@@ -1194,7 +994,7 @@
       "name": "face_kind4_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#141",
+      "source": "fixture:fixtures/query.api_queries/queries.json#116",
       "values_compared": 0
     },
     {
@@ -1202,7 +1002,7 @@
       "name": "face_kind4_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#142",
+      "source": "fixture:fixtures/query.api_queries/queries.json#117",
       "values_compared": 3
     },
     {
@@ -1210,7 +1010,7 @@
       "name": "face_kind4_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#143",
+      "source": "fixture:fixtures/query.api_queries/queries.json#118",
       "values_compared": 3
     },
     {
@@ -1222,7 +1022,7 @@
       "name": "face_kind5_op3",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#144",
+      "source": "fixture:fixtures/query.api_queries/queries.json#119",
       "values_compared": 0
     },
     {
@@ -1234,7 +1034,7 @@
       "name": "face_kind5_op4",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#145",
+      "source": "fixture:fixtures/query.api_queries/queries.json#120",
       "values_compared": 0
     },
     {
@@ -1246,7 +1046,7 @@
       "name": "face_kind5_op5",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#146",
+      "source": "fixture:fixtures/query.api_queries/queries.json#121",
       "values_compared": 0
     },
     {
@@ -1258,7 +1058,7 @@
       "name": "face_kind5_op6",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#147",
+      "source": "fixture:fixtures/query.api_queries/queries.json#122",
       "values_compared": 0
     },
     {
@@ -1270,7 +1070,7 @@
       "name": "face_kind5_op7",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#148",
+      "source": "fixture:fixtures/query.api_queries/queries.json#123",
       "values_compared": 0
     },
     {
@@ -1282,7 +1082,7 @@
       "name": "face_kind5_op8",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#149",
+      "source": "fixture:fixtures/query.api_queries/queries.json#124",
       "values_compared": 0
     },
     {
@@ -1294,7 +1094,7 @@
       "name": "face_kind5_op9",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#150",
+      "source": "fixture:fixtures/query.api_queries/queries.json#125",
       "values_compared": 0
     },
     {
@@ -1306,7 +1106,7 @@
       "name": "face_kind5_op10",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#151",
+      "source": "fixture:fixtures/query.api_queries/queries.json#126",
       "values_compared": 0
     },
     {
@@ -1314,7 +1114,7 @@
       "name": "face_kind5_op11",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#152",
+      "source": "fixture:fixtures/query.api_queries/queries.json#127",
       "values_compared": 0
     },
     {
@@ -1326,7 +1126,7 @@
       "name": "face_kind5_op12",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#153",
+      "source": "fixture:fixtures/query.api_queries/queries.json#128",
       "values_compared": 0
     },
     {
@@ -1338,7 +1138,7 @@
       "name": "face_kind5_op13",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#154",
+      "source": "fixture:fixtures/query.api_queries/queries.json#129",
       "values_compared": 0
     },
     {
@@ -1350,7 +1150,7 @@
       "name": "face_kind5_op14",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#155",
+      "source": "fixture:fixtures/query.api_queries/queries.json#130",
       "values_compared": 0
     },
     {
@@ -1362,7 +1162,7 @@
       "name": "face_kind5_op15",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#156",
+      "source": "fixture:fixtures/query.api_queries/queries.json#131",
       "values_compared": 0
     },
     {
@@ -1374,7 +1174,7 @@
       "name": "face_kind5_op16",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#157",
+      "source": "fixture:fixtures/query.api_queries/queries.json#132",
       "values_compared": 0
     },
     {
@@ -1386,31 +1186,31 @@
       "name": "face_kind5_op17",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#158",
+      "source": "fixture:fixtures/query.api_queries/queries.json#133",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op18",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#159",
+      "source": "fixture:fixtures/query.api_queries/queries.json#134",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op19",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#160",
+      "source": "fixture:fixtures/query.api_queries/queries.json#135",
       "values_compared": 0
     },
     {
@@ -1418,7 +1218,7 @@
       "name": "face_kind5_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#161",
+      "source": "fixture:fixtures/query.api_queries/queries.json#136",
       "values_compared": 6
     },
     {
@@ -1426,7 +1226,7 @@
       "name": "face_kind5_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#162",
+      "source": "fixture:fixtures/query.api_queries/queries.json#137",
       "values_compared": 5
     },
     {
@@ -1434,7 +1234,7 @@
       "name": "face_kind5_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#163",
+      "source": "fixture:fixtures/query.api_queries/queries.json#138",
       "values_compared": 2
     },
     {
@@ -1442,7 +1242,7 @@
       "name": "face_kind5_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#164",
+      "source": "fixture:fixtures/query.api_queries/queries.json#139",
       "values_compared": 0
     },
     {
@@ -1450,7 +1250,7 @@
       "name": "face_kind5_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#165",
+      "source": "fixture:fixtures/query.api_queries/queries.json#140",
       "values_compared": 3
     },
     {
@@ -1458,7 +1258,7 @@
       "name": "face_kind5_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#166",
+      "source": "fixture:fixtures/query.api_queries/queries.json#141",
       "values_compared": 3
     },
     {
@@ -1470,7 +1270,7 @@
       "name": "face_kind6_op4",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#167 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#142 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
       "values_compared": 0
     },
     {
@@ -1482,7 +1282,7 @@
       "name": "face_kind6_op5",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#168",
+      "source": "fixture:fixtures/query.api_queries/queries.json#143",
       "values_compared": 0
     },
     {
@@ -1494,7 +1294,7 @@
       "name": "face_kind6_op6",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#169",
+      "source": "fixture:fixtures/query.api_queries/queries.json#144",
       "values_compared": 0
     },
     {
@@ -1506,7 +1306,7 @@
       "name": "face_kind6_op7",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#170",
+      "source": "fixture:fixtures/query.api_queries/queries.json#145",
       "values_compared": 0
     },
     {
@@ -1518,7 +1318,7 @@
       "name": "face_kind6_op8",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#171",
+      "source": "fixture:fixtures/query.api_queries/queries.json#146",
       "values_compared": 0
     },
     {
@@ -1530,7 +1330,7 @@
       "name": "face_kind6_op9",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#172 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#147 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
       "values_compared": 0
     },
     {
@@ -1542,7 +1342,7 @@
       "name": "face_kind6_op10",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#173 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#148 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
       "values_compared": 0
     },
     {
@@ -1550,7 +1350,7 @@
       "name": "face_kind6_op11",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#174",
+      "source": "fixture:fixtures/query.api_queries/queries.json#149",
       "values_compared": 0
     },
     {
@@ -1562,7 +1362,7 @@
       "name": "face_kind6_op12",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#175 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#150 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
       "values_compared": 0
     },
     {
@@ -1574,7 +1374,7 @@
       "name": "face_kind6_op13",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#176 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#151 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707)",
       "values_compared": 0
     },
     {
@@ -1586,7 +1386,7 @@
       "name": "face_kind6_op14",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#177",
+      "source": "fixture:fixtures/query.api_queries/queries.json#152",
       "values_compared": 0
     },
     {
@@ -1598,7 +1398,7 @@
       "name": "face_kind6_op15",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#178",
+      "source": "fixture:fixtures/query.api_queries/queries.json#153",
       "values_compared": 0
     },
     {
@@ -1610,7 +1410,7 @@
       "name": "face_kind6_op16",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#179",
+      "source": "fixture:fixtures/query.api_queries/queries.json#154",
       "values_compared": 0
     },
     {
@@ -1622,31 +1422,27 @@
       "name": "face_kind6_op17",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#180",
+      "source": "fixture:fixtures/query.api_queries/queries.json#155",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind6_op18",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#181",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#156",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op19",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#182",
+      "source": "fixture:fixtures/query.api_queries/queries.json#157",
       "values_compared": 0
     },
     {
@@ -1654,7 +1450,7 @@
       "name": "face_kind6_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#183",
+      "source": "fixture:fixtures/query.api_queries/queries.json#158",
       "values_compared": 6
     },
     {
@@ -1662,7 +1458,7 @@
       "name": "face_kind6_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#184",
+      "source": "fixture:fixtures/query.api_queries/queries.json#159",
       "values_compared": 5
     },
     {
@@ -1670,7 +1466,7 @@
       "name": "face_kind6_op22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#185",
+      "source": "fixture:fixtures/query.api_queries/queries.json#160",
       "values_compared": 2
     },
     {
@@ -1678,7 +1474,7 @@
       "name": "face_kind6_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#186",
+      "source": "fixture:fixtures/query.api_queries/queries.json#161",
       "values_compared": 0
     },
     {
@@ -1686,7 +1482,7 @@
       "name": "face_kind6_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#187",
+      "source": "fixture:fixtures/query.api_queries/queries.json#162",
       "values_compared": 3
     },
     {
@@ -1694,7 +1490,7 @@
       "name": "face_kind6_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#188",
+      "source": "fixture:fixtures/query.api_queries/queries.json#163",
       "values_compared": 3
     },
     {
@@ -1702,7 +1498,7 @@
       "name": "line_classify_-0.5",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#189",
+      "source": "fixture:fixtures/query.api_queries/queries.json#164",
       "values_compared": 0
     },
     {
@@ -1710,7 +1506,7 @@
       "name": "line_classify_-1.0000000000000001e-05",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#190",
+      "source": "fixture:fixtures/query.api_queries/queries.json#165",
       "values_compared": 0
     },
     {
@@ -1718,7 +1514,7 @@
       "name": "line_classify_-9.9999999990000005e-06",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#191",
+      "source": "fixture:fixtures/query.api_queries/queries.json#166",
       "values_compared": 0
     },
     {
@@ -1726,7 +1522,7 @@
       "name": "line_classify_0",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#192",
+      "source": "fixture:fixtures/query.api_queries/queries.json#167",
       "values_compared": 0
     },
     {
@@ -1734,7 +1530,7 @@
       "name": "line_classify_9.9999999990000005e-06",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#193",
+      "source": "fixture:fixtures/query.api_queries/queries.json#168",
       "values_compared": 0
     },
     {
@@ -1742,7 +1538,7 @@
       "name": "line_classify_1.0000000000000001e-05",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#194",
+      "source": "fixture:fixtures/query.api_queries/queries.json#169",
       "values_compared": 0
     },
     {
@@ -1750,7 +1546,7 @@
       "name": "line_classify_1.0000000001000001e-05",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#195",
+      "source": "fixture:fixtures/query.api_queries/queries.json#170",
       "values_compared": 0
     },
     {
@@ -1758,7 +1554,7 @@
       "name": "line_classify_0.5",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#196",
+      "source": "fixture:fixtures/query.api_queries/queries.json#171",
       "values_compared": 0
     },
     {
@@ -1766,7 +1562,7 @@
       "name": "line_classify_0.99999000000000005",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#197",
+      "source": "fixture:fixtures/query.api_queries/queries.json#172",
       "values_compared": 0
     },
     {
@@ -1774,7 +1570,7 @@
       "name": "line_classify_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#198",
+      "source": "fixture:fixtures/query.api_queries/queries.json#173",
       "values_compared": 0
     },
     {
@@ -1782,7 +1578,7 @@
       "name": "line_classify_1.0000100000000001",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#199",
+      "source": "fixture:fixtures/query.api_queries/queries.json#174",
       "values_compared": 0
     },
     {
@@ -1790,7 +1586,7 @@
       "name": "line_classify_1.5",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#200",
+      "source": "fixture:fixtures/query.api_queries/queries.json#175",
       "values_compared": 0
     },
     {
@@ -1798,7 +1594,7 @@
       "name": "missing_curve_20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#201",
+      "source": "fixture:fixtures/query.api_queries/queries.json#176",
       "values_compared": 6
     },
     {
@@ -1806,7 +1602,7 @@
       "name": "missing_curve_22",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#202",
+      "source": "fixture:fixtures/query.api_queries/queries.json#177",
       "values_compared": 2
     },
     {
@@ -1814,7 +1610,7 @@
       "name": "missing_curve_23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#203",
+      "source": "fixture:fixtures/query.api_queries/queries.json#178",
       "values_compared": 0
     },
     {
@@ -1822,7 +1618,7 @@
       "name": "missing_curve_24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#204",
+      "source": "fixture:fixtures/query.api_queries/queries.json#179",
       "values_compared": 0
     },
     {
@@ -1830,7 +1626,7 @@
       "name": "reversed_subdomain_kind0_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#205",
+      "source": "fixture:fixtures/query.api_queries/queries.json#180",
       "values_compared": 5
     },
     {
@@ -1838,7 +1634,7 @@
       "name": "reversed_subdomain_kind0_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#206",
+      "source": "fixture:fixtures/query.api_queries/queries.json#181",
       "values_compared": 5
     },
     {
@@ -1846,7 +1642,7 @@
       "name": "reversed_subdomain_kind0_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#207",
+      "source": "fixture:fixtures/query.api_queries/queries.json#182",
       "values_compared": 5
     },
     {
@@ -1854,7 +1650,7 @@
       "name": "reversed_subdomain_kind0_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#208",
+      "source": "fixture:fixtures/query.api_queries/queries.json#183",
       "values_compared": 0
     },
     {
@@ -1862,7 +1658,7 @@
       "name": "reversed_subdomain_kind0_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#209",
+      "source": "fixture:fixtures/query.api_queries/queries.json#184",
       "values_compared": 3
     },
     {
@@ -1870,7 +1666,7 @@
       "name": "reversed_subdomain_kind1_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#210",
+      "source": "fixture:fixtures/query.api_queries/queries.json#185",
       "values_compared": 5
     },
     {
@@ -1878,7 +1674,7 @@
       "name": "reversed_subdomain_kind1_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#211",
+      "source": "fixture:fixtures/query.api_queries/queries.json#186",
       "values_compared": 5
     },
     {
@@ -1886,7 +1682,7 @@
       "name": "reversed_subdomain_kind1_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#212",
+      "source": "fixture:fixtures/query.api_queries/queries.json#187",
       "values_compared": 5
     },
     {
@@ -1894,7 +1690,7 @@
       "name": "reversed_subdomain_kind1_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#213",
+      "source": "fixture:fixtures/query.api_queries/queries.json#188",
       "values_compared": 0
     },
     {
@@ -1902,7 +1698,7 @@
       "name": "reversed_subdomain_kind1_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#214",
+      "source": "fixture:fixtures/query.api_queries/queries.json#189",
       "values_compared": 3
     },
     {
@@ -1910,7 +1706,7 @@
       "name": "reversed_subdomain_kind2_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#215",
+      "source": "fixture:fixtures/query.api_queries/queries.json#190",
       "values_compared": 5
     },
     {
@@ -1918,7 +1714,7 @@
       "name": "reversed_subdomain_kind2_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#216",
+      "source": "fixture:fixtures/query.api_queries/queries.json#191",
       "values_compared": 5
     },
     {
@@ -1926,7 +1722,7 @@
       "name": "reversed_subdomain_kind2_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#217",
+      "source": "fixture:fixtures/query.api_queries/queries.json#192",
       "values_compared": 5
     },
     {
@@ -1934,7 +1730,7 @@
       "name": "reversed_subdomain_kind2_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#218",
+      "source": "fixture:fixtures/query.api_queries/queries.json#193",
       "values_compared": 0
     },
     {
@@ -1942,47 +1738,47 @@
       "name": "reversed_subdomain_kind2_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#219",
+      "source": "fixture:fixtures/query.api_queries/queries.json#194",
       "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
-      "name": "reversed_subdomain_kind3_op1",
+      "name": "subdomain_cubic_op1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#220",
+      "source": "fixture:fixtures/query.api_queries/queries.json#195",
       "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
-      "name": "reversed_subdomain_kind3_op2",
+      "name": "subdomain_cubic_op2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#221",
+      "source": "fixture:fixtures/query.api_queries/queries.json#196",
       "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
-      "name": "reversed_subdomain_kind3_op21",
+      "name": "subdomain_cubic_op21",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#222",
+      "source": "fixture:fixtures/query.api_queries/queries.json#197",
       "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
-      "name": "reversed_subdomain_kind3_op23",
+      "name": "subdomain_cubic_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#223",
+      "source": "fixture:fixtures/query.api_queries/queries.json#198",
       "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
-      "name": "reversed_subdomain_kind3_op24",
+      "name": "subdomain_cubic_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#224",
+      "source": "fixture:fixtures/query.api_queries/queries.json#199",
       "values_compared": 3
     },
     {
@@ -1990,7 +1786,7 @@
       "name": "cubic_zero_start_tangent_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#225",
+      "source": "fixture:fixtures/query.api_queries/queries.json#200",
       "values_compared": 5
     },
     {
@@ -1998,7 +1794,7 @@
       "name": "cubic_zero_start_tangent_2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#226",
+      "source": "fixture:fixtures/query.api_queries/queries.json#201",
       "values_compared": 5
     },
     {
@@ -2006,7 +1802,7 @@
       "name": "cubic_zero_start_tangent_23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#227",
+      "source": "fixture:fixtures/query.api_queries/queries.json#202",
       "values_compared": 0
     },
     {
@@ -2014,7 +1810,7 @@
       "name": "cubic_zero_start_tangent_24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#228",
+      "source": "fixture:fixtures/query.api_queries/queries.json#203",
       "values_compared": 0
     },
     {
@@ -2022,7 +1818,7 @@
       "name": "circle_center_multivalued_1",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#229",
+      "source": "fixture:fixtures/query.api_queries/queries.json#204",
       "values_compared": 5
     },
     {
@@ -2030,7 +1826,7 @@
       "name": "circle_center_multivalued_2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#230",
+      "source": "fixture:fixtures/query.api_queries/queries.json#205",
       "values_compared": 10
     },
     {
@@ -2042,7 +1838,7 @@
       "name": "upstream_box10_op4",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#231 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#206 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
       "values_compared": 0
     },
     {
@@ -2054,7 +1850,7 @@
       "name": "upstream_box10_op9",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#232 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#207 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
       "values_compared": 0
     },
     {
@@ -2066,7 +1862,7 @@
       "name": "upstream_box10_op10",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#233 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#208 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
       "values_compared": 0
     },
     {
@@ -2078,7 +1874,7 @@
       "name": "upstream_box10_op12",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#234 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#209 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
       "values_compared": 0
     },
     {
@@ -2090,7 +1886,7 @@
       "name": "upstream_box10_op13",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#235 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
+      "source": "fixture:fixtures/query.api_queries/queries.json#210 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:707-850)",
       "values_compared": 0
     },
     {
@@ -2102,7 +1898,7 @@
       "name": "rational_kind8_1e-05_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#236",
+      "source": "fixture:fixtures/query.api_queries/queries.json#211",
       "values_compared": 0
     },
     {
@@ -2114,7 +1910,7 @@
       "name": "rational_kind8_1e-05_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#237",
+      "source": "fixture:fixtures/query.api_queries/queries.json#212",
       "values_compared": 0
     },
     {
@@ -2126,7 +1922,7 @@
       "name": "rational_kind8_1e-05_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#238",
+      "source": "fixture:fixtures/query.api_queries/queries.json#213",
       "values_compared": 0
     },
     {
@@ -2138,7 +1934,7 @@
       "name": "rational_kind8_1e-05_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#239",
+      "source": "fixture:fixtures/query.api_queries/queries.json#214",
       "values_compared": 0
     },
     {
@@ -2150,7 +1946,7 @@
       "name": "rational_kind8_1e-05_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#240",
+      "source": "fixture:fixtures/query.api_queries/queries.json#215",
       "values_compared": 0
     },
     {
@@ -2162,7 +1958,7 @@
       "name": "rational_kind8_1e-05_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#241",
+      "source": "fixture:fixtures/query.api_queries/queries.json#216",
       "values_compared": 0
     },
     {
@@ -2174,7 +1970,7 @@
       "name": "rational_kind8_1_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#242",
+      "source": "fixture:fixtures/query.api_queries/queries.json#217",
       "values_compared": 0
     },
     {
@@ -2186,7 +1982,7 @@
       "name": "rational_kind8_1_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#243",
+      "source": "fixture:fixtures/query.api_queries/queries.json#218",
       "values_compared": 0
     },
     {
@@ -2198,7 +1994,7 @@
       "name": "rational_kind8_1_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#244",
+      "source": "fixture:fixtures/query.api_queries/queries.json#219",
       "values_compared": 0
     },
     {
@@ -2210,7 +2006,7 @@
       "name": "rational_kind8_1_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#245",
+      "source": "fixture:fixtures/query.api_queries/queries.json#220",
       "values_compared": 0
     },
     {
@@ -2222,7 +2018,7 @@
       "name": "rational_kind8_1_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#246",
+      "source": "fixture:fixtures/query.api_queries/queries.json#221",
       "values_compared": 0
     },
     {
@@ -2234,7 +2030,7 @@
       "name": "rational_kind8_1_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#247",
+      "source": "fixture:fixtures/query.api_queries/queries.json#222",
       "values_compared": 0
     },
     {
@@ -2246,7 +2042,7 @@
       "name": "rational_kind8_100000_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#248",
+      "source": "fixture:fixtures/query.api_queries/queries.json#223",
       "values_compared": 0
     },
     {
@@ -2258,7 +2054,7 @@
       "name": "rational_kind8_100000_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#249",
+      "source": "fixture:fixtures/query.api_queries/queries.json#224",
       "values_compared": 0
     },
     {
@@ -2270,7 +2066,7 @@
       "name": "rational_kind8_100000_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#250",
+      "source": "fixture:fixtures/query.api_queries/queries.json#225",
       "values_compared": 0
     },
     {
@@ -2282,7 +2078,7 @@
       "name": "rational_kind8_100000_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#251",
+      "source": "fixture:fixtures/query.api_queries/queries.json#226",
       "values_compared": 0
     },
     {
@@ -2294,7 +2090,7 @@
       "name": "rational_kind8_100000_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#252",
+      "source": "fixture:fixtures/query.api_queries/queries.json#227",
       "values_compared": 0
     },
     {
@@ -2306,7 +2102,7 @@
       "name": "rational_kind8_100000_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#253",
+      "source": "fixture:fixtures/query.api_queries/queries.json#228",
       "values_compared": 0
     },
     {
@@ -2314,7 +2110,7 @@
       "name": "rational_kind8_op11",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#254",
+      "source": "fixture:fixtures/query.api_queries/queries.json#229",
       "values_compared": 0
     },
     {
@@ -2326,7 +2122,7 @@
       "name": "rational_kind8_op16",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#255",
+      "source": "fixture:fixtures/query.api_queries/queries.json#230",
       "values_compared": 0
     },
     {
@@ -2338,31 +2134,27 @@
       "name": "rational_kind8_op17",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#256",
+      "source": "fixture:fixtures/query.api_queries/queries.json#231",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "rational_kind8_op18",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#257",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#232",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "rational_kind8_op19",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#258",
+      "source": "fixture:fixtures/query.api_queries/queries.json#233",
       "values_compared": 0
     },
     {
@@ -2370,7 +2162,7 @@
       "name": "rational_kind8_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#259",
+      "source": "fixture:fixtures/query.api_queries/queries.json#234",
       "values_compared": 6
     },
     {
@@ -2378,7 +2170,7 @@
       "name": "rational_kind8_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#260",
+      "source": "fixture:fixtures/query.api_queries/queries.json#235",
       "values_compared": 0
     },
     {
@@ -2386,7 +2178,7 @@
       "name": "rational_kind8_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#261",
+      "source": "fixture:fixtures/query.api_queries/queries.json#236",
       "values_compared": 3
     },
     {
@@ -2394,7 +2186,7 @@
       "name": "rational_kind8_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#262",
+      "source": "fixture:fixtures/query.api_queries/queries.json#237",
       "values_compared": 3
     },
     {
@@ -2406,7 +2198,7 @@
       "name": "rational_kind9_1e-05_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#263",
+      "source": "fixture:fixtures/query.api_queries/queries.json#238",
       "values_compared": 0
     },
     {
@@ -2418,7 +2210,7 @@
       "name": "rational_kind9_1e-05_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#264",
+      "source": "fixture:fixtures/query.api_queries/queries.json#239",
       "values_compared": 0
     },
     {
@@ -2430,7 +2222,7 @@
       "name": "rational_kind9_1e-05_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#265",
+      "source": "fixture:fixtures/query.api_queries/queries.json#240",
       "values_compared": 0
     },
     {
@@ -2442,7 +2234,7 @@
       "name": "rational_kind9_1e-05_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#266",
+      "source": "fixture:fixtures/query.api_queries/queries.json#241",
       "values_compared": 0
     },
     {
@@ -2454,7 +2246,7 @@
       "name": "rational_kind9_1e-05_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#267",
+      "source": "fixture:fixtures/query.api_queries/queries.json#242",
       "values_compared": 0
     },
     {
@@ -2466,7 +2258,7 @@
       "name": "rational_kind9_1e-05_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#268",
+      "source": "fixture:fixtures/query.api_queries/queries.json#243",
       "values_compared": 0
     },
     {
@@ -2478,7 +2270,7 @@
       "name": "rational_kind9_1_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#269",
+      "source": "fixture:fixtures/query.api_queries/queries.json#244",
       "values_compared": 0
     },
     {
@@ -2490,7 +2282,7 @@
       "name": "rational_kind9_1_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#270",
+      "source": "fixture:fixtures/query.api_queries/queries.json#245",
       "values_compared": 0
     },
     {
@@ -2502,7 +2294,7 @@
       "name": "rational_kind9_1_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#271",
+      "source": "fixture:fixtures/query.api_queries/queries.json#246",
       "values_compared": 0
     },
     {
@@ -2514,7 +2306,7 @@
       "name": "rational_kind9_1_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#272",
+      "source": "fixture:fixtures/query.api_queries/queries.json#247",
       "values_compared": 0
     },
     {
@@ -2526,7 +2318,7 @@
       "name": "rational_kind9_1_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#273",
+      "source": "fixture:fixtures/query.api_queries/queries.json#248",
       "values_compared": 0
     },
     {
@@ -2538,7 +2330,7 @@
       "name": "rational_kind9_1_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#274",
+      "source": "fixture:fixtures/query.api_queries/queries.json#249",
       "values_compared": 0
     },
     {
@@ -2550,7 +2342,7 @@
       "name": "rational_kind9_100000_outside",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#275",
+      "source": "fixture:fixtures/query.api_queries/queries.json#250",
       "values_compared": 0
     },
     {
@@ -2562,7 +2354,7 @@
       "name": "rational_kind9_100000_axis",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#276",
+      "source": "fixture:fixtures/query.api_queries/queries.json#251",
       "values_compared": 0
     },
     {
@@ -2574,7 +2366,7 @@
       "name": "rational_kind9_100000_north",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#277",
+      "source": "fixture:fixtures/query.api_queries/queries.json#252",
       "values_compared": 0
     },
     {
@@ -2586,7 +2378,7 @@
       "name": "rational_kind9_100000_south",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#278",
+      "source": "fixture:fixtures/query.api_queries/queries.json#253",
       "values_compared": 0
     },
     {
@@ -2598,7 +2390,7 @@
       "name": "rational_kind9_100000_seam_lo",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#279",
+      "source": "fixture:fixtures/query.api_queries/queries.json#254",
       "values_compared": 0
     },
     {
@@ -2610,7 +2402,7 @@
       "name": "rational_kind9_100000_seam_hi",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#280",
+      "source": "fixture:fixtures/query.api_queries/queries.json#255",
       "values_compared": 0
     },
     {
@@ -2618,7 +2410,7 @@
       "name": "spherical_band_op11",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#281",
+      "source": "fixture:fixtures/query.api_queries/queries.json#256",
       "values_compared": 0
     },
     {
@@ -2630,7 +2422,7 @@
       "name": "spherical_band_op16",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#282",
+      "source": "fixture:fixtures/query.api_queries/queries.json#257",
       "values_compared": 0
     },
     {
@@ -2642,31 +2434,27 @@
       "name": "spherical_band_op17",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#283",
+      "source": "fixture:fixtures/query.api_queries/queries.json#258",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "spherical_band_op18",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#284",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#259",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "spherical_band_op19",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/query.api_queries/queries.json#285",
+      "source": "fixture:fixtures/query.api_queries/queries.json#260",
       "values_compared": 0
     },
     {
@@ -2674,7 +2462,7 @@
       "name": "spherical_band_op20",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#286",
+      "source": "fixture:fixtures/query.api_queries/queries.json#261",
       "values_compared": 6
     },
     {
@@ -2682,7 +2470,7 @@
       "name": "spherical_band_op23",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#287",
+      "source": "fixture:fixtures/query.api_queries/queries.json#262",
       "values_compared": 0
     },
     {
@@ -2690,7 +2478,7 @@
       "name": "spherical_band_op24",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#288",
+      "source": "fixture:fixtures/query.api_queries/queries.json#263",
       "values_compared": 3
     },
     {
@@ -2698,7 +2486,7 @@
       "name": "spherical_band_op25",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#289",
+      "source": "fixture:fixtures/query.api_queries/queries.json#264",
       "values_compared": 3
     },
     {
@@ -2706,8 +2494,1296 @@
       "name": "boundary_rollback_invalid_last_orientation",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/query.api_queries/queries.json#290",
+      "source": "fixture:fixtures/query.api_queries/queries.json#265",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#266",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#267",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#268",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op21",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#269",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op22",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#270",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op23",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#271",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1e-05_op25",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#272",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_start_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#273",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_left_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#274",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_knot_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#275",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_right_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#276",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_end_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#277",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale1e-05_invalid0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#278 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale1e-05_invalid1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#279 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#280",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#281",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#282",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op21",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#283",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op22",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#284",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op23",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#285",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale1_op25",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#286",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_start_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#287",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_left_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#288",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_knot_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#289",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_right_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#290",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_end_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#291",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale1_invalid0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#292 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale1_invalid1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#293 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#294",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#295",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#296",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op21",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#297",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op22",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#298",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op23",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#299",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_scale100000_op25",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#300",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_start_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#301",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_left_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#302",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_knot_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#303",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_right_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#304",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "corner_tangent_end_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#305",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale100000_invalid0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#306 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vertex_loops_scale100000_invalid1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#307 (upstream tests/prog_test/src/smTopoTest.cpp:1741)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_separate_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#308",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_separate_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#309",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_face_touch_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#310",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_face_touch_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#311",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_edge_touch_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#312",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_edge_touch_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#313",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_corner_touch_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#314",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_corner_touch_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#315",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_interpenetrating_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#316",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_interpenetrating_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#317",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_a_contains_b_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#318",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_a_contains_b_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#319",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_b_contains_a_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#320",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_b_contains_a_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#321",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_coincident_scale1_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#322",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_coincident_scale1_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#323",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_separate_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#324",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_separate_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#325",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_face_touch_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#326",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_face_touch_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#327",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_edge_touch_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#328",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_edge_touch_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#329",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_corner_touch_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#330",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_corner_touch_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#331",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_interpenetrating_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#332",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_interpenetrating_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#333",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_a_contains_b_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#334",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_a_contains_b_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#335",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_b_contains_a_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#336",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_b_contains_a_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#337",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_coincident_scale16_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#338",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "relationship_coincident_scale16_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#339",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_boundary_scale1_invalid0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#340",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_boundary_scale1_invalid1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#341",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#342",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#343",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#344",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_2_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#345",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_3_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#346",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_4_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#347",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_-1_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#348",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_-0.5_-0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#349",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_-2_-2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#350",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_0_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#351",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_1_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#352",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_3_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#353",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale1_4_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#354",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_boundary_scale16_invalid0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#355",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_boundary_scale16_invalid1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#356",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#357",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#358",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#359",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_2_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#360",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_3_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#361",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_4_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#362",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_-1_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#363",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_-0.5_-0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#364",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_-2_-2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#365",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_0_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#366",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_1_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#367",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_3_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#368",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "hole_uv_scale16_4_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#369",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_separated_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#370 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_separated_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#371 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_separated_reverse_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#372 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_separated_reverse_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#373 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_touch_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#374 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_touch_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#375 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_cross_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#376 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_cross_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#377 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_inside_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#378 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_inside_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#379 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_inside_reverse_op7",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#380 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "upstream_brep_distance_inside_reverse_op8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.api_queries/queries.json#381 (upstream tests/SM_API_test/src/TestSmBrepDistance.cpp:26)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_seam_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#382",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_opposite_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#383",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_quarter_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#384",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_three_quarters_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#385",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_axis_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#386",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_below_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#387",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_above_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#388",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_seam_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#389",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_opposite_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#390",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_quarter_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#391",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_three_quarters_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#392",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_axis_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#393",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_below_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#394",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_above_scale1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#395",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_seam_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#396",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_opposite_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#397",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_quarter_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#398",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_three_quarters_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#399",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_axis_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#400",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_below_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#401",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "analytic_revolution_above_scale100000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.api_queries/queries.json#402",
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -2895,8 +3971,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0017",
@@ -2963,8 +4039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -3342,14 +4418,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0061",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337127",
       "values_compared": 0
     },
@@ -3486,14 +4558,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0074",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337140",
       "values_compared": 0
     },
@@ -3566,14 +4634,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0082",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337148",
       "values_compared": 0
     },
@@ -3926,14 +4990,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0117",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337183",
       "values_compared": 0
     },
@@ -4159,8 +5219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0140",
@@ -4558,14 +5618,10 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0180",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337246",
       "values_compared": 0
     },
@@ -4751,8 +5807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0197",
@@ -4846,14 +5902,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0206",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337272",
       "values_compared": 0
     },
@@ -5031,8 +6083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0224",
@@ -5182,14 +6234,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0239",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337305",
       "values_compared": 0
     },
@@ -5539,8 +6587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0274",
@@ -5550,14 +6598,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0275",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337341",
       "values_compared": 0
     },
@@ -6038,14 +7082,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0319",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337385",
       "values_compared": 0
     },
@@ -6095,8 +7135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0324",
@@ -6182,21 +7222,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0332",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337398",
       "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0333",
@@ -6506,14 +7542,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0363",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337429",
       "values_compared": 0
     },
@@ -6695,8 +7727,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0381",
@@ -6718,14 +7750,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0383",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337449",
       "values_compared": 0
     },
@@ -7239,8 +8267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0434",
@@ -7343,8 +8371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0443",
@@ -7427,8 +8455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0451",
@@ -7502,14 +8530,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0459",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337525",
       "values_compared": 0
     },
@@ -7742,14 +8766,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0481",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337547",
       "values_compared": 0
     },
@@ -7787,8 +8807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0485",
@@ -8035,8 +9055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0508",
@@ -8195,8 +9215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0523",
@@ -8410,14 +9430,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0544",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337610",
       "values_compared": 0
     },
@@ -8587,8 +9603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0561",
@@ -8618,14 +9634,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0564",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337630",
       "values_compared": 0
     },
@@ -8726,14 +9738,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0574",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337640",
       "values_compared": 0
     },
@@ -9215,8 +10223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0621",
@@ -9439,8 +10447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0642",
@@ -9483,8 +10491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0646",
@@ -9847,8 +10855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0679",
@@ -9899,8 +10907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0684",
@@ -10030,14 +11038,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0697",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337763",
       "values_compared": 0
     },
@@ -10146,14 +11150,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0709",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337775",
       "values_compared": 0
     },
@@ -10286,14 +11286,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0723",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337789",
       "values_compared": 0
     },
@@ -10310,14 +11306,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0725",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337791",
       "values_compared": 0
     },
@@ -10447,8 +11439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0737",
@@ -10511,8 +11503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0743",
@@ -10610,14 +11602,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0752",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337818",
       "values_compared": 0
     },
@@ -10670,14 +11658,10 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0758",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337824",
       "values_compared": 0
     },
@@ -10691,8 +11675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0760",
@@ -10967,8 +11951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0786",
@@ -10991,8 +11975,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0788",
@@ -11035,8 +12019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0793",
@@ -11107,18 +12091,18 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 594,
+  "cases_deferred": 616,
   "cases_failed": 0,
-  "cases_passed": 497,
-  "cases_total": 1091,
+  "cases_passed": 587,
+  "cases_total": 1203,
   "deferred_by_unit": {
-    "query.brep": 260,
-    "query.face_p1": 43,
-    "query.face_p2": 29,
+    "query.brep": 335,
+    "query.face_p1": 12,
     "query.face_p3": 45,
     "surface.surface_point_solve_p3": 61,
     "topology.brep_p1": 114,
-    "topology.brep_p2": 42
+    "topology.brep_p2": 42,
+    "topology.edgeuse_p3": 7
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -902,32 +902,38 @@ kernel, B-rep identity and owner mappings.
 The four affected units keep their existing pass/deferred counts; 131
 `geom.a_object` deferrals now correctly name `query.brep` instead of the cache.
 
-## Public geometry and topology queries (2026-10-15, PR #125)
+## Public geometry and topology queries (2026-10-16, PR #125)
 
-`query.api_queries` is partial: 1,091 cases (291 fixed and 800 fixed-seed
-generated), 497 compared bit-identical, zero failed and 594 explicit deferrals.
-The native oracle calls the real `SmApi*` entrypoints. Curve and surface inputs
-use concrete lines, circles, ellipses, cubic B-splines, planes, quadratic patches,
-and rational cylinder/sphere surfaces. Topology inputs include boxes, empty
-B-reps and an open spherical band. No absolute floors were added.
+`query.api_queries` is partial: 1,203 cases (403 fixed and 800 fixed-seed
+generated), 587 compared bit-identical, zero failed and 616 explicit deferrals.
+The native oracle calls real `SmApi*` entrypoints on concrete analytic/NURBS
+geometry, including a line-generated surface of revolution, a C0 B-spline corner,
+vertex loops and holed faces. No absolute floors were added.
 
-The corpus covers subdomains, reversed curves, zero endpoint derivatives,
-vertex tolerance boundaries, missing curves, poles and seams. Surface queries
-construct unowned surfaces directly; topology imports restore native face-use
-back-links, trim flags and geometry owners, and assert the exact concrete type
-codes. Boundary-loop tests seed the C++ output arrays and check cleanup after
-an invalid final orientation.
+Coverage includes left tangents at an internal knot and its adjacent floats,
+zero-edge loop counts, invalid inner-loop cleanup, subdomains, scales, poles and
+seams. All 21 analytic revolution cases compare bit-identically, including
+multiple UV representations. Relationship fixtures cover all five native classes,
+edge/corner contact and reversed operands, including the upstream distance probes;
+Rust relationship paths still defer to unfinished dependencies. Topology imports
+retain exact concrete types, face-use links, trim flags and geometry owners.
 
-`DropPoint` now has a caller-kernel entry point for the public surface query;
-its existing entry point retains the default-kernel behavior. `FindFace` uses
-the already available B-rep tolerance getter. The non-empty face `Shape`
-deferral names `query.face_p1`'s missing bounding-box query.
+The face UV query now calls `query.face_p2`. Face closest-point test adapters
+validate the face before building their caches. `solution_point` follows
+`SmSolution::GetPoint`'s parameter advances and ignored ordinary evaluation errors;
+two core tests cover both behaviors, and the generic solution API points to this
+adapter for future geometry wiring.
 
-All compared cases in the touched units pass bit-identically: `geom.object`
-593/624 (31 deferred), `geom.tools` 781/913 (132 deferred), and
-`surface.surface_p5` 2,477/3,046 (569 deferred). Perturbation detects all
-4,348 compared cases across these units and `query.api_queries`.
+FFI guards cover the missing-curve solver/picker, face-query and curved tight-box
+crashes found during review and isolated probes. After correction, all 396 probes
+finish without a crash or timeout (192 guarded, 204 native calls completed).
+Five FFI tests include the regressions and all 25 native null contracts; nulls
+are excluded from the differential count because typed Rust has no equivalent.
+Native defects are recorded in findings and upstream issues (UB-108).
 
-Local workflow gates pass: formatting, plain/C++ Clippy, workspace tests
-(1,160 including doc tests), the FFI layout test, WASM, publish dry-run and
-cargo-deny licenses/bans/sources. Full native --green: 172 units (97 green, 75 partial), 421,232 passing cases, 12,584 deferred cases, zero failures.
+Local checks pass: formatting, plain/C++ Clippy, 1,168 workspace/doc tests,
+the five FFI tests, WASM, cargo-deny and locked publish dry-run. The full native
+suite passes 173 units
+(97 green, 76 partial), with zero failures; the final API rerun and touched-unit
+perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
+422,654 compared, 12,618 deferred, zero failed.

@@ -22,6 +22,7 @@ use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::query::api_queries as api;
 use solidcore::surface::plane::Plane;
+use solidcore::surface::surf_of_revolution::SurfOfRevolution;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep_cache::BrepCache;
 use solidcore::topology::brep_cache::{arena_identity, CacheObject, CacheSource};
@@ -36,6 +37,10 @@ pub struct Runner;
 struct Inputs {
     op: i32,
     data: [f64; 22],
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    other_box: Option<[f64; 4]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    expected_relationship: Option<i32>,
 }
 
 fn v(a: [f64; 3]) -> Vec3 {
@@ -94,6 +99,19 @@ fn curve(k: &Kernel, a: &[f64; 22]) -> Result<Curve> {
     let s = a[6];
     let domain = Extent1d::from_min_max(a[7], a[8]);
     match a[21] as i32 {
+        10 => Ok(Curve::from(BSplineCurve::from_nurb(
+            NlCurve::new(
+                vec![
+                    CPoint::new(p.x, p.y, p.z, 1.),
+                    CPoint::new(p.x + s, p.y, p.z, 1.),
+                    CPoint::new(p.x + s, p.y + s, p.z, 1.),
+                ],
+                1,
+                vec![0., 0., 0.5, 1., 1.],
+            )?,
+            3,
+            false,
+        ))),
         0 => Ok(Curve::from(Line::bounded(
             p,
             d,
@@ -155,7 +173,26 @@ fn curve(k: &Kernel, a: &[f64; 22]) -> Result<Curve> {
 
 // Same control nets, operation order and concrete types as api_surface in the
 // C++ shim. Surface queries have no topology owner on either side.
-fn surface(a: &[f64; 22]) -> Result<Surface> {
+fn surface(k: &Kernel, a: &[f64; 22]) -> Result<Surface> {
+    if a[21] == 13. {
+        let origin = v([a[0], a[1], a[2]]);
+        let generator = Curve::from(Line::bounded(
+            origin + Vec3::new(a[6], 0., 0.),
+            Vec3::new(0., 0., 1.),
+            &Extent1d::from_min_max(0., 1.),
+            &BoundedLineOptions {
+                scale: a[6],
+                ..BoundedLineOptions::default()
+            },
+        ));
+        return Ok(Surface::from(SurfOfRevolution::create_canonical(
+            k,
+            generator,
+            origin,
+            Vec3::new(0., 0., 1.),
+            false,
+        )?));
+    }
     if a[21] == 4. {
         return Ok(Surface::from(Plane::from_normal(
             v([a[0], a[1], a[2]]),
@@ -274,7 +311,7 @@ fn imported(k: &Kernel, a: &[f64; 22], export_op: i32) -> std::result::Result<Br
         face.faceuse = (fu >= 0.).then(|| FaceuseId::from_index(fu as u32));
         face.rectangular_trim = rect as i32;
     }
-    if a[21] <= 3. && a[17] == 0. {
+    if (a[21] <= 3. || a[21] == 10.) && a[17] == 0. {
         let ids: Vec<_> = b.edges().ids().collect();
         for id in ids {
             b.edge_mut(id)
@@ -595,13 +632,15 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
             .code(),
         )),
         19 => {
-            let objects = Objects::new([b, second])?;
+            let face = f.ok_or_else(missing)?;
+            let mut objects = Objects::new([b, second])?;
+            objects.build(k)?;
             closest(
                 &mut o,
                 api::face_closest_point(
                     k,
                     &objects,
-                    (BrepId::from_index(0), f.ok_or_else(missing)?),
+                    (BrepId::from_index(0), face),
                     point,
                 )?,
             );
@@ -630,7 +669,18 @@ impl UnitDiff for Runner {
     }
     fn run_cpp(&self, c: &Case) -> std::result::Result<Output, HarnessError> {
         let i: Inputs = c.parse()?;
-        let data = ffi::eval(i.op, &i.data).map_err(|e| HarnessError::new(e.to_string()))?;
+        let mut input = i.data.to_vec();
+        if let Some(other) = i.other_box {
+            input.extend(other);
+        }
+        let data = ffi::eval(i.op, &input).map_err(|e| HarnessError::new(e.to_string()))?;
+        if let Some(expected) = i.expected_relationship {
+            if i.op != 7 || data.first() != Some(&0.) || data.get(2) != Some(&f64::from(expected)) {
+                return Err(HarnessError::new(format!(
+                    "native relationship fixture expected class {expected}, got {data:?}"
+                )));
+            }
+        }
         Ok(decode(i.op, data))
     }
     fn run_rust(&self, c: &Case) -> std::result::Result<Output, HarnessError> {
@@ -638,9 +688,8 @@ impl UnitDiff for Runner {
         let a = &i.data;
         let k = Kernel::default();
         if a[16] != 0. {
-            return Ok(output(
-                i.op,
-                Err(SolidError::invalid_input("query::api_queries", "null")),
+            return Err(HarnessError::new(
+                "null pointers have no typed Rust equivalent; use the FFI contract tests",
             ));
         }
         let point = v([a[11], a[12], a[13]]);
@@ -661,7 +710,7 @@ impl UnitDiff for Runner {
                     }
                     o
                 }),
-            3 => surface(a)
+            3 => surface(&k, a)
                 .and_then(|s| api::surface_closest_point(&k, &s, point))
                 .map(|p| {
                     let mut o = vec![0.];
@@ -676,6 +725,10 @@ impl UnitDiff for Runner {
                 let b = imported(&k, a, if i.op == 11 { 26 } else { 0 })?;
                 let mut other = *a;
                 other[0] += 3. * a[6];
+                if let Some([x, y, z, size]) = i.other_box {
+                    other[..3].copy_from_slice(&[x, y, z]);
+                    other[6] = size;
+                }
                 other[21] = 6.;
                 other[17] = 0.;
                 let second = if i.op == 7 || i.op == 8 {
@@ -726,7 +779,13 @@ impl UnitDiff for Runner {
         a[19] = 1e-5;
         a[20] = f64::from(rng.below(15) as u32);
         a[21] = kind as f64;
-        serde_json::to_value(Inputs { op, data: a }).ok()
+        serde_json::to_value(Inputs {
+            op,
+            data: a,
+            other_box: None,
+            expected_relationship: None,
+        })
+        .ok()
     }
     fn cases(&self, ctx: &CaseContext) -> std::result::Result<Vec<Case>, HarnessError> {
         let mut ctx = ctx.clone();

@@ -1,6 +1,7 @@
 //! Public closest-point, boundary, bounding-box and classification queries.
 //!
-//! Upstream: `source/SM_API/src/SmApiQueries.cpp`, `source/SM_API/inc/SmApiQueries.h`.
+//! Upstream: `source/SM_API/src/SmApiQueries.cpp`, `source/SM_API/inc/SmApiQueries.h`,
+//! `source/SMLib/src/SmSolutionArray.cpp` (solution point extraction).
 //!
 //! | Rust | Upstream |
 //! |------|----------|
@@ -15,12 +16,16 @@
 //! | [`edge_bounding_box`], [`edge_closest_point`], [`edge_parameter_range`], [`edge_classify_parameter`], [`edge_tangent`] | `SmApiEdgeBoundingBox`, `SmApiEdgeClosestPoint`, `SmApiEdgeParameterRange`, `SmApiEdgeClassifyParameter`, `SmApiEdgeTangent` |
 //! | [`vertex_get_point`] | `SmApiVertexGetPoint` |
 //! | `count_contained_samples`, `point_in_solid` (private) | `sm_CountContainedSamples`, `sm_PointInSolid` |
+//! | `solution_point` (private) | `SmSolution::GetPoint` |
 //!
 //! Deviations: typed references/ids replace nullable pointers; results replace
 //! output parameters (including append-only arrays), so errors expose no partial
 //! arrays. Callers supply the Kernel and topology-solver object adapter/cache;
 //! handles retain the caller's identity. Missing topology queries return Unported
-//! at the call site. No new recursion or allocation from serialized counts.
+//! at the call site. Solution point extraction retains upstream's zero parameter
+//! advance for a preceding Surface and ignores ordinary evaluation errors (the
+//! output stays undefined); Unported errors still propagate. No new recursion or
+//! allocation from serialized counts.
 
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::Curve;
@@ -31,7 +36,7 @@ use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{FaceKey, ObjectRef, Shape, ShapeMember};
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use crate::geom::tools::{self, EdgePick};
-use crate::intersect::point_class::PointClassType;
+use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::intersect::topology_solver::p1::{TopologyObjects, TopologySolver};
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
@@ -239,9 +244,12 @@ fn solution_point<O: SolutionObject>(
                 } else {
                     object
                 };
-                return objects
-                    .curve(curve)?
-                    .evaluate_point(solution.start.param(parameter)?);
+                return Ok(ignored(
+                    objects
+                        .curve(curve)?
+                        .evaluate_point(solution.start.param(parameter)?),
+                )?
+                .unwrap_or(Point3::UNDEF));
             }
             if matches!(kind, ObjectKind::Surface | ObjectKind::Face) {
                 let surface = if kind == ObjectKind::Face {
@@ -249,16 +257,19 @@ fn solution_point<O: SolutionObject>(
                 } else {
                     object
                 };
-                return objects.surface(surface)?.evaluate_point(Point2::new(
-                    solution.start.param(parameter)?,
-                    solution.start.param(parameter + 1)?,
-                ));
+                return Ok(
+                    ignored(objects.surface(surface)?.evaluate_point(Point2::new(
+                        solution.start.param(parameter)?,
+                        solution.start.param(parameter + 1)?,
+                    )))?
+                    .unwrap_or(Point3::UNDEF),
+                );
             }
             return Err(SolidError::sm_err(OP));
         }
         parameter += match kind {
             ObjectKind::Curve | ObjectKind::Edge => 1,
-            ObjectKind::Surface | ObjectKind::Face => 2,
+            ObjectKind::Face => 2,
             _ => 0,
         };
     }
@@ -615,20 +626,30 @@ pub fn face_internal_point(k: &Kernel, brep: &Brep, face: FaceId) -> Result<Poin
     face::calculate_an_internal_point(k, brep, face)
 }
 
-/// UV classification (`SmApiFaceClassifyUV`), using UV containment rather than a
-/// 3D boundary snap. The missing face classifier is `Unported`.
+/// Trim-aware UV classification (`SmApiFaceClassifyUV`), preserving the face
+/// classifier's vertex tests, loop containment and default classification tolerance.
 pub fn face_classify_uv(
-    _k: &Kernel,
+    k: &Kernel,
     brep: &Brep,
     face: FaceId,
-    _uv: Point2,
+    uv: Point2,
 ) -> Result<PointClassType> {
-    brep.face(face)?;
-    // UNPORTED(query.face_p2): SmFace::PointClassify
-    Err(SolidError::unported(
-        "SmFace::PointClassify",
-        "query.face_p2",
-    ))
+    let source_tolerance = brep.face(face)?.tolerance;
+    let tolerance = crate::geom::tol::zone_tol3d(k, crate::geom::tol::USE_DEFAULT);
+    let mut classification = PointClassification::new(tolerance);
+    crate::query::face::p2::point_classify(
+        k,
+        brep,
+        face,
+        uv,
+        &mut classification,
+        crate::query::face::p2::PointClassifyOptions {
+            src_zone_tol_3d: source_tolerance,
+            use_uv_classification: true,
+            ..crate::query::face::p2::PointClassifyOptions::default()
+        },
+    )?;
+    Ok(classification.point_class())
 }
 
 /// Trim-aware closest point on one face (`SmApiFaceClosestPoint`).
@@ -751,4 +772,153 @@ pub fn edge_tangent(brep: &Brep, id: EdgeId, parameter: f64) -> Result<Vec3> {
 /// Vertex position (`SmApiVertexGetPoint`); dangling ids are errors.
 pub fn vertex_get_point(brep: &Brep, id: VertexId) -> Result<Point3> {
     Ok(brep.vertex(id)?.point)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geom::extent2d::Extent2d;
+    use crate::nurbs::b_spline_curve::BSplineCurve;
+    use crate::nurbs::b_spline_surface::BSplineSurface;
+    use crate::nurbs::crv_basic::Curve as NlCurve;
+    use crate::nurbs::math::CPoint;
+    use crate::nurbs::srf_basic::Surface as NlSurface;
+
+    #[derive(Clone, Copy, PartialEq)]
+    struct Object(ObjectKind);
+    impl SolutionObject for Object {
+        fn kind(&self) -> ObjectKind {
+            self.0
+        }
+    }
+
+    struct Geometry {
+        curve: Curve,
+        surface: Surface,
+    }
+    impl Geometry {
+        fn new() -> Self {
+            let knots = vec![0., 0., 1., 1.];
+            Self {
+                curve: Curve::from(BSplineCurve::from_nurb(
+                    NlCurve::new(
+                        vec![CPoint::new(0., 0., 0., 1.), CPoint::new(10., 0., 0., 1.)],
+                        1,
+                        knots.clone(),
+                    )
+                    .unwrap(),
+                    3,
+                    false,
+                )),
+                surface: Surface::from(BSplineSurface::from_nurb(
+                    NlSurface::new(
+                        vec![
+                            vec![CPoint::new(0., 0., 0., 1.), CPoint::new(0., 1., 0., 1.)],
+                            vec![CPoint::new(1., 0., 0., 1.), CPoint::new(1., 1., 0., 1.)],
+                        ],
+                        1,
+                        1,
+                        knots.clone(),
+                        knots,
+                    )
+                    .unwrap(),
+                    false,
+                )),
+            }
+        }
+    }
+    impl TopologyObjects<Object> for Geometry {
+        fn curve(&self, _: Object) -> Result<&Curve> {
+            Ok(&self.curve)
+        }
+        fn analytic_curve_handle(&self, _: Object) -> Option<Object> {
+            None
+        }
+        fn vertex_point(&self, _: Object) -> Result<Point3> {
+            Ok(Point3::ZERO)
+        }
+        fn vertex_tolerance(&self, _: Object) -> Result<f64> {
+            Ok(1e-5)
+        }
+        fn curve_edge(&self, _: Object) -> Result<Option<Object>> {
+            Ok(None)
+        }
+        fn edge_curve(&self, _: Object) -> Result<Option<Object>> {
+            Ok(Some(Object(ObjectKind::Curve)))
+        }
+        fn edge_interval(&self, _: Object) -> Result<Extent1d> {
+            Ok(self.curve.natural_interval())
+        }
+        fn surface_face(&self, _: Object) -> Result<Option<Object>> {
+            Ok(None)
+        }
+        fn face_surface(&self, _: Object) -> Result<Object> {
+            Ok(Object(ObjectKind::Surface))
+        }
+        fn surface(&self, _: Object) -> Result<&Surface> {
+            Ok(&self.surface)
+        }
+        fn face_uv_domain(&self, _: Object) -> Result<Extent2d> {
+            Ok(self.surface.natural_uv_domain())
+        }
+        fn face_tolerance(&self, _: Object) -> Result<f64> {
+            Ok(1e-5)
+        }
+        fn surface_owner(&self, _: Object) -> Result<Option<Object>> {
+            Ok(None)
+        }
+        fn shape_member(&self, _: Object) -> ShapeMember {
+            ShapeMember::Other
+        }
+    }
+
+    #[test]
+    fn solution_point_preserves_upstream_parameter_advances() {
+        let objects = Geometry::new();
+        for (preceding, expected_x) in [
+            (ObjectKind::Surface, 2.5),
+            (ObjectKind::Curve, 5.),
+            (ObjectKind::Edge, 5.),
+            (ObjectKind::Face, 7.5),
+        ] {
+            let mut solution = Solution::new();
+            solution.num_objects = 2;
+            solution.objects[0] = Some(Object(preceding));
+            solution.objects[1] = Some(Object(ObjectKind::Curve));
+            for (i, t) in [0.25, 0.5, 0.75].into_iter().enumerate() {
+                *solution.start.param_mut(i).unwrap() = t;
+            }
+            assert_eq!(
+                solution_point(&objects, &solution, 1).unwrap(),
+                Point3::new(expected_x, 0., 0.),
+                "preceding {preceding:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn solution_point_ignores_ordinary_evaluation_failures() {
+        let objects = Geometry {
+            curve: Curve::from(BSplineCurve::new(3)),
+            surface: Surface::from(BSplineSurface::new()),
+        };
+        assert!(objects.curve.evaluate_point(2.).is_err());
+        assert!(objects.surface.evaluate_point(Point2::new(2., 2.)).is_err());
+        for kind in [
+            ObjectKind::Curve,
+            ObjectKind::Edge,
+            ObjectKind::Surface,
+            ObjectKind::Face,
+        ] {
+            let mut solution = Solution::new();
+            solution.num_objects = 1;
+            solution.objects[0] = Some(Object(kind));
+            *solution.start.param_mut(0).unwrap() = 2.;
+            *solution.start.param_mut(1).unwrap() = 2.;
+            assert_eq!(
+                solution_point(&objects, &solution, 0).unwrap(),
+                Point3::UNDEF
+            );
+        }
+    }
 }

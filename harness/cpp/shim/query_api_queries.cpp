@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Native SmApiQueries.cpp calls on concrete analytic/NURBS geometry and B-reps.
-// Fixed 22-double layout, validated by query_api_queries.rs. Graph construction
+// 22-double layout, optionally followed by the second box's origin and size
+// for relationship/distance queries; validated by query_api_queries.rs. Graph construction
 // and raw export reuse the established topology-edgeuse harness; no query result
 // is manufactured from the graph export.
 #include "sc_edgeuse_graph.h"
@@ -8,6 +9,7 @@
 #include <SmApiPrimitives.h>
 #include <SmCircle.h>
 #include <SmEllipse.h>
+#include <SmSurfOfRevolution.h>
 #include <memory>
 namespace
 {
@@ -21,6 +23,21 @@ namespace
         if (kind == 0) return new (ctx) SmLine(p, v, SmExtent1d(a[7], a[8]), s, 3, &ctx, nullptr, a[18]?TRUE:FALSE);
         if (kind == 1) return new (ctx) SmCircle(p, SmVector3d(1, 0, 0), SmVector3d(0, 1, 0), SmExtent1d(0, 360), s, 3, &ctx, nullptr, a[18]?TRUE:FALSE);
         if (kind == 2) return new (ctx) SmEllipse(p, SmVector3d(1, 0, 0), SmVector3d(0, 1, 0), SmExtent1d(0, 360), s, s*0.5, 3, &ctx, nullptr, a[18]?TRUE:FALSE);
+        if (kind == 10)
+        {
+            gw_CURVE* c = sm_AllocateNurbCurve(2, 1, 4);
+            const SmPoint3d pts[] = {p, p+SmVector3d(s, 0, 0), p+SmVector3d(s, s, 0)};
+            const double knots[] = {0, 0, 0.5, 1, 1};
+            for (int i = 0; i < 3; ++i)
+            {
+                c->pol->Pw[i].x = pts[i].x;
+                c->pol->Pw[i].y = pts[i].y;
+                c->pol->Pw[i].z = pts[i].z;
+                c->pol->Pw[i].w = 1;
+            }
+            for (int i = 0; i < 5; ++i)c->knt->U[i] = knots[i];
+            return new (ctx) SmBSplineCurve(c, 3, FALSE, &ctx);
+        }
         // Cubic Bezier, also exercising zero endpoint derivatives when v is zero.
         gw_CURVE* c = sm_AllocateNurbCurve(3, 3, 7);
         const SmPoint3d pts[] =
@@ -40,7 +57,21 @@ namespace
     SmSurface* api_surface(const double* a)
     {
         const auto& ctx = the_context();
-        if ((int)a[21] == 4)return new (ctx) SmPlane(SmPoint3d(a[0], a[1], a[2]), SmVector3d(a[3], a[4], a[5]), &ctx);
+        if ((int)a[21] == 13)
+        {
+            const SmPoint3d origin(a[0], a[1], a[2]);
+            SmLine* generator = new (ctx) SmLine(origin+SmVector3d(a[6], 0, 0), SmVector3d(0, 0, 1), SmExtent1d(0, 1), a[6], 3, &ctx);
+            SmSurfOfRevolution* surface = nullptr;
+            const SmStatus status = SmSurfOfRevolution::CreateCanonical(ctx, generator, origin, SmVector3d(0, 0, 1), surface);
+            if (status != SM_SUCCESS)
+            {
+                if (surface)delete surface;
+                else delete generator;
+                return nullptr;
+            }
+            return surface;
+        }
+        if ((int)a[21] == 4 || (int)a[21] == 11)return new (ctx) SmPlane(SmPoint3d(a[0], a[1], a[2]), SmVector3d(a[3], a[4], a[5]), &ctx);
         if ((int)a[21] == 8 || (int)a[21] == 9)
         {
             const bool sphere = (int)a[21] == 9;
@@ -98,7 +129,7 @@ namespace
 }
 SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t n, double* out, int64_t cap, int64_t* len)
 {
-    if (!a || n != 22 || op<0 || op>26)return SC_ERR_ARG;
+    if (!a || (n != 22 && !(n == 26 && (op == 7 || op == 8))) || op<0 || op>26)return SC_ERR_ARG;
     SC_TRY
     const auto& ctx = the_context();
     std::vector<double> o;
@@ -155,21 +186,57 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
         Built b;
         b.brep = new (ctx) SmBrep();
         SmStatus status = SM_SUCCESS;
-        if (kind <= 3)
+        if (kind <= 3 || kind == 10)
         {
             SmEdge* e = nullptr;
             status = b.brep->CreateWireEdgeFromCurve(api_curve(a), SmExtent1d(a[7], a[8]), e);
         }
-        else if (kind == 4 || kind == 5 || kind == 8 || kind == 9)
+        else if (kind == 4 || kind == 5 || kind == 8 || kind == 9 || kind == 11)
         {
             SmFace* f = nullptr;
             status = b.brep->CreateFaceFromSurface(api_surface(a), SmExtent2d(SmPoint2d(a[7], a[8]), SmPoint2d(a[9], a[10])), f);
+            if (status == SM_SUCCESS && kind == 11)
+            {
+                for (double fraction : {0.25, 0.75})
+                {
+                    SmPoint3d point;
+                    status = f->GetSurface()->EvaluatePoint(SmPoint2d(a[7]+fraction*(a[9]-a[7]), a[8]+fraction*(a[10]-a[8])), point);
+                    if (status != SM_SUCCESS)break;
+                    SmLoop* loop = nullptr;
+                    SmVertex* vertex = nullptr;
+                    status = b.brep->MakeVertexLoop(f, point, loop, vertex);
+                    if (status != SM_SUCCESS)break;
+                }
+            }
         }
         else if (kind == 6)
         {
             delete b.brep;
             b.brep = nullptr;
             status = SmApiCreateBox(SmPoint3d(a[0], a[1], a[2]), a[6], a[6], a[6], b.brep);
+        }
+        else if (kind == 12)
+        {
+            // Two real closed curve loops: an outer square and a square hole.
+            const double xy[8][2] = {{0, 0}, {4, 0}, {4, 4}, {0, 4},
+                                     {1, 1}, {1, 3}, {3, 3}, {3, 1}};
+            SmTArray<SmCurve*> curves;
+            for (int i = 0; i < 8; ++i)
+            {
+                const int next = (i/4)*4+(i+1)%4;
+                const SmPoint3d start(a[0]+a[6]*xy[i][0], a[1]+a[6]*xy[i][1], a[2]);
+                const SmPoint3d end(a[0]+a[6]*xy[next][0], a[1]+a[6]*xy[next][1], a[2]);
+                SmBSplineCurve* c = nullptr;
+                status = SmBSplineCurve::CreateLineSegment(ctx, 3, start, end, c);
+                if (status != SM_SUCCESS)break;
+                curves.Add(c);
+            }
+            SmFace* face = nullptr;
+            if (status == SM_SUCCESS)
+                status = b.brep->CreatePlanarFaceWith3DCurves(nullptr, curves, 1e-5, face);
+            if (status != SM_SUCCESS)
+                for (ULONG i = 0; i < curves.GetSize(); ++i)
+                    if (!curves[i]->GetOwner())delete curves[i];
         }
         if (status != SM_SUCCESS || !b.brep)return SC_ERR_ARG;
         Graph g;
@@ -184,11 +251,15 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
         {
             SmTArray<SmLoopuse*> loops;
             f->GetUpwardLoopuses(loops);
-            if (loops.GetSize() > 0)
+            for (ULONG i = loops.GetSize(); i > 0; --i)
             {
                 SmTArray<SmEdgeuse*> uses;
-                loops[loops.GetSize()-1]->GetEdgeuses(uses);
-                if (uses.GetSize() > 0) uses[uses.GetSize()-1]->SetOrientation(SM_OT_UNKNOWN);
+                loops[i-1]->GetEdgeuses(uses);
+                if (uses.GetSize() > 0)
+                {
+                    uses[uses.GetSize()-1]->SetOrientation(SM_OT_UNKNOWN);
+                    break;
+                }
             }
         }
         if (op == 0 || op == 26)
@@ -240,7 +311,9 @@ SC_EXPORT int32_t sc_query_api_queries_eval(int32_t op, const double* a, int64_t
                 case 7:case 8:
                 {
                     SmBrep* other = nullptr;
-                    SmStatus build_status = SmApiCreateBox(SmPoint3d(a[0]+3*a[6], a[1], a[2]), a[6], a[6], a[6], other);
+                    const SmPoint3d origin = n == 26?SmPoint3d(a[22], a[23], a[24]):SmPoint3d(a[0]+3*a[6], a[1], a[2]);
+                    const double size = n == 26?a[25]:a[6];
+                    SmStatus build_status = SmApiCreateBox(origin, size, size, size, other);
                     if (build_status != SM_SUCCESS || !other) return SC_ERR_ARG;
                     status = op == 7?SmApiBrepRelationship(bp, other, cl, d):SmApiBrepDistance(bp, other, d);
                     delete other;
