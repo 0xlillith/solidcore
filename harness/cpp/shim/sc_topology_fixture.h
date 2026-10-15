@@ -1035,4 +1035,3 @@ void run_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     }
 }
 } // namespace
-
