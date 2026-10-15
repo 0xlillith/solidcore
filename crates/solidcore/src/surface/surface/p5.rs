@@ -958,6 +958,18 @@ impl Surface {
         domain: &Extent2d,
         opts: &DropPointOptions,
     ) -> Result<DropPoint<O>> {
+        self.drop_point_with_kernel(&Kernel::default(), pt_to_drop, domain, opts)
+    }
+
+    /// [`Surface::drop_point`] using the caller's kernel for fast and global solves.
+    /// Errors and output semantics are identical to `drop_point`.
+    pub fn drop_point_with_kernel<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        pt_to_drop: Point3,
+        domain: &Extent2d,
+        opts: &DropPointOptions,
+    ) -> Result<DropPoint<O>> {
         let op = opts.operation;
         let guess = opts.guess_uv;
 
@@ -985,7 +997,7 @@ impl Surface {
 
         // first try DropPointFast(), to catch special cases.
         if let Some(fast) = ignored(self.drop_point_fast::<O>(
-            &Kernel::default(),
+            k,
             domain,
             op,
             pt_to_drop,
@@ -1030,7 +1042,7 @@ impl Surface {
         if !success {
             // Haven't found it yet. Call GlobalPointSolve.
             solutions = self.global_point_solve::<O>(
-                &Kernel::default(),
+                k,
                 domain,
                 op,
                 pt_to_drop,
