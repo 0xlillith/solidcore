@@ -6,3 +6,5 @@
 //! entry points of `SM_API/SmApiBrep` and `SM_API/SmApiSurfaces`.
 
 pub mod api_surfaces;
+pub mod rotational_sweep_geometry;
+pub mod topology_sweep;
