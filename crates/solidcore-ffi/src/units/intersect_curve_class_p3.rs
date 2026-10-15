@@ -57,7 +57,7 @@ use crate::{call_with_buffer, FfiError};
 /// Largest pool size.
 pub const MAX_OBJECTS: usize = 32;
 /// Largest op count.
-pub const MAX_OPS: usize = 128;
+pub const MAX_OPS: usize = 256;
 /// Largest number of intervals set.
 pub const MAX_SIZE: usize = 64;
 /// Largest coordinate / parameter magnitude.

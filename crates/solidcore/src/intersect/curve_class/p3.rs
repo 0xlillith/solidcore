@@ -1935,4 +1935,69 @@ mod tests {
         assert!(cc.remove_point_class(0, IntervalPosition::Inside).is_err());
         assert!(cc.remove_point_class(3, IntervalPosition::Start).is_err());
     }
+
+    #[test]
+    fn find_interval_without_intervals_is_an_error() {
+        let k = Kernel::default();
+        let (geo, _) = setup(&k, &[0.0, 1.0]);
+        let mut cc = CurveClassification::<H>::new(&k);
+        cc.set_curve(Some(H(0, ClassObjectKind::Curve)), false);
+        // upstream reads m_pData[0]: undefined
+        assert!(cc.find_interval(&k, &geo, 0.5, BIG_DOUBLE, 1e-6).is_err());
+        assert!(cc.find_point_class(&k, &geo, 0.5, 1e-6).is_err());
+    }
+
+    #[test]
+    fn find_point_class_returns_the_boundary_or_interior() {
+        let k = Kernel::default();
+        let (geo, mut cc) = setup(&k, &[0.0, 1.0, 2.0]);
+        let edge = H(1, ClassObjectKind::Edge);
+        cc.at_mut(0)
+            .expect("ivl")
+            .mid
+            .set_class_object(PointClassType::Edge, Some(edge));
+        let pc = cc.find_point_class(&k, &geo, 0.5, 1e-6).expect("inside");
+        assert_eq!(pc.point_class(), PointClassType::Edge);
+        let pc = cc.find_point_class(&k, &geo, 1.5, 1e-6).expect("inside");
+        assert_eq!(pc.point_class(), PointClassType::Unknown);
+    }
+
+    #[test]
+    fn is_coincident_follows_the_interval_interiors() {
+        let k = Kernel::default();
+        let (geo, mut cc) = setup(&k, &[0.0, 1.0, 2.0]);
+        let edge = H(1, ClassObjectKind::Edge);
+        for j in 0..2 {
+            cc.at_mut(j)
+                .expect("ivl")
+                .mid
+                .set_class_object(PointClassType::Edge, Some(edge));
+        }
+        let tol = 1e-6;
+        let all = Extent1d::from_min_max(0.2, 1.8);
+        assert!(cc.is_coincident(&k, &geo, &all, tol).expect("walk"));
+        // an interval that only touches the second interval at its start skips it
+        let first = Extent1d::from_min_max(0.2, 1.0);
+        assert!(cc.is_coincident(&k, &geo, &first, tol).expect("walk"));
+        cc.at_mut(1)
+            .expect("ivl")
+            .mid
+            .set_class_object(PointClassType::Unknown, None);
+        assert!(!cc.is_coincident(&k, &geo, &all, tol).expect("walk"));
+        assert!(cc.is_coincident(&k, &geo, &first, tol).expect("walk"));
+    }
+
+    #[test]
+    fn squeeze_without_overlaps_changes_nothing() {
+        let k = Kernel::default();
+        let (geo, mut cc) = setup(&k, &[0.0, 1.0, 2.0]);
+        let (_, mut other) = setup(&k, &[0.0, 1.0, 2.0]);
+        let before = cc.clone();
+        fix_problems_by_squeezing(&k, &geo, &mut cc, &mut other).expect("squeeze");
+        assert_eq!(cc.size(), before.size());
+        // a squeeze that has to remove an interval waits for ConnectIntervals
+        let (_, mut coarse) = setup(&k, &[0.0, 2.0]);
+        let r = fix_problems_by_squeezing(&k, &geo, &mut cc, &mut coarse);
+        assert!(matches!(r, Err(e) if e.is_unported()));
+    }
 }

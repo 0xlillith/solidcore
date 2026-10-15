@@ -1314,22 +1314,28 @@ int32_t run(Rd& rd, std::vector<double>& o)
         }
         case OP_IS_COINCIDENT:
         {
-            double a = rd.num();
-            double b = rd.num();
+            SmExtent1d ext;
+            {
+                double a = rd.num();
+                double b = rd.num();
+                ext = SmExtent1d(a, b);
+            }
             double tol = rd.num();
             if (rd.bad || !pcs_ok(cc, pool))
                 return SC_ERR_ARG;
+            double lo = ext.GetMin();
+            double hi = ext.GetMax();
             // IsCoincident ignores the statuses of its two FindInterval calls and reads
             // m_pData[ii] for every ii in [index1, index2] (index2 - 1 wraps unsigned): run the
             // two searches here (const, deterministic) and replay the walk to reject a walk
             // past the intervals (undefined upstream)
-            if (size == 0 || !find_ok(cc, pool, a) || !find_ok(cc, pool, b))
+            if (size == 0 || !find_ok(cc, pool, lo) || !find_ok(cc, pool, hi))
                 return SC_ERR_ARG;
             ULONG i1 = 0, i2 = 0;
             double d1 = 0.0, d2 = 0.0;
             SmIntervalPosition p1 = SM_IP_OUTSIDE, p2 = SM_IP_OUTSIDE;
-            cc.FindInterval(a, SM_BIG_DOUBLE, SmZoneTol3d(tol), i1, d1, p1);
-            cc.FindInterval(b, SM_BIG_DOUBLE, SmZoneTol3d(tol), i2, d2, p2);
+            cc.FindInterval(lo, SM_BIG_DOUBLE, SmZoneTol3d(tol), i1, d1, p1);
+            cc.FindInterval(hi, SM_BIG_DOUBLE, SmZoneTol3d(tol), i2, d2, p2);
             if (p1 == SM_IP_END)
                 i1++;
             if (p2 == SM_IP_START)
@@ -1342,7 +1348,7 @@ int32_t run(Rd& rd, std::vector<double>& o)
                     break;
             }
             o.push_back(0.0);
-            o.push_back(flg(cc.IsCoincident(SmExtent1d(a, b), SmZoneTol3d(tol))));
+            o.push_back(flg(cc.IsCoincident(ext, SmZoneTol3d(tol))));
             break;
         }
         case OP_INSERT:
@@ -1378,7 +1384,8 @@ int32_t run(Rd& rd, std::vector<double>& o)
             SmBoolean made = FALSE;
             SmStatus s = cc.InsertPointClass(pc, prm, last, made, force ? TRUE : FALSE);
             o.push_back(st(s));
-            o.push_back(flg(made));
+            if (s == SM_SUCCESS)
+                o.push_back(flg(made));
             break;
         }
         case OP_REMOVE_PC:
@@ -1437,7 +1444,8 @@ int32_t run(Rd& rd, std::vector<double>& o)
             SmBoolean changed = FALSE;
             SmStatus s = sc_cc_p3::sm_ChangeEdgePointClassToNearVertex((ULONG)index, cc, p, changed);
             o.push_back(st(s));
-            o.push_back(flg(changed));
+            if (s == SM_SUCCESS)
+                o.push_back(flg(changed));
             break;
         }
         case OP_SQUEEZE:

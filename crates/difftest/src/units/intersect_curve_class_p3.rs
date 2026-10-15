@@ -785,7 +785,7 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
         [CurveClassification::new(&k), CurveClassification::new(&k)];
     let mut o: Vec<f64> = Vec::new();
     let mut deferred: Option<Box<Output>> = None;
-    for x in &s.ops {
+    for (n_op, x) in s.ops.iter().enumerate() {
         let mut step = || -> Result<(), Fail> {
             let (code, t) = op_code(x);
             if t > 1 {
@@ -1011,9 +1011,14 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
         match step() {
             Ok(()) => {}
             Err(Fail::Deferred(d)) => {
-                deferred.get_or_insert(d);
+                // the classification is not changed by the unported callee: later ops would
+                // run on another state than the C++ ones
+                deferred = Some(d);
+                break;
             }
-            Err(e) => return Err(e),
+            Err(Fail::Harness(e)) => {
+                return Err(Fail::Harness(harness(format!("op {n_op} ({x:?}): {e}"))))
+            }
         }
     }
     match deferred {
@@ -1411,7 +1416,8 @@ fn setup_cc(rng: &mut Rng, objs: &[ObjIn], t: usize, curve: Option<usize>, bound
 
 fn gen_script(rng: &mut Rng) -> Script {
     let objects = gen_objects(rng);
-    let topo = rng.chance(0.12);
+    let pure = rng.chance(0.5);
+    let topo = !pure && rng.chance(0.12);
     // the classification curve: a 3D one most of the time
     let curves: Vec<(usize, (f64, f64, u64))> = objects
         .iter()
@@ -1466,34 +1472,44 @@ fn gen_script(rng: &mut Rng) -> Script {
         let prm = gen_prm(rng, &bounds, d0, d1);
         let last = if rng.chance(0.7) { BIG } else { gen_prm(rng, &bounds, d0, d1) };
         let tol = gen_tol(rng);
-        ops.push(match rng.below(100) {
-            0..=22 => OpIn::FindInterval { t, prm, last, tol },
-            23..=32 => OpIn::FindPc { t, prm, tol },
-            33..=44 => OpIn::IsCoincident {
+        // half of the scripts stay on the ops that can complete without the unported callees
+        let roll = if pure { rng.below(80) } else { rng.below(100) };
+        ops.push(match roll {
+            0..=21 => OpIn::FindInterval { t, prm, last, tol },
+            22..=31 => OpIn::FindPc { t, prm, tol },
+            32..=43 => OpIn::IsCoincident {
                 t,
                 a: prm,
                 b: gen_prm(rng, &bounds, d0, d1),
                 tol,
             },
-            45..=69 => OpIn::Insert {
+            44..=69 => OpIn::Insert {
                 t,
                 pc: gen_pc(rng, &objects, prm, topo),
                 prm,
                 last,
-                force: rng.chance(0.15),
+                force: !pure && rng.chance(0.1),
             },
-            70..=77 => OpIn::RemovePc {
-                t,
-                j: rng.below(size as u64 + 2) as usize,
-                pos: *rng.choose(&[1, 3, 1, 3, 2, 0, 4]).unwrap_or(&1),
-            },
-            78..=81 => OpIn::Merge { t, index: rng.below(size as u64 + 2) as usize },
-            82..=85 => OpIn::NearVertex { t, index: rng.below(size as u64 + 2) as usize, p: rp(rng, 10.0) },
-            86..=91 => OpIn::Squeeze { t },
-            92..=94 => OpIn::Cleanup { t },
-            95..=96 => OpIn::SetSize { t, n: rng.below(4) as usize },
-            97 => OpIn::IvlSet { t, j: rng.below(size as u64 + 1) as usize, a: prm, b: prm + rng.uniform(0.0, 1.0) * (d1 - d0) },
-            98 => OpIn::PcSetSrcTol { t, j: rng.below(size.max(1) as u64) as usize, w: rng.below(3) as usize, tol: gen_tol(rng) },
+            // the classification at an end of the curve (no neighbour) or anywhere
+            70..=79 => {
+                let at_end = pure || rng.chance(0.5);
+                let (j, pos) = match (at_end, rng.chance(0.5)) {
+                    (true, true) => (0, 1),
+                    (true, false) => (size.saturating_sub(1), 3),
+                    _ => (
+                        rng.below(size as u64 + 2) as usize,
+                        *rng.choose(&[1, 3, 1, 3, 2, 0, 4]).unwrap_or(&1),
+                    ),
+                };
+                OpIn::RemovePc { t, j, pos }
+            }
+            80..=82 => OpIn::Merge { t, index: rng.below(size as u64 + 2) as usize },
+            83..=85 => OpIn::NearVertex { t, index: rng.below(size as u64 + 2) as usize, p: rp(rng, 10.0) },
+            86..=89 => OpIn::Squeeze { t },
+            90..=91 => OpIn::Cleanup { t },
+            92..=93 => OpIn::SetSize { t, n: rng.below(4) as usize },
+            94..=95 => OpIn::IvlSet { t, j: rng.below(size as u64 + 1) as usize, a: prm, b: prm + rng.uniform(0.0, 1.0) * (d1 - d0) },
+            96..=97 => OpIn::PcSetSrcTol { t, j: rng.below(size.max(1) as u64) as usize, w: rng.below(3) as usize, tol: gen_tol(rng) },
             _ => OpIn::SetSrcTol { t, tol: gen_tol(rng) },
         });
     }
@@ -1605,16 +1621,18 @@ fn edge_cases() -> Vec<(String, Value)> {
         }
         out.push((format!("edge_find_{name}"), json!(Script { objects: objs.clone(), ops })));
     }
-    // merges: every boundary class against every new class, at and next to the boundary
+    // merges: every boundary class against every new class, at and next to the boundary (one
+    // script per insertion: an insertion that needs InsertAt defers its script)
     let objs = edge_objects(1.0);
+    let classes = [(106, Some(0)), (106, Some(6)), (107, Some(1)), (100, None)];
     for (name, old) in [("unknown", (100, None)), ("curve", (106, Some(0))), ("surface", (107, Some(1))), ("other_curve", (106, Some(6)))] {
-        let mut ops = edge_setup(0, 0, &bounds, 1e-5);
-        for (j, w) in [(0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2)] {
-            ops.push(OpIn::PcSetClass { t: 0, j, w, class: old.0, obj: old.1 });
-        }
-        for (class, obj) in [(106, Some(0)), (106, Some(6)), (107, Some(1)), (100, None)] {
-            for prm in [0.0, 0.25, 0.25 + 1e-7, 0.25 - 1e-7, 0.75, 1.0, 1.0 + 1e-6, 0.5] {
-                for (gap, presnap) in [(0.0, BIG), (1e-3, 0.3)] {
+        for (ci, &(class, obj)) in classes.iter().enumerate() {
+            for (pi, prm) in [0.0, 0.25, 0.25 + 1e-7, 0.25 - 1e-7, 0.75, 1.0, 1.0 + 1e-6, 0.5].into_iter().enumerate() {
+                for (gi, (gap, presnap)) in [(0.0, BIG), (1e-3, 0.3)].into_iter().enumerate() {
+                    let mut ops = edge_setup(0, 0, &bounds, 1e-5);
+                    for (j, w) in [(0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2)] {
+                        ops.push(OpIn::PcSetClass { t: 0, j, w, class: old.0, obj: old.1 });
+                    }
                     ops.push(OpIn::Insert {
                         t: 0,
                         pc: PcIn { class, obj, t: prm, gap, presnap, tol: USE_DEFAULT, sss: None },
@@ -1622,46 +1640,57 @@ fn edge_cases() -> Vec<(String, Value)> {
                         last: BIG,
                         force: false,
                     });
+                    out.push((format!("edge_insert_{name}_{ci}_{pi}_{gi}"), json!(Script { objects: objs.clone(), ops })));
                 }
             }
         }
-        out.push((format!("edge_insert_{name}"), json!(Script { objects: objs.clone(), ops })));
     }
     // mid conflicts and the unknown-boundary tolerance rules
-    let mut ops = edge_setup(0, 0, &bounds, 1e-5);
-    ops.push(OpIn::PcSetClass { t: 0, j: 1, w: 1, class: 106, obj: Some(0) });
-    for (prm, class, obj) in [(0.5, 106, Some(0)), (0.5, 106, Some(6)), (0.5, 107, Some(1)), (0.5, 100, None), (0.2, 106, Some(6)), (1.0 + 1e-3, 106, Some(0))] {
+    for (i, (prm, class, obj)) in [(0.5, 106, Some(0)), (0.5, 106, Some(6)), (0.5, 107, Some(1)), (0.5, 100, None), (0.2, 106, Some(6)), (1.0 + 1e-3, 106, Some(0)), (0.26, 106, Some(6))]
+        .into_iter()
+        .enumerate()
+    {
+        let mut ops = edge_setup(0, 0, &bounds, 1e-5);
+        ops.push(OpIn::PcSetClass { t: 0, j: 1, w: 1, class: 106, obj: Some(0) });
         ops.push(OpIn::Insert {
             t: 0,
             pc: PcIn { class, obj, t: prm, gap: 0.0, presnap: BIG, tol: USE_DEFAULT, sss: None },
             prm,
             last: BIG,
-            force: false,
+            force: i % 2 == 1,
         });
+        out.push((format!("edge_insert_mid_conflict_{i}"), json!(Script { objects: objs.clone(), ops })));
     }
-    out.push(("edge_insert_mid_conflict".into(), json!(Script { objects: objs.clone(), ops })));
     // removal: ends, interior, invalid positions and indices
-    let mut ops = edge_setup(0, 0, &bounds, 1e-5);
-    ops.push(OpIn::PcSetClass { t: 0, j: 0, w: 0, class: 106, obj: Some(0) });
-    ops.push(OpIn::PcSetClass { t: 0, j: 2, w: 2, class: 107, obj: Some(1) });
-    for (j, pos) in [(0, 1), (2, 3), (0, 3), (2, 1), (1, 2), (1, 0), (1, 4), (3, 1), (9, 3)] {
+    for (i, (j, pos)) in [(0, 1), (2, 3), (0, 3), (2, 1), (1, 2), (1, 0), (1, 4), (3, 1), (9, 3)].into_iter().enumerate() {
+        let mut ops = edge_setup(0, 0, &bounds, 1e-5);
+        ops.push(OpIn::PcSetClass { t: 0, j: 0, w: 0, class: 106, obj: Some(0) });
+        ops.push(OpIn::PcSetClass { t: 0, j: 2, w: 2, class: 107, obj: Some(1) });
         ops.push(OpIn::RemovePc { t: 0, j, pos });
+        out.push((format!("edge_remove_{i}"), json!(Script { objects: objs.clone(), ops })));
     }
-    out.push(("edge_remove".into(), json!(Script { objects: objs.clone(), ops })));
     // squeeze and cleanup of two classifications of one curve
+    let others: [&[f64]; 6] = [
+        &bounds,
+        &[0.0, 0.25, 0.5, 0.75, 1.0],
+        &[0.0, 1.0],
+        &[0.0, 0.3, 0.6, 1.0],
+        &[0.0, 0.25, 0.25, 0.75, 1.0],
+        &[0.0, 0.25 + 1e-9, 0.75, 1.0],
+    ];
+    for (i, other) in others.into_iter().enumerate() {
+        for (name, first) in [("same", &bounds[..]), ("zero", &[0.0, 0.25, 0.25, 0.75, 1.0][..])] {
+            let mut ops = edge_setup(0, 0, first, 1e-5);
+            ops.extend(edge_setup(1, 0, other, 1e-5));
+            ops.push(OpIn::Squeeze { t: 0 });
+            out.push((format!("edge_squeeze_{name}_{i}"), json!(Script { objects: objs.clone(), ops })));
+        }
+    }
     let mut ops = edge_setup(0, 0, &bounds, 1e-5);
-    ops.extend(edge_setup(1, 0, &bounds, 1e-5));
-    ops.push(OpIn::Squeeze { t: 0 });
-    ops.push(OpIn::Squeeze { t: 1 });
-    ops.extend(edge_setup(1, 0, &[0.0, 0.25, 0.5, 0.75, 1.0], 1e-5));
-    ops.push(OpIn::Squeeze { t: 0 });
-    ops.extend(edge_setup(1, 0, &[0.0, 1.0], 1e-5));
-    ops.push(OpIn::Squeeze { t: 0 });
-    ops.extend(edge_setup(1, 0, &[0.0, 0.3, 0.6, 1.0], 1e-5));
-    ops.push(OpIn::Squeeze { t: 0 });
     ops.push(OpIn::SetSize { t: 1, n: 0 });
-    ops.push(OpIn::Cleanup { t: 1 });
-    out.push(("edge_squeeze".into(), json!(Script { objects: objs, ops })));
+    ops.push(OpIn::SetSize { t: 0, n: 0 });
+    ops.push(OpIn::Cleanup { t: 0 });
+    out.push(("edge_cleanup_empty".into(), json!(Script { objects: objs, ops })));
     out
 }
 
