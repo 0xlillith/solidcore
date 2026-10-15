@@ -113,7 +113,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (ready for review)
-- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 
@@ -347,7 +347,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `query.edge` (1025 lines) — partial, 1368 cases
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
-- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] 🟡 `query.poly` (2119 lines) — partial, 671 cases
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
