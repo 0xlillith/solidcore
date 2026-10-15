@@ -81,8 +81,9 @@
 //!   evaluation at their `SM_UNDEF_DOUBLE` defaults. `sm_AreSeamCurves`' unused
 //!   edge use argument is dropped.
 //! - **Unported callees.** The gap computations (`SmCrvSrfGapFunction`,
-//!   `SmEdgeEdgeGap::SetEdgeEdgeGap`, unit `heal.gap`), `SmEdge::SetTolerance`
-//!   (`topology.edge`), `SmSurface::DropPoint` (`surface.surface_p5`) and
+//!   `SmEdgeEdgeGap::SetEdgeEdgeGap`, unit `heal.gap`), `SmVertex::SetTolerance`
+//!   (`topology.vertex`, reached through `SmEdge::SetTolerance`),
+//!   `SmSurface::DropPoint` (`surface.surface_p5`) and
 //!   `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`) return
 //!   [`SolidError::Unported`]. The cross-section tolerance `CalcMaxEdgeFaceGap`
 //!   computes only for the gap function is not computed before that stub.
@@ -735,8 +736,8 @@ pub(crate) fn brep_handle(b: &Brep, eu: EdgeuseId) -> Result<Option<ObjectHandle
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no edge, primary edge use, vertex use or B-rep);
-/// [`SolidError::Unported`] when the edge tolerance must grow (`SmEdge::SetTolerance`,
-/// unit `topology.edge`).
+/// [`SolidError::Unported`] when growing the edge tolerance must grow a vertex
+/// tolerance (`SmVertex::SetTolerance`, unit `topology.vertex`).
 pub fn set_uv_trim_curve(
     b: &mut Brep,
     eu: EdgeuseId,
@@ -835,11 +836,13 @@ pub fn set_uv_trim_curve(
             let e = edge(b, eu)?.ok_or_else(|| null("SetUVTrimCurve: edge use without edge"))?;
             let curr_tol = b.edge(e)?.tolerance;
             if curr_tol < TOL_FACTOR * max_dist_to_surface {
-                // UNPORTED(topology.edge): SmEdge::SetTolerance
-                return Err(SolidError::unported(
-                    "SmEdge::SetTolerance",
-                    "topology.edge",
-                ));
+                crate::topology::edge::set_tolerance(
+                    b,
+                    e,
+                    TOL_FACTOR * max_dist_to_surface,
+                    true,
+                    true,
+                )?;
             }
         }
     }
@@ -1818,7 +1821,7 @@ mod tests {
         assert!(old.is_some());
         assert!(drop_curve_fail(&b, a0).unwrap().0.is_none());
 
-        // growing the edge tolerance needs SmEdge::SetTolerance
+        // growing the edge tolerance grows the vertex tolerances: SmVertex::SetTolerance
         let e = set_uv_trim_curve(
             &mut b,
             a0,

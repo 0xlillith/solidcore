@@ -114,7 +114,7 @@ use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol::{are_same_to_tol, scaled_zero2};
 use crate::heal::gap::{EdgeFaceGap, VertexEdgeGap};
 use crate::kernel::Kernel;
-use crate::math::{Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::math::{Point2, Point3, Vec3, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -1600,7 +1600,7 @@ fn cover_other_coincident_face(
     if refine_domains {
         let trim0 = calculate_uv_domain_from_uv_trim_curves(b, face0);
         if let Ok(d) = trim0 {
-            if !d.is_degenerate(EFF_ZERO) {
+            if !d.is_degenerate(0.0) {
                 domain0 = d;
             }
         } else if let Err(err) = trim0 {
@@ -1608,7 +1608,7 @@ fn cover_other_coincident_face(
         }
         let trim1 = calculate_uv_domain_from_uv_trim_curves(b, face1);
         if let Ok(d) = trim1 {
-            if !d.is_degenerate(EFF_ZERO) {
+            if !d.is_degenerate(0.0) {
                 domain1 = d;
             }
         } else if let Err(err) = trim1 {
