@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**149 / 261 units ported** (89 green, 60 partial), **198,352 / 387,903 upstream lines (51.1%)**. 17 claimed, 0 blocked, 95 todo.
+**149 / 261 units ported** (89 green, 60 partial), **198,352 / 387,903 upstream lines (51.1%)**. 18 claimed, 0 blocked, 94 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -34,7 +34,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.vertex` (824 lines) — missing: `topology.vertexuse`
 - [ ] `topology.loopuse` (892 lines) — missing: `topology.face_p2`, `topology.vertexuse`
 - [ ] `topology.edge` (2213 lines) — missing: `topology.edgeuse_p2`, `topology.face_p2`, `topology.vertexuse`
-- [ ] `query.edge` (1025 lines) — missing: `topology.edge`
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.face_p2`, `topology.loopuse`
 - [ ] `heal.gap` (1475 lines) — missing: `topology.vertexuse`
@@ -126,6 +125,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.vertexuse` (1429 lines) — in progress: #88 @bherbruck (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
+- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (draft)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 - [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (ready for review)
 
@@ -357,7 +357,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ### query (1/10)
 
-- [ ] ⏳ `query.edge` (1025 lines) — waiting
+- [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (draft)
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
 - [ ] ⏳ `query.face_p2` (1161 lines) — waiting
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
