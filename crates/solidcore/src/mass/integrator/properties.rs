@@ -208,6 +208,7 @@ pub fn face_properties(
         .as_ref()
         .ok_or_else(|| SolidError::null_pointer(OP))?;
     boundary_properties(
+        k,
         surface,
         &trims,
         &b.face(f)?.uv_domain,
@@ -229,6 +230,7 @@ fn valid_flags(flags: u64) -> Result<()> {
 /// Integrates the same precise face properties after oriented trim construction.
 /// `trims` must have the orientation and order returned by `CreateOrientedTrimBoundary`.
 pub fn boundary_properties(
+    k: &Kernel,
     surface: &Surface,
     trims: &[Curve],
     domain: &Extent2d,
@@ -256,6 +258,7 @@ pub fn boundary_properties(
             *s = estimated_area / 10.0;
         }
         let eval = OdeArea {
+            kernel: k,
             surface,
             uv_curve: trim,
             min_v: domain.min().y,

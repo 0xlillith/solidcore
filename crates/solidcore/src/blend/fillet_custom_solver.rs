@@ -42,7 +42,10 @@
 //!   `&mut`. Upstream's `crSurface1` may be one of the solver's own surfaces
 //!   (`GetSurface(i)`), which then keeps that extension after the call; here it is the
 //!   caller's surface (the solver is borrowed shared), so the solver's copy does not.
-//!   `LocalPointSolve` (`surface.surface_p5`) returns [`SolidError::Unported`].
+//!   For the same reason `rpSurface2->LocalPointSolve` runs on a copy of the other
+//!   rail's offset and drops an extension it makes; its `MINIMIZE` solve
+//!   (`LocalPointSolve_1`, `surface.surface_point_solve_p3`) returns
+//!   [`SolidError::Unported`].
 //! - **Arguments.** Out-params become return values; `SmContext` arguments are dropped.
 //!   `LoadJacobian` takes the base-surface identities of `rpSurface1` / `rpSurface2`
 //!   (the only use of those pointers) and their offsets by value (never written);
@@ -85,6 +88,7 @@ use crate::nurbs::knots::Side;
 use crate::surface::offset_surface;
 use crate::surface::surf_of_extrusion::SurfOfExtrusion;
 use crate::surface::surface::p1::{evaluate_1st_derivatives, evaluate_2nd_derivatives};
+use crate::surface::surface::p4::NoObject;
 use crate::surface::surface::p7::{compute_inward_vector, drop_vectors_at};
 use crate::surface::surface::Surface;
 use crate::topology::edgeuse::p1 as edgeuse;
@@ -210,20 +214,29 @@ fn offset_compute_inward_vector(s: &mut OffsetSurface, uv: Point2) -> Result<Vec
 
 /// `LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, bFound, sSol)` of an offset
 /// surface: the found UV point and its distance.
+/// `None` when no answer was found. The solve runs on a copy of the offset (the solver
+/// is borrowed shared), so a base extension it makes is not kept (see the module
+/// deviations).
 fn offset_local_point_solve(
-    _s: &OffsetSurface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    s: &OffsetSurface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<Option<(Point2, f64)>> {
-    // SmSurface::LocalPointSolve is ported (surface.surface_p5, `Surface::local_point_solve`) but an
-    // SmOffsetSurface is not a `Surface` kind: the solve evaluates it through
-    // SmOffsetSurface::Evaluate.
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate (via SmSurface::LocalPointSolve)
-    Err(SolidError::Unported {
-        upstream: "SmOffsetSurface::Evaluate",
-        unit: "surface.offset_surface",
-    })
+    // SmSurface::LocalPointSolve on the offset: its evaluations dispatch to
+    // SmOffsetSurface (a MINIMIZE solve runs LocalPointSolve_1, unit
+    // surface.surface_point_solve_p3, which returns Unported until it is ported)
+    let surface = Surface::from(s.surface.clone());
+    let r =
+        surface.local_point_solve::<NoObject>(domain, SolverOperation::Minimize, point, guess)?;
+    if !r.found {
+        return Ok(None);
+    }
+    let start = &r.solution.start;
+    Ok(Some((
+        Point2::new(start.param(0)?, start.param(1)?),
+        start.solution_value,
+    )))
 }
 
 /// `GlobalPointSolve(domain, SM_SO_MINIMIZE, point, SM_EFF_ZERO_SQ, NULL, SM_SR_SINGLE,
@@ -1645,7 +1658,7 @@ mod tests {
     }
 
     #[test]
-    fn rail_surfaces_wait_for_singularities_then_evaluate() {
+    fn rail_surfaces_take_base_singularities_then_evaluate() {
         let k = Kernel::default();
         let o = Vec3::new(0.0, 0.0, 0.0);
         let (x, y, z) = (
@@ -1653,20 +1666,19 @@ mod tests {
             Vec3::new(0.0, 1.0, 0.0),
             Vec3::new(0.0, 0.0, 1.0),
         );
-        // upstream's default lSingularities asks the base (surface.surface_p3)
-        assert!(matches!(
-            OffsetSurface::new(
-                &k,
-                2.0,
-                plane(o, x, y),
-                SurfaceId::Free(0),
-                offset_surface::SS_UNKNOWN
-            ),
-            Err(SolidError::Unported {
-                unit: "surface.surface_p3",
-                ..
-            })
-        ));
+        // upstream's default lSingularities asks the base: a plane has none
+        let rail0 = OffsetSurface::new(
+            &k,
+            2.0,
+            plane(o, x, y),
+            SurfaceId::Free(0),
+            offset_surface::SS_UNKNOWN,
+        )
+        .unwrap();
+        assert_eq!(
+            rail0.surface.singularities(),
+            crate::geom::extent2d::SS_NONE
+        );
         let base = ConstantRadiusAssistedFs::from_parts(
             1e-6,
             0.5,
