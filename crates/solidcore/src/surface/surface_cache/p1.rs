@@ -295,12 +295,14 @@ pub(super) fn calculate_bounding_box(
                     crate::surface::surface::p1::POLAR_RECURSION,
                 ));
             }
-            // The other boxes come from the surface's own cache, whose tree build needs
-            // the continuities.
-            // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
+            // DISPATCH GAP: the other boxes come from the surface's own cache
+            // (Surface::base_calculate_bounding_box, surface::surface::p1), whose build
+            // needs the kernel this signature does not take. No UNPORTED marker: the
+            // callees are ported (the continuities of the tree build are
+            // surface::surface::p6); the error names the owner of the base body.
             Err(SolidError::unported(
-                "SmSurface::CalculateContinuities",
-                "surface.surface_p6",
+                "SmSurface::CalculateBoundingBox",
+                "surface.surface_p1",
             ))
         }
     }

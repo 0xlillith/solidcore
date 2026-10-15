@@ -457,12 +457,8 @@ impl Surface {
             }
 
             // create the UV curve
-            let uv_curve = Line::create_line_segment(
-                2,
-                Vec3::from(uv_start),
-                Vec3::from(uv_end),
-                None,
-            )?;
+            let uv_curve =
+                Line::create_line_segment(2, Vec3::from(uv_start), Vec3::from(uv_end), None)?;
 
             out.curves_3d.push(curve);
             out.orients.push(orient);
@@ -562,18 +558,10 @@ impl Surface {
             let all_domain = self.natural_uv_domain();
 
             if sing_dir == SurfParamType::U || sing_dir == SurfParamType::Both {
-                uv.x = singular_end(
-                    &uv_domain.u_interval(),
-                    &all_domain.u_interval(),
-                    uv.x,
-                );
+                uv.x = singular_end(&uv_domain.u_interval(), &all_domain.u_interval(), uv.x);
             }
             if sing_dir == SurfParamType::V || sing_dir == SurfParamType::Both {
-                uv.y = singular_end(
-                    &uv_domain.v_interval(),
-                    &all_domain.v_interval(),
-                    uv.y,
-                );
+                uv.y = singular_end(&uv_domain.v_interval(), &all_domain.v_interval(), uv.y);
             }
         }
 
@@ -615,9 +603,10 @@ impl Surface {
         objects: [Option<O>; 2],
     ) -> Result<Option<Solution<O>>> {
         // First try boxing (statuses ignored).
-        let this_box = ignored(self.calculate_bounding_box(k, uv_domain, [true, false, false], true))?
-            .and_then(|b| b.normal_box)
-            .unwrap_or_default();
+        let this_box =
+            ignored(self.calculate_bounding_box(k, uv_domain, [true, false, false], true))?
+                .and_then(|b| b.normal_box)
+                .unwrap_or_default();
         let req = CurveBoxRequest {
             normal: true,
             pseudo: false,
@@ -890,32 +879,32 @@ impl Surface {
         // locals to run from best solution end to other end
         let ivl = curve.natural_interval();
         let reg = self.natural_uv_domain();
-        let (start_dev, start_par, delta_par) =
-            if sol.start.solution_value < sol.end.solution_value {
-                let s = sol.start.parameters;
-                let e = sol.end.parameters;
-                (
-                    sol.start.solution_value,
-                    [par(&s, 0)?, par(&s, 1)?, par(&s, 2)?],
-                    [
-                        par(&e, 0)? - par(&s, 0)?,
-                        par(&e, 1)? - par(&s, 1)?,
-                        par(&e, 2)? - par(&s, 2)?,
-                    ],
-                )
-            } else {
-                let s = sol.end.parameters;
-                let e = sol.start.parameters;
-                (
-                    sol.end.solution_value,
-                    [par(&s, 0)?, par(&s, 1)?, par(&s, 2)?],
-                    [
-                        par(&e, 0)? - par(&s, 0)?,
-                        par(&e, 1)? - par(&s, 1)?,
-                        par(&e, 2)? - par(&s, 2)?,
-                    ],
-                )
-            };
+        let (start_dev, start_par, delta_par) = if sol.start.solution_value < sol.end.solution_value
+        {
+            let s = sol.start.parameters;
+            let e = sol.end.parameters;
+            (
+                sol.start.solution_value,
+                [par(&s, 0)?, par(&s, 1)?, par(&s, 2)?],
+                [
+                    par(&e, 0)? - par(&s, 0)?,
+                    par(&e, 1)? - par(&s, 1)?,
+                    par(&e, 2)? - par(&s, 2)?,
+                ],
+            )
+        } else {
+            let s = sol.end.parameters;
+            let e = sol.start.parameters;
+            (
+                sol.end.solution_value,
+                [par(&s, 0)?, par(&s, 1)?, par(&s, 2)?],
+                [
+                    par(&e, 0)? - par(&s, 0)?,
+                    par(&e, 1)? - par(&s, 1)?,
+                    par(&e, 2)? - par(&s, 2)?,
+                ],
+            )
+        };
         let [sp0, sp1, sp2] = start_par;
         let [dp0, dp1, dp2] = delta_par;
 
@@ -980,7 +969,11 @@ impl Surface {
                 // evaluate the nearest surface point
                 let drop_point = Point2::new(solution.start.param(0)?, solution.start.param(1)?);
                 let prev = slot(&surface_point, tgt)?;
-                set_slot(&mut surface_point, tgt, point_ignored(self, drop_point, prev)?)?;
+                set_slot(
+                    &mut surface_point,
+                    tgt,
+                    point_ignored(self, drop_point, prev)?,
+                )?;
 
                 // get the Curve/Surface gapVector: subtract the StartPoint gap from
                 // every gap SamplePoint to keep tolerance problems from creating
@@ -1369,8 +1362,12 @@ impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
             && sol1.solution_type == SolutionType::SingleValue
             && sol2.solution_type == SolutionType::SingleValue
         {
-            let surf1 = self.surface1.ok_or_else(|| SolidError::null_pointer(OP_SS))?;
-            let surf2 = self.surface2.ok_or_else(|| SolidError::null_pointer(OP_SS))?;
+            let surf1 = self
+                .surface1
+                .ok_or_else(|| SolidError::null_pointer(OP_SS))?;
+            let surf2 = self
+                .surface2
+                .ok_or_else(|| SolidError::null_pointer(OP_SS))?;
 
             // At a singularity, the same 3d point can have different uv values.
             let uv1a = Point2::new(sol1.start.param(1)?, sol1.start.param(2)?);
@@ -1507,10 +1504,15 @@ pub fn sc_local_solve<O: SolutionObject>(
                 continue;
             }
 
-            let t = if j == 0 { interval.min() } else { interval.max() };
+            let t = if j == 0 {
+                interval.min()
+            } else {
+                interval.max()
+            };
 
             let pnt = curve.evaluate_point(t)?;
-            let point_sols = sp_local_solve::<O>(nodes, uv_domain, u_conts, v_conts, pnt, tol_3d, op)?;
+            let point_sols =
+                sp_local_solve::<O>(nodes, uv_domain, u_conts, v_conts, pnt, tol_3d, op)?;
 
             for sol in point_sols.as_slice() {
                 let mut sol = *sol;
@@ -1619,13 +1621,8 @@ pub fn sc_local_solve<O: SolutionObject>(
         if surf_box_size > 3.0 * curve_box_size {
             // Drop point from center of curve to surface
             let curve_pnt = curve.evaluate_point(interval.evaluate(0.5))?;
-            let (found, sol) = local_point_solve::<O>(
-                bss,
-                uv_domain,
-                S::Minimize,
-                curve_pnt,
-                uv_guesses[0],
-            )?;
+            let (found, sol) =
+                local_point_solve::<O>(bss, uv_domain, S::Minimize, curve_pnt, uv_guesses[0])?;
 
             if found {
                 // Drop point back to curve & replace the first guesses
@@ -1661,13 +1658,8 @@ pub fn sc_local_solve<O: SolutionObject>(
                 // Drop point back to surface
                 t_guesses[0] = sol.start.param(0)?;
                 let curve_pnt = curve.evaluate_point(t_guesses[0])?;
-                let (found, sol) = local_point_solve::<O>(
-                    bss,
-                    uv_domain,
-                    S::Minimize,
-                    curve_pnt,
-                    uv_guesses[0],
-                )?;
+                let (found, sol) =
+                    local_point_solve::<O>(bss, uv_domain, S::Minimize, curve_pnt, uv_guesses[0])?;
                 if found {
                     uv_guesses[0] = Point2::new(sol.start.param(0)?, sol.start.param(1)?);
                 }
@@ -1747,7 +1739,9 @@ fn find_element(values: &[f64], target: f64) -> Option<usize> {
 
 /// `pIsoCrv->GetKnots(sIsoKnots)` with its status ignored (no knots on failure).
 fn iso_knots_of(curve: &Curve) -> Result<Vec<f64>> {
-    Ok(ignored(curve.knots(None))?.map(|(k, _)| k).unwrap_or_default())
+    Ok(ignored(curve.knots(None))?
+        .map(|(k, _)| k)
+        .unwrap_or_default())
 }
 
 /// `aeConts[j]`.
@@ -1774,9 +1768,9 @@ fn par(p: &[f64], i: usize) -> Result<f64> {
 
 /// Sample slot `i` of a three-entry gap-function array.
 fn slot<T: Copy>(a: &[T; 3], i: usize) -> Result<T> {
-    a.get(i).copied().ok_or_else(|| {
-        SolidError::invalid_input("surface::surface::p6::classify", "sample index")
-    })
+    a.get(i)
+        .copied()
+        .ok_or_else(|| SolidError::invalid_input("surface::surface::p6::classify", "sample index"))
 }
 
 fn set_slot<T>(a: &mut [T; 3], i: usize, v: T) -> Result<()> {
@@ -1973,7 +1967,10 @@ fn sp_local_solve<O: SolutionObject>(
     _op: SolverOperation,
 ) -> Result<SolutionArray<O>> {
     // UNPORTED(surface.surface_p5): sm_SpLocalSolve
-    Err(SolidError::unported("sm_SpLocalSolve", "surface.surface_p5"))
+    Err(SolidError::unported(
+        "sm_SpLocalSolve",
+        "surface.surface_p5",
+    ))
 }
 
 /// The Newton solve of `LocalCurveIntersect`: `SmLocalSolveNd` over
@@ -2097,13 +2094,10 @@ mod tests {
     #[test]
     fn point_solution_is_degenerate() {
         let s = plane();
-        let c = Curve::from(Line::create_line_segment(
-            3,
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(1.0, 0.0, 0.0),
-            None,
-        )
-        .unwrap());
+        let c = Curve::from(
+            Line::create_line_segment(3, Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), None)
+                .unwrap(),
+        );
         let mut sol: Solution<Obj> = Solution::new();
         sol.solution_type = SolutionType::SingleValue;
         let (degenerate, point) = s.classify_intersecting_range_solution(&c, &sol).unwrap();
@@ -2145,13 +2139,10 @@ mod tests {
     #[test]
     fn sample_values_rejects_base_curve_types() {
         let s = plane();
-        let c = Curve::from(Line::create_line_segment(
-            3,
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(1.0, 0.0, 0.0),
-            None,
-        )
-        .unwrap());
+        let c = Curve::from(
+            Line::create_line_segment(3, Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), None)
+                .unwrap(),
+        );
         let d = DerivSurfDefinition {
             tangency_type: TangencyType::AlongVector,
             ..DerivSurfDefinition::default()
@@ -2174,8 +2165,17 @@ mod tests {
     #[test]
     fn singular_end_prefers_shared_domain_end() {
         let all = Extent1d::from_min_max(0.0, 1.0);
-        assert_eq!(singular_end(&Extent1d::from_min_max(0.0, 0.5), &all, 0.4), 0.0);
-        assert_eq!(singular_end(&Extent1d::from_min_max(0.5, 1.0), &all, 0.6), 1.0);
-        assert_eq!(singular_end(&Extent1d::from_min_max(0.2, 0.6), &all, 0.5), 0.6);
+        assert_eq!(
+            singular_end(&Extent1d::from_min_max(0.0, 0.5), &all, 0.4),
+            0.0
+        );
+        assert_eq!(
+            singular_end(&Extent1d::from_min_max(0.5, 1.0), &all, 0.6),
+            1.0
+        );
+        assert_eq!(
+            singular_end(&Extent1d::from_min_max(0.2, 0.6), &all, 0.5),
+            0.6
+        );
     }
 }

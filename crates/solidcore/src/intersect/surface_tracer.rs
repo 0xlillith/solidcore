@@ -2154,8 +2154,8 @@ where
 ///
 /// # Errors
 ///
-/// Those of the cache builds ([`SolidError::Unported`]: every tree build needs
-/// `SmSurface::CalculateContinuities`, `surface.surface_p6`).
+/// Those of the cache builds (the continuities of the tree build:
+/// `SmSurface::CalculateContinuities`).
 pub fn tracer_surface_cache<O: Copy + PartialEq>(
     k: &Kernel,
     t: &SurfaceTracer<'_>,
