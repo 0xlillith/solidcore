@@ -128,6 +128,10 @@ use crate::surface::volume::Volume;
 // SmTol::MapTo1d(SmTol3d&, double, const SmCurve&), SmTol::MapTo2d(.., double, const
 // SmCurve&, const SmSurface&) and SmTol::GetScaledZero(const SmCurve&) need
 // SmCurve::IsDegenerate / Evaluate / GetNaturalInterval / ApproximateLength.
+// CO-PORTED in intersect.curve_class_p7: SmTol::IsDegenerate(const SmCurve*, SmExtent1d,
+// SmXSectTol3d*) and SmTol::IsClosed(const SmObject*, SmXSectTol3d*) for a curve, with the
+// tolerance given, are intersect::curve_class::p7's tol_is_degenerate_curve /
+// tol_is_closed_curve (private).
 // CO-PORTED in surface.surface_p1: SmTol::MapTo2d(const SmTol3d&, const SmVector2d&,
 // [const SmVector2d&,] const SmSurface&), SmTol::GetScaledZero(const SmSurface&) and
 // the SmSurface branch of SmTol::GetZoneTol3d(const SmObject*) are
