@@ -4489,6 +4489,12 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   the reference solver. p5/p6 now include the same verbatim `sm_LoadGuesses`,
   `sm_PassSPConvergenceTest` and `sm_SpLocalSolve` bodies from a shared shim header.
   No reference numerical logic or differential tolerance is changed.
+- **After #50 merged:** merged `origin/main` (`51ec6119`) and retained the caller's
+  kernel in `heal.gap` while preserving `DropPoint`'s failure defaults (`false`,
+  the supplied guess or `UNDEF`, and `BIG_DOUBLE`). Full local CI passed: 1152
+  workspace tests; native difftest 169 units (92 green, 77 partial), 410264 passing
+  cases, 11837 deferred, zero failures. The p3/p5/p6/heal.gap perturbation checks
+  detect every compared case.
 - The exact temporary copy remains necessary to preserve the immutable surface's
   out-of-bounds flag on all exits. Its owned-geometry preflight still bounds copy
   depth to 64. A borrowing evaluation adapter would be a separate optimization.
