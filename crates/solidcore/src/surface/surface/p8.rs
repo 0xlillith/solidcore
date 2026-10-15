@@ -76,6 +76,9 @@ const OP_SP: &str = "surface::surface::p8::SpGlobalSolver::local_solve_branch";
 const OP_INVERT: &str = "surface::surface::p8::Surface::invert_point_near_singularity";
 const OP_LOCAL_LINE: &str = "surface::surface::p8::Surface::local_line_intersect";
 
+/// The 6 x 6 grid of `CoincidenceCheck` (`lNumSamples`).
+const NUM_SAMPLES: usize = 6;
+
 // ---- calls into units that are not ported yet ----------------------------------------------
 
 /// `smsurf_CheckShapeMatch(sPVV0, sPVV1, tol, angTolRad, bSuccess)`: `bSuccess`.
@@ -703,7 +706,6 @@ impl Surface {
         res.max_distance = 0.0;
 
         // For a grid of 6x6 sample points
-        const NUM_SAMPLES: usize = 6;
         let denom = (NUM_SAMPLES - 1) as f64;
         for ii in 0..NUM_SAMPLES {
             let u = ii as f64 / denom;
@@ -1045,8 +1047,8 @@ impl Surface {
         // line parameter length test.
         let param_tol = [
             max2(
-                EFF_ZERO_SQRT * (1.0 + line_interval.map_or(1.0, |i| i.max())).abs(),
-                line_interval.map_or(1.0, |i| i.length()) * 0.0001,
+                EFF_ZERO_SQRT * (1.0 + line_interval.map_or(1.0, Extent1d::max)).abs(),
+                line_interval.map_or(1.0, Extent1d::length) * 0.0001,
             ),
             max2(
                 EFF_ZERO_SQRT * (1.0 + uv_domain.max().x).abs(),
@@ -1117,9 +1119,7 @@ impl Surface {
                 // When line tangent not perp to surfNormal - can't be coincident
                 ignore_status(sr_eval.eval_normal())?;
                 let normal = sr_eval.values()[2][2];
-                if !line_vector.is_perpendicular_to(normal, EFF_ZERO_RAD) {
-                    might_be_coincident = false;
-                } else {
+                if line_vector.is_perpendicular_to(normal, EFF_ZERO_RAD) {
                     // if SurfaceNormalSection curvature is far from linear - can't be
                     // coincident
                     ignore_status(sr_eval.eval_normal_section())?;
@@ -1128,6 +1128,8 @@ impl Surface {
                     if curvature.abs() > (1.0 / surf_size) {
                         might_be_coincident = false;
                     }
+                } else {
+                    might_be_coincident = false;
                 }
             }
         }
@@ -1357,14 +1359,7 @@ impl Surface {
 
             // Part 2: Arrive here when Line BetweenIvl is classified as
             // Coincident/NotCoincident
-            if !do_combine {
-                // Move current solution down to end of processed list - increment
-                // processed count
-                processed_end += 1;
-                if ii != processed_end {
-                    sols.set_at(processed_end, &curr_sol)?;
-                }
-            } else {
+            if do_combine {
                 // BetweenIvl Solution locals
                 let mut last_sol = last_sol;
                 let last_original_type = last_sol.solution_type;
@@ -1402,13 +1397,18 @@ impl Surface {
                         // If have opposite sorting because of tolerancing, swap the
                         // ends of rLastSol.
                         if last_sol.start.param(0)? > last_sol.end.param(0)? {
-                            let tmp = last_sol.end;
-                            last_sol.end = last_sol.start;
-                            last_sol.start = tmp;
+                            std::mem::swap(&mut last_sol.end, &mut last_sol.start);
                         }
                     }
                 }
                 sols.set_at(processed_end, &last_sol)?;
+            } else {
+                // Move current solution down to end of processed list - increment
+                // processed count
+                processed_end += 1;
+                if ii != processed_end {
+                    sols.set_at(processed_end, &curr_sol)?;
+                }
             }
             ii += 1;
         }
@@ -2126,14 +2126,14 @@ impl Surface {
             t = new_t;
 
             uv += Point2::new(shift_u, shift_v);
-            if !uv_domain.contains_point(uv, uv_tol) {
+            if uv_domain.contains_point(uv, uv_tol) {
+                num_boundary_hits = 0;
+            } else {
                 num_boundary_hits += 1;
                 if num_boundary_hits >= 3 {
                     return Ok(out);
                 }
                 uv = uv_domain.clamp_point(uv);
-            } else {
-                num_boundary_hits = 0;
             }
 
             (srf_pnt, du, dv) = pvv(self, uv)?;
