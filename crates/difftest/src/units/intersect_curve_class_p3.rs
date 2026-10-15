@@ -1431,7 +1431,7 @@ fn gen_script(rng: &mut Rng) -> Script {
         return Script { objects, ops: Vec::new() };
     };
     let mut ops = Vec::new();
-    let mut set_up = vec![false; 2];
+    let mut set_up = [false; 2];
     let mut all_bounds: Vec<Vec<f64>> = vec![Vec::new(), Vec::new()];
     let b0 = gen_bounds(rng, d0, d1);
     // the second classification: the same curve, bounds like the first or fresh
@@ -1563,7 +1563,9 @@ fn edge_setup(t: usize, curve: usize, bounds: &[f64], tol: f64) -> Vec<OpIn> {
         OpIn::SetSrcTol { t, tol },
     ];
     for (j, w) in bounds.windows(2).enumerate() {
-        ops.push(OpIn::IvlSet { t, j, a: w[0], b: w[1] });
+        if let [a, b] = *w {
+            ops.push(OpIn::IvlSet { t, j, a, b });
+        }
     }
     ops
 }
@@ -1617,7 +1619,7 @@ fn edge_cases() -> Vec<(String, Value)> {
         let ps: Vec<f64> = b.iter().flat_map(|&x| [x, x + 1e-9, x - 1e-9, x + 1e-5, x - 1e-5, x + 1e-3]).collect();
         for prm in ps {
             ops.push(OpIn::FindInterval { t: 0, prm, last: BIG, tol: USE_DEFAULT });
-            ops.push(OpIn::FindInterval { t: 0, prm, last: b[0], tol: 1e-3 });
+            ops.push(OpIn::FindInterval { t: 0, prm, last: b.first().copied().unwrap_or(0.0), tol: 1e-3 });
         }
         out.push((format!("edge_find_{name}"), json!(Script { objects: objs.clone(), ops })));
     }

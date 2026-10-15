@@ -454,7 +454,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         rd.index(1)?;
         let obj = |rd: &mut Reader<'_>| rd.object(n_obj).map(|_| ());
         match code {
-            op::SET_SIZE | op::REMOVE_AT | op::IVL_RESET => {
+            op::SET_SIZE | op::REMOVE_AT | op::IVL_RESET | op::MERGE => {
                 rd.index(MAX_SIZE)?;
             }
             op::IVL_SET => {
@@ -549,9 +549,6 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
             op::REMOVE_PC => {
                 rd.index(MAX_SIZE)?;
                 rd.index(4)?;
-            }
-            op::MERGE => {
-                rd.index(MAX_SIZE)?;
             }
             op::NEAR_VERTEX => {
                 rd.index(MAX_SIZE)?;

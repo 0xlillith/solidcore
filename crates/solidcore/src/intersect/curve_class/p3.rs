@@ -810,10 +810,10 @@ impl<O: ClassObject> CurveClassification<O> {
         let pt_class_type = point_class.point_class();
         let pt_class_deviation = point_class.deviation();
         let pt_class_zone_tol_3d = point_class.obj_zone_tol_3d(k, geometry)?;
-        let pt_class_pre_snap_param = if point_class.pre_snap_param() != BIG_DOUBLE {
-            point_class.pre_snap_param()
-        } else {
+        let pt_class_pre_snap_param = if point_class.pre_snap_param() == BIG_DOUBLE {
             curve_param
+        } else {
+            point_class.pre_snap_param()
         };
 
         // classify parameter against current CurveClassification intervals
@@ -882,10 +882,10 @@ impl<O: ClassObject> CurveClassification<O> {
                 &ivl.end
             };
             let ivl_end_pt_param = interval_end_position(&ivl, position);
-            let ivl_end_pt_pre_snap_param = if boundary.pre_snap_param() != BIG_DOUBLE {
-                boundary.pre_snap_param()
-            } else {
+            let ivl_end_pt_pre_snap_param = if boundary.pre_snap_param() == BIG_DOUBLE {
                 ivl_end_pt_param
+            } else {
+                boundary.pre_snap_param()
             };
             let ivl_end_pt_deviation = boundary.deviation();
             let ivl_end_pt_object = boundary.object();
@@ -1235,7 +1235,10 @@ impl<O: ClassObject> CurveClassification<O> {
         //  case 1: end Boundary Point with no neighbor - reset PointClassification to
         //          SM_PC_UNKNOWN
         //  case 2: End Boundary Point with a neighbor - connect the intervals
-        if !has_neighbor {
+        if has_neighbor {
+            // Point being removed divides two intervals (the status is ignored)
+            ignore_status(connect_intervals(self, index, position, false))?;
+        } else {
             // reset the PtClassification back to its SM_PC_UNKNOWN state
             let default_point = PointClassification::new(self.src_zone_tol_3d());
             let ivl = self.at_mut(index)?;
@@ -1244,9 +1247,6 @@ impl<O: ClassObject> CurveClassification<O> {
             } else {
                 ivl.end = default_point;
             }
-        } else {
-            // Point being removed divides two intervals (the status is ignored)
-            ignore_status(connect_intervals(self, index, position, false))?;
         }
 
         Ok(())
@@ -1666,9 +1666,7 @@ pub fn change_edge_point_class_to_near_vertex<O: ClassObject>(
 
             let which = if index == 0 {
                 IntervalPosition::End
-            } else if index == cc.size() {
-                IntervalPosition::Start
-            } else if bigger_gap_start {
+            } else if index == cc.size() || bigger_gap_start {
                 IntervalPosition::Start
             } else {
                 IntervalPosition::End
@@ -1694,9 +1692,7 @@ pub fn change_edge_point_class_to_near_vertex<O: ClassObject>(
 
                 let which = if index <= 1 {
                     IntervalPosition::End
-                } else if index > cc.size() {
-                    IntervalPosition::Start
-                } else if bigger_gap_start {
+                } else if index > cc.size() || bigger_gap_start {
                     IntervalPosition::Start
                 } else {
                     IntervalPosition::End
