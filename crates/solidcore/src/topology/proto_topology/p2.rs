@@ -38,9 +38,10 @@
 //! - **Deleted curves.** Functions that delete curves (through `Destruct` or the
 //!   destructors) return the handles deleted, as in [`p1`](super::p1).
 //! - **Undefined behaviour upstream** is [`SolidError::InvalidInput`]: dereferencing a
-//!   null or deleted object, and the reads of an uninitialised position, gap or tangent
-//!   after an ignored failure (of `sm_FindPositionFromPCs` in `CreateVertexDefinition`
-//!   and `CreateProtoVertex`, of the mid tangents in `AddEdgeDefinition`).
+//!   null or deleted object (plan/upstream-issues.md UB-109, UB-110), and the reads of an
+//!   uninitialised position, gap or tangent after an ignored failure (of
+//!   `sm_FindPositionFromPCs` in `CreateVertexDefinition` and `CreateProtoVertex`, UB-107;
+//!   of the mid tangents in `AddEdgeDefinition`, UB-108).
 //! - **Leaks.** On the error returns of `CreateProtoEdge`, `AddEdgeDefinition` (from
 //!   intervals) and `Imprint` upstream leaks the proto edge or curve copies it made; the
 //!   checks are done before anything is made, so nothing is leaked.
@@ -925,8 +926,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// Merges the proto edge `other` into `pe` (`CombineProtoEdge`): the larger
     /// tolerance, `other`'s overlapping proto edges, `other`'s ends moved to `pe`'s
     /// (listing `pe` at `pe`'s ends), and `other`'s edge definitions added to `pe`.
-    /// As upstream, the definitions are walked while they are being unlisted, so every
-    /// other one moves.
+    /// As upstream, the definitions are walked while they are being unlisted, so only
+    /// every other one moves (plan/upstream-issues.md WR-93).
     ///
     /// # Errors
     ///

@@ -1043,6 +1043,25 @@ fn edge_cases() -> Vec<(String, Value)> {
         ]);
         out.push((format!("edge_pe_life_{sname}"), ops));
 
+        // combining a proto edge with three definitions moves the first and the third
+        // (the walk advances while the list shrinks, plan/upstream-issues.md WR-93)
+        let mut ops = base.clone();
+        ops.extend([
+            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
+            opv(p::PE_NEW, &[0.0, 1.0, 0.0, 2.0]),
+            opv(p::MGR_ADD_PE, &[1.0]),
+            opv(p::PV_ADD_PE, &[0.0, 1.0]),
+            opv(p::PV_ADD_PE, &[1.0, 1.0]),
+            opv(p::ED_NEW, &[3.0, 0.0, 2.0, 0.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0]),
+            opv(p::PE_ADD_ED, &[1.0, 1.0]),
+            opv(p::ED_NEW, &[4.0, 0.0, 2.0, 1.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0]),
+            opv(p::PE_ADD_ED, &[1.0, 2.0]),
+            opv(p::ED_NEW, &[3.0, 0.0, 2.0, 0.0, 1.0, 2e-6 * s, -1.0, -1.0, 1.0]),
+            opv(p::PE_ADD_ED, &[1.0, 3.0]),
+            opv(q::PE_COMBINE, &[0.0, 1.0]),
+        ]);
+        out.push((format!("edge_pe_combine_every_other_{sname}"), ops));
+
         // the same curve twice from the same sources: resolve drops the second
         let mut ops = base.clone();
         ops.extend([
