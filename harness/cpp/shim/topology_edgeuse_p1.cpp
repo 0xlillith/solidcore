@@ -26,6 +26,8 @@
 // index per kind; -1 is null), reading raw members (protected ones through
 // pointer-to-member access), never the functions under test.
 #include "sc_shim.h"
+#include "support/topology_fixture.h"
+#include <memory>
 
 #include "StdAfx.h"
 #include <SmBSplineCurve.h>
@@ -1231,6 +1233,24 @@ void run_geom_op(int32_t op, Rd& rd, std::vector<double>& o)
     }
 }
 } // namespace
+
+namespace sc_topology_fixture {
+int32_t apply(const char* path, const double* input, int64_t count,
+              const std::function<int32_t(const View&)>& operation)
+{
+    if (!path || !input || count < 1) return SC_ERR_ARG;
+    Rd reader{input, 0};
+    SmStatus status = SM_SUCCESS;
+    std::unique_ptr<SmBrep> brep(build(reader, path, status));
+    if (!brep || status != SM_SUCCESS) return SC_ERR_ARG;
+    Graph graph;
+    walk(brep.get(), graph);
+    const View view{*brep, graph.regions, graph.shells, graph.faceuses,
+                    graph.faces, graph.loopuses, graph.loops, graph.edgeuses,
+                    graph.edges, graph.vertexuses, graph.vertices};
+    return operation(view);
+}
+} // namespace sc_topology_fixture
 
 SC_EXPORT int32_t sc_topology_edgeuse_p1_eval(int32_t op, const char* path, const double* in, int64_t n_in,
                                               double* out, int64_t cap, int64_t* out_len)
