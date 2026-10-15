@@ -579,11 +579,12 @@ fn global_point_solve(
 
 /// `SmSurface::IsSingularity(uv, dir)`, preserving virtual plane dispatch.
 fn is_singularity(
+    k: &Kernel,
     surface: &crate::surface::surface::Surface,
     _srf: &BSplineSurface,
     uv: Point2,
 ) -> Result<bool> {
-    Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
+    Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
 }
 
 /// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`), virtual:
@@ -1852,7 +1853,7 @@ impl BSplineSurface {
         };
 
         // when point is on a singular boundary
-        if is_singularity(surface, self, uv)? {
+        if is_singularity(k, surface, self, uv)? {
             location = LocationType::Pole;
         }
 

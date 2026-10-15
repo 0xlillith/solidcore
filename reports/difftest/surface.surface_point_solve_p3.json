@@ -82,16 +82,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_scale_1e-08_solver_4_10",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_point_solve_p3/boundaries.json#10 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:4459,5184,5683; boundary and scale variants)",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -286,16 +282,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_scale_1.0_solver_4_35",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_point_solve_p3/boundaries.json#35 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:4459,5184,5683; boundary and scale variants)",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -490,16 +482,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_scale_100000000.0_solver_4_60",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_point_solve_p3/boundaries.json#60 (upstream source/SMLib/src/SmSurfacePointSolve.cpp:4459,5184,5683; boundary and scale variants)",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1222,16 +1210,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0005",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=15400319200005480729",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1242,16 +1226,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=15400319200005480731",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1382,16 +1362,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0008",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998281",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -1514,16 +1490,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0024",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998297",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1742,16 +1714,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0052",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998325",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1914,16 +1882,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998346",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1958,16 +1922,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0078",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998351",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2406,16 +2366,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0133",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998406",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -2506,16 +2462,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0145",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998418",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -2566,16 +2518,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0152",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998425",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2610,16 +2558,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0157",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998430",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -2894,16 +2838,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0192",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998465",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3002,16 +2942,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0205",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998478",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3058,16 +2994,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0211",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998484",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3094,16 +3026,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0215",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998488",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3138,16 +3066,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0220",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998493",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3214,16 +3138,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0229",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998502",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3338,16 +3258,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0244",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998517",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3438,16 +3354,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0256",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998529",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3530,16 +3442,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0267",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998540",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3658,16 +3566,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0282",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998555",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3718,16 +3622,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0289",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998562",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3834,16 +3734,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0303",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998576",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3918,40 +3814,28 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0313",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998586",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0314",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998587",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0315",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998588",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4122,28 +4006,20 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0337",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998610",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0338",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998611",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4438,28 +4314,20 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0375",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998648",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998649",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4550,16 +4418,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0388",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998661",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4714,16 +4578,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0408",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998681",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4782,16 +4642,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998689",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -4834,28 +4690,20 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0422",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998695",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0423",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998696",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4962,28 +4810,20 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0437",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998710",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0438",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998711",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -5106,16 +4946,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0454",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998727",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -5174,16 +5010,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0462",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998735",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5398,16 +5230,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0489",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998762",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -5490,16 +5318,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0500",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998773",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -5526,16 +5350,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0504",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998777",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -5578,16 +5398,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0510",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998783",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -5698,16 +5514,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0524",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998797",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -5918,16 +5730,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0551",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998824",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -6018,16 +5826,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0563",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998836",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -6078,16 +5882,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0570",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998843",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6162,28 +5962,20 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0580",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998853",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0581",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998854",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -6522,16 +6314,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0624",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998897",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -6550,16 +6338,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0627",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998900",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -6738,28 +6522,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0650",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998923",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0651",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998924",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -6778,28 +6554,20 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0654",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998927",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0655",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998928",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7198,16 +6966,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0705",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998978",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7226,16 +6990,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0708",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998981",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7350,28 +7110,20 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0723",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998996",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0724",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202998997",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7454,16 +7206,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0735",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999008",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7482,16 +7230,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0738",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999011",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -7502,16 +7246,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0740",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999013",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7522,16 +7262,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0742",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999015",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7558,16 +7294,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0746",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999019",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -7666,16 +7398,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0759",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999032",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -7726,16 +7454,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0766",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999039",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7746,16 +7470,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0768",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999041",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -8014,16 +7734,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0801",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999074",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -8058,16 +7774,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0806",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999079",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8078,16 +7790,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0808",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999081",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -8162,16 +7870,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0818",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999091",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -8210,16 +7914,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0823",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999096",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -8230,16 +7930,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0825",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999098",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -8426,16 +8122,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0849",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999122",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -8510,16 +8202,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0859",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999132",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8578,16 +8266,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0867",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999140",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -8782,16 +8466,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0892",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999165",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -8970,16 +8650,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0915",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999188",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9214,16 +8890,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0945",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999218",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -9234,16 +8906,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0947",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999220",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -9482,16 +9150,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0977",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999250",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -9582,16 +9246,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_0989",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999262",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -9930,16 +9590,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1032",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999305",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -10070,16 +9726,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1049",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999322",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -10122,16 +9774,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1055",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999328",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -10578,16 +10226,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1111",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999384",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -10694,16 +10338,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1125",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999398",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -10794,16 +10434,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999410",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -10902,16 +10538,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999423",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -10954,16 +10586,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1156",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999429",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -10982,16 +10610,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1159",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999432",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -11090,16 +10714,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1172",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999445",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -11134,16 +10754,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmFindPSNormalENFO::Evaluate",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "matrix_1177",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=6003389907202999450",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -11443,12 +11059,11 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 130,
+  "cases_deferred": 34,
   "cases_failed": 0,
-  "cases_passed": 1235,
+  "cases_passed": 1331,
   "cases_total": 1365,
   "deferred_by_unit": {
-    "surface.surface_p3": 96,
     "surface.surface_p8": 34
   },
   "max_rel_err": 0.0,

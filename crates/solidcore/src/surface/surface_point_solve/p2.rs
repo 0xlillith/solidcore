@@ -1028,11 +1028,19 @@ impl SurfPtGlobalSolver<'_> {
             } else {
                 self.base.test_point()
             };
-            match local_point_solve(k, surface, this_domain, op, pt_for_local, uv_guess, &sol) {
+            match local_point_solve(
+                k,
+                surface,
+                surface_obj,
+                this_domain,
+                op,
+                pt_for_local,
+                uv_guess,
+                &sol,
+            ) {
                 Ok((found, s)) => {
                     found_answer = found;
                     sol = s;
-                    set_first_object(&mut sol, surface_obj);
                     stat_ok = true;
                 }
                 Err(e) if e.is_unported() => return Err(e),
@@ -1095,6 +1103,7 @@ impl SurfPtGlobalSolver<'_> {
                     match local_point_solve(
                         k,
                         surface,
+                        surface_obj,
                         this_domain,
                         op,
                         pt_for_local,
@@ -1104,7 +1113,6 @@ impl SurfPtGlobalSolver<'_> {
                         Ok((found, s)) => {
                             found_answer = found;
                             sol = s;
-                            set_first_object(&mut sol, surface_obj);
                             stat_ok = true;
                             if found_answer {
                                 surf_eval
@@ -1215,9 +1223,11 @@ fn eval_point(surface: &Surface, uv: Point2, prev: Point3) -> Result<Point3> {
 
 /// `m_pSrf->LocalPointSolve(domain, op, point, guess, bFoundAnswer, sSol)`: whether
 /// an answer was found and the solution.
+#[allow(clippy::too_many_arguments)] // upstream's arguments plus the surface's object
 fn local_point_solve<O: SolutionObject>(
     k: &Kernel,
     surface: &Surface,
+    surface_obj: Option<O>,
     domain: &Extent2d,
     op: SolverOperation,
     point: Point3,
@@ -1227,7 +1237,13 @@ fn local_point_solve<O: SolutionObject>(
     // (upstream's LocalPointSolve overwrites the solution with its own, default when
     // nothing was found)
     let r = surface.local_point_solve::<O>(k, domain, op, point, guess)?;
-    Ok((r.found, r.solution))
+    let mut solution = r.solution;
+    // LocalPointSolve_1 sets m_lNumObjects = 1 and m_apObjects[0] = this; the
+    // LocalPointSolve_0 path (MAXIMIZE) leaves both at their defaults.
+    if solution.num_objects > 0 {
+        set_first_object(&mut solution, surface_obj);
+    }
+    Ok((r.found, solution))
 }
 
 /// `m_pSrf->InvertPointNearSingularity(testPt, domain, uv, tightTol, eReason)`: the

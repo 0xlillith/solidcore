@@ -2395,9 +2395,7 @@ mod tests {
             SolverOperation::Minimize,
         )
         .unwrap();
-        assert!(st
-            .drop_to_iso_curve(&k, SurfParamType::U, 0.2, 0.5)
-            .unwrap_err()
-            .is_unported());
+        // the curve-bounded iso curve (SmIsoCurve) is ported since surface.surface_p3 (#52)
+        assert!(st.drop_to_iso_curve(&k, SurfParamType::U, 0.2, 0.5).is_ok());
     }
 }

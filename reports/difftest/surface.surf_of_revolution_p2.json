@@ -2482,16 +2482,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0041",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950248",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -5066,16 +5062,12 @@
       "values_compared": 333
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722950564",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -9138,16 +9130,12 @@
       "values_compared": 257
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0855",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=4440997136722951062",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -9511,14 +9499,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 43,
+  "cases_deferred": 40,
   "cases_failed": 0,
-  "cases_passed": 1124,
+  "cases_passed": 1127,
   "cases_total": 1167,
   "deferred_by_unit": {
     "surface.surface_cache_p1": 30,
-    "surface.surface_p11": 10,
-    "surface.surface_p3": 3
+    "surface.surface_p11": 10
   },
   "max_rel_err": 0.0,
   "pass": true,
