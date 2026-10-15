@@ -1614,12 +1614,11 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Vec<f64>, Fail> {
             o.push(idx(fu2, FaceuseId::index));
             put_loops(&mut o, &fp2::loops(b, f, false, None)?);
         }
-        OpIn::Points { f, count, dom } => match {
+        OpIn::Points { f, count, dom } => {
             if let Some(d) = dom {
                 fp2::set_uv_domain(b, fid(*f), &Extent2d::from_bounds(d[0], d[1], d[2], d[3]))?;
             }
-            fp2::points_in_face(&mut k, b, fid(*f), *count)
-        } {
+            match fp2::points_in_face(&mut k, b, fid(*f), *count) {
             Ok(r) => {
                 o.extend([0.0, r.uv.len() as f64]);
                 for p in &r.uv {
@@ -1631,7 +1630,8 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Vec<f64>, Fail> {
             }
             Err(SolidError::InvalidInput { .. }) => o.push(NULL_DEREF),
             Err(e) => o.extend([status_of(e)?, 0.0]),
-        },
+            }
+        }
         OpIn::Internal { f } => match fp2::calculate_an_internal_point(&k, b, fid(*f)) {
             Ok(p) => o.extend([0.0, p.x, p.y, p.z]),
             Err(e) => o.extend([status_of(e)?, 0.0, 0.0, 0.0]),
@@ -2037,9 +2037,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
                 if rng.chance(0.5) {
                     // all control points equal: a degenerate curve (skipped upstream)
                     let p0 = c.cpts.first().copied().unwrap_or([0.0, 0.0, 0.0, NOW]);
-                    for p in &mut c.cpts {
-                        *p = p0;
-                    }
+                    c.cpts.fill(p0);
                 }
                 c
             };
@@ -2089,7 +2087,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         },
         26..=31 => OpIn::BestUv {
             eu,
-            cands: (0..1 + rng.below(4))
+            cands: (0..=rng.below(4))
                 .map(|_| {
                     let kind = *rng.choose(&[0u8, 1, 1, 2, 2]).unwrap_or(&1);
                     Cand {
