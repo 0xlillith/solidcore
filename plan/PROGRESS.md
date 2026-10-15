@@ -107,7 +107,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
-- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (draft)
+- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.vertex` (824 lines) — in progress: #96 @bherbruck (ready for review)
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
@@ -271,7 +271,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `surface.surface_p8` (2374 lines) — waiting
 - [ ] 🟡 `surface.surface_point_solve_p1` (1771 lines) — partial, 1035 cases
 - [ ] 🟡 `surface.surface_point_solve_p2` (1882 lines) — partial, 1320 cases
-- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (draft)
+- [ ] 🔨 `surface.surface_point_solve_p3` (1282 lines) — in progress: #106 @damgru (ready for review)
 
 ### topology (8/31)
 
