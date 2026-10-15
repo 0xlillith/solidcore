@@ -2524,7 +2524,9 @@ mod tests {
     }
 
     #[test]
-    fn tmp_degenerate_line_surface() {
+    /// A "surface" that is a line segment (rows of equal control points): the
+    /// `Evaluate` failures of the overlap check are ignored, as upstream does.
+    fn degenerate_line_surface_coincidence_check_does_not_fail() {
         use crate::nurbs::math::{CPoint, NOW};
         use crate::nurbs::srf_basic::Surface as NlSurface;
         let rows: [&[[f64; 3]]; 2] = [
@@ -2560,6 +2562,6 @@ mod tests {
         let s = Surface::from(BSplineSurface::from_nurb(nl, false));
         let k = Kernel::default();
         let r = s.base_coincidence_check(&k, &s.clone(), 1e-6, false);
-        eprintln!("RESULT {r:?}");
+        assert!(r.is_ok(), "{r:?}");
     }
 }

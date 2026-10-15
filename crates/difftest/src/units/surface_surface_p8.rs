@@ -780,7 +780,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
                     [0.0, t * (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt()],
                 )
             } else {
-                gen_curve(rng, 1.0)
+                gen_curve(rng, 1.0, true)
             };
             Inputs {
                 surface,
@@ -853,8 +853,8 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         21 => {
             let surface = gen_surface(rng);
             let other = gen_surface(rng);
-            let (c1, i1) = gen_curve(rng, 1.0);
-            let (c2, i2) = gen_curve(rng, 1.0);
+            let (c1, i1) = gen_curve(rng, 1.0, false);
+            let (c2, i2) = gen_curve(rng, 1.0, false);
             Inputs {
                 surface,
                 op: OpIn::Blend {
@@ -928,16 +928,6 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
-        if let Some(path) = std::env::var_os("P8_CASE") {
-            // TMP: run case files (comma separated) on both sides
-            for f in path.to_string_lossy().split(',') {
-                let i: Inputs = serde_json::from_str(&std::fs::read_to_string(f).unwrap()).unwrap();
-                let c = cpp(&i).map(|o| format!("{:?}", o.values));
-                let r = rust(&i).map(|o| format!("{:?}", o.values));
-                eprintln!("TMP {f}\n cpp  {c:?}\n rust {r:?}");
-            }
-            std::process::exit(0);
-        }
         for _ in 0..64 {
             let i = gen_case(rng);
             let Ok((op, input)) = cpp_input(&i) else {
@@ -1389,8 +1379,9 @@ fn gen_subdomain(rng: &mut Rng, d: [f64; 4]) -> [f64; 4] {
     }
 }
 
-fn gen_curve(rng: &mut Rng, scale: f64) -> (CrvIn, [f64; 2]) {
-    if rng.chance(0.3) {
+/// A curve; `lines` allows an `SmLine` (not as a blend rail: see the FFI guard).
+fn gen_curve(rng: &mut Rng, scale: f64, lines: bool) -> (CrvIn, [f64; 2]) {
+    if lines && rng.chance(0.3) {
         let a = rng.point3(-2.0 * scale, 2.0 * scale);
         let mut bb = rng.point3(-2.0 * scale, 2.0 * scale);
         if rng.chance(0.1) {

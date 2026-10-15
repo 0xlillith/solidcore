@@ -416,10 +416,20 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             rd.positive("tolerance")?;
         }
         Op::Blend => {
+            // A line as a rail: `SmLine::GetNaturalInterval` returns the analytic domain until
+            // `SyncronizeKnotsOfCurves` makes the NURB, then the NURB's, so upstream's rail
+            // parameters (and the blend) depend on that switch; the port's line is a plain
+            // B-spline rail. Recorded in plan/findings.md (surface.surface_p8, blend rails).
+            if rd.input.get(rd.at) == Some(&1.0) {
+                return Err(bad("blend rails must be B-spline curves"));
+            }
             let r1 = curve(&mut rd)?;
             interval_in(&mut rd, r1)?;
             rd.flag()?;
             surface_kind(&mut rd)?;
+            if rd.input.get(rd.at) == Some(&1.0) {
+                return Err(bad("blend rails must be B-spline curves"));
+            }
             let r2 = curve(&mut rd)?;
             interval_in(&mut rd, r2)?;
             rd.flag()?;

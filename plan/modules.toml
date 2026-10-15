@@ -2055,10 +2055,10 @@ soft_depends_on = ["curve.curve_cache", "curve.curve_p4", "curve.curve_p6", "cur
 est_lines = 2374
 layer = 31
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "10 fns; largest: SmSurface::GlobalLineIntersect, SmSurface::CoincidenceCheck, SmSurface::GlobalCurveIntersect, SmSurface::InvertPointNearSingularity; cycle back-edges (call into later units; stub or co-port): intersect.surface_drop_lib_p1(2), intersect.surface_drop_lib_p3(2); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "PARTIAL: difftest 2000 generated cases (find_knots_by_max_continuity, coincidence_check, global_line_intersect, global_curve_intersect, local_line_intersect, invert_point_near_singularity, create_blend_surface, SpGlobalSolver::local_solve_branch), 1424 pass bit-identical, 576 deferred (surface.surface_p6 268 via the stale stubs in surface::surface::p10, surface.surface_point_solve_p3 249, surface.surface_p3 59), 0 failed; --perturb SENSITIVE. All UNPORTED(surface.surface_p8) stubs wired (ray_tracer, topology_solver_p1/p2, surface_intersector_p3, surface_point_solve_p2, curve_p4, unbend_volume) and the p5 ones (DropPoint, LocalPointSolve, sm_SpLocalSolve); p7 global_point_solve_0 needs a surface handle (dispatch gap, plan/findings.md). extract_iso_curve and intersect_srf_bndry_crv are statics: Rust-tested only. CreateBlendSurface shim probes upstream UB (UB-107) and rejects SmLine rails (findings). Generated surfaces start at scale 1e-3 (HANG-13). Left: smsurf_CheckShapeMatch (surface.surface_p3), SmSurface::DropCurve (intersect.surface_drop_lib_p3)."
 
 [[unit]]
 id = "intersect.curve_class_p7"
