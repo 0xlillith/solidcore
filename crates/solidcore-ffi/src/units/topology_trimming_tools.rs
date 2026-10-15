@@ -28,10 +28,10 @@
 //! | `BPresent` .. | B-rep block, then the op's selectors | `0` (or `-1 status`) then the op's results |
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: well-formed
-//! clamped B-splines (UV curves of the curve ops are B-splines), lines with a non-zero
-//! vector, ellipses with non-zero radii and independent axes, planes with a non-zero
-//! normal, finite values, indices inside the B-rep's export and the curve store, and
-//! curve loops whose counts add up to their curves (every script op keeps that).
+//! clamped B-splines, lines with a non-zero vector, ellipses with non-zero radii and
+//! independent axes, planes with a non-zero normal, finite values, indices inside the
+//! B-rep's export and the curve store, and curve loops whose counts add up to their
+//! curves (every script op keeps that).
 
 use std::path::Path;
 
@@ -292,14 +292,12 @@ fn surface_of(rd: &mut Reader<'_>, bounded_ok: bool) -> Result<(), FfiError> {
     Ok(())
 }
 
-/// A curve block; `bspline_only` for the UV curve ops (`SmBSplineCurve` methods on a
-/// curve without NURB are undefined).
-fn curve(rd: &mut Reader<'_>, bspline_only: bool) -> Result<(), FfiError> {
+/// A curve block. The UV curve ops take every kind the shim builds: `SmLine` and
+/// `SmEllipse` are `SmBSplineCurve`s, and the `SmBSplineCurve` methods they reach
+/// (`GetCanonical`, `GetEnds`, `ConvertTo2D`) make a missing NURB first.
+fn curve(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     let kind = rd.index(3)?;
     let dim = rd.index(3)?;
-    if bspline_only && kind != 0 {
-        return Err(bad("UV curve must be a B-spline"));
-    }
     match kind {
         0 => {
             if dim < 2 {
@@ -370,7 +368,7 @@ fn loops(rd: &mut Reader<'_>) -> Result<(), FfiError> {
         return Err(bad("loops: empty curve store"));
     }
     for _ in 0..ns {
-        curve(rd, false)?;
+        curve(rd)?;
     }
     let nl = rd.index(MAX_CURVES)?;
     let mut sum = 0;
@@ -469,7 +467,7 @@ fn geometry_args(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         Op::Order => {
             let k = rd.index(MAX_CURVES)?;
             for _ in 0..k {
-                curve(rd, false)?;
+                curve(rd)?;
             }
             rd.finite()?;
             rd.flag()?;
@@ -477,7 +475,7 @@ fn geometry_args(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         Op::Outer => {
             let k = rd.index(MAX_CURVES)?;
             for _ in 0..k {
-                curve(rd, false)?;
+                curve(rd)?;
             }
             let nl = rd.index(MAX_CURVES)?;
             let mut sum = 0;
@@ -494,19 +492,19 @@ fn geometry_args(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             rd.finite()?;
         }
         Op::Mirror => {
-            curve(rd, true)?;
+            curve(rd)?;
             rd.side()?;
             rd.finites(3)?;
         }
         Op::IsoAt => {
-            curve(rd, true)?;
+            curve(rd)?;
             rd.side()?;
             rd.finites(2)?;
         }
-        Op::Iso => curve(rd, true)?,
+        Op::Iso => curve(rd)?,
         Op::IsoSeam => {
             surface(rd)?;
-            curve(rd, true)?;
+            curve(rd)?;
         }
         Op::Continuity => surface(rd)?,
         Op::UvGap => {
@@ -524,7 +522,7 @@ fn geometry_args(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             surface(rd)?;
             let k = rd.index(MAX_CURVES)?;
             for _ in 0..k {
-                curve(rd, false)?;
+                curve(rd)?;
             }
         }
         _ => return Err(bad("not a geometry op")),

@@ -38,7 +38,9 @@
 //!   solves are read). Out-params are return values. A UV trim curve is the
 //!   [`Curve`] an edge use (or its mate, `GetUVTrimCurve`) holds; edits go to that slot.
 //!   A `SmBSplineCurve` method on it runs on the B-spline kind, or on the B-spline part
-//!   of an `SmLine`.
+//!   of an `SmLine`, `SmEllipse`, `SmHyperbola` or `SmParabola` (all `SmBSplineCurve`s;
+//!   a conic whose `MakeNurb` failed has the null NURB upstream dereferences:
+//!   [`SolidError::InvalidInput`]).
 //! - **Null pointers.** `SM_ASSERT`s are compiled out of the reference build. Where
 //!   upstream dereferences a null pointer (a loop without loop use, a face without
 //!   surface or loops, an edge use whose UV trim curve or vertex use is missing where it
@@ -68,8 +70,8 @@
 //!   (`plan/upstream-issues.md` WR-95). `MirrorCurve` divides rational control points by
 //!   their weights twice, as upstream (WR-96).
 //! - **`FindOuterLoops`** with a loop of zero area reads past its arrays upstream
-//!   (UB-107): [`SolidError::InvalidInput`]. A null curve of `OrderCurvesIntoLoops`
-//!   (UB-108) cannot be passed.
+//!   (UB-108): [`SolidError::InvalidInput`]. A null curve of `OrderCurvesIntoLoops`
+//!   (UB-109) cannot be passed.
 //! - **`CheckLoop`** takes the surface separately, as upstream; `CheckFace` passes a
 //!   copy of the face's surface (the edge use UV extremes need the B-rep mutably).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::SetTolerance`
@@ -514,14 +516,28 @@ fn held_curve_mut(b: &mut Brep, holder: EdgeuseId) -> Result<&mut Curve> {
         .ok_or_else(|| null("edge use without UV trim curve"))
 }
 
-/// The `SmBSplineCurve` of a UV trim curve: the B-spline, or a line's B-spline part
+/// The `SmBSplineCurve` of a UV trim curve: the B-spline, or a conic's or line's B-spline part
 /// (made on a copy when missing).
 fn bspline_of(c: &Curve) -> Result<Cow<'_, BSplineCurve>> {
     match c.kind() {
         CurveKind::BSpline(b) => Ok(Cow::Borrowed(b)),
         CurveKind::Line(l) => l.base_with_nurb(),
+        // the other SmBSplineCurve kinds (their constructors make the NURB)
+        CurveKind::Ellipse(e) => conic_base(e.base()),
+        CurveKind::Hyperbola(h) => conic_base(h.base()),
+        CurveKind::Parabola(p) => conic_base(p.base()),
         _ => Err(null("UV trim curve is not an SmBSplineCurve")),
     }
+}
+
+/// The B-spline part of a conic UV trim curve. A conic's constructor makes its NURB; one
+/// without (its `MakeNurb` failed) is the null `GetOrCreateGwNurbPointer` upstream
+/// dereferences.
+fn conic_base(base: &BSplineCurve) -> Result<Cow<'_, BSplineCurve>> {
+    if base.gw_nurb().is_none() {
+        return Err(null("conic UV trim curve without NURB"));
+    }
+    Ok(Cow::Borrowed(base))
 }
 
 /// `SmBSplineCurve::EditEndPoint(point, bEditStart, pdWeight)` of a UV trim curve.
@@ -541,8 +557,23 @@ fn edit_end_point(
             l.base.edit_end_point(point, edit_start, weight)?;
             l.refresh_analytics()
         }
+        // SmBSplineCurve::EditEndPoint on the base (RefreshAnalytics is the base no-op)
+        CurveKind::Ellipse(e) => conic_edit_end_point(e.base_mut(), point, edit_start, weight),
+        CurveKind::Hyperbola(h) => conic_edit_end_point(h.base_mut(), point, edit_start, weight),
+        CurveKind::Parabola(p) => conic_edit_end_point(p.base_mut(), point, edit_start, weight),
         _ => Err(null("EditEndPoint: UV trim curve is not an SmBSplineCurve")),
     }
+}
+
+/// `SmBSplineCurve::EditEndPoint` on a conic's B-spline part (see [`conic_base`]).
+fn conic_edit_end_point(
+    base: &mut BSplineCurve,
+    point: Point3,
+    edit_start: bool,
+    weight: Option<f64>,
+) -> Result<()> {
+    conic_base(base)?;
+    base.edit_end_point(point, edit_start, weight)
 }
 
 /// [`edge_uv_extremes`]: the UV start and end of an edge use and, when they come from
@@ -1176,8 +1207,8 @@ pub fn order_curves_into_loops(k: &Kernel, curves: &[Curve], tol_3d: f64) -> Res
     for (ii, c) in curves.iter().enumerate() {
         let iv = c.natural_interval();
 
-        // Degenerate curves are only signalled (SE)
-        let _ = c.is_degenerate(crate::math::EFF_ZERO, None)?;
+        // Degenerate curves are only signalled (SE): the status is ignored
+        crate::error::ignore_status(c.is_degenerate(crate::math::EFF_ZERO, None))?;
 
         // curve start/end points
         let start = eval_point(c, iv.min())?;
@@ -1185,7 +1216,7 @@ pub fn order_curves_into_loops(k: &Kernel, curves: &[Curve], tol_3d: f64) -> Res
 
         // when endPoints are within tol - degenerate check (signalled only)
         if start.distance(end) < 2.0 * tol_3d {
-            let _ = c.approximate_length(&iv, 5, false)?;
+            crate::error::ignore_status(c.approximate_length(&iv, 5, false))?;
         }
 
         // build sVertexPoints list
@@ -1943,10 +1974,10 @@ pub fn check_loop(
 
             let dom = surface.natural_uv_domain();
             let sing1 = surface
-                .is_singularity(previous_end, tol_3d, false)?
+                .is_singularity(k, previous_end, tol_3d, false)?
                 .direction;
             let sing2 = surface
-                .is_singularity(current_start, tol_3d, false)?
+                .is_singularity(k, current_start, tol_3d, false)?
                 .direction;
             let large_u = (current_start.x - previous_end.x).abs() > dom.x_length() * 0.10;
             let large_v = (current_start.y - previous_end.y).abs() > dom.y_length() * 0.10;
@@ -2084,6 +2115,10 @@ pub fn mirror_curve(
             }
             l.base.set_canonical(&data)?;
         }
+        // SmBSplineCurve::SetCanonical on the base
+        CurveKind::Ellipse(e) => e.base_mut().set_canonical(&data)?,
+        CurveKind::Hyperbola(h) => h.base_mut().set_canonical(&data)?,
+        CurveKind::Parabola(p) => p.base_mut().set_canonical(&data)?,
         _ => return Err(null("MirrorCurve: not an SmBSplineCurve")),
     }
     curve.convert_to_2d(k)

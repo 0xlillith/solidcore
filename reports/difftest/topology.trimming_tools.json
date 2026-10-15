@@ -8254,16 +8254,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#886 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8282,16 +8278,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#889 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8310,16 +8302,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#892 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8338,16 +8326,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#895 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -8366,16 +8350,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#898 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8394,16 +8374,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#901 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8422,16 +8398,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#904 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8450,16 +8422,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#907 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8486,16 +8454,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#911 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8514,16 +8478,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#914 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8542,16 +8502,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#917 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8570,16 +8526,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#920 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -8598,16 +8550,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#923 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8626,16 +8574,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#926 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8654,16 +8598,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#929 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8682,16 +8622,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#932 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8718,16 +8654,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#936 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8746,16 +8678,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#939 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8774,16 +8702,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#942 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8802,16 +8726,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#945 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -8830,16 +8750,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#948 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8858,16 +8774,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#951 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8886,16 +8798,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#954 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8914,16 +8822,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#957 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -8950,16 +8854,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#961 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -8978,16 +8878,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#964 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -9006,16 +8902,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#967 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9034,16 +8926,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#970 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -9062,16 +8950,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#973 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9090,16 +8974,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#976 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -9118,16 +8998,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#979 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -9146,16 +9022,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_cone_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#982 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -9982,16 +9854,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1086 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10010,16 +9878,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1089 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10038,16 +9902,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1092 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10066,16 +9926,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1095 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10094,16 +9950,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1098 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10122,16 +9974,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1101 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10150,16 +9998,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1104 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10178,16 +10022,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1107 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10214,16 +10054,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1111 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10242,16 +10078,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1114 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10270,16 +10102,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1117 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10298,16 +10126,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1120 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10326,16 +10150,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1123 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10354,16 +10174,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1126 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10382,16 +10198,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1129 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10410,16 +10222,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1132 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10446,16 +10254,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1136 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10474,16 +10278,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1139 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10502,16 +10302,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1142 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10530,16 +10326,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1145 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10558,16 +10350,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1148 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10586,16 +10374,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1151 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10614,16 +10398,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1154 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10642,16 +10422,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1157 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10678,16 +10454,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1161 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10706,16 +10478,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1164 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10734,16 +10502,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1167 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10762,16 +10526,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1170 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10790,16 +10550,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1173 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10818,16 +10574,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1176 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10846,16 +10598,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1179 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10874,16 +10622,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_torus_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1182 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10910,16 +10654,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1186 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10938,16 +10678,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1189 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10966,16 +10702,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1192 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -10994,16 +10726,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1195 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11022,16 +10750,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1198 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11050,16 +10774,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1201 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11078,16 +10798,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1204 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11106,16 +10822,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1207 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11142,16 +10854,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1211 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11170,16 +10878,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1214 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11198,16 +10902,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1217 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11226,16 +10926,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1220 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11254,16 +10950,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1223 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11282,16 +10974,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1226 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11310,16 +10998,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1229 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11338,16 +11022,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1232 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11374,16 +11054,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1236 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11402,16 +11078,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1239 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11430,16 +11102,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1242 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11458,16 +11126,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1245 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11486,16 +11150,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1248 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11514,16 +11174,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1251 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11542,16 +11198,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1254 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11570,16 +11222,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1257 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11606,16 +11254,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1261 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11634,16 +11278,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1264 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11662,16 +11302,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1267 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11690,16 +11326,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1270 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11718,16 +11350,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1273 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11746,16 +11374,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1276 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11774,16 +11398,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1279 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11802,16 +11422,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_toruswvy_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1282 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -11838,16 +11454,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1286 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -11866,16 +11478,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1289 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -11894,16 +11502,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1292 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -11922,16 +11526,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1295 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -11950,16 +11550,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1298 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -11978,16 +11574,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1301 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12006,16 +11598,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1304 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12034,16 +11622,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1307 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12070,16 +11654,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1311 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12098,16 +11678,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1314 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12126,16 +11702,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1317 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12154,16 +11726,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1320 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12182,16 +11750,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1323 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12210,16 +11774,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1326 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12238,16 +11798,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1329 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12266,16 +11822,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1332 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12302,16 +11854,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1336 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12330,16 +11878,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1339 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12358,16 +11902,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1342 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12386,16 +11926,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1345 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12414,16 +11950,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1348 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12442,16 +11974,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1351 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12470,16 +11998,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1354 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12498,16 +12022,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1357 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12534,16 +12054,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1361 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12562,16 +12078,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1364 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12590,16 +12102,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1367 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12618,16 +12126,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1370 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12646,16 +12150,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1373 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12674,16 +12174,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1376 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12702,16 +12198,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1379 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12730,16 +12222,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_rev_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1382 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12766,16 +12254,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1386 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12794,16 +12278,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1389 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12822,16 +12302,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1392 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12850,16 +12326,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1395 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12878,16 +12350,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1398 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12906,16 +12374,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1401 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12934,16 +12398,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1404 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -12962,16 +12422,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1407 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -12998,16 +12454,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1411 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13026,16 +12478,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1414 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13054,16 +12502,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1417 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13082,16 +12526,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1420 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13110,16 +12550,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1423 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13138,16 +12574,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1426 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13166,16 +12598,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1429 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13194,16 +12622,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1432 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13230,16 +12654,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1436 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13258,16 +12678,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1439 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13286,16 +12702,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1442 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13314,16 +12726,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1445 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13342,16 +12750,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1448 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13370,16 +12774,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1451 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13398,16 +12798,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1454 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13426,16 +12822,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1457 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13462,16 +12854,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1461 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13490,16 +12878,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1464 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13518,16 +12902,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1467 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13546,16 +12926,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1470 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13574,16 +12950,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1473 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13602,16 +12974,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1476 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -13630,16 +12998,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1479 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -13658,16 +13022,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_vase_rev_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1482 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14494,16 +13854,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1586 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14522,16 +13878,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1589 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14550,16 +13902,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1592 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14578,16 +13926,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1595 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14606,16 +13950,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1598 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14634,16 +13974,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1601 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14662,16 +13998,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1604 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14690,16 +14022,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1607 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14726,16 +14054,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1611 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14754,16 +14078,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1614 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14782,16 +14102,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1617 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14810,16 +14126,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1620 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14838,16 +14150,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1623 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14866,16 +14174,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1626 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14894,16 +14198,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1629 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14922,16 +14222,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1632 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14958,16 +14254,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1636 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -14986,16 +14278,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1639 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15014,16 +14302,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1642 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15042,16 +14326,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1645 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15070,16 +14350,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1648 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15098,16 +14374,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1651 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15126,16 +14398,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1654 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15154,16 +14422,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1657 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15190,16 +14454,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1661 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15218,16 +14478,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1664 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15246,16 +14502,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1667 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15274,16 +14526,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1670 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15302,16 +14550,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1673 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15330,16 +14574,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1676 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15358,16 +14598,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1679 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15386,16 +14622,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_surf_extrude_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1682 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15422,16 +14654,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1686 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15450,16 +14678,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1689 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15478,16 +14702,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1692 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15506,16 +14726,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1695 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15534,16 +14750,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1698 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15562,16 +14774,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1701 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15590,16 +14798,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1704 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15618,16 +14822,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1707 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15654,16 +14854,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1711 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15682,16 +14878,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1714 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15710,16 +14902,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1717 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15738,16 +14926,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1720 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15766,16 +14950,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1723 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15794,16 +14974,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1726 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15822,16 +14998,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1729 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15850,16 +15022,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1732 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15886,16 +15054,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1736 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15914,16 +15078,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1739 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15942,16 +15102,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1742 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15970,16 +15126,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1745 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -15998,16 +15150,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1748 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16026,16 +15174,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1751 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16054,16 +15198,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1754 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16082,16 +15222,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1757 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16118,16 +15254,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1761 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16146,16 +15278,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1764 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16174,16 +15302,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1767 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16202,16 +15326,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1770 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16230,16 +15350,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1773 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16258,16 +15374,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1776 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16286,16 +15398,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1779 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16314,16 +15422,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_ellips_ts2_3_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1782 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16350,16 +15454,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1786 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16378,16 +15478,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1789 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16406,16 +15502,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1792 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16434,16 +15526,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1795 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16462,16 +15550,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1798 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16490,16 +15574,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1801 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16518,16 +15598,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1804 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16546,16 +15622,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_0_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1807 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16582,16 +15654,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1811 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16610,16 +15678,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1814 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16638,16 +15702,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1817 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16666,16 +15726,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1820 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16694,16 +15750,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1823 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16722,16 +15774,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1826 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16750,16 +15798,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1829 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16778,16 +15822,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_1_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1832 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16814,16 +15854,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1836 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16842,16 +15878,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1839 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16870,16 +15902,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1842 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16898,16 +15926,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1845 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16926,16 +15950,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_2_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1848 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16954,16 +15974,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_2_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1851 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -16982,16 +15998,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_3_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1854 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -17010,16 +16022,12 @@
       "values_compared": 3335
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "check_loop_mirror_Mouse_2_3_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.trimming_tools/breps.json#1857 (upstream upstream TestFiles/pt_TestFiles)",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -18607,6 +17615,102 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "rv_mirror_ellipse_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#0",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mirror_ellipse_arc_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#1",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_at_ellipse",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#2",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_at_ellipse_out",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#3",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_ellipse_arc",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#4",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_ellipse_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#5",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mirror_line_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#6",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_line",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#7",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_seam_line_u0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#8",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_seam_ellipse_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#9",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_iso_at_line_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#10",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mirror_ellipse_inside_out",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.trimming_tools/rv_ellipse.json#11",
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "iso_seam_tube_u0",
       "outcome": "pass",
       "pass": true,
@@ -18734,16 +17838,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0003",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495014870",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -19103,16 +18203,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0047",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495014914",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -19888,16 +18984,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015008",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -20012,16 +19104,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0156",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015023",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -21255,16 +20343,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0305",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015172",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -22007,16 +21091,12 @@
       "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0394",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015261",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -22239,16 +21319,12 @@
       "values_compared": 98
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0422",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015289",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -22619,16 +21695,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0468",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015335",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -23820,16 +22892,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0613",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015480",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -24265,16 +23333,12 @@
       "values_compared": 761
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0666",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015533",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -25049,16 +24113,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0759",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015626",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -25185,16 +24245,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0775",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015642",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -25853,16 +24909,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0855",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015722",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -26053,16 +25105,12 @@
       "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0878",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015745",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -27355,16 +26403,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1034",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495015901",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -28335,16 +27379,12 @@
       "values_compared": 29
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495016017",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -28423,16 +27463,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1160",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=5078036106495016027",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "deferred": {
@@ -28764,12 +27800,11 @@
     }
   ],
   "cases_both_errored": 9,
-  "cases_deferred": 686,
+  "cases_deferred": 421,
   "cases_failed": 0,
-  "cases_passed": 2565,
-  "cases_total": 3251,
+  "cases_passed": 2842,
+  "cases_total": 3263,
   "deferred_by_unit": {
-    "surface.surface_p3": 265,
     "topology.edgeuse_p3": 193,
     "topology.face_p3": 219,
     "topology.face_p4": 9

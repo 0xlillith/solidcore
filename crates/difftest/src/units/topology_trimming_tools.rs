@@ -28,8 +28,13 @@
 //! Deferred: everything past `SmFace::ComputeLoopOrientation` (`topology.face_p3`:
 //! `CheckFace` after its first loop check, `FixTrimLoopOrientation`, `FixTrimLoopOrder`),
 //! `SplitAtSeams`, `ClearUVTrimCurves`, `CreateUVTrimCurves` (`topology.face_p1` /
-//! `topology.face_p3` / `topology.face_p4`), and the vertex-use UV points some B-reps need
-//! (`ComputeUVPoint`'s own deferrals).
+//! `topology.face_p3` / `topology.face_p4`), `SmEdgeuse::GetOrCreateUVTrimCurve`
+//! (`topology.edgeuse_p3`), and the vertex-use UV points some B-reps need
+//! (`ComputeUVPoint`'s own deferrals). Last run: 3263 cases, 2842 pass, 421 deferred
+//! (`topology.edgeuse_p3` 193, `topology.face_p3` 219, `topology.face_p4` 9).
+//!
+//! The UV curve ops (`mirror`, `iso_at`, `iso`, `iso_seam`) take every curve kind: an
+//! `SmLine` or `SmEllipse` is an `SmBSplineCurve` (`rv_ellipse.json`).
 
 use std::cell::RefCell;
 use std::rc::Rc;
