@@ -124,7 +124,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (draft)
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.ray_tracer` (1246 lines) — in progress: #48 @froglemonade2 (ready for review)
-- [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (draft)
+- [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_intersector_p5` (622 lines) — in progress: #82 @bherbruck (draft)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
@@ -293,7 +293,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [x] ✅ `topology.database_io` (363 lines) — green, 2059 cases
 - [x] ✅ `topology.topology` (389 lines) — green, 657 cases
 - [ ] 🟡 `topology.brep_data` (1466 lines) — partial, 2379 cases
-- [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (draft)
+- [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (ready for review)
 - [ ] 🟡 `topology.edgeuse_p1` (1157 lines) — partial, 2722 cases
 - [ ] ⏳ `topology.face_p2` (1827 lines) — waiting
 - [ ] ⏳ `topology.edgeuse_p2` (600 lines) — waiting
