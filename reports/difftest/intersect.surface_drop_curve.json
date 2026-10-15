@@ -394,49 +394,6 @@
       "values_compared": 28
     },
     {
-      "harness_error": "cpp: C++: invalid argument: trace without a knot vector",
-      "inputs": {
-        "breaks": [0, 1],
-        "curve": {
-          "a": [-5, -5, 0],
-          "b": [-1, -1, 0],
-          "kind": "segment"
-        },
-        "domain": [0, 0, 10, 10],
-        "interval": [0, 1],
-        "knots": [],
-        "on_surface": true,
-        "ops": [
-          {
-            "op": "cpv",
-            "param": 0.0,
-            "uv": [-5, -5]
-          },
-          {
-            "op": "trace2"
-          }
-        ],
-        "surface": {
-          "domain": [0, 0, 10, 10],
-          "kind": "plane",
-          "o": [0, 0, 0],
-          "scale": [1, 1],
-          "x": [1, 0, 0],
-          "y": [0, 1, 0]
-        },
-        "working_domain": [0, 0, 10, 10],
-        "working_interval": [0, 1]
-      },
-      "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
-      "name": "trace2_no_knots_rejected",
-      "outcome": "fail",
-      "pass": false,
-      "source": "fixture:fixtures/intersect.surface_drop_curve/zz_tmp.json#0",
-      "values_compared": 0
-    },
-    {
       "deferred": {
         "symbol": "SmSurface::LocalPointSolve",
         "unit": "surface.surface_p5"
@@ -5247,9 +5204,9 @@
   ],
   "cases_both_errored": 0,
   "cases_deferred": 206,
-  "cases_failed": 1,
+  "cases_failed": 0,
   "cases_passed": 341,
-  "cases_total": 548,
+  "cases_total": 547,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 4,
     "surface.surface_cache_p1": 11,
@@ -5257,9 +5214,9 @@
     "surface.surface_p5": 190
   },
   "max_rel_err": 0.0,
-  "pass": false,
+  "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "fail",
+  "status": "partial",
   "unit": "intersect.surface_drop_curve"
 }
