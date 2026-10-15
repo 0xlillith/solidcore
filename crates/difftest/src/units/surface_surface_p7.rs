@@ -733,12 +733,12 @@ impl SolutionObject for Handle {
     }
 }
 
-fn surface_handle(id: u8, s: &Surface) -> Option<Handle> {
-    Some(Handle {
+fn surface_handle(id: u8, s: &Surface) -> Handle {
+    Handle {
         id,
         interval: None,
         domain: Some(s.natural_uv_domain()),
-    })
+    }
 }
 
 fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
@@ -969,7 +969,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 *target,
                 &vecs,
                 req_of(*req)?,
-                [curve_handle, surface_handle(1, &s)],
+                [curve_handle, Some(surface_handle(1, &s))],
             );
             match st(r)? {
                 Ok(a) => o.extend([0.0, a.len() as f64]),
@@ -989,7 +989,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             let s2 = surface_of(other)?;
             let vecs: Vec<Vec3> = vecs.iter().map(|p| v3(*p)).collect();
             let k = solidcore::kernel::Kernel::default();
-            let handles = [surface_handle(1, &s), surface_handle(2, &s2)];
+            let handles = [Some(surface_handle(1, &s)), Some(surface_handle(2, &s2))];
             let r: solidcore::Result<SolutionArray<Handle>> = s.global_surface_solve(
                 &k,
                 &dom_of(*dom),

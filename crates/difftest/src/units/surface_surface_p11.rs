@@ -97,11 +97,11 @@ fn output(flat: &[f64]) -> Output {
         [status, ..] if *status != 0.0 => Output::err("LocalSurfaceIntersect failed"),
         [_, found, rest @ ..] => {
             let out = Output::new().int("found", i64::from(*found != 0.0));
-            if *found != 0.0 {
+            if *found == 0.0 {
+                out
+            } else {
                 out.values("uv", rest.get(..4).unwrap_or(&[]).to_vec())
                     .scalar("deviation", rest.get(4).copied().unwrap_or(f64::NAN))
-            } else {
-                out
             }
         }
         _ => Output::err("short output"),
@@ -274,13 +274,14 @@ impl UnitDiff for Runner {
         if rng.chance(0.2) {
             return generate_isb(rng);
         }
-        let scale = if rng.chance(0.1) {
-            rng.uniform(1e-4, 1e-2)
+        let (lo, hi) = if rng.chance(0.1) {
+            (1e-4, 1e-2)
         } else if rng.chance(0.1) {
-            rng.uniform(100.0, 1000.0)
+            (100.0, 1000.0)
         } else {
-            rng.uniform(0.5, 3.0)
+            (0.5, 3.0)
         };
+        let scale = rng.uniform(lo, hi);
         let height = scale * rng.uniform(0.0, 0.6);
         let net_a = patch(rng, scale, height);
 
@@ -422,7 +423,12 @@ fn generate_isb(rng: &mut Rng) -> Option<Value> {
         }
     };
     let dom_b = sub_domain(rng);
-    let tol = scale * [1e-6, 1e-4, 1e-3][rng.below(3) as usize];
+    let tol = scale
+        * match rng.below(3) {
+            0 => 1e-6,
+            1 => 1e-4,
+            _ => 1e-3,
+        };
     // this surface: the patch, or (dropping through the plane's DropPointFast) the
     // plane z = 0 over a domain around the patch
     let (kind_a, net_a, dom_a) = if plane_a {
