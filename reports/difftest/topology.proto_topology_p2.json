@@ -13615,6 +13615,14 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_pe_combine_every_other_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_pe_resolve_same_unit",
       "outcome": "pass",
       "pass": true,
@@ -13684,6 +13692,14 @@
       "pass": true,
       "source": "inline",
       "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_pe_combine_every_other_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 253
     },
     {
       "max_rel_err": 0.0,
@@ -13759,6 +13775,14 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_pe_combine_every_other_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 253
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_pe_resolve_same_tiny",
       "outcome": "pass",
       "pass": true,
@@ -13825,8 +13849,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 395,
   "cases_failed": 0,
-  "cases_passed": 1135,
-  "cases_total": 1530,
+  "cases_passed": 1138,
+  "cases_total": 1533,
   "deferred_by_unit": {
     "query.face_p2": 60,
     "surface.surface_point_solve_p3": 39,
