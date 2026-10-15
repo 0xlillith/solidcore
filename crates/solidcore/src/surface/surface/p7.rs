@@ -825,7 +825,9 @@ impl Surface {
                 // surface's cache, which needs the kernel this signature does not take. No
                 // UNPORTED marker: the callees are ported (the continuities of the cache's
                 // tree build are surface::surface::p6); the error names the owner of the
-                // base body.
+                // base body. Once the kernel is plumbed, the next blocker for these kinds is
+                // surface.surface_p5: CalculateContinuities calls the base
+                // CreateIsoParametricCurve, which that unit owns.
                 Err(SolidError::unported(
                     "SmSurface::CalculateBoundingBox",
                     "surface.surface_p1",

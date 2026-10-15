@@ -579,6 +579,262 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "adv_cone_apex_cont_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#67 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_cont_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#68 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_trim_s0_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#69 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_trim_s0_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#70 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_trim_s1_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#71 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_trim_s1_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#72 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_cont_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#73 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_cont_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#74 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_trim_s0_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#75 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_trim_s0_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#76 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_trim_s1_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#77 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_swap_trim_s1_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#78 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bss_many_knots_cont_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#79 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bss_many_knots_cont_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#80 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_bss_many_knots_trim",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#81 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_cont_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#82 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_cont_u",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#83 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_trim_s0_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#84 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 74
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_trim_s0_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#85 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_trim_s1_r1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#86 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 74
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_two_poles_trim_s1_r0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#87 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_huge_trim",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#88 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_tiny_trim",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#89 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_tiny_trim_keep",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#90 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 146
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_c0int",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#91 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 20
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_mixed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#92 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_disc_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#93 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#94 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_subdom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#95 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 62
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_scls_normalize_skip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#96 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ssid_zero_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#97 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_ssid_equal_values",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p6/edge_cases.json#98 (upstream review of PR #92: adversarial edge case)",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -17885,8 +18141,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 336,
   "cases_failed": 0,
-  "cases_passed": 1731,
-  "cases_total": 2067,
+  "cases_passed": 1763,
+  "cases_total": 2099,
   "deferred_by_unit": {
     "surface.surface_p4": 241,
     "surface.surface_p5": 95

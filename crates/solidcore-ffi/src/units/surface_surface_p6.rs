@@ -29,8 +29,9 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour or runaway work:
 //! well-formed clamped B-splines, planes with a non-zero normal, revolutions of a generator
-//! of positive length off the axis, lines of positive length, parameters within one domain
-//! length of a B-spline's domain (bounded elsewhere), domains inside a B-spline's natural
+//! of positive length not lying on the axis (one end on it, a cone's apex, is fine), lines
+//! of positive length, parameters within one domain length of a B-spline's domain (bounded
+//! elsewhere), domains inside a B-spline's natural
 //! domain, intervals inside a B-spline curve's range, up to 64 samples, a reference curve
 //! for `SM_TT_DIR_TO_REFERENCE_CURVE` (upstream dereferences it unchecked), solution parameter
 //! counts within the objects' parameters, the solver operations `sm_SCLocalSolve` supports
@@ -250,8 +251,10 @@ fn surface_kind(rd: &mut Reader<'_>, nested: bool) -> Result<(Domain, bool), Ffi
         if len < 1e-3 {
             return Err(bad("revolution generator too short"));
         }
-        if dist_to_axis(a, p, ax) < 1e-3 || dist_to_axis(b, p, ax) < 1e-3 {
-            return Err(bad("revolution generator touches the axis"));
+        // one end on the axis is a true cone (its apex: a degenerate side, which upstream
+        // handles); a generator along the axis sweeps no surface
+        if dist_to_axis(a, p, ax) < 1e-3 && dist_to_axis(b, p, ax) < 1e-3 {
+            return Err(bad("revolution generator lies on the axis"));
         }
         return Ok((None, false));
     }

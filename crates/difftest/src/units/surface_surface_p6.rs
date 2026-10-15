@@ -1462,7 +1462,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
                         [gen_cont(rng), gen_cont(rng)]
                     },
                     tol: *rng.choose(&[1e-6, 1e-3]).unwrap_or(&1e-3),
-                    vec: (sop == 9 || rng.chance(0.3)).then(|| [0.0, 0.0, 1.0]),
+                    vec: (sop == 9 || rng.chance(0.3)).then_some([0.0, 0.0, 1.0]),
                     sop,
                     // (without skipping, the curve/surface solves defer: surface.surface_p4)
                     skip: rng.chance(0.85),

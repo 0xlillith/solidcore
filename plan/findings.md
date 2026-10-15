@@ -3190,7 +3190,7 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   singularity test of non-plane surfaces, and `sm_SCLocalSolve` compares the boundary
   curve/curve solves with `bSkipNormalize` (the point solves and the curve/surface solves
   defer). `CalculateContinuities` and `CreateNaturalUVTrimCurves` compare fully on
-  B-spline, plane and revolution surfaces.
+  B-spline, plane and revolution surfaces (also true cones with their apex on the axis).
 - **`CreateIsoParametricCurve` dispatch.** The base body is `surface.surface_p5`; the
   B-spline, plane (`SmLine`) and revolution (`SmCircle`) overrides are ported and are what
   both functions call, so the iso curves keep their own `IsDegenerate`, `GetKnots` and
@@ -3211,7 +3211,36 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   remaining `UNPORTED(surface.surface_p6)` markers in `surface_cache::p1` and
   `surface::p7::is_planar` stood for the base `CalculateBoundingBox` of curve-bounded and
   STEP surfaces, which needs a kernel those signatures do not take: now DISPATCH GAP notes
-  naming `surface.surface_p1`.
+  naming `surface.surface_p1`. Once the kernel is plumbed, the next blocker there is
+  `surface.surface_p5`: the cache build's `CalculateContinuities` calls the base
+  `CreateIsoParametricCurve` for these kinds (the comments at both sites say so).
+- **Review fixes (PR #92, 2026-10-15).**
+  - *FFI guard on revolutions.* The guard refused any generator with an endpoint within
+    `1e-3` of the axis, which kept true cones (apex on the axis) away from the C++, and with
+    them the degenerate-side branches of `CreateNaturalUVTrimCurves` (remove degenerate),
+    `CalculateContinuities` (degenerate retry) and the revolution's degenerate-circle iso
+    curve. It now refuses only a generator with both ends on the axis (no surface swept).
+    The C++ neither crashes nor disagrees on the apex cases: 12 cone-apex
+    `cont`/`trim` fixtures (also with the generator reversed) are bit-identical, and a
+    reviewer's 4000-seed run of every op with apex generators enabled gave 4107 cases, 0
+    failed. Even a generator lying entirely on the axis did not crash the C++, but it sweeps
+    no surface, so it stays refused.
+  - *`sm_SCLocalSolve` iso-curve dispatch gap.* `boundary_iso_curve` (`surface::surface::p6`)
+    builds `SmIsoCurve` only over a B-spline; for plane, revolution, curve-bounded and STEP
+    surfaces it returns `Unported` naming `curve.iso_curve` (green), because the ported
+    `IsoCurve` holds an `SmBSplineSurface` and would drop the kind's evaluation overrides.
+    The FFI `scls` guard ("this op needs a B-spline surface") keeps every non-B-spline
+    surface from the C++, so the gap is never exercised. A plane with `process = false` or
+    `skip = true` would already be comparable and is still refused. Whoever generalises
+    `IsoCurve` over `Surface` should wire this site and relax the guard.
+  - *`sc_local_solve` result.* It builds a fresh `Solution` from `LocalCurveSolve`'s result
+    instead of copying upstream's whole `sSolution` (end values, objects). The runner
+    compares type, `nvars`, value and t/u/v only, and the path defers today
+    (`surface.surface_p4`): recheck it when p4 lands.
+  - *`surface.plane_p1` (pre-existing, not this unit).* `SmPlane.cpp:596/600` ignores the
+    status of `CreateNaturalUVTrimCurves` and goes on with whatever curves were appended;
+    `plane::p1` propagates it with `?`. This differs only on SM errors (e.g. a degenerate
+    line), not on `Unported`; a faithful fix needs the partial curve lists on error.
 
 ## surface.surface_p7 (`SmSurface`, part 7)
 
