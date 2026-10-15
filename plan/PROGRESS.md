@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**161 / 261 units ported** (92 green, 69 partial), **214,942 / 387,903 upstream lines (55.4%)**. 16 claimed, 0 blocked, 84 todo.
+**161 / 261 units ported** (92 green, 69 partial), **214,942 / 387,903 upstream lines (55.4%)**. 17 claimed, 0 blocked, 83 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -30,7 +30,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.edgeuse_p3` (2273 lines) — missing: `surface.surface_p5`, `topology.edge`
 - [ ] `topology.trimming_tools` (2878 lines) — missing: `topology.loopuse`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`, `topology.loopuse`, `topology.vertex`
-- [ ] `query.face_p2` (1161 lines) — missing: `topology.face_p4`
 - [ ] `topology.brep_p10` (1890 lines) — missing: `topology.edge`, `topology.shell`, `topology.vertex`
 - [ ] `topology.face_p3` (1881 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.face_p4`, `topology.loopuse` +1 more
 - [ ] `topology.topology_traverser` (784 lines) — missing: `topology.edge`, `topology.vertex`
@@ -116,6 +115,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (draft)
 - [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 
 ## By module
@@ -348,7 +348,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `query.edge` (1025 lines) — partial, 1368 cases
 - [ ] 🟡 `query.loop` (830 lines) — partial, 3040 cases
-- [ ] ⏳ `query.face_p2` (1161 lines) — waiting
+- [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
 - [ ] ⏳ `query.face_p3` (1620 lines) — waiting
 - [ ] 🟡 `query.poly` (2119 lines) — partial, 671 cases
 - [ ] ⏳ `query.face_p1` (465 lines) — waiting
