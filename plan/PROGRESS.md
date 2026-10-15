@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**170 / 261 units ported** (92 green, 78 partial), **227,588 / 387,903 upstream lines (58.7%)**. 25 claimed, 0 blocked, 66 todo.
+**170 / 261 units ported** (92 green, 78 partial), **227,588 / 387,903 upstream lines (58.7%)**. 26 claimed, 0 blocked, 65 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -41,7 +41,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.hcr` (1875 lines) — missing: `topology.brep_p1`
 - [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.face_p4`
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`
-- [ ] `query.api_queries` (809 lines) — missing: `query.brep`, `topology.brep_p1`
 - [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `blend.fillet_standard_solver_p1` (2336 lines) — missing: `blend.fillet_solver_p1`, `surface.offset_surface`
@@ -106,6 +105,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
+- [ ] 🔨 `query.api_queries` (809 lines) — in progress: #125 @damgru (draft)
 - [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
 - [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
@@ -346,7 +346,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `query.face_p4` (1432 lines) — waiting
 - [ ] 🟡 `query.tess` (838 lines) — partial, 676 cases
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
-- [ ] ⏳ `query.api_queries` (809 lines) — waiting
+- [ ] 🔨 `query.api_queries` (809 lines) — in progress: #125 @damgru (draft)
 
 ### mass (0/1)
 
