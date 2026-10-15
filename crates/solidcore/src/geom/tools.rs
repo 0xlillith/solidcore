@@ -475,13 +475,41 @@ fn brep_tolerance(_brep: &Brep) -> Result<f64> {
 
 /// `SmTopologySolver::BrepPointSolve(brep, pt, SM_SO_MINIMIZE, SM_SR_ALL, tol,
 /// SM_BIG_DOUBLE, NULL, solutions)`: per solution, its first object if it is a face.
-fn brep_point_solve_faces(_brep: &Brep, _pt: Point3, _tol: f64) -> Result<Vec<Option<FaceId>>> {
-    // UNPORTED(topology.brep_cache): SmBrepCache::GetVertexTree
-    // The point solver is ported; this Brep still lacks its TopologyObjects/cache adapter.
-    Err(SolidError::Unported {
-        upstream: "SmBrepCache::GetVertexTree",
-        unit: "topology.brep_cache",
-    })
+fn brep_point_solve_faces(brep: &Brep, pt: Point3, tol: f64) -> Result<Vec<Option<FaceId>>> {
+    use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+    use crate::intersect::topology_solver::p1::TopologySolver;
+    use crate::intersect::topology_solver::p2::TopologySolveOptions;
+    use crate::topology::brep_cache::{
+        arena_identity, make_brep_cache, BrepObjects, CacheObject, CacheSource,
+    };
+    let kernel = crate::kernel::Kernel::default();
+    let cache = make_brep_cache(&kernel, CacheSource::Brep(brep), &arena_identity)?;
+    let objects = BrepObjects {
+        brep,
+        cache: &cache,
+        keys: &arena_identity,
+    };
+    let solutions = TopologySolver::brep_point_solve(
+        &kernel,
+        &objects,
+        Some(CacheObject::Brep),
+        pt,
+        TopologySolveOptions {
+            operation: SolverOperation::Minimize,
+            requested: SolutionRequested::All,
+            tolerance_3d: tol,
+            best_answer_so_far_sq: BIG_DOUBLE,
+            opt_vectors: &[],
+        },
+    )?;
+    Ok(solutions
+        .as_slice()
+        .iter()
+        .map(|s| match s.objects.first().copied().flatten() {
+            Some(CacheObject::Face(f)) => Some(f),
+            _ => None,
+        })
+        .collect())
 }
 
 #[cfg(test)]
