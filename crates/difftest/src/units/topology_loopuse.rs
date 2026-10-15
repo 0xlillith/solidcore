@@ -18,8 +18,11 @@
 //! zero, tiny and negative tolerances), so that gaps exceed their `XSectTol3d` and the
 //! over-tolerance branch (with its early stop when `check_all` is false) is compared.
 //!
-//! Deferred: `IsConnectedTo` with a vertex or edge target (`topology.vertex`,
-//! `topology.edge`), `FlipLoopOrientation` of a loop on a face (`SmFace::Notify`,
+//! `IsConnectedTo` with a vertex or edge target runs `SmVertex::IsConnectedTo` /
+//! `SmEdge::IsConnectedTo` (null dereference status when the loop has no loop use, or,
+//! for a vertex, a loop use whose vertices cannot be walked).
+//!
+//! Deferred: `FlipLoopOrientation` of a loop on a face (`SmFace::Notify`,
 //! `topology.face_p3`), `GetUVCornerBoundaries` of an edge loop
 //! (`GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`), and `IsMissingSeamAtVertices` past
 //! the closure test (the sector computation's own deferrals). `IsClosed3d` on edges

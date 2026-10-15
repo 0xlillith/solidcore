@@ -230,6 +230,42 @@ bool ok_sector(SmVertexuse* p)
     return p->GetLoopuse() != nullptr || fu->GetOrientation() == SM_OT_OPPOSITE;
 }
 
+// SmLoopuse::GetVertices, reached by SmVertex::IsConnectedTo with a loop or loop use
+// target: a vertex-use loop use reads its start, an edge loop use the vertex use of
+// every edge use of its CCW chain (null = no loop use, dereferenced through SmLoop).
+const int64_t MAX_LU_WALK = 100000;
+bool ok_lu_vertices(SmLoopuse* lu)
+{
+    if (lu == nullptr)
+        return false;
+    SM_TYPE ty = lu->*LuPeek::type();
+    SmTopology* start = lu->*LuPeek::start();
+    if (ty == SmVertexuse_TYPE)
+        return start != nullptr;
+    if (ty != SmEdgeuse_TYPE)
+        return start == nullptr;
+    SmEdgeuse* eu = (SmEdgeuse*)start;
+    for (int64_t k = 0; eu != nullptr; k++)
+    {
+        if (k > MAX_LU_WALK || eu->GetVertexuse() == nullptr)
+            return false;
+        eu = eu->GetCCWEdgeuse();
+        if (eu == (SmEdgeuse*)start)
+            return true;
+    }
+    return true;
+}
+
+// SmVertex::IsConnectedTo / SmEdge::IsConnectedTo reached from the loop use `lu` (of
+// `self`, a loop or the loop use): the vertex walks the loop use's vertices, the edge
+// its edges (through SmLoop::m_pLU for a loop).
+bool ok_ve_connected(SmLoopuse* lu, int64_t ty)
+{
+    if (ty == SmVertex_TYPE)
+        return ok_lu_vertices(lu);
+    return lu != nullptr;
+}
+
 // SmVertexuse::IsConnectedTo of `vu` against a loop or loop use target.
 double vu_connected(SmVertexuse* vu, SmTopology* t)
 {
@@ -509,7 +545,7 @@ void run_graph_op(int32_t op, Rd& rd, Graph& g, size_t n_eu, std::vector<double>
         if (t == nullptr)
             o.push_back(flg(p->IsConnectedTo(t)));
         else if (ty == SmVertex_TYPE || ty == SmEdge_TYPE)
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ok_ve_connected(p, ty) ? flg(p->IsConnectedTo(t)) : ST_NULL_DEREF);
         else if (ty == SmVertexuse_TYPE)
             o.push_back(vu_connected((SmVertexuse*)t, p));
         else if (ty == SmEdgeuse_TYPE)
@@ -626,7 +662,7 @@ void run_graph_op(int32_t op, Rd& rd, Graph& g, size_t n_eu, std::vector<double>
         if (t == nullptr)
             o.push_back(flg(l->IsConnectedTo(t)));
         else if (ty == SmVertex_TYPE || ty == SmEdge_TYPE)
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ok_ve_connected(lu, ty) ? flg(l->IsConnectedTo(t)) : ST_NULL_DEREF);
         else if (ty == SmVertexuse_TYPE)
             o.push_back(vu_connected((SmVertexuse*)t, l));
         else if ((ty == SmFace_TYPE || ty == SmFaceuse_TYPE) && !face_ok)

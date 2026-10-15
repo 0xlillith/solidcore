@@ -35,6 +35,7 @@ use solidcore::geom::local_solve_nd::EvalNFunctions;
 use solidcore::geom::matrix::Matrix;
 use solidcore::geom::solution_array::{ObjectKind, Solution};
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::math::UNDEF_DOUBLE;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::{BSplineSurface, BSplineSurfaceForm};
@@ -898,7 +899,11 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex { point, tolerance });
+        vertices.push(Vertex {
+            point,
+            tolerance,
+            ..Vertex::default()
+        });
     }
     let brep_tolerance = rd.num()?;
     if rd.at != ex.len() {
@@ -983,6 +988,14 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
     }
     for vu in vertexuses {
         b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
+    }
+    // the vertex use lists are not exported: each vertex lists its uses in arena order
+    let uses: Vec<(VertexuseId, Option<VertexId>)> =
+        b.vertexuses().iter().map(|(id, r)| (id, r.vertex)).collect();
+    for (id, v) in uses {
+        if let Some(v) = v {
+            b.vertex_mut(v).map_err(|e| harness(e.to_string()))?.vertexuses.push(id);
+        }
     }
     Ok((b, extras))
 }
@@ -1251,9 +1264,9 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             let e = eid(*eu);
             let mut out = Vec::new();
             match which {
-                0 => out.push(flag(eu1::max_edge_face_gap(b, e, *f)?.is_some())),
+                0 => out.push(flag(eu1::max_edge_face_gap(&Kernel::default(), b, e, *f)?.is_some())),
                 1 => out.push(flag(eu1::edge_ccw_edge_gap(b, e, *f)?.is_some())),
-                2 => match eu1::calc_max_edge_face_gap(b, e, *f) {
+                2 => match eu1::calc_max_edge_face_gap(&Kernel::default(), b, e, *f) {
                     Ok(g) => out.extend([0.0, flag(*want_out && g.is_init())]),
                     Err(x) if x.is_unported() => return Err(x.into()),
                     Err(x) => out.extend([status_of(&x), 0.0]),
