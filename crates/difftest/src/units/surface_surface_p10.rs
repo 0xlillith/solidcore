@@ -160,6 +160,7 @@ struct NodeIn {
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // the surface cache's four independent switches
 struct Flags {
     #[serde(default)]
     point_test: bool,
@@ -668,9 +669,11 @@ fn rust_combine(
         sol.objects[1] = Some(H(1));
         sol.start.solution_value = s.sv;
         sol.end.solution_value = s.ev;
-        for j in 0..3 {
-            sol.start.parameters[j] = s.s[j];
-            sol.end.parameters[j] = s.e[j];
+        for (d, v) in sol.start.parameters.iter_mut().zip(s.s) {
+            *d = v;
+        }
+        for (d, v) in sol.end.parameters.iter_mut().zip(s.e) {
+            *d = v;
         }
         sol.nodes[0] = s.n0.map(NodeId);
         sol.nodes[1] = s.n1.map(NodeId);
@@ -839,6 +842,13 @@ fn gen_bspline(rng: &mut Rng, scale: f64) -> SurfData {
     }
 }
 
+/// `b` (`min xyz, max xyz`) grown to contain `p`.
+fn grow_box(b: [f64; 6], p: [f64; 3]) -> [f64; 6] {
+    let [x0, y0, z0, x1, y1, z1] = b;
+    let [x, y, z] = p;
+    [x0.min(x), y0.min(y), z0.min(z), x1.max(x), y1.max(y), z1.max(z)]
+}
+
 /// The surface, its natural domain and a box containing it.
 fn gen_surface(rng: &mut Rng, scale: f64) -> (SurfIn, [f64; 4], [f64; 6]) {
     if rng.chance(0.15) {
@@ -848,11 +858,12 @@ fn gen_surface(rng: &mut Rng, scale: f64) -> (SurfIn, [f64; 4], [f64; 6]) {
         let dom = [0.0, 0.0, scale, scale];
         let mut b = [f64::MAX, f64::MAX, f64::MAX, f64::MIN, f64::MIN, f64::MIN];
         for (u, v) in [(0.0, 0.0), (scale, 0.0), (0.0, scale), (scale, scale)] {
-            for c in 0..3 {
-                let p = o[c] + u * x[c] + v * y[c];
-                b[c] = b[c].min(p);
-                b[c + 3] = b[c + 3].max(p);
-            }
+            let p = [
+                o[0] + u * x[0] + v * y[0],
+                o[1] + u * x[1] + v * y[1],
+                o[2] + u * x[2] + v * y[2],
+            ];
+            b = grow_box(b, p);
         }
         (
             SurfIn::Plane {
@@ -869,10 +880,7 @@ fn gen_surface(rng: &mut Rng, scale: f64) -> (SurfIn, [f64; 4], [f64; 6]) {
         let d = gen_bspline(rng, scale);
         let mut b = [f64::MAX, f64::MAX, f64::MAX, f64::MIN, f64::MIN, f64::MIN];
         for c in d.net.iter().flatten() {
-            for i in 0..3 {
-                b[i] = b[i].min(c[i]);
-                b[i + 3] = b[i + 3].max(c[i]);
-            }
+            b = grow_box(b, [c[0], c[1], c[2]]);
         }
         (SurfIn::Bspline(d), [0.0, 0.0, 1.0, 1.0], b)
     }
@@ -979,7 +987,7 @@ fn gen_lsi(rng: &mut Rng) -> Inputs {
     };
     let patch_dom = nodes.get(node).map_or(nat, |n| n.dom);
     let dom = match rng.below(8) {
-        0 | 1 | 2 => nat,
+        0..=2 => nat,
         3 => sub_domain(rng, nat),
         // disjoint from the patch (to the right)
         4 => [
@@ -1044,7 +1052,8 @@ fn gen_lsi(rng: &mut Rng) -> Inputs {
         ),
         // grazing the box near a corner
         4 => {
-            let c = box_corners(bbox)[rng.below(8) as usize];
+            let corners = box_corners(bbox);
+            let c = pick(rng, &corners, [0.0; 3]);
             let side = unitize(cross(dir, unit_dir(rng)));
             let eps = pick(rng, &[0.0, 1e-9, 1e-6, 1e-3], 0.0) * size;
             (
