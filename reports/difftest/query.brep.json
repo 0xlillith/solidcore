@@ -795,6 +795,1048 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "bbox_empty_000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#0 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#1 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#2 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#3 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#4 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#5 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_110",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#6 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#7 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_empty_cache_sequence",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#8 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#9 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#10 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#11 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#12 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#13 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#14 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_110",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#15 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#16 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_cache_sequence",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#17 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_line_no_wire_curves",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#18 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#19 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#20 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#21 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#22 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#23 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#24 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_110",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#25 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#26 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_cache_sequence",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#27 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_no_wire_curves",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#28 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": false,
+            "expand": false,
+            "op": "bounding",
+            "tight": false
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        }
+      ],
+      "name": "bbox_network_000",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#29 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": false,
+            "expand": true,
+            "op": "bounding",
+            "tight": false
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 0.990000099999,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        }
+      ],
+      "name": "bbox_network_001",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#30 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": false,
+            "expand": false,
+            "op": "bounding",
+            "tight": true
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        }
+      ],
+      "name": "bbox_network_010",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#31 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": false,
+            "expand": true,
+            "op": "bounding",
+            "tight": true
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 0.990000099999,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        }
+      ],
+      "name": "bbox_network_011",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#32 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": true,
+            "expand": false,
+            "op": "bounding",
+            "tight": false
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        }
+      ],
+      "name": "bbox_network_100",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#33 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": true,
+            "expand": true,
+            "op": "bounding",
+            "tight": false
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 0.990000099999,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        }
+      ],
+      "name": "bbox_network_101",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#34 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": true,
+            "expand": false,
+            "op": "bounding",
+            "tight": true
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        }
+      ],
+      "name": "bbox_network_110",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#35 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "approximate": true,
+            "expand": true,
+            "op": "bounding",
+            "tight": true
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 0.990000099999,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        }
+      ],
+      "name": "bbox_network_111",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#36 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": false,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          },
+          {
+            "op": "lock",
+            "tight": false
+          },
+          {
+            "approximate": true,
+            "expand": false,
+            "op": "bounding",
+            "tight": false
+          },
+          {
+            "op": "lock",
+            "tight": true
+          },
+          {
+            "approximate": false,
+            "expand": true,
+            "op": "bounding",
+            "tight": false
+          },
+          {
+            "op": "unlock"
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "unlock"
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 10,
+      "mismatches": [
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[15]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[16]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[29]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[30]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[43]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[44]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[57]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[58]",
+          "rel_err": 0.990000099999,
+          "rust": "1e-2"
+        }
+      ],
+      "name": "bbox_network_cache_sequence",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#37 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "drop_wire_curves": true,
+        "extra_edges": 0,
+        "extra_vertices": 0,
+        "steps": [
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          },
+          {
+            "op": "lock",
+            "tight": false
+          },
+          {
+            "approximate": true,
+            "expand": false,
+            "op": "bounding",
+            "tight": false
+          },
+          {
+            "op": "lock",
+            "tight": true
+          },
+          {
+            "approximate": false,
+            "expand": true,
+            "op": "bounding",
+            "tight": false
+          },
+          {
+            "op": "unlock"
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "unlock"
+          }
+        ],
+        "tolerances": [1e-7, 0.01, 0.1]
+      },
+      "max_rel_err": 1.0,
+      "mismatch_count": 22,
+      "mismatches": [
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[4]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[5]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[6]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[7]",
+          "rel_err": 9.899901000997115e-6,
+          "rust": "1.0000001e0"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[8]",
+          "rel_err": 0.9999999000009999,
+          "rust": "1e-7"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[9]",
+          "rel_err": 0.9999999000009999,
+          "rust": "1e-7"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[15]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[16]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[25]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[26]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[27]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[28]",
+          "rel_err": 9.899901000997115e-6,
+          "rust": "1.0000001e0"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[29]",
+          "rel_err": 0.9999999000009999,
+          "rust": "1e-7"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[30]",
+          "rel_err": 0.9999999000009999,
+          "rust": "1e-7"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[43]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "1e0",
+          "field": "values.counts_and_boxes[44]",
+          "rel_err": 1.0,
+          "rust": "0e0"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[53]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[54]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "-1e-5",
+          "field": "values.counts_and_boxes[55]",
+          "rel_err": 0.9899999999999999,
+          "rust": "-1e-7"
+        },
+        {
+          "cpp": "1.00001e0",
+          "field": "values.counts_and_boxes[56]",
+          "rel_err": 9.899901000997115e-6,
+          "rust": "1.0000001e0"
+        }
+      ],
+      "name": "bbox_network_no_wire_curves",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#38 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "bbox_face_000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#39 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "bbox_face_001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#40 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "bbox_face_010",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#41 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "bbox_face_011",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#42 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_face_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#43 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_face_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#44 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_face_110",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#45 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_face_111",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#46 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "bbox_face_cache_sequence",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#47 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_approx_threshold_500_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#48 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_full_threshold_500_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#49 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_approx_threshold_500_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#50 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_full_threshold_500_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#51 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_approx_threshold_501_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#52 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_full_threshold_501_100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#53 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_approx_threshold_501_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#54 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_full_threshold_501_101",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#55 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_scale_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#56 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_scale_0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#57 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_scale_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#58 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_scale_1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#59 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_bulge_scale_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#60 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
+      "values_compared": 66
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_0_0",
       "outcome": "pass",
       "pass": true,
@@ -6952,20 +7994,789 @@
       "pass": true,
       "source": "generated:seed=7989681234904881177",
       "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701846",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701847",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0002",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701848",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0003",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701849",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0004",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701850",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0005",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701851",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0006",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701852",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0007",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701853",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0008",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701854",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0009",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701855",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0010",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701856",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701857",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0012",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701858",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0013",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701859",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0014",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701860",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0015",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701861",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0016",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701862",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0017",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701863",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0018",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701864",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0019",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701865",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0020",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701866",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0021",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701867",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0022",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701868",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0023",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701869",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0024",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701870",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0025",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701871",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0026",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701872",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0027",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701873",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0028",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701874",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0029",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701875",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0030",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701876",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0031",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701877",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0032",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701878",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0033",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701879",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0034",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701880",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0035",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701881",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0036",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701882",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0037",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701883",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0038",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701884",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0039",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701885",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0040",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701886",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0041",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701887",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0042",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701888",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0043",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701889",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0044",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701890",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0045",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701891",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0046",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701892",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0047",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701893",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0048",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701894",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0049",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701895",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0050",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701896",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0051",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701897",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0052",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701898",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0053",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701899",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0054",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701900",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0055",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701901",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0056",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701902",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0057",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701903",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0058",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701904",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0059",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701905",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0060",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701906",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0061",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701907",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0062",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701908",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0063",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701909",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0064",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701910",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0065",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701911",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0066",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701912",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0067",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701913",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0068",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701914",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0069",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701915",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0070",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701916",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0071",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701917",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0072",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701918",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0073",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701919",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0074",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701920",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0075",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701921",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0076",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701922",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0077",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701923",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0078",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701924",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0079",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701925",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0080",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701926",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0081",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701927",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0082",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701928",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0083",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701929",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0084",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701930",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0085",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701931",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0086",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701932",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0087",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701933",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0088",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701934",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0089",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701935",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0090",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701936",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0091",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701937",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0092",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701938",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0093",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701939",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0094",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701940",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_gen_0095",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=1767821110815701941",
+      "values_compared": 45
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 20,
-  "cases_failed": 0,
-  "cases_passed": 839,
-  "cases_total": 859,
+  "cases_deferred": 25,
+  "cases_failed": 10,
+  "cases_passed": 981,
+  "cases_total": 1016,
   "deferred_by_unit": {
+    "query.face_p1": 5,
     "topology.brep_cache": 20
   },
-  "max_rel_err": 0.0,
-  "pass": true,
+  "max_rel_err": 1.0,
+  "pass": false,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "fail",
   "unit": "query.brep"
 }

@@ -1,5 +1,5 @@
 //! query.brep: actual `SM_API` evaluation entry points, status and failure atomicity.
-//! Surface APIs and decimation attributes; B-rep queries remain pending.
+//! Surface APIs, decimation attributes and B-rep query batches.
 use super::surface_surface_cache_p1::{push3, status};
 use super::surface_surface_cache_p3::{gen_surf, push_surf, surf_domain, surface_in, SurfIn};
 use crate::case::CaseContext;
@@ -51,6 +51,9 @@ impl UnitDiff for Runner {
         "query.brep"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("bbox_brep").is_some() {
+            return bbox_cpp(&case.parse()?);
+        }
         if case.inputs.get("point_classify").is_some() {
             let i: PointInput = case.parse()?;
             return ffi::classify(&i.point_classify, i.tolerance, i.boundary)
@@ -65,6 +68,9 @@ impl UnitDiff for Runner {
         Ok(record(out))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("bbox_brep").is_some() {
+            return bbox_rust(&case.parse()?);
+        }
         if case.inputs.get("point_classify").is_some() {
             return point_rust(&case.parse()?);
         }
@@ -149,13 +155,27 @@ impl UnitDiff for Runner {
         None
     }
     fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
-        default_cases(
+        let mut cases = default_cases(
             self,
             &CaseContext {
                 seeds: ctx.seeds.max(600),
                 ..ctx.clone()
             },
-        )
+        )?;
+        // Preserve all 600 existing API seeds and add a separate reproducible
+        // B-rep box stream; these cases never replace a previous regression.
+        for index in 0..ctx.seeds.max(96) {
+            let seed = crate::rng::fnv1a64("query.brep.bounding_boxes").wrapping_add(index as u64);
+            let input = generate_bbox(&mut Rng::new(seed));
+            cases.push(Case {
+                unit: self.id().into(),
+                name: format!("bbox_gen_{index:04}"),
+                source: crate::case::CaseSource::Generated { seed },
+                inputs: serde_json::to_value(input)
+                    .map_err(|e| HarnessError::new(e.to_string()))?,
+            });
+        }
+        Ok(cases)
     }
 }
 
@@ -465,4 +485,177 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
         sss.z,
         pc.src_zone_tol_3d(),
     ]))
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct BboxInput {
+    bbox_brep: Option<super::topology_edgeuse_p1::BrepIn>,
+    #[serde(default)]
+    extra_vertices: usize,
+    #[serde(default)]
+    extra_edges: usize,
+    tolerances: [f64; 3],
+    #[serde(default)]
+    drop_wire_curves: bool,
+    steps: Vec<BoxStep>,
+}
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(tag = "op", rename_all = "snake_case")]
+enum BoxStep {
+    Bounding {
+        approximate: bool,
+        tight: bool,
+        expand: bool,
+    },
+    Tight,
+    Lock {
+        tight: bool,
+    },
+    Unlock,
+    Default,
+}
+fn bbox_input(i: &BboxInput) -> Result<(String, Vec<f64>), HarnessError> {
+    use super::topology_edgeuse_p1::{brep_block_of, path_of};
+    let path = path_of(i.bbox_brep.as_ref())?;
+    let mut flat = vec![f64::from(u8::from(i.bbox_brep.is_some()))];
+    if i.bbox_brep.is_some() {
+        flat.extend(brep_block_of(i.bbox_brep.as_ref(), false, false)?);
+    }
+    flat.extend([i.extra_vertices as f64, i.extra_edges as f64]);
+    flat.extend(i.tolerances);
+    flat.push(f64::from(u8::from(i.drop_wire_curves)));
+    flat.push(i.steps.len() as f64);
+    for step in &i.steps {
+        let row = match *step {
+            BoxStep::Bounding {
+                approximate,
+                tight,
+                expand,
+            } => [
+                0.0,
+                f64::from(u8::from(approximate)),
+                f64::from(u8::from(tight)),
+                f64::from(u8::from(expand)),
+            ],
+            BoxStep::Tight => [1.0, 0.0, 0.0, 0.0],
+            BoxStep::Lock { tight } => [2.0, 0.0, f64::from(u8::from(tight)), 0.0],
+            BoxStep::Unlock => [3.0, 0.0, 0.0, 0.0],
+            BoxStep::Default => [4.0, 0.0, 0.0, 0.0],
+        };
+        flat.extend(row);
+    }
+    Ok((path, flat))
+}
+fn bbox_cpp(i: &BboxInput) -> Result<Output, HarnessError> {
+    let (path, flat) = bbox_input(i)?;
+    let record = solidcore_ffi::units::query_brep_bbox::eval(false, &path, &flat)
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    Ok(Output::new().values("counts_and_boxes", record))
+}
+fn bbox_rust(i: &BboxInput) -> Result<Output, HarnessError> {
+    use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
+    use solidcore::geom::extent3d::Extent3d;
+    use solidcore::geom::vector3d::Vec3;
+    let (path, flat) = bbox_input(i)?;
+    let export = solidcore_ffi::units::query_brep_bbox::eval(true, &path, &flat)
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    let (mut graph, types) = super::topology_edgeuse_p1::import_with_types(&export)?;
+    // Never compare a curve exported as another kind's B-spline stand-in.
+    // Unknown surface payloads are not evaluated: face boxes have real unported
+    // callees, and approximate boxes skip faces altogether.
+    if types
+        .edge_curve_types
+        .iter()
+        .any(|&t| t != -1 && t != BSPLINE_CURVE_TYPE && t != LINE_TYPE)
+    {
+        return Err(HarnessError::new(
+            "box fixture has an unrepresented native edge curve kind",
+        ));
+    }
+    let k = solidcore::kernel::Kernel::default();
+    let mut record = vec![
+        graph.vertices().len() as f64,
+        graph.edges().len() as f64,
+        graph.faces().len() as f64,
+    ];
+    let initial =
+        Extent3d::from_points(Vec3::new(-17.0, -19.0, -23.0), Vec3::new(29.0, 31.0, 37.0));
+    for step in &i.steps {
+        let result = match *step {
+            BoxStep::Bounding {
+                approximate,
+                tight,
+                expand,
+            } => brep::calculate_bounding_box(
+                &k,
+                &graph,
+                brep::BoundingBoxOptions {
+                    approximate,
+                    tight,
+                    expand_by_zone_tolerance: expand,
+                },
+            ),
+            BoxStep::Tight => brep::calculate_tight_bounding_box(&k, &graph),
+            BoxStep::Lock { tight } => {
+                brep::lock_bounding_box(&k, &mut graph, tight).map(|()| initial)
+            }
+            BoxStep::Unlock => {
+                brep::unlock_bounding_box(&mut graph);
+                Ok(initial)
+            }
+            BoxStep::Default => {
+                brep::calculate_bounding_box(&k, &graph, brep::BoundingBoxOptions::default())
+            }
+        };
+        let bbox = match result {
+            Ok(bbox) => {
+                record.push(0.0);
+                bbox
+            }
+            Err(e) => {
+                if let Some(deferred) = Output::unported(&e) {
+                    return Ok(deferred);
+                }
+                record.push(status(&e));
+                initial
+            }
+        };
+        push3(&mut record, bbox.min());
+        push3(&mut record, bbox.max());
+    }
+    Ok(Output::new().values("counts_and_boxes", record))
+}
+fn generate_bbox(rng: &mut Rng) -> BboxInput {
+    use super::topology_edgeuse_p1::{gen_curve, BrepIn};
+    let scales = [1e-6, 1e-3, 1.0, 1e3, 1e6];
+    let scale = *rng.choose(&scales).unwrap_or(&1.0);
+    let curve = gen_curve(rng, 3, scale);
+    let a = curve.u.first().copied().unwrap_or(0.0);
+    let b = curve.u.last().copied().unwrap_or(1.0);
+    let t0 = a + (b - a) * rng.uniform(0.0, 0.2);
+    let t1 = b - (b - a) * rng.uniform(0.0, 0.2);
+    let tight = rng.chance(0.25);
+    BboxInput {
+        bbox_brep: Some(BrepIn::Wire { curve, t0, t1 }),
+        extra_vertices: rng.below(4) as usize,
+        extra_edges: rng.below(3) as usize,
+        tolerances: [rng.unit() * 1e-4, rng.unit() * 1e-3, 0.0],
+        drop_wire_curves: rng.chance(0.1),
+        steps: vec![
+            BoxStep::Default,
+            BoxStep::Bounding {
+                approximate: rng.chance(0.5),
+                tight,
+                expand: rng.chance(0.5),
+            },
+            BoxStep::Lock { tight },
+            BoxStep::Bounding {
+                approximate: true,
+                tight: !tight,
+                expand: false,
+            },
+            BoxStep::Unlock,
+            BoxStep::Tight,
+        ],
+    }
 }

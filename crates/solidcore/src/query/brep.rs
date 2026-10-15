@@ -15,18 +15,25 @@
 //! | [`quadric_edge_attribute`], [`QuadricEdgeData`] | `SmQuadricEdgeAttr` constructor/destructor |
 //! | [`crate::geom::attribute::Attribute::make_copy`] | the three `MakeCopy` overrides |
 //! | [`point_3d_classify`], [`BrepClassifyObjects`] | `SmBrep::Point3DClassify` |
+//! | [`calculate_bounding_box`], [`BoundingBoxOptions`] | `SmBrep::CalculateBoundingBox` |
+//! | [`calculate_tight_bounding_box`] | `SmBrep::CalculateTightBoundingBox` |
+//! | [`lock_bounding_box`] | `SmBrep::LockBoundingBox` |
+//! | [`unlock_bounding_box`] | `SmBrep::UnLockBoundingBox` |
 //!
 //! Deviations: a nullable surface is `Option<&Surface>`; output parameters become
 //! return values, so failure cannot modify caller-owned outputs. The remaining
-//! Bounding-box functions assigned to query.brep are not implemented yet. Destructors
+//! Classification keeps its in/out state, including writes made before failure. Destructors
 //! use ownership rather than poisoning fields immediately before freeing them.
 //! The quadric edge constructor leaves its sort index uninitialised in C++; the
 //! port represents that state by `None` instead of exposing undefined memory.
 
+use crate::geom::extent3d::Extent3d;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::kernel::Kernel;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::Surface;
+use crate::topology::{Brep, FaceId};
 use crate::{Result, SolidError};
 
 fn checked_surface<'a>(
@@ -207,7 +214,7 @@ pub trait BrepClassifyObjects<O>:
     /// even on failure. The default marks the actual missing callee.
     fn ray_fire(
         &self,
-        _kernel: &crate::kernel::Kernel,
+        _kernel: &Kernel,
         _point: Point3,
         _direction: Vec3,
         _point_zone_tolerance: f64,
@@ -231,7 +238,7 @@ pub trait BrepClassifyObjects<O>:
 /// propagates `Unported`; ordinary ray-fire failures trigger the native retry
 /// order, with a generic upstream error when no region is found.
 pub fn point_3d_classify<O>(
-    kernel: &crate::kernel::Kernel,
+    kernel: &Kernel,
     objects: &dyn BrepClassifyObjects<O>,
     point: Point3,
     point_zone_tolerance: f64,
@@ -320,4 +327,189 @@ where
     classification.set_deviation(0.0); // SM_USE_OLDTOL; SetDeviation delegates SetGap3d.
     classification.set_pre_snap_param(crate::math::BIG_DOUBLE);
     Ok(())
+}
+
+/// Options for [`calculate_bounding_box`], matching the three native defaults.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BoundingBoxOptions {
+    /// Skip faces; with more than 500 vertices AND more than 100 edges, also skip
+    /// edges after including every vertex box (`bApprox`, default false).
+    pub approximate: bool,
+    /// Ask each edge and face for its tight box (`bTight`, default false).
+    pub tight: bool,
+    /// Expand each object's box by its own zone tolerance (default true).
+    pub expand_by_zone_tolerance: bool,
+}
+impl Default for BoundingBoxOptions {
+    fn default() -> Self {
+        Self {
+            approximate: false,
+            tight: false,
+            expand_by_zone_tolerance: true,
+        }
+    }
+}
+fn face_bounding_box(
+    _kernel: &Kernel,
+    _brep: &Brep,
+    _face: FaceId,
+    _tight: bool,
+    _out: &mut Extent3d,
+) -> Result<()> {
+    // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox
+    Err(SolidError::unported(
+        "SmFace::CalculateBoundingBox",
+        "query.face_p1",
+    ))
+}
+fn face_tight_bounding_box(
+    _kernel: &Kernel,
+    _brep: &Brep,
+    _face: FaceId,
+    _out: &mut Extent3d,
+) -> Result<()> {
+    // UNPORTED(query.face_p3): SmFace::CalculateTightBoundingBox
+    Err(SolidError::unported(
+        "SmFace::CalculateTightBoundingBox",
+        "query.face_p3",
+    ))
+}
+
+/// The B-rep box, respecting a previously locked box before reading geometry.
+/// Unfiltered native vertex/edge/face lists are the corresponding arenas in list
+/// order. Tolerance expansion is per object, not a final global expansion.
+///
+/// # Errors
+/// Propagates the first failing edge or face box calculation. Face box callees
+/// remain explicitly unported; no surface box is substituted for a face box.
+pub fn calculate_bounding_box(
+    kernel: &Kernel,
+    brep: &Brep,
+    options: BoundingBoxOptions,
+) -> Result<Extent3d> {
+    use crate::nurbs::b_spline_curve::BoundingBoxRequest;
+    if let Some(locked) = brep.locked_bounding_box {
+        return Ok(locked);
+    }
+    let mut bbox = Extent3d::new();
+    for (_, vertex) in brep.vertices().iter() {
+        let mut vbox = Extent3d::from_point(vertex.point);
+        if options.expand_by_zone_tolerance {
+            vbox.expand_absolute(vertex.tolerance);
+        }
+        bbox = bbox.union(&vbox);
+    }
+    if options.approximate && brep.vertices().len() > 500 && brep.edges().len() > 100 {
+        return Ok(bbox);
+    }
+    let request = BoundingBoxRequest {
+        normal: true,
+        pseudo: false,
+        polar: false,
+    };
+    for (id, edge) in brep.edges().iter() {
+        if edge.curve.is_some() {
+            let mut ebox = crate::query::edge::calculate_bounding_box(
+                kernel,
+                brep,
+                id,
+                request,
+                options.tight,
+            )?
+            .normal
+            .ok_or_else(|| SolidError::sm_err("query::brep::calculate_bounding_box"))?;
+            if options.expand_by_zone_tolerance {
+                ebox.expand_absolute(edge.tolerance);
+            }
+            bbox = bbox.union(&ebox);
+        }
+    }
+    if !options.approximate {
+        for (id, face) in brep.faces().iter() {
+            let mut fbox = Extent3d::new();
+            face_bounding_box(kernel, brep, id, options.tight, &mut fbox)?;
+            if options.expand_by_zone_tolerance {
+                fbox.expand_absolute(face.tolerance);
+            }
+            bbox = bbox.union(&fbox);
+        }
+    }
+    Ok(bbox)
+}
+
+/// The tight B-rep box, without tolerance expansion; ignores the locked box.
+/// Loose boxes contained by the accumulated box skip the expensive tight call.
+/// As upstream, ordinary edge/face calculation failures are ignored, retaining
+/// their defined output state; missing callees still propagate `Unported`.
+///
+/// # Errors
+/// An unavailable face/edge callee or an invalid arena reference.
+pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &Brep) -> Result<Extent3d> {
+    use crate::error::ignored;
+    use crate::nurbs::b_spline_curve::BoundingBoxRequest;
+    let mut bbox = Extent3d::new();
+    for (_, vertex) in brep.vertices().iter() {
+        bbox.add_point(vertex.point);
+    }
+    let request = BoundingBoxRequest {
+        normal: true,
+        pseudo: false,
+        polar: false,
+    };
+    for (id, _) in brep.edges().iter() {
+        // SmEdge::CalculateBoundingBox always initialises the normal box first.
+        // The normal-only curve routines write their final box after fallible
+        // work; a composite ignores child statuses and returns its union. Thus
+        // an ordinary error leaves this freshly initialised empty edge box.
+        let mut ebox = match ignored(crate::query::edge::calculate_bounding_box(
+            kernel, brep, id, request, false,
+        ))? {
+            Some(boxes) => boxes
+                .normal
+                .ok_or_else(|| SolidError::sm_err("query::brep::calculate_tight_bounding_box"))?,
+            None => Extent3d::new(),
+        };
+        if ebox.is_contained_by(&bbox, 0.0) {
+            continue;
+        }
+        // CalculateTightBoundingBox writes only on success; without a curve it
+        // succeeds without touching the caller's existing loose box.
+        if let Some(Some(tight)) = ignored(crate::query::edge::calculate_tight_bounding_box(
+            kernel, brep, id,
+        ))? {
+            ebox = tight;
+        }
+        bbox = bbox.union(&ebox);
+    }
+    let mut face_box = Extent3d::new();
+    for (id, _) in brep.faces().iter() {
+        crate::error::ignore_status(face_bounding_box(kernel, brep, id, false, &mut face_box))?;
+        if face_box.is_contained_by(&bbox, 0.0) {
+            continue;
+        }
+        crate::error::ignore_status(face_tight_bounding_box(kernel, brep, id, &mut face_box))?;
+        bbox = bbox.union(&face_box);
+    }
+    Ok(bbox)
+}
+
+/// Replace the locked box, computing a tight box when requested. The previous
+/// lock is released BEFORE calculation, and stays released if calculation fails.
+///
+/// # Errors
+/// Those of the selected box calculation.
+pub fn lock_bounding_box(kernel: &Kernel, brep: &mut Brep, tight: bool) -> Result<()> {
+    unlock_bounding_box(brep);
+    let bbox = if tight {
+        calculate_tight_bounding_box(kernel, brep)?
+    } else {
+        calculate_bounding_box(kernel, brep, BoundingBoxOptions::default())?
+    };
+    brep.locked_bounding_box = Some(bbox);
+    Ok(())
+}
+
+/// Release the locked box, also succeeding when no box is locked.
+pub fn unlock_bounding_box(brep: &mut Brep) {
+    brep.locked_bounding_box = None;
 }
