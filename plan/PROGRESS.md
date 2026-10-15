@@ -107,7 +107,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ## In progress
 
 - [ ] 🔨 `curve.curve_p9` (1783 lines) — in progress: #13 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (ready for review)
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p6` (2150 lines) — in progress: #92 @bherbruck (ready for review)
@@ -258,7 +258,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p2` (1245 lines) — partial, 905 cases
 - [x] ✅ `surface.torus` (1180 lines) — green, 563 cases
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
-- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (ready for review)
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (draft)
 - [ ] 🟡 `surface.surf_of_revolution_p2` (1369 lines) — partial, 1167 cases
 - [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
 - [ ] 🟡 `surface.volume_p2` (1490 lines) — partial, 11220 cases
