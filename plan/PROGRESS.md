@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**161 / 261 units ported** (92 green, 69 partial), **214,942 / 387,903 upstream lines (55.4%)**. 19 claimed, 0 blocked, 81 todo.
+**162 / 261 units ported** (92 green, 70 partial), **216,417 / 387,903 upstream lines (55.8%)**. 18 claimed, 0 blocked, 81 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -113,7 +113,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #102 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edge` (2213 lines) — in progress: #103 @bherbruck (ready for review)
-- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (draft)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
@@ -369,9 +368,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `sweep.api_brep` (529 lines) — waiting
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
-### heal (0/7)
+### heal (1/7)
 
-- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
+- [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
 - [ ] ⏳ `heal.face_props` (1410 lines) — waiting
 - [ ] ⏳ `heal.heal_data_p2` (2160 lines) — waiting
 - [ ] ⏳ `heal.heal_data_p1` (922 lines) — waiting
