@@ -7,6 +7,8 @@
 //! few standalone helpers (`smsurf_EvaluateNormalSection`, `sm_CrossedSeamOrPole`, the
 //! tree node validity tests).
 //!
+//! Deviations: compound evaluation copies carry a depth counter capped at 64 by Surface.
+//!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`,
 //! `source/SMLib/src/SmSTEPSurface.cpp`, `source/SMLib/inc/SmSTEPSurface.h`.
 //!
@@ -331,6 +333,19 @@ pub struct StepSurface {
 }
 
 impl StepSurface {
+    /// A bounded, exact evaluation copy; the nesting limit is checked by Surface.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        let surface = self
+            .surface
+            .as_deref()
+            .map(|s| s.clone_for_evaluation_depth(depth).map(Box::new))
+            .transpose()?;
+        Ok(Self {
+            surface,
+            owns_surface: self.owns_surface,
+        })
+    }
+
     /// `GetTypeString()`.
     pub const TYPE_STRING: &'static str = "SmSTEPSurface_TYPE";
     /// `GetClassString()`.

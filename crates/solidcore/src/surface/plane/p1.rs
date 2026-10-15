@@ -290,6 +290,16 @@ impl Plane {
         }
     }
 
+    /// A private solver copy without constructing or fixing the NURBS representation.
+    pub(crate) fn clone_exact(&self) -> Self {
+        Self {
+            base: self.base.clone_exact(),
+            position: self.position,
+            anal_uv_domain: self.anal_uv_domain,
+            uv_scale: self.uv_scale,
+        }
+    }
+
     /// A copy of every member as is (no NURB is made).
     fn member_copy(&self) -> Self {
         Self {

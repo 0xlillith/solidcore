@@ -426,8 +426,19 @@ pub struct IsoParametricCurve {
 }
 
 /// An `SmIsoCurve` of the original concrete surface.
-fn iso_curve_of(surface: &Surface, param: SurfParamType, iso: f64, from_left: bool) -> IsoCurve {
-    IsoCurve::from_surface(surface.clone_for_evaluation(), param, iso, from_left, false)
+fn iso_curve_of(
+    surface: &Surface,
+    param: SurfParamType,
+    iso: f64,
+    from_left: bool,
+) -> Result<IsoCurve> {
+    Ok(IsoCurve::from_surface(
+        surface.clone_for_evaluation()?,
+        param,
+        iso,
+        from_left,
+        false,
+    ))
 }
 
 impl Surface {
@@ -488,7 +499,7 @@ impl Surface {
         }
 
         // define the isoParameter Curve as an object
-        let iso = iso_curve_of(self, param, iso_parameter, true);
+        let iso = iso_curve_of(self, param, iso_parameter, true)?;
 
         // when asked - build OptUVIsoCurve (status ignored)
         let uv_iso_curve = if want_uv_iso_curve {
@@ -733,7 +744,8 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the solvers; [`SolidError::Unported`] for `LocalPointSolve_1`.
+    /// Those of the selected solvers. This compatibility entry point uses the default
+    /// kernel; [`Surface::local_point_solve_with_kernel`] retains caller settings.
     pub fn local_point_solve<O: Copy>(
         &self,
         domain: &Extent2d,
@@ -1644,7 +1656,7 @@ pub fn sp_local_solve<O: SolutionObject>(
                         kk == 0,
                     )
                 };
-                let iso = Curve::from(iso_curve_of(surface, dir, param_value, from_left));
+                let iso = Curve::from(iso_curve_of(surface, dir, param_value, from_left)?);
 
                 // for NonDegenerate Boundary Curves
                 if !iso.is_degenerate(EFF_ZERO, None)? {

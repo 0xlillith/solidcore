@@ -8,6 +8,7 @@
 //! geometric properties, point classification, vector drops) and the file-static
 //! helpers of `SmSurface.cpp` owned by this unit.
 //!
+//!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`.
 //!
 //! | Rust                                              | Upstream                                         |
@@ -62,6 +63,7 @@
 //! | [`IsoCurveLengthIntegrand`]                       | `SmIsoCurveLengthIFEO` (constructor)             |
 //!
 //! Deviations:
+//! - Compound evaluation copies carry a depth counter capped at 64 by `Surface`.
 //! - **Object model.** `SmSurface` is not abstract upstream, but every ported surface
 //!   is a derived class: the [`SurfaceKind`] variants. The ported kinds are
 //!   [`BSplineSurface`], [`CurveBoundedSurface`] (unit
@@ -286,18 +288,36 @@ impl Clone for Surface {
 impl Surface {
     /// A temporary evaluation copy: retain the owner and exact NURBS data rather
     /// than invoking the upstream copy constructor's knot fix-up.
-    pub(crate) fn clone_for_evaluation(&self) -> Self {
+    pub(crate) fn clone_for_evaluation(&self) -> Result<Self> {
+        self.clone_for_evaluation_depth(0)
+    }
+
+    /// Bounded traversal of compound surfaces for an evaluation copy (at most 64).
+    pub(crate) fn clone_for_evaluation_depth(&self, depth: usize) -> Result<Self> {
+        if depth >= 64 {
+            return Err(SolidError::invalid_input(
+                "surface::surface::p2::clone_for_evaluation",
+                "compound surface nesting exceeds 64",
+            ));
+        }
         let kind = match &self.kind {
             SurfaceKind::BSpline(s) => SurfaceKind::BSpline(s.clone_exact()),
+            SurfaceKind::Plane(s) => SurfaceKind::Plane(s.clone_exact()),
             SurfaceKind::SurfOfRevolution(s) => {
                 SurfaceKind::SurfOfRevolution(Box::new(s.clone_exact()))
             }
-            kind => kind.clone(),
+            SurfaceKind::Step(s) => SurfaceKind::Step(s.clone_for_evaluation(depth + 1)?),
+            SurfaceKind::CurveBounded(s) => {
+                SurfaceKind::CurveBounded(s.clone_for_evaluation(depth + 1)?)
+            }
+            SurfaceKind::SrfInVolume(s) => {
+                SurfaceKind::SrfInVolume(Box::new(s.clone_for_evaluation(depth + 1)?))
+            }
         };
-        Self {
+        Ok(Self {
             kind,
             owner: self.owner,
-        }
+        })
     }
 }
 
@@ -4064,6 +4084,20 @@ mod tests {
             )
             .unwrap(),
         )
+    }
+
+    #[test]
+    fn evaluation_copy_bounds_compound_surface_nesting() {
+        let mut surface = Surface::from(BSplineSurface::new());
+        for _ in 0..63 {
+            surface = Surface::from(StepSurface::new(surface, true));
+        }
+        assert!(surface.clone_for_evaluation().is_ok());
+        surface = Surface::from(StepSurface::new(surface, true));
+        assert!(matches!(
+            surface.clone_for_evaluation(),
+            Err(SolidError::InvalidInput { .. })
+        ));
     }
 
     #[test]

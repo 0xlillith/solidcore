@@ -4359,3 +4359,31 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   degenerate-interval exit only on the V boundary, the unexpanded pseudo box passed to
   `SimpleCoincidenceChecker`, `IsDegenerate` defaulting to `SM_EFF_ZERO`). Re-run this
   unit's difftest when surface.surface_p6 lands.
+
+## surface.surface_point_solve_p3 — integration of the new point solvers (PR #106)
+
+- `curve.iso_curve` now stores a concrete `Surface`, so boundary solves retain the
+  analytic `SmPlane` evaluator and the original surface-of-revolution / STEP
+  dispatch. The previously documented B-spline-only dispatch gap is removed;
+  missing *surface* operations still propagate their owning unit's `Unported`.
+- Temporary solver copies retain their surface owner and the exact NURBS data of
+  B-splines, planes and surfaces of revolution. `Surface::clone()` is the upstream
+  copy constructor: it resets the owner and can fix knots / construct a plane's NURB,
+  so it cannot stand in for `SmTemporaryChangeValue` during a solve.
+- `CheckCrease` is disabled by upstream's `constexpr sbDoCreaseSubdomains = FALSE`.
+  The port deliberately returns `(false, false)` without evaluating a crease.
+- The local driver retains the 35-iteration limit and the separate status, found
+  flag, termination reason and iteration count. `FindNextStep` also preserves the
+  upstream plane-converged branch assigning `sNREval`, rather than silently changing
+  the C++ algorithm.
+- The pre-existing no-kernel `LocalPointSolve` API uses a default kernel; a new
+  `local_point_solve_with_kernel` entry carries the caller's kernel and is used by
+  the global point solver. No global state is introduced.
+- Boundary regression `matrix_0363` exposed an overly strict Rust guard in
+  `SurfOfRevolution::evaluate_step`: release C++ accepts sweep-only derivative
+  orders such as `(2, 0)`, despite its debug-only equal-order assertion. These
+  outputs are fully evaluated and required by `SmIsoCurve`. The guard now matches
+  release C++; other unequal orders retain `SmVector3d`'s default `UNDEF` values
+  for generator derivatives beyond `min(hu, hv)`, as upstream does.
+- Evaluation copies of nested STEP, curve-bounded and volume surfaces preserve
+  exact nested geometry and ownership; the explicit depth bound is 64 surfaces.

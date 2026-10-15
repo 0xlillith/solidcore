@@ -966,7 +966,7 @@ impl SurfPtGlobalSolver<'_> {
     ) -> Result<SolutionArray<O>> {
         // We have to enable out-of-bounds evaluations.  Otherwise, the evaluators
         // will silently clamp, leading to wrong answers.
-        if let Some(oob_surface) = with_out_of_bounds_enabled(self.base.surface()) {
+        if let Some(oob_surface) = with_out_of_bounds_enabled(self.base.surface())? {
             let mut solver = self.with_surface(&oob_surface);
             let solutions = solver.solve_body(k, surface_obj);
             // (the closure is a property of the geometry: keep what was computed)
@@ -1176,26 +1176,26 @@ fn set_first_object<O: SolutionObject>(sol: &mut Solution<O>, surface_obj: Optio
 /// A copy of `surface` with out-of-bounds evaluation enabled, when it is an
 /// `SmBSplineSurface` (B-spline, plane, surface of revolution) without it; `None`
 /// when nothing changes (`SmTemporaryChangeValue` on `GetOutOfBoundsEnabled()`).
-pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
+pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Result<Option<Surface>> {
     let enabled = match surface.kind() {
         SurfaceKind::BSpline(b) => b.is_out_of_bounds_enabled(),
         SurfaceKind::Plane(p) => p.base().is_out_of_bounds_enabled(),
         SurfaceKind::SurfOfRevolution(s) => s.base().is_out_of_bounds_enabled(),
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            return None;
+            return Ok(None);
         }
     };
     if enabled {
-        return None;
+        return Ok(None);
     }
-    let mut copy = surface.clone_for_evaluation();
+    let mut copy = surface.clone_for_evaluation()?;
     match copy.kind_mut() {
         SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = true,
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
     }
-    Some(copy)
+    Ok(Some(copy))
 }
 
 /// `pSurf->EvaluatePoint(uv, rPt)` with its status ignored: `prev` on failure.

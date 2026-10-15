@@ -11,8 +11,10 @@
 //! | [`SurfPtSolveStepper::find_next_step`] | `FindNextStep` |
 //!
 //! Deviations: out-parameters become result records; object pointers become caller
-//! handles. Out-of-bounds evaluation uses a private surface copy, restoring the
-//! caller's state by construction. `CheckCrease` returns immediately because upstream
+//! handles. Direct local solutions retain the default variable count; the existing
+//! `LocalPointSolve` dispatcher sets it to two, as upstream does. Out-of-bounds
+//! evaluation uses a private surface copy, restoring the
+//! caller's state by construction. Compound surface copying has a 64-level depth bound. `CheckCrease` returns immediately because upstream
 //! disables it with `constexpr sbDoCreaseSubdomains = FALSE`. The local iteration has
 //! upstream's fixed bound of 35; no input-dependent recursion is introduced.
 
@@ -141,7 +143,7 @@ impl SurfPtSolveStepper<'_> {
             _ => return Ok(false),
         };
         let curve = Curve::from(IsoCurve::from_surface(
-            self.base.surface().clone_for_evaluation(),
+            self.base.surface().clone_for_evaluation()?,
             param,
             iso,
             iso < cross_domain.mid(),
@@ -436,7 +438,7 @@ impl Surface {
         guess: Point2,
         surface_object: Option<O>,
     ) -> Result<LocalPointSolve<O>> {
-        if let Some(surface) = with_out_of_bounds_enabled(self) {
+        if let Some(surface) = with_out_of_bounds_enabled(self)? {
             return surface.local_point_solve_1_body(k, domain, op, point, guess, surface_object);
         }
         self.local_point_solve_1_body(k, domain, op, point, guess, surface_object)

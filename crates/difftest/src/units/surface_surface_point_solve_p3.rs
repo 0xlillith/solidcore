@@ -307,7 +307,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     })
 }
 
-fn generated(rng: &mut Rng) -> Option<Inputs> {
+fn candidate(rng: &mut Rng) -> Option<Inputs> {
     let k = Kernel::default();
     let wrap = rng.chance(0.12);
     let (surf, natural, size) = if rng.chance(0.15) {
@@ -330,11 +330,7 @@ fn generated(rng: &mut Rng) -> Option<Inputs> {
         let size = surf_size(&surface).ok()?;
         (Geometry::Base(surface), natural, size)
     };
-    let domain = if rng.chance(0.4) {
-        gen_sub_dom(rng, natural)
-    } else {
-        natural
-    };
+    let domain = natural;
     let mut case = Inputs {
         wrap,
         surf,
@@ -347,6 +343,14 @@ fn generated(rng: &mut Rng) -> Option<Inputs> {
         },
     };
     let surface = geometry(&k, &case).ok()?;
+    let d = surface.natural_uv_domain();
+    let natural = [d.min().x, d.min().y, d.max().x, d.max().y];
+    let domain = if rng.chance(0.4) {
+        gen_sub_dom(rng, natural)
+    } else {
+        natural
+    };
+    case.dom = domain;
     case.test = gen_test(rng, &surface, domain, size);
     case.op = match rng.below(12) {
         0..=2 => Operation::Global {
@@ -363,13 +367,7 @@ fn generated(rng: &mut Rng) -> Option<Inputs> {
         n => {
             let uv = gen_uv(rng, domain);
             Operation::Stepper {
-                mode: if n == 11 {
-                    2
-                } else if n < 9 {
-                    0
-                } else {
-                    1
-                },
+                mode: if n == 11 { 2 } else { u8::from(n >= 9) },
                 uv,
                 next: if rng.chance(0.8) {
                     uv
@@ -377,13 +375,42 @@ fn generated(rng: &mut Rng) -> Option<Inputs> {
                     gen_uv(rng, domain)
                 },
                 tight: EFF_ZERO * (1.0 + v3(case.test).max_dimension()),
-                iteration: if rng.chance(0.5) { 0 } else { 1 },
+                iteration: i32::from(!rng.chance(0.5)),
                 hu: 0,
                 hv: 0,
             }
         }
     };
     Some(case)
+}
+
+// Generate only structurally valid inputs, before either engine is run. Never
+// inspect solver outputs here. Fully discontinuous knot sequences are outside the
+// shared native surface reader's contract; retry them as in the p1/p2 generators.
+fn generated(rng: &mut Rng) -> Option<Inputs> {
+    for _ in 0..64 {
+        let Some(input) = candidate(rng) else {
+            continue;
+        };
+        let rest = tail(&input);
+        let valid = match &input.surf {
+            Geometry::Base(surface) => {
+                let mut flat = vec![flag(input.wrap)];
+                if push_surf(&mut flat, surface).is_err() {
+                    continue;
+                }
+                flat.extend(rest);
+                ffi::validate(input.op.code(), &flat)
+            }
+            Geometry::Rev { rev } => {
+                ffi::validate_rev(input.op.code(), input.wrap, &rev_ffi(rev).ok()?, &rest)
+            }
+        };
+        if valid.is_ok() {
+            return Some(input);
+        }
+    }
+    None
 }
 
 impl UnitDiff for Runner {
