@@ -70,10 +70,9 @@
 //!   no element is skipped; unsigned products wrap as upstream's `ULONG`.
 //! - **Unported callees.** `SmSurface::LocalLineIntersect` (`surface.surface_p8`),
 //!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`),
-//!   `SmFace::PointClassify` (`query.face_p2`), the surface
-//!   cache of `smsurf_GetSurfaceCache` (`surface.surface_p1`,
-//!   `surface.surface_cache_p3`) and the poly types return
-//!   [`SolidError::Unported`] (see the `UNPORTED` markers).
+//!   `SmFace::PointClassify` (`query.face_p2`), `Grid::expand_hierarchy` and the poly
+//!   types return [`SolidError::Unported`] (see the `UNPORTED` markers). The surface
+//!   cache and its tree (`smsurf_GetSurfaceCache`, `GetTree`) are ported.
 //! - `SM_ERR` results the upstream ignores or `SER`s keep their behaviour; the
 //!   `SM_DEBUG_CODE` blocks are not ported. No recursion depends on input here
 //!   (`sm_FindPolyHit`, which recurses up a tree, is unported).
@@ -1145,18 +1144,18 @@ impl<'s> RayTracer<'s> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the surface cache's subdivision tree
-    /// (`SmSurfaceCache::GetTree`) is not ported; see
-    /// [`RayTracer::add_surface_with_bbox`] for the rest of the function.
+    /// `SM_ERR` when the surface cache or its tree is missing (or has no top node),
+    /// and those of the cache and tree builds and of
+    /// [`RayTracer::add_surface_with_bbox`] (its [`Grid::expand_hierarchy`] is
+    /// [`SolidError::Unported`] today).
     pub fn add_surface_to_grid(&mut self, k: &Kernel, surface: &'s Surface) -> Result<()> {
+        const OP: &str = "intersect::ray_tracer::add_surface_to_grid";
         // build the surface spatial decomposition by building the surface cache
-        // (the cache's absence is `SM_ERR` upstream)
-        let _cache = surface_cache::<usize>(k, surface, None)?;
-        // UNPORTED(surface.surface_cache_p3): SmSurfaceCache::GetTree
-        Err(SolidError::unported(
-            "SmSurfaceCache::GetTree",
-            "surface.surface_cache_p3",
-        ))
+        let mut cache = surface_cache::<usize>(k, surface, None)?;
+        let tree = cache.get_tree(k)?;
+        let top = tree.top_node().ok_or(SolidError::sm_err(OP))?;
+        let bbox = tree.node(top)?.bbox;
+        self.add_surface_with_bbox(surface, &bbox)
     }
 
     /// Embeds the faces of a poly B-rep in the grid (`AddPolyBrepToGrid`).

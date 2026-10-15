@@ -3470,13 +3470,10 @@ PARTIAL: 973 difftest cases (173 fixture, 800 generated), 880 bit-identical, 93 
 - **Fix:** `surface_leaf` retries a failed `evaluate` with `non_zero_tangents: false` and
   keeps the cross product when `evaluate_normal` fails; `Unported` still propagates.
   The leaf's mid values are not compared directly by difftest; only the ray record is.
-- **Remaining deviation (value, not control flow):** when `EvaluateNormal` fails
-  (`SmSurface.cpp:11016` onward), upstream leaves `rSurfaceNormal` holding the last
-  candidate cross product it tried (the unitized derivatives at the last of its 5 diagonal
-  step points, `SmSurface.cpp:11413-11417`), not the original `Du x Dv`. The port keeps
-  the original (near-zero) cross product. Both are non-normals; nothing downstream of
-  the leaf reads `mid_normal` before `surface.surface_p8` is ported, so port that
-  failure path (or reproduce the last candidate) with the evaluator.
+- **No remaining deviation:** upstream `SmSurface::EvaluateNormal` sets `(0,0,0)` and
+  returns `SM_SUCCESS` when every attempt fails (`SmSurface.cpp:11459-11462`), and the
+  port's `base_evaluate_normal` does the same, so the leaf's failure arm is effectively
+  unreachable (only `Unported` errors).
 
 ## intersect.surface_intersector_p2 (`SmSurfaceIntersector`, part 2, 2026-10-14)
 
