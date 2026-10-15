@@ -92,9 +92,9 @@ use crate::nurbs::knots::Side;
 
 use super::p1::CsIntersectEnfo;
 use super::p2::{DerivSurfDefinition, TangencyType};
+use super::p4::global_point_solve_starts;
 use super::p4::NoObject;
 use super::p5::DropPointOptions;
-use super::p4::global_point_solve_starts;
 use super::p7::SsGlobalSolver;
 use super::{Surface, SurfaceKind};
 

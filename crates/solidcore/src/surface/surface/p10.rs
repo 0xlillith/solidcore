@@ -175,7 +175,7 @@ fn surface_drop_point(
         guess_uv: Some(guess),
         ..Default::default()
     };
-    let d = surface.drop_point::<crate::surface::surface::p4::NoObject>(point, domain, &opts)?;
+    let d = surface.drop_point::<p4::NoObject>(point, domain, &opts)?;
     Ok(DroppedPoint {
         success: d.success,
         gap: d.gap,
