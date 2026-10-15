@@ -84,6 +84,8 @@
 //!   [`MAX_POINTS_IN_FACE`] are [`SolidError::InvalidInput`] (upstream allocates
 //!   them). The rectangular branch samples from `dUInc` / `dVInc`, not from the
 //!   domain minimum, as upstream does (`plan/upstream-issues.md`).
+//! - **`CreateCurvesByTrimming`** drops its unused `bForceUVClassify` argument; the
+//!   output arrays are asked for with `want_3d` / `want_uv`.
 //! - **Unported callees.** `sm_FaceClassifyUVLine` (`query.face_p3`),
 //!   `SmFace::CurveOnClassify` (`query.face_p2`), the `SmCurveClassification`
 //!   constructor of a curve (`intersect.curve_class_p4`),
