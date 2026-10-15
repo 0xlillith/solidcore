@@ -1037,7 +1037,11 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
         }
         OpIn::Planes { curve, planes } => {
             let c = build(curve)?;
-            let r = tri!(o, has_plane_crossings(&c, planes));
+            let planes: Vec<Plane> = planes
+                .iter()
+                .map(|[p, n]| Plane::from_normal(Vec3::from_array(*p), Vec3::from_array(*n)))
+                .collect();
+            let r = tri!(o, has_plane_crossings(&Kernel::default(), &c, &planes));
             o.extend([0.0, b(r)]);
         }
     }

@@ -1812,7 +1812,7 @@ fn param_direction_ignored(surface: &Surface, uv: Point2, vec: Vec3) -> Result<V
 }
 
 /// `SmIsoCurve(*pSrfEval, dir, value, bFromLeft)` (input clamped) as a curve.
-fn boundary_iso_curve(
+pub(super) fn boundary_iso_curve(
     surface: &Surface,
     dir: SurfParamType,
     value: f64,
@@ -1845,7 +1845,7 @@ fn boundary_iso_curve(
 
 /// `CreateIsoParametricCurve(ctx, dir, value, 0.0, pCurve, pOptDomain, &maxGap)`
 /// (virtual): the curve and its achieved maximum gap.
-fn create_iso_parametric_curve(
+pub(super) fn create_iso_parametric_curve(
     k: &Kernel,
     surface: &Surface,
     dir: SurfParamType,

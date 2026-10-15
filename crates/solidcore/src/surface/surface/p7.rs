@@ -103,6 +103,7 @@ use crate::nurbs::b_spline_surface::{
 };
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::surface::surface_cache::SurfaceCache;
 use crate::topology::BrepId;
 
 use super::p1::{
@@ -1080,10 +1081,14 @@ impl Surface {
         // signature gains with the solve)
         let _ = (uv_domain, test_point, distance_tolerance, requested);
         let _best = point_solve_best_answer_sq(op, opt_target_distance)?;
-        // UNPORTED(surface.surface_p8): SmSPGlobalSolver::LocalSolve
+        // The solve itself is `SpGlobalSolver::local_solve_branch` (surface.surface_p8); it
+        // needs the surface's object handle for the cache and the solutions, which this
+        // signature does not have (DISPATCH GAP), and its leaf solve
+        // (`sm_SpLocalSolve`, `SmSPGlobalSolver::IdenticalSolutions`) is unit p5's.
+        // UNPORTED(surface.surface_p5): sm_SpLocalSolve
         Err(SolidError::unported(
-            "SmSPGlobalSolver::LocalSolve",
-            "surface.surface_p8",
+            "sm_SpLocalSolve",
+            "surface.surface_p5",
         ))
     }
 
@@ -2079,6 +2084,9 @@ pub struct SpGlobalSolver<'t, 's, O> {
     pub surface: Option<&'s Surface>,
     /// `m_crUVDomain`.
     pub uv_domain: Extent2d,
+    /// The cache holding the patches of the surface tree's nodes, read by the leaf
+    /// solve (upstream reaches it through the node's tree owner).
+    pub surface_cache: Option<&'s SurfaceCache<O>>,
 }
 
 impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
@@ -2136,12 +2144,8 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SpGlobalSolver<'t, '_, O
         self.may_contain_answers(branch)
     }
 
-    fn local_solve(&mut self, _branch: &Branch) -> Result<bool> {
-        // UNPORTED(surface.surface_p8): SmSPGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmSPGlobalSolver::LocalSolve",
-            "surface.surface_p8",
-        ))
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.local_solve_branch(branch)
     }
 
     fn identical_solutions(

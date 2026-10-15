@@ -68,8 +68,7 @@
 //!   upstream leaves unset before `DoRender` are black; the hit node `RenderRay`
 //!   passes as the skip element is `m_apNodes[0]`, which `FireRay` always clears, so
 //!   no element is skipped; unsigned products wrap as upstream's `ULONG`.
-//! - **Unported callees.** `SmSurface::LocalLineIntersect` (`surface.surface_p8`),
-//!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`),
+//! - **Unported callees.** `SmSurface::EvaluateNormalSection` (`surface.surface_p3`),
 //!   `SmFace::PointClassify` (`query.face_p2`), `Grid::expand_hierarchy` and the poly
 //!   types return [`SolidError::Unported`] (see the `UNPORTED` markers). The surface
 //!   cache and its tree (`smsurf_GetSurfaceCache`, `GetTree`) are ported.
@@ -150,23 +149,6 @@ impl SolutionObject for RayObject {
     }
 }
 
-/// The outputs of `SmSurface::LocalLineIntersect`.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct LineIntersection {
-    /// `rbFoundIntersection`.
-    pub found: bool,
-    /// `rUVFound`: the surface parameters of the intersection.
-    pub uv: Point2,
-    /// `rdTFound`: the line parameter.
-    pub t: f64,
-    /// `rdDeviation`: the distance between the final line and surface points.
-    pub deviation: f64,
-    /// `rPoint`: the intersection point.
-    pub point: Point3,
-    /// `rNormal`: the surface normal there (not unitized).
-    pub normal: Vec3,
-}
-
 /// The outputs of `SmSurface::EvaluateNormalSection`.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct NormalSection {
@@ -176,25 +158,6 @@ pub struct NormalSection {
     pub curvature: f64,
     /// `rSurfaceNormalVector`: the unit surface normal.
     pub normal: Vec3,
-}
-
-/// `SmSurface::LocalLineIntersect`: the line `point + t * vector` against the surface
-/// from the guess `uv_guess`.
-fn surface_local_line_intersect(
-    _surface: &Surface,
-    _uv_domain: &Extent2d,
-    _line_point: Point3,
-    _line_vector: Vec3,
-    _interval: &Extent1d,
-    _distance_tolerance: f64,
-    _accuracy_tolerance: f64,
-    _uv_guess: Point2,
-) -> Result<LineIntersection> {
-    // UNPORTED(surface.surface_p8): SmSurface::LocalLineIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalLineIntersect",
-        "surface.surface_p8",
-    ))
 }
 
 /// `SmSurface::EvaluateNormalSection` (`bUFromLeft`, `bVFromLeft` both true).
@@ -753,8 +716,8 @@ impl Lsi3LocalSolver {
             };
             uv_point = Vec2::new(gu, gv);
 
-            let hit = surface_local_line_intersect(
-                surface,
+            // SmSurface::LocalLineIntersect (SER)
+            let hit = surface.local_line_intersect(
                 uv_domain,
                 self.line_point,
                 self.line_vector,

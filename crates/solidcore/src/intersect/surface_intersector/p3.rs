@@ -57,7 +57,7 @@
 //! - **Previous UVs.** `ComputeNextPoint` hands `RefinePoint` the address of the
 //!   previous point's first UV position, which the callee may read as the array
 //!   `m_vUVCurvePV` (`[uv0, duv0, uv1, duv1]`); that array is passed.
-//! - **Unported callees.** `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`),
+//! - **Unported callees.**
 //!   `SmSurface::DropAndTrimCurve`'s trace (`intersect.surface_drop_curve`, through
 //!   [`Surface::drop_and_trim_curve`]) and
 //!   `SmSurface::IsSingularity` of a surface that is not a plane (`surface.surface_p5`)
@@ -73,7 +73,9 @@ use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p1::line_closest_point;
-use crate::geom::solution_array::{Solution, SolutionEnd, SolutionType};
+use crate::geom::solution_array::{
+    ObjectKind, Solution, SolutionEnd, SolutionObject, SolutionType,
+};
 use crate::geom::tol::{is_zero, ZONE_TOL_3D};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
@@ -380,6 +382,7 @@ impl SurfaceIntersector<'_> {
                     Vec::new()
                 } else {
                     surface_global_curve_intersect(
+                        k,
                         self.surface(other),
                         &other_domain,
                         &tgt_curve,
@@ -1336,20 +1339,53 @@ fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
     }
 }
 
+/// The objects of the solutions of [`surface_global_curve_intersect`]: nothing reads
+/// them (the solutions here name no objects).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SolveObject {
+    Curve,
+    Surface,
+}
+
+impl SolutionObject for SolveObject {
+    fn kind(&self) -> ObjectKind {
+        match self {
+            Self::Curve => ObjectKind::Curve,
+            Self::Surface => ObjectKind::Surface,
+        }
+    }
+}
+
 /// `surface.GlobalCurveIntersect(domain, curve, interval, tol, solutions)`: the
-/// solutions, `[t, u, v]` each.
+/// solutions, `[t, u, v]` each (their objects and nodes are not kept).
 fn surface_global_curve_intersect(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<Vec<Solution<()>>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
+    let found = surface.global_curve_intersect::<SolveObject>(
+        k,
+        [SolveObject::Curve, SolveObject::Surface],
+        domain,
+        curve,
+        interval,
+        tol,
+    )?;
+    Ok(found
+        .as_slice()
+        .iter()
+        .map(|s| {
+            let mut out = Solution::<()>::new();
+            out.solution_type = s.solution_type;
+            out.num_variables = s.num_variables;
+            out.start = s.start;
+            out.end = s.end;
+            out
+        })
+        .collect())
 }
 
 /// The outputs of `SmSurface::DropAndTrimCurve` used here.
