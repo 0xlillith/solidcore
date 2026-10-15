@@ -106,7 +106,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
 - [ ] 🔨 `query.face_p2` (1161 lines) — in progress: #104 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
-- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (draft)
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (draft)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
@@ -293,7 +293,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `topology.face_p1` (2171 lines) — waiting
 - [ ] ⏳ `topology.brep_p1` (2454 lines) — waiting
 - [ ] ⏳ `topology.brep_p6` (1479 lines) — waiting
-- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (draft)
+- [ ] 🔨 `topology.brep_cache` (389 lines) — in progress: #115 @damgru (ready for review)
 - [ ] ⏳ `topology.brep_p4` (2113 lines) — waiting
 - [ ] ⏳ `topology.brep_p9` (2443 lines) — waiting
 - [ ] ⏳ `topology.brep_p2` (2443 lines) — waiting
