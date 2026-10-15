@@ -587,6 +587,42 @@ impl Surface {
         }
     }
 
+    /// [`Surface::evaluate`] for a caller that ignores its status: the derivative array
+    /// the evaluation leaves, `None` when it fails before writing it (the caller's
+    /// array is unchanged). The `SmBSplineSurface` evaluation (B-splines and surfaces
+    /// of revolution) keeps what it wrote when its zero-tangent repair fails; the other
+    /// kinds' failures are returned (they do not leave a known partial array).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`BSplineSurface::evaluate_ignoring_status`]; those of the other
+    /// kinds' evaluations.
+    pub fn evaluate_ignoring_status(
+        &self,
+        uv: Point2,
+        highest_u_deriv: usize,
+        highest_v_deriv: usize,
+        flags: EvaluateFlags,
+    ) -> Result<Option<Vec<Vec<Vec3>>>> {
+        match &self.kind {
+            SurfaceKind::BSpline(s) => {
+                s.evaluate_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            // (not overridden: the SmBSplineSurface evaluation)
+            SurfaceKind::SurfOfRevolution(s) => {
+                s.base()
+                    .evaluate_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::OffsetSurface(_) => self
+                .evaluate(uv, highest_u_deriv, highest_v_deriv, flags)
+                .map(Some),
+        }
+    }
+
     /// The point at `uv` (`EvaluatePoint`).
     ///
     /// # Errors

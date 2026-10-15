@@ -1714,8 +1714,7 @@ impl BSplineSurface {
     ///
     /// # Errors
     ///
-    /// Those of [`OffsetSurface::new`](crate::surface::offset_surface::OffsetSurface::new)
-    /// ([`SolidError::Unported`]: the base's `GetSingularities`, `surface.surface_p3`).
+    /// Those of [`OffsetSurface::new`](crate::surface::offset_surface::OffsetSurface::new).
     pub fn create_offset_surface(
         &self,
         k: &Kernel,

@@ -1555,19 +1555,40 @@ impl Surface {
         Ok(Vec2::new(size_u, size_v))
     }
 
-    /// The offset of this surface by `signed_offset_distance` (`CreateOffsetSurface`;
-    /// the approximation tolerance is not used): an offset surface's override (its base
-    /// offset by the compound distance), else the base body, an `SmOffsetSurface` that
-    /// owns a copy of this surface (default singularities).
+    /// The offset of this surface by `signed_offset_distance` (`CreateOffsetSurface`,
+    /// virtual): a plane moves a copy along its normal, a surface of revolution offsets
+    /// its generator within `approx_tol_3d`, an offset surface offsets its base by the
+    /// compound distance; the other kinds run the base body (also what
+    /// `SmBSplineSurface`'s override calls), an `SmOffsetSurface` that owns a copy of
+    /// this surface (default singularities). Only the surface of revolution uses
+    /// `approx_tol_3d`.
     ///
     /// # Errors
     ///
-    /// Those of [`Surface::copy`] and of [`OffsetSurface::new`].
-    pub fn create_offset_surface(&self, k: &Kernel, signed_offset_distance: f64) -> Result<Self> {
-        if let SurfaceKind::OffsetSurface(s) = self.kind() {
-            return s.create_offset_surface(k, signed_offset_distance);
+    /// Those of the overrides, of [`Surface::copy`] and of [`OffsetSurface::new`].
+    pub fn create_offset_surface(
+        &self,
+        k: &Kernel,
+        signed_offset_distance: f64,
+        approx_tol_3d: f64,
+    ) -> Result<Self> {
+        match self.kind() {
+            SurfaceKind::Plane(p) => {
+                Ok(Self::from(p.create_offset_surface(signed_offset_distance)?))
+            }
+            SurfaceKind::SurfOfRevolution(s) => Ok(Self::from(s.create_offset_surface(
+                k,
+                signed_offset_distance,
+                approx_tol_3d,
+            )?)),
+            SurfaceKind::OffsetSurface(s) => s.create_offset_surface(k, signed_offset_distance),
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {
+                base_create_offset_surface(k, self, signed_offset_distance)
+            }
         }
-        base_create_offset_surface(k, self, signed_offset_distance)
     }
 
     /// The silhouette curves of the surface over `uv_domain` for a parallel
@@ -1605,15 +1626,22 @@ impl Surface {
     /// scaled zero) and tangent directions on both sides of the possible seam (to the
     /// angle tolerance, checked again unitised).
     ///
+    /// Upstream ignores the evaluation statuses: a failed evaluation leaves what it
+    /// wrote (for a collapsed B-spline, the raw derivatives its zero-tangent repair
+    /// could not fix) or, failing before writing, the previous sample's values
+    /// (initially undefined points), and the tests go on with those.
+    ///
     /// # Errors
     ///
-    /// Those of the evaluations. A failing `Unitize` returns `true`, as upstream's
-    /// `SER` inside a boolean function.
+    /// Those of [`Surface::evaluate_ignoring_status`]. A failing `Unitize` returns
+    /// `true`, as upstream's `SER` inside a boolean function.
     pub fn is_periodic(&self, uv_domain: &Extent2d, surf_param: SurfParamType) -> Result<bool> {
         const NUM_TEST_POINTS: u32 = 7;
 
         // locals
         let ang_tol_rad_sq = ANG_TOL_RAD * ANG_TOL_RAD;
+        let mut p_min = [[Vec3::UNDEF; 2]; 2];
+        let mut p_max = [[Vec3::UNDEF; 2]; 2];
 
         // for every internal sample points (don't do end points)
         for ii in 1..NUM_TEST_POINTS {
@@ -1631,9 +1659,13 @@ impl Surface {
                 uv_max.y = uv_domain.max().y;
             }
 
-            // surface evaluations on either side of the possible seam
-            let p_min = first_block(&self.evaluate(uv_min, 1, 1, upper_flags(true))?);
-            let p_max = first_block(&self.evaluate(uv_max, 1, 1, upper_flags(true))?);
+            // surface evaluations on either side of the possible seam (statuses ignored)
+            if let Some(d) = self.evaluate_ignoring_status(uv_min, 1, 1, upper_flags(true))? {
+                p_min = first_block(&d);
+            }
+            if let Some(d) = self.evaluate_ignoring_status(uv_max, 1, 1, upper_flags(true))? {
+                p_max = first_block(&d);
+            }
 
             let scaled_zero = p_max[0][0].scaled_zero();
 
@@ -3103,6 +3135,92 @@ mod tests {
         assert_eq!(s.evaluate_step_point(uv).unwrap(), p);
         let step = s.evaluate_step(uv, 1, 1, upper_flags(false)).unwrap();
         assert_eq!(at(&step, 1, 0), du);
+    }
+
+    fn same_points(a: &Surface, b: &Surface) {
+        for uv in [(0.0, 0.0), (0.25, 0.5), (1.0, 0.75)] {
+            let uv = Point2::new(uv.0, uv.1);
+            assert_eq!(a.evaluate_point(uv).unwrap(), b.evaluate_point(uv).unwrap());
+        }
+    }
+
+    /// `CreateOffsetSurface` is virtual: a plane offsets to a moved plane, not to an
+    /// `SmOffsetSurface` over it.
+    #[test]
+    fn create_offset_surface_dispatches_to_plane() {
+        let k = Kernel::default();
+        let plane = Plane::from_normal(Point3::new(1.0, 2.0, 3.0), Vec3::Z);
+        let off = Surface::from(plane.clone())
+            .create_offset_surface(&k, 2.0, 1e-3)
+            .unwrap();
+        assert!(matches!(off.kind(), SurfaceKind::Plane(_)));
+        same_points(
+            &off,
+            &Surface::from(plane.create_offset_surface(2.0).unwrap()),
+        );
+        let base = Surface::from(plane)
+            .evaluate_point(Point2::new(0.25, 0.5))
+            .unwrap();
+        let moved = off.evaluate_point(Point2::new(0.25, 0.5)).unwrap();
+        assert_eq!(moved - base, Vec3::new(0.0, 0.0, 2.0));
+    }
+
+    /// A surface of revolution offsets its generator, with the caller's tolerance.
+    #[test]
+    fn create_offset_surface_dispatches_to_revolution() {
+        let k = Kernel::default();
+        let mut l = Line::from_points(Point3::new(1.0, 0.0, 0.0), Point3::new(1.0, 0.0, 2.0), 3);
+        l.make_nurb().unwrap();
+        let rev = crate::surface::surf_of_revolution::SurfOfRevolution::create_canonical(
+            &k,
+            Curve::from(l),
+            Vec3::ZERO,
+            Vec3::Z,
+            false,
+        )
+        .unwrap();
+        for tol in [1e-6, 1e-2] {
+            let off = Surface::from(rev.clone())
+                .create_offset_surface(&k, 0.25, tol)
+                .unwrap();
+            assert!(matches!(off.kind(), SurfaceKind::SurfOfRevolution(_)));
+            let direct = Surface::from(rev.create_offset_surface(&k, 0.25, tol).unwrap());
+            same_points(&off, &direct);
+        }
+    }
+
+    /// `IsPeriodic` ignores its evaluation statuses: on a bicubic surface collapsed to
+    /// one point the zero-tangent repair fails, the raw derivatives are compared and
+    /// both directions are periodic; the offset constructor that asks then succeeds.
+    #[test]
+    fn is_periodic_ignores_failed_tangent_repairs() {
+        use crate::nurbs::math::{CPoint, NOW};
+        use crate::nurbs::srf_basic::Surface as NlSurface;
+        let net = vec![vec![CPoint::new(1.0, 2.0, 3.0, NOW); 4]; 4];
+        let knots = vec![0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0];
+        let nl = NlSurface::new(net, 3, 3, knots.clone(), knots).unwrap();
+        let s = Surface::from(BSplineSurface::from_nurb(nl, false));
+        let dom = s.natural_uv_domain();
+        // the plain evaluation reports the failed repair
+        assert!(s
+            .evaluate(Point2::new(0.5, 0.5), 1, 1, upper_flags(true))
+            .is_err());
+        assert!(s.is_periodic(&dom, SurfParamType::U).unwrap());
+        assert!(s.is_periodic(&dom, SurfParamType::V).unwrap());
+        let k = Kernel::default();
+        let off = OffsetSurface::new(&k, 1.0, s, true, 0).unwrap();
+        assert_eq!(off.is_periodic(), [1, 1]);
+    }
+
+    /// A B-spline surface runs the base body: an owning `SmOffsetSurface`.
+    #[test]
+    fn create_offset_surface_wraps_b_spline() {
+        let k = Kernel::default();
+        let off = bilinear().create_offset_surface(&k, 0.5, 1e-3).unwrap();
+        let SurfaceKind::OffsetSurface(o) = off.kind() else {
+            panic!("expected an offset surface");
+        };
+        assert_eq!(o.offset_distance(), 0.5);
     }
 
     #[test]

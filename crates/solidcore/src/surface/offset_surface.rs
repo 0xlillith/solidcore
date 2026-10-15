@@ -37,8 +37,11 @@
 //!   kept as a flag because `Transform`, `SwapUV` and `TrimWithDomain` fail without it.
 //!   The offset does not become its base's owner (`SetOwner(this)`): the box is the
 //!   ownership, so the base's [`Surface::face`] does not follow the offset's owner
-//!   chain (its only consumer upstream, the zone tolerance of a face, needs
-//!   `SmFace::GetTolerance`, unit `topology.face_p2`). The `SetBaseSurface` setter, the
+//!   chain. Its only consumer, the zone tolerance a B-spline base's box asks its face
+//!   for, is handled in [`OffsetSurface::calculate_bounding_box`], which passes down
+//!   whether a face owns the outermost offset and returns `SmFace::GetTolerance`'s
+//!   [`SolidError::Unported`] (as a face-owned B-spline does) instead of the default
+//!   zone tolerance. The `SetBaseSurface` setter, the
 //!   unused copy constructor, `CreateMirrorSurface`, `GetMemoryUsed`, `WriteToDB`,
 //!   `Draw`, `DrawUV`, `Dump` and `AssertValid` are not ported (unused upstream).
 //! - **Context.** Every surface has a context here, so the clamp-instead-of-extend
@@ -46,8 +49,7 @@
 //!   The constructor and every member that constructs an offset ([`OffsetSurface::copy`],
 //!   [`OffsetSurface::split_at`], [`OffsetSurface::create_extended_surface_dir`],
 //!   [`OffsetSurface::create_offset_surface`], [`OffsetSurface::read_from_db`]) take the
-//!   kernel for the base's `GetSingularities` (unit `surface.surface_p3`, stubbed until
-//!   it lands).
+//!   kernel for the base's `GetSingularities`.
 //! - **Extension cache.** Upstream's `const` evaluators (`EvaluatePoint`, `Evaluate`,
 //!   `EvaluateSimple`, `EvaluateNormal` through the base body, and `STEPInversion` through
 //!   `EvaluatePoint`) build an extended
@@ -83,10 +85,10 @@
 //! - **Database.** `ReadFromDB` always makes a new surface (the fill-an-existing-object
 //!   mode is not used by `SmSurface::ReadFromDB`). An ASCII flag the stream cannot
 //!   extract (uninitialised upstream) reads as `0`.
-//! - **Unported callees.** `GetSingularities` (`surface.surface_p3`) for a base that is
-//!   not itself an offset, when the singularities are [`SS_UNKNOWN`]; the bounding box
-//!   of a domain outside the base domain is the base-class body, whose surface tree
-//!   needs `SmSurface::CalculateContinuities` (`surface.surface_p6`).
+//! - **`GetSingularities`.** The constructor and `ReadFromDB` call it through an
+//!   `SmSurface` reference, so a base that is itself an offset runs the `SmSurface` body
+//!   too: `SmOffsetSurface::GetSingularities()` (no arguments, returning the stored
+//!   flags) hides the virtual rather than overriding it.
 
 use core::ptr;
 
@@ -251,11 +253,10 @@ const fn is_b_spline_kind(surface: &Surface) -> bool {
     )
 }
 
-/// `SmSurface::GetSingularities()` of a base surface.
+/// `rSurface.GetSingularities()` of a base surface through `SmSurface&`: the virtual
+/// with default arguments, whose only body is `SmSurface`'s (also for an offset base;
+/// see the module deviations).
 fn base_singularities(k: &Kernel, surface: &Surface) -> Result<u32> {
-    if let SurfaceKind::OffsetSurface(off) = surface.kind() {
-        return Ok(off.singularities());
-    }
     Ok(surface.get_singularities(k, false, false)?.singular)
 }
 
@@ -278,8 +279,8 @@ impl OffsetSurface {
     /// # Errors
     ///
     /// `InvalidInput` above [`MAX_SURFACE_NESTING`] nested surface wrappers;
-    /// those of [`Surface::is_periodic`]; [`SolidError::Unported`]:
-    /// `SmSurface::GetSingularities` (`surface.surface_p3`) for [`SS_UNKNOWN`].
+    /// those of [`Surface::is_periodic`] and, for [`SS_UNKNOWN`], of
+    /// [`Surface::get_singularities`].
     pub fn new(
         k: &Kernel,
         offset_distance: f64,
@@ -629,7 +630,10 @@ impl OffsetSurface {
     /// # Errors
     ///
     /// Those of the base surface's [`Surface::calculate_bounding_box`] and of
-    /// [`Surface::base_calculate_bounding_box`].
+    /// [`Surface::base_calculate_bounding_box`]; [`SolidError::Unported`]:
+    /// `SmFace::GetTolerance` (`topology.face_p2`) when a face owns `this` and the
+    /// expanded box of a B-spline, plane or surface of revolution base would ask that
+    /// face for its tolerance.
     pub fn calculate_bounding_box(
         &self,
         k: &Kernel,
@@ -637,6 +641,29 @@ impl OffsetSurface {
         uv_domain: &Extent2d,
         want: [bool; 3],
         expand_pos_boxes_by_zone_tol_3d: bool,
+    ) -> Result<SurfaceBoxes> {
+        let face_owned = this.face()?.is_some();
+        self.bounding_box_with(
+            k,
+            this,
+            uv_domain,
+            want,
+            expand_pos_boxes_by_zone_tol_3d,
+            face_owned,
+        )
+    }
+
+    /// [`OffsetSurface::calculate_bounding_box`] with `face_owned` telling whether a face
+    /// owns the outermost offset: upstream's base surfaces reach it through `GetFace()`'s
+    /// owner chain, which the boxed bases here do not have (see the module deviations).
+    fn bounding_box_with(
+        &self,
+        k: &Kernel,
+        this: &Surface,
+        uv_domain: &Extent2d,
+        want: [bool; 3],
+        expand_pos_boxes_by_zone_tol_3d: bool,
+        face_owned: bool,
     ) -> Result<SurfaceBoxes> {
         if !uv_domain.is_contained_by(&self.surface.natural_uv_domain(), EFF_ZERO) {
             return this.base_calculate_bounding_box(k, want, expand_pos_boxes_by_zone_tol_3d);
@@ -660,12 +687,33 @@ impl OffsetSurface {
         });
 
         // bound the base surface
-        let base = self.surface.calculate_bounding_box(
-            k,
-            uv_domain,
-            [true, true, true],
-            expand_pos_boxes_by_zone_tol_3d,
-        )?;
+        let base = match self.surface.kind() {
+            SurfaceKind::OffsetSurface(inner) => inner.bounding_box_with(
+                k,
+                &self.surface,
+                uv_domain,
+                [true, true, true],
+                expand_pos_boxes_by_zone_tol_3d,
+                face_owned,
+            )?,
+            // the SmBSplineSurface override expands by GetZoneTol3d(this), which asks the
+            // face found through the owner chain for its tolerance
+            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_)
+                if face_owned && expand_pos_boxes_by_zone_tol_3d =>
+            {
+                // UNPORTED(topology.face_p2): SmFace::GetTolerance
+                return Err(SolidError::unported(
+                    "SmFace::GetTolerance",
+                    "topology.face_p2",
+                ));
+            }
+            _ => self.surface.calculate_bounding_box(
+                k,
+                uv_domain,
+                [true, true, true],
+                expand_pos_boxes_by_zone_tol_3d,
+            )?,
+        };
         let missing = || SolidError::invalid_input(OP, "base surface box not computed");
         let base_normal = base.normal_box.ok_or_else(missing)?;
         let base_pseudo = base.pseudo_box.ok_or_else(missing)?;
@@ -1589,8 +1637,8 @@ impl OffsetSurface {
     /// # Errors
     ///
     /// Those of the reader and of [`Surface::read_from_db`]; `InvalidInput` for an
-    /// unreadable type header (undefined upstream) or nesting too deep;
-    /// [`SolidError::Unported`]: `SmSurface::GetSingularities` (`surface.surface_p3`).
+    /// unreadable type header (undefined upstream) or nesting too deep; those of
+    /// [`Surface::get_singularities`].
     pub fn read_from_db(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Self> {
         db.enter_nested(OP_READ)?;
         let result = read_body(k, db, version);
@@ -2127,11 +2175,78 @@ mod tests {
         ));
     }
 
+    fn face_owned(s: Surface) -> Surface {
+        let mut s = s;
+        s.set_owner(Some(crate::geom::object::ObjectRef {
+            type_code: crate::geom::assert_array::labels::FACE_TYPE,
+            key: crate::geom::attribute::ObjectKey(0),
+        }));
+        s
+    }
+
+    fn is_face_tolerance(r: Result<impl core::fmt::Debug>) -> bool {
+        matches!(
+            r,
+            Err(SolidError::Unported {
+                unit: "topology.face_p2",
+                ..
+            })
+        )
+    }
+
+    /// A face-owned offset asks its face for the box expansion (through the base's
+    /// owner chain upstream), as a face-owned B-spline does; it never falls back to
+    /// the default zone tolerance.
     #[test]
-    fn default_singularities_wait_for_surface_p3() {
+    fn face_owned_box_expansion_needs_the_face_tolerance() {
         let k = Kernel::default();
-        let r = OffsetSurface::new(&k, 1.0, plane(), true, SS_UNKNOWN);
-        assert!(matches!(r, Err(SolidError::Unported { .. })));
+        let dom = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
+        let off = face_owned(Surface::from(offset(2.0)));
+        assert!(is_face_tolerance(off.calculate_bounding_box(
+            &k,
+            &dom,
+            [true, false, false],
+            true
+        )));
+        assert!(is_face_tolerance(off.calculate_bounding_box(
+            &k,
+            &dom,
+            [false, false, true],
+            true
+        )));
+        assert!(is_face_tolerance(off.is_planar(&k, 1e-6)));
+        // no expansion, no tolerance: the box is computed
+        assert!(off
+            .calculate_bounding_box(&k, &dom, [true, true, true], false)
+            .is_ok());
+
+        // a nested offset passes the face down to its base
+        let nested = OffsetSurface::new(&k, 1.0, Surface::from(offset(2.0)), true, 0).unwrap();
+        let nested = face_owned(Surface::from(nested));
+        assert!(is_face_tolerance(nested.calculate_bounding_box(
+            &k,
+            &dom,
+            [true, false, false],
+            true
+        )));
+
+        // without a face the base's default expansion is used
+        let free = Surface::from(offset(2.0));
+        assert!(free
+            .calculate_bounding_box(&k, &dom, [true, true, true], true)
+            .is_ok());
+    }
+
+    #[test]
+    fn default_singularities_come_from_the_base() {
+        let k = Kernel::default();
+        let off = OffsetSurface::new(&k, 1.0, plane(), true, SS_UNKNOWN).unwrap();
+        let base = plane()
+            .get_singularities(&k, false, false)
+            .unwrap()
+            .singular;
+        assert_eq!(off.singularities(), base);
+        assert_eq!(off.singularities(), crate::geom::extent2d::SS_NONE);
     }
 
     #[test]
