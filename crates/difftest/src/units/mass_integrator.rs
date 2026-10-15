@@ -449,7 +449,13 @@ fn geometry_rust(g: &Geometry) -> Output {
                         2, n, m, degree, &cp, &knots,
                     )?));
                 }
-                let domain = Extent2d::from_points(Vec2::new(u0, v0), Vec2::new(u1, v1));
+                let domain = if *query == 7 {
+                    // Surface::Area integrates the requested rectangle, independent
+                    // of the face's trims or its resulting UV bounding domain.
+                    Extent2d::from_points(Vec2::new(p[5], p[6]), Vec2::new(p[7], p[8]))
+                } else {
+                    Extent2d::from_points(Vec2::new(u0, v0), Vec2::new(u1, v1))
+                };
                 let surface = if *kind == 3 {
                     let cp: Vec<Vec<_>> = (0..3)
                         .map(|i| {
