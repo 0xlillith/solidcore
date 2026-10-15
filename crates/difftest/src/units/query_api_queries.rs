@@ -1,5 +1,5 @@
-//! Public SmApi queries against real native geometry. Topology inputs are imported
-//! from the established raw graph exporter; all query results come from SmApi*.
+//! Public `SmApi` queries against real native geometry. Topology inputs are imported
+//! from the established raw graph exporter; all query results come from `SmApi*`.
 //! Analytic wire curves are reconstructed as their concrete Rust kinds after import.
 use crate::case::CaseContext;
 use crate::runner::default_cases;
@@ -160,6 +160,31 @@ fn imported(k: &Kernel, a: &[f64; 22], export_op: i32) -> std::result::Result<Br
             b.edge_mut(id)
                 .map_err(|e| HarnessError::new(e.to_string()))?
                 .curve = Some(curve(k, a).map_err(|e| HarnessError::new(e.to_string()))?);
+        }
+    }
+    let edges: Vec<_> = b.edges().ids().collect();
+    for id in edges {
+        if let Some(curve) = b
+            .edge_mut(id)
+            .map_err(|e| HarnessError::new(e.to_string()))?
+            .curve
+            .as_mut()
+        {
+            let _ = curve.set_owner(
+                Some(arena_identity(CacheObject::Edge(id))),
+                Some(arena_identity(CacheObject::Brep)),
+            );
+        }
+    }
+    let faces: Vec<_> = b.faces().ids().collect();
+    for id in faces {
+        if let Some(surface) = b
+            .face_mut(id)
+            .map_err(|e| HarnessError::new(e.to_string()))?
+            .surface
+            .as_mut()
+        {
+            let _ = surface.set_owner(Some(arena_identity(CacheObject::Face(id))));
         }
     }
     Ok(b)
@@ -389,7 +414,7 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
             o.push(loops.edges.len() as f64);
             for (id, orient) in loops.edges.iter().zip(&loops.orientations) {
                 o.push(f64::from(id.index()));
-                o.push(*orient as i32 as f64);
+                o.push(f64::from(*orient as i32));
             }
         }
         12 => {
@@ -507,10 +532,15 @@ impl UnitDiff for Runner {
                     ))
                 } else {
                     let b = imported(&k, a, 0)?;
-                    b.faces()
+                    let mut surface = b
+                        .faces()
                         .iter()
                         .find_map(|(_, f)| f.surface.clone())
-                        .ok_or_else(|| HarnessError::new("missing patch"))?
+                        .ok_or_else(|| HarnessError::new("missing patch"))?;
+                    // The native surface query uses an unowned surface, before
+                    // any face is built; preserve that ownership on the Rust side.
+                    let _ = surface.set_owner(None);
+                    surface
                 };
                 api::surface_closest_point(&k, &s, point).map(|p| {
                     let mut o = vec![0.];

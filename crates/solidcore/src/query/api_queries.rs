@@ -570,10 +570,10 @@ pub fn find_faces(
 
 /// Manifold solid predicate (`SmApiBrepIsManifoldSolid`); waits for B-rep traversal.
 pub fn brep_is_manifold_solid(_brep: &Brep) -> Result<bool> {
-    // UNPORTED(topology.brep_p1): SmBrep::IsManifoldSolid
+    // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
     Err(SolidError::unported(
         "SmBrep::IsManifoldSolid",
-        "topology.brep_p1",
+        "topology.brep_p2",
     ))
 }
 
@@ -609,14 +609,10 @@ pub fn face_bounding_box(_k: &Kernel, brep: &Brep, face: FaceId, tight: bool) ->
     ))
 }
 
-/// Interior face point (`SmApiFaceInternalPoint`); missing query is `Unported`.
-pub fn face_internal_point(_k: &Kernel, brep: &Brep, face: FaceId) -> Result<Point3> {
-    brep.face(face)?;
-    // UNPORTED(topology.face_p4): SmFace::CalculateAnInternalPoint
-    Err(SolidError::unported(
-        "SmFace::CalculateAnInternalPoint",
-        "topology.face_p4",
-    ))
+/// Interior face point (`SmApiFaceInternalPoint`). Errors from the face query
+/// propagate, including explicit deferrals of its unfinished dependencies.
+pub fn face_internal_point(k: &Kernel, brep: &Brep, face: FaceId) -> Result<Point3> {
+    face::calculate_an_internal_point(k, brep, face)
 }
 
 /// UV classification (`SmApiFaceClassifyUV`), using UV containment rather than a

@@ -1,13 +1,13 @@
 //! Native public-query calls. Shim: `harness/cpp/shim/query_api_queries.cpp`.
 //!
 //! Fixed layout: origin[3], direction[3], scale, domain[4], query[3], parameter,
-//! tight, null, remove_curve, inside_out, edge_tolerance, selector, kind.
+//! tight, null, `remove_curve`, `inside_out`, `edge_tolerance`, selector, kind.
 //! Kinds: 0 line, 1 circle, 2 ellipse, 3 cubic B-spline, 4 plane, 5 quadratic
 //! B-spline surface, 6 box, 7 empty B-rep, 8 rational cylinder, 9 rational sphere.
 //! Op 0 exports the native graph; 1..25
-//! call SmApi queries (see the runner). Op 26 exports the graph with the selected
-//! face boundary's last orientation set to Unknown when inside_out is true, as
-//! op 11 does before querying. Results start with the exact SmStatus.
+//! call `SmApi` queries (see the runner). Op 26 exports the graph with the selected
+//! face boundary's last orientation set to Unknown when `inside_out` is true, as
+//! op 11 does before querying. Results start with the exact `SmStatus`.
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
