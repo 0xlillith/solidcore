@@ -23,6 +23,101 @@ struct Inputs {
     wires: bool,
     #[serde(default)]
     transfer: Option<TransferInputs>,
+    #[serde(default)]
+    type_probe: Option<TypeProbe>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TypeProbe {
+    code: i64,
+    shell: Option<usize>,
+}
+
+fn type_probe_index(probe: &TypeProbe, counts: [usize; 10]) -> Result<Option<usize>, HarnessError> {
+    match probe.shell {
+        None => Ok(None),
+        Some(index) => {
+            let count = counts.get(1).copied().unwrap_or(0);
+            if count == 0 {
+                return Err(failure("type fixture has no existing shell"));
+            }
+            Ok(Some(index % count))
+        }
+    }
+}
+
+fn rust_type_members(
+    brep: &mut solidcore::topology::Brep,
+    probe: &TypeProbe,
+    selected: Option<usize>,
+) -> Result<Output, HarnessError> {
+    use solidcore::topology::shell::ShellMembers;
+    let id = if let Some(index) = selected {
+        ShellId::from_index(u32::try_from(index).map_err(failure)?)
+    } else {
+        let region = brep
+            .infinite_region()
+            .ok_or_else(|| failure("fixture has no infinite region"))?;
+        let id = brep
+            .add_shell_record(Shell {
+                region: Some(region),
+                ..Shell::new()
+            })
+            .map_err(failure)?;
+        brep.region_mut(region).map_err(failure)?.shells.push(id);
+        id
+    };
+    brep.shell_mut(id)
+        .map_err(failure)?
+        .set_shell_type(probe.code);
+    let shell = brep.shell(id).map_err(failure)?;
+    let (kind, head, count) = match &shell.members {
+        ShellMembers::Empty => (0, -1, 0),
+        ShellMembers::Faceuses(ids) => (
+            if ids.is_empty() { 0 } else { 16022 },
+            ids.first().map_or(-1, |id| i64::from(id.index())),
+            ids.len(),
+        ),
+        ShellMembers::Vertexuse(id) => (16006, i64::from(id.index()), 1),
+        ShellMembers::Edgeuse(id) => {
+            let edge = brep
+                .edgeuse(*id)
+                .map_err(failure)?
+                .edge
+                .ok_or_else(|| failure("head has no edge"))?;
+            (
+                16005,
+                i64::from(id.index()),
+                brep.edge(edge).map_err(failure)?.edgeuses.len(),
+            )
+        }
+    };
+    Ok(Output::new().ints(
+        "records",
+        vec![
+            shell.shell_type.code(),
+            flag(shell.is_vertex_shell()),
+            flag(shell.is_wire_shell()),
+            flag(shell.is_faceuse_shell()),
+            flag(shell.is_unknown_shell()),
+            shell
+                .first_faceuse()
+                .map_err(failure)?
+                .map_or(-1, |id| i64::from(id.index())),
+            shell
+                .wire_edge(brep)
+                .map_err(failure)?
+                .map_or(-1, |id| i64::from(id.index())),
+            shell
+                .vertex(brep)
+                .map_err(failure)?
+                .map_or(-1, |id| i64::from(id.index())),
+            kind,
+            head,
+            count as i64,
+        ],
+    ))
 }
 
 const TYPES: [i64; 5] = [16013, 16012, 16000, 16999, -1];
@@ -281,6 +376,20 @@ impl UnitDiff for Runner {
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
         }
+        if let Some(probe) = inputs.type_probe {
+            if inputs.transfer.is_some() || inputs.wires || inputs.void_state.is_some() {
+                return Err(failure(
+                    "type probe cannot be combined with another operation",
+                ));
+            }
+            let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
+            let counts = graph::counts(&export)
+                .ok_or_else(|| failure("native type fixture build failed"))?;
+            let values =
+                ffi::type_members(&path, &block, type_probe_index(&probe, counts)?, probe.code)
+                    .map_err(failure)?;
+            return Ok(Output::new().ints("records", values.to_vec()));
+        }
         let native = if let Some(transfer) = inputs.transfer {
             let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
             let counts = graph::counts(&export)
@@ -320,6 +429,16 @@ impl UnitDiff for Runner {
         let mut brep = import(&export)?;
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
+        }
+        if let Some(probe) = inputs.type_probe {
+            if inputs.transfer.is_some() || inputs.wires || inputs.void_state.is_some() {
+                return Err(failure(
+                    "type probe cannot be combined with another operation",
+                ));
+            }
+            let counts = graph::counts(&export)
+                .ok_or_else(|| failure("native type fixture build failed"))?;
+            return rust_type_members(&mut brep, &probe, type_probe_index(&probe, counts)?);
         }
         if let Some(transfer) = inputs.transfer {
             let counts = graph::counts(&export)

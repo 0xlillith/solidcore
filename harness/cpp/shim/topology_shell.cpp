@@ -278,3 +278,56 @@ SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* inp
         });
     SC_CATCH
 }
+
+// Checked member getters after arbitrary metadata changes. Use integer ABI so
+// every SM_TYPE bit is preserved rather than passing large type codes via double.
+#include <limits>
+#include <array>
+
+SC_EXPORT int32_t sc_topology_shell_type_members(const char* path, const double* input,
+    int64_t count, int64_t shell_index, int64_t type_code, int64_t* output, int64_t cap) {
+    if (!output || cap<11 || shell_index < -1
+        || type_code < std::numeric_limits<SM_TYPE>::min()
+        || type_code > std::numeric_limits<SM_TYPE>::max()) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,
+        [&](const sc_topology_fixture::View& view)->int32_t {
+            SmShell* shell=nullptr;
+            if (shell_index==-1) {
+                SmRegion* region=view.brep.GetInfiniteRegion();
+                if (!region || !view.brep.GetContext()) return SC_ERR_ARG;
+                std::unique_ptr<transfer_detail::EmptyShell> added(
+                    new (&view.brep) transfer_detail::EmptyShell());
+                if (region->PostInsert(added.get())!=SM_SUCCESS) return SC_ERR_ARG;
+                shell=added.release();
+            } else {
+                if (shell_index>=(int64_t)view.shells.size()) return SC_ERR_ARG;
+                shell=view.shells[(size_t)shell_index];
+            }
+            const SM_TYPE original=shell->*transfer_detail::ShellPeek::type();
+            struct RestoreType {
+                SmShell* shell; SM_TYPE original;
+                ~RestoreType() { shell->*transfer_detail::ShellPeek::type()=original; }
+            } restore{shell,original};
+            shell->SetShellType((SM_TYPE)type_code);
+            SmTopology* head=shell->GetList();
+            const SM_TYPE head_kind=head ? head->GetType() : 0;
+            int64_t head_id=-1;
+            if (head_kind==SmFaceuse_TYPE) head_id=(int64_t)identity(view.faceuses,(SmFaceuse*)head);
+            else if (head_kind==SmEdgeuse_TYPE) head_id=(int64_t)identity(view.edgeuses,(SmEdgeuse*)head);
+            else if (head_kind==SmVertexuse_TYPE) head_id=(int64_t)identity(view.vertexuses,(SmVertexuse*)head);
+            else if (head) return SC_ERR_ARG;
+            const std::array<int64_t,11> values{{
+                (int64_t)(shell->*transfer_detail::ShellPeek::type()),
+                (int64_t)shell->IsVertexShell(),(int64_t)shell->IsWireShell(),
+                (int64_t)shell->IsFaceuseShell(),(int64_t)shell->IsUnknownShell(),
+                (int64_t)identity(view.faceuses,shell->GetFirstFaceuse()),
+                (int64_t)identity(view.edges,shell->GetWireEdge()),
+                (int64_t)identity(view.vertices,shell->GetVertex()),
+                (int64_t)head_kind,head_id,(int64_t)shell->GetSize()
+            }};
+            for (size_t i=0;i<values.size();++i) output[i]=values[i];
+            return SC_OK;
+        });
+    SC_CATCH
+}

@@ -3907,7 +3907,13 @@ and the three kernel regressions pass.
 
 Subsequent source audit found that SM_CAST_PTR explicitly returns NULL for a
 head-class mismatch. GetVertex, GetWireEdge and GetFirstFaceuse now preserve that
-defined NULL result rather than returning an incompatible-class error. Dedicated
-metadata-override comparisons and a rerun after that correction remain pending.
+defined NULL result rather than returning an incompatible-class error. All 52
+dedicated comparisons pass for empty, vertex, wire and face-use heads, including
+signed 64-bit extrema and values beyond exact double precision. The setter and
+checked getters use an integer C ABI; the raw physical head and count are compared
+too, so an unrelated type code cannot mask a lost head. The complete rerun passes
+all 286 cases, with exact integer/topology agreement, zero failures/deferrals and
+all 286 perturbations detected. Edge-use p1 remains 2449/2722 with 273 genuine
+deferrals, zero failures and all 2449 comparisons detected.
 The unit is still todo/draft: remaining owned operations, backedges, final gates
 and the region-context coordination in #86 are not claimed complete.

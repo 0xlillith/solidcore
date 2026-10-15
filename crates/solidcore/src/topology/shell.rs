@@ -190,7 +190,6 @@ impl Shell {
             return Ok(None);
         }
         match self.members {
-            ShellMembers::Empty => Ok(None),
             ShellMembers::Edgeuse(id) => Ok(brep.edgeuse(id)?.edge),
             _ => Ok(None),
         }
@@ -204,7 +203,6 @@ impl Shell {
             return Ok(None);
         }
         match self.members {
-            ShellMembers::Empty => Ok(None),
             ShellMembers::Vertexuse(id) => Ok(brep.vertexuse(id)?.vertex),
             _ => Ok(None),
         }

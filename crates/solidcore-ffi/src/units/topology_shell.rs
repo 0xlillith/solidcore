@@ -150,8 +150,59 @@ pub fn transfer(
     })
 }
 
+/// Set arbitrary native shell metadata and compare checked getters and the
+/// unchanged physical head/count. `None` constructs a real empty native shell.
+/// Integer C data retains every type-code bit, including values beyond 2^53.
+///
+/// # Errors
+/// Malformed fixtures, failed native setup or an out-of-range shell identity.
+pub fn type_members(
+    path: &str,
+    block: &[f64],
+    shell: Option<usize>,
+    code: i64,
+) -> Result<[i64; 11], FfiError> {
+    let export = fixture::eval(Op::Export, path, block)?;
+    let counts =
+        fixture::counts(&export).ok_or_else(|| invalid("native type fixture build failed"))?;
+    let shell = match shell {
+        None => -1,
+        Some(index) if index < counts.get(1).copied().unwrap_or(0) => {
+            i64::try_from(index).map_err(|_| invalid("shell index overflow"))?
+        }
+        Some(_) => return Err(invalid("shell index out of range")),
+    };
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    let mut output = [0_i64; 11];
+    // SAFETY: the complete block was validated above. All pointers and lengths
+    // remain valid, and the shim bounds the identity, type code and output buffer.
+    let status = unsafe {
+        sys::sc_topology_shell_type_members(
+            path.as_ptr(),
+            block.as_ptr(),
+            count,
+            shell,
+            code,
+            output.as_mut_ptr(),
+            output.len() as i64,
+        )
+    };
+    crate::check(status)?;
+    Ok(output)
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_type_members(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            shell_index: i64,
+            type_code: i64,
+            output: *mut i64,
+            capacity: i64,
+        ) -> i32;
         pub fn sc_topology_shell_transfer(
             path: *const std::ffi::c_char,
             input: *const f64,
