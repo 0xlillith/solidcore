@@ -3901,11 +3901,11 @@ pub fn cs_are_perpen_disjoint_in<O: Copy + PartialEq>(
     {
         // (SER inside a SmBoolean function: a failed cone bound returns its non-zero
         // status, TRUE)
-        let (cone_vec, cone_angle_rad) =
-            match crate::error::ignored(surface_node.bbox.cone_bound_to(&curve_node.bbox))? {
-                Some(c) => c,
-                None => return Ok(true),
-            };
+        let Some((cone_vec, cone_angle_rad)) =
+            crate::error::ignored(surface_node.bbox.cone_bound_to(&curve_node.bbox))?
+        else {
+            return Ok(true);
+        };
         if cone_angle_rad > PI / 2.0 {
             return Ok(false);
         }

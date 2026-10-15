@@ -883,6 +883,9 @@ fn best_answer_disjoint(first: &PseudoBox, second: &PseudoBox, best_sq: f64, tol
     b1.are_disjoint(&b2, None)
 }
 
+/// A patch domain limited to a solve domain, with its `u` and `v` side continuities.
+type LimitedDomain = (Extent2d, [ContinuityType; 2], [ContinuityType; 2]);
+
 /// The patch domain limited to the solve domain with the patch side continuities
 /// (sides on the solve domain's boundary become discontinuous); `None` when the
 /// limited domain has a zero length side (no work).
@@ -891,7 +894,7 @@ fn limit_domain(
     solve_domain: &Extent2d,
     mut u_conts: [ContinuityType; 2],
     mut v_conts: [ContinuityType; 2],
-) -> Result<Option<(Extent2d, [ContinuityType; 2], [ContinuityType; 2])>> {
+) -> Result<Option<LimitedDomain>> {
     let mut domain = patch_domain;
     if solve_domain.min().x >= domain.min().x {
         u_conts[0] = ContinuityType::Discontinuous;
