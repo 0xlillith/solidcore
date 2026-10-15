@@ -750,17 +750,16 @@ impl Surface {
     ) -> Result<(Point2, LocationType)> {
         match &self.kind {
             SurfaceKind::BSpline(s) => {
-                s.step_inversion(anal_domain, point_on_surf, tol_3d, uv_guess)
+                s.step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => base_step_inversion(),
             SurfaceKind::SrfInVolume(s) => s.step_inversion(k, anal_domain, point_on_surf, tol_3d),
             // SmBSplineSurface::STEPInversion solves on the plane through the virtual
             // point solvers
-            // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-            SurfaceKind::Plane(_) => Err(SolidError::unported(
-                "SmSurface::GlobalPointSolve",
-                "surface.surface_p4",
-            )),
+            SurfaceKind::Plane(s) => {
+                s.base()
+                    .step_inversion_on(k, self, anal_domain, point_on_surf, tol_3d, uv_guess)
+            }
             SurfaceKind::SurfOfRevolution(s) => {
                 s.step_inversion(k, anal_domain, point_on_surf, tol_3d, uv_guess)
             }
