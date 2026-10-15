@@ -13022,8 +13022,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "net_setuv_tol_limit1",
@@ -13050,8 +13050,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "face_plane_setuv_tol_limit1",
@@ -13678,8 +13678,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_setuv_new_grow0",
@@ -13762,8 +13762,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_setuv_new_grow3",
@@ -14346,8 +14346,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_setuv_new_grow0",
@@ -14430,8 +14430,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_setuv_new_grow3",
@@ -14986,8 +14986,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_setuv_new_grow0",
@@ -15070,8 +15070,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_setuv_new_grow3",
@@ -15626,8 +15626,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "cone_setuv_new_grow0",
@@ -15710,8 +15710,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "cone_setuv_new_grow3",
@@ -16262,8 +16262,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "disk_setuv_new_grow0",
@@ -16346,8 +16346,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "disk_setuv_new_grow3",
@@ -16898,8 +16898,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_setuv_new_grow0",
@@ -16982,8 +16982,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_setuv_new_grow3",
@@ -17534,8 +17534,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_setuv_new_grow0",
@@ -17618,8 +17618,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_setuv_new_grow3",
@@ -18170,8 +18170,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_setuv_new_grow0",
@@ -18254,8 +18254,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_setuv_new_grow3",
@@ -18810,8 +18810,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "sphere_setuv_new_grow0",
@@ -18894,8 +18894,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "sphere_setuv_new_grow3",
@@ -19446,8 +19446,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_setuv_new_grow0",
@@ -19530,8 +19530,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_setuv_new_grow3",
@@ -20082,8 +20082,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_setuv_new_grow0",
@@ -20166,8 +20166,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_setuv_new_grow3",
@@ -20718,8 +20718,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_setuv_new_grow0",
@@ -20802,8 +20802,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_setuv_new_grow3",
@@ -21358,8 +21358,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "torus_setuv_new_grow0",
@@ -21442,8 +21442,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "torus_setuv_new_grow3",
@@ -21998,8 +21998,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_setuv_new_grow0",
@@ -22082,8 +22082,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_setuv_new_grow3",
@@ -22638,8 +22638,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_setuv_new_grow0",
@@ -22722,8 +22722,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::SetTolerance",
-        "unit": "topology.edge"
+        "symbol": "SmVertex::SetTolerance",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_setuv_new_grow3",
@@ -22906,8 +22906,8 @@
   "deferred_by_unit": {
     "heal.gap": 206,
     "surface.surface_p5": 28,
-    "topology.edge": 32,
-    "topology.edgeuse_p3": 7
+    "topology.edgeuse_p3": 7,
+    "topology.vertex": 32
   },
   "max_rel_err": 0.0,
   "pass": true,
