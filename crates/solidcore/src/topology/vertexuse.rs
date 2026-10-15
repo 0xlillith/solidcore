@@ -22,7 +22,6 @@
 //! | [`compute_uv_point`]                        | `SmVertexuse::ComputeUVPoint`                    |
 //! | [`compute_uv_sector`], [`UvSectorIo`], [`UvSector`] | `SmVertexuse::ComputeUVSector`, `SmUVSectorIO` |
 //! | [`notify`]                                  | `SmVertexuse::Notify`                            |
-//! | `vertexuses_of_edge`, `vertexuses_of_face` (private) | `SmVertex::GetVertexusesOfEdge`, `GetVertexusesOfFace` without connect target (CO-PORTED, `topology.vertex`) |
 //! | [`edge_is_wire`]                            | `SmEdge::IsWire` (CO-PORTED, `topology.edge`)    |
 //!
 //! Deviations:
@@ -39,10 +38,9 @@
 //!   the `SM_DEBUG_CODE` blocks are compiled out of the reference build and are not
 //!   ported (so `SmTol::IsZeroSpeed` of the sector speeds and `SmEdge::IsSeam` are
 //!   never called).
-//! - **Vertex use lists.** `SmVertex::GetVertexuses` walks the vertex's use list; the
-//!   port's vertices keep no list, so the uses of a vertex are the B-rep's vertex uses
-//!   whose `vertex` it is, in arena order. The two callers only reset the caches of
-//!   every member, so the order is not observable.
+//! - **Vertex use lists.** `SmVertex::GetVertexusesOfEdge` / `GetVertexusesOfFace`
+//!   are [`vertex::vertexuses_of_edge`] / [`vertex::vertexuses_of_face`] over the
+//!   vertex's use list ([`crate::topology::Vertex::vertexuses`]).
 //! - **Statuses ignored upstream.** Where upstream ignores a status (`ComputeUVPoint`
 //!   inside `ComputeUVSector`, `FindDegenParamForDirection`, `DropVectors`,
 //!   `Unitize`, the angle computations, ...) the port ignores the error as well and
@@ -60,13 +58,12 @@
 //! - **Notify.** The vertex use part (clearing the cached gaps) is applied to the
 //!   record; the `SmTopology::Notify` step runs on the caller's topology records as
 //!   [`topo::notify`] does.
-//! - **Unported callees.** `SmFace::GetUVDomain` / `GetTolerance`
-//!   (`topology.face_p2`), `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`),
+//! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`),
 //!   `SmLoopuse::GetOrientation` (`topology.loopuse`), `SmSurface::LocalPointSolve` /
 //!   `IsSingularity` (`surface.surface_p5`), `GlobalPointSolve` / `IsOnSeam`
 //!   (`surface.surface_p4`; a plane's overrides are ported), `GetSingularities`
-//!   (`surface.surface_p3`) and the gap evaluation of `SmVertexEdgeGap::Set` /
-//!   `SmVertexFaceGap::Set` (`heal.gap`) return [`SolidError::Unported`].
+//!   (`surface.surface_p3`) return [`SolidError::Unported`]. The gap evaluation of
+//!   `SmVertexEdgeGap::Set` / `SmVertexFaceGap::Set` is [`crate::heal::gap`].
 //!   `GlobalPointSolve` stands for the surface-cache sequence around it
 //!   (`smsurf_GetSurfaceCache`, the temporary `m_bHaveTSurfaceCache`,
 //!   `m_bProcessBoundaryCurves` and `m_bPointTestEnabled` changes).
@@ -96,6 +93,7 @@ use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::topology::{self as topo, Topology};
+use crate::topology::vertex;
 use crate::topology::{
     Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopuseId, ShellId, VertexId,
     VertexuseId, VertexuseOwner,
@@ -436,76 +434,48 @@ pub fn is_connected_to(b: &Brep, vu: VertexuseId, target: Option<EntityRef>) -> 
 
 // ---- gaps -----------------------------------------------------------------------------
 
-/// `SmVertex::GetVertexuses` (CO-PORTED from unit `topology.vertex`): the B-rep's vertex
-/// uses of `v` (see the module docs).
-fn vertexuses_of(b: &Brep, v: VertexId) -> Vec<VertexuseId> {
-    b.vertexuses()
-        .iter()
-        .filter(|(_, r)| r.vertex == Some(v))
-        .map(|(id, _)| id)
-        .collect()
-}
-
-/// `pVertex->GetVertexusesOfEdge(pEdge, list)` (CO-PORTED from unit `topology.vertex`,
-/// no connect target): the uses of the vertex whose edge use's edge is `edge`; empty
-/// for no edge.
+/// `pVertex->GetVertexusesOfEdge(pEdge, list)` ([`vertex::vertexuses_of_edge`], no
+/// connect target) of the use's vertex: the uses of the vertex whose edge use's edge is
+/// `edge`; empty for no edge.
 fn vertexuses_of_edge(
     b: &Brep,
     v: Option<VertexId>,
     edge: Option<EdgeId>,
 ) -> Result<Vec<VertexuseId>> {
     // no work - no edge
-    let Some(e) = edge else {
+    if edge.is_none() {
         return Ok(Vec::new());
-    };
-    let v = v.ok_or_else(|| null("GetVertexusesOfEdge: vertex use without vertex"))?;
-    let mut out = Vec::new();
-    for x in vertexuses_of(b, v) {
-        if let Some(eu) = edgeuse(b, x)? {
-            if b.edgeuse(eu)?.edge == Some(e) {
-                out.push(x);
-            }
-        }
     }
-    Ok(out)
+    let v = v.ok_or_else(|| null("GetVertexusesOfEdge: vertex use without vertex"))?;
+    vertex::vertexuses_of_edge(b, v, edge, None)
 }
 
-/// `pVertex->GetVertexusesOfFace(pFace, list)` (CO-PORTED from unit `topology.vertex`,
-/// no connect target): the uses of the vertex whose face use's face is `face`; empty
-/// for no face.
+/// `pVertex->GetVertexusesOfFace(pFace, list)` ([`vertex::vertexuses_of_face`], no
+/// connect target) of the use's vertex: the uses of the vertex whose face use's face is
+/// `face`; empty for no face.
 fn vertexuses_of_face(
     b: &Brep,
     v: Option<VertexId>,
     face: Option<FaceId>,
 ) -> Result<Vec<VertexuseId>> {
     // no work - no face
-    let Some(f) = face else {
+    if face.is_none() {
         return Ok(Vec::new());
-    };
-    let v = v.ok_or_else(|| null("GetVertexusesOfFace: vertex use without vertex"))?;
-    let mut out = Vec::new();
-    for x in vertexuses_of(b, v) {
-        if let Some(fu) = faceuse(b, x)? {
-            if b.faceuse(fu)?.face == Some(f) {
-                out.push(x);
-            }
-        }
     }
-    Ok(out)
+    let v = v.ok_or_else(|| null("GetVertexusesOfFace: vertex use without vertex"))?;
+    vertex::vertexuses_of_face(b, v, face, None)
 }
 
 /// `SmVertexEdgeGap::Set(vu, dEdgeT)`: records the vertex use and parameter and
 /// evaluates the gap (`CacheGap`) unless the parameter is `SM_UNDEF_DOUBLE`.
-fn set_vertex_edge_gap(_vu: VertexuseId, _edge_t: f64) -> Result<VertexEdgeGap> {
-    // UNPORTED(heal.gap): SmVertexEdgeGap::Set
-    Err(SolidError::unported("SmVertexEdgeGap::Set", "heal.gap"))
+fn set_vertex_edge_gap(b: &Brep, vu: VertexuseId, edge_t: f64) -> Result<VertexEdgeGap> {
+    VertexEdgeGap::with(b, Some(vu), edge_t)
 }
 
 /// `SmVertexFaceGap::Set(vu, &uv)`: records the vertex use and surface parameter and
 /// evaluates the gap (`CacheGap`).
-fn set_vertex_face_gap(_vu: VertexuseId, _uv: Point2) -> Result<VertexFaceGap> {
-    // UNPORTED(heal.gap): SmVertexFaceGap::Set
-    Err(SolidError::unported("SmVertexFaceGap::Set", "heal.gap"))
+fn set_vertex_face_gap(b: &Brep, vu: VertexuseId, uv: Point2) -> Result<VertexFaceGap> {
+    VertexFaceGap::with(b, Some(vu), Some(uv))
 }
 
 /// `CalcVertexEdgeGap`: computes the gap between the vertex and its edge use's curve
@@ -517,7 +487,7 @@ fn set_vertex_face_gap(_vu: VertexuseId, _uv: Point2) -> Result<VertexFaceGap> {
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for an edge
-/// vertex use without vertex; [`SolidError::Unported`] for the gap evaluation.
+/// vertex use without vertex; those of [`VertexEdgeGap::set`].
 pub fn calc_vertex_edge_gap(
     b: &mut Brep,
     vu: VertexuseId,
@@ -570,10 +540,10 @@ pub fn calc_vertex_edge_gap(
     // set output - SmVertexEdgeGap::Set assigns m_pVertexuse and m_dEdgeT and computes
     // m_dGap3d
     if let Some(o) = out.as_mut() {
-        *o = set_vertex_edge_gap(vu, edge_t)?;
+        *o = set_vertex_edge_gap(b, vu, edge_t)?;
     }
     if cache {
-        let g = set_vertex_edge_gap(vu, edge_t)?;
+        let g = set_vertex_edge_gap(b, vu, edge_t)?;
         b.vertexuse_mut(vu)?.vertex_edge_gap = g;
         // keep equivalent vertexuses synchronized
         for &x in &siblings {
@@ -595,7 +565,7 @@ pub fn calc_vertex_edge_gap(
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null; the status of [`compute_uv_point`];
-/// [`SolidError::Unported`] for the gap evaluation.
+/// those of [`VertexFaceGap::set`].
 pub fn calc_vertex_face_gap(
     k: &Kernel,
     b: &mut Brep,
@@ -635,10 +605,10 @@ pub fn calc_vertex_face_gap(
     // set output - SmVertexFaceGap::Set assigns m_pVertexuse and m_sFaceUV and computes
     // m_dGap3d. Across a seam the UV jumps, so the other uses are not synchronized.
     if let Some(o) = out.as_mut() {
-        *o = set_vertex_face_gap(vu, uv)?;
+        *o = set_vertex_face_gap(b, vu, uv)?;
     }
     if cache {
-        let g = set_vertex_face_gap(vu, uv)?;
+        let g = set_vertex_face_gap(b, vu, uv)?;
         b.vertexuse_mut(vu)?.vertex_face_gap = g;
     }
 
@@ -712,22 +682,14 @@ pub fn init_vertex_face_gap(b: &mut Brep, vu: VertexuseId) -> Result<()> {
 
 // ---- unported callees -------------------------------------------------------------------
 
-/// `pFace->GetUVDomain()`.
-fn face_uv_domain(_b: &Brep, _f: FaceId) -> Result<Extent2d> {
-    // UNPORTED(topology.face_p2): SmFace::GetUVDomain
-    Err(SolidError::unported(
-        "SmFace::GetUVDomain",
-        "topology.face_p2",
-    ))
+/// `pFace->GetUVDomain()` (unit `topology.face_p2`).
+fn face_uv_domain(b: &Brep, f: FaceId) -> Result<Extent2d> {
+    crate::topology::face::p2::uv_domain(b, f)
 }
 
-/// `pFace->GetTolerance()`.
-fn face_tolerance(_b: &Brep, _f: FaceId) -> Result<f64> {
-    // UNPORTED(topology.face_p2): SmFace::GetTolerance
-    Err(SolidError::unported(
-        "SmFace::GetTolerance",
-        "topology.face_p2",
-    ))
+/// `pFace->GetTolerance()` (unit `topology.face_p2`).
+fn face_tolerance(b: &Brep, f: FaceId) -> Result<f64> {
+    crate::topology::face::p2::tolerance(b, f)
 }
 
 /// `pLoopuse->GetOrientation()`.
@@ -1619,6 +1581,7 @@ mod tests {
                 b.add_vertex_record(Vertex {
                     point: Vec3::new(f64::from(i), 0.0, 0.0),
                     tolerance: ZONE_TOL_3D,
+                    ..Vertex::default()
                 })
                 .unwrap()
             })
@@ -1665,6 +1628,10 @@ mod tests {
                 ..crate::topology::Vertexuse::default()
             })
             .unwrap();
+        for (i, &vu) in vus.iter().enumerate() {
+            b.vertex_mut(v[i]).unwrap().vertexuses.push(vu);
+        }
+        b.vertex_mut(v[2]).unwrap().vertexuses.push(svu);
         (b, [vus[0], vus[1], svu], [eus[0], eus[1]])
     }
 
