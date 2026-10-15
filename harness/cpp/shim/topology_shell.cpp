@@ -11,6 +11,8 @@
 #include <SmPointClass.h>
 #include <cmath>
 #include <SmTArray.h>
+#include <SmAttribute.h>
+#include <limits>
 #include <algorithm>
 
 namespace {
@@ -389,6 +391,72 @@ SC_EXPORT int32_t sc_topology_shell_ray(const char* path,const double* input,int
             out.push_back(pc.GetTolerance());
             out.push_back(pc.GetGap3d());
             out.push_back(pc.GetPreSnapParam());
+        }
+        return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
+    });
+    SC_CATCH
+}
+
+SC_EXPORT int32_t sc_topology_shell_region_order(const char* path,const double* input,
+    int64_t count,int32_t prefix_empty,int32_t gather_faces,double* output,int64_t cap,int64_t* output_len) {
+    if (!output_len || cap<0 || (cap && !output) || prefix_empty<0 || prefix_empty>8 || (gather_faces!=0 && gather_faces!=1)) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,[&](const sc_topology_fixture::View& view)->int32_t {
+        std::vector<SmShell*> shells=view.shells;
+        if(gather_faces && !view.regions.empty()) {
+            SmRegion* target=view.regions.front();
+            for(size_t i=1;i<view.regions.size();++i) {
+                SmRegion* source=view.regions[i];SmTArray<SmShell*> members;
+                source->GetShells(members);
+                for(ULONG j=0;j<members.GetSize();++j) if(members[j]->IsFaceuseShell()) {
+                    if(source->Remove(members[j])!=SM_SUCCESS || target->PostInsert(members[j])!=SM_SUCCESS) return SC_ERR_ARG;
+                }
+            }
+        }
+        std::vector<double> out{(double)view.regions.size()};
+        for(SmRegion* region:view.regions) {
+            SmShell* first=nullptr;
+            for(int32_t i=0;i<prefix_empty;++i) {
+                std::unique_ptr<transfer_detail::EmptyShell> extra(new (&view.brep) transfer_detail::EmptyShell());
+                if(region->PostInsert(extra.get())!=SM_SUCCESS) return SC_ERR_ARG;
+                if(!first) first=extra.get();
+                shells.push_back(extra.get());
+                extra.release(); // real region owns the new shell until B-rep destruction
+            }
+            if(first) region->*transfer_detail::OwnerPeek::head()=first;
+            const SmStatus status=region->OrderShells();
+            out.push_back(status==SM_SUCCESS ? 0.0 : (double)status);
+            SmTArray<SmShell*> members;region->GetShells(members);
+            list(out,members,shells);
+        }
+        return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
+    });
+    SC_CATCH
+}
+
+SC_EXPORT int32_t sc_topology_shell_region_filter(const char* path,const double* input,
+    int64_t count,uint64_t attribute_id,int32_t enabled,int32_t pattern,
+    double* output,int64_t cap,int64_t* output_len) {
+    if (!output_len || cap<0 || (cap && !output) || (enabled!=0 && enabled!=1)
+        || pattern<0 || pattern>2 || attribute_id>std::numeric_limits<ULONG>::max()) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,[&](const sc_topology_fixture::View& view)->int32_t {
+        ULONG id=(ULONG)attribute_id;
+        for(size_t i=0;i<view.shells.size();++i) {
+            // These construction-only fixtures start without this attribute.
+            // Fail setup rather than invent state for an unexpected collision.
+            if(view.shells[i]->FindAttribute(id)) return SC_ERR_ARG;
+            if(pattern==2 || (pattern==1 && i%2==0)) {
+                std::unique_ptr<SmLongAttribute> tag(new (*view.brep.GetContext()) SmLongAttribute(id,123,SM_AB_COPY));
+                view.shells[i]->AddAttribute(tag.get());
+                tag.release();
+            }
+        }
+        std::vector<double> out{(double)view.regions.size()};
+        for(SmRegion* region:view.regions) {
+            SmTArray<SmShell*> members;
+            region->GetShells(members,enabled ? &id : nullptr);
+            list(out,members,view.shells);
         }
         return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
     });

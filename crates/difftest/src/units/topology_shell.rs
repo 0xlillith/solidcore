@@ -29,6 +29,26 @@ struct Inputs {
     degenerate: Option<DegenerateInput>,
     #[serde(default)]
     ray: Option<RayInput>,
+    #[serde(default)]
+    region_order: Option<RegionOrder>,
+    #[serde(default)]
+    region_filter: Option<RegionFilter>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RegionOrder {
+    prefix_empty: usize,
+    #[serde(default)]
+    gather_faces: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RegionFilter {
+    attribute_id: u64,
+    enabled: bool,
+    pattern: u8,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -570,6 +590,45 @@ impl UnitDiff for Runner {
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let inputs: Inputs = case.parse()?;
         let (path, block) = fixture_input(inputs.brep)?;
+        if let Some(filter) = inputs.region_filter {
+            if filter.pattern > 2
+                || inputs.region_order.is_some()
+                || inputs.transfer.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.degenerate.is_some()
+                || inputs.ray.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("invalid region filtering operation"));
+            }
+            return integer_records(
+                ffi::region_filter(
+                    &path,
+                    &block,
+                    filter.attribute_id,
+                    filter.enabled,
+                    filter.pattern,
+                )
+                .map_err(failure)?,
+            );
+        }
+        if let Some(order) = inputs.region_order {
+            let prefix = order.prefix_empty;
+            if prefix > 8
+                || inputs.transfer.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.degenerate.is_some()
+                || inputs.ray.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("invalid region ordering operation"));
+            }
+            return integer_records(
+                ffi::region_order(&path, &block, prefix, order.gather_faces).map_err(failure)?,
+            );
+        }
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
         }
@@ -664,6 +723,34 @@ impl UnitDiff for Runner {
         let (path, block) = fixture_input(inputs.brep)?;
         let export = graph::eval(graph::Op::Export, &path, &block).map_err(failure)?;
         let mut brep = import(&export)?;
+        if let Some(filter) = inputs.region_filter {
+            if filter.pattern > 2
+                || inputs.region_order.is_some()
+                || inputs.transfer.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.degenerate.is_some()
+                || inputs.ray.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("invalid region filtering operation"));
+            }
+            return rust_region_filter(&brep, &filter);
+        }
+        if let Some(order) = inputs.region_order {
+            let prefix = order.prefix_empty;
+            if prefix > 8
+                || inputs.transfer.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.degenerate.is_some()
+                || inputs.ray.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("invalid region ordering operation"));
+            }
+            return rust_region_order(&mut brep, prefix, order.gather_faces);
+        }
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
         }
@@ -832,4 +919,104 @@ impl UnitDiff for Runner {
 fn text(output: &mut Vec<i64>, value: &str) {
     output.push(value.len() as i64);
     output.extend(value.bytes().map(i64::from));
+}
+
+fn integer_records(values: Vec<f64>) -> Result<Output, HarnessError> {
+    if values
+        .iter()
+        .any(|v| !v.is_finite() || v.fract() != 0.0 || v.abs() > (1_u64 << 53) as f64)
+    {
+        return Err(failure("invalid native ordering integer"));
+    }
+    Ok(Output::new().ints(
+        "records",
+        values.into_iter().map(|v| v as i64).collect::<Vec<_>>(),
+    ))
+}
+
+fn rust_region_order(
+    brep: &mut solidcore::topology::Brep,
+    prefix: usize,
+    gather_faces: bool,
+) -> Result<Output, HarnessError> {
+    let regions: Vec<_> = brep.regions().ids().collect();
+    if gather_faces {
+        if let Some(&target) = regions.first() {
+            for &source in regions.iter().skip(1) {
+                let original = brep.region(source).map_err(failure)?.shells.clone();
+                for shell in original {
+                    if brep.shell(shell).map_err(failure)?.is_faceuse_shell() {
+                        brep.region_mut(source)
+                            .map_err(failure)?
+                            .shells
+                            .retain(|id| *id != shell);
+                        brep.region_mut(target).map_err(failure)?.shells.push(shell);
+                        brep.shell_mut(shell).map_err(failure)?.region = Some(target);
+                    }
+                }
+            }
+        }
+    }
+    let mut out = vec![regions.len() as i64];
+    for region in regions {
+        let original = brep.region(region).map_err(failure)?.shells.clone();
+        let mut head = Vec::new();
+        for _ in 0..prefix {
+            let shell = brep
+                .add_shell_record(Shell {
+                    region: Some(region),
+                    ..Shell::new()
+                })
+                .map_err(failure)?;
+            head.push(shell);
+        }
+        head.extend(original);
+        brep.region_mut(region).map_err(failure)?.shells = head;
+        match solidcore::topology::shell::order_region_shells(brep, region) {
+            Ok(()) => out.push(0),
+            Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+        }
+        list(
+            &mut out,
+            brep.region(region)
+                .map_err(failure)?
+                .shells
+                .iter()
+                .map(|s| s.index()),
+        );
+    }
+    Ok(Output::new().ints("records", out))
+}
+
+fn rust_region_filter(
+    brep: &solidcore::topology::Brep,
+    filter: &RegionFilter,
+) -> Result<Output, HarnessError> {
+    use solidcore::geom::attribute::{Attribute, AttributeStore, Behavior, ObjectKey};
+    let mut attributes = AttributeStore::new();
+    for (index, (id, _)) in brep.shells().iter().enumerate() {
+        if filter.pattern == 2 || (filter.pattern == 1 && index.is_multiple_of(2)) {
+            let tag = attributes
+                .insert(Attribute::long(filter.attribute_id, 123, Behavior::Copy))
+                .map_err(failure)?;
+            attributes
+                .add_attribute(ObjectKey(u64::from(id.index())), tag)
+                .map_err(failure)?;
+        }
+    }
+    let mut out = vec![brep.regions().len() as i64];
+    for (_, region) in brep.regions().iter() {
+        let shells = region
+            .get_shells(
+                filter.enabled.then_some(filter.attribute_id),
+                |shell, id| {
+                    Ok(attributes
+                        .find_attribute(ObjectKey(u64::from(shell.index())), id)
+                        .is_some())
+                },
+            )
+            .map_err(failure)?;
+        list(&mut out, shells.into_iter().map(ShellId::index));
+    }
+    Ok(Output::new().ints("records", out))
 }

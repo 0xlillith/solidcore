@@ -269,8 +269,109 @@ pub fn ray_fire(
     })
 }
 
+/// Native circular region ordering after adding actual empty shells at its head.
+/// The new shells remain region-owned and are destroyed with the fixture.
+/// Optional gathering uses native base list operations to put face-use shells
+/// in the first region before testing the multiple-shell selection branch.
+///
+/// # Errors
+/// Malformed fixture data, out-of-range prefix or failed native setup.
+pub fn region_order(
+    path: &str,
+    block: &[f64],
+    prefix_empty: usize,
+    gather_faces: bool,
+) -> Result<Vec<f64>, FfiError> {
+    if prefix_empty > 8 {
+        return Err(invalid("region prefix outside 0..=8"));
+    }
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native ordering fixture build failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: the complete fixture and prefix were validated; all buffers
+        // remain live and the shim checks capacity before copying output.
+        unsafe {
+            sys::sc_topology_shell_region_order(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                prefix_empty as i32,
+                i32::from(gather_faces),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
+/// Native region shell filtering with real long attributes on constructed shells.
+/// Attribute ids retain all 64 bits; absent filtering passes a NULL pointer.
+///
+/// # Errors
+/// Malformed fixture data, invalid tag pattern or failed/colliding native setup.
+pub fn region_filter(
+    path: &str,
+    block: &[f64],
+    attribute_id: u64,
+    enabled: bool,
+    pattern: u8,
+) -> Result<Vec<f64>, FfiError> {
+    if pattern > 2 {
+        return Err(invalid("invalid region tag pattern"));
+    }
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native filtering fixture build failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: complete fixture and pattern validation precede this call;
+        // the shim preserves the integer id and honours the output capacity.
+        unsafe {
+            sys::sc_topology_shell_region_filter(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                attribute_id,
+                i32::from(enabled),
+                i32::from(pattern),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_region_filter(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            attribute_id: u64,
+            enabled: i32,
+            pattern: i32,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
+        pub fn sc_topology_shell_region_order(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            prefix_empty: i32,
+            gather_faces: i32,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_ray(
             path: *const std::ffi::c_char,
             input: *const f64,
