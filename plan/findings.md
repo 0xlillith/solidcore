@@ -4339,3 +4339,32 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   degenerate-interval exit only on the V boundary, the unexpanded pseudo box passed to
   `SimpleCoincidenceChecker`, `IsDegenerate` defaulting to `SM_EFF_ZERO`). Re-run this
   unit's difftest when surface.surface_p6 lands.
+
+## topology.loopuse (`SmLoop` / `SmLoopuse`, 2026-10-15; partial, no disagreements)
+
+- **Harness.** The runner reuses unit `topology.edgeuse_p1`'s B-reps (15 upstream `.smb`
+  files with and without `RebuildUVTrimCurves`, the `my_test_topology` wire network, wire
+  edges, plane and B-spline faces incl. the tiny/huge/pinched/sub-domain faces of
+  `topology.edgeuse_p2`'s fixtures) and its export/import. The shared export
+  (`sc_edgeuse_graph.h`, and the copies in the `topology.vertexuse`, `topology.face_p2`
+  and `query.edge` shims) now carries each loop use's `m_eOrientation` (new field
+  `topology::Loopuse::orientation`). The edgeuse export still lacks each face's `m_pFU`;
+  the loopuse shim has a `FaceFu` op and the runner patches it into the import.
+- **Mutating ops** (`FlipLoopOrientation`, `CollectEdgeuses`, `SetEdgeuse`, `SetLoop`)
+  leave graphs `~SmBrep` cannot free (a loop use pointing at another loop is freed
+  twice): the shim snapshots the loop/edge/vertex use links and restores them before
+  deleting the B-rep, after recording the state it compares.
+- **Deferred.** `FlipLoopOrientation` of any loop on a face (`SmFace::Notify`,
+  `topology.face_p3`; every loop of the test B-reps is on a face, so the flip itself is
+  only checked by unit tests), `IsConnectedTo` with vertex/edge targets
+  (`topology.vertex`, `topology.edge`), `GetUVCornerBoundaries` of an edge loop
+  (`GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`), `IsMissingSeamAtVertices` on closed
+  surfaces (sector computation) and the inexact-geometry cases (as `topology.edgeuse_p2`).
+- **Upstream bug.** `IsClosed3d` never reports a loop open (WR-88); ported as is.
+- **Not wired**, still `UNPORTED(topology.loopuse)`: `intersect::point_class`
+  (`SmLoop::IsConnectedTo`, `SmLoopuse::IsConnectedTo`) and `surface::trim_srf_cache`
+  (`GetEdgeuses`, `GetVertexuses`). Those callers hold opaque object handles without a
+  `Brep` (as for `topology.edgeuse_p1` / `topology.vertexuse`). Wired: the co-ports of
+  `topology.edgeuse_p1` (`loopuse_edgeuses`, `loopuse_shell`), `topology.face_p2`
+  (`loopuse_vertexuses`), `query.loop` (`calc_quad_num`) and the
+  `SmLoopuse::GetOrientation` stub of `topology.vertexuse` now call this unit.

@@ -1976,6 +1976,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result (latent).
 - **Rust port:** Reproduces it (`topology::face::p2::check_seam_crossing` returns `true`).
 
+#### WR-88. `SmLoopuse::IsClosed3d` never reports a loop open
+- **Location:** `SmLoopuse.cpp:873`-`885` (`SmLoopuse::IsClosed3d`; also reached through `SmLoop::IsClosed3d`, `SmLoop.cpp:248`).
+- **What happens:** For a gap over its cross-section tolerance it computes `dOverTol = sXSectTol3d - sqrt(dGap3dSq)`, which is negative there, and keeps it only when `dOverTol > dMaxOverTol` (initially `0.0`). No gap ever qualifies, so `pMaxOverTolEdgeuse` stays `NULL` and the loop is always reported closed, with the largest gap and its tolerance as outputs. `bCheckAllGaps == FALSE` still stops the scan at the first gap over tolerance, so the reported "largest" gap is then only the largest seen so far.
+- **Trigger:** Any edge loop with an end-to-end gap larger than the sum of the two edge uses' tolerances.
+- **How found:** read during porting; the difftest compares it (unit `topology.loopuse`, `closed3d` cases).
+- **Confirmed:** yes (both sides report the loops closed; no case reports one open).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
+
 ## Docs
 
 #### DOC-1. `NL_LEFT` / `NL_RIGHT` documentation is swapped
