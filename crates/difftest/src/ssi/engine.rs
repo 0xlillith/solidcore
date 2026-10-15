@@ -352,10 +352,11 @@ fn rust_surface(spec: &SurfaceSpec) -> Result<Result<Surface, Deferred>, String>
         SurfaceSpec::Sphere { .. } => {
             deferred("surface.sphere", "SmSphere::GlobalSurfaceIntersect")
         }
-        // SmTorus is ported (surface.torus) but is not a SurfaceKind yet
+        // SmTorus is ported (surface.torus, green) but has no SurfaceKind variant (the
+        // "DISPATCH GAP" in its plan notes); the enum is surface.surface_p2's
         SurfaceSpec::Torus { .. } => deferred(
-            "surface.torus",
-            "SmTorus as a Surface kind (SurfaceKind::Torus)",
+            "surface.surface_p2",
+            "SurfaceKind::Torus (SmTorus dispatch through SmSurface)",
         ),
     }
 }
@@ -398,6 +399,10 @@ pub fn run_rust(case: &SsiCase, tol: Option<f64>) -> Result<RawOutput, EngineFai
     let [(a, da), (b, db)] = &case.surfaces;
     let mut built = Vec::new();
     for (spec, dom) in [(a, da), (b, db)] {
+        // reject exactly what the C++ side's encoder rejects
+        ffi_surface(spec, *dom)
+            .encode()
+            .map_err(|e| EngineFailure::Build(e.to_string()))?;
         match rust_surface(spec).map_err(EngineFailure::Build)? {
             Ok(s) => {
                 let d = match dom {

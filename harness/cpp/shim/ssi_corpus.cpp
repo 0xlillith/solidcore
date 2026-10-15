@@ -46,6 +46,7 @@
 #include <SmCylinder.h>
 #include <SmExtent1d.h>
 #include <SmExtent2d.h>
+#include <NL_Nurbsdef.h>
 #include <SmNurbsSrf.h>
 #include <SmPlane.h>
 #include <SmSphere.h>
@@ -169,7 +170,7 @@ Built build_surface(const SmContext& ctx, Rd& rd)
     }
     else
     {
-        int64_t p = rd.count(1, 64), q = rd.count(1, 64);
+        int64_t p = rd.count(1, NL_MAXDEG), q = rd.count(1, NL_MAXDEG);
         int64_t nu = rd.count(1, 1 << 20), nv = rd.count(1, 1 << 20);
         if (nu < p + 1 || nv < q + 1 || nu * nv > (1 << 22))
             throw Bad();

@@ -25,6 +25,10 @@ if [ -d "$DEST/.git" ]; then
     echo "fetch-ssi-corpus: $DEST has origin '$origin', expected $URL; remove it and re-run" >&2
     exit 1
   fi
+  if [ -n "$(git -C "$DEST" status --porcelain --untracked-files=all)" ]; then
+    echo "fetch-ssi-corpus: $DEST has local changes; remove it and re-run" >&2
+    exit 1
+  fi
   if [ "$(git -C "$DEST" rev-parse HEAD)" = "$COMMIT" ]; then
     echo "ssi-corpus already at $COMMIT in $DEST"
     exit 0

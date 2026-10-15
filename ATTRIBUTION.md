@@ -64,6 +64,7 @@ These are fetched at run time (never committed) and used only by difftest's
 - Author: Iraklis Kourtis (jyviko), published for solidcore in
   [issue #17](https://github.com/bherbruck/solidcore/issues/17)
 - Licence: MIT OR Apache-2.0
+- Copyright: (c) 2026 SolidCraft contributors
 - Use: 119 surface/surface intersection cases with exact ground truth. The scorer in
   `crates/difftest/src/ssi/` (`score.rs`, `polyset.rs`, `geom.rs`) is ported from the
   corpus' `scoring/score.py` and `scoring/ssi_geom.py`, and the C++ shim
