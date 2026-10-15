@@ -329,6 +329,18 @@ impl Plane {
         &self.base
     }
 
+    /// Whether out-of-bounds evaluation is enabled (`GetOutOfBoundsEnabled` of the
+    /// `SmBSplineSurface` part).
+    #[must_use]
+    pub fn is_out_of_bounds_enabled(&self) -> bool {
+        self.base.is_out_of_bounds_enabled()
+    }
+
+    /// Sets out-of-bounds evaluation (through `GetOutOfBoundsEnabled`'s reference).
+    pub fn set_out_of_bounds_enabled(&mut self, enabled: bool) {
+        *self.base.out_of_bounds_enabled_mut() = enabled;
+    }
+
     /// The B-spline part with a NURB: the stored one, or one made on a copy when the
     /// plane has none (`GetOrCreateGwNurbPointer` from a `const` method).
     ///
@@ -2089,16 +2101,13 @@ fn create_natural_uv_trim_curves(
 
 /// `SmSurface::DropPoint(pt, domain, NULL, bSuccess, uv, dist, bIsMulti,
 /// SM_SO_NORMALIZE)`: success, uv and distance.
-fn surface_drop_point(
-    _s: &Surface,
-    _pt: Point3,
-    _domain: &Extent2d,
-) -> Result<(bool, Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+fn surface_drop_point(s: &Surface, pt: Point3, domain: &Extent2d) -> Result<(bool, Point2, f64)> {
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        operation: SolverOperation::Normalize,
+        ..Default::default()
+    };
+    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(pt, domain, &opts)?;
+    Ok((r.success, r.result_uv, r.gap))
 }
 
 /// The general `SmSurface::DropCurve`.

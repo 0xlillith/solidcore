@@ -12,7 +12,7 @@
 //! | [`FaceLoop`], [`LoopEdgeuse`] | the `SmLoop` / `SmLoopuse` / `SmEdgeuse` / `SmEdge` / `SmFace` data it reads (see Deviations) |
 //! | [`uv_corner_boundaries`]     | `SmLoop::GetUVCornerBoundaries` (CO-PORTED from `topology.loopuse`) |
 //! | [`UvCornerBoundaries`]       | its return value and out-params                |
-//! | `calc_quad_num` (private)    | `sm_CalcQuadNum` (file static, CO-PORTED from `topology.loopuse`) |
+//! | `calc_quad_num` (private)    | `sm_CalcQuadNum` (file static, unit `topology.loopuse`) |
 //!
 //! Deviations:
 //! - **Topology view.** The arena topology ([`crate::topology`]) does not bind
@@ -28,9 +28,9 @@
 //!   trim curve (of the edge use or its mate) as given in [`LoopEdgeuse::uv_trim_curve`];
 //!   when there is none it would build one (`SmEdgeuse::CreateUVTrimCurve`, unit
 //!   `topology.edgeuse_p3`), which returns [`SolidError::Unported`].
-//! - **Poles.** `SmSurface::GetSingularities` (unit `surface.surface_p3`) is
-//!   [`SolidError::Unported`]; it is only reached when the point lies on a side of the
-//!   surface's natural domain and an edge use end of the loop does too.
+//! - **Poles.** `SmSurface::GetSingularities` (unit `surface.surface_p3`) is only
+//!   reached when the point lies on a side of the surface's natural domain and an edge
+//!   use end of the loop does too.
 //! - **Ignored statuses.** Upstream ignores the status of `EvaluatePoint` /
 //!   `Evaluate` of the surface and the trim curves and then reads the (uninitialised)
 //!   outputs; the port returns their error instead (no valid input reaches it).
@@ -215,29 +215,15 @@ pub fn uv_corner_boundaries(
     Ok(out)
 }
 
-/// `sm_CalcQuadNum`: the quadrant of `test` in a frame centred on `origin`
-/// (`1 | 0` above, `2 | 3` below).
+/// `sm_CalcQuadNum` (unit `topology.loopuse`): the quadrant of `test` in a frame
+/// centred on `origin` (`1 | 0` above, `2 | 3` below).
 fn calc_quad_num(origin: Point3, test: Point3) -> i32 {
-    if test.x >= origin.x {
-        if test.y < origin.y {
-            3
-        } else {
-            0
-        }
-    } else if test.y >= origin.y {
-        1
-    } else {
-        2
-    }
+    crate::topology::loopuse::calc_quad_num(origin, test) as i32
 }
 
 /// `SmSurface::GetSingularities`: the sides of the natural domain that are poles.
-fn surface_singularities(_surface: &Surface) -> Result<u32> {
-    // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-    Err(SolidError::unported(
-        "SmSurface::GetSingularities",
-        "surface.surface_p3",
-    ))
+fn surface_singularities(k: &Kernel, surface: &Surface) -> Result<u32> {
+    Ok(surface.get_singularities(k, false, false)?.singular)
 }
 
 /// `DropPoint` of the test point onto an edge curve (`SM_SO_INTERSECT`, no snapping
@@ -322,9 +308,8 @@ fn unit_from(origin: Point3, p: Point3) -> (Vec3, f64) {
 /// # Errors
 ///
 /// [`SolidError::Unported`]: `SmEdgeuse::GetOrCreateUVTrimCurve` for an edge use
-/// without trim curve (`topology.edgeuse_p3`), `SmSurface::GetSingularities`
-/// (`surface.surface_p3`) for a point and loop end on a side of the surface's
-/// natural domain, and those of the callees; the errors of the surface and trim curve
+/// without trim curve (`topology.edgeuse_p3`), and those of the callees (the
+/// tolerance of a face-owned surface in `SmSurface::GetSingularities`); the errors of the surface and trim curve
 /// evaluations (see the module Deviations).
 pub fn contains_uv_point(
     k: &Kernel,
@@ -371,7 +356,7 @@ pub fn contains_uv_point(
 
     // When point and loop touch the surface UVBoundaries - does surface have poles
     let poles = if uv_boundaries & loop_boundaries != 0 {
-        surface_singularities(surface)?
+        surface_singularities(k, surface)?
     } else {
         0
     };
@@ -881,8 +866,9 @@ mod tests {
             &dom,
         ));
         let lp = view(&s2, &e, &t);
-        let err = contains_uv_point(&k, &lp, Point2::new(-5.0, 0.0), 0.0).unwrap_err();
-        assert!(matches!(err, SolidError::Unported { .. }));
+        // a plane has no singular sides, so GetSingularities is wired and no longer defers
+        let r = contains_uv_point(&k, &lp, Point2::new(-5.0, 0.0), 0.0);
+        assert!(!matches!(r, Err(SolidError::Unported { .. })));
     }
 
     #[test]

@@ -58,7 +58,8 @@
 //!   previous point's first UV position, which the callee may read as the array
 //!   `m_vUVCurvePV` (`[uv0, duv0, uv1, duv1]`); that array is passed.
 //! - **Unported callees.** `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`),
-//!   `SmSurface::DropAndTrimCurve` (`intersect.surface_drop_lib_p1`) and
+//!   `SmSurface::DropAndTrimCurve`'s trace (`intersect.surface_drop_curve`, through
+//!   [`Surface::drop_and_trim_curve`]) and
 //!   `SmSurface::IsSingularity` of a surface that is not a plane (`surface.surface_p5`)
 //!   return [`SolidError::Unported`], which always propagates (also where upstream
 //!   ignores the status).
@@ -85,6 +86,7 @@ use crate::surface::surface::p2::surface_cache;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::surface_cache::SurfaceCache;
+use crate::topology::ObjectHandle;
 
 use super::p1::{
     compute_curve_type, is_point_on_tsect_curve, IntersectionPointType, SrfIndex,
@@ -411,8 +413,8 @@ impl SurfaceIntersector<'_> {
                         *at_mut(&mut uvs, this) = this_uv(par(&sol.start, 0));
 
                         // skip start points which are on surface singularities
-                        if surface_is_singularity(self.surface(this), *at(&uvs, this))?
-                            || surface_is_singularity(self.surface(other), *at(&uvs, other))?
+                        if surface_is_singularity(k, self.surface(this), *at(&uvs, this))?
+                            || surface_is_singularity(k, self.surface(other), *at(&uvs, other))?
                         {
                             continue;
                         }
@@ -516,8 +518,12 @@ impl SurfaceIntersector<'_> {
                             *at_mut(&mut uvs, other) = uv;
 
                             // skip start points on surface singularities
-                            if surface_is_singularity(self.surface(SrfIndex::First), uvs[0])?
-                                || surface_is_singularity(self.surface(SrfIndex::Second), uvs[1])?
+                            if surface_is_singularity(k, self.surface(SrfIndex::First), uvs[0])?
+                                || surface_is_singularity(
+                                    k,
+                                    self.surface(SrfIndex::Second),
+                                    uvs[1],
+                                )?
                             {
                                 continue;
                             }
@@ -1317,7 +1323,7 @@ impl SurfaceIntersector<'_> {
 
 /// `surface.IsSingularity(uv, eSingDir)` (default tolerance): the plane override
 /// (never singular); other kinds run `SmSurface::IsSingularity`.
-fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
+fn surface_is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
@@ -1325,11 +1331,7 @@ fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
         }
     }
 }
@@ -1361,18 +1363,19 @@ struct DropAndTrim {
 /// `surface.DropAndTrimCurve(ctx, domain, curve, interval, tol, dist, deviation,
 /// uv_curves, TRUE, TRUE)`.
 fn surface_drop_and_trim_curve(
-    _k: &Kernel,
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<DropAndTrim> {
-    // UNPORTED(intersect.surface_drop_lib_p1): SmSurface::DropAndTrimCurve
-    Err(SolidError::unported(
-        "SmSurface::DropAndTrimCurve",
-        "intersect.surface_drop_lib_p1",
-    ))
+    let r = surface
+        .drop_and_trim_curve::<ObjectHandle>(k, domain, curve, interval, tol, true, true, None)?;
+    Ok(DropAndTrim {
+        dist_to_surf: r.max_drop_to_surf,
+        uv_curves: r.uv_curves.into_iter().map(Curve::from).collect(),
+    })
 }
 
 #[cfg(test)]

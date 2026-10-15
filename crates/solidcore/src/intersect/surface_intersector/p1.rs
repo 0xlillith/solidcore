@@ -71,12 +71,9 @@
 //! - **Surface calls.** `SmSurface::IsClosed`, `SmSurface::EvaluateNormal` and
 //!   `SmSurface::Evaluate1stDerivatives` go through `surface::surface::p7` (the
 //!   last co-ported there from unit `surface.surface_p1`).
-//! - **Unported callees.** `SmSurface::EvaluateGeometric`
-//!   (`surface.surface_p3`), `smsurf_EvaluateNormalSection` (`surface.surface_p1`),
-//!   `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
+//! - **Unported callees.** `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
 //!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
-//!   `SmSurface::LocalPlaneSurfaceIntersect` (`surface.surface_p3`),
 //!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
 //!   `SmOffsetSurface::SetOffsetDistance` (`surface.offset_surface`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are ignored, except
@@ -1758,12 +1755,14 @@ struct Principal {
 }
 
 /// `crSurface.EvaluateGeometric(uv, TRUE, TRUE, ..)`.
-fn surface_evaluate_geometric(_surface: &Surface, _uv: Point2) -> Result<Principal> {
-    // UNPORTED(surface.surface_p3): SmSurface::EvaluateGeometric
-    Err(SolidError::unported(
-        "SmSurface::EvaluateGeometric",
-        "surface.surface_p3",
-    ))
+fn surface_evaluate_geometric(surface: &Surface, uv: Point2) -> Result<Principal> {
+    let g = surface.evaluate_geometric(uv, Side::Left, Side::Left)?;
+    Ok(Principal {
+        k1: g.principle_curvature1,
+        k2: g.principle_curvature2,
+        kv1: g.principle_curvature_vector1,
+        kv2: g.principle_curvature_vector2,
+    })
 }
 
 /// `smsurf_EvaluateNormalSection(eval, direction, ..)`: the curvature in `direction`.
@@ -1777,15 +1776,20 @@ fn evaluate_normal_section(eval: &[[Vec3; 3]; 3], direction: Vec3) -> Result<f64
 /// `crSurface.LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, ..)`: found flag
 /// and the solution's start parameters.
 fn surface_local_point_solve(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, [f64; 2])> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        domain,
+        SolverOperation::Minimize,
+        point,
+        guess,
+    )?;
+    Ok((
+        r.found,
+        [r.solution.start.param(0)?, r.solution.start.param(1)?],
     ))
 }
 
@@ -1815,16 +1819,17 @@ fn surface_global_point_solve(
 
 /// `crSurface.DropPoint(point, domain, guess, ..)`: the UV point and its gap.
 fn surface_drop_point(
-    _surface: &Surface,
-    _point: Point3,
-    _domain: &Extent2d,
-    _guess: Option<Point2>,
+    surface: &Surface,
+    point: Point3,
+    domain: &Extent2d,
+    guess: Option<Point2>,
 ) -> Result<(Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        guess_uv: guess,
+        ..Default::default()
+    };
+    let r = surface.drop_point::<crate::surface::surface::p4::NoObject>(point, domain, &opts)?;
+    Ok((r.result_uv, r.gap))
 }
 
 /// `m_cpSurface[0]->LocalSurfaceIntersect(..)`: found flag and the solution's start
@@ -1851,21 +1856,31 @@ pub(crate) fn surface_local_surface_intersect(
 /// `pOffSet1->LocalPlaneSurfaceIntersect(..)`: found flag and the solution's start
 /// parameters `[u0, v0, u1, v1]`.
 fn surface_local_plane_surface_intersect(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _other: &Surface,
-    _other_domain: &Extent2d,
-    _tol: f64,
-    _uv0: Point2,
-    _uv1: Point2,
-    _plane_origin: Point3,
-    _plane_normal: Vec3,
+    surface: &Surface,
+    domain: &Extent2d,
+    other: &Surface,
+    other_domain: &Extent2d,
+    tol: f64,
+    uv0: Point2,
+    uv1: Point2,
+    plane_origin: Point3,
+    plane_normal: Vec3,
 ) -> Result<(bool, [f64; 4])> {
-    // UNPORTED(surface.surface_p3): SmSurface::LocalPlaneSurfaceIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalPlaneSurfaceIntersect",
-        "surface.surface_p3",
-    ))
+    Ok(
+        match surface.local_plane_surface_intersect(
+            domain,
+            other,
+            other_domain,
+            tol,
+            uv0,
+            uv1,
+            plane_origin,
+            plane_normal,
+        )? {
+            Some(s) => (true, [s.uv.x, s.uv.y, s.other_uv.x, s.other_uv.y]),
+            None => (false, [0.0; 4]),
+        },
+    )
 }
 
 /// `crLawCurve.Evaluate(parameter, interval, orient, values)`: the fillet radius and
