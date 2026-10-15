@@ -104,7 +104,7 @@ use crate::geom::geom_utility::p2::{
 };
 use crate::geom::tol::{are_same, are_same_to_tol, is_zero};
 use crate::geom::vector2d::Point2;
-use crate::geom::vector3d::{asin, Point3, Vec3};
+use crate::geom::vector3d::{asin, sqrt, Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{max2, min2, EFF_ZERO, EFF_ZERO_PARAM, EFF_ZERO_SQRT, PI, UNDEF_DOUBLE};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -1203,7 +1203,7 @@ impl Sphere {
         let circle_off_vec = circle_center - self.base.position.origin();
         let circle_off_dist2 = circle_off_vec.length_squared();
         let circle_radius2 = self.radius * self.radius - circle_off_dist2;
-        let circle_radius = circle_radius2.sqrt();
+        let circle_radius = sqrt(circle_radius2);
         let scaled_zero = EFF_ZERO * (1.0 + self.radius);
         let circle_min_deg = circle_ivl.min();
         let circle_max_deg = circle_ivl.max();
