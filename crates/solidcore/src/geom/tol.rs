@@ -153,7 +153,7 @@ use crate::surface::volume::Volume;
 // UNPORTED(topology.vertex): SmTol::GetScaledZero(const SmVertex&) (SmVertex::GetPoint).
 // UNPORTED(topology.edge): SmTol::GetScaledZero(const SmEdge&) (SmEdge::GetCurve).
 // UNPORTED(topology.face_p2): SmTol::GetScaledZero(const SmFace&) (SmFace::GetSurface).
-// UNPORTED(topology.shell): SmTol::GetScaledZero(const SmRegion&) and (const SmShell&)
+// UNPORTED(query.face_p1): SmTol::GetScaledZero(const SmRegion&) and (const SmShell&)
 // (CalculateBoundingBox).
 // UNPORTED(topology.vertex), UNPORTED(topology.edge), UNPORTED(topology.face_p2):
 // SmTol::UpdateObjectTolerance(SmTopology*, double, double, SmBoolean) needs

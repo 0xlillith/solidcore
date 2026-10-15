@@ -16,6 +16,7 @@
 //! | [`Shell::wire_edge`], [`Shell::vertex`] | `GetWireEdge`, `GetVertex` |
 //! | [`Shell::is_closed`], [`Shell::mated_shells`] | `IsClosed`, `GetMatedShells` |
 //! | [`shell_region`], [`shell_brep`] | `GetRegion`, `GetBrep` |
+//! | [`RegionLookup`], [`RegionRef`] | caller-supplied resolution of implicit native region pointers |
 //! | [`wire_edges`] | `SmShell::GetWireEdges` |
 //! | [`ray_fire`] | `SmShell::RayFire` (partial output state retained) |
 //! | [`transfer_children`] | `SmShell::TransferChildrenTo` |
@@ -1038,6 +1039,63 @@ where
         sector.status
     })();
     ShellRayAttempt { status, state }
+}
+
+/// A region resolved to its actual typed arena and B-rep identity.
+/// The caller supplies the identity of that arena; detached regions retain no
+/// owning B-rep even though their records still need storage.
+#[derive(Clone, Copy, Debug)]
+pub struct RegionRef<'a> {
+    /// Arena containing the live region record.
+    pub brep: &'a Brep,
+    /// Identity of that B-rep in the caller's topology context.
+    pub brep_id: crate::topology::BrepId,
+    /// Actual region key in the arena.
+    pub region_id: RegionId,
+}
+
+impl RegionRef<'_> {
+    /// Resolve the native owner, including NULL for a detached region.
+    ///
+    /// # Errors
+    /// A dangling region key.
+    pub fn owning_brep(&self) -> Result<Option<crate::topology::BrepId>> {
+        Ok(self
+            .brep
+            .region(self.region_id)?
+            .get_brep(self.brep)
+            .map(|_| self.brep_id))
+    }
+
+    /// The raw native void flag, including UNSURE (2).
+    ///
+    /// # Errors
+    /// A dangling region key.
+    pub fn void_state(&self) -> Result<i32> {
+        Ok(self.brep.region(self.region_id)?.is_void())
+    }
+
+    /// Whether this is its owner's infinite region.
+    ///
+    /// # Errors
+    /// A dangling region key.
+    pub fn is_infinite(&self) -> Result<bool> {
+        Ok(self
+            .brep
+            .region(self.region_id)?
+            .is_infinite_region(self.brep, self.region_id))
+    }
+}
+
+/// Borrowed resolution of opaque attribute object keys to live typed regions.
+/// Implementations must preserve actual B-rep identity across arenas; this
+/// interface stores no duplicate region flags and introduces no global registry.
+pub trait RegionLookup {
+    /// Resolve the actual region record for this object.
+    ///
+    /// # Errors
+    /// An unknown object, wrong object class or dangling topology key.
+    fn resolve_region(&self, object: crate::geom::attribute::ObjectKey) -> Result<RegionRef<'_>>;
 }
 
 #[cfg(test)]
