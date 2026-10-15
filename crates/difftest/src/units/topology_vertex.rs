@@ -911,10 +911,17 @@ fn unit3(v: [f64; 3]) -> [f64; 3] {
 /// `d` turned by `deg` degrees towards a random perpendicular direction.
 fn turn(rng: &mut Rng, d: [f64; 3], deg: f64) -> [f64; 3] {
     let r = unit3(rng.point3(-1.0, 1.0));
-    let dot = d[0] * r[0] + d[1] * r[1] + d[2] * r[2];
-    let p = unit3([r[0] - dot * d[0], r[1] - dot * d[1], r[2] - dot * d[2]]);
+    let ([d0, d1, d2], [r0, r1, r2]) = (d, r);
+    let dot = d0 * r0 + d1 * r1 + d2 * r2;
+    let [p0, p1, p2] = unit3([r0 - dot * d0, r1 - dot * d1, r2 - dot * d2]);
     let (c, sn) = (deg.to_radians().cos(), deg.to_radians().sin());
-    unit3([0, 1, 2].map(|i| c * d[i] + sn * p[i]))
+    unit3([c * d0 + sn * p0, c * d1 + sn * p1, c * d2 + sn * p2])
+}
+
+/// `p + len d`.
+fn along(p: [f64; 3], len: f64, d: [f64; 3]) -> [f64; 3] {
+    let ([p0, p1, p2], [d0, d1, d2]) = (p, d);
+    [p0 + len * d0, p1 + len * d1, p2 + len * d2]
 }
 
 /// A chain of wire edges: mostly line segments (`SmLine`s, some re-parameterised so
@@ -940,17 +947,18 @@ fn gen_chain(rng: &mut Rng) -> BrepIn {
             let mut c = gen_curve(rng, 3, scale);
             c.cpts.iter_mut().for_each(|q| q[3] = NOW);
             let k = c.cpts.len();
-            let end = [0, 1, 2].map(|i| p[i] + len * d[i]);
-            let off = [0, 1, 2].map(|i| end[i] - c.cpts.last().map_or(0.0, |q| q[i]));
+            let end = along(p, len, d);
+            let last = c.cpts.last().copied().unwrap_or([0.0; 4]);
+            let off = [end[0] - last[0], end[1] - last[1], end[2] - last[2]];
             for q in &mut c.cpts {
-                for i in 0..3 {
-                    q[i] += off[i];
+                for (qi, oi) in q.iter_mut().zip(off) {
+                    *qi += oi;
                 }
             }
             if k >= 2 {
                 if let Some(q) = c.cpts.get_mut(k - 2) {
-                    for i in 0..3 {
-                        q[i] = end[i] - 0.3 * len * d[i];
+                    for ((qi, ei), di) in q.iter_mut().zip(end).zip(d) {
+                        *qi = ei - 0.3 * len * di;
                     }
                 }
             }
@@ -958,7 +966,7 @@ fn gen_chain(rng: &mut Rng) -> BrepIn {
             p = end;
             segs.push(SegIn::Curve { curve: c, rev });
         } else {
-            let b = [0, 1, 2].map(|i| p[i] + len * d[i]);
+            let b = along(p, len, d);
             let smline = rng.chance(0.7);
             let ivl = if smline && rng.chance(0.6) {
                 // continue the previous parameter (equal parameters at the vertex)
@@ -1053,10 +1061,10 @@ fn target_count(ty: i64, c: [usize; 10]) -> usize {
 
 /// The op with its selectors resolved against the B-rep's counts (and the vertex's raw
 /// adjacency); `Err` with the output both sides report when the op has no subject.
-fn resolve(op: &OpIn, c: [usize; 10], b: &Brep) -> Result<OpIn, Output> {
+fn resolve(op: &OpIn, c: [usize; 10], b: &Brep) -> Result<OpIn, Box<Output>> {
     let [n_r, _, _, n_f, _, _, _, n_e, _, n_v] = c;
     if n_v == 0 {
-        return Err(Output::err("no_vertex"));
+        return Err(Box::new(Output::err("no_vertex")));
     }
     let vs = |s: i64| sel(s, n_v).max(0);
     let tgt = |ty: i64, index: i64| {
@@ -1112,7 +1120,7 @@ fn resolve(op: &OpIn, c: [usize; 10], b: &Brep) -> Result<OpIn, Output> {
         },
         OpIn::Tangent { v, e1, e2, tol_deg } => {
             if n_e == 0 {
-                return Err(Output::err("no_edge"));
+                return Err(Box::new(Output::err("no_edge")));
             }
             let v = vs(v);
             let (local, _) = adj(v);
@@ -1234,7 +1242,7 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let b = import(&ex)?;
     let op = match resolve(&i.op, c, &b) {
         Ok(op) => op,
-        Err(o) => return Ok(o),
+        Err(o) => return Ok(*o),
     };
     let (code, args) = op_args(&op);
     let mut input = brep_block(i)?;
@@ -1347,7 +1355,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let mut b = import(&ex)?;
     let op = match resolve(&i.op, c, &b) {
         Ok(op) => op,
-        Err(o) => return Ok(o),
+        Err(o) => return Ok(*o),
     };
     match run_rust_op(&mut b, &op) {
         Ok(o) => Ok(o),

@@ -4243,6 +4243,19 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `GetMaxUpDimGap3d` adds to a `NULL` gap array by default (UB-104), the tangent tests
   read an uninitialised tangent after a failed evaluation (UB-105). Ported as written
   where defined; the undefined cases are `InvalidInput` and skipped by the shim.
+- **Review fixtures (PR #96 review).** `fixtures/topology.vertex/review.json` (1408 cases,
+  all pass, none skipped by the shim) adds what the generated chains never reach:
+  rational edges at a vertex with two edges (`SmBSplineCurve::IsLine` handing a rational
+  curve to the sampling `SmCurve::IsLine`), rational arcs meeting lines and arcs at equal
+  and unequal parameters, turns at 0.49/0.51/179.49/179.51/180/90 degrees, 1e-12..1e12
+  scales and tangent / gap / `SetTolerance` limits. Still not compared: `SmCircle` /
+  `SmEllipse` edges at a vertex (the chain shim builds only `SmLine` and
+  `SmBSplineCurve`); the shim reports `-2` (skipped) for an `IsTopologicalVertex` where
+  upstream's SER would return before reading the uninitialised tangent, and the FFI
+  rejects NaN tolerances that C++ handles (coverage only, no wrong result).
+  `Brep::add_vertexuse_record` does not append to `Vertex::vertexuses`; a linking helper
+  or a debug consistency check would stop silent drift once library builders create
+  vertex uses.
 - **Not wired**, still `UNPORTED(topology.vertex)`: the generic-handle callers in
   `intersect::point_class` (`GetBrep`, `IsConnectedTo`, `GetPoint`, `SetPoint`,
   `GetTolerance`, `SetTolerance`, `SetExact`, `GetScaledZero`), `geom::solution_array`
