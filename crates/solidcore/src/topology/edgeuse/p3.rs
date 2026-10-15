@@ -57,10 +57,12 @@
 //!   it as upstream does. `NormalizedEvaluate` returns `SM_SUCCESS` for a point it
 //!   dropped to the surface even where upstream's trim curve was missing.
 //! - **Unported callees.** `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`),
-//!   `SmSurface::GetSingularities` (`surface.surface_p3`), `SmSurface::DropPoint`,
-//!   `SmSurface::LocalPointSolve` and `SmSurface::IsSingularity` of non-planes
-//!   (`surface.surface_p5`) return [`SolidError::Unported`]; `GlobalPointSolve` of a
-//!   non-plane surface is `surface.surface_point_solve_p3` inside. `SmCrvOnSurf` is
+//!   `SmSurface::GetSingularities` (`surface.surface_p3`), `SmFace::CreateUVTrimCurves`
+//!   (`topology.face_p3`, through the face's surface cache) and the paths of
+//!   `SmSurface::DropPoint` / `LocalPointSolve` that reach `LocalPointSolve_1`
+//!   (`surface.surface_point_solve_p3`) return [`SolidError::Unported`];
+//!   `GlobalPointSolve` of a non-plane surface is `surface.surface_point_solve_p3`
+//!   inside. `SmCrvOnSurf` is
 //!   ported for B-spline base surfaces only (`curve.crv_on_surf`): a face on another
 //!   surface kind returns [`SolidError::Unported`] naming that unit.
 //! - **Recursion.** None: `EvaluateBinormal` calls `CreateUVTrimCurve` and
@@ -176,54 +178,44 @@ struct DropPointOut {
 }
 
 /// `pSurface->DropPoint(point, domain, NULL, bOk, uv, gap, bIsMulti)`
-/// (`surface.surface_p5`).
+/// (`SM_SO_MINIMIZE`, no guess).
 fn surface_drop_point(
     surface: &Surface,
     point: Point3,
     domain: &crate::geom::extent2d::Extent2d,
 ) -> Result<DropPointOut> {
-    let _ = (surface, point, domain);
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let r = surface.drop_point::<NoObject>(
+        point,
+        domain,
+        &crate::surface::surface::p5::DropPointOptions::default(),
+    )?;
+    Ok(DropPointOut {
+        found: r.success,
+        uv: r.result_uv,
+    })
 }
 
-/// `pSurface->IsSingularity(uv, eDir)` (virtual: the plane override, the base body
-/// otherwise).
+/// `pSurface->IsSingularity(uv, eDir)` (the virtual: default tolerance `SM_EFF_ZERO`,
+/// surface and point tests).
 fn surface_is_singularity(surface: &Surface, uv: Point2) -> Result<(bool, SurfParamType)> {
-    let _ = uv;
-    match surface.kind() {
-        SurfaceKind::Plane(p) => Ok(p.is_singularity()),
-        SurfaceKind::BSpline(_)
-        | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_)
-        | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
-        }
-    }
+    let r = surface.is_singularity(uv, EFF_ZERO, false)?;
+    Ok((r.singular, r.direction))
 }
 
 /// `pSurface->LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, bFound, sSol)`:
-/// whether an answer was found, its UV point and its solution value
-/// (`surface.surface_p5`).
+/// whether an answer was found, its UV point and its solution value.
 fn surface_local_point_solve(
     surface: &Surface,
     domain: &crate::geom::extent2d::Extent2d,
     point: Point3,
     guess: Point2,
 ) -> Result<(bool, Point2, f64)> {
-    let _ = (surface, domain, point, guess);
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
+    let r =
+        surface.local_point_solve::<NoObject>(domain, SolverOperation::Minimize, point, guess)?;
+    Ok((
+        r.found,
+        Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
+        r.solution.start.solution_value,
     ))
 }
 

@@ -1072,17 +1072,14 @@ pub struct UvCorners {
     pub on_params: Vec<f64>,
 }
 
-/// `pEdgeuse->GetOrCreateUVTrimCurve(pUVTrimCurve)` (unit `topology.edgeuse_p3`).
-fn get_or_create_uv_trim_curve(
-    _k: &Kernel,
-    _b: &mut Brep,
-    _eu: EdgeuseId,
-) -> Result<Option<Curve>> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+/// `pEdgeuse->GetOrCreateUVTrimCurve(pUVTrimCurve)`: the curve after the call (its status
+/// is ignored upstream; `None` when it could not be made).
+fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Option<Curve>> {
+    let _ =
+        crate::topology::edgeuse::p3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+    Ok(crate::topology::edgeuse::p1::uv_trim_curve(b, eu)?
+        .0
+        .cloned())
 }
 
 /// `pS->DropPoint(point, domain, NULL, bSuccess, uv, dGap, bIsMulti)` (unit
