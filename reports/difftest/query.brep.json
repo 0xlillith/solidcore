@@ -1026,616 +1026,82 @@
       "values_compared": 66
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": false,
-            "expand": false,
-            "op": "bounding",
-            "tight": false
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_000",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#29 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": false,
-            "expand": true,
-            "op": "bounding",
-            "tight": false
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 0.990000099999,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_001",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#30 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": false,
-            "expand": false,
-            "op": "bounding",
-            "tight": true
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_010",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#31 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": false,
-            "expand": true,
-            "op": "bounding",
-            "tight": true
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 0.990000099999,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_011",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#32 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": true,
-            "expand": false,
-            "op": "bounding",
-            "tight": false
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_100",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#33 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": true,
-            "expand": true,
-            "op": "bounding",
-            "tight": false
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 0.990000099999,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_101",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#34 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": true,
-            "expand": false,
-            "op": "bounding",
-            "tight": true
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_110",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#35 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "approximate": true,
-            "expand": true,
-            "op": "bounding",
-            "tight": true
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 0.990000099999,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_111",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#36 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 10
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": false,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "op": "default"
-          },
-          {
-            "op": "tight"
-          },
-          {
-            "op": "lock",
-            "tight": false
-          },
-          {
-            "approximate": true,
-            "expand": false,
-            "op": "bounding",
-            "tight": false
-          },
-          {
-            "op": "lock",
-            "tight": true
-          },
-          {
-            "approximate": false,
-            "expand": true,
-            "op": "bounding",
-            "tight": false
-          },
-          {
-            "op": "unlock"
-          },
-          {
-            "op": "default"
-          },
-          {
-            "op": "unlock"
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 10,
-      "mismatches": [
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[15]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[29]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[30]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[43]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[44]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[57]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[58]",
-          "rel_err": 0.990000099999,
-          "rust": "1e-2"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_cache_sequence",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#37 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 66
     },
     {
-      "inputs": {
-        "bbox_brep": {
-          "kind": "network"
-        },
-        "drop_wire_curves": true,
-        "extra_edges": 0,
-        "extra_vertices": 0,
-        "steps": [
-          {
-            "op": "default"
-          },
-          {
-            "op": "tight"
-          },
-          {
-            "op": "lock",
-            "tight": false
-          },
-          {
-            "approximate": true,
-            "expand": false,
-            "op": "bounding",
-            "tight": false
-          },
-          {
-            "op": "lock",
-            "tight": true
-          },
-          {
-            "approximate": false,
-            "expand": true,
-            "op": "bounding",
-            "tight": false
-          },
-          {
-            "op": "unlock"
-          },
-          {
-            "op": "default"
-          },
-          {
-            "op": "unlock"
-          }
-        ],
-        "tolerances": [1e-7, 0.01, 0.1]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 22,
-      "mismatches": [
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[4]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[5]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[6]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[7]",
-          "rel_err": 9.899901000997115e-6,
-          "rust": "1.0000001e0"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[8]",
-          "rel_err": 0.9999999000009999,
-          "rust": "1e-7"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[9]",
-          "rel_err": 0.9999999000009999,
-          "rust": "1e-7"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[15]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[25]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[26]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[27]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[28]",
-          "rel_err": 9.899901000997115e-6,
-          "rust": "1.0000001e0"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[29]",
-          "rel_err": 0.9999999000009999,
-          "rust": "1e-7"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[30]",
-          "rel_err": 0.9999999000009999,
-          "rust": "1e-7"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[43]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.counts_and_boxes[44]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[53]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[54]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "-1e-5",
-          "field": "values.counts_and_boxes[55]",
-          "rel_err": 0.9899999999999999,
-          "rust": "-1e-7"
-        },
-        {
-          "cpp": "1.00001e0",
-          "field": "values.counts_and_boxes[56]",
-          "rel_err": 9.899901000997115e-6,
-          "rust": "1.0000001e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "bbox_network_no_wire_curves",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#38 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
       "values_compared": 66
     },
@@ -8766,17 +8232,17 @@
   ],
   "cases_both_errored": 0,
   "cases_deferred": 25,
-  "cases_failed": 10,
-  "cases_passed": 981,
+  "cases_failed": 0,
+  "cases_passed": 991,
   "cases_total": 1016,
   "deferred_by_unit": {
     "query.face_p1": 5,
     "topology.brep_cache": 20
   },
-  "max_rel_err": 1.0,
-  "pass": false,
+  "max_rel_err": 0.0,
+  "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "fail",
+  "status": "partial",
   "unit": "query.brep"
 }

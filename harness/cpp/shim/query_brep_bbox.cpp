@@ -3,6 +3,22 @@
 // traversal reader; export never calls a bounding-box operation under test.
 #include "sc_edgeuse_graph.h"
 #include <array>
+namespace {
+// A B-rep query reads ALL owned vertices/edges/faces, including topology not
+// reachable from region shells. The shared P1 walk deliberately walks only
+// region-reachable topology, so complete its registry before exporting or edits.
+void bbox_walk(SmBrep* brep,Graph& graph) {
+    walk(brep,graph);
+    SmTArray<SmVertex*> vertices;brep->GetVertices(vertices);
+    SmTArray<SmEdge*> edges;brep->GetEdges(edges);
+    SmTArray<SmFace*> faces;brep->GetFaces(faces);
+    for(ULONG i=0;i<vertices.GetSize();i++) graph.vertex(vertices[i]);
+    for(ULONG i=0;i<edges.GetSize();i++) graph.edge(edges[i]);
+    for(ULONG i=0;i<faces.GetSize();i++) graph.face(faces[i]);
+    // Resolve use records and links of newly registered owned objects too.
+    walk(brep,graph);
+}
+}
 SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* input,int64_t n_in,
     double* out,int64_t cap,int64_t* out_len) {
     if(op<0 || op>1 || !input || n_in<8) return SC_ERR_ARG;
@@ -29,7 +45,7 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
         status=brep->MakeShellVertex(brep->GetInfiniteRegion(),SmPoint3d((double)i*0.01,(double)(i%7)*0.001,0.0),shell,vertex);
         if(status!=SM_SUCCESS) return (int32_t)status;
     }
-    Graph graph;walk(brep,graph);
+    Graph graph;bbox_walk(brep,graph);
     for(auto* v:graph.vertices) v->SetTolerance(SmZoneTol3d(vt),FALSE,FALSE);
     for(auto* e:graph.edges) e->SetTolerance(SmZoneTol3d(et),FALSE,FALSE);
     for(auto* f:graph.faces) f->SetTolerance(SmZoneTol3d(ft),FALSE,FALSE);
@@ -45,7 +61,7 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
     if(rd.at!=n_in) return SC_ERR_ARG;
     std::vector<double> result;
     if(op==0) {
-        Graph final_graph;walk(brep,final_graph);result.push_back(0.0);
+        Graph final_graph;bbox_walk(brep,final_graph);result.push_back(0.0);
         export_graph(brep,final_graph,result);
     } else {
         result.push_back((double)graph.vertices.size());result.push_back((double)graph.edges.size());
