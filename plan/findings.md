@@ -3179,6 +3179,69 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   Difftest: 20694 cases, 20173 pass bit-identically, 0 failed, 521 deferred
   (`surface.surf_of_revolution_p2` 456, `_p3` 65); perturbation 20173/20173.
 
+## surface.surface_p6 (`SmSurface`, part 6; partial, no disagreements)
+
+- **Coverage.** Every non-deferred case agrees bit for bit (`max_rel_err 0`). Most of the
+  unit sits behind `surface.surface_p4`/`_p5`: `GetSampleValues` defers at `DropPoint`
+  once its input checks pass, `LocalCurveIntersect` always defers
+  (`SmCSIntersectENFO::Evaluate`), `SimpleCoincidenceChecker` compares only disjoint boxes
+  (`GlobalPointSolve` next), `ClassifyIntersectingRangeSolution` only point solutions
+  (`LocalPointSolve` next), `SmSSGlobalSolver::IdenticalSolutions` defers at the
+  singularity test of non-plane surfaces, and `sm_SCLocalSolve` compares the boundary
+  curve/curve solves with `bSkipNormalize` (the point solves and the curve/surface solves
+  defer). `CalculateContinuities` and `CreateNaturalUVTrimCurves` compare fully on
+  B-spline, plane and revolution surfaces (also true cones with their apex on the axis).
+- **`CreateIsoParametricCurve` dispatch.** The base body is `surface.surface_p5`; the
+  B-spline, plane (`SmLine`) and revolution (`SmCircle`) overrides are ported and are what
+  both functions call, so the iso curves keep their own `IsDegenerate`, `GetKnots` and
+  `CalculateContinuities`.
+- **`sm_SCLocalSolve` shim.** The verbatim copy takes the evaluated surface, the patch
+  surface and the node boxes instead of the tree nodes, and stops with status `-2` where it
+  would call `sm_SpLocalSolve` (static, `surface.surface_p5`); the Rust side defers there.
+- **Upstream quirks kept.** `SmSSGlobalSolver::IdenticalSolutions` reads the surface
+  parameters from `m_vStart[1..4]` (the solutions hold them in `[0..3]`);
+  `CalculateContinuities` keeps the knots of a replaced degenerate iso curve;
+  `GetSampleValues`' degenerate-tangent test scales `SM_EFF_ZERO` by `1.0 *` (not `1.0 +`)
+  the position's largest coordinate.
+- **Upstream crash.** UB-100: `GetSampleValues` with `SM_TT_DIR_TO_REFERENCE_CURVE` and no
+  reference curve dereferences `NULL` (found by a generated case); the shim refuses it.
+- **Wiring.** Surface caches now build (their tree needs `CalculateContinuities`), so
+  `intersect.surface_tracer`'s runner runs `DoTrace` on the cache instead of a placeholder
+  harness error, and `curve.iso_curve` has no deferred case left (green). The two
+  remaining `UNPORTED(surface.surface_p6)` markers in `surface_cache::p1` and
+  `surface::p7::is_planar` stood for the base `CalculateBoundingBox` of curve-bounded and
+  STEP surfaces, which needs a kernel those signatures do not take: now DISPATCH GAP notes
+  naming `surface.surface_p1`. Once the kernel is plumbed, the next blocker there is
+  `surface.surface_p5`: the cache build's `CalculateContinuities` calls the base
+  `CreateIsoParametricCurve` for these kinds (the comments at both sites say so).
+- **Review fixes (PR #92, 2026-10-15).**
+  - *FFI guard on revolutions.* The guard refused any generator with an endpoint within
+    `1e-3` of the axis, which kept true cones (apex on the axis) away from the C++, and with
+    them the degenerate-side branches of `CreateNaturalUVTrimCurves` (remove degenerate),
+    `CalculateContinuities` (degenerate retry) and the revolution's degenerate-circle iso
+    curve. It now refuses only a generator with both ends on the axis (no surface swept).
+    The C++ neither crashes nor disagrees on the apex cases: 12 cone-apex
+    `cont`/`trim` fixtures (also with the generator reversed) are bit-identical, and a
+    reviewer's 4000-seed run of every op with apex generators enabled gave 4107 cases, 0
+    failed. Even a generator lying entirely on the axis did not crash the C++, but it sweeps
+    no surface, so it stays refused.
+  - *`sm_SCLocalSolve` iso-curve dispatch gap.* `boundary_iso_curve` (`surface::surface::p6`)
+    builds `SmIsoCurve` only over a B-spline; for plane, revolution, curve-bounded and STEP
+    surfaces it returns `Unported` naming `curve.iso_curve` (green), because the ported
+    `IsoCurve` holds an `SmBSplineSurface` and would drop the kind's evaluation overrides.
+    The FFI `scls` guard ("this op needs a B-spline surface") keeps every non-B-spline
+    surface from the C++, so the gap is never exercised. A plane with `process = false` or
+    `skip = true` would already be comparable and is still refused. Whoever generalises
+    `IsoCurve` over `Surface` should wire this site and relax the guard.
+  - *`sc_local_solve` result.* It builds a fresh `Solution` from `LocalCurveSolve`'s result
+    instead of copying upstream's whole `sSolution` (end values, objects). The runner
+    compares type, `nvars`, value and t/u/v only, and the path defers today
+    (`surface.surface_p4`): recheck it when p4 lands.
+  - *`surface.plane_p1` (pre-existing, not this unit).* `SmPlane.cpp:596/600` ignores the
+    status of `CreateNaturalUVTrimCurves` and goes on with whatever curves were appended;
+    `plane::p1` propagates it with `?`. This differs only on SM errors (e.g. a degenerate
+    line), not on `Unported`; a faithful fix needs the partial curve lists on error.
+
 ## surface.surface_p7 (`SmSurface`, part 7)
 
 - **Co-ported callees.** `SmSurface::Evaluate1stDerivatives`, `Evaluate2ndDerivatives` and
@@ -3451,6 +3514,29 @@ PARTIAL: 973 difftest cases (173 fixture, 800 generated), 880 bit-identical, 93 
   generators (radii down to `5e-324` agree); they now reject only non-positive sizes.
   Tiny hyperbolas and parabolas (`a`, `b`, `f` of `1e-7` and below) crash the C++ build
   (segfault), so their `1e-6` guards stay. 1082 cases in `review2_extra_cases.json`.
+
+## intersect.ray_tracer: `surface_leaf` vs upstream's `SE` on degenerate patches (fixed)
+
+- **Unit / code:** `intersect.ray_tracer`, `surface_leaf` (`SmSurfaceGridElement::Init`,
+  `SmGrid.cpp:252-290`).
+- **Inputs:** (a) a bilinear Bezier patch with all four control points at (5,5,5);
+  (b) a patch with `P00 == P10` and `P01 == P11` (du == 0 everywhere). Fixtures
+  `degenerate_patch_all_corners_equal` and `degenerate_patch_du_zero`.
+- **C++:** `SE(Evaluate)`, `SE(Unitize)` and `SE(EvaluateNormal)` signal the error and
+  keep going, so `FireRay` returns a normal record (no error).
+- **Cause:** asking for (1,1) derivatives makes `SmBSplineSurface::Evaluate` take its
+  "not enough derivatives" branch, `SER(Evaluate(crUV, 2, 2, ...))`
+  (`SmBSplineSurfaceNLib.cpp:8335`), which returns before the fixed-up tangents are
+  written back, so `sEval` keeps the plain NLib derivatives. That is what the ported
+  `evaluate` gives with `non_zero_tangents: false`. (The first version of this entry
+  wrongly said the match had to wait for `surface.surface_p8`.)
+- **Fix:** `surface_leaf` retries a failed `evaluate` with `non_zero_tangents: false` and
+  keeps the cross product when `evaluate_normal` fails; `Unported` still propagates.
+  The leaf's mid values are not compared directly by difftest; only the ray record is.
+- **No remaining deviation:** upstream `SmSurface::EvaluateNormal` sets `(0,0,0)` and
+  returns `SM_SUCCESS` when every attempt fails (`SmSurface.cpp:11459-11462`), and the
+  port's `base_evaluate_normal` does the same, so the leaf's failure arm is effectively
+  unreachable (only `Unported` errors).
 
 ## intersect.surface_intersector_p2 (`SmSurfaceIntersector`, part 2, 2026-10-14)
 
@@ -3902,6 +3988,57 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
 
+## curve.curve_p9: zero-end-tangent Hermite pair, loose tolerance (one case in 30,093)
+
+`difftest --unit curve.curve_p9 --seeds 30000` (generator after the review-13 changes) has
+one disagreement, `gen21507` (seed 7577090626449511304): `SM_SO_3D_SIGNED_DIRECTED_MINIMIZE`
+(9), `SM_SR_ALL`, `tol` 0.5, two near-identical cubic Hermite curves (`p1` differs by about
+0.1, `d1` identical, `d2` = (0,0,0) on both), first interval `[0.9424, 1.0934]`, second
+`[0, 1]`. First solution value: C++ `6.019854387120155e-2`, Rust `6.026870704308737e-2`
+(relative error 5.8e-2). The result is stable under clamping the first interval to
+`[.., 1]`, and the case agrees bit-for-bit when `tol` is 0.01, the first interval is
+`[0, 1]`, or `d2` is non-zero (`d1` or `(1e-3, 0, 0)`).
+
+**Root cause: upstream reads an uninitialised Jacobian (undefined behaviour), not a porting
+bug and not floating-point ordering.** Traced with gdb on the C++ side against a Rust trace
+(local `eprintln!`, removed again):
+
+- `SmMatrix::SmMatrix(rows, cols)` does not initialise its inline storage (`m_adMat`, used
+  up to 6x6; only the heap case callocs). `SmLocalSolveNd::SolveIt` declares
+  `SmMatrix sJacobian(lNumFun, lNumFun)` and uses it after the first `Evaluate` without
+  checking that the evaluator wrote it.
+- `SmCurve::LocalCurveIntersect` (here on the two `SmProjectedCurve`s, along `vec[0]`)
+  runs a first Newton solve whose last accepted iterate is `(0.99998324, 1.0)`: a clamped
+  step to `t = 1`, where the Hermite's end tangent is zero. Its second solve
+  (`sLS2`, "start again at the solution") is started from that point. There
+  `SmCCIntersectENFO::Evaluate` takes the tangent branch (gap squared < 0.01, tangents
+  parallel within 0.001 degrees) and calls `SmCCTangentIntENFO::StaticEvaluate` without
+  checking its status; that returns `SM_ERR` (squared tangent length below `SM_EFF_ZERO`)
+  before writing `rF` or the Jacobian. `rF` keeps the solver's `SM_BIG_DOUBLE` fill, so
+  `J * step = -F` is solved with whatever the stack slot of `sJacobian` holds.
+- In C++ that slot still holds the Jacobian of the previous `SolveIt` on the same stack
+  address (`[1.387e-7, -1.387e-7, -4.813e-2, 4.812e-2]`, from the first solve's
+  iterate at `(0.94281, 0.94283)`). The resulting step lands at `(0.94237, 0.5)` and the
+  iteration ends at `(0.94237, 0.94236)`, value `6.0199e-2`. Rust's `Matrix::new` zeroes
+  the Jacobian, so the system is singular (`BadJacobian`), the second solve fails, the
+  first solution `(0.99998, 1.0)` is kept and the later stages end at `(1, 1)`, value
+  `6.0269e-2`.
+- Every residual and Jacobian of the first solve, and of the second solve's first
+  evaluation, matches C++ bit for bit (`F = [-1.0452749776845849e-12,
+  2.3103247408282146e-3]` at the third iterate, same `x` values at every evaluation
+  before the divergence), so the Hermite cache, the projected curve evaluation and the
+  Newton code are not involved.
+- Proof: stopping the C++ run in gdb at the second solve's first evaluation and zeroing
+  `sJacobian`'s four doubles makes the same case agree with Rust exactly (both
+  `[1, 1, 2, 2, 0, 1, 6.026870704308737e-2, 1, 1]`, PASS, relative error 0).
+
+Not fixable without copying uninitialised stack garbage, so the port keeps the
+zero-initialised matrix (`geom::local_solve_nd`, outside this unit) and `curve.curve_p9`
+is unchanged. The failing shape is a zero-length end tangent at a clamped parameter plus
+a gap below 0.1 and a loose tolerance, so it only shows in large seed counts; the
+default 3,093-case set (which the gate and CI run) is clean, and the previous generator's
+30,055-case run was clean.
+
 ## intersect.surface_intersector_p5 (`SmSurfaceIntersector::DoIntersection`, 2026-10-14; partial, no disagreements)
 
 - **Dispatch.** Every upstream caller runs `DoIntersection` on an
@@ -4020,6 +4157,67 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **Wiring note.** `offset_compute_inward_vector` is tagged
   `UNPORTED(surface.offset_surface)` (`SmOffsetSurface::Evaluate`). Wire it
   through the ported `surface::surface::p7::compute_inward_vector`, not a new copy.
+
+## topology.face_p2 (`SmFace` part 2, 2026-10-15; partial, no disagreements)
+
+- **Harness.** As `topology.vertexuse`, the Rust side imports the C++ B-rep export. The
+  export now carries each face's raw `m_pFU`, `m_vUVDomain`, `m_bRectangularTrim`,
+  `m_sZoneTol3d` and whether its surface is owned by it, real `SmPlane`s (origin, axes,
+  scales, analytic domain; rebuilt with `Plane::new`) and the vertex/face gap's face UV.
+  The `topology.vertexuse` shim and runner were extended the same way when its
+  `SmFace::GetUVDomain` / `GetTolerance` stubs were wired (its plane faces used to be
+  imported as B-splines; its deferrals on `topology.face_p2` are gone, 0 failures).
+- **Inexact geometry.** Several upstream `.smb` files (`Mouse`, `box_with_large_fillet`,
+  `cone`, `sphere`, `surf_extrude`, `surf_rev`, `surf_sphere150`, `torus`, `toruswvy`,
+  `vase_rev`) have face surfaces that are `SmBSplineSurface` subclasses other than
+  `SmPlane`, and some edges are `SmEllipse`s; the export carries their B-spline part only.
+  A first run showed what that costs: `GetPointsInFace` on `sphere.smb` returned a normal
+  `z` of `7.5e-17` in C++ and `3.0e-16` in Rust, while the same B-spline surface as a
+  standalone `SmBSplineSurface` gives `3.0e-16` in both (the subclass evaluates
+  differently). Ops that evaluate such a face surface or (`sm_FindBestUVCurve`) edge curve
+  therefore report `inexact_geometry` on both sides (both runners); they compare once the
+  surface subclasses can be rebuilt in Rust.
+- **`sm_FindBestUVCurve` on planes** is deferred (`curve.crv_on_surf`): the ported
+  `CrvOnSurf` holds an `SmBSplineSurface` only.
+- **Opaque handles.** `UNPORTED(topology.face_p2)` sites remain where the caller holds a
+  face only as a generic handle or an `ObjectRef` (no `Brep` to look the face up in):
+  `geom::object` (extent of faces), `geom::solution_array` (`face_surface`,
+  `face_uv_domain`), `geom::tol` (comments for `GetScaledZero` / `UpdateObjectTolerance`),
+  `intersect::point_class` (4), `intersect::curve_class::p1::compute_face_point_class`,
+  `intersect::topology_solver::p1::face_silhouettes` (`CreateCurvesByTrimming`),
+  `surface::plane::p2` / `surface::surface::p1` / `surface::surface::p7` (the owning face's
+  tolerance), `surface::surface_cache::p1` (the surface's face handle). They need a way
+  from those handles to the B-rep before they can call `topology::face::p2`.
+- **Upstream defects:** WR-86 (`GetPointsInFace` samples a rectangular face from `0`, not
+  from its domain), WR-87 (`sm_CheckSeamCrossing` returns `SM_SUCCESS` as `TRUE`).
+
+## topology.edgeuse_p2 (SmEdgeuse part 2: sector tests, step-off binormal, UV trim curve checks, Notify)
+
+- **Shared B-rep harness.** The B-rep construction/export helpers of the
+  `topology.edgeuse_p1` shim moved to `harness/cpp/shim/sc_edgeuse_graph.h` (both shims
+  include it). The export now also carries each face's `GetUVDomain()`,
+  `GetTolerance()` and surface type code, the B-rep's `GetTolerance()`, and an `SmPlane`
+  face surface as `1 O N` (it used to go out as its B-spline part); the
+  `topology.edgeuse_p1` runner imports them (`Face::uv_domain`, `Face::tolerance`,
+  `Brep::tolerance`, a `Plane` rebuilt from origin and normal, not bit-exact: only its
+  kind is observed off deferred paths).
+- **Inexact geometry is deferred, not compared.** The import holds an analytic
+  `SmBSplineSurface` subclass (SmCone/SmCylinder 15012/13, SmSphere 15014, SmTorus,
+  SmSurfOfExtrusion 15030, SmSurfOfRevolution ...) and an analytic `SmBSplineCurve`
+  subclass only as their B-spline parts. `CheckAndSetUVTrimCurve` evaluates both, and on
+  `cone.smb` the B-spline part of the `SmCone` differs from `SmCone::EvaluatePoint` by
+  ~1e-15 (distances 6.2e-15 vs 4.0e-15). The runner therefore defers such cases (on the
+  unit of the missing `SurfaceKind`, as `Surface::read_from_db` does, or on
+  `topology.brep_p7` `SmBrep::ReadFromFile` where only an exact Rust B-rep reader can
+  hold the geometry). Most upstream `.smb` faces are analytic; compared
+  `CheckAndSetUVTrimCurve` cases come from `Endcap.smb`, `ellips_ts2.smb`, `Mouse.smb`
+  B-spline faces and `CreateFaceFromSurface` B-spline faces.
+- **Deferred everywhere else.** `IsTangentSector` (non-lamina), `IsConvexRadialSector`
+  (with samples), `EvaluateBinormalStepOff` and `RebuildUVTrimCurve` reach
+  `SmEdgeuse::EvaluateBinormal` / `CreateUVTrimCurve` (`topology.edgeuse_p3`); the shim
+  skips ("not run", `-3`) those it cannot run safely (wire edge uses, missing geometry),
+  which the Rust side always defers. `SM_NO_REG_PROPAGATION` is not sent to an edge use
+  (the region-attribute handler would dereference the caller as a region).
 
 ## query.tess: BuildTree on a plane face needs the plane's NURB (review of PR #83)
 
