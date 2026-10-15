@@ -4443,3 +4443,34 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   zero counts; the port returns `InvalidInput`).
 - `SmBrep::ReadFromFile` crashes on `SmallBox.smb` (UB-1), so topology fixtures use the
   `topology.vertexuse` file list.
+
+## heal.heal_data_p1 (blocked: every comparable path enters unported hard dependencies)
+
+The unit owns `SmHealData`'s constructor, destructor, `ReSet`, `MoveToNotYetProblems`,
+`HealBrep`, `Cache_FaceProps_Stage2`, `Fix_BadSheets`, `Cache_FaceProps_Stage3`,
+`Make_UVTrimCurves`, `Fix_InfiniteRegion` and `SmApiHealBrep`. When it was claimed
+(PR #109) both hard dependencies, `heal.heal_data_p2` and `topology.brep_p1`, were `todo`
+with no open PR, and so were `heal.face_props`, `heal.heal_data_p3` and `topology.shell`.
+Every path the difftest could drive reaches one of them before producing a value:
+
+- `SmHealData::SmHealData` calls `ReSet(TRUE)`, whose first statements are
+  `FreeTargets()` and `SetupEmptyProbArrays()` (`heal.heal_data_p2`). So no
+  `SmHealData` can be built on the Rust side, and every member function (`Make_UVTrimCurves`,
+  `Cache_FaceProps_Stage2/3`, `Fix_BadSheets`, `MoveToNotYetProblems`) is deferred
+  before it runs. `MoveToNotYetProblems` also starts with `RemoveFaceProps_FromLists` (p2).
+- `HealBrep` (non-null B-rep) starts with `SmBrep::GetVertices/GetEdges/GetFaces`
+  (`topology.brep_p1`), then `LoadTargets` (p2) and `HealTgts` (`heal.heal_data_p3`).
+  `SmApiHealBrep` goes through `SmBrep::HealBrep` (`topology.brep_p1`).
+- `Fix_InfiniteRegion` starts with `SmBrep::GetInfiniteRegion` (`topology.brep_p1`) and
+  then reads `SmRegion::IsVoid/SetIsVoid` (`topology.shell`); the region record in
+  `topology::Brep` has no void flag or region list yet.
+- `Cache_FaceProps_Stage2/3` are loops over `SmFaceProps::HasProps/SetProps`
+  (`heal.face_props`) filling prob arrays whose type and setup belong to p2.
+
+The only case that would compare a value is `SmApiHealBrep(NULL) ->
+SM_ERR_INVALID_INPUT`; a port whose difftest is that one case plus 100% deferred cases
+would land ~900 lines of healer orchestration (and large co-ports of `SmHealData` /
+`SmFaceProps` / `SmHealProbArray` from p2 and `heal.face_props`) with nothing compared
+against the C++. Nothing was ported. Re-open this unit (status back to `todo`) once
+`heal.heal_data_p2` and `topology.brep_p1` are `green`/`partial`; it is best ported in
+the same PR as, or right after, `heal.heal_data_p2`, which owns the `SmHealData` fields.

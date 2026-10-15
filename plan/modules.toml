@@ -3021,10 +3021,10 @@ soft_depends_on = ["geom.context", "geom.hash_table", "geom.object", "heal.face_
 est_lines = 922
 layer = 49
 tests = ["prog_test:my_test_closed_sphere_properties", "prog_test:my_test_squeeze_edge_tracks_removal", "prog_test:my_test_missing_poles_refreshes_all_faces", "SM_API_test:TestSmHealBrep", "SM_API_test:TestSmHeal", "prog_test:my_test_MakeFace", "pt_TestFiles/MakeFace/ApproximateSphere.smp"]
-status = "todo"
+status = "blocked"
 claimed_by = ""
 claimed_at = ""
-notes = "11 fns; largest: SmHealData::Cache_FaceProps_Stage3, SmHealData::Cache_FaceProps_Stage2, SmHealData::Fix_BadSheets, SmHealData::HealBrep; entry points: SmApiHealBrep; cycle back-edges (call into later units; stub or co-port): heal.heal_data_p3(1); unit-SCC #22 (220 units); 59 upstream test entry points reach this unit"
+notes = "BLOCKED (PR #109): every comparable path enters unported hard deps before producing a value (ctor -> ReSet -> FreeTargets/SetupEmptyProbArrays in heal.heal_data_p2; HealBrep/Fix_InfiniteRegion -> SmBrep::GetVertices/GetInfiniteRegion in topology.brep_p1), so only SmApiHealBrep(NULL) could be compared; nothing ported; set back to todo once heal.heal_data_p2 and topology.brep_p1 are green/partial (details in plan/findings.md); 11 fns; largest: SmHealData::Cache_FaceProps_Stage3, SmHealData::Cache_FaceProps_Stage2, SmHealData::Fix_BadSheets, SmHealData::HealBrep; entry points: SmApiHealBrep; cycle back-edges (call into later units; stub or co-port): heal.heal_data_p3(1); unit-SCC #22 (220 units); 59 upstream test entry points reach this unit"
 
 [[unit]]
 id = "heal.stitch_p1"
