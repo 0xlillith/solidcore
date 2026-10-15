@@ -23,7 +23,7 @@
 //! | [`shell_is_degenerate`], [`region_is_degenerate`] | `IsDegenerate` (native default tolerance) |
 //! | `shell_bounds_for_degeneracy`, `region_bounds_for_degeneracy` | minimum default-tight `CalculateBoundingBox` branches (`query.face_p1`) |
 //! | [`faceuse_sibling_links`] | typed `SmTopology::GetNext` / `GetLast` for face uses |
-//! | `query::edge::edge_vertices`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (delegated to PR #89), `IsWire` |
+//! | `query::edge::edge_vertices`, `topology::vertexuse::edge_is_wire` | `SmEdge::GetVertices` (PR #89), `IsWire` (PR #88) |
 //! | `vertex_edges_for_shell` | `SmVertex::GetVertexuses`, `GetEdges` (no face filter) |
 //! | [`Region::get_shells`], [`Region::is_void`], [`Region::set_is_void`] | `GetShells`, `IsVoid`, `SetIsVoid` |
 //! | [`Region::is_infinite_region`] | `IsInfiniteRegion` |
@@ -35,7 +35,7 @@
 //! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
-//! There is no recursion. This is WIP; remaining operations and native gates are pending.
+//! There is no recursion. Missing external callees return explicit `Unported` errors.
 
 use crate::error::{Result, SolidError};
 use crate::topology::proto_topology::p1::owning_topology;
@@ -451,11 +451,7 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
 }
 
 fn edge_is_wire_for_shell(brep: &Brep, edge: EdgeId) -> Result<bool> {
-    use crate::topology::edgeuse::p1;
-    match p1::primary_edgeuse(brep, edge)? {
-        Some(primary) => p1::is_shell_edgeuse(brep, primary),
-        None => Ok(false),
-    }
+    crate::topology::vertexuse::edge_is_wire(brep, edge)
 }
 
 fn vertex_edges_for_shell(brep: &Brep, vertex: VertexId) -> Result<Vec<EdgeId>> {

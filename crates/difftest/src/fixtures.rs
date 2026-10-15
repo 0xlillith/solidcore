@@ -13,6 +13,7 @@
 //! * `{"$upstream_file": "Boolean/a.smb"}` → absolute path string of that file
 //!   (for runners whose C++ side reads the file directly).
 
+#[cfg(feature = "cpp")]
 pub(crate) mod regions;
 
 use std::fs;
