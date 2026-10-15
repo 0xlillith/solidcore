@@ -129,7 +129,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_custom_solver` (1236 lines) — in progress: #78 @bherbruck (ready for review)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
-- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (draft)
+- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (ready for review)
 - [ ] 🔨 `boolean.api_brep` (410 lines) — in progress: #81 @bherbruck (ready for review)
 
 ## By module
@@ -367,7 +367,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p1` (465 lines) — waiting
 - [ ] ⏳ `query.face_p4` (1432 lines) — waiting
-- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (draft)
+- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (ready for review)
 - [ ] ⏳ `query.brep` (517 lines) — waiting
 - [ ] ⏳ `query.api_queries` (809 lines) — waiting
 
