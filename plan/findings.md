@@ -3822,3 +3822,33 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+## intersect.surface_intersector_p5 (`SmSurfaceIntersector::DoIntersection`, 2026-10-14; partial, no disagreements)
+
+- **Dispatch.** Every upstream caller runs `DoIntersection` on an
+  `SmAdvSurfaceIntersector`, so it is ported on `AdvSurfaceIntersector` (its
+  `SolveBranch`/`LocalSolve` overrides answer the `SM_SO_INTERSECTION_TEST` solve, its
+  `FindInteriorCurves` override finds the loops). DISPATCH GAP for the porters of
+  `surface.surface_p8` / `surface.surface_p11`: `TraceCurve` (part 4) calls the basic
+  `ComputePointValues` -> `ComputeSingularityPoint` (`SM_ERR`), not the advanced
+  override, so a traced point with parallel normals will disagree once start points
+  can be found. Today every start point needs `SmSurface::GlobalCurveIntersect`
+  (`surface.surface_p8`) or `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
+  so no compared case reaches it.
+- **Surface caches.** The real cache build needs `SmSurface::CalculateContinuities`
+  (`surface.surface_p6`): every case without hand-built trees defers there. The runner
+  swaps hand-built trees into the real C++ caches (`m_pTree`, restored after the call)
+  and gives the Rust side caches holding the same trees. `SmCurveBoundedSurface`s
+  without boundary curves get no C++ cache (`NER` -> `SM_ERR_NULL_POINTER`); they run
+  only without trees.
+- **Plane iso curves.** `SmPlane` boundary planes need the cache's
+  `SmPlane::CreateIsoParametricCurve` (self-tagged `surface.surface_cache_p1` gap: the
+  cache stores iso curves as B-splines, a plane makes `SmLine`s), so plane scenes that
+  reach `DoBoundaryPlaneTest` defer; the generator mostly uses the same planes as
+  bilinear B-splines, which compare.
+- **Back-edges.** `base_global_surface_intersect` (surface_p2; plane_p2 and
+  surf_of_revolution_p2 fall back to it) and `CreateParallelProjectionCurves`
+  (surface_p7, whole body ported: it now returns `None` UV curves for `NULL`
+  entries and takes the kernel) call it; their deferrals move to `surface.surface_p6`
+  (surface caches). `surf_of_extrusion_p2`'s fall-back stays a stub tagged
+  `intersect.adv_surface_intersector` (its output type differs).
