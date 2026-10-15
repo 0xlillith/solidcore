@@ -113,7 +113,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p6` (2150 lines) — in progress: #92 @bherbruck (ready for review)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_p10` (2172 lines) — in progress: #93 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_p10` (2172 lines) — in progress: #93 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
@@ -273,7 +273,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_p1` (2458 lines) — partial, 806 cases
 - [ ] 🔨 `surface.surface_p6` (2150 lines) — in progress: #92 @bherbruck (ready for review)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
-- [ ] 🔨 `surface.surface_p10` (2172 lines) — in progress: #93 @bherbruck (draft)
+- [ ] 🔨 `surface.surface_p10` (2172 lines) — in progress: #93 @bherbruck (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
 - [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
