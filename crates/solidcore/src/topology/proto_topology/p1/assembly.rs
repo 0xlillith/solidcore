@@ -58,7 +58,10 @@ fn list_of<R: OwningRecords + ?Sized>(
 ) -> Result<super::owning_topology::OwningTopology> {
     records
         .owning(this)
-        .ok_or(crate::error::SolidError::invalid_input(OP, "object has no list data"))
+        .ok_or(crate::error::SolidError::invalid_input(
+            OP,
+            "object has no list data",
+        ))
 }
 
 fn store_list<R: OwningRecords + ?Sized>(
@@ -68,7 +71,10 @@ fn store_list<R: OwningRecords + ?Sized>(
 ) -> Result<()> {
     records
         .set_owning(this, list)
-        .ok_or(crate::error::SolidError::invalid_input(OP, "object has no list data"))
+        .ok_or(crate::error::SolidError::invalid_input(
+            OP,
+            "object has no list data",
+        ))
 }
 
 /// An assembly (`SmAssembly`): a name and a user pointer; its instances are the
@@ -166,7 +172,11 @@ impl Assembly {
     /// # Errors
     ///
     /// [`crate::SolidError::InvalidInput`] for a broken list or missing records.
-    pub fn destroy<R: OwningRecords + ?Sized>(self, records: &mut R, this: ObjectKey) -> Result<()> {
+    pub fn destroy<R: OwningRecords + ?Sized>(
+        self,
+        records: &mut R,
+        this: ObjectKey,
+    ) -> Result<()> {
         let instances = Self::assembly_instances(records, this)?;
         let mut list = list_of(records, this)?;
         for i in instances {
@@ -269,7 +279,10 @@ impl AssemblyInstance {
         records
             .topology(this)
             .map(crate::topology::topology::Topology::owner)
-            .ok_or(crate::error::SolidError::invalid_input(OP, "object has no record"))
+            .ok_or(crate::error::SolidError::invalid_input(
+                OP,
+                "object has no record",
+            ))
     }
 
     /// The destructor `~SmAssemblyInstance` of the instance `this`: its parent
@@ -279,7 +292,11 @@ impl AssemblyInstance {
     /// # Errors
     ///
     /// [`crate::SolidError::InvalidInput`] for missing records or list data.
-    pub fn destroy<R: OwningRecords + ?Sized>(self, records: &mut R, this: ObjectKey) -> Result<()> {
+    pub fn destroy<R: OwningRecords + ?Sized>(
+        self,
+        records: &mut R,
+        this: ObjectKey,
+    ) -> Result<()> {
         if let Some(parent) = Self::parent_assembly(records, this)? {
             Assembly::remove_instance(records, parent, this)?;
         }

@@ -3,9 +3,10 @@
 
 use std::collections::BTreeMap;
 
+use crate::error::{Result, SolidError};
+
 /// A map from the topology objects of a copied B-rep to those of the original
-/// (`SmCopyBrepMap`). Objects are caller-chosen handles `O`; `None` is a null
-/// pointer, which the release build stores like any other key.
+/// (`SmCopyBrepMap`). Objects are caller-chosen handles `O`; `None` is a null pointer.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CopyBrepMap<O> {
     /// `m_pOrigBrep`.
@@ -13,7 +14,7 @@ pub struct CopyBrepMap<O> {
     /// `m_pCopyBrep`.
     copy_brep: Option<O>,
     /// `m_sMap`: copy object to original object.
-    map: BTreeMap<Option<O>, Option<O>>,
+    map: BTreeMap<O, O>,
 }
 
 impl<O> Default for CopyBrepMap<O> {
@@ -58,17 +59,30 @@ impl<O: Copy + Ord> CopyBrepMap<O> {
     }
 
     /// Records that `copy_obj` is the copy of `orig_obj`, replacing any earlier entry
-    /// for `copy_obj` (`SetAt`; its `SM_ASSERT`s are compiled out of the release
-    /// build).
-    pub fn set_at(&mut self, copy_obj: Option<O>, orig_obj: Option<O>) {
+    /// for `copy_obj` (`SetAt`). Both objects are required: upstream's `SM_ASSERT`s
+    /// still evaluate `GetType()` of both in the release build.
+    pub fn set_at(&mut self, copy_obj: O, orig_obj: O) {
         self.map.insert(copy_obj, orig_obj);
     }
 
-    /// The original of `copy_obj` (`GetAt`): `None` for a null or unknown object.
-    #[must_use]
-    pub fn get_at(&self, copy_obj: Option<O>) -> Option<O> {
-        copy_obj?;
-        self.map.get(&copy_obj).copied().flatten()
+    /// The original of `copy_obj` (`GetAt`): `None` for a null object.
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] for an object without an entry: upstream's release
+    /// `SM_ASSERT` calls `GetType()` on the null original it finds (undefined).
+    pub fn get_at(&self, copy_obj: Option<O>) -> Result<Option<O>> {
+        let Some(c) = copy_obj else {
+            return Ok(None);
+        };
+        self.map
+            .get(&c)
+            .copied()
+            .map(Some)
+            .ok_or(SolidError::InvalidInput {
+                operation: "topology::proto_topology::p1::CopyBrepMap::get_at",
+                reason: "object has no entry (upstream dereferences the null original)",
+            })
     }
 
     /// The number of entries (`m_sMap.Count()`).

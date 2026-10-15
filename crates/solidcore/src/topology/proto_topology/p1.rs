@@ -147,6 +147,13 @@
 //!   `SmProtoVertex::ContainsPoint` (`query.face_p2`) in `FindProtoVertex` and
 //!   `sm_WhichPVToCombine`, `SmBrep::Transform` (`topology.brep_p5`) and
 //!   `SmPolyBrep::Transform` (`query.poly`).
+//! - **Copy map.** `SetAt` takes two objects and `GetAt` of an object without an entry
+//!   is [`SolidError::InvalidInput`](crate::SolidError): upstream's release `SM_ASSERT`s
+//!   call `GetType()` on null objects there (plan/upstream-issues.md UB-98).
+//! - **Manager destructor** leaves the objects it does not list in the store (upstream
+//!   allocates them from the context).
+//! - `RemoveCoincidentNoEdgeProtoVertex` keeps upstream's `return SM_SUCCESS` (read as
+//!   `TRUE`) when the point solve finds nothing (plan/upstream-issues.md WR-73).
 //! - `Dump`, `Draw` and the `SM_DEBUG_CODE` blocks are not ported.
 //! - **Recursion.** None.
 
@@ -163,3 +170,495 @@ pub use proto::{
     EdgeDefId, EdgeDefinition, ProtoEdge, ProtoEdgeId, ProtoFace, ProtoFaceId, ProtoGeometry,
     ProtoTopologyManager, ProtoVertex, ProtoVertexId, VertexDefId, VertexDefinition,
 };
+
+#[cfg(test)]
+mod tests {
+    use std::collections::BTreeMap;
+
+    use super::api_transform::{self, TransformObject};
+    use super::assembly::{assembly_instance_is_kind_of, assembly_is_kind_of, ASSEMBLY_TYPE};
+    use super::*;
+    use crate::curve::curve::p2::Curve;
+    use crate::curve::line::Line;
+    use crate::error::SolidError;
+    use crate::geom::attribute::{Attribute, AttributeStore, Behavior, ObjectKey};
+    use crate::geom::axis2_placement::Axis2Placement;
+    use crate::geom::extent1d::Extent1d;
+    use crate::intersect::point_class::{
+        ClassGeometry, ClassObject, ClassObjectKind, PointClassType,
+    };
+    use crate::kernel::Kernel;
+    use crate::math::{Point3, Vec3};
+    use crate::surface::surface::Surface;
+    use crate::surface::volume::Volume;
+    use crate::topology::topology::{Topology, TopologyRecords};
+
+    /// A store of owning objects keyed by index.
+    #[derive(Default)]
+    struct Store {
+        recs: BTreeMap<ObjectKey, Topology>,
+        lists: BTreeMap<ObjectKey, OwningTopology>,
+    }
+
+    impl TopologyRecords for Store {
+        fn topology(&self, key: ObjectKey) -> Option<&Topology> {
+            self.recs.get(&key)
+        }
+        fn topology_mut(&mut self, key: ObjectKey) -> Option<&mut Topology> {
+            self.recs.get_mut(&key)
+        }
+    }
+
+    impl OwningRecords for Store {
+        fn owning(&self, key: ObjectKey) -> Option<OwningTopology> {
+            self.lists.get(&key).copied()
+        }
+        fn set_owning(&mut self, key: ObjectKey, owning: OwningTopology) -> Option<()> {
+            *self.lists.get_mut(&key)? = owning;
+            Some(())
+        }
+    }
+
+    fn store(n: u64) -> Store {
+        let mut s = Store::default();
+        for i in 0..n {
+            s.recs.insert(ObjectKey(i), Topology::new());
+            s.lists.insert(ObjectKey(i), OwningTopology::new());
+        }
+        s
+    }
+
+    fn members(s: &Store, owner: u64) -> Vec<u64> {
+        let l = s.owning(ObjectKey(owner)).unwrap();
+        l.get_all(s, &AttributeStore::new(), None, None)
+            .unwrap()
+            .iter()
+            .map(|k| k.0)
+            .collect()
+    }
+
+    #[test]
+    fn owning_list_insert_reverse_remove() {
+        let mut s = store(4);
+        let o = ObjectKey(0);
+        let mut l = s.owning(o).unwrap();
+        l.post_insert(o, &mut s, ObjectKey(1)).unwrap();
+        l.post_insert(o, &mut s, ObjectKey(2)).unwrap();
+        l.pre_insert(o, &mut s, ObjectKey(3)).unwrap();
+        s.set_owning(o, l).unwrap();
+        assert_eq!(members(&s, 0), vec![3, 1, 2]);
+        assert_eq!(l.size(), 3);
+        assert_eq!(l.is_in_list(&s, Some(ObjectKey(2))).unwrap(), (true, 2));
+        assert_eq!(l.is_in_list(&s, None).unwrap(), (false, 3));
+
+        l.reverse_list(&mut s).unwrap();
+        assert_eq!(members(&s, 0), vec![3, 2, 1]);
+
+        // removing the head moves it on; removing an object not owned is SM_ERR
+        l.remove(o, &mut s, ObjectKey(3)).unwrap();
+        s.set_owning(o, l).unwrap();
+        assert_eq!(l.list(), Some(ObjectKey(2)));
+        assert!(l.remove(o, &mut s, ObjectKey(3)).is_err());
+        let mut l2 = l;
+        l2.update_list_size(&s).unwrap();
+        assert_eq!(l2.size(), 2);
+    }
+
+    #[test]
+    fn owning_list_get_all_filters() {
+        let mut s = store(3);
+        let o = ObjectKey(0);
+        let mut l = s.owning(o).unwrap();
+        l.post_insert(o, &mut s, ObjectKey(1)).unwrap();
+        l.post_insert(o, &mut s, ObjectKey(2)).unwrap();
+        let mut attrs = AttributeStore::new();
+        let h = attrs
+            .insert(Attribute::new(7, Behavior::StandaloneCopy))
+            .unwrap();
+        attrs.add_attribute(ObjectKey(2), h).unwrap();
+        let with7 = l.get_all(&s, &attrs, Some(7), None).unwrap();
+        assert_eq!(with7, vec![ObjectKey(2)]);
+        let target = l.get_all(&s, &attrs, None, Some(ObjectKey(1))).unwrap();
+        assert_eq!(target, vec![ObjectKey(1)]);
+        // a count lower than the list overruns: SM_ERR, the members walked so far
+        let mut short = l;
+        short.set_list(l.list());
+        let mut bad = OwningTopology::new();
+        bad.set_list(l.list());
+        assert!(bad.get_all(&s, &attrs, None, None).is_err());
+        assert_eq!(
+            bad.get_all_ignoring_status(&s, &attrs, None, None)
+                .unwrap()
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn owning_list_broken_walk_is_invalid_input() {
+        let mut s = store(3);
+        // a cycle that never returns to the head
+        s.recs.get_mut(&ObjectKey(1)).unwrap().set_list_links(
+            Some(ObjectKey(0)),
+            Some(ObjectKey(2)),
+            Some(ObjectKey(2)),
+        );
+        s.recs.get_mut(&ObjectKey(2)).unwrap().set_list_links(
+            Some(ObjectKey(0)),
+            Some(ObjectKey(2)),
+            Some(ObjectKey(1)),
+        );
+        let mut l = OwningTopology::new();
+        l.set_list(Some(ObjectKey(1)));
+        assert!(matches!(
+            l.is_in_list(&s, Some(ObjectKey(0))),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert!(matches!(
+            l.reverse_list(&mut s),
+            Err(SolidError::InvalidInput { .. })
+        ));
+    }
+
+    #[test]
+    fn assembly_instances_and_destructors() {
+        let mut s = store(4);
+        let a = ObjectKey(0);
+        let i1 = AssemblyInstance::new(
+            &mut s,
+            ObjectKey(1),
+            Some("i1"),
+            a,
+            None,
+            Axis2Placement::default(),
+            Vec3::new(1.0, 1.0, 1.0),
+            false,
+        )
+        .unwrap();
+        let _i2 = AssemblyInstance::new(
+            &mut s,
+            ObjectKey(2),
+            None,
+            a,
+            Some(ObjectKey(3)),
+            Axis2Placement::default(),
+            Vec3::new(1.0, 1.0, 1.0),
+            true,
+        )
+        .unwrap();
+        assert_eq!(
+            Assembly::assembly_instances(&s, a).unwrap(),
+            vec![ObjectKey(1), ObjectKey(2)]
+        );
+        assert_eq!(
+            AssemblyInstance::parent_assembly(&s, ObjectKey(1)).unwrap(),
+            Some(a)
+        );
+        i1.destroy(&mut s, ObjectKey(1)).unwrap();
+        assert_eq!(
+            Assembly::assembly_instances(&s, a).unwrap(),
+            vec![ObjectKey(2)]
+        );
+        Assembly::new(Some("a")).destroy(&mut s, a).unwrap();
+        assert_eq!(
+            AssemblyInstance::parent_assembly(&s, ObjectKey(2)).unwrap(),
+            None
+        );
+        assert!(assembly_is_kind_of(ASSEMBLY_TYPE));
+        assert!(!assembly_is_kind_of(owning_topology::TYPE));
+        assert!(!assembly_instance_is_kind_of(ASSEMBLY_TYPE));
+        assert!(owning_topology::is_kind_of(crate::topology::topology::TYPE));
+    }
+
+    #[test]
+    fn copy_map_requires_entries() {
+        let mut m: CopyBrepMap<u32> = CopyBrepMap::new();
+        m.set_at(1, 10);
+        m.set_at(1, 11);
+        assert_eq!(m.get_at(Some(1)).unwrap(), Some(11));
+        assert_eq!(m.get_at(None).unwrap(), None);
+        assert!(m.get_at(Some(2)).is_err());
+        m.set_breps(Some(5), Some(6));
+        assert_eq!((m.orig_brep(), m.copy_brep()), (Some(5), Some(6)));
+        m.destroy();
+        assert_eq!(m.orig_brep(), None);
+        assert_eq!(m.len(), 1);
+    }
+
+    /// Pool handles: an index and a kind.
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    struct H(usize, ClassObjectKind);
+
+    impl ClassObject for H {
+        fn class_kind(&self) -> ClassObjectKind {
+            self.1
+        }
+    }
+
+    struct Geo(Vec<Curve>);
+
+    impl ClassGeometry<H> for Geo {
+        fn curve(&self, o: H) -> Option<&Curve> {
+            self.0.get(o.0)
+        }
+        fn surface(&self, _o: H) -> Option<&Surface> {
+            None
+        }
+        fn volume(&self, _o: H) -> Option<&Volume> {
+            None
+        }
+        fn point(&self, _o: H) -> Option<Point3> {
+            None
+        }
+    }
+
+    impl ProtoGeometry<H> for Geo {
+        fn curve_mut(&mut self, o: H) -> Option<&mut Curve> {
+            self.0.get_mut(o.0)
+        }
+    }
+
+    fn line(p: [f64; 3], q: [f64; 3]) -> Curve {
+        Curve::from(
+            Line::create_line_segment(3, Vec3::from_array(p), Vec3::from_array(q), None).unwrap(),
+        )
+    }
+
+    const C0: H = H(0, ClassObjectKind::Curve);
+    const R0: H = H(10, ClassObjectKind::Region);
+    const L0: H = H(11, ClassObjectKind::Loop);
+
+    fn manager() -> ProtoTopologyManager<H> {
+        let b = H(100, ClassObjectKind::Other);
+        ProtoTopologyManager::new(b, b, b, 1e-5, 1e-3, -1.0).unwrap()
+    }
+
+    #[test]
+    fn proto_edge_definitions_evaluate_and_combine() {
+        let k = Kernel::default();
+        let geo = Geo(vec![line([0.0, 0.0, 0.0], [2.0, 0.0, 0.0])]);
+        let mut m = manager();
+        let ivl = geo.0[0].natural_interval();
+        let v0 = m
+            .new_proto_vertex(Point3::new(0.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        let v1 = m
+            .new_proto_vertex(Point3::new(2.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        m.add_proto_vertex(v0);
+        m.add_proto_vertex(v1);
+        let pe = m.new_proto_edge(&k, Some(v0), Some(v1), ivl).unwrap();
+        m.add_proto_edge(pe);
+        let ed1 = m
+            .insert_edge_definition(EdgeDefinition::new(
+                Some(C0),
+                ivl,
+                R0,
+                L0,
+                1e-5,
+                None,
+                None,
+                Some(pe),
+            ))
+            .unwrap();
+        let ed2 = m
+            .insert_edge_definition(EdgeDefinition::new(
+                Some(C0),
+                ivl,
+                R0,
+                L0,
+                1e-5,
+                None,
+                None,
+                Some(pe),
+            ))
+            .unwrap();
+        m.proto_edge_mut(pe)
+            .unwrap()
+            .edge_definitions_mut()
+            .extend([ed1, ed2]);
+
+        let (pos, tan) = m.proto_edge_evaluate_mid(&geo, pe, true, true).unwrap();
+        assert!((pos.unwrap() - Point3::new(1.0, 0.0, 0.0)).length() < 1e-12);
+        assert!(tan.is_some());
+        let end = m.proto_edge_end_position_at(&geo, pe, Some(v1)).unwrap();
+        assert!((end - Point3::new(2.0, 0.0, 0.0)).length() < 1e-12);
+        assert!(m.proto_edge_end_position_at(&geo, pe, None).is_err());
+        // same sources: drop the second
+        assert_eq!(
+            m.can_combine_edge_definitions(&k, &geo, ed1, ed2).unwrap(),
+            2
+        );
+        assert_eq!(m.all_edge_definitions().unwrap(), vec![ed1, ed2]);
+        assert_eq!(m.edge_def_start_proto_vertex(ed1).unwrap(), Some(v0));
+
+        let (inside, t) = m
+            .edge_def(ed1)
+            .unwrap()
+            .is_interior_point(&k, &geo, Point3::new(0.5, 0.0, 0.0), 1e-5, true)
+            .unwrap();
+        assert!(inside);
+        assert!(t > ivl.min() && t < ivl.mid());
+    }
+
+    #[test]
+    fn proto_vertices_combine_and_remove() {
+        let k = Kernel::default();
+        let geo = Geo(vec![line([0.0, 0.0, 0.0], [2.0, 0.0, 0.0])]);
+        let mut m = manager();
+        let ivl = geo.0[0].natural_interval();
+        let v0 = m
+            .new_proto_vertex(Point3::new(0.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        let v1 = m
+            .new_proto_vertex(Point3::new(2.0, 0.0, 0.0), 2e-5)
+            .unwrap();
+        let pe = m.new_proto_edge(&k, Some(v1), Some(v1), ivl).unwrap();
+        m.proto_vertex_mut(v1).unwrap().add_proto_edge(pe);
+        m.combine_proto_vertex(v0, v1).unwrap();
+        let e = m.proto_edge(pe).unwrap();
+        assert_eq!(
+            (e.start_proto_vertex(), e.end_proto_vertex()),
+            (Some(v0), Some(v0))
+        );
+        assert_eq!(m.proto_vertex(v0).unwrap().proto_edges(), &[pe]);
+        assert!((m.proto_vertex(v0).unwrap().tolerance(&k) - 2e-5).abs() < 1e-18);
+
+        // an edgeless proto vertex on the curve is unlisted
+        let v2 = m
+            .new_proto_vertex(Point3::new(1.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        m.add_proto_vertex(v2);
+        let ed = m
+            .insert_edge_definition(EdgeDefinition::new(
+                Some(C0),
+                ivl,
+                R0,
+                L0,
+                1e-5,
+                None,
+                None,
+                Some(pe),
+            ))
+            .unwrap();
+        m.proto_edge_mut(pe)
+            .unwrap()
+            .edge_definitions_mut()
+            .push(ed);
+        assert!(m
+            .remove_coincident_no_edge_proto_vertex(&k, &geo, pe, v2)
+            .unwrap());
+        assert!(m.proto_vertices().is_empty());
+        // off the curve: no solution, and upstream's SM_SUCCESS reads as TRUE
+        let v3 = m
+            .new_proto_vertex(Point3::new(1.0, 5.0, 0.0), 1e-5)
+            .unwrap();
+        m.add_proto_vertex(v3);
+        assert!(m
+            .remove_coincident_no_edge_proto_vertex(&k, &geo, pe, v3)
+            .unwrap());
+        assert_eq!(m.proto_vertices(), &[v3]);
+    }
+
+    #[test]
+    fn manager_destroy_keeps_unlisted_objects() {
+        let k = Kernel::default();
+        let mut m = manager();
+        let v0 = m
+            .new_proto_vertex(Point3::new(0.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        let v1 = m
+            .new_proto_vertex(Point3::new(1.0, 0.0, 0.0), 1e-5)
+            .unwrap();
+        m.add_proto_vertex(v0);
+        let pe = m
+            .new_proto_edge(&k, Some(v1), Some(v0), Extent1d::from_min_max(0.0, 1.0))
+            .unwrap();
+        m.proto_vertex_mut(v0).unwrap().add_proto_edge(pe);
+        let deleted = m.destroy();
+        assert!(deleted.is_empty());
+        assert!(m.proto_vertex(v0).is_none());
+        assert!(m.proto_vertex(v1).is_some());
+        // the deleted proto vertex is cleared from the end of the unlisted proto edge
+        assert_eq!(m.proto_edge(pe).unwrap().end_proto_vertex(), None);
+        assert_eq!(m.proto_edge(pe).unwrap().start_proto_vertex(), Some(v1));
+    }
+
+    #[test]
+    fn static_helpers() {
+        assert!(proto::can_imprint(PointClassType::Edge));
+        assert!(!proto::can_imprint(PointClassType::Curve));
+        assert_eq!(proto::topo_dimension(R0), -1);
+        assert_eq!(proto::topo_dimension(H(1, ClassObjectKind::Face)), 2);
+        assert!(proto::are_connected(Some(R0), Some(R0)).unwrap());
+        assert!(!proto::are_connected(Some(R0), Some(L0)).unwrap());
+        assert!(proto::are_connected(
+            Some(H(1, ClassObjectKind::Edge)),
+            Some(H(2, ClassObjectKind::Vertex))
+        )
+        .is_err());
+
+        let k = Kernel::default();
+        let geo = Geo(vec![
+            line([0.0, 0.0, 0.0], [1.0, 0.0, 0.0]),
+            line([0.0, 1e-9, 0.0], [1.0, 1e-9, 0.0]),
+        ]);
+        let ivl = Extent1d::from_min_max(0.0, 1.0);
+        let c1 = H(1, ClassObjectKind::Curve);
+        assert!(proto::are_same_curve(&k, &geo, Some(C0), &ivl, Some(c1), &ivl, 1e-6).unwrap());
+        assert!(!proto::are_same_curve(&k, &geo, Some(C0), &ivl, Some(c1), &ivl, 1e-12).unwrap());
+        let dom = geo.0[0].natural_interval();
+        assert!(proto::is_interior(&geo, Some(C0), &dom, dom.mid(), 1e-6).unwrap());
+        assert!(!proto::is_interior(&geo, Some(C0), &dom, dom.min(), 1e-6).unwrap());
+    }
+
+    #[test]
+    fn api_transforms() {
+        let k = Kernel::default();
+        let mut c = line([1.0, 0.0, 0.0], [2.0, 0.0, 0.0]);
+        api_transform::api_translate(
+            &k,
+            Some(TransformObject::Curve(&mut c)),
+            Vec3::new(0.0, 1.0, 0.0),
+        )
+        .unwrap();
+        let ivl = c.natural_interval();
+        let p = c.evaluate_point(ivl.min()).unwrap();
+        assert!((p - Point3::new(1.0, 1.0, 0.0)).length() < 1e-12);
+        api_transform::api_scale_by_pt(
+            &k,
+            Some(TransformObject::Curve(&mut c)),
+            Point3::new(1.0, 1.0, 0.0),
+            Vec3::new(2.0, 2.0, 2.0),
+        )
+        .unwrap();
+        let ivl = c.natural_interval();
+        let q = c.evaluate_point(ivl.max()).unwrap();
+        assert!((q - Point3::new(3.0, 1.0, 0.0)).length() < 1e-12);
+
+        assert!(matches!(
+            api_transform::api_rotate(
+                &k,
+                Some(TransformObject::Curve(&mut c)),
+                Point3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 0.0, 0.0),
+                90.0
+            ),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert!(matches!(
+            api_transform::api_scale(&k, None, Vec3::new(1.0, 1.0, 1.0)),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert!(matches!(
+            api_transform::api_scale(&k, Some(TransformObject::Other), Vec3::new(0.0, 1.0, 1.0)),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert!(api_transform::api_translate(
+            &k,
+            Some(TransformObject::Brep),
+            Vec3::new(1.0, 0.0, 0.0)
+        )
+        .is_err_and(|e| e.is_unported()));
+    }
+}
