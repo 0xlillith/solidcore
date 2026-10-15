@@ -533,6 +533,10 @@ const SmContext& the_context()
     return *p;
 }
 
+struct BadInput
+{
+};
+
 SmSurface* read_surface(Rd& rd, const SmContext& ctx)
 {
     int64_t kind = rd.idx();
@@ -558,7 +562,7 @@ SmSurface* read_surface(Rd& rd, const SmContext& ctx)
         SmSurfOfRevolution* s = NULL;
         SmStatus stt = SmSurfOfRevolution::CreateCanonical(ctx, l, p, ax, s, swap ? TRUE : FALSE);
         if (stt != SM_SUCCESS || !s)
-            return NULL;
+            throw BadInput(); // e.g. a generator on the axis: CreateCanonical yields no surface
         s->SetOutOfBoundsEnabled(oob ? TRUE : FALSE); // the surface and its generator
         return s;
     }
@@ -880,7 +884,15 @@ SC_EXPORT int32_t sc_surface_surface_p3_eval(int32_t op, const double* in, int64
     SC_TRY
     Rd rd{in, 0};
     std::vector<double> o;
-    run(op, rd, o);
+    try
+    {
+        run(op, rd, o);
+    }
+    catch (const BadInput&)
+    {
+        *out_len = 0;
+        return SC_ERR_ARG;
+    }
     if (rd.at != n_in)
     {
         *out_len = 0;
