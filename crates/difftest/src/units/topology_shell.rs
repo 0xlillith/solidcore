@@ -25,6 +25,31 @@ struct Inputs {
     transfer: Option<TransferInputs>,
     #[serde(default)]
     type_probe: Option<TypeProbe>,
+    #[serde(default)]
+    degenerate: Option<DegenerateInput>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DegenerateInput {
+    tolerance: Option<Value>,
+}
+
+fn degeneracy_tolerance(input: &DegenerateInput) -> Result<Option<f64>, HarnessError> {
+    let Some(value) = &input.tolerance else {
+        return Ok(None);
+    };
+    let value = if let Some(number) = value.as_f64() {
+        number
+    } else {
+        match value.as_str() {
+            Some("nan") => f64::NAN,
+            Some("inf") => f64::INFINITY,
+            Some("-inf") => f64::NEG_INFINITY,
+            _ => return Err(failure("invalid degeneracy tolerance")),
+        }
+    };
+    Ok(Some(value))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -376,6 +401,26 @@ impl UnitDiff for Runner {
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
         }
+        if let Some(degenerate) = inputs.degenerate {
+            if inputs.type_probe.is_some()
+                || inputs.transfer.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure(
+                    "degeneracy cannot be combined with another operation",
+                ));
+            }
+            let values = ffi::degeneracy(&path, &block, degeneracy_tolerance(&degenerate)?)
+                .map_err(failure)?;
+            return Ok(Output::new().ints(
+                "records",
+                values
+                    .into_iter()
+                    .map(|value| value as i64)
+                    .collect::<Vec<_>>(),
+            ));
+        }
         if let Some(probe) = inputs.type_probe {
             if inputs.transfer.is_some() || inputs.wires || inputs.void_state.is_some() {
                 return Err(failure(
@@ -429,6 +474,36 @@ impl UnitDiff for Runner {
         let mut brep = import(&export)?;
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
+        }
+        if let Some(degenerate) = inputs.degenerate {
+            if inputs.type_probe.is_some()
+                || inputs.transfer.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure(
+                    "degeneracy cannot be combined with another operation",
+                ));
+            }
+            let tolerance = degeneracy_tolerance(&degenerate)?;
+            let kernel = solidcore::kernel::Kernel::default();
+            let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
+            for id in brep.shells().ids() {
+                match solidcore::topology::shell::shell_is_degenerate(&kernel, &brep, id, tolerance)
+                {
+                    Ok(value) => out.push(flag(value)),
+                    Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+                }
+            }
+            for id in brep.regions().ids() {
+                match solidcore::topology::shell::region_is_degenerate(
+                    &kernel, &brep, id, tolerance,
+                ) {
+                    Ok(value) => out.push(flag(value)),
+                    Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+                }
+            }
+            return Ok(Output::new().ints("records", out));
         }
         if let Some(probe) = inputs.type_probe {
             if inputs.transfer.is_some() || inputs.wires || inputs.void_state.is_some() {

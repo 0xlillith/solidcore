@@ -17,6 +17,8 @@
 //! | [`shell_region`], [`shell_brep`] | `GetRegion`, `GetBrep` |
 //! | [`wire_edges`] | `SmShell::GetWireEdges` |
 //! | [`transfer_children`] | `SmShell::TransferChildrenTo` |
+//! | [`shell_is_degenerate`], [`region_is_degenerate`] | `IsDegenerate` (native default tolerance) |
+//! | `shell_bounds_for_degeneracy`, `region_bounds_for_degeneracy` | minimum default-tight `CalculateBoundingBox` branches (`query.face_p1`) |
 //! | [`faceuse_sibling_links`] | typed `SmTopology::GetNext` / `GetLast` for face uses |
 //! | `edge_vertices_for_shell`, `edge_is_wire_for_shell` | `SmEdge::GetVertices` (no attribute filter), `IsWire` |
 //! | `vertex_edges_for_shell` | `SmVertex::GetVertexuses`, `GetEdges` (no face filter) |
@@ -670,6 +672,157 @@ fn refresh_faceuse_sibling_links(brep: &mut Brep, owner: ShellId) -> Result<()> 
         previous = Some(member);
     }
     Ok(())
+}
+
+/// Whether a shell fits within `tolerance` (`SmShell::IsDegenerate`).
+/// `None` retains the native default `EFF_ZERO`, independently of zone tolerance.
+///
+/// # Errors
+/// Invalid graph references, an undefined native pointer access, or an unported
+/// bounding-box dependency. Ordinary native box errors retain the partial box.
+pub fn shell_is_degenerate(
+    kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: ShellId,
+    tolerance: Option<f64>,
+) -> Result<bool> {
+    if brep.shell(id)?.is_vertex_shell() {
+        return Ok(true);
+    }
+    let attempt = shell_bounds_for_degeneracy(kernel, brep, id)?;
+    // Native IsDegenerate deliberately ignores CalculateBoundingBox's status.
+    Ok(attempt
+        .bounds
+        .is_point_sized(tolerance.unwrap_or(crate::math::EFF_ZERO)))
+}
+
+/// Whether a region fits within `tolerance` (`SmRegion::IsDegenerate`).
+/// `None` retains the native default `EFF_ZERO`.
+///
+/// # Errors
+/// Invalid graph references or an unported bounding-box dependency. Ordinary
+/// native box errors are ignored while retaining the initialized/partial box.
+pub fn region_is_degenerate(
+    kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: RegionId,
+    tolerance: Option<f64>,
+) -> Result<bool> {
+    let attempt = region_bounds_for_degeneracy(kernel, brep, id)?;
+    Ok(attempt
+        .bounds
+        .is_point_sized(tolerance.unwrap_or(crate::math::EFF_ZERO)))
+}
+
+// Outer failures mean a missing dependency or an unsafe native graph access;
+// status is a real native return status, which the IsDegenerate callers ignore.
+struct BoundsAttempt {
+    bounds: crate::geom::extent3d::Extent3d,
+    status: Result<()>,
+}
+
+// CO-PORTED minimum default-tight=false branches from query.face_p1. Keeping the
+// status beside its box preserves partial writes and Native SER before Union.
+fn region_bounds_for_degeneracy(
+    kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: RegionId,
+) -> Result<BoundsAttempt> {
+    let mut bounds = crate::geom::extent3d::Extent3d::new();
+    let shells = &brep.region(id)?.shells;
+    if shells.is_empty() {
+        return Ok(BoundsAttempt {
+            bounds,
+            status: Err(SolidError::sm_err("topology::shell::region_bounds")),
+        });
+    }
+    for &shell in shells {
+        let child = shell_bounds_for_degeneracy(kernel, brep, shell)?;
+        if let Err(error) = child.status {
+            return Ok(BoundsAttempt {
+                bounds,
+                status: Err(error),
+            });
+        }
+        bounds = bounds.union(&child.bounds);
+    }
+    Ok(BoundsAttempt {
+        bounds,
+        status: Ok(()),
+    })
+}
+
+fn shell_bounds_for_degeneracy(
+    kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: ShellId,
+) -> Result<BoundsAttempt> {
+    let mut bounds = crate::geom::extent3d::Extent3d::new();
+    let shell = brep.shell(id)?;
+    match shell.shell_type.code() {
+        16006 => {
+            let vertex = shell.vertex(brep)?.ok_or(invalid_members())?;
+            bounds.add_point(brep.vertex(vertex)?.point);
+        }
+        16005 => {
+            for edge in wire_edges(brep, id)? {
+                let child = edge_bounds_for_shell(kernel, brep, edge, false)?;
+                if let Err(error) = child.status {
+                    return Ok(BoundsAttempt {
+                        bounds,
+                        status: Err(error),
+                    });
+                }
+                bounds = bounds.union(&child.bounds);
+            }
+        }
+        16022 => {
+            for faceuse in shell.get_faceuses()? {
+                let face = brep.faceuse(faceuse)?.face.ok_or(invalid_members())?;
+                let child = face_bounds_for_shell(kernel, brep, face, false)?;
+                if let Err(error) = child.status {
+                    return Ok(BoundsAttempt {
+                        bounds,
+                        status: Err(error),
+                    });
+                }
+                bounds = bounds.union(&child.bounds);
+            }
+        }
+        _ => {}
+    }
+    Ok(BoundsAttempt {
+        bounds,
+        status: Ok(()),
+    })
+}
+
+fn edge_bounds_for_shell(
+    _kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: EdgeId,
+    _tight: bool,
+) -> Result<BoundsAttempt> {
+    brep.edge(id)?;
+    // UNPORTED(query.edge): SmEdge::CalculateBoundingBox
+    Err(SolidError::unported(
+        "SmEdge::CalculateBoundingBox",
+        "query.edge",
+    ))
+}
+
+fn face_bounds_for_shell(
+    _kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    id: crate::topology::FaceId,
+    _tight: bool,
+) -> Result<BoundsAttempt> {
+    brep.face(id)?;
+    // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox
+    Err(SolidError::unported(
+        "SmFace::CalculateBoundingBox",
+        "query.face_p1",
+    ))
 }
 
 #[cfg(test)]

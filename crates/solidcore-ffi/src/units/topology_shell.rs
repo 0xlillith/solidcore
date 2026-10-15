@@ -192,8 +192,50 @@ pub fn type_members(
     Ok(output)
 }
 
+/// Native shell/region degeneracy using the actual default or caller tolerance.
+/// Non-finite tolerances are defined comparisons in `IsPointSized` and remain
+/// allowed; vertex-shell short circuits ignore the tolerance as upstream does.
+///
+/// # Errors
+/// Malformed fixture data, failed native setup or a native shim failure.
+pub fn degeneracy(path: &str, block: &[f64], tolerance: Option<f64>) -> Result<Vec<f64>, FfiError> {
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native degeneracy fixture build failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: the entire block was validated; buffers/lengths stay live and
+        // the shim honours capacity. Tolerance is only used in defined numeric
+        // comparisons, never to determine an allocation or array index.
+        unsafe {
+            sys::sc_topology_shell_degeneracy(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                i32::from(tolerance.is_some()),
+                tolerance.unwrap_or(0.0),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_degeneracy(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            has_tolerance: i32,
+            tolerance: f64,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_type_members(
             path: *const std::ffi::c_char,
             input: *const f64,

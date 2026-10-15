@@ -331,3 +331,18 @@ SC_EXPORT int32_t sc_topology_shell_type_members(const char* path, const double*
         });
     SC_CATCH
 }
+
+SC_EXPORT int32_t sc_topology_shell_degeneracy(const char* path,const double* input,
+    int64_t count,int32_t has_tolerance,double tolerance,double* output,int64_t cap,int64_t* output_len) {
+    if (!output_len || cap<0 || (cap && !output) || (has_tolerance!=0 && has_tolerance!=1)) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,[&](const sc_topology_fixture::View& view)->int32_t {
+        std::vector<double> out{(double)view.shells.size(),(double)view.regions.size()};
+        for (SmShell* shell:view.shells)
+            out.push_back((double)(has_tolerance ? shell->IsDegenerate(tolerance) : shell->IsDegenerate()));
+        for (SmRegion* region:view.regions)
+            out.push_back((double)(has_tolerance ? region->IsDegenerate(tolerance) : region->IsDegenerate()));
+        return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
+    });
+    SC_CATCH
+}
