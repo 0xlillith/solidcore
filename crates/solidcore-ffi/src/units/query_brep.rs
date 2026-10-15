@@ -61,15 +61,25 @@ mod classify_sys {
             point: *const f64,
             tolerance: f64,
             boundary: i32,
+            regions: i32,
             out: *mut f64,
             cap: i64,
             out_len: *mut i64,
         ) -> i32;
     }
 }
-/// Classify a point on the real single-region empty B-rep. This fixture never
+/// Classify a point on a real empty B-rep with one to four constructed regions.
+/// This fixture never
 /// traverses nonempty geometry; all floating inputs are valid scalar payloads.
-pub fn classify(point: &[f64; 3], tolerance: f64, boundary: bool) -> Result<Vec<f64>, FfiError> {
+pub fn classify(
+    point: &[f64; 3],
+    tolerance: f64,
+    boundary: bool,
+    regions: u8,
+) -> Result<Vec<f64>, FfiError> {
+    if !(1..=4).contains(&regions) {
+        return Err(FfiError::InvalidArgument("region count".into()));
+    }
     call_with_buffer(14, |buf, len| {
         // SAFETY: point has three live doubles; boundary is a boolean; the shim
         // constructs a real B-rep and copies into the supplied live buffers.
@@ -78,6 +88,7 @@ pub fn classify(point: &[f64; 3], tolerance: f64, boundary: bool) -> Result<Vec<
                 point.as_ptr(),
                 tolerance,
                 i32::from(boundary),
+                i32::from(regions),
                 buf.as_mut_ptr(),
                 buf.len() as i64,
                 &raw mut *len,

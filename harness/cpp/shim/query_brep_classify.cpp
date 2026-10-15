@@ -10,14 +10,28 @@
 #include <SmTArray.h>
 #include <memory>
 #include <vector>
-SC_EXPORT int32_t sc_query_brep_classify(const double* point, double tolerance, int32_t boundary,
+// Expose only the real SmRegion constructor/destructor for fixture creation;
+// every queried operation and field remains the upstream implementation.
+namespace {
+struct FixtureRegion : SmRegion {
+    FixtureRegion() : SmRegion() {}
+    ~FixtureRegion() override = default;
+};
+}
+SC_EXPORT int32_t sc_query_brep_classify(const double* point, double tolerance, int32_t boundary, int32_t region_count,
     double* out, int64_t cap, int64_t* out_len) {
-    if(!point || boundary<0 || boundary>1) return SC_ERR_ARG;
+    if(!point || boundary<0 || boundary>1 || region_count<1 || region_count>4) return SC_ERR_ARG;
     SC_TRY
     const SmContext& ctx=*SmApiGetOrCreateContext();
     std::unique_ptr<SmBrep> brep(new (ctx) SmBrep());
+    for(int i=1;i<region_count;i++) {
+        std::unique_ptr<FixtureRegion> region(new (brep.get()) FixtureRegion());
+        SmStatus insertion=brep->PostInsert(region.get());
+        if(insertion!=SM_SUCCESS) return (int32_t)insertion;
+        region.release();
+    }
     SmTArray<SmRegion*> regions; brep->GetRegions(regions);
-    if(regions.GetSize()!=1) return SC_ERR_ARG;
+    if(regions.GetSize()!=(ULONG)region_count) return SC_ERR_ARG;
     SmPointClassification pc(SmZoneTol3d(17.0),&ctx);
     pc.SetGap3d(31.0); pc.SetTParam(47.0,FALSE); pc.SetUVParam(SmPoint2d(53.0,59.0));
     pc.SetPreSnapParam(61.0); pc.SetSSSPoint(SmPoint3d(67.0,71.0,73.0));

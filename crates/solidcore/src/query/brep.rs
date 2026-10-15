@@ -20,10 +20,12 @@
 //! | [`lock_bounding_box`] | `SmBrep::LockBoundingBox` |
 //! | [`unlock_bounding_box`] | `SmBrep::UnLockBoundingBox` |
 //!
-//! Deviations: a nullable surface is `Option<&Surface>`; output parameters become
-//! return values, so failure cannot modify caller-owned outputs. The remaining
-//! Classification keeps its in/out state, including writes made before failure. Destructors
-//! use ownership rather than poisoning fields immediately before freeing them.
+//! Deviations: nullable surfaces are `Option<&Surface>`. Surface evaluations and
+//! box calculations return their outputs, preserving failure atomicity where
+//! upstream does. Classification retains its in/out state, including writes
+//! before failure. The locked box is owned by the B-rep. Unfiltered object lists
+//! are arena views in list order. No input-driven recursion is added here.
+//! Destructors use ownership rather than poisoning fields just before freeing.
 //! The quadric edge constructor leaves its sort index uninitialised in C++; the
 //! port represents that state by `None` instead of exposing undefined memory.
 

@@ -61,3 +61,18 @@ pub fn eval(export: bool, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiErro
         }
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn rejects_malformed_counts_before_native_reads_or_construction() {
+        for (index, value) in [(1, 1e30), (2, f64::NAN), (7, f64::INFINITY)] {
+            let mut input = [0.0; 8];
+            input[index] = value;
+            assert!(eval(true, "", &input).is_err());
+        }
+        assert!(eval(true, "", &[0.0; 7]).is_err());
+        assert!(eval(true, "contains\0nul", &[0.0; 8]).is_err());
+    }
+}

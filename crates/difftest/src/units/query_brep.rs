@@ -56,7 +56,7 @@ impl UnitDiff for Runner {
         }
         if case.inputs.get("point_classify").is_some() {
             let i: PointInput = case.parse()?;
-            return ffi::classify(&i.point_classify, i.tolerance, i.boundary)
+            return ffi::classify(&i.point_classify, i.tolerance, i.boundary, i.regions)
                 .map(record)
                 .map_err(|e| HarnessError::new(e.to_string()));
         }
@@ -324,8 +324,13 @@ fn attribute_rust(i: &AttributeInput) -> Result<Output, HarnessError> {
     ))
 }
 
+fn one_region() -> u8 {
+    1
+}
 #[derive(Serialize, Deserialize)]
 struct PointInput {
+    #[serde(default = "one_region")]
+    regions: u8,
     point_classify: [f64; 3],
     tolerance: f64,
     boundary: bool,
@@ -333,7 +338,7 @@ struct PointInput {
 #[derive(Clone, Copy, PartialEq)]
 enum EmptyObject {
     Brep,
-    Region,
+    Region(u8),
 }
 impl solidcore::geom::solution_array::SolutionObject for EmptyObject {
     fn kind(&self) -> solidcore::geom::solution_array::ObjectKind {
@@ -345,14 +350,16 @@ impl solidcore::intersect::point_class::ClassObject for EmptyObject {
         use solidcore::intersect::point_class::ClassObjectKind;
         match self {
             Self::Brep => ClassObjectKind::Other,
-            Self::Region => ClassObjectKind::Region,
+            Self::Region(_) => ClassObjectKind::Region,
         }
     }
 }
 // Only the B-rep and its real constructor region are represented. There are no
 // curves, surfaces or vertices; requesting one is a harness/model error, never
 // a fabricated geometry result. The standard missing-cache default is retained.
-struct EmptyBrep;
+struct EmptyBrep {
+    regions: u8,
+}
 fn wrong_empty_object() -> solidcore::SolidError {
     solidcore::SolidError::invalid_input(
         "difftest::query_brep::EmptyBrep",
@@ -414,7 +421,7 @@ impl brep::BrepClassifyObjects<EmptyObject> for EmptyBrep {
         EmptyObject::Brep
     }
     fn regions(&self) -> solidcore::Result<Vec<EmptyObject>> {
-        Ok(vec![EmptyObject::Region])
+        Ok((0..self.regions).map(EmptyObject::Region).collect())
     }
 }
 impl solidcore::intersect::point_class::ClassGeometry<EmptyObject> for EmptyBrep {
@@ -435,6 +442,7 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
     use solidcore::geom::vector3d::Vec3;
     use solidcore::intersect::point_class::PointClassification;
     let k = solidcore::kernel::Kernel::default();
+    let scene = EmptyBrep { regions: i.regions };
     let mut pc = PointClassification::new(17.0);
     pc.set_gap_3d(31.0);
     pc.set_t_param(47.0, false);
@@ -445,7 +453,7 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
     let [x, y, z] = i.point_classify;
     let outcome = brep::point_3d_classify(
         &k,
-        &EmptyBrep,
+        &scene,
         Vec3::new(x, y, z),
         tolerance,
         i.boundary,
@@ -461,14 +469,14 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
         }
     };
     let gap = pc
-        .gap_3d(&k, &EmptyBrep, None)
+        .gap_3d(&k, &scene, None)
         .map_err(|e| HarnessError::new(e.to_string()))?;
     let uv = pc.uv_param();
     let sss = pc.sss_point();
     Ok(record(vec![
         status,
         f64::from(pc.point_class().code()),
-        if pc.object() == Some(EmptyObject::Region) {
+        if pc.object() == Some(EmptyObject::Region(0)) {
             0.0
         } else {
             -1.0
