@@ -3822,3 +3822,30 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+## difftest `--ssi-corpus` (jyviko's SSI corpus, 2026-10-14)
+
+- **Correctness report, not a gate.** `--ssi-corpus` grades both engines against the exact
+  ground truth of jyviko's corpus (`corpus/ssi/`, fetched by `scripts/fetch-ssi-corpus.sh`).
+  At approximation tolerance 1e-6 the C++ reference scores PASS=81, INCOMPLETE=25,
+  WRONG TOPOLOGY=11, ERROR=2, the same as the corpus' published SMLib figure (81/119). The
+  38 misses are in `plan/upstream-issues.md` WR-74 to WR-80. A faithful port should score
+  the same. The Rust scorer (`crates/difftest/src/ssi/`) gives the same verdict and the same
+  flags as the corpus' `score.py` on all 119 C++ outputs. Distances agree to roundoff
+  (1e-16 to 1e-12 absolute).
+- **Plane NURB state matters for plane/plane intersection.** Upstream
+  `SmBSplineSurface::GetNaturalUVDomain` makes the plane's NURB in place
+  (`GetOrCreateGwNurbPointer` through a const cast). `Plane::natural_uv_domain` works on a
+  copy and leaves the plane without NURB. `IntersectWithPlane`'s parallel branch returns
+  "nothing, done" when either plane has no NURB, and goes on to the coincidence test when
+  both have one. So the same call on coincident planes (`c6_planes_identical`,
+  `c6_planes_overlap`) returned no curves in Rust and four `COINCIDENT` boundary curves in
+  C++ until the corpus harness made the NURBs (`Plane::make_nurb`) to match the C++ state.
+  With that done the cases go to the general intersector and are deferred
+  (`intersect.surface_intersector_p5`). Callers of the port that mirror upstream call
+  sequences must make the NURB where upstream's const queries would.
+- **Rust coverage at the time of writing:** 3 cases answered (plane/plane, identical to the
+  C++ and PASS), 116 deferred. 62 are deferred on `SmSurfaceIntersector::DoIntersection`
+  (`intersect.surface_intersector_p5`), 24 on spheres (`surface.sphere`), 21 on cones and
+  cylinders (`surface.cone_p3`), 9 on tori (`SmTorus` is ported but not a `SurfaceKind`
+  yet).

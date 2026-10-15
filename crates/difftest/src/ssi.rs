@@ -32,8 +32,8 @@ use crate::{compare, HarnessError};
 
 /// The corpus repository.
 pub const CORPUS_REPO: &str = "https://github.com/jyviko/ssi-corpus";
-/// The pinned corpus commit.
-pub const CORPUS_COMMIT: &str = "b04c8a6";
+/// The pinned corpus commit (`b04c8a6`; full SHA, as `scripts/fetch-ssi-corpus.sh` pins it).
+pub const CORPUS_COMMIT: &str = "b04c8a6093a8b3505d865d1dd874ec3879ccb1f9";
 /// Per-engine time limit for one case (the corpus scorer's `TIMEOUT_S`).
 pub const TIMEOUT: Duration = Duration::from_secs(300);
 /// The default approximation tolerance.

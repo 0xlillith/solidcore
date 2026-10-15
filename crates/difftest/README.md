@@ -265,13 +265,15 @@ NURBS pairs, 25 of them from Yang, Jia & Yan, ACM TOG 42(6) 211, 2023), each wit
 exact intersection and the expected topology.
 
 ```sh
-scripts/fetch-ssi-corpus.sh               # clones the corpus into corpus/ssi/ (gitignored, idempotent)
+scripts/fetch-ssi-corpus.sh               # clones the corpus into corpus/ssi/ (gitignored, idempotent, full-SHA pin)
 nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --ssi-corpus             # all cases, tol 1e-6
-nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --ssi-corpus 'c3_*'      # a glob of case ids
+nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --ssi-corpus 'c3_*'      # case ids matching a glob (`*`, `?`)
 nice -n 10 cargo run --profile difftest -p difftest --features cpp -- --ssi-corpus --tol default --jobs 4
 ```
 
-Without `corpus/ssi/` it prints how to fetch it and exits `0`. Exit `2` only for harness
+Without `corpus/ssi/` it prints how to fetch it and exits `0`. The corpus is data only:
+the mode reads `cases/data/*.json` and never runs anything from `corpus/`. The fetch script
+pins the full commit SHA and checks the checkout's origin and `HEAD` against it. Exit `2` only for harness
 errors (unreadable case, report not writable); verdicts never fail the run.
 
 * **Engines.** Each case runs in a child process per engine (`difftest --ssi-case <case>
