@@ -1899,11 +1899,21 @@ mod tests {
     }
 
     #[test]
-    fn find_interval_outside_errors() {
+    fn find_interval_beyond_the_ends_snaps_on_a_straight_curve() {
+        // upstream tests the signed distance along the tangent against the end point, which
+        // is on the wrong side for a parameter beyond a monotone curve: it always snaps
         let k = Kernel::default();
         let (geo, cc) = setup(&k, &[0.0, 1.0]);
-        assert!(cc.find_interval(&k, &geo, 5.0, BIG_DOUBLE, 1e-6).is_err());
-        assert!(cc.find_interval(&k, &geo, -5.0, BIG_DOUBLE, 1e-6).is_err());
+        let r = cc
+            .find_interval(&k, &geo, 5.0, BIG_DOUBLE, 1e-6)
+            .expect("snaps to the end");
+        assert_eq!((r.index, r.position), (0, IntervalPosition::End));
+        assert_eq!(r.end_dist_3d, 4.0);
+        let r = cc
+            .find_interval(&k, &geo, -5.0, BIG_DOUBLE, 1e-6)
+            .expect("snaps to the start");
+        assert_eq!((r.index, r.position), (0, IntervalPosition::Start));
+        assert_eq!(r.end_dist_3d, 5.0);
     }
 
     #[test]
@@ -1991,9 +2001,10 @@ mod tests {
         let before = cc.clone();
         fix_problems_by_squeezing(&k, &geo, &mut cc, &mut other).expect("squeeze");
         assert_eq!(cc.size(), before.size());
-        // a squeeze that has to remove an interval waits for ConnectIntervals
-        let (_, mut coarse) = setup(&k, &[0.0, 2.0]);
-        let r = fix_problems_by_squeezing(&k, &geo, &mut cc, &mut coarse);
-        assert!(matches!(r, Err(e) if e.is_unported()));
+        // a zero-length interval maps to one boundary of `other`: its squeeze waits for
+        // ConnectIntervals
+        let (_, mut squeezed) = setup(&k, &[0.0, 1.0, 1.0, 2.0]);
+        let r = fix_problems_by_squeezing(&k, &geo, &mut squeezed, &mut other);
+        assert!(matches!(r, Err(ref e) if e.is_unported()), "{r:?}");
     }
 }
