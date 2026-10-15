@@ -1249,7 +1249,7 @@ fn gen_gcs(rng: &mut Rng) -> OpIn {
     // the first one (a true intersection is one in every projection), shifted along
     // the view normal / rotation axis for the parallel and rotated projections, or
     // tangent to it for the projected tangency
-    let (c2, ivl2) = match (sop, vecs.get(if sop == 16 || sop == 22 { 0 } else { 1 })) {
+    let (c2, ivl2) = match (sop, vecs.get(usize::from(!(sop == 16 || sop == 22)))) {
         (16..=18 | 22, Some(&n)) if rng.chance(0.7) => {
             let t = ivl1[0] + (ivl1[1] - ivl1[0]) * rng.uniform(0.0, 1.0);
             let c = if sop == 22 {
