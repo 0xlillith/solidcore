@@ -2297,8 +2297,8 @@ Upstream behaviour worth knowing (all kept by the port unless noted):
   in `curve/curve/p2.rs` (no tangent-field curve kind; unreachable for now: the
   `SmCrvOnSurf` part of the record defers on `SmSurface::ReadFromDB` first). The
   `DeformToEndPointTargets` branch for curves on surfaces is retagged
-  `UNPORTED(surface.surface_p5)`: it is taken only with the `pOptSurfCrvOnSurf` argument
-  the port drops, and needs `SmSurface::DropPoint`.
+  not ported (curve_p6's own limit, no longer tagged to surface.surface_p5): it is taken only with the
+  `pOptSurfCrvOnSurf` argument the port drops, and needs `SmSurface::DropPoint`.
 - **Wired.** `SmCurve::ReadFromDB(SmCrvOnSurf_TYPE)` (curve.curve_p2) and the
   `SmCrvOnSurf` part of `SmTangentField::ReadFromDB` (curve.tangent_field: its 2
   `curve.crv_on_surf` deferrals now pass; that read's status is ignored upstream).
@@ -3810,6 +3810,26 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **Zone tolerance.** With surface_p1's bounding box, `IntersectWithSurfOfRevolution`
   without approximation tolerance no longer defers. The NURB has no owner, so no face
   tolerance applies.
+
+## surface.surface_p5 (PR #50): stubs that cannot be wired yet (2026-10-14)
+
+- **`SmIsoCurve` over non-B-spline surfaces.** `IsoCurve` holds a `BSplineSurface`, so
+  `Surface::create_iso_parametric_curve` (the `SmSurface` body, used for curve-bounded,
+  STEP and the other non-overriding kinds) and `sp_local_solve`'s boundary curves return
+  `Unported` (`curve.iso_curve`) for those kinds. Upstream builds the iso curve over the
+  surface itself; fixing it means `IsoCurve` holding a `Surface` (a change to
+  `curve.iso_curve` and its users).
+- **Plane iso curves.** Upstream's `SmIsoCurve` over an `SmPlane` evaluates through the plane's analytic
+  `Evaluate`; the Rust `IsoCurve` holds the plane's NURB, and the two differ in the last bits (a
+  difftest of `sm_SpLocalSolve`'s boundary solves on planes disagreed at 1e-9 on values that converge to
+  zero). `iso_curve_of` therefore defers on planes (`curve.iso_curve`) until `IsoCurve` holds a `Surface`.
+- **Not wired (no stub tagged to surface.surface_p5 is left):** the `SmCrvOnSurf` branch of `curve_p6` needs the dropped
+  `pOptSurfCrvOnSurf` and `pOptCrvOrientation` arguments of `DropPoint`; `SmSurface::DropPoint` and
+  `LocalPointSolve` of the generic callers (`curve::curve::p2`, `nurbs::b_spline_curve_n_lib`) go through
+  `SurfaceEvaluate::{drop_point_minimize, local_point_solve_minimize}`.
+- **Kernel arguments.** `Surface::drop_point` and `Surface::cover_other_coincident_surface`
+  call `drop_point_fast` / `convert_domain_from_*` with a default `Kernel` (they read only
+  tolerances); `drop_point` should take the caller's kernel once its callers have one.
 
 ## intersect.curve_class_p1 (`SmCurveClassification`, part 1, PR #47 review, 2026-10-14)
 
