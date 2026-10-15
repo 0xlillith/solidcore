@@ -55,6 +55,37 @@ pub fn surface(op: u8, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     })
 }
 
+mod classify_sys {
+    extern "C" {
+        pub fn sc_query_brep_classify(
+            point: *const f64,
+            tolerance: f64,
+            boundary: i32,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
+    }
+}
+/// Classify a point on the real single-region empty B-rep. This fixture never
+/// traverses nonempty geometry; all floating inputs are valid scalar payloads.
+pub fn classify(point: &[f64; 3], tolerance: f64, boundary: bool) -> Result<Vec<f64>, FfiError> {
+    call_with_buffer(14, |buf, len| {
+        // SAFETY: point has three live doubles; boundary is a boolean; the shim
+        // constructs a real B-rep and copies into the supplied live buffers.
+        unsafe {
+            classify_sys::sc_query_brep_classify(
+                point.as_ptr(),
+                tolerance,
+                i32::from(boundary),
+                buf.as_mut_ptr(),
+                buf.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

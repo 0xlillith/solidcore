@@ -2,7 +2,7 @@
 //!
 //! Upstream: `source/SM_API/src/SmApiSurfaces.cpp`,
 //! `source/SMLib/inc/SmPolyDecimate.h`, `source/SMLib/src/SmPolyDecimate.cpp`,
-//! `source/SMLib/inc/SmPoly.h`.
+//! `source/SMLib/inc/SmPoly.h`, `source/SMLib/src/SmBrep.cpp`.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
@@ -14,10 +14,11 @@
 //! | [`quadric_vertex_attribute`], [`QuadricVertexData`] | `SmQuadricVertexAttr` constructor/destructor |
 //! | [`quadric_edge_attribute`], [`QuadricEdgeData`] | `SmQuadricEdgeAttr` constructor/destructor |
 //! | [`crate::geom::attribute::Attribute::make_copy`] | the three `MakeCopy` overrides |
+//! | [`point_3d_classify`], [`BrepClassifyObjects`] | `SmBrep::Point3DClassify` |
 //!
 //! Deviations: a nullable surface is `Option<&Surface>`; output parameters become
 //! return values, so failure cannot modify caller-owned outputs. The remaining
-//! B-rep functions assigned to query.brep are not implemented yet. Destructors
+//! Bounding-box functions assigned to query.brep are not implemented yet. Destructors
 //! use ownership rather than poisoning fields immediately before freeing them.
 //! The quadric edge constructor leaves its sort index uninitialised in C++; the
 //! port represents that state by `None` instead of exposing undefined memory.
@@ -190,4 +191,133 @@ pub fn quadric_edge_attribute(
             sort_index: None,
         }),
     )
+}
+
+/// The B-rep and region handles and ray-fire access used by [`point_3d_classify`].
+/// Geometry and cache trees use the existing topology solver adapter; handles
+/// remain caller-owned and all equality tests retain object identity.
+pub trait BrepClassifyObjects<O>:
+    crate::intersect::topology_solver::p1::TopologyObjects<O>
+{
+    /// The B-rep being queried.
+    fn brep_object(&self) -> O;
+    /// Its complete region list in native list order (`GetRegions`).
+    fn regions(&self) -> Result<Vec<O>>;
+    /// `SmBrep::RayFire`: containing region, with the classification state written
+    /// even on failure. The default marks the actual missing callee.
+    fn ray_fire(
+        &self,
+        _kernel: &crate::kernel::Kernel,
+        _point: Point3,
+        _direction: Vec3,
+        _point_zone_tolerance: f64,
+        _classification: &mut crate::intersect::point_class::PointClassification<O>,
+    ) -> Result<Option<O>> {
+        // UNPORTED(topology.brep_p2): SmBrep::RayFire
+        Err(SolidError::unported("SmBrep::RayFire", "topology.brep_p2"))
+    }
+}
+
+/// Classify a point against the B-rep boundary and its containing region.
+/// `point_zone_tolerance` is an already constructed `SmZoneTol3d` value (see
+/// [`crate::geom::tol::zone_tol3d`] for conversion from a raw tolerance).
+///
+/// The in/out classification preserves upstream's initial writes on failure and
+/// retains its other fields. Boundary solving runs before the single-region
+/// shortcut; region ray firing tries +X/-X, then +Y/-Y, then +Z/-Z only as needed.
+///
+/// # Errors
+/// Those of boundary solving and classification loading. An unavailable callee
+/// propagates `Unported`; ordinary ray-fire failures trigger the native retry
+/// order, with a generic upstream error when no region is found.
+pub fn point_3d_classify<O>(
+    kernel: &crate::kernel::Kernel,
+    objects: &dyn BrepClassifyObjects<O>,
+    point: Point3,
+    point_zone_tolerance: f64,
+    boundary_intersections: bool,
+    classification: &mut crate::intersect::point_class::PointClassification<O>,
+) -> Result<()>
+where
+    O: crate::intersect::point_class::ClassObject + crate::geom::solution_array::SolutionObject,
+{
+    use crate::error::ignored;
+    use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+    use crate::intersect::point_class::{PointClassType, PointClassification};
+    use crate::intersect::topology_solver::p1::TopologySolver;
+    use crate::intersect::topology_solver::p2::TopologySolveOptions;
+    const OP: &str = "query::brep::point_3d_classify";
+    classification.set_class_object(PointClassType::Unknown, None);
+    classification.set_src_zone_tol_3d(point_zone_tolerance);
+    if boundary_intersections {
+        let solutions = TopologySolver::brep_point_solve(
+            kernel,
+            objects,
+            Some(objects.brep_object()),
+            point,
+            TopologySolveOptions {
+                operation: SolverOperation::Intersect,
+                requested: SolutionRequested::Single,
+                tolerance_3d: point_zone_tolerance,
+                best_answer_so_far_sq: 0.0,
+                opt_vectors: &[],
+            },
+        )?;
+        if let Some(solution) = solutions.as_slice().first() {
+            let object = solution
+                .objects
+                .first()
+                .copied()
+                .flatten()
+                .ok_or_else(|| SolidError::invalid_input(OP, "null intersection object"))?;
+            classification.load_from_intersection(
+                point_zone_tolerance,
+                object,
+                &solution.start,
+                0,
+                crate::math::BIG_DOUBLE,
+            )?;
+            return Ok(());
+        }
+    }
+    let regions = objects.regions()?;
+    if let [region] = regions.as_slice() {
+        classification.set_class_object(PointClassType::Region, Some(*region));
+        classification.set_gap_3d(0.0);
+        classification.set_pre_snap_param(crate::math::BIG_DOUBLE);
+        return Ok(());
+    }
+    let mut scratch = PointClassification::new(point_zone_tolerance);
+    let mut region = None;
+    for direction in [
+        Vec3::new(1.0, 0.0, 0.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        Vec3::new(0.0, 0.0, 1.0),
+    ] {
+        region = match ignored(objects.ray_fire(
+            kernel,
+            point,
+            direction,
+            point_zone_tolerance,
+            &mut scratch,
+        ))? {
+            Some(region) => region,
+            None => ignored(objects.ray_fire(
+                kernel,
+                point,
+                -direction,
+                point_zone_tolerance,
+                &mut scratch,
+            ))?
+            .flatten(),
+        };
+        if region.is_some() {
+            break;
+        }
+    }
+    let region = region.ok_or_else(|| SolidError::sm_err(OP))?;
+    classification.set_class_object(PointClassType::Region, Some(region));
+    classification.set_deviation(0.0); // SM_USE_OLDTOL; SetDeviation delegates SetGap3d.
+    classification.set_pre_snap_param(crate::math::BIG_DOUBLE);
+    Ok(())
 }

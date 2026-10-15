@@ -51,6 +51,12 @@ impl UnitDiff for Runner {
         "query.brep"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("point_classify").is_some() {
+            let i: PointInput = case.parse()?;
+            return ffi::classify(&i.point_classify, i.tolerance, i.boundary)
+                .map(record)
+                .map_err(|e| HarnessError::new(e.to_string()));
+        }
         if case.inputs.get("attribute_kind").is_some() {
             return attribute_cpp(&case.parse()?);
         }
@@ -59,6 +65,9 @@ impl UnitDiff for Runner {
         Ok(record(out))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("point_classify").is_some() {
+            return point_rust(&case.parse()?);
+        }
         if case.inputs.get("attribute_kind").is_some() {
             return attribute_rust(&case.parse()?);
         }
@@ -293,4 +302,167 @@ fn attribute_rust(i: &AttributeInput) -> Result<Output, HarnessError> {
             ccls,
         ],
     ))
+}
+
+#[derive(Serialize, Deserialize)]
+struct PointInput {
+    point_classify: [f64; 3],
+    tolerance: f64,
+    boundary: bool,
+}
+#[derive(Clone, Copy, PartialEq)]
+enum EmptyObject {
+    Brep,
+    Region,
+}
+impl solidcore::geom::solution_array::SolutionObject for EmptyObject {
+    fn kind(&self) -> solidcore::geom::solution_array::ObjectKind {
+        solidcore::geom::solution_array::ObjectKind::Other
+    }
+}
+impl solidcore::intersect::point_class::ClassObject for EmptyObject {
+    fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
+        use solidcore::intersect::point_class::ClassObjectKind;
+        match self {
+            Self::Brep => ClassObjectKind::Other,
+            Self::Region => ClassObjectKind::Region,
+        }
+    }
+}
+// Only the B-rep and its real constructor region are represented. There are no
+// curves, surfaces or vertices; requesting one is a harness/model error, never
+// a fabricated geometry result. The standard missing-cache default is retained.
+struct EmptyBrep;
+fn wrong_empty_object() -> solidcore::SolidError {
+    solidcore::SolidError::invalid_input(
+        "difftest::query_brep::EmptyBrep",
+        "object is not geometric",
+    )
+}
+impl solidcore::intersect::topology_solver::p1::TopologyObjects<EmptyObject> for EmptyBrep {
+    fn curve(&self, _: EmptyObject) -> solidcore::Result<&solidcore::curve::curve::Curve> {
+        Err(wrong_empty_object())
+    }
+    fn analytic_curve_handle(&self, _: EmptyObject) -> Option<EmptyObject> {
+        None
+    }
+    fn vertex_point(&self, _: EmptyObject) -> solidcore::Result<solidcore::math::Point3> {
+        Err(wrong_empty_object())
+    }
+    fn vertex_tolerance(&self, _: EmptyObject) -> solidcore::Result<f64> {
+        Err(wrong_empty_object())
+    }
+    fn curve_edge(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
+        Err(wrong_empty_object())
+    }
+    fn edge_curve(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
+        Err(wrong_empty_object())
+    }
+    fn edge_interval(
+        &self,
+        _: EmptyObject,
+    ) -> solidcore::Result<solidcore::geom::extent1d::Extent1d> {
+        Err(wrong_empty_object())
+    }
+    fn surface_face(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
+        Err(wrong_empty_object())
+    }
+    fn face_surface(&self, _: EmptyObject) -> solidcore::Result<EmptyObject> {
+        Err(wrong_empty_object())
+    }
+    fn surface(&self, _: EmptyObject) -> solidcore::Result<&solidcore::surface::surface::Surface> {
+        Err(wrong_empty_object())
+    }
+    fn face_uv_domain(
+        &self,
+        _: EmptyObject,
+    ) -> solidcore::Result<solidcore::geom::extent2d::Extent2d> {
+        Err(wrong_empty_object())
+    }
+    fn face_tolerance(&self, _: EmptyObject) -> solidcore::Result<f64> {
+        Err(wrong_empty_object())
+    }
+    fn surface_owner(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
+        Err(wrong_empty_object())
+    }
+    fn shape_member(&self, _: EmptyObject) -> solidcore::geom::object::ShapeMember {
+        solidcore::geom::object::ShapeMember::Other
+    }
+}
+impl brep::BrepClassifyObjects<EmptyObject> for EmptyBrep {
+    fn brep_object(&self) -> EmptyObject {
+        EmptyObject::Brep
+    }
+    fn regions(&self) -> solidcore::Result<Vec<EmptyObject>> {
+        Ok(vec![EmptyObject::Region])
+    }
+}
+impl solidcore::intersect::point_class::ClassGeometry<EmptyObject> for EmptyBrep {
+    fn curve(&self, _: EmptyObject) -> Option<&solidcore::curve::curve::Curve> {
+        None
+    }
+    fn surface(&self, _: EmptyObject) -> Option<&solidcore::surface::surface::Surface> {
+        None
+    }
+    fn volume(&self, _: EmptyObject) -> Option<&solidcore::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _: EmptyObject) -> Option<solidcore::math::Point3> {
+        None
+    }
+}
+fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
+    use solidcore::geom::vector3d::Vec3;
+    use solidcore::intersect::point_class::PointClassification;
+    let k = solidcore::kernel::Kernel::default();
+    let mut pc = PointClassification::new(17.0);
+    pc.set_gap_3d(31.0);
+    pc.set_t_param(47.0, false);
+    pc.set_uv_param(Vec2::new(53.0, 59.0));
+    pc.set_pre_snap_param(61.0);
+    pc.set_sss_point(Vec3::new(67.0, 71.0, 73.0));
+    let tolerance = solidcore::geom::tol::zone_tol3d(&k, i.tolerance);
+    let [x, y, z] = i.point_classify;
+    let outcome = brep::point_3d_classify(
+        &k,
+        &EmptyBrep,
+        Vec3::new(x, y, z),
+        tolerance,
+        i.boundary,
+        &mut pc,
+    );
+    let status = match outcome {
+        Ok(()) => 0.0,
+        Err(e) => {
+            if let Some(deferred) = Output::unported(&e) {
+                return Ok(deferred);
+            }
+            status(&e)
+        }
+    };
+    let gap = pc
+        .gap_3d(&k, &EmptyBrep, None)
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    let uv = pc.uv_param();
+    let sss = pc.sss_point();
+    Ok(record(vec![
+        status,
+        f64::from(pc.point_class().code()),
+        if pc.object() == Some(EmptyObject::Region) {
+            0.0
+        } else {
+            -1.0
+        },
+        gap,
+        pc.t_param(),
+        uv.x,
+        uv.y,
+        f64::from(u8::from(pc.are_parameters_set())),
+        pc.pre_snap_param(),
+        f64::from(u8::from(pc.sss_point_flag())),
+        sss.x,
+        sss.y,
+        sss.z,
+        pc.src_zone_tol_3d(),
+    ]))
 }

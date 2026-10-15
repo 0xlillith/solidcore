@@ -795,6 +795,406 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#0 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#1 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_-1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#2 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_-1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#3 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_-1e-12_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#4 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_-1e-12_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#5 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_1e-07_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#6 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_1e-07_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#7 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_100_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#8 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_0_100_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#9 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#10 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#11 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_-1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#12 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_-1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#13 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_-1e-12_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#14 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_-1e-12_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#15 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_1e-07_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#16 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_1e-07_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#17 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_100_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#18 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e-200_100_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#19 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#20 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#21 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_-1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#22 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_-1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#23 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_-1e-12_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#24 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_-1e-12_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#25 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_1e-07_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#26 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_1e-07_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#27 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_100_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#28 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1_100_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#29 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#30 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#31 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_-1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#32 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_-1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#33 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_-1e-12_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#34 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_-1e-12_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#35 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_1e-07_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#36 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_1e-07_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#37 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_100_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/point_classify.json#38 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 14
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrepCache::GetVertexTree",
+        "unit": "topology.brep_cache"
+      },
+      "max_rel_err": 0.0,
+      "name": "empty_brep_classify_1e+100_100_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.brep/point_classify.json#39 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "api_0_interior",
       "outcome": "pass",
       "pass": true,
@@ -6555,15 +6955,17 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 0,
+  "cases_deferred": 20,
   "cases_failed": 0,
-  "cases_passed": 819,
-  "cases_total": 819,
-  "deferred_by_unit": {},
+  "cases_passed": 839,
+  "cases_total": 859,
+  "deferred_by_unit": {
+    "topology.brep_cache": 20
+  },
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "green",
+  "status": "partial",
   "unit": "query.brep"
 }
