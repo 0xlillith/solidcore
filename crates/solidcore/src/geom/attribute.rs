@@ -4,7 +4,8 @@
 //! default propagation handlers (split, copy, merge, coincident) that edit
 //! operations call through `Notify`.
 //!
-//! Upstream: `source/SMLib/src/SmAttribute.cpp`, `source/SMLib/inc/SmAttribute.h`.
+//! Upstream: `source/SMLib/src/SmAttribute.cpp`, `source/SMLib/inc/SmAttribute.h`,
+//! `source/SMLib/src/SmPolyDecimate.cpp`, `source/SMLib/inc/SmPolyDecimate.h`.
 //!
 //! | Rust                                              | Upstream                                         |
 //! |---------------------------------------------------|--------------------------------------------------|
@@ -24,7 +25,7 @@
 //! | [`Attribute::color`]                              | `SmColorAttribute(ULONG, const SmVector3d&, ...)` |
 //! | [`Attribute::tag`]                                | `SmTagAttribute(ULONG, long x8, ...)`            |
 //! | [`Attribute::merge_region`]                       | `SmMergeRegionAttribute(SmRegion*, ULONG, SmRegion*, ULONG)` |
-//! | [`Attribute::make_copy`]                          | every `MakeCopy` override and copy constructor   |
+//! | [`Attribute::make_copy`]                          | every `MakeCopy` override and copy constructor, including the three decimation attributes |
 //! | [`Attribute::attribute_id`] / [`Attribute::behavior`] | `GetAttributeID` / `GetBehavior`             |
 //! | [`Attribute::type_code`] / [`Attribute::type_string`] / [`Attribute::is_kind_of`] | `GetType` / `GetTypeString` / `IsKindOf` (every class) |
 //! | [`Attribute::is_propagated_through_booleans`]     | `IsPropagatedThroughBooleans` (base, `SmColorAttribute`) |
