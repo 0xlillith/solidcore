@@ -2092,16 +2092,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vo_disk_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#254 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -2120,16 +2116,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vo_surf_rev_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/adversarial.json#257 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -10972,16 +10964,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1092 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -11172,28 +11160,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1116 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1117 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -11340,16 +11320,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1133 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -11540,28 +11516,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1157 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1158 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -11708,16 +11676,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1174 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -11908,28 +11872,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v2_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1198 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1199 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -12076,16 +12032,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1215 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -12276,28 +12228,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v3_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1239 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1240 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -12444,16 +12388,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1256 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -12644,28 +12584,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1280 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1281 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -12812,16 +12744,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1297 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -13012,28 +12940,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1321 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1322 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -13180,16 +13100,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1338 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -13380,28 +13296,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v2_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1362 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1363 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -13548,16 +13456,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1379 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -13748,28 +13652,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v3_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1403 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1404 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -13916,16 +13812,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1420 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -14116,28 +14008,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1444 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1445 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -14284,16 +14168,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1461 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -14484,28 +14364,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1485 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1486 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -14653,8 +14525,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_topo",
@@ -14853,8 +14725,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_pole_g0",
@@ -14865,8 +14737,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v0_pole_g1",
@@ -15021,8 +14893,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_topo",
@@ -15221,8 +15093,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_pole_g0",
@@ -15233,8 +15105,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v1_pole_g1",
@@ -15389,8 +15261,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_topo",
@@ -15589,8 +15461,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_pole_g0",
@@ -15601,8 +15473,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v2_pole_g1",
@@ -15757,8 +15629,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_topo",
@@ -15957,8 +15829,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_pole_g0",
@@ -15969,8 +15841,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "pinched_v3_pole_g1",
@@ -27584,28 +27456,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#25 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#26 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -27948,28 +27812,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#66 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#67 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -28192,16 +28048,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#92 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -28356,16 +28208,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#110 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -28856,28 +28704,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#169 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#170 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -29220,28 +29060,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#210 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#211 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -29464,16 +29296,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#236 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -29628,16 +29456,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#254 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -30128,28 +29952,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#313 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#314 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
       "deferred": {
@@ -30492,28 +30308,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#354 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#355 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
       "deferred": {
@@ -30736,16 +30544,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#380 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
       "deferred": {
@@ -30900,16 +30704,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#398 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
       "deferred": {
@@ -31401,8 +31201,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_pole_g0",
@@ -31413,8 +31213,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_pole_g1",
@@ -31569,8 +31369,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_topo",
@@ -31769,8 +31569,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_pole_g0",
@@ -31781,8 +31581,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_pole_g1",
@@ -32013,8 +31813,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_pole_g1",
@@ -32101,8 +31901,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_topo",
@@ -32181,8 +31981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_pole_g1",
@@ -32297,8 +32097,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v3_topo",
@@ -32329,8 +32129,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v5_topo",
@@ -32349,8 +32149,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v7_topo",
@@ -32369,8 +32169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v9_topo",
@@ -32389,8 +32189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v11_topo",
@@ -32409,8 +32209,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v13_topo",
@@ -32429,8 +32229,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v15_topo",
@@ -32449,8 +32249,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v17_topo",
@@ -32469,8 +32269,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v19_topo",
@@ -32489,8 +32289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v21_topo",
@@ -32509,8 +32309,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_v23_topo",
@@ -32528,16 +32328,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#577 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -32728,28 +32524,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#601 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#602 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -32896,16 +32684,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#618 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -33096,28 +32880,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#642 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#643 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -33264,16 +33040,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#659 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -33344,16 +33116,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#668 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -33432,16 +33200,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#677 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -33512,16 +33276,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#686 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -33600,16 +33360,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#695 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -33632,16 +33388,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#698 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -33656,244 +33408,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#700 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#701 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#702 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#703 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#704 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#705 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#706 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#707 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#708 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#709 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#710 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#711 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#712 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#713 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#714 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#715 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#716 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#717 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#718 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#719 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -33904,16 +33576,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#721 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -34104,28 +33772,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#745 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#746 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -34272,16 +33932,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#762 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -34472,28 +34128,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#786 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#787 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -34640,16 +34288,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#803 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -34720,16 +34364,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#812 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -34808,16 +34448,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#821 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -34888,16 +34524,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#830 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -34976,16 +34608,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#839 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -35008,16 +34636,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#842 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -35032,244 +34656,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#844 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#845 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#846 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#847 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#848 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#849 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#850 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#851 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#852 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#853 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#854 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#855 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#856 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#857 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#858 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#859 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#860 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#861 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#862 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#863 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -35476,28 +35020,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#889 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#890 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -35840,28 +35376,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#930 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#931 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -36084,16 +35612,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#956 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -36248,16 +35772,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#974 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -36552,16 +36072,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1009 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -36752,28 +36268,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1033 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1034 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -36920,16 +36428,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1050 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -37120,28 +36624,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1074 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1075 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -37288,16 +36784,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1091 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -37368,16 +36860,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1100 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -37456,16 +36944,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1109 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -37536,16 +37020,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1118 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -37624,16 +37104,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1127 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -37656,16 +37132,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1130 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -37680,244 +37152,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1132 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1133 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1134 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1135 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1136 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1137 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1138 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1139 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1140 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1141 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1142 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1143 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1144 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1145 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1146 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1147 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1148 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1149 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1150 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1151 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -38125,8 +37517,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_pole_g0",
@@ -38137,8 +37529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_pole_g1",
@@ -38489,8 +37881,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_pole_g0",
@@ -38501,8 +37893,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_pole_g1",
@@ -38733,8 +38125,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_pole_g1",
@@ -38897,8 +38289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_pole_g1",
@@ -39200,16 +38592,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1297 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -39400,28 +38788,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1321 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1322 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -39568,16 +38948,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1338 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -39768,28 +39144,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1362 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1363 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -39936,16 +39304,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1379 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -40016,16 +39380,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1388 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -40104,16 +39464,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1397 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -40184,16 +39540,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1406 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -40272,16 +39624,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1415 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -40304,16 +39652,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1418 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -40328,244 +39672,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1420 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1421 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1422 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1423 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1424 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1425 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1426 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1427 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1428 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1429 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1430 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1431 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1432 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1433 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1434 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1435 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1436 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1437 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1438 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1439 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -40576,16 +39840,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1441 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -40776,28 +40036,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1465 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1466 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -40944,16 +40196,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1482 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -41144,28 +40392,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1506 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1507 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -41312,16 +40552,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1523 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -41392,16 +40628,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1532 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -41480,16 +40712,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1541 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -41560,16 +40788,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1550 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -41648,16 +40872,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1559 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -41680,16 +40900,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1562 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -41704,244 +40920,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1564 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1565 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1566 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1567 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1568 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1569 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1570 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1571 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1572 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1573 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1574 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1575 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1576 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1577 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1578 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1579 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1580 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1581 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1582 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1583 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -41953,8 +41089,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_topo",
@@ -42153,8 +41289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_pole_g0",
@@ -42165,8 +41301,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_pole_g1",
@@ -42321,8 +41457,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_topo",
@@ -42521,8 +41657,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_pole_g0",
@@ -42533,8 +41669,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_pole_g1",
@@ -42689,8 +41825,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_topo",
@@ -42769,8 +41905,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_pole_g1",
@@ -42857,8 +41993,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_topo",
@@ -42937,8 +42073,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_pole_g1",
@@ -43025,8 +42161,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v0_topo",
@@ -43057,8 +42193,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v3_topo",
@@ -43081,8 +42217,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v4_topo",
@@ -43093,8 +42229,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v5_topo",
@@ -43105,8 +42241,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v6_topo",
@@ -43117,8 +42253,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v7_topo",
@@ -43129,8 +42265,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v8_topo",
@@ -43141,8 +42277,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v9_topo",
@@ -43153,8 +42289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v10_topo",
@@ -43165,8 +42301,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v11_topo",
@@ -43177,8 +42313,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v12_topo",
@@ -43189,8 +42325,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v13_topo",
@@ -43201,8 +42337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v14_topo",
@@ -43213,8 +42349,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v15_topo",
@@ -43225,8 +42361,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v16_topo",
@@ -43237,8 +42373,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v17_topo",
@@ -43249,8 +42385,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v18_topo",
@@ -43261,8 +42397,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v19_topo",
@@ -43273,8 +42409,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v20_topo",
@@ -43285,8 +42421,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v21_topo",
@@ -43297,8 +42433,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmSurface::IsSingularity",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v22_topo",
@@ -43309,8 +42445,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v23_topo",
@@ -43328,16 +42464,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1729 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -43528,28 +42660,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1753 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1754 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -43696,16 +42820,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1770 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -43896,28 +43016,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1794 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1795 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -44064,16 +43176,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1811 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -44144,16 +43252,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1820 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -44232,16 +43336,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1829 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -44312,16 +43412,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1838 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -44400,16 +43496,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1847 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -44432,16 +43524,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1850 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -44456,244 +43544,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1852 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1853 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1854 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1855 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1856 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1857 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1858 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1859 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1860 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1861 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1862 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1863 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1864 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1865 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1866 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1867 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1868 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1869 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1870 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1871 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -44704,16 +43712,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1873 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -44904,28 +43908,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1897 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1898 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45072,16 +44068,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1914 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -45272,28 +44264,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1938 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1939 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45440,16 +44424,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1955 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -45520,16 +44500,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1964 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45608,16 +44584,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1973 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -45688,16 +44660,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1982 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45776,16 +44744,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1991 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45808,16 +44772,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1994 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -45832,244 +44792,164 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1996 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1997 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1998 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1999 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2000 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2001 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2002 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2003 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2004 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2005 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2006 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2007 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2008 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2009 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2010 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2011 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2012 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2013 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2014 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2015 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -46080,16 +44960,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2017 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -46280,28 +45156,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2041 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2042 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -46448,16 +45316,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2058 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -46648,28 +45512,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_pole_g0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2082 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2083 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -46816,16 +45672,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2099 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -46896,16 +45748,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2108 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -46984,16 +45832,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2117 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -47064,16 +45908,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_pole_g1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2126 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -47152,16 +45992,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_rebuild_v0_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2135 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -47184,16 +46020,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_rebuild_v3_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2138 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -47208,256 +46040,172 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v4_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2140 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v5_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2141 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v6_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2142 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v7_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2143 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v8_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2144 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v9_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2145 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v10_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2146 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v11_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2147 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v12_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2148 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v13_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2149 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v14_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2150 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v15_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2151 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v16_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2152 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v17_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2153 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v18_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2154 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v19_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2155 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v20_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2156 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v21_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2157 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v22_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2158 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v23_topo",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2159 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GetSingularities",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0000",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11202289197584117212",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -47593,14 +46341,14 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 881,
+  "cases_deferred": 568,
   "cases_failed": 0,
-  "cases_passed": 4627,
+  "cases_passed": 4940,
   "cases_total": 5508,
   "deferred_by_unit": {
-    "surface.surface_p3": 382,
+    "surface.surface_p5": 22,
     "topology.edge": 24,
-    "topology.edgeuse_p3": 399,
+    "topology.edgeuse_p3": 446,
     "topology.face_p3": 76
   },
   "max_rel_err": 0.0,
