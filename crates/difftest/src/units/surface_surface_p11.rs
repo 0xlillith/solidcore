@@ -274,9 +274,11 @@ impl UnitDiff for Runner {
         if rng.chance(0.2) {
             return generate_isb(rng);
         }
-        let (lo, hi) = if rng.chance(0.1) {
+        let tiny = rng.chance(0.1);
+        let huge = !tiny && rng.chance(0.1);
+        let (lo, hi) = if tiny {
             (1e-4, 1e-2)
-        } else if rng.chance(0.1) {
+        } else if huge {
             (100.0, 1000.0)
         } else {
             (0.5, 3.0)
