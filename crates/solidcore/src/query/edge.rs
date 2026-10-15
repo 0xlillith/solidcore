@@ -252,9 +252,8 @@ pub fn calculate_bounding_box(
 ///
 /// # Errors
 ///
-/// Those of [`edge_vertices`] and [`Curve::calculate_bounding_box`];
-/// [`SolidError::Unported`] for the curve's tight box (`SmCurve::
-/// CalculateTightBoundingBox`, unit `curve.curve_p9`).
+/// Those of [`edge_vertices`], [`Curve::calculate_bounding_box`] and
+/// [`Curve::calculate_tight_bounding_box`].
 pub fn calculate_tight_bounding_box(
     k: &Kernel,
     brep: &Brep,
@@ -290,11 +289,9 @@ pub fn calculate_tight_bounding_box(
 
     if !curve_bbox.is_contained_by(&edge_bbox, tol) {
         // Do the tight BBox computation.
-        // UNPORTED(curve.curve_p9): SmCurve::CalculateTightBoundingBox
-        return Err(SolidError::unported(
-            "SmCurve::CalculateTightBoundingBox",
-            "curve.curve_p9",
-        ));
+        let curve_bbox = curve.calculate_tight_bounding_box(k, &e.interval)?;
+
+        edge_bbox = edge_bbox.union(&curve_bbox);
     }
 
     Ok(Some(edge_bbox))

@@ -2562,7 +2562,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "5 fns; largest: SmEdge::RadialSectorClassify, SmEdge::RadialSectorOfCurveClassify, SmEdge::CalculateBoundingBox, SmEdge::CalculateTightBoundingBox; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PORTED (PR #89): difftest 1368 cases (768 fixtures + 600 generated), 992 pass, 376 deferred (curve.curve_p9 SmCurve::CalculateTightBoundingBox 198, topology.edgeuse_p2 SmEdgeuse::EvaluateBinormalStepOff 178), 0 fail, max_rel_err 0; the radial sector classifications are deferred until topology.edgeuse_p2 lands"
+notes = "5 fns; largest: SmEdge::RadialSectorClassify, SmEdge::RadialSectorOfCurveClassify, SmEdge::CalculateBoundingBox, SmEdge::CalculateTightBoundingBox; unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PORTED (PR #89): difftest 1368 cases (768 fixtures + 600 generated), 1190 pass, 178 deferred (topology.edgeuse_p2 SmEdgeuse::EvaluateBinormalStepOff 178), 0 fail, max_rel_err 0; curve.curve_p9 CalculateTightBoundingBox wired at merge; the radial sector classifications stay deferred: the query::edge step-off stub keeps upstream's in-place out-params on failure, and topology::edgeuse::p2::evaluate_binormal_step_off still defers to topology.edgeuse_p3 (EvaluateBinormal)"
 
 [[unit]]
 id = "topology.edgeuse_p3"
