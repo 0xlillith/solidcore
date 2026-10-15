@@ -61,17 +61,16 @@ fn trim_point_location(
     tolerance: f64,
 ) -> Result<LocationType> {
     let positive = cone.positive_point(kernel, point)?;
-    let mut location = None;
-    match cone.rev.step_inversion_tracking_location(
+    let attempt = cone.rev.step_inversion_tracking_location(
         kernel,
         &cone.rev.anal_uv_domain,
         positive.point,
         tolerance,
         None,
-        &mut location,
-    ) {
+    );
+    match attempt.result {
         Ok(inversion) => Ok(inversion.location),
-        Err(error) if !error.is_unported() => location.ok_or(error),
+        Err(error) if !error.is_unported() => attempt.location.ok_or(error),
         Err(error) => Err(error),
     }
 }

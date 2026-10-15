@@ -95,6 +95,15 @@ pub(crate) struct StepInversionOutputs {
     pub(crate) inside: bool,
 }
 
+/// A native inversion attempt, including a classification actually written before
+/// failure. Keeping the status with its partial output avoids an output argument
+/// and never manufactures an unwritten UV coordinate.
+#[derive(Debug)]
+pub(crate) struct StepInversionAttempt {
+    pub(crate) result: Result<StepInversionOutputs>,
+    pub(crate) location: Option<LocationType>,
+}
+
 /// A curve named by the solutions of a curve intersection: its natural interval (the
 /// solvers' duplicate tests read it through the object, as upstream does).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -272,14 +281,8 @@ impl SurfOfRevolution {
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<StepInversionOutputs> {
-        self.step_inversion_tracking_location(
-            k,
-            anal_domain,
-            point_on_surf,
-            tol_3d,
-            uv_guess,
-            &mut None,
-        )
+        self.step_inversion_tracking_location(k, anal_domain, point_on_surf, tol_3d, uv_guess)
+            .result
     }
 
     /// Preserve the classification written before a later generator solve fails.
@@ -292,147 +295,152 @@ impl SurfOfRevolution {
         point_on_surf: Point3,
         tol_3d: f64,
         uv_guess: Option<Point2>,
-        location_output: &mut Option<LocationType>,
-    ) -> Result<StepInversionOutputs> {
-        *location_output = None;
-        // pass call along for nonPlanar generator curves
-        if !self.planar_generator {
-            // Not planar, must use the general solver.
+    ) -> StepInversionAttempt {
+        let mut location_output = None;
+        let result = (|| {
+            // pass call along for nonPlanar generator curves
+            if !self.planar_generator {
+                // Not planar, must use the general solver.
 
-            // Have to convert the analytical domain to a NURBS domain (the statuses are
-            // ignored: a failed conversion leaves the STEP point).
-            let mut nurbs_domain = Extent2d::new();
-            let step_min = anal_domain.min();
-            let nurbs_min =
-                ignored(self.convert_uv_from_step_to_nurbs(k, step_min))?.unwrap_or(step_min);
-            nurbs_domain.add_point(nurbs_min);
-            let step_max = anal_domain.max();
-            let nurbs_max =
-                ignored(self.convert_uv_from_step_to_nurbs(k, step_max))?.unwrap_or(step_max);
-            nurbs_domain.add_point(nurbs_max);
+                // Have to convert the analytical domain to a NURBS domain (the statuses are
+                // ignored: a failed conversion leaves the STEP point).
+                let mut nurbs_domain = Extent2d::new();
+                let step_min = anal_domain.min();
+                let nurbs_min =
+                    ignored(self.convert_uv_from_step_to_nurbs(k, step_min))?.unwrap_or(step_min);
+                nurbs_domain.add_point(nurbs_min);
+                let step_max = anal_domain.max();
+                let nurbs_max =
+                    ignored(self.convert_uv_from_step_to_nurbs(k, step_max))?.unwrap_or(step_max);
+                nurbs_domain.add_point(nurbs_max);
 
-            let (nurbs_parameter, location) =
-                self.base
-                    .step_inversion(&nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
-            *location_output = Some(location);
-            let step = self.convert_uv_from_nurbs_to_step(k, nurbs_parameter)?;
-            return Ok(StepInversionOutputs {
-                uv: step,
-                location,
-                inside: true,
-            });
-        }
-
-        // Generator curve is planar, so we can solve it analytically.
-
-        // Upstream initializes classification before attempting the rotation.
-        *location_output = Some(LocationType::Exterior);
-
-        // Rotate Point to StartPlane
-        let sp = self.transform_point_to_start_plane(point_on_surf, tol_3d, false)?;
-        let num_angles = sp.angles_deg.len();
-        let angle0 = sp.angles_deg.first().copied().unwrap_or(0.0);
-        let angle1 = sp.angles_deg.get(1).copied().unwrap_or(0.0);
-
-        // set output U value (angle about rotation axis)
-        //  For points on seams and larger angle is less than 360
-        //  then the point is a little closer to the high side, else use low side value
-        let u_domain = self.anal_uv_domain.u_interval();
-        let mut u = if num_angles > 1 && angle1 < u_domain.max() - EFF_ZERO {
-            angle1
-        } else {
-            angle0
-        };
-
-        // get Point/RotationAxis distance
-        let (dist, _) = line_point_distance(
-            self.position.origin(),
-            self.position.z_axis(),
-            point_on_surf,
-        );
-
-        // set output point classification
-        let mut location = if dist < tol_3d {
-            LocationType::Pole
-        } else if num_angles == 2 {
-            LocationType::USeam
-        } else if sp.inside {
-            LocationType::Interior
-        } else {
-            LocationType::Exterior
-        };
-
-        *location_output = Some(location);
-
-        // If a guess was given and we're on the seam, set u-parameter to what's closer
-        // to the guess.
-        if location == LocationType::USeam {
-            if let Some(guess) = uv_guess {
-                if guess.x > u_domain.mid() {
-                    u = u_domain.max();
-                }
+                let (nurbs_parameter, location) =
+                    self.base
+                        .step_inversion(&nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
+                location_output = Some(location);
+                let step = self.convert_uv_from_nurbs_to_step(k, nurbs_parameter)?;
+                return Ok(StepInversionOutputs {
+                    uv: step,
+                    location,
+                    inside: true,
+                });
             }
-        }
 
-        // intersect rotated point with genCurve
-        let mut gen = self.gen()?.clone();
-        let mut ivl = gen_step_interval(&gen)?;
-        if self.is_out_of_bounds_enabled() {
-            ivl = gen_max_analytic_domain(&gen)?;
-            if let Some(b) = gen_base_mut(&mut gen) {
-                b.set_out_of_bounds_enabled(true);
-            }
-        }
-        let solutions = gen.global_point_solve_step::<NoHandle>(
-            k,
-            &ivl,
-            SolverOperation::Intersect,
-            sp.point,
-            tol_3d,
-            None,
-            None,
-            SolutionRequested::All,
-            None,
-            None,
-        )?;
+            // Generator curve is planar, so we can solve it analytically.
 
-        // error - rotated point not on GenCurve
-        let Some(first) = solutions.first() else {
-            *location_output = Some(LocationType::Exterior);
-            return Err(SolidError::sm_err(OP_STEP_INV));
-        };
+            // Upstream initializes classification before attempting the rotation.
+            location_output = Some(LocationType::Exterior);
 
-        // set output V coordinate
-        let mut v = first.start.param(0)?;
+            // Rotate Point to StartPlane
+            let sp = self.transform_point_to_start_plane(point_on_surf, tol_3d, false)?;
+            let num_angles = sp.angles_deg.len();
+            let angle0 = sp.angles_deg.first().copied().unwrap_or(0.0);
+            let angle1 = sp.angles_deg.get(1).copied().unwrap_or(0.0);
 
-        // for points on closed genCurve seams - update point classification
-        if solutions.len() > 1
-            && gen.is_closed(&ivl, tol_3d)?
-            && ivl.is_value_on_boundary(v, EFF_ZERO).0
-        {
-            location = match location {
-                LocationType::Interior => LocationType::VSeam,
-                LocationType::USeam => LocationType::UvSeam,
-                other => other,
+            // set output U value (angle about rotation axis)
+            //  For points on seams and larger angle is less than 360
+            //  then the point is a little closer to the high side, else use low side value
+            let u_domain = self.anal_uv_domain.u_interval();
+            let mut u = if num_angles > 1 && angle1 < u_domain.max() - EFF_ZERO {
+                angle1
+            } else {
+                angle0
             };
 
-            // On the v-seam. If a guess was given, set v-parameter to what's closer to
-            // the guess.
-            if let Some(guess) = uv_guess {
-                let v_domain = self.anal_uv_domain.v_interval();
-                if guess.y > v_domain.mid() {
-                    v = v_domain.max();
+            // get Point/RotationAxis distance
+            let (dist, _) = line_point_distance(
+                self.position.origin(),
+                self.position.z_axis(),
+                point_on_surf,
+            );
+
+            // set output point classification
+            let mut location = if dist < tol_3d {
+                LocationType::Pole
+            } else if num_angles == 2 {
+                LocationType::USeam
+            } else if sp.inside {
+                LocationType::Interior
+            } else {
+                LocationType::Exterior
+            };
+
+            location_output = Some(location);
+
+            // If a guess was given and we're on the seam, set u-parameter to what's closer
+            // to the guess.
+            if location == LocationType::USeam {
+                if let Some(guess) = uv_guess {
+                    if guess.x > u_domain.mid() {
+                        u = u_domain.max();
+                    }
                 }
             }
-        }
 
-        // all done
-        *location_output = Some(location);
-        Ok(StepInversionOutputs {
-            uv: Point2::new(u, v),
-            location,
-            inside: sp.inside,
-        })
+            // intersect rotated point with genCurve
+            let mut gen = self.gen()?.clone();
+            let mut ivl = gen_step_interval(&gen)?;
+            if self.is_out_of_bounds_enabled() {
+                ivl = gen_max_analytic_domain(&gen)?;
+                if let Some(b) = gen_base_mut(&mut gen) {
+                    b.set_out_of_bounds_enabled(true);
+                }
+            }
+            let solutions = gen.global_point_solve_step::<NoHandle>(
+                k,
+                &ivl,
+                SolverOperation::Intersect,
+                sp.point,
+                tol_3d,
+                None,
+                None,
+                SolutionRequested::All,
+                None,
+                None,
+            )?;
+
+            // error - rotated point not on GenCurve
+            let Some(first) = solutions.first() else {
+                location_output = Some(LocationType::Exterior);
+                return Err(SolidError::sm_err(OP_STEP_INV));
+            };
+
+            // set output V coordinate
+            let mut v = first.start.param(0)?;
+
+            // for points on closed genCurve seams - update point classification
+            if solutions.len() > 1
+                && gen.is_closed(&ivl, tol_3d)?
+                && ivl.is_value_on_boundary(v, EFF_ZERO).0
+            {
+                location = match location {
+                    LocationType::Interior => LocationType::VSeam,
+                    LocationType::USeam => LocationType::UvSeam,
+                    other => other,
+                };
+
+                // On the v-seam. If a guess was given, set v-parameter to what's closer to
+                // the guess.
+                if let Some(guess) = uv_guess {
+                    let v_domain = self.anal_uv_domain.v_interval();
+                    if guess.y > v_domain.mid() {
+                        v = v_domain.max();
+                    }
+                }
+            }
+
+            // all done
+            location_output = Some(location);
+            Ok(StepInversionOutputs {
+                uv: Point2::new(u, v),
+                location,
+                inside: sp.inside,
+            })
+        })();
+        StepInversionAttempt {
+            result,
+            location: location_output,
+        }
     }
 
     // ---- offsets --------------------------------------------------------------------
