@@ -6965,16 +6965,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_uvgap0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#427 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7161,16 +7157,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_uvgap1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#447 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7357,16 +7349,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_uvgap2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#467 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7553,16 +7541,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_uvgap3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#487 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8125,16 +8109,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_tilted_uvgap0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#554 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8321,16 +8301,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_tilted_uvgap1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#574 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8517,16 +8493,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_tilted_uvgap2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#594 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -8713,16 +8685,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "face_tilted_uvgap3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.edgeuse_p1/constructed.json#614 (upstream tests/prog_test/src/smSurfaceTest.cpp:632)",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9286,8 +9254,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_uvgap0",
@@ -9482,8 +9450,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_uvgap1",
@@ -9678,8 +9646,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_uvgap2",
@@ -9874,8 +9842,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_uvgap3",
@@ -10446,8 +10414,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_tiny_uvgap0",
@@ -10642,8 +10610,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_tiny_uvgap1",
@@ -10838,8 +10806,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_tiny_uvgap2",
@@ -11034,8 +11002,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_bss_tiny_uvgap3",
@@ -11606,8 +11574,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_pinched_huge_uvgap0",
@@ -11802,8 +11770,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_pinched_huge_uvgap1",
@@ -11998,8 +11966,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_pinched_huge_uvgap2",
@@ -12194,8 +12162,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_pinched_huge_uvgap3",
@@ -14158,8 +14126,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap0_rebuilt",
@@ -14170,8 +14138,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap0",
@@ -14182,8 +14150,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap1_rebuilt",
@@ -14194,8 +14162,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap1",
@@ -14206,8 +14174,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap2_rebuilt",
@@ -14218,8 +14186,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap2",
@@ -14230,8 +14198,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap6_rebuilt",
@@ -14242,8 +14210,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurface::GlobalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_uvgap6",
@@ -22899,13 +22867,13 @@
     }
   ],
   "cases_both_errored": 28,
-  "cases_deferred": 273,
+  "cases_deferred": 265,
   "cases_failed": 0,
-  "cases_passed": 2449,
+  "cases_passed": 2457,
   "cases_total": 2722,
   "deferred_by_unit": {
     "heal.gap": 206,
-    "surface.surface_p5": 28,
+    "surface.surface_point_solve_p3": 20,
     "topology.edge": 32,
     "topology.edgeuse_p3": 7
   },

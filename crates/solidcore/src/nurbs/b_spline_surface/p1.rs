@@ -527,16 +527,23 @@ fn surface_is_degenerate_curve(
 /// `SmSurface::LocalPointSolve(domain, SM_SO_INTERSECT, point, guess, ..)`: whether it
 /// succeeded and the solution's start parameters.
 fn local_point_solve(
-    _srf: &BSplineSurface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    srf: &BSplineSurface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, Point2)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::Unported {
-        upstream: "SmSurface::LocalPointSolve",
-        unit: "surface.surface_p5",
-    })
+    // the SmSurface body (surface.surface_p5), on a surface holding a copy
+    let surface = crate::surface::surface::Surface::from(srf.clone_exact());
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        domain,
+        SolverOperation::Intersect,
+        point,
+        guess,
+    )?;
+    Ok((
+        r.found,
+        Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
+    ))
 }
 
 /// `SmSurface::GlobalPointSolve(domain, SM_SO_INTERSECT, point, tol, NULL,
@@ -569,21 +576,13 @@ fn global_point_solve(
         .collect())
 }
 
-/// `SmSurface::IsSingularity(uv, dir)`, virtual: `SmPlane::IsSingularity` is an inline
-/// override returning FALSE (`SmPlane.h:369`), so a plane answers it here.
+/// `SmSurface::IsSingularity(uv, dir)`, preserving virtual plane dispatch.
 fn is_singularity(
     surface: &crate::surface::surface::Surface,
     _srf: &BSplineSurface,
-    _uv: Point2,
+    uv: Point2,
 ) -> Result<bool> {
-    if let crate::surface::surface::SurfaceKind::Plane(p) = surface.kind() {
-        return Ok(p.is_singularity().0);
-    }
-    // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-    Err(SolidError::Unported {
-        upstream: "SmSurface::IsSingularity",
-        unit: "surface.surface_p5",
-    })
+    Ok(surface.is_singularity(uv, EFF_ZERO, false)?.singular)
 }
 
 /// `SmSurface::IsClosed(domain, dir)` (unit `surface.surface_p7`), virtual:
@@ -719,6 +718,21 @@ impl BSplineSurface {
         });
         Self {
             nurb,
+            nurb_is_borrowed: false,
+            out_of_bounds_enabled: self.out_of_bounds_enabled,
+            knot_type: self.knot_type,
+            form: self.form,
+        }
+    }
+
+    /// A copy that keeps the NURB exactly as it is: [`BSplineSurface::copy`] fixes the
+    /// knot vectors up (`fixup_knot_vector`), which can move near-coincident knots.
+    /// Wrappers that stand in for upstream's solve "on the original object" (a
+    /// `Surface` holding the surface) use this one.
+    #[must_use]
+    pub fn clone_exact(&self) -> Self {
+        Self {
+            nurb: self.nurb.as_ref().map(copy_nurb_surface),
             nurb_is_borrowed: false,
             out_of_bounds_enabled: self.out_of_bounds_enabled,
             knot_type: self.knot_type,
