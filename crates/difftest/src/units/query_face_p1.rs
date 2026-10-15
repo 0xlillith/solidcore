@@ -67,6 +67,9 @@ impl UnitDiff for Runner {
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("brep").is_some() {
+            return run_box(case, true);
+        }
         let input: Input = case.parse()?;
         let (status, values) = ffi::evaluate_curve(
             input.kind,
@@ -79,6 +82,9 @@ impl UnitDiff for Runner {
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("brep").is_some() {
+            return run_box(case, false);
+        }
         let input: Input = case.parse()?;
         let v = |i: usize| Vec3::new(input.data[i], input.data[i + 1], input.data[i + 2]);
         let curve: Option<Curve> = match input.kind {
@@ -123,4 +129,77 @@ impl UnitDiff for Runner {
         })
         .ok()
     }
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct BoxInput {
+    brep: Value,
+    target: u8,
+    index: usize,
+    tight: bool,
+    use_default: bool,
+}
+
+fn run_box(case: &Case, cpp: bool) -> Result<Output, HarnessError> {
+    use super::topology_edgeuse_p1::{fixture_input, import};
+    use solidcore::geom::extent3d::Extent3d;
+    use solidcore::kernel::Kernel;
+    use solidcore::topology::{FaceId, RegionId, ShellId};
+    use solidcore_ffi::units::topology_edgeuse_p1 as graph;
+    let input: BoxInput = case.parse()?;
+    let (path, block) = fixture_input(input.brep)?;
+    if cpp {
+        let values = ffi::bounding_box(
+            input.target,
+            input.index,
+            input.tight,
+            input.use_default,
+            &path,
+            &block,
+        )
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+        if values.len() != 7 {
+            return Err(HarnessError::new("malformed native box record"));
+        }
+        return Ok(Output::new()
+            .int("status", values[0] as i64)
+            .values("out", values[1..].to_vec()));
+    }
+    let export = graph::eval(graph::Op::Export, &path, &block)
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    let brep = import(&export)?;
+    let mut box_ = Extent3d::from_points(Vec3::new(-17., -19., -23.), Vec3::new(29., 31., 37.));
+    let tight = input.tight && !input.use_default;
+    let kernel = Kernel::default();
+    let id = u32::try_from(input.index).map_err(|_| HarnessError::new("index too large"))?;
+    let result = match input.target {
+        0 => p1::calculate_bounding_box(&kernel, &brep, FaceId::from_index(id), tight, &mut box_),
+        1 => p1::calculate_shell_bounding_box(
+            &kernel,
+            &brep,
+            ShellId::from_index(id),
+            tight,
+            &mut box_,
+        ),
+        2 => p1::calculate_region_bounding_box(
+            &kernel,
+            &brep,
+            RegionId::from_index(id),
+            tight,
+            &mut box_,
+        ),
+        _ => return Err(HarnessError::new("unknown box target")),
+    };
+    let status = match result {
+        Ok(()) => 0,
+        Err(SolidError::Upstream { code, .. }) => code,
+        Err(SolidError::InvalidInput { .. }) => 1007,
+        Err(e) => return Ok(Output::unported(&e).unwrap_or_else(|| Output::err(e.to_string()))),
+    };
+    let min = box_.min();
+    let max = box_.max();
+    Ok(Output::new()
+        .int("status", i64::from(status))
+        .values("out", vec![min.x, min.y, min.z, max.x, max.y, max.z]))
 }

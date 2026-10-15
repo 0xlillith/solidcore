@@ -82,3 +82,72 @@ mod tests {
         }
     }
 }
+
+mod boxes_sys {
+    extern "C" {
+        pub fn sc_query_face_p1_box(
+            target: i32,
+            index: i64,
+            tight: i32,
+            use_default: i32,
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            n_in: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
+    }
+}
+
+/// Real face (0), shell (1) or region (2) box, retaining the box on failure.
+/// The existing graph fixture validates the whole geometry block before this
+/// call. Native construction failures are harness errors; entity indices are
+/// checked against the native export and again inside the shim.
+pub fn bounding_box(
+    target: u8,
+    index: usize,
+    tight: bool,
+    use_default: bool,
+    path: &str,
+    block: &[f64],
+) -> Result<Vec<f64>, FfiError> {
+    use super::topology_edgeuse_p1 as graph;
+    let export = graph::eval(graph::Op::Export, path, block)?;
+    let counts = graph::counts(&export)
+        .ok_or_else(|| FfiError::InvalidArgument("native fixture construction failed".into()))?;
+    let [regions, shells, _, faces, ..] = counts;
+    let count = match target {
+        0 => faces,
+        1 => shells,
+        2 => regions,
+        _ => 0,
+    };
+    if target > 2 || index >= count {
+        return Err(FfiError::InvalidArgument("box target out of range".into()));
+    }
+    let path = std::ffi::CString::new(path)
+        .map_err(|_| FfiError::InvalidArgument("path contains NUL".into()))?;
+    let size = i64::try_from(block.len())
+        .map_err(|_| FfiError::InvalidArgument("fixture too large".into()))?;
+    let index =
+        i64::try_from(index).map_err(|_| FfiError::InvalidArgument("index too large".into()))?;
+    crate::call_with_buffer(7, |out, len| {
+        // SAFETY: the graph export validated all geometry; indices were bounded
+        // above and all arrays/strings stay live. The shim honours capacity.
+        unsafe {
+            boxes_sys::sc_query_face_p1_box(
+                i32::from(target),
+                index,
+                i32::from(tight),
+                i32::from(use_default),
+                path.as_ptr(),
+                block.as_ptr(),
+                size,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}

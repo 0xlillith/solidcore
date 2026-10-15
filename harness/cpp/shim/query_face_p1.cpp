@@ -33,3 +33,39 @@ SC_EXPORT int32_t sc_query_face_p1_curve(int32_t kind, const double* data,
     return 0;
     SC_CATCH
 }
+
+// Fixture setup/export uses the shared native graph protocol. The operation
+// under test remains the actual upstream method, including default arguments.
+#include "sc_edgeuse_graph.h"
+SC_EXPORT int32_t sc_query_face_p1_box(int32_t target, int64_t index,
+    int32_t tight, int32_t use_default, const char* path, const double* input,
+    int64_t n_in, double* out, int64_t cap, int64_t* out_len)
+{
+    if (target < 0 || target > 2 || index < 0 || !input || n_in < 1)
+        return SC_ERR_ARG;
+    SC_TRY
+    Rd rd{input, 0}; Built built; SmStatus status=SM_SUCCESS;
+    built.brep=build(rd,path,status);
+    if (!built.brep || status!=SM_SUCCESS || rd.at!=n_in) return SC_ERR_ARG;
+    Graph graph; walk(built.brep,graph);
+    SmExtent3d box;box.SetMinMax(SmPoint3d(-17,-19,-23),SmPoint3d(29,31,37));
+    if (target == 0) {
+        if ((uint64_t)index >= graph.faces.size()) return SC_ERR_ARG;
+        SmFace* face=graph.faces[(size_t)index];
+        if (!face->GetSurface()) return SC_ERR_ARG;
+        status=use_default ? face->CalculateBoundingBox(box) : face->CalculateBoundingBox(box,tight);
+    } else if (target == 1) {
+        if ((uint64_t)index >= graph.shells.size()) return SC_ERR_ARG;
+        SmShell* shell=graph.shells[(size_t)index];
+        if (shell->IsVertexShell() && !shell->GetVertex()) return SC_ERR_ARG;
+        status=use_default ? shell->CalculateBoundingBox(box) : shell->CalculateBoundingBox(box,tight);
+    } else {
+        if ((uint64_t)index >= graph.regions.size()) return SC_ERR_ARG;
+        SmRegion* region=graph.regions[(size_t)index];
+        status=use_default ? region->CalculateBoundingBox(box) : region->CalculateBoundingBox(box,tight);
+    }
+    std::vector<double> result{st(status)};
+    put_vec(result,box.GetMin());put_vec(result,box.GetMax());
+    return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
+    SC_CATCH
+}
