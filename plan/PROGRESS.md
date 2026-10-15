@@ -119,7 +119,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.loopuse` (892 lines) — in progress: #97 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.edge` (1025 lines) — in progress: #89 @bherbruck (ready for review)
-- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (draft)
+- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 
 ## By module
 
@@ -374,7 +374,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ### heal (0/7)
 
-- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (draft)
+- [ ] 🔨 `heal.gap` (1475 lines) — in progress: #95 @bherbruck (ready for review)
 - [ ] ⏳ `heal.face_props` (1410 lines) — waiting
 - [ ] ⏳ `heal.heal_data_p2` (2160 lines) — waiting
 - [ ] ⏳ `heal.heal_data_p1` (922 lines) — waiting
