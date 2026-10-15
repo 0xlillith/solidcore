@@ -2679,8 +2679,9 @@ impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
     }
 
     /// `BranchMayContainAnswers`: when normalizing, false if the surface node's
-    /// normals provably miss the curve node ([`cs_are_perpen_disjoint`]); then the
-    /// base test.
+    /// normals provably miss the curve node ([`cs_are_perpen_disjoint`], or
+    /// [`super::p2::cs_are_perpen_disjoint_in`] when `surface_cache` holds the
+    /// patches); then the base test.
     ///
     /// # Errors
     ///
@@ -2692,7 +2693,19 @@ impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
             let curve_node = self.base.branch_node(branch, 0)?;
             let surface_node = self.base.branch_node(branch, 1)?;
             let curve_tree = self.base.tree(0)?;
-            if cs_are_perpen_disjoint(curve_tree, curve_node, surface_node)? {
+            // with the solve's surface cache (unit surface.surface_p11 hands it over)
+            // the patch's polar box is reachable
+            let disjoint = match (self.surface_cache, branch.get(1).copied().flatten()) {
+                (Some(cache), Some(surface_id)) => super::p2::cs_are_perpen_disjoint_in(
+                    curve_tree,
+                    curve_node,
+                    surface_node,
+                    cache,
+                    surface_id,
+                )?,
+                _ => cs_are_perpen_disjoint(curve_tree, curve_node, surface_node)?,
+            };
+            if disjoint {
                 return Ok(false);
             }
         }

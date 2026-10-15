@@ -125,7 +125,8 @@ struct BoundaryHit {
 
 /// `sm_IntersectSrfBndryCrv(surface, domain, curve_surface, .., param, iso, tol,
 /// guess_uv, guess_t, ..)`: the intersection of `surface` with the iso parameter curve
-/// of `curve_surface`; `None` when not found.
+/// of `curve_surface`; `None` when not found. Upstream's `curve_surface` domain and
+/// plane normal arguments are unused there and dropped; the guess is a copy.
 #[allow(clippy::too_many_arguments)]
 fn intersect_srf_bndry_crv(
     surface: &Surface,
@@ -257,8 +258,7 @@ impl Surface {
     ///
     /// Those of the evaluations, the angle between zero normals and the solves (all
     /// checked upstream); `SM_ERR` past [`MAX_RECURSION`] self calls;
-    /// [`SolidError::Unported`]: `sm_IntersectSrfBndryCrv` (`surface.surface_p8`) and
-    /// `SmSurface::LocalSurfaceSolve` (`surface.surface_p3`).
+    /// [`SolidError::Unported`]: `sm_IntersectSrfBndryCrv` (`surface.surface_p8`).
     pub fn local_surface_intersect(
         &self,
         uv_domain: &Extent2d,
@@ -1323,7 +1323,8 @@ impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
     /// patch of its cache or for a signed directed solve without a vector; those of
     /// the checked (`SER`) calls: `ComputeConeBoundTo`, `LocalSurfaceIntersect`,
     /// `sm_SCLocalSolve`, `LocalSurfaceSolve` and `sm_PassSSConvergenceTest`;
-    /// [`SolidError::Unported`]: `SmSurface::LocalSurfaceSolve` (`surface.surface_p3`).
+    /// [`SolidError::Unported`] from `LocalSurfaceIntersect`'s boundary solves
+    /// (`surface.surface_p8`).
     #[allow(clippy::too_many_lines)]
     pub fn local_solve_branch(&mut self, branch: &Branch) -> Result<bool> {
         let node1 = *self.base.branch_node(branch, 0)?;
@@ -1507,7 +1508,7 @@ impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
         // one guess: the patch middles
         let uv_guess1 = dom1.evaluate(0.5, 0.5);
         let uv_guess2 = dom2.evaluate(0.5, 0.5);
-        // (SER: checked; pSrfEval1->LocalSurfaceSolve, not virtual)
+        // (SER: checked; pSrfEval1->LocalSurfaceSolve: virtual, never overridden)
         let mut found = local_surface_solve(
             view1.eval,
             &dom1,

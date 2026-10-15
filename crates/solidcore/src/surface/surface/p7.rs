@@ -2348,7 +2348,9 @@ impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
                     };
                     let tree1 = self.base.tree(0)?;
                     let tree2 = self.base.tree(1)?;
-                    // NER: the patches exist
+                    // (NER on m_pData: a patch node always holds its patch here; a node
+                    // that is not a patch of these caches is a caller error,
+                    // InvalidInput, not upstream's NULL data)
                     cache1.patch(id1)?;
                     cache2.patch(id2)?;
                     // If the classification of the node is outside then we can quit
