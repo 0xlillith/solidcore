@@ -79,20 +79,17 @@ const OP_LOCAL_LINE: &str = "surface::surface::p8::Surface::local_line_intersect
 /// The 6 x 6 grid of `CoincidenceCheck` (`lNumSamples`).
 const NUM_SAMPLES: usize = 6;
 
-// ---- calls into units that are not ported yet ----------------------------------------------
+// ---- calls into other units (the only unported one is DropCurve, below) ---------------------
 
-/// `smsurf_CheckShapeMatch(sPVV0, sPVV1, tol, angTolRad, bSuccess)`: `bSuccess`.
+/// `smsurf_CheckShapeMatch(sPVV0, sPVV1, tol, angTolRad, bSuccess)`: `bSuccess`. The
+/// evaluation matrices are modified in place, as upstream's arrays are.
 fn check_shape_match(
-    _pvv0: &[[Vec3; 3]; 3],
-    _pvv1: &[[Vec3; 3]; 3],
-    _tol_3d: f64,
-    _ang_tol_rad: f64,
+    pvv0: &mut [[Vec3; 3]; 3],
+    pvv1: &mut [[Vec3; 3]; 3],
+    tol_3d: f64,
+    ang_tol_rad: f64,
 ) -> Result<bool> {
-    // UNPORTED(surface.surface_p3): smsurf_CheckShapeMatch
-    Err(SolidError::unported(
-        "smsurf_CheckShapeMatch",
-        "surface.surface_p3",
-    ))
+    super::p3::check_shape_match(pvv0, pvv1, tol_3d, ang_tol_rad)
 }
 
 /// `SmSurface::DropPoint(pt, domain, guess, bSuccess, uv, dist, bIsMulti, op)`: success,
@@ -466,8 +463,9 @@ impl Surface {
                     evaluate_3x3_into(other, uv1, &mut pvv1)?;
 
                     // Now check 2nd order terms.
-                    let matched = ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?
-                        .unwrap_or(false);
+                    let matched =
+                        ignored(check_shape_match(&mut pvv0, &mut pvv1, tol_3d, ang_tol_rad))?
+                            .unwrap_or(false);
                     if !matched {
                         continue;
                     }
@@ -515,7 +513,9 @@ impl Surface {
                 // Point coincidence, check normals and curvature.
                 evaluate_3x3_into(self, uv0, &mut pvv0)?;
                 evaluate_3x3_into(other, uv1, &mut pvv1)?;
-                if ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?.unwrap_or(false) {
+                if ignored(check_shape_match(&mut pvv0, &mut pvv1, tol_3d, ang_tol_rad))?
+                    .unwrap_or(false)
+                {
                     return Ok(res);
                 }
             }
@@ -542,7 +542,9 @@ impl Surface {
                 // Point coincidence, check normals and curvature.
                 evaluate_3x3_into(self, uv0, &mut pvv0)?;
                 evaluate_3x3_into(other, uv1, &mut pvv1)?;
-                if ignored(check_shape_match(&pvv0, &pvv1, tol_3d, ang_tol_rad))?.unwrap_or(false) {
+                if ignored(check_shape_match(&mut pvv0, &mut pvv1, tol_3d, ang_tol_rad))?
+                    .unwrap_or(false)
+                {
                     return Ok(res);
                 }
             }
