@@ -197,6 +197,10 @@ fn surface_read_from_db(
             "SmSurface virtuals of an SmOffsetSurface",
             "curve.crv_on_surf",
         )),
+        SurfaceKind::SrfInVolume(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmSrfInVolume",
+            "curve.crv_on_surf",
+        )),
     }
 }
 

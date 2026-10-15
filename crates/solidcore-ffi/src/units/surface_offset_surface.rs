@@ -711,7 +711,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("box: curve-bounded or STEP base (UB-84)"));
                 }
                 // Unknown/edited domains are checked against the actual base by the
-                // isolated shim. Unknown is not evidence of containment (UB-101).
+                // isolated shim. Unknown is not evidence of containment (UB-118).
                 if dom.is_some() && !contained(*d, dom) {
                     return Err(bad("box: domain may lie outside the base domain"));
                 }

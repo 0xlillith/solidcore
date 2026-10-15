@@ -81,6 +81,7 @@
 use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::extent1d::ExtentNd;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p2::{
     evaluate_curve_continuity, frenet_from_derivatives, ContinuityType, CurveEval,
@@ -89,6 +90,7 @@ use crate::geom::global_solver::{
     Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolutionRequested,
     SolverOperation,
 };
+use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd};
 use crate::geom::pseudo_box::{Planar, PseudoBox};
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionEnd, SolutionObject};
 use crate::geom::tree::AuxDataType;
@@ -106,7 +108,7 @@ use crate::topology::BrepId;
 
 use super::p1::{
     evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
-    SecondDerivatives,
+    CsNormalizeEnfo, SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
 use super::{Surface, SurfaceKind};
@@ -755,6 +757,7 @@ impl Surface {
                 base_evaluate_normal(self, uv, u_side, v_side)
             }
             SurfaceKind::CurveBounded(s) => s.evaluate_normal(uv, u_side, v_side),
+            SurfaceKind::SrfInVolume(s) => s.evaluate_normal(uv, u_side, v_side),
             SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
             SurfaceKind::OffsetSurface(s) => s.evaluate_normal(uv, u_side, v_side),
         }
@@ -783,7 +786,8 @@ impl Surface {
             | SurfaceKind::CurveBounded(_)
             | SurfaceKind::SurfOfRevolution(_)
             | SurfaceKind::Step(_)
-            | SurfaceKind::OffsetSurface(_) => {
+            | SurfaceKind::OffsetSurface(_)
+            | SurfaceKind::SrfInVolume(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
             }
         }
@@ -825,12 +829,14 @@ impl Surface {
             SurfaceKind::SurfOfRevolution(s) => {
                 Ok(planar_of(s.base(), &self.natural_uv_domain())?.is_planar(tol_3d))
             }
-            // the SmSurface body: the pseudo box of the virtual CalculateBoundingBox over
-            // the natural domain (status ignored: a failure leaves a default box)
-            SurfaceKind::OffsetSurface(s) => {
-                let pseudo = ignored(s.calculate_bounding_box(
+            // SmSurface body: use the virtual box and ignore ordinary failures,
+            // which leave the default pseudo box. The kernel is available here.
+            SurfaceKind::OffsetSurface(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {
+                let pseudo = ignored(self.calculate_bounding_box(
                     k,
-                    self,
                     &self.natural_uv_domain(),
                     [false, true, false],
                     true,
@@ -838,15 +844,6 @@ impl Surface {
                 .and_then(|b| b.pseudo_box)
                 .unwrap_or_else(PseudoBox::new);
                 Ok(pseudo.is_planar(tol_3d))
-            }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                // SmSurface::CalculateBoundingBox (surface::surface::p1) builds a surface
-                // cache, whose tree build needs the continuities
-                // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
-                Err(SolidError::unported(
-                    "SmSurface::CalculateContinuities",
-                    "surface.surface_p6",
-                ))
             }
         }
     }
@@ -1257,8 +1254,8 @@ impl Surface {
     ///
     /// `SM_ERR_INVALID_INPUT` for a zero projection vector; `SM_ERR_NULL_POINTER`
     /// without a surface cache; those of the continuities, the boxes, the sweep, its
-    /// move and the intersection; [`SolidError::Unported`] from unported callees (the
-    /// surface cache: `SmSurface::CalculateContinuities`, `surface.surface_p6`).
+    /// move and the intersection; [`SolidError::Unported`] from unported callees of the
+    /// surface cache and the intersector.
     pub fn create_parallel_projection_curves(
         &self,
         k: &Kernel,
@@ -2157,14 +2154,10 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SpGlobalSolver<'t, '_, O
 
     fn identical_solutions(
         &self,
-        _sol1: &Solution<O>,
-        _sol2: &Solution<O>,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
     ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
-        // UNPORTED(surface.surface_p5): SmSPGlobalSolver::IdenticalSolutions
-        Err(SolidError::unported(
-            "SmSPGlobalSolver::IdenticalSolutions",
-            "surface.surface_p5",
-        ))
+        self.surface_identical_solutions(sol1, sol2)
     }
 }
 
@@ -2182,6 +2175,8 @@ pub struct SsGlobalSolver<'t, 's, O> {
     pub uv_domain1: Extent2d,
     /// `m_crUVDomain2`.
     pub uv_domain2: Extent2d,
+    /// The kernel (upstream's `SmContext`), for the surfaces' seam tests.
+    pub kernel: &'s Kernel,
 }
 
 impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
@@ -2244,14 +2239,11 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SsGlobalSolver<'t, '_, O
 
     fn identical_solutions(
         &self,
-        _sol1: &Solution<O>,
-        _sol2: &Solution<O>,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
     ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
-        // UNPORTED(surface.surface_p6): SmSSGlobalSolver::IdenticalSolutions
-        Err(SolidError::unported(
-            "SmSSGlobalSolver::IdenticalSolutions",
-            "surface.surface_p6",
-        ))
+        // (surface::surface::p6)
+        self.solutions_identical(sol1, sol2)
     }
 }
 
@@ -2305,20 +2297,35 @@ fn singular_param_solve(
 /// evaluator tolerance `SM_EFF_ZERO^2`, no periodicity): the solution vector, `None`
 /// when not found.
 fn cs_normalize_local_solve(
-    _surface: &Surface,
-    _curve: &Curve,
-    _op: SolverOperation,
-    _distance_tolerance: f64,
-    _opt_vectors: &[Vec3],
-    _intervals: &[Extent1d],
-    _guess: &[f64],
+    surface: &Surface,
+    curve: &Curve,
+    op: SolverOperation,
+    distance_tolerance: f64,
+    opt_vectors: &[Vec3],
+    intervals: &[Extent1d],
+    guess: &[f64],
 ) -> Result<Option<Vec<f64>>> {
-    // (the evaluator, surface::surface::p1::CsNormalizeEnfo, has no Evaluate yet)
-    // UNPORTED(surface.surface_p4): SmCSNormalizeENFO::Evaluate
-    Err(SolidError::unported(
-        "SmCSNormalizeENFO::Evaluate",
-        "surface.surface_p4",
-    ))
+    let mut bounds = ExtentNd::new(intervals.len());
+    for (i, ivl) in intervals.iter().enumerate() {
+        if let Some(slot) = bounds.get_mut(i) {
+            *slot = *ivl;
+        }
+    }
+    // Do not do periodicity for this function. Local solvers should not cross seams.
+    let periodicities = vec![false; guess.len()];
+    let mut equations = CsNormalizeEnfo::new(
+        curve,
+        surface,
+        op,
+        distance_tolerance,
+        (!opt_vectors.is_empty()).then_some(opt_vectors),
+        EFF_ZERO_SQ,
+    );
+    let mut solver = LocalSolveNd::new(&mut equations, Some(&bounds), Some(&periodicities));
+    solver.set_boundary_handler(BoundaryHandler::TotalBoundaryHits, 5);
+    let solution = solver.solve_it(guess, EFF_ZERO_SQRT)?;
+    // No: see note in upstream [B234]: not found is not found, whatever the reason.
+    Ok(solution.found.then_some(solution.x))
 }
 
 #[cfg(test)]

@@ -86,7 +86,7 @@ preserves every input/output double bit-for-bit.
 The worker's two link wrappers forward `N_CrvExtendByDist` and `N_CrvArcLength`
 unchanged on finite, progressing paths. During extension only, they reject a
 successful nonfinite arc length or an initial G2 parameter step that cannot move
-its endpoint (HANG-6/HANG-14). They do not change numerical tolerances or turn the
+its endpoint (HANG-6/HANG-15). They do not change numerical tolerances or turn the
 rejection into an SMLib status. The shim separately validates actual box domains
 and zero-offset plane derivative delegation after preceding edits.
 

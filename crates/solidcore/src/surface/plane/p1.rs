@@ -87,8 +87,9 @@
 //!   plane (the only surface it is called with). `Evaluate1stDerivatives` /
 //!   `Evaluate2ndDerivatives` of other surfaces go through `surface::surface::p7`.
 //! - **Unported callees.** `IsPlanar` of a curve-bounded surface (its base
-//!   `CalculateBoundingBox`, `surface.surface_p1`), `CreateNaturalUVTrimCurves`
-//!   (`surface.surface_p6`), `DropPoint` (`surface.surface_p5`), the general
+//!   `CalculateBoundingBox`, `surface.surface_p1`), `DropPoint` (`surface.surface_p5`),
+//!   the iso curves of `CreateNaturalUVTrimCurves` for kinds without a ported override
+//!   (`surface.surface_p5`), the general
 //!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) and the general
 //!   `SmSurface::GlobalLineIntersect` (`surface.surface_p8`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are propagated where
@@ -326,6 +327,18 @@ impl Plane {
     #[must_use]
     pub const fn base(&self) -> &BSplineSurface {
         &self.base
+    }
+
+    /// Whether out-of-bounds evaluation is enabled (`GetOutOfBoundsEnabled` of the
+    /// `SmBSplineSurface` part).
+    #[must_use]
+    pub fn is_out_of_bounds_enabled(&self) -> bool {
+        self.base.is_out_of_bounds_enabled()
+    }
+
+    /// Sets out-of-bounds evaluation (through `GetOutOfBoundsEnabled`'s reference).
+    pub fn set_out_of_bounds_enabled(&mut self, enabled: bool) {
+        *self.base.out_of_bounds_enabled_mut() = enabled;
     }
 
     /// The B-spline part with a NURB: the stored one, or one made on a copy when the
@@ -1795,8 +1808,8 @@ impl Plane {
         mut res: Coincidence,
     ) -> Result<Coincidence> {
         // Create two sets of boundary curves.
-        let bdrys_3d0 = create_natural_uv_trim_curves(&Surface::from(self.clone()), domain0)?;
-        let bdrys_3d1 = create_natural_uv_trim_curves(other, domain1)?;
+        let bdrys_3d0 = create_natural_uv_trim_curves(k, &Surface::from(self.clone()), domain0)?;
+        let bdrys_3d1 = create_natural_uv_trim_curves(k, other, domain1)?;
 
         // We'll be checking normals, and this plane's normal never changes.
         let norm0 = self.position.z_axis();
@@ -2077,26 +2090,24 @@ fn surface_evaluate_normal(s: &Surface, uv: Point2) -> Result<Vec3> {
 
 /// `SmSurface::CreateNaturalUVTrimCurves(ctx, domain, SM_SP_V, FALSE, ..)`: the 3D
 /// boundary curves.
-fn create_natural_uv_trim_curves(_s: &Surface, _domain: &Extent2d) -> Result<Vec<Option<Curve>>> {
-    // UNPORTED(surface.surface_p6): SmSurface::CreateNaturalUVTrimCurves
-    Err(SolidError::unported(
-        "SmSurface::CreateNaturalUVTrimCurves",
-        "surface.surface_p6",
-    ))
+fn create_natural_uv_trim_curves(
+    k: &Kernel,
+    s: &Surface,
+    domain: &Extent2d,
+) -> Result<Vec<Option<Curve>>> {
+    let t = s.create_natural_uv_trim_curves(k, domain, SurfParamType::V, false)?;
+    Ok(t.curves_3d.into_iter().map(Some).collect())
 }
 
 /// `SmSurface::DropPoint(pt, domain, NULL, bSuccess, uv, dist, bIsMulti,
 /// SM_SO_NORMALIZE)`: success, uv and distance.
-fn surface_drop_point(
-    _s: &Surface,
-    _pt: Point3,
-    _domain: &Extent2d,
-) -> Result<(bool, Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+fn surface_drop_point(s: &Surface, pt: Point3, domain: &Extent2d) -> Result<(bool, Point2, f64)> {
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        operation: SolverOperation::Normalize,
+        ..Default::default()
+    };
+    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(pt, domain, &opts)?;
+    Ok((r.success, r.result_uv, r.gap))
 }
 
 /// The general `SmSurface::DropCurve`.

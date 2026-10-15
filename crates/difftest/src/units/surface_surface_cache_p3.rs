@@ -13,8 +13,7 @@
 //! construction Bezier.
 //!
 //! Deferred cases: the paths into unported units (`SmSurface::CalculateContinuities` in
-//! every tree build, `SmSurface::SnapToKnots` when splitting a node that holds a
-//! subdivision surface, `SmSurface::GetSingularities` in pole searches, `SmSurface::
+//! every tree build, `SmSurface::GetSingularities` in pole searches, `SmSurface::
 //! EvaluateNormal` in the polar boxes of the angle tolerance test and
 //! `SmSurface::FindTessellationSplits` in block subdivisions, the last two through part 2).
 
@@ -334,6 +333,8 @@ fn cache_of(surface: Surface, opts: &OptsIn) -> SurfaceCache<i64> {
     let mut c = SurfaceCache::new(surface, dom, options_of(opts));
     c.start_fast_subdivision_angle_deg = opts.start;
     c.set_surface_handle(Some(SURFACE_HANDLE));
+    // the halves of split subdivision surfaces (any handles but SURFACE_HANDLE)
+    c.set_subdivision_handles(Some(|n| 1000 + n as i64));
     c
 }
 
@@ -525,7 +526,7 @@ fn rust_op(i: &Inputs) -> Result<Run, HarnessError> {
     match &i.op {
         OpIn::SubdivNode { start, v, only } => {
             let mut cache = start_cache(i, start)?;
-            let r = cache.subdivide_node(NodeId(0), dir_of(*v), *only);
+            let r = cache.subdivide_node(&k, NodeId(0), dir_of(*v), *only);
             let st = match status_of(&r) {
                 Ok(s) => s,
                 Err(e) => return Ok(Err(e)),
@@ -554,7 +555,7 @@ fn rust_op(i: &Inputs) -> Result<Run, HarnessError> {
             let mut cache = start_cache(i, start)?;
             let mut stats = Vec::new();
             for s in splits {
-                let r = cache.subdivide_node(NodeId(s.node), dir_of(s.v), s.only);
+                let r = cache.subdivide_node(&k, NodeId(s.node), dir_of(s.v), s.only);
                 match status_of(&r) {
                     Ok(st) => stats.push(st),
                     Err(e) => return Ok(Err(e)),

@@ -24,19 +24,22 @@
 //!   `rbSameOrient` / `rlFoundIndex` unset or holding a rejected candidate's value).
 //! - [`find_edge`] and [`find_face`] report "nothing found" (upstream `SM_ERR`) as
 //!   `Ok(None)`. Faces are returned as [`FaceId`]s.
-//! - **Unported callees.** Vertex and edge tolerances, edge geometry (curve,
-//!   interval, end vertices), curve evaluation, point drops, curve/curve distance,
-//!   `SmBrep::GetEdges`, `SmBrep::GetTolerance` and the B-rep cache tree adapter
-//!   needed by the ported `SmTopologySolver::BrepPointSolve`
+//! - **Edge and vertex queries** are those of `topology::edge` and `topology::vertex`.
+//! - **Unported callees.** Curve evaluation of the opaque target
+//!   curve, point drops, curve/curve distance,
+//!   `SmBrep::GetEdges`, `SmBrep::GetTolerance` and exact B-rep cache dependencies
 //!   belong to units not ported yet; those calls return [`SolidError::Unported`]
 //!   (see the `UNPORTED` markers). The target curve of [`find_coincident_edge`] is
 //!   an opaque `C` until the curve units land (`curve.curve_p2`).
 
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::object::ObjectRef;
 use crate::geom::vector3d::sqrt;
+use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
-use crate::topology::{Brep, EdgeId, FaceId, VertexId};
+use crate::topology::brep_cache::CacheObject;
+use crate::topology::{Brep, BrepId, EdgeId, FaceId, VertexId};
 
 /// `rlFoundIndex` of [`find_first_vertex_within_tol_to_pnt`] when no vertex is
 /// within tolerance (upstream `99999`).
@@ -175,8 +178,7 @@ pub fn find_first_point_within_tol_to_pnt(
 /// A vertex closer than `SM_EFF_ZERO` ends the search at once.
 ///
 /// # Errors
-/// [`SolidError::NotFound`] for a vertex id outside `brep`;
-/// [`SolidError::Unported`] while vertex tolerances are not ported.
+/// [`SolidError::NotFound`] for a vertex id outside `brep`.
 pub fn find_first_vertex_within_tol_to_pnt(
     brep: &Brep,
     vertices: &[VertexId],
@@ -246,8 +248,9 @@ pub fn find_coincident_edge<C: ?Sized>(
             continue;
         }
 
-        let matches = (edge_vertex(brep, e)? == v1 && edge_other_vertex(brep, e, v1)? == v2)
-            || (edge_vertex(brep, e)? == v2 && edge_other_vertex(brep, e, v2)? == v1);
+        let matches = (edge_vertex(brep, e)? == Some(v1)
+            && edge_other_vertex(brep, e, v1)? == Some(v2))
+            || (edge_vertex(brep, e)? == Some(v2) && edge_other_vertex(brep, e, v2)? == Some(v1));
         if !matches {
             continue;
         }
@@ -329,13 +332,22 @@ pub fn find_edge(brep: &Brep, point: Point3) -> Result<Option<EdgePick>> {
 /// face among the B-rep point-solve solutions (tolerance `100 *` B-rep tolerance).
 ///
 /// Returns `None` when no solution is a face (upstream `SM_ERR`).
+/// The caller supplies its kernel, B-rep id, object keys and intermediate owners;
+/// owner keys must use the same mapping that assigned the geometry's owner links.
 ///
 /// # Errors
 /// [`SolidError::Unported`] while the B-rep tolerance and `BrepPointSolve` are not
 /// ported.
-pub fn find_face(brep: &Brep, point: Point3) -> Result<Option<FaceId>> {
+pub fn find_face(
+    kernel: &Kernel,
+    brep: &Brep,
+    brep_id: BrepId,
+    point: Point3,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+) -> Result<Option<FaceId>> {
     let tol = brep_tolerance(brep)? * 100.0;
-    let solution_faces = brep_point_solve_faces(brep, point, tol)?;
+    let solution_faces = brep_point_solve_faces(kernel, brep, brep_id, point, tol, keys, owner_of)?;
     Ok(solution_faces.into_iter().flatten().next())
 }
 
@@ -343,12 +355,7 @@ pub fn find_face(brep: &Brep, point: Point3) -> Result<Option<FaceId>> {
 
 /// `SmVertex::GetTolerance`.
 fn vertex_tolerance(brep: &Brep, v: VertexId) -> Result<f64> {
-    brep.vertex(v)?;
-    // UNPORTED(topology.vertex): SmVertex::GetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmVertex::GetTolerance",
-        unit: "topology.vertex",
-    })
+    crate::topology::vertex::tolerance(brep, v)
 }
 
 /// `SmCurve::GetOwner`, as the owning edge (if any).
@@ -361,66 +368,42 @@ fn curve_owner<C: ?Sized>(_curve: &C) -> Result<Option<EdgeId>> {
 }
 
 /// `SmEdge::GetVertex`.
-fn edge_vertex(brep: &Brep, e: EdgeId) -> Result<VertexId> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetVertex
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetVertex",
-        unit: "topology.edge",
-    })
+fn edge_vertex(brep: &Brep, e: EdgeId) -> Result<Option<VertexId>> {
+    crate::topology::edge::vertex(brep, e)
 }
 
 /// `SmEdge::GetOtherVertex`.
-fn edge_other_vertex(brep: &Brep, e: EdgeId, v: VertexId) -> Result<VertexId> {
-    brep.edge(e)?;
-    brep.vertex(v)?;
-    // UNPORTED(topology.edge): SmEdge::GetOtherVertex
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetOtherVertex",
-        unit: "topology.edge",
-    })
+fn edge_other_vertex(brep: &Brep, e: EdgeId, v: VertexId) -> Result<Option<VertexId>> {
+    crate::topology::edge::other_vertex(brep, e, Some(v))
 }
 
 /// `SmEdge::GetTolerance`.
 fn edge_tolerance(brep: &Brep, e: EdgeId) -> Result<f64> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetTolerance",
-        unit: "topology.edge",
-    })
+    crate::topology::edge::tolerance(brep, e)
 }
 
 /// `SmEdge::GetInterval`.
 fn edge_interval(brep: &Brep, e: EdgeId) -> Result<Extent1d> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetInterval
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetInterval",
-        unit: "topology.edge",
-    })
+    crate::topology::edge::interval(brep, e)
+}
+
+/// `pE->GetCurve()`, `NER` on a missing curve.
+fn edge_curve(brep: &Brep, e: EdgeId) -> Result<&crate::curve::curve::Curve> {
+    crate::topology::edge::curve(brep, e)?
+        .ok_or(SolidError::null_pointer("geom::tools::edge_curve"))
 }
 
 /// `pE->GetCurve()->EvaluatePoint(t)` (`NER` on a missing curve).
-fn edge_curve_point(brep: &Brep, e: EdgeId, _t: f64) -> Result<Point3> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetCurve
-    // UNPORTED(curve.curve_p2): SmCurve::EvaluatePoint
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetCurve",
-        unit: "topology.edge",
-    })
+fn edge_curve_point(brep: &Brep, e: EdgeId, t: f64) -> Result<Point3> {
+    edge_curve(brep, e)?.evaluate_point(t)
 }
 
 /// First derivative from `pE->GetCurve()->Evaluate(t, 1, TRUE, ...)`.
-fn edge_curve_derivative(brep: &Brep, e: EdgeId, _t: f64) -> Result<Vec3> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetCurve
-    // UNPORTED(curve.curve_p2): SmCurve::Evaluate
-    Err(SolidError::Unported {
-        upstream: "SmEdge::GetCurve",
-        unit: "topology.edge",
-    })
+fn edge_curve_derivative(brep: &Brep, e: EdgeId, t: f64) -> Result<Vec3> {
+    let pv = edge_curve(brep, e)?.evaluate(t, 1, true, true)?;
+    pv.get(1).copied().ok_or(SolidError::null_pointer(
+        "geom::tools::edge_curve_derivative",
+    ))
 }
 
 /// First derivative from `pCurve->Evaluate(t, 1, TRUE, ...)`.
@@ -456,12 +439,11 @@ fn edge_drop_point(
     _pt: Point3,
     _tol: f64,
 ) -> Result<Drop> {
-    brep.edge(e)?;
-    // UNPORTED(topology.edge): SmEdge::GetCurve
+    edge_curve(brep, e)?;
     // UNPORTED(curve.curve_p6): SmCurve::DropPoint
     Err(SolidError::Unported {
-        upstream: "SmEdge::GetCurve",
-        unit: "topology.edge",
+        upstream: "SmCurve::DropPoint",
+        unit: "curve.curve_p6",
     })
 }
 
@@ -504,13 +486,48 @@ fn brep_tolerance(_brep: &Brep) -> Result<f64> {
 
 /// `SmTopologySolver::BrepPointSolve(brep, pt, SM_SO_MINIMIZE, SM_SR_ALL, tol,
 /// SM_BIG_DOUBLE, NULL, solutions)`: per solution, its first object if it is a face.
-fn brep_point_solve_faces(_brep: &Brep, _pt: Point3, _tol: f64) -> Result<Vec<Option<FaceId>>> {
-    // UNPORTED(topology.brep_cache): SmBrepCache::GetVertexTree
-    // The point solver is ported; this Brep still lacks its TopologyObjects/cache adapter.
-    Err(SolidError::Unported {
-        upstream: "SmBrepCache::GetVertexTree",
-        unit: "topology.brep_cache",
-    })
+fn brep_point_solve_faces(
+    kernel: &Kernel,
+    brep: &Brep,
+    brep_id: BrepId,
+    pt: Point3,
+    tol: f64,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+) -> Result<Vec<Option<FaceId>>> {
+    use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+    use crate::intersect::topology_solver::p1::TopologySolver;
+    use crate::intersect::topology_solver::p2::TopologySolveOptions;
+    use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheSource};
+    let cache = make_brep_cache(kernel, CacheSource::Brep(brep), keys)?;
+    let objects = BrepObjects {
+        brep,
+        brep_id,
+        cache: &cache,
+        keys,
+        owner_of,
+    };
+    let solutions = TopologySolver::brep_point_solve(
+        kernel,
+        &objects,
+        Some(CacheObject::Brep),
+        pt,
+        TopologySolveOptions {
+            operation: SolverOperation::Minimize,
+            requested: SolutionRequested::All,
+            tolerance_3d: tol,
+            best_answer_so_far_sq: BIG_DOUBLE,
+            opt_vectors: &[],
+        },
+    )?;
+    Ok(solutions
+        .as_slice()
+        .iter()
+        .map(|s| match s.objects.first().copied().flatten() {
+            Some(CacheObject::Face(f)) => Some(f),
+            _ => None,
+        })
+        .collect())
 }
 
 #[cfg(test)]
@@ -575,8 +592,10 @@ mod tests {
         let a = brep.add_vertex(p(0.0, 0.0, 0.0)).unwrap();
         let b = brep.add_vertex(p(1.0, 0.0, 0.0)).unwrap();
         let e = brep.add_edge(a, b).unwrap();
-        let r = find_first_vertex_within_tol_to_pnt(&brep, &[a], p(0.0, 0.0, 0.0), 1.0);
-        assert!(matches!(r, Err(SolidError::Unported { .. })));
+        // vertex tolerances are ported (topology.vertex): the vertex at the point is found
+        let r = find_first_vertex_within_tol_to_pnt(&brep, &[a], p(0.0, 0.0, 0.0), 1.0).unwrap();
+        assert!(r.found);
+        assert_eq!(r.index, 0);
         let q = CoincidentEdgeQuery {
             start_vertex: a,
             end_vertex: b,
@@ -592,7 +611,14 @@ mod tests {
             Err(SolidError::Unported { .. })
         ));
         assert!(matches!(
-            find_face(&brep, p(0.0, 0.0, 0.0)),
+            find_face(
+                &Kernel::default(),
+                &brep,
+                BrepId::from_index(7),
+                p(0.0, 0.0, 0.0),
+                &crate::topology::brep_cache::arena_identity,
+                &|_| None,
+            ),
             Err(SolidError::Unported { .. })
         ));
     }

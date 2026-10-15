@@ -90,6 +90,7 @@
 
 use core::ptr;
 
+use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
@@ -251,12 +252,11 @@ const fn is_b_spline_kind(surface: &Surface) -> bool {
 }
 
 /// `SmSurface::GetSingularities()` of a base surface.
-fn base_singularities(_k: &Kernel, _surface: &Surface) -> Result<u32> {
-    // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-    Err(SolidError::unported(
-        "SmSurface::GetSingularities",
-        "surface.surface_p3",
-    ))
+fn base_singularities(k: &Kernel, surface: &Surface) -> Result<u32> {
+    if let SurfaceKind::OffsetSurface(off) = surface.kind() {
+        return Ok(off.singularities());
+    }
+    Ok(surface.get_singularities(k, false, false)?.singular)
 }
 
 impl OffsetSurface {
@@ -1620,6 +1620,7 @@ fn check_surface_nesting(surface: &Surface, depth: usize, op: &'static str) -> R
             }
         }
         SurfaceKind::CurveBounded(s) => check_surface_nesting(s.basis(), depth + 1, op)?,
+        SurfaceKind::SrfInVolume(s) => check_surface_nesting(s.surface(), depth + 1, op)?,
         SurfaceKind::Step(s) => {
             if let Some(base) = s.surface() {
                 check_surface_nesting(base, depth + 1, op)?;
@@ -1919,6 +1920,15 @@ impl<'a> OffsetEval<'a> {
         }
     }
 
+    /// A surface snapshot including any extension made earlier in this evaluation.
+    fn surface_snapshot(&self) -> Surface {
+        self.with_extension(|ext| {
+            let mut off = self.off.clone();
+            off.extended_surface = ext.current().cloned().map(Box::new);
+            Surface::from(off)
+        })
+    }
+
     /// Runs `f` with the extension of the call, keeping a new one it makes.
     fn with_extension<T>(&self, f: impl FnOnce(&mut Extension<'_>) -> T) -> T {
         let mut ext = Extension {
@@ -1932,6 +1942,38 @@ impl<'a> OffsetEval<'a> {
 }
 
 impl SurfaceEvaluate for OffsetEval<'_> {
+    fn local_point_solve_minimize(
+        &self,
+        domain: &Extent2d,
+        point: Point3,
+        guess: Point2,
+    ) -> Result<(bool, f64, Point2)> {
+        self.surface_snapshot()
+            .local_point_solve_minimize(domain, point, guess)
+    }
+
+    fn drop_point_minimize(
+        &self,
+        point: Point3,
+        domain: &Extent2d,
+        guess: Option<Point2>,
+    ) -> Result<Option<(Point2, f64)>> {
+        self.surface_snapshot()
+            .drop_point_minimize(point, domain, guess)
+    }
+
+    fn local_curve_maximize(
+        &self,
+        curve: &Curve,
+        domain: &Extent2d,
+        interval: &Extent1d,
+        guess_uv: Point2,
+        guess_t: f64,
+    ) -> Result<Option<(f64, Point2)>> {
+        self.surface_snapshot()
+            .local_curve_maximize(curve, domain, interval, guess_uv, guess_t)
+    }
+
     fn natural_uv_domain(&self) -> Extent2d {
         self.with_extension(|ext| domain_with(&self.off.surface, ext.current()))
     }

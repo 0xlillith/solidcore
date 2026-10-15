@@ -1116,7 +1116,8 @@ fn rust_op(i: &Inputs) -> Result<Run, HarnessError> {
                             | SurfaceKind::Plane(_)
                             | SurfaceKind::SurfOfRevolution(_)
                             | SurfaceKind::Step(_)
-                            | SurfaceKind::OffsetSurface(_) => None,
+                            | SurfaceKind::OffsetSurface(_)
+                            | SurfaceKind::SrfInVolume(_) => None,
                         };
                         match cache.first_bezier_patch(NodeId(*node)) {
                             Ok(None) => o.push(0.0),

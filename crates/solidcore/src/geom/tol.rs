@@ -130,7 +130,7 @@ use crate::surface::volume::Volume;
 // ApproximateLength.
 // CO-PORTED in intersect.curve_class_p1: SmTol::MapTo2d(const SmTol3d&, double, const
 // SmCurve&, const SmSurface&) is surface::surface::p1::map_to_2d_on_curve (its UV-curve
-// branch; the SmCrvOnSurf and 3D branches are UNPORTED(surface.surface_p5) there).
+// and 3D branches; the SmCrvOnSurf branch is Unported there).
 // CO-PORTED in surface.surface_p1: SmTol::MapTo2d(const SmTol3d&, const SmVector2d&,
 // [const SmVector2d&,] const SmSurface&), SmTol::GetScaledZero(const SmSurface&) and
 // the SmSurface branch of SmTol::GetZoneTol3d(const SmObject*) are
@@ -143,8 +143,9 @@ use crate::surface::volume::Volume;
 // SmTol::GetSrcZoneTol3d / GetObjZoneTol3d / GetXSectTol3d of SmPointClassification
 // are intersect::point_class::PointClassification::src_zone_tol_3d / obj_zone_tol_3d /
 // xsect_tol_3d.
-// UNPORTED(query.poly): SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of
-// SmLineSegClassification / SmPolyPointClassification / SmLineSegInterval.
+// SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of SmLineSegClassification /
+// SmPolyPointClassification / SmLineSegInterval: those classes have no Rust type (their
+// constructors are outside the in-scope call graph).
 // UNPORTED(blend.fillet_solver_p1): SmTol::GetAngTolRad(const SmFilletSolver*);
 // UNPORTED(blend.fillet_corner_p1): the SmFilletCorner branch of GetApproxTol3d(SmObject*);
 // the other GetApproxTol3d / GetAngTolRad overloads of algorithm objects (SmHCR,

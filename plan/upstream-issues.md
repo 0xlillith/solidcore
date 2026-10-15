@@ -397,6 +397,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (stack buffer overflow).
 - **Rust port:** Rejects `der >= 5`. The harness limits offset evaluation to 4 derivatives.
 
+#### UB-99. `CreateSkinnedSurface` retries skinning with derivative surfaces whose knot vector was freed
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:5613` and `:5636` (`SmBSplineSurface::CreateSkinnedSurface`: the first `N_CreateSkinSrfBoundaryContinuity` call, then the retry without knots, both with the same `pDirArray`); `NL_SrfAdv.cpp:14275` (`N_CrvFromCPolygonAndKnotVector( &curA, pol, qs, knv )`), `:14434` (`N_CrvsMakeCompatibleKnotTol`), `:13316` (`N_AdjustDerivSrf( der[0], ... )`); `NL_CrvTool.cpp:1502` (`N_CrvRefine` frees the old curve in place).
+- **What happens:** In `N_CreateSkinSrfBoundaryContinuity` the cross-boundary derivative curve `curA` is built over `der[0]`'s own `NL_KNOTVECTOR` (pointer shared, not copied). Making the curves compatible refines `curA` in place, and `N_CrvRefine` frees the old knot vector, so `der[0]` is left pointing at freed memory. If that first call then fails, `CreateSkinnedSurface` calls it again with the same derivative surfaces, and `N_AdjustDerivSrf` → `N_BezSrfExtend4D` → `N_SrfGetCPtsDegreesAndKnots` reads the freed knot vector.
+- **Trigger:** `SmEiffelTowerCrossSectionFSG::CreateSurface` (`SmFilletCustomSolver.cpp:845`) on two quadratic, 4-point, non-rational rails over the same knot vector `[-0.9038, x3, 0.6515, 2.2069 x3]` with three fillet points, `tol = 1e-6`: the `blend.fillet_custom_solver` difftest case `gen0137` (seed `12772265007024949959`). That input is valid; the skinning branch's first attempt fails and the retry reads freed memory. Other callers that pass derivative surfaces to `CreateSkinnedSurface` (`SmFilletStandardSolver.cpp:3904`, `:4458`, `SmPrimitiveCreation.cpp:6811`, `SmSurface.cpp:3536`) may reach the same retry; not tested.
+- **How found:** ASan build of the C++ reference (SMLib, SM_API and the shims built with `-fsanitize=address`) running the `blend.fillet_custom_solver` difftest corpus.
+- **Confirmed:** yes. ASan reports `heap-use-after-free` (16-byte region allocated in `N_BezSrfExtend4D` via `N_AdjustDerivSrf` in the first call, freed by `N_FreeCrv` in `N_CrvRefine` from `N_CrvsMakeCompatibleKnotTol`, read in the retry). The release build does not crash on this case and its output matches the Rust port, but that result depends on the freed memory's contents.
+- **Severity:** crash/UB (heap use after free).
+- **Rust port:** Retries with the derivative surfaces as the first attempt left them; it reads no freed storage. The FFI guard cannot predict a failed first skinning attempt without running it, so it does not reject such inputs (see `plan/findings.md`, `blend.fillet_custom_solver`).
+
+#### UB-107. `CreateExtendedSurface` retries an in-place extension on half-written arrays
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4568`, `:4630`, `:4697`, `:4759` (`SmBSplineSurface::CreateExtendedSurface`: `while(0 != N_SrfExtendByDist(&esur, dExtDist, ..., &esur, ...))` halves the distance and retries on the same `esur`); `NL_SrfAdv.cpp:6137`-`6141` (`N_SrfExtendByParamDist`, in place: `N_AllocSrfArrays( surP, ... )` gives `surP` fresh arrays, the old ones stay in the local `surA`), `:7035`, `:7104` (`NL_ERROR( NL_WEI_ERR )` in the `NL_CMAX` branch exits before every new control point is written; `surA` is freed only on success, `:7207`).
+- **What happens:** When an in-place extension fails part way (for example an `NL_CMAX` extension that would create a weight outside the allowed range), `esur` is left on the newly allocated, partly written arrays. The retry at half the distance reads them, including the entries never written. Its result depends on what earlier calls left in that memory.
+- **Trigger:** `CreateExtendedSurface(dist = 0.28814945128446756, SM_CT_CINFINITY)` (both directions) on the rational bilinear-by-linear B-spline of `surface.surface_p2` generated case `gen0016` (seed `9548444236539953400`; form 11, 2x3 net, v knots `[0, 0, 0.8105925733594667, 1, 1]`): the V-max extension at the full distance fails with `NL_WEI_ERR` and is retried.
+- **How found:** generated difftest case (`surface.surface_p2`, once `IsSingularity` stopped deferring it).
+- **Confirmed:** yes. In a fresh process the call returns `SM_ERR` every time; after a few other extensions in the same process the same call returns `SM_SUCCESS`. The separate, non-in-place `N_SrfExtendByDist` calls of that sequence (`nlib.srf_adv_p1` shim, error state cleared) agree with the Rust port at every step.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** `N_SrfExtendByDist` returns a new surface, so a failed attempt leaves the surface unchanged and the retry extends the original (the documented in-place deviation of `nurbs::srf_adv::p3`). The `surface.surface_p2` generator leaves out extension cases whose first attempt at some side fails (see `plan/findings.md`).
+
 ### Spatial structures and small geometry
 
 #### UB-34. `SmObjsInVoxels::IncMaxItemCount` re-points buckets into the array it is about to free
@@ -881,7 +899,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Returns `InvalidInput`.
 
-#### UB-99. `SmOffsetSurface::EvaluatePlainOrSimple` writes past `aDerivatives` with `bOnlyUpperHalf`
+#### UB-116. `SmOffsetSurface::EvaluatePlainOrSimple` writes past `aDerivatives` with `bOnlyUpperHalf`
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1442` (and the `Duuv` / `Duvv` writes after it), `SmOffsetSurface::EvaluatePlainOrSimple` (def. `:960`), reached from `Evaluate` and `EvaluateSimple`.
 - **What happens:** With `bOnlyUpperHalf` the mixed derivatives are computed whenever the larger order allows them, but are written at their indices in the full `(hu+1)(hv+1)` layout. With more `v` than `u` derivatives they land past the caller's array (`hu = 0, hv = 2`: `Duv` at index 4 of a 3-entry array; also `0, 3` and `1, 3`).
 - **Trigger:** `Evaluate(uv, 0, 2, TRUE, TRUE, TRUE /*bOnlyUpperHalf*/, a /*3 entries*/)` on an offset with a non-zero distance.
@@ -890,7 +908,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** Returns `InvalidInput` for a write past the array.
 
-#### UB-100. `SmPlane::Evaluate` wraps its loop bound for `bOnlyUpperHalf` with more `u` than `v` derivatives
+#### UB-117. `SmPlane::Evaluate` wraps its loop bound for `bOnlyUpperHalf` with more `u` than `v` derivatives
 - **Location:** `source/SMLib/src/SmPlane.cpp:1536`, `SmPlane::Evaluate`: `ULONG lHighestVIndex = bOnlyUpperHalf ? lHighestVDeriv-k : lHighestVDeriv`.
 - **What happens:** For `k > lHighestVDeriv` the unsigned subtraction wraps, and the zeroing loop runs far past the caller's array. A zero-distance `SmOffsetSurface` over a plane passes such requests straight to it.
 - **Trigger:** `SmPlane::Evaluate(uv, 2, 0, .., TRUE /*bOnlyUpperHalf*/, a /*3 entries*/)`.
@@ -899,7 +917,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** The plane evaluation returns `InvalidInput` for an upper half with more `u` than `v` derivatives.
 
-#### UB-101. The base-class box of an extended `SmOffsetSurface` recurses without bound
+#### UB-118. The base-class box of an extended `SmOffsetSurface` recurses without bound
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:337`, `SmOffsetSurface::CalculateBoundingBox` (def. `:315`) calling `SmSurface::CalculateBoundingBox`, whose `smsurf_GetSurfaceCache` builds the offset's surface cache.
 - **What happens:** A box domain not inside the base domain runs the base-class body, which builds the offset's surface cache. Its nodes cover the offset's natural domain, which is the extended surface's once there is one; each node outside the base domain runs the base-class body again, until the stack overflows. This is the pattern of UB-84.
 - **Trigger:** An offset allowing extension: `TrimWithDomain` to a part of the base domain, an `EvaluatePoint` outside it (stores an extension), then `CalculateBoundingBox` over the original domain.
@@ -908,7 +926,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (stack exhaustion).
 - **Rust port:** Refuses the polar box of the base-class body for such an offset; the surface cache it would build waits on `surface.surface_p6`. The harness keeps these boxes away from the C++ side.
 
-#### UB-102. `sm_ExtendSurface` can retry `N_SrfEvalPtDerivsUnbounded` with an uninitialised flag
+#### UB-119. `sm_ExtendSurface` can retry `N_SrfEvalPtDerivsUnbounded` with an uninitialised flag
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:517`, `sm_ExtendSurface` (`NL_FLAG gflg` uninitialised); `NL_SrfAdv.cpp` `N_SrfEvalPtDerivsUnbounded`.
 - **What happens:** The first call copies the surface into `esur` before `N_SrfIsClosedSmooth`. When that test fails before it stores the closed directions (a knot or evaluation error), the retry finds `esur` set and reads the uninitialised `gflg` to decide between wrapping and extending.
 - **Trigger:** An offset extension over a surface whose closedness test fails with a knot or evaluation error.
@@ -916,6 +934,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no.
 - **Severity:** crash/UB (uninitialised read).
 - **Rust port:** The extension state stays empty after such errors (`nlib.srf_adv_p1`), so the retry starts over.
+
+#### UB-100. `SmDerivSurfDefinition::GetSampleValues` dereferences a missing tangent reference
+- **Location:** `source/SMLib/src/SmSurface.cpp:3127`, `SmDerivSurfDefinition::GetSampleValues` (def. `:2941`); the check it relies on is `SmDerivSurfDefinition::AssertValid` test 2 (`:2286`).
+- **What happens:** For `SM_TT_DIR_TO_REFERENCE_CURVE`, `m_pTangentReference->EvaluatePoint` is called unchecked. `AssertValid` accepts a `NULL` reference (its last clause, `m_pTangentReference == NULL`, holds for every tangency type), so the definition passes the state check and the call dereferences `NULL`.
+- **Trigger:** `GetSampleValues` with `m_eTangencyType = SM_TT_DIR_TO_REFERENCE_CURVE`, `m_pTangentReference = NULL` and a boundary curve that drops onto the surface.
+- **How found:** crash in the C++ reference run (generated difftest case of `surface.surface_p6`).
+- **Confirmed:** yes (segfault).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Returns `SM_ERR_NULL_POINTER`; the shim refuses the input.
 
 ### Intersection
 
@@ -1008,6 +1035,71 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (segfault in `SmCopyBrepMap::SetAt`).
 - **Severity:** crash/UB.
 - **Rust port:** `CopyBrepMap::set_at` takes non-null objects; `get_at` of an object without an entry is `InvalidInput`. The shim refuses both.
+
+#### UB-100. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
+- **Location:** `source/SMLib/src/SmPoly.cpp:2734` (`SmPointSet3d sPointSet(*pOptPolyPoints, FALSE)`), `SmPolyBrep::CalculateBoundingBox`.
+- **What happens:** In the branch without `pOptPolyPoints`, a requested pseudo box fills a local `sPolyPoints` and then builds the point set from `*pOptPolyPoints`, which is `NULL` in that branch.
+- **Trigger:** `CalculateBoundingBox(box, &pseudoBox)` (no point array).
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the FFI wrapper rejects the combination).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** `PolyBrep::calculate_bounding_box` returns `InvalidInput`.
+
+#### UB-101. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
+- **Location:** `source/SMLib/src/SmPoly.cpp:6505` (`(SmPolyEdge*) pPolyFace->GetList()`), `SmPolyBrep::GetPolyEdges`.
+- **What happens:** The filtered branch walks each face's `m_pList`, which holds the face's loops, casts them to `SmPolyEdge*`, reads `GetOriginalEdgeuse()` at the edge member offset of an `SmPolyLoop`, and would add loop pointers to the edge array.
+- **Trigger:** `GetPolyEdges(edges, pEdgeuse)` with a non-null edge use.
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the harness never passes an edge use).
+- **Severity:** crash/UB (type confusion, out-of-object read).
+- **Rust port:** `PolyBrep::poly_edges(Some(..))` returns `InvalidInput`.
+
+#### UB-102. `SmSrfInVolume::Evaluate` with orders (0,0) and `bOnlyUpperHalf = FALSE` writes `Duv` past the output array
+- **Location:** `source/SMLib/src/SmSrfInVolume.cpp:598`-`601` (the `lTempNumDerivsToEval = 2` branch), `:~720` onward (the `Duv` store), `SmSrfInVolume::Evaluate`.
+- **What happens:** With `lHighestUDeriv == lHighestVDeriv <= 1` and `bOnlyUpperHalf == FALSE` the second-derivative branch is taken, and `Duv` is stored at an index one past the single entry a (0,0) request sizes the caller's array to.
+- **Trigger:** `Evaluate(uv, 0, 0, D, FALSE)` with a one-entry `D`.
+- **How found:** crash in the C++ reference run (the shim's exit 139 during `surface.srf_in_volume` difftest development).
+- **Confirmed:** yes (segfault in the shim; the shim now sizes the array to avoid it).
+- **Severity:** crash/UB (out-of-bounds write).
+- **Rust port:** Skips the out-of-range `Duv` write and returns success with `D`; documented and tested.
+
+#### UB-103. `SmSrfInVolume::STEPInversion` indexes an empty point array when the volume inverse succeeds with no points
+- **Location:** `source/SMLib/src/SmSrfInVolume.cpp:927`-`928` (`sParamPoints[0]`), `SmSrfInVolume::STEPInversion`.
+- **What happens:** After `InvEvaluatePoint` / `InvMapPoint` reports `bSuccess == TRUE` the code passes `sParamPoints[0]` to the base surface without checking that the array holds a point. A volume inverse that succeeds with no points leaves it empty, and the reference passes a null reference (segfault in `SmSurfacePointSolver`).
+- **Trigger:** `STEPInversion` of a point the volume's inverse accepts but returns no point for (found by the generated `surface.srf_in_volume` cases once non-transform maps were allowed).
+- **How found:** crash in the C++ reference run (difftest case `gen1653`).
+- **Confirmed:** yes (segfault, exit 139).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** returns `SM_ERR` when there is no first point; the shim probes the same volume call and reports `SM_ERR` instead of calling `STEPInversion`.
+
+#### UB-104. Gap records and gap functions dereference null or index before their arrays
+- **Location:** `source/SMLib/inc/SmGap.h:371` (`SmVertexEdgeGap::Set`), `source/SMLib/src/SmGap.cpp:134` (`SmGap::GetGapEndPoints`), `:1890`-`1895` and `:1773` (`SmGapFunction::BuildSampleSet`).
+- **What happens:** `SmVertexEdgeGap::Set` (and its constructor) caches the gap whenever the parameter is defined, also with a NULL vertex use; `GetGapEndPoints` then calls `GetCurve()` on the NULL edge (`SM_ASSERT_MSG` is compiled out). The same happens for an edge parameter whose edge has no curve, a face UV point whose face has no surface, and `SmVertexEdgeGap::GetEdge` of a vertex use without edge use. `BuildSampleSet` with a sample count of `0` writes `sSampleNormalizedVals[m_lSampleCntU-1]` (index `ULONG_MAX`), or for B-spline geometry computes `(0-1)/n` counts; a `v` count of `0` on a surface writes past the array and returns a pointer into an empty sample array.
+- **Trigger:** `SmVertexEdgeGap(NULL, 0.5)`; `SmSrfPtGapFunction(..., 0)` then `GetMaxGapSample`.
+- **How found:** read during porting (`heal.gap`).
+- **Confirmed:** no (the harness predicts and avoids the null dereferences, and keeps counts at least 1).
+- **Severity:** crash/UB (needs a bad argument from the calling code).
+- **Rust port:** `heal::gap` returns `InvalidInput`.
+
+### Topology
+
+#### UB-105. `SmVertex::GetMaxUpDimGap3d` adds to a NULL gap array
+- **Location:** `source/SMLib/src/SmVertex.cpp:2978` `SmVertex::GetMaxUpDimGap3d` (`pOptGapArray->Add(...)` for both gap kinds); reached by `GetMaxGap3d()` with its default arguments.
+- **What happens:** The gap array is optional (default `NULL`) and is reset only when given, but every gap longer than `pOptTol3d` (all gaps without `pOptTol3d`) is added through `pOptGapArray->Add` without a check: a call without an array dereferences `NULL` as soon as one vertex use has a vertex/edge or vertex/face gap.
+- **Trigger:** `pVertex->GetMaxGap3d()` (or `GetMaxUpDimGap3d()`) on any vertex of a wire edge with a curve or of a face with a surface.
+- **How found:** read during porting (unit `topology.vertex`).
+- **Confirmed:** no (the difftest shim always passes an array and reports the null dereference when none was asked for and a gap was added).
+- **Severity:** crash.
+- **Rust port:** `topology::vertex::max_up_dim_gap_3d` returns `SolidError::InvalidInput` when a gap is to be listed without a list.
+
+#### UB-106. `SmVertex::AreEdgesTangent` / `IsTopologicalVertex` read an uninitialised tangent
+- **Location:** `source/SMLib/src/SmVertex.cpp:70` `AreEdgesTangent` (all four `SE(GetEndTangent(...))`), `:716` `IsTopologicalVertex` (the `SE(GetEndTangent(FALSE, ...))` branches).
+- **What happens:** `SmVector3d()` leaves its members uninitialised; a failed `SmEdge::GetEndTangent` (`SER` on the curve evaluation) leaves the tangent unset, its status is ignored and the tangent is negated and passed to `AngleBetween`. An edge without curve makes `GetEndTangent` dereference `NULL`.
+- **Trigger:** an edge whose curve cannot be evaluated at its interval end, or a curveless edge at the vertex (in `IsTopologicalVertex` when the other edge has a curve).
+- **How found:** read during porting (unit `topology.vertex`).
+- **Confirmed:** no (the difftest shim checks the evaluations first and does not call these).
+- **Severity:** crash/UB.
+- **Rust port:** `SolidError::InvalidInput`.
 
 ## Hang
 
@@ -1119,7 +1211,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Same loop (the Rust run of the same script did not finish either; the loop belongs to the curve point-solve units). The shim refuses a zero-length `Reparameterize` domain.
 
-#### HANG-13. The surface cache of an offset of a small trimmed surface does not finish
+#### HANG-14. The surface cache of an offset of a small trimmed surface does not finish
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:337` (`SmSurface::CalculateBoundingBox` on the offset), `smsurf_GetSurfaceCache` and the `SmSurfaceCache` tree build.
 - **What happens:** A box domain outside the trimmed base domain builds the offset's surface cache. For a base about `1e-3` across trimmed to a small part, the build did not finish within 15 s (other cases take milliseconds). The cause was not analysed.
 - **Trigger:** A B-spline about `1e-3` across, offset by `7.8e-4`, `TrimWithDomain` to a small part of its domain, then `CalculateBoundingBox` over the original domain.
@@ -1128,9 +1220,9 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Waits on `surface.surface_p6` (the cache tree); the harness keeps these boxes away from the C++ side.
 
-#### HANG-14. G2 extension retries enter an arc-length search with NaN
+#### HANG-15. G2 extension retries enter an arc-length search with NaN
 - **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4568-4576` (in-place retry); `source/SMLib/src/NL_CrvAdv.cpp:683-760` (`ST_curxcdr`).
-- **What happens:** After failed in-place surface extensions, an intermediate rational iso-curve has zero endpoint weights. `N_CrvArcLength` reports success with a NaN length. `ST_curxcdr` derives NaN parameter increments and its termination comparisons never succeed. Reusing the mutated retry surface is implicated; restoring it has not been verified as a fix.
+- **What happens:** After failed in-place surface extensions, an intermediate rational iso-curve has zero endpoint weights. `N_CrvArcLength` reports success with a NaN length. `ST_curxcdr` derives NaN parameter increments and its termination comparisons never succeed. The retry is the in-place one of UB-107 (it reads the arrays a failed in-place extension left half-written), so this hang is one outcome of that read; restoring the surface before the retry has not been verified as a fix.
 - **Trigger:** PR #62 original generated `gen5909`: offset of a revolution surface, trim, G2 extension by `0.6075400573597457`. The 60 exact flattened input doubles are retained in `crates/solidcore-ffi/tests/data/offset-gen5909.txt`.
 - **How found:** Extended-seed difftest, then standalone cold C++ reproduction and debugger inspection. A fresh local context also hangs, so earlier cases and context reuse are not necessary.
 - **Confirmed:** yes. Unmodified C++ times out; debugger captured `d1`, `du`, and search parameters as NaN.
@@ -1383,6 +1475,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Ported as is (the fall-through kept).
 
+#### WR-91. `SmVertex::GetVertexuseOfFace` ignores its face
+- **Location:** `source/SMLib/src/SmVertex.cpp:225` `SmVertex::GetVertexuseOfFace` (the face test inside the `// Remove Composite` comment, `:258`).
+- **What happens:** The test of the vertex use's face against `pFace` was commented out with the composite face code, leaving its block unconditional: for any non-null `pFace` the function returns the first vertex use (of any face) on its face's upward face use, else the last vertex use with a face use, whichever face it belongs to.
+- **Trigger:** a vertex on two or more faces.
+- **How found:** read during porting (unit `topology.vertex`).
+- **Confirmed:** no (the Rust side is deferred on `SmFace::GetUpwardFaceuse`, `topology.face_p2`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (`topology::vertex::vertexuse_of_face`).
+
+#### WR-92. `SmVertex::IsTopologicalVertex` reports a failed tangent evaluation and cusps as topological
+- **Location:** `source/SMLib/src/SmVertex.cpp:716` `SmVertex::IsTopologicalVertex` (`SER(pEdgeN->GetEndTangent(TRUE, ...))`, and the angle test `fabs(dAngleRad - SM_PI) > dAngLimitRad`).
+- **What happens:** As WR-52, `SER` returns the failing `SmStatus` of `GetEndTangent` at an edge's start as the `SmBoolean` result, so the vertex counts as topological. The angle test also accepts edges meeting at `PI` (a cusp, the curves doubling back), which upstream flags itself ("gwc: is this a bug? it counts cusps").
+- **Trigger:** two different curves meeting at equal parameters whose start tangent cannot be evaluated; two edges doubling back on each other at the vertex.
+- **How found:** read during porting (unit `topology.vertex`); the cusp case is compared by the difftest (`turn180p0_*`, `turn179p51_*` fixtures).
+- **Confirmed:** yes for the cusp case (the C++ returns `TRUE`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
 ### NLib
 
 #### WR-22. `ST_surxsdr` returns a stale error number past its recursion limit
@@ -1412,7 +1522,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result (validation gap).
 - **Rust port:** Accepts them too (faithful).
 
-#### WR-87. `N_SrfIsClosedSmooth` reports an error after storing its result
+#### WR-103. `N_SrfIsClosedSmooth` reports an error after storing its result
 - **Location:** `source/SMLib/src/NL_SrfNurb.cpp:5178` (and the v-closure loop), `N_SrfIsClosedSmooth` (def. `:5058`).
 - **What happens:** A failed `N_VectorsAngle` (a zero-length tangent, as at a pole side) only breaks out of the span loop: `error` stays `NL_YES`, the closed directions are still stored in `*gnflg`, and the function returns the error. `N_SrfEvalPtDerivsUnbounded` then fails its first call for such a surface with `esur` holding the copy, and callers that retry (`sm_ExtendSurface`, `EvaluatePointOnExtendedSurface`) extend that copy, `sm_ExtendSurface` at the unpushed parameter.
 - **Trigger:** An offset extension over a B-spline with a pole side.
@@ -1733,7 +1843,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Same result (`true`), for parity.
 
-#### WR-81. `SmOffsetSurface` third derivatives use wrong coefficients in `Cuuv` and `Cuvv`
+#### WR-97. `SmOffsetSurface` third derivatives use wrong coefficients in `Cuuv` and `Cuvv`
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1468` and `:1479`, `SmOffsetSurface::EvaluatePlainOrSimple`.
 - **What happens:** The derivatives of the normal's numerator `C = Bu x Bv` take `3.0 * Buuv x Buv` in `Cuuv` and `3.0 * Buvv x Buv` in `Cuvv`. Differentiating `Cuu` and `Cvv` gives coefficients `1` and `-1`, so `Duuv` and `Duvv` of the offset are wrong whenever those cross products are not zero.
 - **Trigger:** `Evaluate(uv, 2, 1, ..)` on a twisted surface: `Duuv` differs from a central difference of `Duu` by 11 % (relative), while `Duuu` agrees with one of `Duu` to `5e-10`.
@@ -1742,7 +1852,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Kept.
 
-#### WR-82. `SmOffsetSurface` outputs `Buuv` in place of `Buvv` and `Bvvv`
+#### WR-98. `SmOffsetSurface` outputs `Buuv` in place of `Buvv` and `Bvvv`
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1482` and `:1491`, `SmOffsetSurface::EvaluatePlainOrSimple`.
 - **What happens:** `Duvv` is written as `Buuv + d * Nuvv` and `Dvvv` as `Buuv + d * Nvvv`; the base derivatives belong to `Buvv` and `Bvvv`.
 - **Trigger:** `Evaluate(uv, 1, 2, ..)` and `Evaluate(uv, 0, 3, ..)`: against central differences of `Duv` and `Dvv` the results are off by 2.1 and 1.2 (relative).
@@ -1751,7 +1861,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Kept.
 
-#### WR-83. `SmOffsetSurface` writes `Duv` over `Duu` for an upper half without `v` derivatives
+#### WR-99. `SmOffsetSurface` writes `Duv` over `Duu` for an upper half without `v` derivatives
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1442`, `SmOffsetSurface::EvaluatePlainOrSimple`.
 - **What happens:** With `bOnlyUpperHalf`, `hu = 2` and `hv = 0`, the mixed derivative is computed (the larger order is 2) and written at index `hv + 2 = 2`, the slot of `Duu`.
 - **Trigger:** `Evaluate(uv, 2, 0, .., TRUE /*bOnlyUpperHalf*/, ..)` with a non-zero distance.
@@ -1760,7 +1870,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Kept.
 
-#### WR-84. `SmOffsetSurface::SplitAt` gives the halves split copies of the base as extended surfaces
+#### WR-100. `SmOffsetSurface::SplitAt` gives the halves split copies of the base as extended surfaces
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1682`, `SmOffsetSurface::SplitAt`.
 - **What happens:** With an extended surface, the halves' `m_pExtendedSurface` come from splitting `m_pSurface` again instead of `m_pExtendedSurface`, so the extension is lost.
 - **Trigger:** `SplitAt` on an offset that has stored an extension.
@@ -1769,7 +1879,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Kept.
 
-#### WR-85. `SmOffsetSurface::SwapUV` with an extended surface negates the distance twice
+#### WR-101. `SmOffsetSurface::SwapUV` with an extended surface negates the distance twice
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1767` and `:1772`, `SmOffsetSurface::SwapUV`.
 - **What happens:** Swapping the parameters flips the normal, so the distance is negated; with an extended surface it is negated once for it and once for the base, leaving it unchanged and the offset on the wrong side.
 - **Trigger:** `SwapUV` on an owning offset that has stored an extension.
@@ -1778,7 +1888,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Kept.
 
-#### WR-86. `SmOffsetSurface::STEPInversion` retries on the extended surface with the unwidened tolerance
+#### WR-102. `SmOffsetSurface::STEPInversion` retries on the extended surface with the unwidened tolerance
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1737`, `SmOffsetSurface::STEPInversion`.
 - **What happens:** The base is inverted with the tolerance widened by the offset distance, but the retry on the extended surface uses `dDistanceTolerance`, so a point on the offset over the extension is not found.
 - **Trigger:** `STEPInversion` of a point on the offset over its extended part.
@@ -1975,6 +2085,123 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes, by the C++ build.
 - **Severity:** wrong result (failure on valid input).
 - **Rust port:** not reached yet (`intersect.surface_intersector_p5`).
+
+#### WR-81. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
+- **Location:** `source/SMLib/src/SmPoly.cpp:13195` `SmCPolyFace::RemovePolyFace`.
+- **What happens:** The status of `FindElement` is ignored and the index starts at 0, so a face that is not a member removes member 0. `~SmPolyFace` calls it for any face whose `m_pCPolyFace` still points at the composite, for example after an earlier `RemovePolyFace` of that face.
+- **Trigger:** `RemovePolyFace(f)` twice, or deleting a face after removing it from its composite.
+- **How found:** generated difftest case (`query.poly` mutate ops).
+- **Confirmed:** yes (`query.poly` generated `cpoly_remove` cases agree with the port, which keeps the behaviour).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-82. `SmCPolyFace::AddPolyFace` accepts a composite face, so composite queries recurse without bound
+- **Location:** `source/SMLib/src/SmPoly.cpp` `SmCPolyFace::AddPolyFace`, and the composite overrides of `GetPolyEdges`, `GetNormal`, `CalculateBoundingBox` and `GetOKBackPtrs`.
+- **What happens:** `AddPolyFace` takes any `SmPolyFace`, including another composite or the composite itself, and sets that face's `m_pCPolyFace` (overwriting a composite's own). The composite overrides then call the same virtual on every member, so a composite that contains itself recurses until the stack overflows.
+- **Trigger:** `c->AddPolyFace(c)` followed by `c->GetPolyEdges(...)` (or `GetNormal`, `CalculateBoundingBox`, `GetOKBackPtrs`). Upstream callers only add shell faces (`SmLineSegClass.cpp:1879-1883`).
+- **How found:** review of the `query.poly` port; the Rust mirror overflowed its stack on the same sequence.
+- **Confirmed:** no (by reading; not run against the C++ build).
+- **Severity:** crash (stack overflow) on misuse.
+- **Rust port:** Deviates: `add_cpoly_face` / `cpoly_add_poly_face` return `InvalidInput` for a composite face.
+
+#### WR-83. `SmVertexuse::ComputeUVSector` miscounts opposite orientations (operator precedence)
+- **Location:** `source/SMLib/src/SmVertexuse.cpp:993`-`994`.
+- **What happens:** `lOppositeCount = FU == OPP ? 1 : 0 + LU == OPP ? 1 : 0` parses as `FU == OPP ? 1 : (LU == OPP ? 1 : 0)`, so the count is never 2: a sector whose face use and loop use are both opposite gets the complementary angle (`EndTan` to `BegTan`) instead of `BegTan` to `EndTan`.
+- **Trigger:** an edge vertex use on an opposite face use of an opposite (inner) loop use.
+- **How found:** read during porting.
+- **Confirmed:** no (the path is deferred in the difftest until `topology.face_p2` lands).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::vertexuse::compute_uv_sector`).
+
+#### WR-84. `SmEdgeuse::IsConvexRadialSector` reports a failed binormal evaluation as convex
+- **Location:** `source/SMLib/src/SmEdgeuse.cpp:3592` `SmEdgeuse::IsConvexRadialSector` (the two `SER(EvaluateBinormalStepOff(...))`).
+- **What happens:** `SER` returns the non-zero `SmStatus` from a function returning `SmBoolean`, so a failing step-off evaluation (stepping off the face's UV domain, a degenerate binormal) makes the sector count as convex (`TRUE`), as in WR-52.
+- **Trigger:** A sample whose step-off point leaves the face's UV domain (large edge tolerance with `bOptStepOff`, sliver faces), or an edge use whose binormal cannot be evaluated.
+- **How found:** read during porting (unit `topology.edgeuse_p2`).
+- **Confirmed:** no (the step-off path is deferred on `topology.edgeuse_p3`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (`Ok(true)` on such an error).
+
+#### WR-85. `SmEdgeuse::CheckAndSetUVTrimCurve` deletes the curve it says the caller keeps
+- **Location:** `source/SMLib/src/SmEdgeuse.cpp:4732` `SmEdgeuse::CheckAndSetUVTrimCurve`; contract in `SmEdgeuse.h:160`.
+- **What happens:** The header says a rejected `pUVTrimCurve` stays "managed by caller", but the curve was attached first and the restoring `SetUVTrimCurve(pOldUVTrimCurve, 0.0, TRUE, ...)` deletes it (it is the attached curve), so a caller that deletes it frees it twice. Passing the curve already attached is worse: the first `SetUVTrimCurve` does nothing and the accepted branch then deletes `pOldUVTrimCurve`, the attached curve, leaving a dangling pointer. An `SER` return inside the accepted branch (the precise distance measurement, `CreateUVTrimCurve`) leaks the detached old curve.
+- **Trigger:** Any UV curve that is not good enough; any call with `GetUVTrimCurve()` as the argument.
+- **How found:** read during porting (unit `topology.edgeuse_p2`); the difftest shim relies on the deletion (it never frees the curve it passes).
+- **Confirmed:** no.
+- **Severity:** crash (double free / use after free).
+- **Rust port:** Takes the curve by value: it is attached or dropped; the attached curve cannot be passed.
+
+#### WR-86. `SmFace::GetPointsInFace` samples a rectangular face from `0`, not from its domain
+- **Location:** `source/SMLib/src/SmFace.cpp:21206`-`21230`, `SmFace::GetPointsInFace` (def. `:21167`).
+- **What happens:** On a face with `GetRectangularTrim() == TRUE` the sample points are `(k * dUInc, j * dVInc + dither)` with `dUInc` / `dVInc` fractions of the UV domain's lengths: the domain minimum is never added, so a face whose domain does not start at `(0, 0)` gets points outside it (and the positions and normals of those points). `dUInc` is also divided by `min(2 * count, 30) + 1` before the rectangular branch resets the column count to `min(count, 30)`, so the columns do not span the domain.
+- **Trigger:** `GetPointsInFace(1, ..)` on a rectangularly trimmed face with UV domain `[3, 4] x [-7, -6.5]` returns `uv = (1/3, 0.25)`.
+- **How found:** adversarial / edge-case fixture.
+- **Confirmed:** yes, by the C++ build (fixture `points_dom_offset_1` of `topology.face_p2`).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::face::p2::points_in_face`).
+
+#### WR-87. `sm_CheckSeamCrossing` returns `SM_SUCCESS` as its `SmBoolean`
+- **Location:** `source/SMLib/src/SmFace.cpp:145`, `sm_CheckSeamCrossing` (def. `:132`).
+- **What happens:** For a surface closed in neither direction it returns `SM_SUCCESS` (`1000`), which reads as `TRUE` ("a seam was crossed"), from a function documented to return whether a shift happened.
+- **Trigger:** `bClosedU == bClosedV == FALSE`.
+- **How found:** read during porting.
+- **Confirmed:** yes, by the C++ build (fixture `seam_neither` of `topology.face_p2`). Its only caller (`SmFace::ComputeLoopOrientation`) ignores the return value, so nothing observable depends on it today.
+- **Severity:** wrong result (latent).
+- **Rust port:** Reproduces it (`topology::face::p2::check_seam_crossing` returns `true`).
+
+#### WR-93. `SmLoopuse::IsClosed3d` never reports a loop open
+- **Location:** `SmLoopuse.cpp:873`-`885` (`SmLoopuse::IsClosed3d`; also reached through `SmLoop::IsClosed3d`, `SmLoop.cpp:248`).
+- **What happens:** For a gap over its cross-section tolerance it computes `dOverTol = sXSectTol3d - sqrt(dGap3dSq)`, which is negative there, and keeps it only when `dOverTol > dMaxOverTol` (initially `0.0`). No gap ever qualifies, so `pMaxOverTolEdgeuse` stays `NULL` and the loop is always reported closed, with the largest gap and its tolerance as outputs. `bCheckAllGaps == FALSE` still stops the scan at the first gap over tolerance, so the reported "largest" gap is then only the largest seen so far.
+- **Trigger:** Any edge loop with an end-to-end gap larger than the sum of the two edge uses' tolerances.
+- **How found:** read during porting; the difftest compares it (unit `topology.loopuse`, `closed3d` cases).
+- **Confirmed:** yes: the `closed3d` cases of `fixtures/topology.loopuse/tolerance_limit.json` set every edge tolerance to 0, 1e-15 or -1e-12 so that real end gaps exceed `XSectTol3d`; both sides still report those loops closed (with the largest gap seen, also when `bCheckAllGaps == FALSE` stops early).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
+
+### Healing
+
+#### WR-88. `BuildSampleSet` spaces the `v` samples of non-B-spline surfaces by array index
+- **Location:** `source/SMLib/src/SmGap.cpp:1903`-`1907`, `SmGapFunction::BuildSampleSet`.
+- **What happens:** The interior `v` samples are set to `jj / (m_lSampleCntV - 1)` where `jj` is the array index, which starts at `m_lSampleCntU + 1`, not the `v` sample number. The interior `v` parameters are therefore well outside `[0, 1]` (the sample domain is extrapolated).
+- **Trigger:** a surface gap function over a non-B-spline surface (for example an `SmCurveBoundedSurface`) with `SetSampleCnt(u, v)`, `v > 2`.
+- **How found:** read during porting; compared in fixture `srf_pt_curve_bounded_v_stride` (`fixtures/heal.gap/upstream.json`).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`heal::gap::GapFunction::build_sample_set`).
+
+#### WR-89. `BuildSampleSet` samples B-spline knot spans from the first knot, not the sample interval
+- **Location:** `source/SMLib/src/SmGap.cpp:1845`-`1859` (`u`), `:1867`-`1881` (`v`).
+- **What happens:** After finding the knot indices `lStartIndxU..lEndIndxU` of the sample interval, the span loop walks `sUniqueKnotsU[0..lIvlCntU]` instead of `sUniqueKnotsU[lStartIndxU..lEndIndxU]`, and the normalised values (relative to the whole knot range) are then mapped onto the sample interval with `m_sSampleIvlU.Evaluate`. A sample interval that is not the whole knot range is sampled at the wrong parameters (the loop also overwrites the last end sample set "to avoid numerical tolerances").
+- **Trigger:** `SmCrvSrfGapFunction` (or any gap function from B-spline geometry) over an edge interval smaller than the curve's knot range.
+- **How found:** read during porting; compared in fixture `crv_pt_bspline_sub_interval`.
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it.
+
+#### WR-90. `SmGapArray::Append` does not update the longest-gap index
+- **Location:** `source/SMLib/inc/SmGap.h:882`.
+- **What happens:** `Append` adds the other array's gaps without comparing them with the current longest, so `GetMaxGap` / `GetMaxGapLength` can miss an appended longer gap (an empty array stays without a longest gap).
+- **Trigger:** `a.Add(len 1)`, `b.Add(len 2)`, `a.Append(b)`.
+- **How found:** read during porting; compared in fixture `gap_array_append`.
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`heal::gap::GapArray::append`).
+
+### Numerical integration
+
+#### WR-94. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero
+- **Location:** `SmIntegrator.cpp:108-122`, `SmIntegrator::IntegrateIt`.
+- **What happens:** If `RungeKuttaODEIntegrate` fails, the scalar wrapper sets its
+  result to `0.0` and returns `SM_SUCCESS`. A failed numerical integral is therefore
+  indistinguishable from a valid zero, including for callers computing curve length.
+- **Trigger:** Integrate the constant function `1` over `[0,1]` at accuracy `0`,
+  or an evaluator that returns `SM_ERR` partway through the interval.
+- **How found:** port source review and differential fixtures `zero_accuracy_0`
+  and `evaluator_error_0` in `fixtures/mass.integrator/integrator.json`.
+- **Confirmed:** yes, the actual C++ scalar wrapper reports success with zero;
+  the direct ODE wrapper reports failure for the same zero-accuracy integral.
+- **Severity:** wrong result / hidden numerical failure.
+- **Rust port:** retained for parity; `Unported` still propagates.
 
 ## Docs
 
