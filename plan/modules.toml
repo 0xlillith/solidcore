@@ -2209,10 +2209,10 @@ soft_depends_on = ["curve.crv_on_surf", "curve.curve_p3", "geom.extent2d", "inte
 est_lines = 1928
 layer = 33
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "13 fns; largest: sm_RefineCCIToSurfaces, SmCurveClassification::ReSet, SmCurveClassification::EditIntervalMax, SmCurveClassification::EditIntervalMin; cycle back-edges (call into later units; stub or co-port): topology.edge(3), topology.face_p2(2), topology.brep_p1(1), topology.edgeuse_p1(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "partial (PR #85): difftest 1509 cases (1500 generated + 2 usage + 7 edge), 1300 pass, 0 fail, 209 deferred (topology.face_p2 120, topology.edge 36, topology.vertex 33, topology.brep_p1 20), max_rel_err 0; --perturb 1300/1300 detected; sm_RefineCCIToSurfaces ported up to its first topology call (UNPORTED(topology.edge) SmEdge::GetCurve; the rest of its body is to be ported when that site is wired); wired SmSurface::CurveOnClassify through ReSet (now UNPORTED(intersect.curve_class_p8)); UB-98 InsertAt(0) shift loop; 13 fns; largest: sm_RefineCCIToSurfaces, SmCurveClassification::ReSet, SmCurveClassification::EditIntervalMax, SmCurveClassification::EditIntervalMin; cycle back-edges (call into later units; stub or co-port): topology.edge(3), topology.face_p2(2), topology.brep_p1(1), topology.edgeuse_p1(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "intersect.surface_drop_lib_p3"
@@ -2534,7 +2534,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "60 fns; largest: SmEdge::IsTopological, SmEdge::FindRadialSector, SmEdge::GetBlendEdgeuse, SmEdge::OrientEdgeSequence; cycle back-edges (call into later units; stub or co-port): heal.gap(12), topology.edgeuse_p3(3), query.edge(2), topology.brep_p2(2), blend.fillet_geom_p1(1), topology.brep_p1(1), topology.face_p1(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmEdge members m_pList (edge use list, primary first), m_vInterval, m_sZoneTol3d, m_pCurve -> topology::Edge::{edgeuses, interval, tolerance, curve}; SmEdge::GetPrimaryEdgeuse, IsLamina, GetBrep -> topology::edgeuse::p1::{primary_edgeuse, edge_is_lamina, edge_brep}"
+notes = "wiring UNPORTED(topology.edge) in intersect::curve_class::p2::refine_cci_to_surfaces means porting the remainder of sm_RefineCCIToSurfaces (SmCurveClass.cpp 1690-2940, after pEdge->GetCurve); 60 fns; largest: SmEdge::IsTopological, SmEdge::FindRadialSector, SmEdge::GetBlendEdgeuse, SmEdge::OrientEdgeSequence; cycle back-edges (call into later units; stub or co-port): heal.gap(12), topology.edgeuse_p3(3), query.edge(2), topology.brep_p2(2), blend.fillet_geom_p1(1), topology.brep_p1(1), topology.face_p1(1); unit-SCC #22 (220 units); 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmEdge members m_pList (edge use list, primary first), m_vInterval, m_sZoneTol3d, m_pCurve -> topology::Edge::{edgeuses, interval, tolerance, curve}; SmEdge::GetPrimaryEdgeuse, IsLamina, GetBrep -> topology::edgeuse::p1::{primary_edgeuse, edge_is_lamina, edge_brep}"
 
 [[unit]]
 id = "blend.fillet_custom_solver"
