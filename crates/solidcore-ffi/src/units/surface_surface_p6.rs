@@ -415,7 +415,7 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 curve(&mut rd)?;
             } else if tt == TT_DIR_TO_REFERENCE_CURVE {
                 // AssertValid accepts it, then GetSampleValues dereferences the NULL
-                // m_pTangentReference (plan/upstream-issues.md)
+                // m_pTangentReference (plan/upstream-issues.md UB-100)
                 return Err(bad("SM_TT_DIR_TO_REFERENCE_CURVE needs a reference curve"));
             }
             curve_and_interval(&mut rd)?;

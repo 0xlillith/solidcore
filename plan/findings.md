@@ -3203,7 +3203,7 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   `CalculateContinuities` keeps the knots of a replaced degenerate iso curve;
   `GetSampleValues`' degenerate-tangent test scales `SM_EFF_ZERO` by `1.0 *` (not `1.0 +`)
   the position's largest coordinate.
-- **Upstream crash.** UB-99: `GetSampleValues` with `SM_TT_DIR_TO_REFERENCE_CURVE` and no
+- **Upstream crash.** UB-100: `GetSampleValues` with `SM_TT_DIR_TO_REFERENCE_CURVE` and no
   reference curve dereferences `NULL` (found by a generated case); the shim refuses it.
 - **Wiring.** Surface caches now build (their tree needs `CalculateContinuities`), so
   `intersect.surface_tracer`'s runner runs `DoTrace` on the cache instead of a placeholder
