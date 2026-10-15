@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**146 / 261 units ported** (89 green, 57 partial), **193,960 / 387,903 upstream lines (50.0%)**. 16 claimed, 0 blocked, 99 todo.
+**146 / 261 units ported** (89 green, 57 partial), **193,960 / 387,903 upstream lines (50.0%)**. 17 claimed, 0 blocked, 98 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -51,7 +51,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `topology.face_p1` (2171 lines) — missing: `topology.face_p2`, `topology.face_p3`, `topology.face_p4`, `topology.loopuse` +1 more
 - [ ] `query.face_p1` (465 lines) — missing: `query.face_p2`, `query.face_p3`, `topology.edge`, `topology.face_p2` +2 more
 - [ ] `query.face_p4` (1432 lines) — missing: `query.face_p3`, `topology.face_p2`, `topology.loopuse`
-- [ ] `query.tess` (838 lines) — missing: `query.poly`
 - [ ] `topology.brep_p1` (2454 lines) — missing: `topology.edge`, `topology.edgeuse_p3`, `topology.face_p2`, `topology.loopuse` +4 more
 - [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edge`, `topology.edgeuse_p2`, `topology.edgeuse_p3`, `topology.face_p3` +5 more
 - [ ] `heal.face_props` (1410 lines) — missing: `topology.face_p2`, `topology.loopuse`
@@ -130,6 +129,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_custom_solver` (1236 lines) — in progress: #78 @bherbruck (ready for review)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
+- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (draft)
 - [ ] 🔨 `boolean.api_brep` (410 lines) — in progress: #81 @bherbruck (ready for review)
 
 ## By module
@@ -367,7 +367,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
 - [ ] ⏳ `query.face_p1` (465 lines) — waiting
 - [ ] ⏳ `query.face_p4` (1432 lines) — waiting
-- [ ] ⏳ `query.tess` (838 lines) — waiting
+- [ ] 🔨 `query.tess` (838 lines) — in progress: #83 @bherbruck (draft)
 - [ ] ⏳ `query.brep` (517 lines) — waiting
 - [ ] ⏳ `query.api_queries` (809 lines) — waiting
 
