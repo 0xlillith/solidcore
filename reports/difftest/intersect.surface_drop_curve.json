@@ -118,6 +118,325 @@
       "values_compared": 124
     },
     {
+      "max_rel_err": 0.0,
+      "name": "adv_cpv_vertical_tangent",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#0",
+      "values_compared": 24
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpv_nearly_vertical",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#1",
+      "values_compared": 111
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpv_zero_tangent_start",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#2",
+      "values_compared": 111
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cpv_zero_tangent_end_right",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#3",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#4",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#5",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#6",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#7",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#8",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#9",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#10",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#11",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_step_8",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#12",
+      "values_compared": 29
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#13",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#14",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#15",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_graze_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#16",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_testpoint_pole_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#17",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_testpoint_pole_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#18",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_testpoint_pole_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#19",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_testpoint_pole_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#20",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_testpoint_pole_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#21",
+      "values_compared": 25
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalPointSolve",
+        "unit": "surface.surface_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_boundary_c0_surface_True",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#22",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_boundary_c0_surface_False",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#23",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_next_boundary_out",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#24",
+      "values_compared": 114
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_next_singular_nonfirst",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#25",
+      "values_compared": 108
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trace2_breaks_below",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#26",
+      "values_compared": 58
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalPointSolve",
+        "unit": "surface.surface_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_trace2_start_outside",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#27",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trace2_crossing",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#28",
+      "values_compared": 63
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_interior_crossing",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#29",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_interior_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#30",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_interior_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#31",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_interior_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/review_adversarial.json#32",
+      "values_compared": 28
+    },
+    {
+      "harness_error": "cpp: C++: invalid argument: trace without a knot vector",
+      "inputs": {
+        "breaks": [0, 1],
+        "curve": {
+          "a": [-5, -5, 0],
+          "b": [-1, -1, 0],
+          "kind": "segment"
+        },
+        "domain": [0, 0, 10, 10],
+        "interval": [0, 1],
+        "knots": [],
+        "on_surface": true,
+        "ops": [
+          {
+            "op": "cpv",
+            "param": 0.0,
+            "uv": [-5, -5]
+          },
+          {
+            "op": "trace2"
+          }
+        ],
+        "surface": {
+          "domain": [0, 0, 10, 10],
+          "kind": "plane",
+          "o": [0, 0, 0],
+          "scale": [1, 1],
+          "x": [1, 0, 0],
+          "y": [0, 1, 0]
+        },
+        "working_domain": [0, 0, 10, 10],
+        "working_interval": [0, 1]
+      },
+      "max_rel_err": 0.0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "name": "trace2_no_knots_rejected",
+      "outcome": "fail",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_drop_curve/zz_tmp.json#0",
+      "values_compared": 0
+    },
+    {
       "deferred": {
         "symbol": "SmSurface::LocalPointSolve",
         "unit": "surface.surface_p5"
@@ -4927,19 +5246,20 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 203,
-  "cases_failed": 0,
-  "cases_passed": 311,
-  "cases_total": 514,
+  "cases_deferred": 206,
+  "cases_failed": 1,
+  "cases_passed": 341,
+  "cases_total": 548,
   "deferred_by_unit": {
-    "intersect.curve_class_p4": 3,
+    "intersect.curve_class_p4": 4,
     "surface.surface_cache_p1": 11,
-    "surface.surface_p5": 189
+    "surface.surface_p4": 1,
+    "surface.surface_p5": 190
   },
   "max_rel_err": 0.0,
-  "pass": true,
+  "pass": false,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "fail",
   "unit": "intersect.surface_drop_curve"
 }

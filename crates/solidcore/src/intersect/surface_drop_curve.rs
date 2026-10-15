@@ -70,10 +70,12 @@
 //!   from a UV point to the x and y of the last 3D sample point when picking the
 //!   seam-side solution, as upstream does.
 //! - **Unported callees** return [`SolidError::Unported`] (see the `UNPORTED`
-//!   markers): `SmSurface::IsSingularity`, `SmSurface::LocalPointSolve` and
-//!   `SmSurface::CreateIsoParametricCurve` (`surface.surface_p5`) except the plane
-//!   overrides, `SmSurface::GlobalPointSolve` and `SmSurface::IsOnSeam`
-//!   (`surface.surface_p4`) except the plane's `IsOnSeam`, `SmSurface::DropIsoCurve`
+//!   markers): `SmSurface::IsSingularity` (`surface.surface_p5`) except the plane
+//!   override, `SmSurface::LocalPointSolve` (`surface.surface_p5`),
+//!   `SmSurface::CreateIsoParametricCurve` (`surface.surface_p5`) except the B-spline,
+//!   plane and surface of revolution overrides, `SmSurface::GlobalPointSolve` and
+//!   `SmSurface::IsOnSeam` (`surface.surface_p4`) except the plane's `IsOnSeam`,
+//!   `SmSurface::DropIsoCurve`
 //!   (`intersect.surface_drop_lib_p1`), and `SmSurface::DropCurve`
 //!   (`intersect.surface_drop_lib_p3`) except the plane override. An
 //!   `SmCrvOnSurf` over a surface that is not a B-spline surface is a dispatch gap
@@ -104,7 +106,7 @@ use crate::intersect::surface_tracer::{
 };
 use crate::kernel::Kernel;
 use crate::math::{EFF_ZERO, EFF_ZERO_DEG, EFF_ZERO_SQ, EFF_ZERO_SQRT};
-use crate::nurbs::b_spline_surface::SurfParamType;
+use crate::nurbs::b_spline_surface::{IsoCurveOptions, SurfParamType};
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::drop_vectors;
@@ -254,24 +256,29 @@ fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<Option<Vec<Point2>>> {
     }
 }
 
-/// `CreateIsoParametricCurve(ctx, param, value, tol, curve)` (virtual): the plane
-/// override's iso line; other kinds run `SmSurface::CreateIsoParametricCurve`.
+/// `CreateIsoParametricCurve(ctx, param, value, tol, curve)` (virtual, no domain):
+/// the B-spline, plane and surface of revolution overrides (none uses the tolerance);
+/// other kinds run `SmSurface::CreateIsoParametricCurve`.
 fn create_iso_parametric_curve(
+    k: &Kernel,
     surface: &Surface,
     param: SurfParamType,
     value: f64,
     _approx_tol: f64,
 ) -> Result<Curve> {
     match surface.kind() {
+        SurfaceKind::BSpline(b) => Ok(Curve::from(
+            b.create_iso_parametric_curve(k, param, value, IsoCurveOptions::default())?
+                .curve,
+        )),
         SurfaceKind::Plane(p) => Ok(Curve::from(
             p.create_iso_parametric_curve(param, value, None, false)?
                 .curve,
         )),
-        SurfaceKind::BSpline(_)
-        | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_)
-        | SurfaceKind::SrfInVolume(_) => {
+        SurfaceKind::SurfOfRevolution(s) => {
+            Ok(s.create_iso_parametric_curve(k, param, value, None)?.curve)
+        }
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -967,6 +974,7 @@ impl<'s> SurfaceDropCurve<'s> {
             if is_c0(&u_conts, ii)? {
                 let value = index(&u_knots, ii)?;
                 iso_curves.push(create_iso_parametric_curve(
+                    k,
                     surface,
                     SurfParamType::U,
                     value,
@@ -982,6 +990,7 @@ impl<'s> SurfaceDropCurve<'s> {
             if is_c0(&v_conts, ii)? {
                 let value = index(&v_knots, ii)?;
                 iso_curves.push(create_iso_parametric_curve(
+                    k,
                     surface,
                     SurfParamType::V,
                     value,
@@ -1999,7 +2008,9 @@ impl<'s> SurfaceTrace<'s> for SurfaceDropCurve<'s> {
         prev: Option<&TracePoint>,
         _step_size: Option<f64>,
     ) -> Result<()> {
-        // (the snap written into pPrevPnt goes to a copy: no base caller passes one)
+        // (the snap written into pPrevPnt goes to a copy: the only caller passing one
+        // is the base SmSurfaceTracer::ComputeNextPoint (&rCurrPnt), which
+        // SmSurfaceDropCurve overrides, so that path is unreachable for a drop curve)
         let mut prev_copy = prev.copied();
         self.compute_point_values_with_prev(uv, pnt, prev_copy.as_mut())
     }

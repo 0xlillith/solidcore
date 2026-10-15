@@ -2100,7 +2100,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "17 fns; largest: SmSurfaceDropCurve::FindBoundaryStartPoints, SmSurfaceDropCurve::ComputeNextPoint, SmSurfaceDropCurve::ComputePointValues, SmSurfaceDropCurve::DoTrace; cycle back-edges (call into later units; stub or co-port): intersect.surface_drop_lib_p3(2); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PORTED (PR #107): partial, difftest 514 cases, 311 passed, 0 failed, 203 deferred (surface.surface_p5 189: SmSurface::IsSingularity/LocalPointSolve; surface.surface_cache_p1 11; intersect.curve_class_p4 3); also stubbed: SmSurface::GlobalPointSolve/IsOnSeam (surface.surface_p4), DropIsoCurve (intersect.surface_drop_lib_p1), non-plane DropCurve (intersect.surface_drop_lib_p3)"
+notes = "17 fns; largest: SmSurfaceDropCurve::FindBoundaryStartPoints, SmSurfaceDropCurve::ComputeNextPoint, SmSurfaceDropCurve::ComputePointValues, SmSurfaceDropCurve::DoTrace; cycle back-edges (call into later units; stub or co-port): intersect.surface_drop_lib_p3(2); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PORTED (PR #107): partial, difftest 547 cases, 341 passed, 0 failed, 206 deferred (surface.surface_p5 190: SmSurface::IsSingularity/LocalPointSolve; surface.surface_cache_p1 11; intersect.curve_class_p4 4; surface.surface_p4 1); also stubbed: SmSurface::GlobalPointSolve/IsOnSeam (surface.surface_p4), DropIsoCurve (intersect.surface_drop_lib_p1), non-plane DropCurve (intersect.surface_drop_lib_p3)"
 
 [[unit]]
 id = "intersect.surface_drop_lib_p2"

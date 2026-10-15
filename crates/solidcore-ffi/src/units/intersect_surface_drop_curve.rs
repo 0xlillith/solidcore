@@ -53,7 +53,8 @@
 //! most [`MAX_OPS`] ops. `Step` needs a non-empty knot vector (given, or made by an earlier
 //! `Boundary`/`DoTrace`) unless the parameter is within `1e-6` of the given working interval's
 //! maximum before any op changed it (upstream reads the knot vector otherwise: a null or empty
-//! one crashes); `Trace2` needs breaks (given, or made by an earlier `Boundary`/`DoTrace`).
+//! one crashes); `Trace2` needs breaks and a non-empty knot vector (given, or made by an
+//! earlier `Boundary`/`DoTrace`; its tracer fallback reaches `ComputeStepSize`).
 
 use core::cmp::Ordering;
 
@@ -641,6 +642,11 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
             Op::Trace2 => {
                 if !state.breaks {
                     return Err(bad("trace without breaks"));
+                }
+                // the tracer fallback (SmSurfaceTracer::TraceCurve) reads the knot vector
+                // in ComputeStepSize: a null or empty one crashes
+                if !state.knots {
+                    return Err(bad("trace without a knot vector"));
                 }
                 e.int(9);
                 state.wi_max = None;
