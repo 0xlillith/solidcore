@@ -11,11 +11,13 @@
 //! |------|----------|
 //! | [`ShellType`], [`ShellMembers`] | `m_tShellType`, typed `m_pList` contents |
 //! | [`Shell::new`], [`Region::new`], implicit `Drop` | constructors, destructors |
+//! | [`Shell::type_string`], [`Shell::class_string`], [`Shell::is_kind_of`], [`Region::type_string`], [`Region::class_string`], [`Region::is_kind_of`] | `SM_COMMON` names and full base-class chain |
 //! | [`Shell::get_faceuses`], [`Shell::first_faceuse`] | `GetFaceuses`, `GetFirstFaceuse` |
 //! | [`Shell::wire_edge`], [`Shell::vertex`] | `GetWireEdge`, `GetVertex` |
 //! | [`Shell::is_closed`], [`Shell::mated_shells`] | `IsClosed`, `GetMatedShells` |
 //! | [`shell_region`], [`shell_brep`] | `GetRegion`, `GetBrep` |
 //! | [`wire_edges`] | `SmShell::GetWireEdges` |
+//! | [`ray_fire`] | `SmShell::RayFire` (partial output state retained) |
 //! | [`transfer_children`] | `SmShell::TransferChildrenTo` |
 //! | [`shell_is_degenerate`], [`region_is_degenerate`] | `IsDegenerate` (native default tolerance) |
 //! | `shell_bounds_for_degeneracy`, `region_bounds_for_degeneracy` | minimum default-tight `CalculateBoundingBox` branches (`query.face_p1`) |
@@ -28,7 +30,8 @@
 //!
 //! Deviations: circular lists are typed vectors in head-first order, as in the
 //! shared Brep arena model. Temporary marks use a local set without changing
-//! first-seen order. Invalid native pointer casts return `InvalidInput`. Native
+//! first-seen order. Incompatible array reinterpret casts return `InvalidInput`;
+//! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
 //! There is no recursion. This is WIP; remaining operations and native gates are pending.
@@ -823,6 +826,224 @@ fn face_bounds_for_shell(
         "SmFace::CalculateBoundingBox",
         "query.face_p1",
     ))
+}
+
+/// Outputs of a shell ray query, including writes made before an error.
+#[derive(Debug, Clone)]
+pub struct ShellRayState<O> {
+    /// Region containing the ray start, or no region after a missed shell.
+    pub region: Option<RegionId>,
+    /// Classification of the selected intersection.
+    pub classification: crate::intersect::point_class::PointClassification<O>,
+}
+
+/// Caller parameters and initial output values for `SmShell::RayFire`.
+pub struct ShellRayInput<O> {
+    /// Ray start.
+    pub start: crate::math::Point3,
+    /// Caller direction, before native sizing and normalization.
+    pub direction: crate::math::Vec3,
+    /// Intersection search tolerance.
+    pub zone_tolerance: f64,
+    /// Optional radius, bypassing B-rep bounding-box construction.
+    pub sphere_bound: Option<f64>,
+    /// Initial output values, retained on paths that do not write them.
+    pub state: ShellRayState<O>,
+}
+
+/// Status and observable output state of a ray query.
+pub struct ShellRayAttempt<O> {
+    /// Native operation status or an explicit missing dependency.
+    pub status: Result<()>,
+    /// Outputs after all writes preceding that status.
+    pub state: ShellRayState<O>,
+}
+
+/// Borrowed inputs for the B-rep's local sector classification.
+pub struct ShellRaySector<'a, O> {
+    /// Actual owner arena key.
+    pub brep: crate::topology::BrepId,
+    /// Actual line segment from ray start to intersection.
+    pub curve: &'a crate::nurbs::b_spline_curve::BSplineCurve,
+    /// Natural interval of that curve.
+    pub interval: crate::geom::extent1d::Extent1d,
+    /// Native opposite orientation for the incoming segment.
+    pub orientation: crate::nurbs::b_spline_surface_n_lib::p2::OrientType,
+    /// Classification produced by the selected intersection.
+    pub classification: &'a crate::intersect::point_class::PointClassification<O>,
+}
+
+/// Sector result retaining a possible region write even on error.
+pub struct ShellRaySectorAttempt {
+    /// Native sector status.
+    pub status: Result<()>,
+    /// `None` leaves the region unchanged; `Some(None)` writes NULL.
+    pub region_update: Option<Option<RegionId>>,
+}
+
+/// Actual geometry and owner context needed by shell ray queries.
+/// No global owner registry or duplicate geometry metadata is introduced.
+pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjects<O> {
+    /// Default B-rep bounding box when no radius was supplied.
+    fn shell_ray_bounds(
+        &self,
+        _kernel: &crate::kernel::Kernel,
+        _brep: crate::topology::BrepId,
+    ) -> Result<crate::geom::extent3d::Extent3d> {
+        // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
+        Err(SolidError::unported(
+            "SmBrep::CalculateBoundingBox",
+            "query.brep",
+        ))
+    }
+
+    /// Classify the incoming line segment at its known intersection.
+    fn shell_ray_sector(&self, _request: ShellRaySector<'_, O>) -> ShellRaySectorAttempt {
+        // UNPORTED(topology.brep_p2): SmBrep::LocalCurveSector
+        ShellRaySectorAttempt {
+            status: Err(SolidError::unported(
+                "SmBrep::LocalCurveSector",
+                "topology.brep_p2",
+            )),
+            region_update: None,
+        }
+    }
+}
+
+/// Fire a sized ray at this shell's distinct boundary faces (`SmShell::RayFire`).
+/// Native partial output writes survive an error in the returned attempt.
+/// Missing geometry queries are explicit dependency errors.
+pub fn ray_fire<O, W>(
+    kernel: &crate::kernel::Kernel,
+    brep: &Brep,
+    brep_id: crate::topology::BrepId,
+    shell_id: ShellId,
+    world: &W,
+    input: ShellRayInput<O>,
+) -> ShellRayAttempt<O>
+where
+    O: crate::geom::solution_array::SolutionObject + crate::intersect::point_class::ClassObject,
+    W: ShellRayWorld<O>,
+{
+    use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+    use crate::geom::object::Shape;
+    use crate::intersect::point_class::PointClassType;
+    use crate::intersect::topology_solver::{p1::TopologySolver, p2::TopologySolveOptions};
+    use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
+    use crate::nurbs::b_spline_curve::BSplineCurve;
+    use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+    const OP: &str = "topology::shell::ray_fire";
+    let mut state = input.state;
+    let status = (|| {
+        let radius = if let Some(radius) = input.sphere_bound {
+            radius
+        } else {
+            shell_brep(brep, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
+            world
+                .shell_ray_bounds(kernel, brep_id)?
+                .sphere_bound()
+                .radius
+        };
+        let end = input.start + input.direction * (3.01 * radius);
+        let direction = (end - input.start)
+            .unitize()
+            .map_err(|_| SolidError::Upstream {
+                operation: OP,
+                code: 1007, // SmVector3d::Unitize returns SM_ERR_INVALID_INPUT.
+                entity: None,
+            })?;
+        let mut seen = BTreeSet::new();
+        let mut faces = Vec::new();
+        for id in brep.shell(shell_id)?.get_faceuses()? {
+            let faceuse = brep.faceuse(id)?;
+            let face = faceuse.face.ok_or(SolidError::null_pointer(OP))?;
+            if !seen.insert(face) {
+                continue;
+            }
+            let mate = brep.faceuse(faceuse.mate.ok_or(SolidError::null_pointer(OP))?)?;
+            if mate.shell != Some(shell_id) {
+                faces.push((brep_id, face));
+            }
+        }
+        let shape = Shape::new(&[], &faces, &[], &[])?;
+        let vectors = [direction];
+        let solutions = TopologySolver::shape_point_solve(
+            kernel,
+            world,
+            &shape,
+            input.start,
+            TopologySolveOptions {
+                operation: SolverOperation::Rayfire,
+                requested: SolutionRequested::All,
+                tolerance_3d: input.zone_tolerance,
+                best_answer_so_far_sq: BIG_DOUBLE,
+                opt_vectors: &vectors,
+            },
+        )?;
+        let mut iter = solutions.as_slice().iter();
+        let Some(mut chosen) = iter.next() else {
+            state.region = None;
+            state
+                .classification
+                .set_class_object(PointClassType::Unknown, None);
+            return Ok(());
+        };
+        // Upstream compares every candidate against the INITIAL ray parameter,
+        // even after selecting a different solution.
+        let initial_parameter = chosen.start.solution_value;
+        for candidate in iter {
+            if candidate.start.solution_value - initial_parameter < EFF_ZERO_SQRT {
+                if candidate.num_variables < chosen.num_variables {
+                    chosen = candidate;
+                    continue;
+                }
+                if candidate.num_variables > chosen.num_variables {
+                    continue;
+                }
+            }
+            if candidate.start.param(0)? < chosen.start.param(0)? {
+                chosen = candidate;
+            }
+        }
+        let parameter = chosen.start.solution_value;
+        if parameter < -EFF_ZERO {
+            state.region = None;
+            state
+                .classification
+                .set_class_object(PointClassType::Unknown, None);
+        }
+        if parameter < EFF_ZERO * (1.0 + input.start.max_dimension()) {
+            return Err(SolidError::sm_err(OP));
+        }
+        let object = chosen
+            .objects
+            .first()
+            .copied()
+            .flatten()
+            .ok_or(SolidError::null_pointer(OP))?;
+        state.classification.load_from_intersection(
+            input.zone_tolerance,
+            object,
+            &chosen.start,
+            0,
+            parameter,
+        )?;
+        let endpoint = input.start + direction * parameter;
+        shell_brep(brep, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
+        let curve = BSplineCurve::create_line_segment(3, input.start, endpoint)?;
+        let sector = world.shell_ray_sector(ShellRaySector {
+            brep: brep_id,
+            curve: &curve,
+            interval: curve.natural_interval(),
+            orientation: OrientType::Opposite,
+            classification: &state.classification,
+        });
+        if let Some(region) = sector.region_update {
+            state.region = region;
+        }
+        sector.status
+    })();
+    ShellRayAttempt { status, state }
 }
 
 #[cfg(test)]

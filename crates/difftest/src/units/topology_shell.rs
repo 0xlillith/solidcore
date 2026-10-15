@@ -27,6 +27,178 @@ struct Inputs {
     type_probe: Option<TypeProbe>,
     #[serde(default)]
     degenerate: Option<DegenerateInput>,
+    #[serde(default)]
+    ray: Option<RayInput>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RayInput {
+    start: [f64; 3],
+    direction: [f64; 3],
+    tolerance: f64,
+    radius: Option<f64>,
+}
+
+// This adapter supports exactly empty shape trees. There are no geometry
+// handles to invent: every object-dependent accessor has an uninhabited input.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum NoRayObject {}
+struct EmptyRayWorld;
+impl solidcore::geom::solution_array::SolutionObject for NoRayObject {
+    fn kind(&self) -> solidcore::geom::solution_array::ObjectKind {
+        match *self {}
+    }
+}
+impl solidcore::intersect::point_class::ClassObject for NoRayObject {
+    fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
+        match *self {}
+    }
+}
+impl solidcore::topology::shell::ShellRayWorld<NoRayObject> for EmptyRayWorld {}
+impl solidcore::intersect::topology_solver::p1::TopologyObjects<NoRayObject> for EmptyRayWorld {
+    fn curve(&self, object: NoRayObject) -> solidcore::Result<&solidcore::curve::curve::Curve> {
+        match object {}
+    }
+    fn analytic_curve_handle(&self, object: NoRayObject) -> Option<NoRayObject> {
+        match object {}
+    }
+    fn vertex_point(&self, object: NoRayObject) -> solidcore::Result<solidcore::math::Point3> {
+        match object {}
+    }
+    fn vertex_tolerance(&self, object: NoRayObject) -> solidcore::Result<f64> {
+        match object {}
+    }
+    fn curve_edge(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
+        match object {}
+    }
+    fn edge_curve(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
+        match object {}
+    }
+    fn edge_interval(
+        &self,
+        object: NoRayObject,
+    ) -> solidcore::Result<solidcore::geom::extent1d::Extent1d> {
+        match object {}
+    }
+    fn surface_face(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
+        match object {}
+    }
+    fn face_surface(&self, object: NoRayObject) -> solidcore::Result<NoRayObject> {
+        match object {}
+    }
+    fn surface(
+        &self,
+        object: NoRayObject,
+    ) -> solidcore::Result<&solidcore::surface::surface::Surface> {
+        match object {}
+    }
+    fn face_uv_domain(
+        &self,
+        object: NoRayObject,
+    ) -> solidcore::Result<solidcore::geom::extent2d::Extent2d> {
+        match object {}
+    }
+    fn face_tolerance(&self, object: NoRayObject) -> solidcore::Result<f64> {
+        match object {}
+    }
+    fn surface_owner(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
+        match object {}
+    }
+    fn shape_member(&self, object: NoRayObject) -> solidcore::geom::object::ShapeMember {
+        match object {}
+    }
+}
+impl solidcore::intersect::point_class::ClassGeometry<NoRayObject> for EmptyRayWorld {
+    fn curve(&self, object: NoRayObject) -> Option<&solidcore::curve::curve::Curve> {
+        match object {}
+    }
+    fn surface(&self, object: NoRayObject) -> Option<&solidcore::surface::surface::Surface> {
+        match object {}
+    }
+    fn volume(&self, object: NoRayObject) -> Option<&solidcore::surface::volume::Volume> {
+        match object {}
+    }
+    fn point(&self, object: NoRayObject) -> Option<solidcore::math::Point3> {
+        match object {}
+    }
+}
+
+fn ray_output(values: &[f64]) -> Result<Output, HarnessError> {
+    if !values.len().is_multiple_of(7) {
+        return Err(failure("invalid ray output length"));
+    }
+    let mut ints = Vec::new();
+    let mut floats = Vec::new();
+    for record in values.as_chunks::<7>().0 {
+        for value in record.iter().take(4) {
+            if !value.is_finite() || value.fract() != 0.0 || value.abs() > (1_u64 << 53) as f64 {
+                return Err(failure("invalid ray integer output"));
+            }
+            ints.push(*value as i64);
+        }
+        floats.extend(record.iter().skip(4).copied());
+    }
+    Ok(Output::new()
+        .ints("records", ints)
+        .values("classification", floats))
+}
+
+fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output, HarnessError> {
+    use solidcore::intersect::point_class::{PointClassType, PointClassification};
+    use solidcore::topology::shell::{ray_fire, ShellRayInput, ShellRayState};
+    let kernel = solidcore::kernel::Kernel::default();
+    let mut out = Vec::new();
+    for id in brep.shells().ids() {
+        let mut classification = PointClassification::<NoRayObject>::new(0.125);
+        classification.set_class_object(PointClassType::Point, None);
+        classification.set_gap_3d(123.0);
+        classification.set_pre_snap_param(456.0);
+        let attempt = ray_fire(
+            &kernel,
+            brep,
+            solidcore::topology::BrepId::from_index(0),
+            id,
+            &EmptyRayWorld,
+            ShellRayInput {
+                start: solidcore::math::Point3::new(input.start[0], input.start[1], input.start[2]),
+                direction: solidcore::math::Vec3::new(
+                    input.direction[0],
+                    input.direction[1],
+                    input.direction[2],
+                ),
+                zone_tolerance: input.tolerance,
+                sphere_bound: input.radius,
+                state: ShellRayState {
+                    region: brep.regions().ids().next(),
+                    classification,
+                },
+            },
+        );
+        let status = match attempt.status {
+            Ok(()) => 0,
+            Err(error) => {
+                if let Some(deferred) = Output::unported(&error) {
+                    return Ok(deferred);
+                }
+                match error {
+                    solidcore::error::SolidError::Upstream { code, .. } => code,
+                    error => return Err(failure(error)),
+                }
+            }
+        };
+        let pc = attempt.state.classification;
+        out.extend([
+            f64::from(status),
+            attempt.state.region.map_or(-1.0, |r| f64::from(r.index())),
+            f64::from(pc.point_class().code()),
+            f64::from(pc.object().is_none()),
+            pc.src_zone_tol_3d(),
+            pc.gap_3d(&kernel, &EmptyRayWorld, None).map_err(failure)?,
+            pc.pre_snap_param(),
+        ]);
+    }
+    ray_output(&out)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -145,7 +317,7 @@ fn rust_type_members(
     ))
 }
 
-const TYPES: [i64; 5] = [16013, 16012, 16000, 16999, -1];
+const TYPES: [i64; 9] = [16013, 16012, 16000, 16999, -1, 16010, 16001, 12060, 11001];
 
 fn failure(e: impl std::fmt::Display) -> HarnessError {
     HarnessError::new(e.to_string())
@@ -401,6 +573,26 @@ impl UnitDiff for Runner {
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
         }
+        if let Some(ray) = inputs.ray {
+            if inputs.degenerate.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.transfer.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("ray cannot be combined with another operation"));
+            }
+            let values = ffi::ray_fire(
+                &path,
+                &block,
+                ray.start,
+                ray.direction,
+                ray.tolerance,
+                ray.radius,
+            )
+            .map_err(failure)?;
+            return ray_output(&values);
+        }
         if let Some(degenerate) = inputs.degenerate {
             if inputs.type_probe.is_some()
                 || inputs.transfer.is_some()
@@ -474,6 +666,17 @@ impl UnitDiff for Runner {
         let mut brep = import(&export)?;
         if inputs.transfer.is_some() && (inputs.wires || inputs.void_state.is_some()) {
             return Err(failure("transfer cannot be combined with query mutations"));
+        }
+        if let Some(ray) = inputs.ray {
+            if inputs.degenerate.is_some()
+                || inputs.type_probe.is_some()
+                || inputs.transfer.is_some()
+                || inputs.wires
+                || inputs.void_state.is_some()
+            {
+                return Err(failure("ray cannot be combined with another operation"));
+            }
+            return rust_ray(&brep, &ray);
         }
         if let Some(degenerate) = inputs.degenerate {
             if inputs.type_probe.is_some()
@@ -563,6 +766,8 @@ impl UnitDiff for Runner {
                     .map_or(-1, |v| i64::from(v.index())),
             ]);
             out.extend(TYPES.into_iter().map(|ty| flag(Shell::is_kind_of(ty))));
+            text(&mut out, Shell::type_string());
+            text(&mut out, Shell::class_string());
             list(
                 &mut out,
                 shell
@@ -593,6 +798,8 @@ impl UnitDiff for Runner {
                 flag(region.get_brep(&brep).is_some()),
             ]);
             out.extend(TYPES.into_iter().map(|ty| flag(Region::is_kind_of(ty))));
+            text(&mut out, Region::type_string());
+            text(&mut out, Region::class_string());
             list(
                 &mut out,
                 region
@@ -620,4 +827,9 @@ impl UnitDiff for Runner {
             "dom":[-scale,-scale,scale,scale]}, "void_state":void_state, "wires":wires}),
         )
     }
+}
+
+fn text(output: &mut Vec<i64>, value: &str) {
+    output.push(value.len() as i64);
+    output.extend(value.bytes().map(i64::from));
 }

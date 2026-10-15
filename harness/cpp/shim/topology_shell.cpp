@@ -8,6 +8,8 @@
 #include <SmRegion.h>
 #include <SmShell.h>
 #include <SmFaceuse.h>
+#include <SmPointClass.h>
+#include <cmath>
 #include <SmTArray.h>
 #include <algorithm>
 
@@ -17,6 +19,12 @@ template<class T> double identity(const std::vector<T*>& values, T* p) {
     auto found = std::find(values.begin(), values.end(), p);
     if (found == values.end()) throw 1;
     return (double)(found - values.begin());
+}
+void text(std::vector<double>& out,const TCHAR* value) {
+    std::vector<double> chars;
+    for (const TCHAR* c=value;c && *c;++c) chars.push_back((double)*c);
+    out.push_back((double)chars.size());
+    out.insert(out.end(),chars.begin(),chars.end());
 }
 template<class T> void list(std::vector<double>& out, const SmTArray<T*>& values,
                             const std::vector<T*>& identities) {
@@ -57,8 +65,10 @@ SC_EXPORT int32_t sc_topology_shell_query(const char* path, const double* input,
                 out.push_back(identity(fixture.faceuses, shell->GetFirstFaceuse()));
                 out.push_back(identity(fixture.edges, shell->GetWireEdge()));
                 out.push_back(identity(fixture.vertices, shell->GetVertex()));
-                for (SM_TYPE type : {16013L, 16012L, 16000L, 16999L, -1L})
+                for (SM_TYPE type : {16013L, 16012L, 16000L, 16999L, -1L, 16010L, 16001L, 12060L, 11001L})
                     out.push_back((double)shell->IsKindOf(type));
+                text(out,shell->GetTypeString());
+                text(out,shell->GetClassString());
                 list(out, faceuses, fixture.faceuses);
                 list(out, mates, fixture.shells);
             }
@@ -68,8 +78,10 @@ SC_EXPORT int32_t sc_topology_shell_query(const char* path, const double* input,
                 out.push_back((double)region->IsVoid());
                 out.push_back((double)region->IsInfiniteRegion());
                 out.push_back(region->GetBrep() == &fixture.brep ? 1.0 : 0.0);
-                for (SM_TYPE type : {16013L, 16012L, 16000L, 16999L, -1L})
+                for (SM_TYPE type : {16013L, 16012L, 16000L, 16999L, -1L, 16010L, 16001L, 12060L, 11001L})
                     out.push_back((double)region->IsKindOf(type));
+                text(out,region->GetTypeString());
+                text(out,region->GetClassString());
                 SmTArray<SmShell*> shells;
                 region->GetShells(shells);
                 list(out, shells, fixture.shells);
@@ -342,6 +354,42 @@ SC_EXPORT int32_t sc_topology_shell_degeneracy(const char* path,const double* in
             out.push_back((double)(has_tolerance ? shell->IsDegenerate(tolerance) : shell->IsDegenerate()));
         for (SmRegion* region:view.regions)
             out.push_back((double)(has_tolerance ? region->IsDegenerate(tolerance) : region->IsDegenerate()));
+        return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
+    });
+    SC_CATCH
+}
+
+SC_EXPORT int32_t sc_topology_shell_ray(const char* path,const double* input,int64_t count,
+    const double* start,const double* direction,double tolerance,int32_t has_radius,double radius,
+    double* output,int64_t cap,int64_t* output_len) {
+    if (!start || !direction || !output_len || cap<0 || (cap && !output) ||
+        (has_radius!=0 && has_radius!=1) || !std::isfinite(tolerance) ||
+        (has_radius && !std::isfinite(radius))) return SC_ERR_ARG;
+    for (int i=0;i<3;++i)
+        if (!std::isfinite(start[i]) || !std::isfinite(direction[i])) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path,input,count,[&](const sc_topology_fixture::View& view)->int32_t {
+        std::vector<double> out;
+        SmPoint3d point(start[0],start[1],start[2]);
+        SmVector3d vector(direction[0],direction[1],direction[2]);
+        for (SmShell* shell:view.shells) {
+            SmTArray<SmFaceuse*> fus; shell->GetFaceuses(fus);
+            for (ULONG i=0;i<fus.GetSize();++i)
+                if (!fus[i]->GetFace() || !fus[i]->GetMate()) return SC_ERR_ARG;
+            SmRegion* region=view.regions.empty() ? nullptr : view.regions.front();
+            SmPointClassification pc(SmZoneTol3d(0.125),shell->GetContext());
+            pc.SetClassObject(SM_PC_POINT,nullptr);
+            pc.SetGap3d(123.0); pc.SetPreSnapParam(456.0);
+            SmStatus status=shell->RayFire(point,vector,SmZoneTol3d(tolerance),region,pc,
+                                           has_radius ? &radius : nullptr);
+            out.push_back(status==SM_SUCCESS ? 0.0 : (double)status);
+            out.push_back(identity(view.regions,region));
+            out.push_back((double)pc.GetPointClass());
+            out.push_back(pc.GetObject()==nullptr ? 1.0 : 0.0);
+            out.push_back(pc.GetTolerance());
+            out.push_back(pc.GetGap3d());
+            out.push_back(pc.GetPreSnapParam());
+        }
         return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
     });
     SC_CATCH

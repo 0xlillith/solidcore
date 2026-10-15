@@ -224,8 +224,66 @@ pub fn degeneracy(path: &str, block: &[f64], tolerance: Option<f64>) -> Result<V
     })
 }
 
+/// Execute native shell ray queries, retaining output writes on ordinary errors.
+///
+/// # Errors
+/// Non-finite input, malformed fixtures, failed native setup or unsafe references.
+pub fn ray_fire(
+    path: &str,
+    block: &[f64],
+    start: [f64; 3],
+    direction: [f64; 3],
+    tolerance: f64,
+    radius: Option<f64>,
+) -> Result<Vec<f64>, FfiError> {
+    if start.iter().chain(direction.iter()).any(|v| !v.is_finite())
+        || !tolerance.is_finite()
+        || radius.is_some_and(|r| !r.is_finite())
+    {
+        return Err(invalid("non-finite ray input"));
+    }
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native ray fixture build failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: complete fixture export validates the input block; arrays and
+        // pointers stay live and the shim checks references and output capacity.
+        unsafe {
+            sys::sc_topology_shell_ray(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                start.as_ptr(),
+                direction.as_ptr(),
+                tolerance,
+                i32::from(radius.is_some()),
+                radius.unwrap_or(0.0),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_ray(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            start: *const f64,
+            direction: *const f64,
+            tolerance: f64,
+            has_radius: i32,
+            radius: f64,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_degeneracy(
             path: *const std::ffi::c_char,
             input: *const f64,
