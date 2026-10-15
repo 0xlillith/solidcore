@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**150 / 261 units ported** (89 green, 61 partial), **198,974 / 387,903 upstream lines (51.3%)**. 18 claimed, 0 blocked, 93 todo.
+**150 / 261 units ported** (89 green, 61 partial), **198,974 / 387,903 upstream lines (51.3%)**. 19 claimed, 0 blocked, 92 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -15,7 +15,6 @@ Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
-- [ ] `surface.surface_p6` (2150 lines) — missing: `surface.surface_p4`, `surface.surface_p5`
 - [ ] `surface.surface_p10` (2172 lines) — missing: `surface.surface_p5`
 - [ ] `intersect.surface_drop_lib_p1` (1478 lines) — missing: `surface.surface_p3`
 - [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p3`, `surface.surface_p5`, `surface.surface_p6`
@@ -113,6 +112,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #71 @0xlillith (ready for review)
 - [ ] 🔨 `surface.surface_p4` (2270 lines) — in progress: #49 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
+- [ ] 🔨 `surface.surface_p6` (2150 lines) — in progress: #92 @bherbruck (draft)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (draft)
@@ -273,7 +273,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.surface_p5` (2321 lines) — in progress: #50 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.cone_p3` (1939 lines) — waiting
 - [ ] 🟡 `surface.surface_p1` (2458 lines) — partial, 806 cases
-- [ ] ⏳ `surface.surface_p6` (2150 lines) — waiting
+- [ ] 🔨 `surface.surface_p6` (2150 lines) — in progress: #92 @bherbruck (draft)
 - [ ] 🔨 `surface.srf_in_volume` (779 lines) — in progress: #53 @froglemonade2 (ready for review)
 - [ ] ⏳ `surface.surface_p10` (2172 lines) — waiting
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
