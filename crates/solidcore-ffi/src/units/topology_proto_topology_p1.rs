@@ -645,7 +645,8 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             | p::ARE_CONNECTED
             | p::MGR_FIND_ED_FROM_EDGE
             | p::ED_EVAL_MID
-            | p::PE_EVAL_MID => "ii",
+            | p::PE_EVAL_MID
+            | p::SPLIT_INT => "ii",
             p::PE_APPEND_OVERLAPS => "il",
             p::PE_SET_IVL | p::ED_SET_IVL | p::ED_SET_IVL_MINMAX => "iff",
             p::PE_REPLACE_PV
@@ -664,15 +665,13 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             p::ED_IS_INTERIOR => "i3fi",
             p::MGR_FIND_PV => "3",
             p::MGR_CHECK_OVERLAP => "ifffcc",
-            p::FIND_POS => "cc",
+            p::FIND_POS | p::FOC_PV => "cc",
             p::SAME_CURVE => "iffifff",
             p::IS_INTERIOR => "iffff",
             p::ARE_OVERLAPPING => "ifffci",
-            p::FOC_PV => "cc",
             p::FOC_PE => "ifffcccccc",
             p::PE_SPLIT => "if",
             p::ED_SPLIT => "ifii",
-            p::SPLIT_INT => "ii",
             _ => return Err(bad("op")),
         };
         for ch in shape.chars() {

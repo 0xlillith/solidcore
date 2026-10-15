@@ -1380,11 +1380,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
         // For each PE (at least one of the SrcTopos should be an edge.)
         let mut ii = 0usize;
-        loop {
-            // repeat the index when the list was changed by removing a group
-            let Some(&pe) = self.proto_edges().get(ii) else {
-                break;
-            };
+        // repeat the index when the list was changed by removing a group
+        while let Some(&pe) = self.proto_edges().get(ii) {
             let group = self.overlapping_pe_group(pe)?;
             let found_group = !group.is_empty();
 

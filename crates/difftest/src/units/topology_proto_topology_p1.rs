@@ -3314,18 +3314,21 @@ fn run_proto(
                     skip = true;
                 } else {
                     let p: Vec<PointClassification<H>> = pcs.into_iter().flatten().collect();
+                    let Ok::<[PointClassification<H>; 6], _>([p0, p1, p2, p3, p4, p5]) = p.try_into() else {
+                        return Err(harness("six classifications").into());
+                    };
                     let mut cc = CurveClassification::new(k);
                     cc.set_curve(cc_curve, false);
                     cc.set_src_zone_tol_3d(zone_tol3d(k, cc_tol));
                     let ivl = Extent1d::from_min_max(a, bb);
                     let mut ci1 = CurveInterval::with_interval(k, &ivl, Some(&cc));
-                    ci1.start = p[0];
-                    ci1.mid = p[1];
-                    ci1.end = p[2];
+                    ci1.start = p0;
+                    ci1.mid = p1;
+                    ci1.end = p2;
                     let mut ci2 = CurveInterval::with_interval(k, &ivl, None);
-                    ci2.start = p[3];
-                    ci2.mid = p[4];
-                    ci2.end = p[5];
+                    ci2.start = p3;
+                    ci2.mid = p4;
+                    ci2.end = p5;
                     if ci1.mid.edge_object().is_some() || ci2.mid.edge_object().is_some() {
                         if let Ok(all) = r.mgr.all_edge_definitions() {
                             let topo_of = |o: Option<H>| {
@@ -3409,7 +3412,7 @@ fn run_proto(
                         let pe_live = r
                             .mgr
                             .edge_def(d)
-                            .and_then(|x| x.proto_edge())
+                            .and_then(EdgeDefinition::proto_edge)
                             .is_some_and(|pe| r.mgr.proto_edge(pe).is_some());
                         let has_curve = r.mgr.edge_def(d).is_some_and(|x| x.xsect_curve_3d().is_some());
                         if interior && (!has_curve || !pe_live || !r.ed_curves_unique()) {
@@ -4244,7 +4247,6 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
                 | p::PE_SET_IVL | p::PE_REPLACE_PV | p::PE_END_POS | p::PE_END_POS_PV | p::PE_EVAL
                 | p::PE_EVAL_MID | p::PE_IS_SAME | p::WHICH_PV | p::MGR_REMOVE_NOEDGE_PV | p::PE_SPLIT
                 | p::SPLIT_INT => g.n_pe,
-                p::ED_SPLIT => g.n_ed,
                 p::MGR_ADD_PF | p::PE_RELATE_PF | p::PF_SET_SRC => g.n_pf.min(g.n_pe.max(1)),
                 p::PV_ADD_VD | p::PV_REMOVE_VD | p::VD_SET_SRC | p::VD_SET_FINAL | p::VD_SET_POS
                 | p::VD_SET_PV | p::MGR_REMOVE_VD | p::VD_RESOLVE | p::VD_SET_POINT_PARAMS
@@ -4255,7 +4257,8 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
                 | p::ED_SET_IVL_MINMAX | p::ED_SET_SRC | p::ED_SET_FINAL | p::ED_REVERSE
                 | p::ED_START_END_PV | p::ED_EVAL | p::ED_EVAL_MID | p::ED_END_POS
                 | p::ED_END_POS_PV | p::ED_REPARAM | p::ED_IS_SAME | p::ED_IS_INTERIOR
-                | p::MGR_CAN_COMBINE | p::ARE_OVERLAPPING | p::PE_ADD_ED | p::PE_REMOVE_ED => g.n_ed,
+                | p::MGR_CAN_COMBINE | p::ARE_OVERLAPPING | p::PE_ADD_ED | p::PE_REMOVE_ED
+                | p::ED_SPLIT => g.n_ed,
                 _ => 1,
             }
         };
@@ -4387,7 +4390,7 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
                 v.push(idv(rng, g.n_pe));
             }
             p::MGR_ADD_PF => v.push(idv(rng, g.n_pf)),
-            p::MGR_RESET | p::MGR_ALL_VDS | p::MGR_ALL_EDS | p::MGR_TYPE | p::MGR_GET => {}
+            p::MGR_RESET | p::MGR_ALL_VDS | p::MGR_ALL_EDS | p::MGR_TYPE | p::MGR_GET | p::GLUE | p::RESOLVE => {}
             p::MGR_DESTROY => {
                 if rng.chance(0.7) {
                     continue;
@@ -4396,7 +4399,7 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
             p::PV_ADD_PE | p::PV_REMOVE_PE => v.extend([idv(rng, g.n_pv), idv(rng, g.n_pe)]),
             p::PV_ADD_VD | p::PV_REMOVE_VD => v.extend([idv(rng, g.n_pv), idv(rng, g.n_vd)]),
             p::PE_ADD_ED | p::PE_REMOVE_ED => v.extend([idv(rng, g.n_pe), idv(rng, g.n_ed)]),
-            p::PE_ADD_OVERLAP => v.extend([idv(rng, g.n_pe), idv(rng, g.n_pe)]),
+            p::PE_ADD_OVERLAP | p::SPLIT_INT => v.extend([idv(rng, g.n_pe), idv(rng, g.n_pe)]),
             p::PE_APPEND_OVERLAPS => {
                 v.push(idv(rng, g.n_pe));
                 let n = rng.below(3);
@@ -4544,7 +4547,7 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
                 let sv = if rng.chance(0.7) { idv(rng, g.n_pv) } else { -1.0 };
                 v.extend([idv(rng, g.n_pe), g.param(rng, c), sv]);
             }
-            p::FIND_POS => {
+            p::FIND_POS | p::FOC_PV => {
                 v.extend(g.pc(rng, true));
                 v.extend(g.pc(rng, true));
             }
@@ -4567,10 +4570,6 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
             }
             p::TOPO_DIM => v.push(g.topo(rng)),
             p::CAN_IMPRINT => v.push(f64::from(100 + rng.below(11) as u32)),
-            p::FOC_PV => {
-                v.extend(g.pc(rng, true));
-                v.extend(g.pc(rng, true));
-            }
             p::FOC_PE => {
                 let c = g.curve(rng);
                 let d = g.sub_domain(rng, c);
@@ -4592,8 +4591,6 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
                 let c = g.curve(rng);
                 v.extend([idv(rng, g.n_ed), g.param(rng, c), idv(rng, g.n_pv), idv(rng, g.n_pe)]);
             }
-            p::SPLIT_INT => v.extend([idv(rng, g.n_pe), idv(rng, g.n_pe)]),
-            p::GLUE | p::RESOLVE => {}
             _ => continue,
         }
         ops.push(v);
