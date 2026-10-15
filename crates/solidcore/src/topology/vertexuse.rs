@@ -705,16 +705,29 @@ fn loopuse_orientation(_b: &Brep, _lu: LoopuseId) -> Result<OrientType> {
 /// UV point and UV tangent of the edge use at normalised parameter `t` (making a UV
 /// trim curve when allowed and missing).
 fn normalized_evaluate(
-    _b: &mut Brep,
-    _eu: EdgeuseId,
-    _t: f64,
-    _ok_to_make: bool,
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+    ok_to_make: bool,
 ) -> Result<(Point3, Vec3)> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+    let r = crate::topology::edgeuse::p3::normalized_evaluate(k, b, eu, t, true, true, ok_to_make)?;
+    Ok((r.point, r.first_deriv.unwrap_or(Vec3::UNDEF)))
+}
+
+/// `pEdgeuse->NormalizedEvaluate(t, TRUE, rUVPnt, NULL, bOKToMakeUVTrimCurve)`: the UV
+/// point only.
+fn normalized_evaluate_point(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+    ok_to_make: bool,
+) -> Result<Point3> {
+    Ok(
+        crate::topology::edgeuse::p3::normalized_evaluate(k, b, eu, t, true, false, ok_to_make)?
+            .point,
+    )
 }
 
 /// A point solve's start end (`m_vStart`): the surface parameters and the solution
@@ -876,11 +889,11 @@ pub fn compute_uv_point(
 
         // try quick solution based on this (and prev) Vertexuse->Edgeuse->UVTrimCurve data
         // get this SurfaceUV for ThisEdgeuse start point from UVTrimCurve
-        let (this_uv_pnt, mut this_uv_tan) = normalized_evaluate(b, eu, 0.0, ok_to_make)?;
+        let (this_uv_pnt, mut this_uv_tan) = normalized_evaluate(k, b, eu, 0.0, ok_to_make)?;
         let mut uv_guess = xy(this_uv_pnt);
 
         // get SurfaceUV for PrevEdgeuse end point from UVTrimCurve
-        let (prev_uv_pnt, mut prev_uv_tan) = normalized_evaluate(b, prev, 1.0, ok_to_make)?;
+        let (prev_uv_pnt, mut prev_uv_tan) = normalized_evaluate(k, b, prev, 1.0, ok_to_make)?;
 
         // when PrevUV and ThisUV UVTrimCurve EndPts are far apart - check for
         // singularities and seams
@@ -1016,7 +1029,7 @@ pub fn compute_uv_point(
 
             // Use UVTrimCurves to choose the right drop point [B678]
             if sols.len() > 1 {
-                let (this_uv, _) = normalized_evaluate(b, eu, 0.0, ok_to_make)?;
+                let this_uv = normalized_evaluate_point(k, b, eu, 0.0, ok_to_make)?;
                 let guess = xy(this_uv);
                 let mut min_dist = crate::math::BIG_DOUBLE;
                 for x in &sols {

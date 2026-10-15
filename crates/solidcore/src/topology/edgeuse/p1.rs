@@ -1351,10 +1351,11 @@ pub fn faceuse_neighbors(
 ///
 /// Those of [`faceuse_edgeuses`] and [`radial`]; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no edge, radial partner or its face use);
-/// [`SolidError::Unported`] with a threshold (`SmEdgeuse::EvaluateBinormal`, unit
-/// `topology.edgeuse_p3`).
+/// [`SolidError::Unported`] and the binormal errors with a threshold
+/// (`SmEdgeuse::EvaluateBinormal`, [`crate::topology::edgeuse::p3`]).
 pub fn faceuse_collect_adjacent(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     fu: FaceuseId,
     faceuses: &mut Vec<FaceuseId>,
     angle_threshold: Option<f64>,
@@ -1377,12 +1378,35 @@ pub fn faceuse_collect_adjacent(
                 .ok_or_else(|| null("CollectAdjacentFaceuses: edge use without radial partner"))?;
             let fu_rad = faceuse(b, rad)?;
 
-            if angle_threshold.is_some() {
-                // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-                return Err(SolidError::unported(
-                    "SmEdgeuse::EvaluateBinormal",
-                    "topology.edgeuse_p3",
-                ));
+            if let Some(threshold) = angle_threshold {
+                // the face use normals at the start, middle and end of the edge must
+                // differ by no more than the threshold (the binormal statuses are
+                // ignored upstream; a failure leaves uninitialised normals there, so the
+                // port returns the error; `AngleBetween` keeps the previous angle)
+                let ivl = b.edge(e)?.interval;
+                let mut angle = 0.0;
+                let mut too_far = false;
+                for param in [ivl.min(), ivl.mid(), ivl.max()] {
+                    let options = crate::topology::edgeuse::p3::BinormalOptions::default();
+                    let at_eu = crate::topology::edgeuse::p3::evaluate_binormal(
+                        k, b, eu, param, true, &options,
+                    )?;
+                    let at_rad = crate::topology::edgeuse::p3::evaluate_binormal(
+                        k, b, rad, param, true, &options,
+                    )?;
+                    if let Some(a) =
+                        crate::error::ignored(at_eu.face_normal.angle_between(at_rad.face_normal))?
+                    {
+                        angle = a;
+                    }
+                    if angle > threshold {
+                        too_far = true;
+                        break;
+                    }
+                }
+                if too_far {
+                    continue;
+                }
             }
 
             if fu_rad != Some(fu) && !fu_rad.is_some_and(|x| faceuses.contains(&x)) {
@@ -1778,7 +1802,7 @@ mod tests {
 
     #[test]
     fn faceuse_collections() {
-        let b = square();
+        let mut b = square();
         let f0 = FaceuseId::from_index(0);
         assert_eq!(
             faceuse_region(&b, f0).unwrap(),
@@ -1797,7 +1821,7 @@ mod tests {
         );
         assert!(faceuse_neighbors(&b, f0, true).unwrap().is_empty());
         let mut out = vec![FaceuseId::from_index(1)];
-        faceuse_collect_adjacent(&b, f0, &mut out, None).unwrap();
+        faceuse_collect_adjacent(&Kernel::default(), &mut b, f0, &mut out, None).unwrap();
         assert_eq!(out, vec![FaceuseId::from_index(1)]);
     }
 

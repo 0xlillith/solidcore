@@ -2030,7 +2030,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             }
         }
         OpIn::UvOfSurface { e, f } => {
-            match ed::uv_trim_curve_of_surface(b, eid(*e), opt_id(*f, FaceId::from_index)) {
+            match ed::uv_trim_curve_of_surface(&k, b, eid(*e), opt_id(*f, FaceId::from_index)) {
                 Ok(h) => out.extend([flag(h.is_some()), ix(h, EdgeuseId::index)]),
                 Err(SolidError::InvalidInput { .. }) => out.push(NULL_DEREF),
                 Err(err) => return Err(err.into()),
@@ -2038,12 +2038,12 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
         }
         OpIn::Seam { e, f } => {
             let r = match opt_id(*f, FaceId::from_index) {
-                Some(f) => ed::is_seam_of_surface(b, eid(*e), f),
-                None => ed::is_seam(b, eid(*e)),
+                Some(f) => ed::is_seam_of_surface(&k, b, eid(*e), f),
+                None => ed::is_seam(&k, b, eid(*e)),
             };
             out.push(slot(r, flag)?);
         }
-        OpIn::Topological { e, gain, .. } => match ed::is_topological(b, eid(*e), *gain) {
+        OpIn::Topological { e, gain, .. } => match ed::is_topological(&k, b, eid(*e), *gain) {
             Ok(t) => out.extend([
                 flag(t.is_topological),
                 ix(t.surf_to_keep, FaceId::index),
@@ -2056,7 +2056,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             e,
             tol,
             coincidence,
-        } => out.push(slot(ed::is_tangent_edge(b, eid(*e), *tol, *coincidence), flag)?),
+        } => out.push(slot(ed::is_tangent_edge(&k, b, eid(*e), *tol, *coincidence), flag)?),
         OpIn::Blend { e } => out.push(slot(ed::blend_edgeuse(&k, b, eid(*e)), |x| {
             ix(x, EdgeuseId::index)
         })?),

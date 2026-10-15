@@ -1189,7 +1189,7 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
         }
         OpIn::Collect { fu, threshold } => {
             let mut list = Vec::new();
-            eu1::faceuse_collect_adjacent(b, FaceuseId::from_index(*fu as u32), &mut list, *threshold)?;
+            eu1::faceuse_collect_adjacent(&Kernel::default(), b, FaceuseId::from_index(*fu as u32), &mut list, *threshold)?;
             Ok(Output::new()
                 .int("status", 0)
                 .ints("list", list.into_iter().map(|x| i64::from(x.index())).collect::<Vec<_>>()))

@@ -92,7 +92,7 @@ struct Inputs {
     op: OpIn,
 }
 
-fn flag(b: bool) -> f64 {
+pub(super) fn flag(b: bool) -> f64 {
     f64::from(u8::from(b))
 }
 
@@ -111,12 +111,12 @@ impl OpIn {
 
 /// The case's B-rep: the C++ export, the imported Rust B-rep and the selected edge
 /// use; `Err(output)` when the B-rep cannot be built or has no edge use.
-struct Setup {
-    path: String,
-    block: Vec<f64>,
-    brep: Brep,
-    eu: EdgeuseId,
-    types: ImportTypes,
+pub(super) struct Setup {
+    pub(super) path: String,
+    pub(super) block: Vec<f64>,
+    pub(super) brep: Brep,
+    pub(super) eu: EdgeuseId,
+    pub(super) types: ImportTypes,
 }
 
 fn setup(i: &Inputs) -> Result<Result<Setup, Output>, HarnessError> {
@@ -214,7 +214,7 @@ const EXACT_CURVES: [i64; 2] = [14033, 14010];
 /// subclass): the Rust `Surface` has no kind for it (the unit named, as in
 /// `Surface::read_from_db`), or its exact import needs the B-rep reader
 /// (`SmBrep::ReadFromFile`, unit `topology.brep_p7`).
-fn inexact_geometry(s: &Setup) -> Option<Output> {
+pub(super) fn inexact_geometry(s: &Setup) -> Option<Output> {
     let b = &s.brep;
     let surface_type = eu1::face(b, s.eu)
         .ok()
@@ -328,7 +328,7 @@ fn output_of(op: &OpIn, body: &[f64]) -> Output {
 // ---- Rust side --------------------------------------------------------------------------
 
 /// The state of an edge use as the shim's `put_eu_state`.
-fn put_eu_state(o: &mut Vec<f64>, b: &Brep, eu: Option<EdgeuseId>) -> Result<(), SolidError> {
+pub(super) fn put_eu_state(o: &mut Vec<f64>, b: &Brep, eu: Option<EdgeuseId>) -> Result<(), SolidError> {
     let Some(eu) = eu else {
         o.push(-1.0);
         return Ok(());
@@ -384,7 +384,7 @@ fn notify_op(code: u8) -> Result<NotifyOperation, HarnessError> {
 fn run_rust_op(
     op: &OpIn,
     b: &mut Brep,
-    eu: EdgeuseId,
+        eu: EdgeuseId,
 ) -> Result<Result<Vec<f64>, SolidError>, HarnessError> {
     let k = Kernel::default();
     Ok(match op {
@@ -393,7 +393,7 @@ fn run_rust_op(
             coincidence,
             ok_make,
             ..
-        } => eu2::is_tangent_sector(b, eu, *tol_deg, *coincidence, *ok_make)
+        } => eu2::is_tangent_sector(&k, b, eu, *tol_deg, *coincidence, *ok_make)
             .map(|r| vec![flag(r)]),
         OpIn::Convex {
             n,
@@ -429,12 +429,25 @@ fn run_rust_op(
                     v.extend([r.uv.x, r.uv.y]);
                     v
                 })
+                // a failing status is reported alone (the shim's outputs are only set
+                // by a successful call)
+                .or_else(|e| match e {
+                    SolidError::Upstream { code, .. } => Ok(vec![f64::from(code)]),
+                    e => Err(e),
+                })
         }
-        OpIn::Rebuild { .. } => eu2::rebuild_uv_trim_curve(&k, b, eu).and_then(|()| {
-            let mut v = vec![0.0];
-            put_eu_state(&mut v, b, Some(eu))?;
-            Ok(v)
-        }),
+        OpIn::Rebuild { .. } => {
+            let status = match eu2::rebuild_uv_trim_curve(&k, b, eu) {
+                Ok(()) => Ok(0.0),
+                Err(SolidError::Upstream { code, .. }) => Ok(f64::from(code)),
+                Err(e) => Err(e),
+            };
+            status.and_then(|s| {
+                let mut v = vec![s];
+                put_eu_state(&mut v, b, Some(eu))?;
+                Ok(v)
+            })
+        }
         OpIn::CheckSet {
             uv, adjust, fail, ..
         } => {

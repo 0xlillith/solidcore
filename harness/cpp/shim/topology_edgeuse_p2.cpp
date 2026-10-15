@@ -9,9 +9,8 @@
 // the shared sc_edgeuse_graph.h; the export itself is topology.edgeuse_p1's Export op).
 // Layouts are documented in crates/solidcore-ffi/src/units/topology_edgeuse_p2.rs, which
 // validates every input. Outputs start with `0`, or `-1 status` when the B-rep could not
-// be built. `-2` is "upstream would dereference null" and `-3` "not run": the op would
-// reach a callee that is unported on the Rust side (whose cases are deferred) on an input
-// where upstream may crash, so the shim does not call it.
+// be built. `-2` is "upstream would dereference null": the op (through EvaluateBinormal,
+// topology.edgeuse_p3) would dereference a null pointer, so the shim does not call it.
 #include "sc_shim.h"
 
 #include "StdAfx.h"
@@ -46,7 +45,6 @@ enum Op2 : int32_t
 };
 
 const double ST_NULL_DEREF = -2.0;
-const double ST_NOT_RUN = -3.0;
 
 // GetMate/GetRadial/GetUVTrimCurve need the edge's primary edgeuse (loop edgeuses).
 bool has_prim(SmEdgeuse* p)
@@ -98,7 +96,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         else if (!has_prim(p))
             o.push_back(ST_NULL_DEREF);
         else if (!sector_safe(p))
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ST_NULL_DEREF);
         else
             o.push_back(flg(p->IsTangentSector(tol, coin, ok_make)));
         break;
@@ -111,7 +109,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         if (!has_prim(p) || p->GetEdge() == nullptr)
             o.push_back(ST_NULL_DEREF);
         else if (n > 0 && !sector_safe(p))
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ST_NULL_DEREF);
         else
             o.push_back(flg(p->IsConvexRadialSector(n, step, tol)));
         break;
@@ -127,7 +125,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmBoolean ok_make = rd.bflag();
         if (!binormal_safe(p))
         {
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ST_NULL_DEREF);
             break;
         }
         double t = p->GetEdge()->GetInterval().Evaluate(frac);
@@ -137,19 +135,22 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmStatus s = p->EvaluateBinormalStepOff(t, dist, pnt, bin, &tan, &nrm, has_c ? &c : NULL,
                                                 has_n ? &n : NULL, &uv, ok_make);
         o.push_back(st(s));
-        put_vec(o, pnt);
-        put_vec(o, bin);
-        put_vec(o, tan);
-        put_vec(o, nrm);
-        o.push_back(uv.x);
-        o.push_back(uv.y);
+        if (s == SM_SUCCESS)
+        {
+            put_vec(o, pnt);
+            put_vec(o, bin);
+            put_vec(o, tan);
+            put_vec(o, nrm);
+            o.push_back(uv.x);
+            o.push_back(uv.y);
+        }
         break;
     }
     case OP_REBUILD:
     {
         if (!binormal_safe(p))
         {
-            o.push_back(ST_NOT_RUN);
+            o.push_back(ST_NULL_DEREF);
             break;
         }
         o.push_back(st(p->RebuildUVTrimCurve()));

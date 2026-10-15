@@ -125,6 +125,7 @@ use crate::surface::surface::p2::PLANE_TYPE;
 use crate::surface::surface::Surface;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::edgeuse::p2 as eu2;
+use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::face::p2 as face2;
 use crate::topology::proto_topology::p1::owning_topology;
 use crate::topology::topology::{self as topo, Topology};
@@ -188,40 +189,35 @@ impl Edge {
 
 // ---- unported callees -------------------------------------------------------------------
 
-/// `SmEdgeuse::NormalizedEvaluate(t, TRUE, ..)` (unit `topology.edgeuse_p3`): the UV
-/// point at the normalised parameter `t`.
-fn normalized_evaluate_uv(b: &Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
-    let _ = (b, eu, t);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+/// `SmEdgeuse::NormalizedEvaluate(t, TRUE, ..)`: the UV point at the normalised
+/// parameter `t` (a missing UV trim curve is made).
+fn normalized_evaluate_uv(k: &Kernel, b: &mut Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, true, false, true)?.point)
 }
 
-/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, ..)` (unit `topology.edgeuse_p3`).
+/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, ..)`.
 fn evaluate_binormal(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     eu: EdgeuseId,
     parameter: f64,
     use_3d_only: bool,
 ) -> Result<eu2::BinormalEval> {
-    let _ = (b, eu, parameter, use_3d_only);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+    eu3::evaluate_binormal(
+        k,
+        b,
+        eu,
+        parameter,
+        use_3d_only,
+        &eu3::BinormalOptions::default(),
+    )
 }
 
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`).
-fn get_or_create_uv_trim_curve(b: &mut Brep, eu: EdgeuseId) -> Result<()> {
-    let _ = (b, eu);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+/// `SmEdgeuse::GetOrCreateUVTrimCurve(pRet)`; the status is signalled but not returned
+/// by the caller (`SE`), so only [`SolidError::Unported`] (and the null dereferences)
+/// escape.
+fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<()> {
+    eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true).map(|_| ())
 }
 
 /// `SmBrep::Notify` (unit `topology.brep_p2`).
@@ -487,6 +483,7 @@ fn same_surface(b: &Brep, f: FaceId, target: Option<FaceId>) -> Result<bool> {
 /// (`GetOrCreateUVTrimCurve`); returns that edge use (its curve is
 /// [`eu1::uv_trim_curve`]), `None` when no edge use is on the surface.
 pub fn uv_trim_curve_of_surface(
+    k: &Kernel,
     b: &mut Brep,
     e: EdgeId,
     surface: Option<FaceId>,
@@ -496,7 +493,7 @@ pub fn uv_trim_curve_of_surface(
         let f = eu1::face(b, eu)?
             .ok_or_else(|| null("GetUVTrimCurveOfSurface: edge use without face"))?;
         if same_surface(b, f, surface)? {
-            get_or_create_uv_trim_curve(b, eu)?;
+            get_or_create_uv_trim_curve(k, b, eu)?;
             return Ok(Some(eu));
         }
     }
@@ -1480,9 +1477,9 @@ pub fn is_spine(b: &Brep, e: EdgeId) -> Result<bool> {
 
 /// `IsSeam()`: the edge is a seam of the surface of any of its faces
 /// ([`is_seam_of_surface`]).
-pub fn is_seam(b: &Brep, e: EdgeId) -> Result<bool> {
+pub fn is_seam(k: &Kernel, b: &mut Brep, e: EdgeId) -> Result<bool> {
     for f in faces(b, e, None)? {
-        if b.face(f)?.surface.is_some() && is_seam_of_surface(b, e, f)? {
+        if b.face(f)?.surface.is_some() && is_seam_of_surface(k, b, e, f)? {
             return Ok(true);
         }
     }
@@ -1498,7 +1495,12 @@ pub fn is_seam(b: &Brep, e: EdgeId) -> Result<bool> {
 /// [`SolidError::InvalidInput`] for a face without surface or an edge use without
 /// face (upstream dereferences them); those of the surface queries;
 /// [`SolidError::Unported`] from `SmEdgeuse::NormalizedEvaluate`.
-pub fn is_seam_of_surface(b: &Brep, e: EdgeId, surface_face: FaceId) -> Result<bool> {
+pub fn is_seam_of_surface(
+    k: &Kernel,
+    b: &mut Brep,
+    e: EdgeId,
+    surface_face: FaceId,
+) -> Result<bool> {
     let surface = b
         .face(surface_face)?
         .surface
@@ -1537,14 +1539,14 @@ pub fn is_seam_of_surface(b: &Brep, e: EdgeId, surface_face: FaceId) -> Result<b
 
     // must have 2 edgeuses to common face
     if let (2, [Some(a), Some(c)]) = (count, on_face) {
-        let uv1 = match normalized_evaluate_uv(b, a, 0.5) {
+        let uv1 = match normalized_evaluate_uv(k, b, a, 0.5) {
             Ok(p) => p,
             Err(err) => {
                 failed(err)?;
                 return Ok(false);
             }
         };
-        let uv2 = match normalized_evaluate_uv(b, c, 0.5) {
+        let uv2 = match normalized_evaluate_uv(k, b, c, 0.5) {
             Ok(p) => p,
             Err(err) => {
                 failed(err)?;
@@ -1646,7 +1648,12 @@ fn cover_other_coincident_face(
 /// face, a face without surface); those of the surface queries;
 /// [`SolidError::Unported`] from `SmEdgeuse::NormalizedEvaluate` and the coverage
 /// test.
-pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<Topological> {
+pub fn is_topological(
+    k: &Kernel,
+    b: &mut Brep,
+    e: EdgeId,
+    approx_tol_3d_gain: f64,
+) -> Result<Topological> {
     let mut out = Topological {
         is_topological: false,
         surf_to_keep: None,
@@ -1665,20 +1672,20 @@ pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<To
         return Ok(out);
     }
 
-    let face_of = |eu: EdgeuseId| -> Result<(FaceId, &Surface)> {
+    let face_of = |eu: EdgeuseId| -> Result<(FaceId, Surface)> {
         let f = eu1::face(b, eu)?.ok_or_else(|| null("IsTopological: edge use without face"))?;
         let s = b
             .face(f)?
             .surface
             .as_ref()
             .ok_or_else(|| null("IsTopological: face without surface"))?;
-        Ok((f, s))
+        Ok((f, s.clone()))
     };
     // 1st edgeuse locals
     let (face1, surf1) = face_of(eu_a)?;
     // 3rd edgeuse locals = same oriented edgeuse on different face to edgeuse[0]
     let (face2_, surf2) = face_of(eu_c)?;
-    let surfs = [surf1, surf2];
+    let surfs = [&surf1, &surf2];
     let uv_domain = [surf1.natural_uv_domain(), surf2.natural_uv_domain()];
     let same_surf = face1 == face2_;
 
@@ -1687,7 +1694,7 @@ pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<To
 
     // normalized sample values
     for (ii, &t) in samples.iter().enumerate() {
-        let p = match normalized_evaluate_uv(b, eu_a, t) {
+        let p = match normalized_evaluate_uv(k, b, eu_a, t) {
             Ok(p) => p,
             Err(err) => {
                 failed(err)?;
@@ -1703,7 +1710,7 @@ pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<To
             }
         };
 
-        let p = match normalized_evaluate_uv(b, eu_c, t) {
+        let p = match normalized_evaluate_uv(k, b, eu_c, t) {
             Ok(p) => p,
             Err(err) => {
                 failed(err)?;
@@ -1863,7 +1870,8 @@ pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<To
 /// (`IsTangentSector(tangency_tol_deg, coincidence_test)`, UV trim curves made as
 /// needed).
 pub fn is_tangent_edge(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     e: EdgeId,
     tangency_tol_deg: f64,
     coincidence_test: bool,
@@ -1872,7 +1880,7 @@ pub fn is_tangent_edge(
         return Ok(false);
     }
     let prim = primary_deref(b, e)?;
-    eu2::is_tangent_sector(b, prim, tangency_tol_deg, coincidence_test, true)
+    eu2::is_tangent_sector(k, b, prim, tangency_tol_deg, coincidence_test, true)
 }
 
 /// `IsConnectedToFace`: `face` is one of the edge's faces.
@@ -2307,7 +2315,7 @@ pub fn set_curve(
 /// [`SolidError::InvalidInput`] where upstream dereferences null;
 /// [`SolidError::Unported`] from `SmBrep::GetInfiniteRegion` and
 /// `SmEdgeuse::EvaluateBinormal`.
-pub fn blend_edgeuse(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Option<EdgeuseId>> {
+pub fn blend_edgeuse(k: &Kernel, b: &mut Brep, e: EdgeId) -> Result<Option<EdgeuseId>> {
     if is_lamina(b, e)? {
         return Ok(None); // skip all lamina edges
     }
@@ -2370,8 +2378,8 @@ pub fn blend_edgeuse(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Option<EdgeuseId
     // get normalized normal and binormals from the two edgeuses at a common point
     // (statuses ignored upstream; a failure leaves uninitialised vectors, so the port
     // returns the error)
-    let at0 = evaluate_binormal(b, cur0, test_param, false)?;
-    let at1 = evaluate_binormal(b, cur1, test_param, false)?;
+    let at0 = evaluate_binormal(k, b, cur0, test_param, false)?;
+    let at1 = evaluate_binormal(k, b, cur1, test_param, false)?;
     let fu_normal = at0.face_normal.unitize_or_z();
     let fu_normal2 = at1.face_normal.unitize_or_z();
     let bin_vec = at0.binormal.unitize_or_z();
