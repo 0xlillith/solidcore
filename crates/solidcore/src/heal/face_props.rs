@@ -61,8 +61,7 @@
 //!   of the reference build). The unreachable `SmCurveClassification::ReSet` branch of
 //!   `SetProps_Stage2` (the classifications are deleted by `ReSet(SM_PROPSTAGE_2)`
 //!   first) is kept as an `Unported` stub.
-//! - **Unported callees** (`UNPORTED` stubs): `SmSurface::GetSingularities`
-//!   (`surface.surface_p3`), `SmFace::GetVertices` and `SmFace::HasSeamProblem`
+//! - **Unported callees** (`UNPORTED` stubs): `SmFace::HasSeamProblem`
 //!   (`topology.face_p4`), `SmFace::ClassifyLoops` (`query.face_p4`),
 //!   `SmCurveClassification::ReSet` (`intersect.curve_class_p2`). The `SmLoop` queries
 //!   (`topology.loopuse`) are wired.
@@ -1036,36 +1035,10 @@ fn loop_is_closed_ptrs(_k: &Kernel, b: &Brep, l: LoopId) -> Result<bool> {
     loopuse::loop_is_closed_ptrs(b, l)
 }
 
-/// What `SmSurface::GetSingularities(&points, &normals, &approx)` returns.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Singularities {
-    /// The return value: `SM_SS_NONE` or an or-of `SM_SS_UMIN` .. `SM_SS_VMAX`.
-    pub poles: u64,
-    /// `pPolePoints`: `[UMinPole, VMinPole, UMaxPole, VMaxPole]`, other sides
-    /// `Vec3::UNDEF`.
-    pub pole_points: Vec<Point3>,
-    /// `pPoleNormals`: the pole normals in the same order.
-    pub pole_normals: Vec<Vec3>,
-    /// `pbApproxSingularities`: the sides within the approximation tolerance of a pole.
-    pub approx_poles: u64,
-}
-
-/// `m_cpSurface->GetSingularities(&m_sPolePoints, &m_sPoleNormals, &m_lApproxPoles)`.
-fn surface_get_singularities(_k: &Kernel, _b: &Brep, _f: FaceId) -> Result<Singularities> {
-    // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-    Err(SolidError::unported(
-        "SmSurface::GetSingularities",
-        "surface.surface_p3",
-    ))
-}
-
-/// `m_pFace->GetVertices(sVertices)`.
-fn face_vertices(_b: &Brep, _f: FaceId) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.face_p4): SmFace::GetVertices
-    Err(SolidError::unported(
-        "SmFace::GetVertices",
-        "topology.face_p4",
-    ))
+/// `m_pFace->GetVertices(sVertices)` (default arguments: no attribute filter, all
+/// loops; co-ported in `query.face_p2`).
+fn face_vertices(b: &Brep, f: FaceId) -> Result<Vec<VertexId>> {
+    crate::query::face::p2::face_vertices(b, f, false, None)
 }
 
 /// The outputs of `SmFace::HasSeamProblem` that `SetProps_Stage2` stores.
@@ -1618,8 +1591,7 @@ impl<O: LoopObject> FaceProps<O> {
     ///
     /// `SM_ERR` ([`SolidError::Upstream`]) when `exe_heal_op` is before
     /// [`HealerOpType::FixTolsizes`]; [`SolidError::InvalidInput`] for a face without
-    /// surface or face use; [`SolidError::Unported`] for `SmSurface::GetSingularities`
-    /// (`surface.surface_p3`), `SmFace::GetVertices` and `SmFace::HasSeamProblem`
+    /// surface or face use; [`SolidError::Unported`] for `SmFace::HasSeamProblem`
     /// (`topology.face_p4`); the errors of the surface queries.
     pub fn set_props_stage2(
         &mut self,
@@ -1719,11 +1691,13 @@ impl<O: LoopObject> FaceProps<O> {
 
         // Singularity classification: m_lPoles, m_lApproxPoles, m_sPolePoints,
         // m_sPoleNormals
-        let sing = surface_get_singularities(k, b, m_face)?;
-        self.poles = sing.poles;
-        self.pole_points = sing.pole_points;
-        self.pole_normals = sing.pole_normals;
-        self.approx_poles = sing.approx_poles;
+        // (GetSingularities has no status; its evaluation errors other than Unported are
+        // ignored inside, as upstream does)
+        let sing = surface.get_singularities(k, true, true)?;
+        self.poles = u64::from(sing.singular);
+        self.pole_points = sing.pole_points.map(|p| p.to_vec()).unwrap_or_default();
+        self.pole_normals = sing.pole_normals.map(|p| p.to_vec()).unwrap_or_default();
+        self.approx_poles = u64::from(sing.approx_singular);
 
         // Closed pFace->Surface = tori or spheres
         let closed_surf = (closed_u && closed_v)
