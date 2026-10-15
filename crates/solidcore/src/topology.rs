@@ -10,12 +10,12 @@
 //! | [`Region`] / [`RegionId`]   | `SmRegion` (minimal: its list owner)                  |
 //! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
 //! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
-//! | [`Face`] / [`FaceId`]       | `SmFace`                                              |
+//! | [`Face`] / [`FaceId`]       | `SmFace` (unit `topology.face_p2`)                    |
 //! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (minimal)                                 |
 //! | [`Loop`] / [`LoopId`]       | `SmLoop`                                              |
 //! | [`Edgeuse`] / [`EdgeuseId`] | `SmEdgeuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Edge`] / [`EdgeId`]       | `SmEdge`                                              |
-//! | [`Vertexuse`] / [`VertexuseId`] | `SmVertexuse` (minimal)                           |
+//! | [`Vertexuse`] / [`VertexuseId`] | `SmVertexuse` (unit `topology.vertexuse`)         |
 //! | [`Vertex`] / [`VertexId`]   | `SmVertex`                                            |
 //! | [`ObjectHandle`]            | an `SmObject*` a record keeps but never dereferences  |
 //! | [`Arena`]                   | upstream's intrusive `SmListNode` linked lists        |
@@ -39,9 +39,11 @@
 pub mod brep_data;
 pub mod database_io;
 pub mod edgeuse;
+pub mod face;
 pub mod proto_topology;
 #[allow(clippy::module_inception)]
 pub mod topology;
+pub mod vertexuse;
 
 use core::marker::PhantomData;
 
@@ -49,10 +51,12 @@ use crate::curve::curve::Curve;
 use crate::error::{EntityRef, Result, SolidError};
 use crate::geom::attribute::ObjectKey;
 use crate::geom::extent1d::Extent1d;
+use crate::geom::extent2d::Extent2d;
 use crate::geom::solution_array::{ObjectKind, SolutionObject};
 use crate::geom::tol::ZONE_TOL_3D;
-use crate::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexFaceGap};
-use crate::math::Point3;
+use crate::geom::vector2d::Point2;
+use crate::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexEdgeGap, VertexFaceGap};
+use crate::math::{Point3, BIG_DOUBLE};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::DropCurveFail;
 use crate::surface::surface::Surface;
@@ -279,15 +283,44 @@ pub struct Loop {
     pub loopuse: Option<LoopuseId>,
 }
 
-/// A face (`SmFace`): a bounded region of a surface.
+/// A face (`SmFace`): a bounded region of a surface. The methods are in unit
+/// `topology.face_p2` ([`face::p2`]).
 #[derive(Debug, Clone)]
 pub struct Face {
     /// Shell containing this face.
     pub shell: ShellId,
     /// Boundary loops; upstream keeps the outer loop first.
     pub loops: Vec<LoopId>,
-    /// `m_pSurface` (CO-PORTED): the face's surface (`GetSurface`).
+    /// `m_pSurface`: the face's surface (`GetSurface`).
     pub surface: Option<Surface>,
+    /// `m_pFU`: the primary (upward, [`OrientType::Same`]) face use
+    /// (`GetUpwardFaceuse`).
+    pub faceuse: Option<FaceuseId>,
+    /// `m_vUVDomain`: the domain of the surface the face uses (`GetUVDomain`).
+    pub uv_domain: Extent2d,
+    /// `m_bRectangularTrim` (an `SmBoolean`: `1` the face has one rectangular outer
+    /// loop of four iso trim curves spanning [`Face::uv_domain`], `0` it has not,
+    /// [`face::p2::UNSURE`] not yet known).
+    pub rectangular_trim: i32,
+    /// `m_sZoneTol3d` (`SM_USE_OLDTOL`): the face tolerance (`GetTolerance`).
+    pub tolerance: f64,
+}
+
+impl Face {
+    /// `SmFace()` in `shell`: no loops, surface or face use, the "inside out" UV
+    /// domain, rectangular trim [`face::p2::UNSURE`] and tolerance `0`.
+    #[must_use]
+    pub const fn new(shell: ShellId) -> Self {
+        Self {
+            shell,
+            loops: Vec::new(),
+            surface: None,
+            faceuse: None,
+            uv_domain: Extent2d::new(),
+            rectangular_trim: face::p2::UNSURE,
+            tolerance: 0.0,
+        }
+    }
 }
 
 /// A shell (`SmShell`): a connected set of faces.
@@ -421,15 +454,35 @@ pub enum VertexuseOwner {
     Shell(Option<ShellId>),
 }
 
-/// One use of a vertex (`SmVertexuse`, CO-PORTED minimal record).
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+/// One use of a vertex (`SmVertexuse`; the methods are in unit `topology.vertexuse`,
+/// [`vertexuse`]).
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vertexuse {
     /// `m_pListOwner`: the vertex used (`GetVertex`).
     pub vertex: Option<VertexId>,
     /// `m_tVertexuseType` and `m_pSorLUorEU`.
     pub owner: VertexuseOwner,
+    /// `m_sVertexEdgeGap3d`: the cached vertex/edge gap.
+    pub vertex_edge_gap: VertexEdgeGap,
     /// `m_sVertexFaceGap3d`: the cached vertex/face gap.
     pub vertex_face_gap: VertexFaceGap,
+    /// `m_sUVPoint` (`GetUVPoint` / `SetUVPoint`; `(SM_BIG_DOUBLE, SM_BIG_DOUBLE)`
+    /// until set).
+    pub uv_point: Point2,
+}
+
+impl Default for Vertexuse {
+    /// `SmVertexuse()`: unlinked, unknown type, gaps reset, UV point
+    /// `(SM_BIG_DOUBLE, SM_BIG_DOUBLE)`.
+    fn default() -> Self {
+        Self {
+            vertex: None,
+            owner: VertexuseOwner::Unknown,
+            vertex_edge_gap: VertexEdgeGap::new(),
+            vertex_face_gap: VertexFaceGap::new(),
+            uv_point: Point2::new(BIG_DOUBLE, BIG_DOUBLE),
+        }
+    }
 }
 
 /// A boundary representation (`SmBrep`): arenas of shells, faces, loops, edges and
@@ -448,6 +501,8 @@ pub struct Brep {
     vertexuses: Arena<VertexuseId, Vertexuse>,
     /// `m_bValidateOnly`.
     validate_only: bool,
+    /// `m_sThisZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the B-rep's tolerance.
+    tolerance: f64,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
 }
@@ -466,6 +521,7 @@ impl Default for Brep {
             edgeuses: Arena::default(),
             vertexuses: Arena::default(),
             validate_only: false,
+            tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
         }
     }
@@ -696,6 +752,20 @@ impl Brep {
         self.validate_only = validate_only;
     }
 
+    /// `SmBrep::GetTolerance` (`SM_USE_OLDTOL`, CO-PORTED by `topology.edgeuse_p2`):
+    /// `m_sThisZoneTol3d`, [`ZONE_TOL_3D`] for a new B-rep (`SmTol::GetZoneTol3d` of
+    /// the default context, as `SmBrep()`).
+    #[must_use]
+    pub const fn tolerance(&self) -> f64 {
+        self.tolerance
+    }
+
+    /// Sets `m_sThisZoneTol3d` (the raw member write; `SmBrep::SetTolerance`, which
+    /// also updates the entities, is unit `topology.brep_*`).
+    pub fn set_tolerance(&mut self, tolerance: f64) {
+        self.tolerance = tolerance;
+    }
+
     /// The identity the B-rep is attributed and notified under (an `SmBrep*`).
     #[must_use]
     pub const fn key(&self) -> ObjectKey {
@@ -795,11 +865,7 @@ impl Brep {
         if self.shells.get(shell).is_none() {
             return Err(not_found(OP, shell));
         }
-        let face = self.faces.insert(Face {
-            shell,
-            loops: Vec::new(),
-            surface: None,
-        })?;
+        let face = self.faces.insert(Face::new(shell))?;
         self.shells
             .get_mut(shell)
             .ok_or_else(|| not_found(OP, shell))?

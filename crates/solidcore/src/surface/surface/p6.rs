@@ -1822,6 +1822,7 @@ fn boundary_iso_curve(
         SurfaceKind::Plane(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SrfInVolume(_)
         | SurfaceKind::Step(_) => {
             // DISPATCH GAP: SmIsoCurve over a surface that is not a B-spline (the ported
             // IsoCurve holds an SmBSplineSurface and would drop the kind's evaluation
@@ -1865,7 +1866,7 @@ fn create_iso_parametric_curve(
             let iso = s.create_iso_parametric_curve(k, dir, value, domain)?;
             Ok((iso.curve, iso.max_gap_3d))
         }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::CurveBounded(_) | SurfaceKind::SrfInVolume(_) | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
             Err(SolidError::unported(
                 "SmSurface::CreateIsoParametricCurve",
@@ -1882,6 +1883,7 @@ fn is_singularity(surface: &Surface, _uv: Point2, _tol: f64) -> Result<(bool, Su
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SrfInVolume(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
@@ -1900,6 +1902,7 @@ fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<bool> {
         SurfaceKind::Plane(p) => Ok(p.is_on_seam().0),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SrfInVolume(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_) => {
             // UNPORTED(surface.surface_p4): SmSurface::IsOnSeam

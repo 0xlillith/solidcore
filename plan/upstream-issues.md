@@ -991,6 +991,42 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `CopyBrepMap::set_at` takes non-null objects; `get_at` of an object without an entry is `InvalidInput`. The shim refuses both.
 
+#### UB-100. `SmPolyBrep::CalculateBoundingBox` dereferences the null point array when asked for a pseudo box
+- **Location:** `source/SMLib/src/SmPoly.cpp:2734` (`SmPointSet3d sPointSet(*pOptPolyPoints, FALSE)`), `SmPolyBrep::CalculateBoundingBox`.
+- **What happens:** In the branch without `pOptPolyPoints`, a requested pseudo box fills a local `sPolyPoints` and then builds the point set from `*pOptPolyPoints`, which is `NULL` in that branch.
+- **Trigger:** `CalculateBoundingBox(box, &pseudoBox)` (no point array).
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the FFI wrapper rejects the combination).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** `PolyBrep::calculate_bounding_box` returns `InvalidInput`.
+
+#### UB-101. `SmPolyBrep::GetPolyEdges` with a common edge use reads loops as edges
+- **Location:** `source/SMLib/src/SmPoly.cpp:6505` (`(SmPolyEdge*) pPolyFace->GetList()`), `SmPolyBrep::GetPolyEdges`.
+- **What happens:** The filtered branch walks each face's `m_pList`, which holds the face's loops, casts them to `SmPolyEdge*`, reads `GetOriginalEdgeuse()` at the edge member offset of an `SmPolyLoop`, and would add loop pointers to the edge array.
+- **Trigger:** `GetPolyEdges(edges, pEdgeuse)` with a non-null edge use.
+- **How found:** read during porting (`query.poly`).
+- **Confirmed:** no (the harness never passes an edge use).
+- **Severity:** crash/UB (type confusion, out-of-object read).
+- **Rust port:** `PolyBrep::poly_edges(Some(..))` returns `InvalidInput`.
+
+#### UB-102. `SmSrfInVolume::Evaluate` with orders (0,0) and `bOnlyUpperHalf = FALSE` writes `Duv` past the output array
+- **Location:** `source/SMLib/src/SmSrfInVolume.cpp:598`-`601` (the `lTempNumDerivsToEval = 2` branch), `:~720` onward (the `Duv` store), `SmSrfInVolume::Evaluate`.
+- **What happens:** With `lHighestUDeriv == lHighestVDeriv <= 1` and `bOnlyUpperHalf == FALSE` the second-derivative branch is taken, and `Duv` is stored at an index one past the single entry a (0,0) request sizes the caller's array to.
+- **Trigger:** `Evaluate(uv, 0, 0, D, FALSE)` with a one-entry `D`.
+- **How found:** crash in the C++ reference run (the shim's exit 139 during `surface.srf_in_volume` difftest development).
+- **Confirmed:** yes (segfault in the shim; the shim now sizes the array to avoid it).
+- **Severity:** crash/UB (out-of-bounds write).
+- **Rust port:** Skips the out-of-range `Duv` write and returns success with `D`; documented and tested.
+
+#### UB-103. `SmSrfInVolume::STEPInversion` indexes an empty point array when the volume inverse succeeds with no points
+- **Location:** `source/SMLib/src/SmSrfInVolume.cpp:927`-`928` (`sParamPoints[0]`), `SmSrfInVolume::STEPInversion`.
+- **What happens:** After `InvEvaluatePoint` / `InvMapPoint` reports `bSuccess == TRUE` the code passes `sParamPoints[0]` to the base surface without checking that the array holds a point. A volume inverse that succeeds with no points leaves it empty, and the reference passes a null reference (segfault in `SmSurfacePointSolver`).
+- **Trigger:** `STEPInversion` of a point the volume's inverse accepts but returns no point for (found by the generated `surface.srf_in_volume` cases once non-transform maps were allowed).
+- **How found:** crash in the C++ reference run (difftest case `gen1653`).
+- **Confirmed:** yes (segfault, exit 139).
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** returns `SM_ERR` when there is no first point; the shim probes the same volume call and reports `SM_ERR` instead of calling `STEPInversion`.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1876,6 +1912,69 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes, by the C++ build.
 - **Severity:** wrong result (failure on valid input).
 - **Rust port:** not reached yet (`intersect.surface_intersector_p5`).
+
+#### WR-81. `SmCPolyFace::RemovePolyFace` of a non-member removes the first member
+- **Location:** `source/SMLib/src/SmPoly.cpp:13195` `SmCPolyFace::RemovePolyFace`.
+- **What happens:** The status of `FindElement` is ignored and the index starts at 0, so a face that is not a member removes member 0. `~SmPolyFace` calls it for any face whose `m_pCPolyFace` still points at the composite, for example after an earlier `RemovePolyFace` of that face.
+- **Trigger:** `RemovePolyFace(f)` twice, or deleting a face after removing it from its composite.
+- **How found:** generated difftest case (`query.poly` mutate ops).
+- **Confirmed:** yes (`query.poly` generated `cpoly_remove` cases agree with the port, which keeps the behaviour).
+- **Severity:** wrong result.
+- **Rust port:** Faithful.
+
+#### WR-82. `SmCPolyFace::AddPolyFace` accepts a composite face, so composite queries recurse without bound
+- **Location:** `source/SMLib/src/SmPoly.cpp` `SmCPolyFace::AddPolyFace`, and the composite overrides of `GetPolyEdges`, `GetNormal`, `CalculateBoundingBox` and `GetOKBackPtrs`.
+- **What happens:** `AddPolyFace` takes any `SmPolyFace`, including another composite or the composite itself, and sets that face's `m_pCPolyFace` (overwriting a composite's own). The composite overrides then call the same virtual on every member, so a composite that contains itself recurses until the stack overflows.
+- **Trigger:** `c->AddPolyFace(c)` followed by `c->GetPolyEdges(...)` (or `GetNormal`, `CalculateBoundingBox`, `GetOKBackPtrs`). Upstream callers only add shell faces (`SmLineSegClass.cpp:1879-1883`).
+- **How found:** review of the `query.poly` port; the Rust mirror overflowed its stack on the same sequence.
+- **Confirmed:** no (by reading; not run against the C++ build).
+- **Severity:** crash (stack overflow) on misuse.
+- **Rust port:** Deviates: `add_cpoly_face` / `cpoly_add_poly_face` return `InvalidInput` for a composite face.
+
+#### WR-83. `SmVertexuse::ComputeUVSector` miscounts opposite orientations (operator precedence)
+- **Location:** `source/SMLib/src/SmVertexuse.cpp:993`-`994`.
+- **What happens:** `lOppositeCount = FU == OPP ? 1 : 0 + LU == OPP ? 1 : 0` parses as `FU == OPP ? 1 : (LU == OPP ? 1 : 0)`, so the count is never 2: a sector whose face use and loop use are both opposite gets the complementary angle (`EndTan` to `BegTan`) instead of `BegTan` to `EndTan`.
+- **Trigger:** an edge vertex use on an opposite face use of an opposite (inner) loop use.
+- **How found:** read during porting.
+- **Confirmed:** no (the path is deferred in the difftest until `topology.face_p2` lands).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::vertexuse::compute_uv_sector`).
+
+#### WR-84. `SmEdgeuse::IsConvexRadialSector` reports a failed binormal evaluation as convex
+- **Location:** `source/SMLib/src/SmEdgeuse.cpp:3592` `SmEdgeuse::IsConvexRadialSector` (the two `SER(EvaluateBinormalStepOff(...))`).
+- **What happens:** `SER` returns the non-zero `SmStatus` from a function returning `SmBoolean`, so a failing step-off evaluation (stepping off the face's UV domain, a degenerate binormal) makes the sector count as convex (`TRUE`), as in WR-52.
+- **Trigger:** A sample whose step-off point leaves the face's UV domain (large edge tolerance with `bOptStepOff`, sliver faces), or an edge use whose binormal cannot be evaluated.
+- **How found:** read during porting (unit `topology.edgeuse_p2`).
+- **Confirmed:** no (the step-off path is deferred on `topology.edgeuse_p3`).
+- **Severity:** wrong result.
+- **Rust port:** Faithful (`Ok(true)` on such an error).
+
+#### WR-85. `SmEdgeuse::CheckAndSetUVTrimCurve` deletes the curve it says the caller keeps
+- **Location:** `source/SMLib/src/SmEdgeuse.cpp:4732` `SmEdgeuse::CheckAndSetUVTrimCurve`; contract in `SmEdgeuse.h:160`.
+- **What happens:** The header says a rejected `pUVTrimCurve` stays "managed by caller", but the curve was attached first and the restoring `SetUVTrimCurve(pOldUVTrimCurve, 0.0, TRUE, ...)` deletes it (it is the attached curve), so a caller that deletes it frees it twice. Passing the curve already attached is worse: the first `SetUVTrimCurve` does nothing and the accepted branch then deletes `pOldUVTrimCurve`, the attached curve, leaving a dangling pointer. An `SER` return inside the accepted branch (the precise distance measurement, `CreateUVTrimCurve`) leaks the detached old curve.
+- **Trigger:** Any UV curve that is not good enough; any call with `GetUVTrimCurve()` as the argument.
+- **How found:** read during porting (unit `topology.edgeuse_p2`); the difftest shim relies on the deletion (it never frees the curve it passes).
+- **Confirmed:** no.
+- **Severity:** crash (double free / use after free).
+- **Rust port:** Takes the curve by value: it is attached or dropped; the attached curve cannot be passed.
+
+#### WR-86. `SmFace::GetPointsInFace` samples a rectangular face from `0`, not from its domain
+- **Location:** `source/SMLib/src/SmFace.cpp:21206`-`21230`, `SmFace::GetPointsInFace` (def. `:21167`).
+- **What happens:** On a face with `GetRectangularTrim() == TRUE` the sample points are `(k * dUInc, j * dVInc + dither)` with `dUInc` / `dVInc` fractions of the UV domain's lengths: the domain minimum is never added, so a face whose domain does not start at `(0, 0)` gets points outside it (and the positions and normals of those points). `dUInc` is also divided by `min(2 * count, 30) + 1` before the rectangular branch resets the column count to `min(count, 30)`, so the columns do not span the domain.
+- **Trigger:** `GetPointsInFace(1, ..)` on a rectangularly trimmed face with UV domain `[3, 4] x [-7, -6.5]` returns `uv = (1/3, 0.25)`.
+- **How found:** adversarial / edge-case fixture.
+- **Confirmed:** yes, by the C++ build (fixture `points_dom_offset_1` of `topology.face_p2`).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::face::p2::points_in_face`).
+
+#### WR-87. `sm_CheckSeamCrossing` returns `SM_SUCCESS` as its `SmBoolean`
+- **Location:** `source/SMLib/src/SmFace.cpp:145`, `sm_CheckSeamCrossing` (def. `:132`).
+- **What happens:** For a surface closed in neither direction it returns `SM_SUCCESS` (`1000`), which reads as `TRUE` ("a seam was crossed"), from a function documented to return whether a shift happened.
+- **Trigger:** `bClosedU == bClosedV == FALSE`.
+- **How found:** read during porting.
+- **Confirmed:** yes, by the C++ build (fixture `seam_neither` of `topology.face_p2`). Its only caller (`SmFace::ComputeLoopOrientation`) ignores the return value, so nothing observable depends on it today.
+- **Severity:** wrong result (latent).
+- **Rust port:** Reproduces it (`topology::face::p2::check_seam_crossing` returns `true`).
 
 ## Docs
 
