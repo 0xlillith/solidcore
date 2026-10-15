@@ -70,9 +70,9 @@
 //!   reads the missing-seam flags of the sector it returns.
 //! - **Unported callees.** `SmFace::Notify` (`topology.face_p3`, the `PRE_EDIT` /
 //!   `POST_EDIT` around `FlipLoopOrientation` of a loop on a face),
-//!   `SmEdgeuse::GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`)
 //!   and `SmSurface::DropPoint` (`surface.surface_p5`) return
-//!   [`SolidError::Unported`]. `SmShell::GetRegion` is the co-port
+//!   [`SolidError::Unported`]; `SmEdgeuse::GetOrCreateUVTrimCurve` is wired
+//!   (`topology.edgeuse_p3`, whose own deferred callees still return it). `SmShell::GetRegion` is the co-port
 //!   [`eu1::shell_region`].
 //! - The `std::unordered_set` overloads of `GetEdges` / `GetVertices`,
 //!   `GetEdgeusesAndVertexuses`, `CalculateBoundingBox`, `GetTurningAngDeg`,

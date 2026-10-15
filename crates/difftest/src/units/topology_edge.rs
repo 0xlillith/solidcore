@@ -1901,7 +1901,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             let r = match which {
                 0 => ed::max_gap_3d(&k, b, eid(*e), *want, t),
                 1 => ed::max_up_dim_gap_3d(&k, b, eid(*e), *want, t),
-                _ => ed::max_down_dim_gap_3d(b, eid(*e), *want, t),
+                _ => ed::max_down_dim_gap_3d(&k, b, eid(*e), *want, t),
             };
             match r {
                 Ok(g) => {

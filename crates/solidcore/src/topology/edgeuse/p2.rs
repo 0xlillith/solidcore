@@ -44,8 +44,8 @@
 //!   function, i.e. as `TRUE` (`plan/upstream-issues.md` WR-84); the port returns
 //!   `Ok(true)` for such an error.
 //! - **Unported callees.** `SmEdgeuse::EvaluateBinormal` and
-//!   `SmEdgeuse::CreateUVTrimCurve` (unit `topology.edgeuse_p3`),
-//!   `SmSurface::GlobalPointSolve` (unit `surface.surface_p4`) and
+//!   `SmEdgeuse::CreateUVTrimCurve` (unit `topology.edgeuse_p3`, ported: only their
+//!   own deferred callees remain) and
 //!   `SmVertex::SetTolerance` (unit `topology.vertex`, reached through
 //!   `SmEdge::SetTolerance`) return [`SolidError::Unported`].
 //!   `SmCrvOnSurf` is ported for B-spline base surfaces only (unit `curve.crv_on_surf`,
@@ -280,8 +280,8 @@ impl Default for StepOffOptions {
 /// [`SolidError::NotFound`] for a dangling id; `SM_ERR` when the step leaves the
 /// face's UV domain; [`SolidError::null_pointer`] without face or surface;
 /// [`SolidError::InvalidInput`] without face use; the evaluators' errors;
-/// [`SolidError::Unported`] for `EvaluateBinormal` (`topology.edgeuse_p3`) and the
-/// global point solve (`surface.surface_p4`, wired).
+/// [`SolidError::Unported`] from `EvaluateBinormal`'s deferred callees (see
+/// [`crate::topology::edgeuse::p3`]).
 pub fn evaluate_binormal_step_off(
     k: &Kernel,
     b: &mut Brep,
@@ -290,6 +290,40 @@ pub fn evaluate_binormal_step_off(
     step_off_distance: f64,
     options: &StepOffOptions,
 ) -> Result<BinormalEval> {
+    let mut out = BinormalEval {
+        point: Point3::UNDEF,
+        binormal: Vec3::UNDEF,
+        tangent: Vec3::UNDEF,
+        face_normal: Vec3::UNDEF,
+        uv: Point2::UNDEF,
+    };
+    evaluate_binormal_step_off_into(k, b, eu, parameter, step_off_distance, options, &mut out)?;
+    Ok(out)
+}
+
+/// [`evaluate_binormal_step_off`] writing its outputs into the caller's record in
+/// upstream's order, so that a failing call leaves what upstream's out-params hold:
+/// once `EvaluateBinormal` succeeded, the point, binormal (unitised in place; a failed
+/// `Unitize` stores `(0, 0, 1)`), tangent, face normal and UV of the edge point are
+/// set, and a failure later (stepping off the face, a failed evaluation) keeps them.
+/// Only on success are the step-off point, binormal, face normal and UV written. A
+/// failing `EvaluateBinormal` (its outputs are written piecemeal upstream) leaves the
+/// record untouched here. Callers that read the outputs after a failed call
+/// (`SmEdge::RadialSectorClassify`) start from the previous call's values, as
+/// upstream's locals.
+///
+/// # Errors
+///
+/// As [`evaluate_binormal_step_off`].
+pub fn evaluate_binormal_step_off_into(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    parameter: f64,
+    step_off_distance: f64,
+    options: &StepOffOptions,
+    out: &mut BinormalEval,
+) -> Result<()> {
     // evaluate binormal at the edge - set outputs for stepOffDistance = 0.0
     let at_edge = evaluate_binormal(
         k,
@@ -299,12 +333,13 @@ pub fn evaluate_binormal_step_off(
         !options.ok_to_make_uv_trim_curve,
         &BinormalOptions::default(),
     )?;
+    *out = at_edge;
     let uv = at_edge.uv;
     let tangent = at_edge.tangent;
 
     // low work - StepOffDistance = 0.0
     if step_off_distance < EFF_ZERO {
-        return Ok(at_edge);
+        return Ok(());
     }
 
     // edgeuse locals
@@ -320,7 +355,14 @@ pub fn evaluate_binormal_step_off(
     let mut surf_point = surface.evaluate_point(uv)?;
 
     // set startpoint = stepoffdistance from surfPoint in binormal direction
-    let binormal = at_edge.binormal.unitize()?;
+    let binormal = match at_edge.binormal.unitize() {
+        Ok(v) => v,
+        Err(e) => {
+            out.binormal = Vec3::new(0.0, 0.0, 1.0);
+            return Err(e);
+        }
+    };
+    out.binormal = binormal;
     let start_point = surf_point + step_off_distance * binormal;
 
     // drop start point to surface to get a guess point
@@ -404,13 +446,11 @@ pub fn evaluate_binormal_step_off(
     }
 
     // set output
-    Ok(BinormalEval {
-        point: surface.evaluate_point(uv_found)?,
-        binormal: normal.cross(tangent),
-        tangent,
-        face_normal: normal,
-        uv: uv_found,
-    })
+    out.binormal = normal.cross(tangent);
+    out.point = surface.evaluate_point(uv_found)?;
+    out.face_normal = normal;
+    out.uv = uv_found;
+    Ok(())
 }
 
 /// `IsConvexRadialSector`: true when, at `num_samples` evenly spaced interior samples
@@ -504,7 +544,7 @@ pub fn is_convex_radial_sector(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `CreateUVTrimCurve` (`topology.edgeuse_p3`); errors of
+/// [`SolidError::Unported`] from `CreateUVTrimCurve`'s deferred callees; errors of
 /// [`set_uv_trim_curve`].
 pub fn rebuild_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<()> {
     // create new TrimCurve
@@ -548,7 +588,7 @@ pub struct CheckAndSetUvTrimCurve {
 /// upstream dereferences null (no face, surface, edge, edge curve, mate, B-rep);
 /// the first distance measurement's error (returned after the old curve is restored);
 /// errors of the precise measurement; [`SolidError::Unported`] for a non-B-spline
-/// surface (`curve.crv_on_surf`), `CreateUVTrimCurve` (`topology.edgeuse_p3`) and
+/// surface (`curve.crv_on_surf`), `CreateUVTrimCurve`'s deferred callees and
 /// `SmEdge::SetTolerance` (`topology.edge`).
 pub fn check_and_set_uv_trim_curve(
     k: &Kernel,

@@ -94,9 +94,7 @@
 //!   port returns the error. [`SolidError::Unported`] always propagates.
 //! - **Recursion.** `sm_CoverOtherCoincidentFace` recurses once (its second call has
 //!   `bRefineDomains` set); no other recursion.
-//! - **Unported callees** return [`SolidError::Unported`]: `SmEdgeuse::NormalizedEvaluate`,
-//!   `EvaluateBinormal` and `GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`),
-//!   `SmBrep::Notify` (`topology.brep_p2`), `SmBrep::GetInfiniteRegion`
+//! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::Notify` (`topology.brep_p2`), `SmBrep::GetInfiniteRegion`
 //!   (`topology.brep_p1`) and `SmFace::CalculateUVDomainFromUVTrimCurves`
 //!   (`topology.face_p1`). `SmSurface::CoverOtherCoincidentSurface` is wired to
 //!   `surface.surface_p5` (and its `CoverCoincidentSurface` to `surface.surface_p3`); the
@@ -643,7 +641,7 @@ fn failed(e: SolidError) -> Result<()> {
 /// [`SolidError::Unported`] from the classification.
 pub fn find_radial_sector(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     e: EdgeId,
     classify_eu: EdgeuseId,
     region: Option<RegionId>,
@@ -681,7 +679,7 @@ pub fn find_radial_sector(
         return Ok(out);
     }
 
-    let faceuse_of = |eu: Option<EdgeuseId>| -> Result<Option<FaceuseId>> {
+    let faceuse_of = |b: &Brep, eu: Option<EdgeuseId>| -> Result<Option<FaceuseId>> {
         let eu = eu.ok_or_else(|| null("FindRadialSector: null radial edge use"))?;
         eu1::faceuse(b, eu)
     };
@@ -710,24 +708,24 @@ pub fn find_radial_sector(
                 }
                 RadialSectorClass::CoincidentSector => {
                     out.radial_edgeuse = Some(eu);
-                    out.coincident_faceuse = faceuse_of(out.radial_edgeuse)?;
+                    out.coincident_faceuse = faceuse_of(b, out.radial_edgeuse)?;
                     return Ok(out);
                 }
                 RadialSectorClass::CoincidentSectorMate => {
                     out.radial_edgeuse = eu1::mate(b, eu)?;
-                    out.coincident_faceuse = faceuse_of(out.radial_edgeuse)?;
+                    out.coincident_faceuse = faceuse_of(b, out.radial_edgeuse)?;
                     return Ok(out);
                 }
                 RadialSectorClass::CoincidentRadial => {
                     out.radial_edgeuse = eu1::radial(b, eu)?;
-                    out.coincident_faceuse = faceuse_of(out.radial_edgeuse)?;
+                    out.coincident_faceuse = faceuse_of(b, out.radial_edgeuse)?;
                     return Ok(out);
                 }
                 RadialSectorClass::CoincidentRadialMate => {
                     let r =
                         eu1::radial(b, eu)?.ok_or_else(|| null("FindRadialSector: no radial"))?;
                     out.radial_edgeuse = eu1::mate(b, r)?;
-                    out.coincident_faceuse = faceuse_of(out.radial_edgeuse)?;
+                    out.coincident_faceuse = faceuse_of(b, out.radial_edgeuse)?;
                     return Ok(out);
                 }
                 RadialSectorClass::ZeroSector | RadialSectorClass::ZeroSectorMate => {
@@ -741,7 +739,7 @@ pub fn find_radial_sector(
                     } else {
                         eu1::radial(b, eu)?
                     };
-                    out.coincident_faceuse = faceuse_of(out.radial_edgeuse)?;
+                    out.coincident_faceuse = faceuse_of(b, out.radial_edgeuse)?;
                     return Ok(out);
                 }
             }
@@ -764,7 +762,7 @@ pub fn find_radial_sector(
 /// [`SolidError::Unported`] from the classification.
 pub fn find_radial_sector_of_curve(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     e: EdgeId,
     edge_param: f64,
     curve: &Curve,
@@ -1333,6 +1331,7 @@ pub fn max_up_dim_gap_3d(
 /// (computed when not cached; null when either has none), with both (longer than
 /// `tol`) when `want_gaps`.
 pub fn max_down_dim_gap_3d(
+    k: &Kernel,
     b: &mut Brep,
     e: EdgeId,
     want_gaps: bool,
@@ -1348,8 +1347,8 @@ pub fn max_down_dim_gap_3d(
     if let [vu0, vu1_, ..] = vus.as_slice() {
         let vu0 = vu0.ok_or_else(|| null("GetMaxDownDimGap3d: null vertex use"))?;
         let vu1_ = vu1_.ok_or_else(|| null("GetMaxDownDimGap3d: null vertex use"))?;
-        let g0 = vu1::vertex_edge_gap(b, vu0, false)?.map(EdgeGap::VertexEdge);
-        let g1 = vu1::vertex_edge_gap(b, vu1_, false)?.map(EdgeGap::VertexEdge);
+        let g0 = vu1::vertex_edge_gap(k, b, vu0, false)?.map(EdgeGap::VertexEdge);
+        let g1 = vu1::vertex_edge_gap(k, b, vu1_, false)?.map(EdgeGap::VertexEdge);
 
         // build Gap List
         if let Some(gaps) = out.gaps.as_mut() {
@@ -1384,7 +1383,7 @@ pub fn max_gap_3d(
     // UpDim gaps
     let up = max_up_dim_gap_3d(k, b, e, want_gaps, tol)?;
     // DownDim gaps
-    let down = max_down_dim_gap_3d(b, e, want_gaps, tol)?;
+    let down = max_down_dim_gap_3d(k, b, e, want_gaps, tol)?;
 
     let gaps = match (up.gaps, down.gaps) {
         (Some(mut a), Some(c)) => {

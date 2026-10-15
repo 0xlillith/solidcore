@@ -91,8 +91,7 @@
 //!   constructor of a curve (`intersect.curve_class_p4`),
 //!   `SmCurveInterval::GetIvlBound_EdgeuseObj` (`intersect.curve_class_p4`),
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
-//!   `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve`
-//!   (`topology.edgeuse_p3`), `SmSurface::IsSingularity` of a non-plane
+//!   `SmSurface::IsSingularity` of a non-plane
 //!   (`surface.surface_p5`) and `SmOffsetSurface` (`surface.offset_surface`) return
 //!   [`SolidError::Unported`].
 

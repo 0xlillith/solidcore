@@ -53,11 +53,11 @@
 //!   still propagates.
 //! - **Upstream defects.** The two-singular-end-points recovery builds the joined UV
 //!   curve into the temporary second-half array, which is destroyed unused, so it never
-//!   produces a curve (`plan/upstream-issues.md` WR-93); the port builds and discards
+//!   produces a curve (`plan/upstream-issues.md` WR-95); the port builds and discards
 //!   it as upstream does. `NormalizedEvaluate` returns `SM_SUCCESS` for a point it
 //!   dropped to the surface even where upstream's trim curve was missing.
 //! - **Unported callees.** `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`),
-//!   `SmSurface::GetSingularities` (`surface.surface_p3`), `SmFace::CreateUVTrimCurves`
+//!   `SmFace::CreateUVTrimCurves`
 //!   (`topology.face_p3`, through the face's surface cache) and the paths of
 //!   `SmSurface::DropPoint` / `LocalPointSolve` that reach `LocalPointSolve_1`
 //!   (`surface.surface_point_solve_p3`) return [`SolidError::Unported`];
@@ -158,14 +158,10 @@ fn surface_drop_curve(
     ))
 }
 
-/// `pSurface->GetSingularities() != SM_SS_NONE`.
-fn surface_has_singularities(surface: &Surface) -> Result<bool> {
-    let _ = surface;
-    // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-    Err(SolidError::unported(
-        "SmSurface::GetSingularities",
-        "surface.surface_p3",
-    ))
+/// `pSurface->GetSingularities() != SM_SS_NONE` (the virtual, without pole outputs; it
+/// returns the singular sides as a bit set, there is no status to test).
+fn surface_has_singularities(k: &Kernel, surface: &Surface) -> Result<bool> {
+    Ok(surface.get_singularities(k, false, false)?.singular != 0)
 }
 
 /// The outputs of `SmSurface::DropPoint`.
@@ -197,8 +193,12 @@ fn surface_drop_point(
 
 /// `pSurface->IsSingularity(uv, eDir)` (the virtual: default tolerance `SM_EFF_ZERO`,
 /// surface and point tests).
-fn surface_is_singularity(surface: &Surface, uv: Point2) -> Result<(bool, SurfParamType)> {
-    let r = surface.is_singularity(uv, EFF_ZERO, false)?;
+fn surface_is_singularity(
+    k: &Kernel,
+    surface: &Surface,
+    uv: Point2,
+) -> Result<(bool, SurfParamType)> {
+    let r = surface.is_singularity(k, uv, EFF_ZERO, false)?;
     Ok((r.singular, r.direction))
 }
 
@@ -551,7 +551,7 @@ pub fn create_uv_trim_curve(
 
             // when dropCurve fails and Surface has singularities - it's likely
             // DropCurve started at a surface singularity
-            if (!l_ok || uv_curves.is_empty()) && surface_has_singularities(&surface)? {
+            if (!l_ok || uv_curves.is_empty()) && surface_has_singularities(k, &surface)? {
                 // create a temp curve copy with reverse parameterizaton
                 let mut rev_curve = curve.clone();
 
@@ -1025,8 +1025,8 @@ fn trim_other_uv_curves(
 
 /// The recovery for a curve whose both ends drop to singularities: drops the two halves
 /// separately and joins them. Upstream leaves the joined curve in the array of the
-/// second half, which is destroyed unused (module docs): the result is always
-/// "no curves", with `lResult` success when the join worked. Returns `lResult`.
+/// second half, which is destroyed unused (module docs; `plan/upstream-issues.md`
+/// WR-95): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
 #[allow(clippy::too_many_arguments)]
 fn two_singular_end_points(
     k: &Kernel,
@@ -1053,11 +1053,11 @@ fn two_singular_end_points(
     // drop curve endpoints onto surface
     let start_drop = ignored(surface_drop_point(surface, start_point, &surface_uv_domain))?;
     if let Some(d) = start_drop.filter(|d| d.found) {
-        start_singularity = surface_is_singularity(surface, d.uv)?.0;
+        start_singularity = surface_is_singularity(k, surface, d.uv)?.0;
         if start_singularity {
             let end_drop = ignored(surface_drop_point(surface, end_point, &surface_uv_domain))?;
             if let Some(d) = end_drop.filter(|d| d.found) {
-                end_singularity = surface_is_singularity(surface, d.uv)?.0;
+                end_singularity = surface_is_singularity(k, surface, d.uv)?.0;
             }
         }
     }
@@ -1134,7 +1134,7 @@ fn two_singular_end_points(
                     ))?;
 
                     // when stitching worked (the joined curve is dropped with the
-                    // second half's array: upstream defect, module docs)
+                    // second half's array: upstream defect WR-95, module docs)
                     if joined.is_some() {
                         l_result = true;
                         fail.create_path_type =

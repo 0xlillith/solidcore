@@ -80,9 +80,8 @@
 //!   ([`SolidError::Unported`] still propagates), leaving the outputs of a failed
 //!   evaluation at their `SM_UNDEF_DOUBLE` defaults. `sm_AreSeamCurves`' unused
 //!   edge use argument is dropped.
-//! - **Unported callees.** `SmSurface::DropPoint` (`surface.surface_p5`) and
-//!   `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`) return
-//!   [`SolidError::Unported`]. The gap computations are [`crate::heal::gap`];
+//! - **Unported callees.** `SmEdgeuse::EvaluateBinormal` is wired
+//!   (`topology.edgeuse_p3`); its deferred callees return [`SolidError::Unported`]. The gap computations are [`crate::heal::gap`];
 //!   `CalcMaxEdgeFaceGap`'s cross-section tolerance is the context one with no
 //!   context (`SmTol::GetXSectTol3d(NULL)`: the B-rep records carry no context).
 //! - **Co-ports.** The small accessors of other units this unit reaches are ported
@@ -914,6 +913,7 @@ pub fn max_edge_face_gap(
 /// [`SolidError::InvalidInput`] from the calculation (its status is ignored, as
 /// upstream).
 pub fn edge_ccw_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     eu: EdgeuseId,
     force_calc: bool,
@@ -923,7 +923,7 @@ pub fn edge_ccw_edge_gap(
         return Ok(None);
     }
     if force_calc || !b.edgeuse(eu)?.edge_ccw_edge_gap.is_init() {
-        ignore_status(calc_edge_ccw_edge_gap(b, eu, false, true))?;
+        ignore_status(calc_edge_ccw_edge_gap(k, b, eu, false, true))?;
     }
     Ok(Some(b.edgeuse(eu)?.edge_ccw_edge_gap))
 }
@@ -996,6 +996,7 @@ pub fn calc_max_edge_face_gap(
     // set Edge/Face gap - assigns m_pEdgeuse, m_dEdgeT and m_sFaceUV and computes the
     // gap
     let gap = EdgeFaceGap::with(
+        k,
         b,
         Some(eu),
         sample.this_param().x,
@@ -1025,6 +1026,7 @@ pub fn calc_max_edge_face_gap(
 /// upstream dereferences null (no counter-clockwise neighbour or edge);
 /// those of [`EdgeEdgeGap::set_edge_edge_gap`] when the gap is cached or wanted.
 pub fn calc_edge_ccw_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     eu: EdgeuseId,
     want_output: bool,
@@ -1065,13 +1067,14 @@ pub fn calc_edge_ccw_edge_gap(
 
     // set m_sEdgeCCWEdgeGap3d
     if cache {
-        let g = EdgeEdgeGap::with(b, Some(eu), Some(ccw), edge_t, ccw_edge_t)?;
+        let g = EdgeEdgeGap::with(k, b, Some(eu), Some(ccw), edge_t, ccw_edge_t)?;
         b.edgeuse_mut(eu)?.edge_ccw_edge_gap = g;
     }
 
     // set output
     match out {
         Some(_) => Ok(Some(EdgeEdgeGap::with(
+            k,
             b,
             Some(eu),
             Some(ccw),
@@ -1963,11 +1966,13 @@ mod tests {
         ));
         // the caches were reset before
         assert!(!is_max_edge_face_gap_init(&b, a0).unwrap());
-        assert!(calc_edge_ccw_edge_gap(&mut b, a0, false, false)
-            .unwrap()
-            .is_none());
+        assert!(
+            calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, false, false)
+                .unwrap()
+                .is_none()
+        );
         assert!(matches!(
-            calc_edge_ccw_edge_gap(&mut b, a0, true, false),
+            calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, true, false),
             Err(SolidError::InvalidInput { .. })
         ));
         // with curves: the edge/edge gap and the edge/face gap
@@ -1979,7 +1984,7 @@ mod tests {
             line.set_owner(None, None);
             b.edge_mut(e).unwrap().curve = Some(line);
         }
-        let g = calc_edge_ccw_edge_gap(&mut b, a0, true, true)
+        let g = calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, true, true)
             .unwrap()
             .unwrap();
         assert!(g.is_init() && g.gap_3d.abs() < 1e-12);

@@ -58,8 +58,9 @@
 //! - **Notify.** The vertex use part (clearing the cached gaps) is applied to the
 //!   record; the `SmTopology::Notify` step runs on the caller's topology records as
 //!   [`topo::notify`] does.
-//! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`)
-//!   returns [`SolidError::Unported`]; `SmLoopuse::GetOrientation` (`topology.loopuse`),
+//! - **Unported callees.** `SmEdgeuse::NormalizedEvaluate` is wired
+//!   (`topology.edgeuse_p3`; its own deferred callees still return
+//!   [`SolidError::Unported`]); `SmLoopuse::GetOrientation` (`topology.loopuse`),
 //!   `SmSurface::LocalPointSolve` / `IsSingularity` (`surface.surface_p5`),
 //!   `GlobalPointSolve` / `IsOnSeam` (`surface.surface_p4`; a plane's overrides are
 //!   ported) and `GetSingularities` (`surface.surface_p3`) are wired. The gap evaluation of
@@ -468,14 +469,24 @@ fn vertexuses_of_face(
 
 /// `SmVertexEdgeGap::Set(vu, dEdgeT)`: records the vertex use and parameter and
 /// evaluates the gap (`CacheGap`) unless the parameter is `SM_UNDEF_DOUBLE`.
-fn set_vertex_edge_gap(b: &Brep, vu: VertexuseId, edge_t: f64) -> Result<VertexEdgeGap> {
-    VertexEdgeGap::with(b, Some(vu), edge_t)
+fn set_vertex_edge_gap(
+    k: &Kernel,
+    b: &mut Brep,
+    vu: VertexuseId,
+    edge_t: f64,
+) -> Result<VertexEdgeGap> {
+    VertexEdgeGap::with(k, b, Some(vu), edge_t)
 }
 
 /// `SmVertexFaceGap::Set(vu, &uv)`: records the vertex use and surface parameter and
 /// evaluates the gap (`CacheGap`).
-fn set_vertex_face_gap(b: &Brep, vu: VertexuseId, uv: Point2) -> Result<VertexFaceGap> {
-    VertexFaceGap::with(b, Some(vu), Some(uv))
+fn set_vertex_face_gap(
+    k: &Kernel,
+    b: &mut Brep,
+    vu: VertexuseId,
+    uv: Point2,
+) -> Result<VertexFaceGap> {
+    VertexFaceGap::with(k, b, Some(vu), Some(uv))
 }
 
 /// `CalcVertexEdgeGap`: computes the gap between the vertex and its edge use's curve
@@ -489,6 +500,7 @@ fn set_vertex_face_gap(b: &Brep, vu: VertexuseId, uv: Point2) -> Result<VertexFa
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for an edge
 /// vertex use without vertex; those of [`VertexEdgeGap::set`].
 pub fn calc_vertex_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     vu: VertexuseId,
     want_out: bool,
@@ -540,10 +552,10 @@ pub fn calc_vertex_edge_gap(
     // set output - SmVertexEdgeGap::Set assigns m_pVertexuse and m_dEdgeT and computes
     // m_dGap3d
     if let Some(o) = out.as_mut() {
-        *o = set_vertex_edge_gap(b, vu, edge_t)?;
+        *o = set_vertex_edge_gap(k, b, vu, edge_t)?;
     }
     if cache {
-        let g = set_vertex_edge_gap(b, vu, edge_t)?;
+        let g = set_vertex_edge_gap(k, b, vu, edge_t)?;
         b.vertexuse_mut(vu)?.vertex_edge_gap = g;
         // keep equivalent vertexuses synchronized
         for &x in &siblings {
@@ -605,10 +617,10 @@ pub fn calc_vertex_face_gap(
     // set output - SmVertexFaceGap::Set assigns m_pVertexuse and m_sFaceUV and computes
     // m_dGap3d. Across a seam the UV jumps, so the other uses are not synchronized.
     if let Some(o) = out.as_mut() {
-        *o = set_vertex_face_gap(b, vu, uv)?;
+        *o = set_vertex_face_gap(k, b, vu, uv)?;
     }
     if cache {
-        let g = set_vertex_face_gap(b, vu, uv)?;
+        let g = set_vertex_face_gap(k, b, vu, uv)?;
         b.vertexuse_mut(vu)?.vertex_face_gap = g;
     }
 
@@ -624,6 +636,7 @@ pub fn calc_vertex_face_gap(
 ///
 /// Those of [`calc_vertex_edge_gap`].
 pub fn vertex_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     vu: VertexuseId,
     force_calc: bool,
@@ -635,7 +648,7 @@ pub fn vertex_edge_gap(
 
     // when asked - refresh the cache (status ignored)
     if force_calc || !b.vertexuse(vu)?.vertex_edge_gap.is_init() {
-        ignored_status(calc_vertex_edge_gap(b, vu, false, true))?;
+        ignored_status(calc_vertex_edge_gap(k, b, vu, false, true))?;
     }
 
     // all done
@@ -1703,10 +1716,13 @@ mod tests {
         let (mut b, vu, _) = wire();
         b.vertexuse_mut(vu[0]).unwrap().vertex_edge_gap.vertexuse = Some(vu[0]);
         // no curve: the cache is cleared and nothing is evaluated
-        let g = calc_vertex_edge_gap(&mut b, vu[0], true, true).unwrap();
+        let g = calc_vertex_edge_gap(&Kernel::default(), &mut b, vu[0], true, true).unwrap();
         assert_eq!(g, Some(VertexEdgeGap::new()));
         assert!(!b.vertexuse(vu[0]).unwrap().vertex_edge_gap.is_init());
-        assert_eq!(vertex_edge_gap(&mut b, vu[0], true).unwrap(), None);
+        assert_eq!(
+            vertex_edge_gap(&Kernel::default(), &mut b, vu[0], true).unwrap(),
+            None
+        );
         assert_eq!(vertex_face_gap(&k, &mut b, vu[0], true).unwrap(), None);
         assert_eq!(
             calc_vertex_face_gap(&k, &mut b, vu[2], true, true).unwrap(),
