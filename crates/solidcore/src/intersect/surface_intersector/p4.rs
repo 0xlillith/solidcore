@@ -52,9 +52,9 @@
 //!   walk over the pairs is [`SurfaceIntersector::find_interior_curves_from_node_pairs`]
 //!   and the step from the solutions to the pairs is unported.
 //! - **Offset surfaces.** `DoLawIntersection` needs both surfaces to be
-//!   `SmOffsetSurface`s (else `SM_ERR_NULL_POINTER`). No [`SurfaceKind`] is one yet
-//!   (unit `surface.offset_surface`), so with the surfaces that exist the call ends
-//!   there.
+//!   `SmOffsetSurface`s ([`SurfaceKind::OffsetSurface`], else `SM_ERR_NULL_POINTER`).
+//!   Past that check its law points wait on `SmFilletLaw::Evaluate`
+//!   (`blend.fillet_executive_p1`).
 //! - **Unported callees.** `SmSurface::IsSingularity` of a surface that is not a plane
 //!   (`surface.surface_p5`), `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`,
 //!   through part 1) and the global surface solve (`surface.surface_p11`, through

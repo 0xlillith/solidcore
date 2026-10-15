@@ -3944,8 +3944,10 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   later calls (and `GetNaturalUVDomain`, `GetKnots`) see it. The `&self` evaluators carry
   the extension through the call (its recursion and repeated base-body evaluations see it)
   and drop it; the `*_extending` evaluators store it. `TrimWithDomain` uses the storing one.
-  Code that relies on the stored extension across calls (the fillet solvers) must hold the
-  `OffsetSurface` mutably and call the `*_extending` methods. The difftest runs every script
+  The fillet solvers (`blend.fillet_custom_solver`) hold their rail offsets mutably and
+  evaluate through the `*_extending` methods and `OffsetSurface::with_evaluator`, which runs
+  an inherited `SmSurface` body (`Evaluate1st/2ndDerivatives`, `ComputeInwardVector`) on the
+  offset and stores the extension it makes. The difftest runs every script
   op through the storing methods; `via` ops (the `Surface` interface) only run while
   extension is off.
 - **Kernel arguments.** An offset's constructor asks its base for `GetSingularities`, which
@@ -3974,10 +3976,11 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   writes (`i + j` up to the larger order); untouched entries are caller memory upstream and
   zero or `UNDEF` in the Rust kinds. Fixture placeholders (`"NAT"`, `"SUB"`, `"MID"`,
   `"VMIN"`, `"VMAX"`, `"ON"`) are filled from the base built on the Rust side. Generated
-  extension distances are a fraction of the base's size (HANG-6). The FFI guard tracks the
-  base domain through the script (unknown after `TrimWithDomain`, `SwapUV`, `Reverse`) and
-  rejects boxes that may leave it (UB-101, HANG-13), a split once it is unknown, and the
-  orders of UB-99 / UB-100.
+  extension distances are a fraction of the base's size (HANG-6). The FFI rejects the
+  orders of UB-99, a split once the base domain is unknown, and boxes outside a base domain
+  it can still track; the shim, in the worker, re-checks every box against the actual base
+  domain after the preceding steps (UB-101, HANG-13) and zero-distance delegation to a
+  plane's evaluator (UB-100).
 - **Deferred:** most cases wait on `SmSurface::GetSingularities` (`surface.surface_p3`, PR
   #52): every constructor call with `SM_SS_UNKNOWN`, so `Copy`, `SplitAt`,
   `CreateOffsetSurface`, `CreateExtendedSurface` and `ReadFromDB` too. Every offset box
@@ -3987,3 +3990,14 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   with the actual prerequisite `UNPORTED(surface.surface_p6)`; `SetOffsetDistance` through the surface
   intersector's shared `&Surface` (`intersect.surface_intersector_p1`, reached only after
   `SmFilletLaw::Evaluate`, `blend.fillet_executive_p1`).
+- **Back-edges wired:** `blend.fillet_custom_solver` (PR #78) had co-ported the offset's data
+  with `UNPORTED(surface.offset_surface)` evaluations. Its `OffsetSurface` now wraps this
+  port (plus the base-pointer `SurfaceId`), and `LoadInitialValues` takes `crSurface1` as
+  `&mut` because upstream's `const` evaluation stores the extension in it. Upstream builds
+  the rail offsets with the default `SM_SS_UNKNOWN`, which waits on `surface.surface_p3`; the
+  fillet harness now passes `lSingularities` (`sing`, default `16`), and its generated
+  `SM_SS_NONE` cases compare `LoadJacobian` through the real evaluations: 448 cases, 360
+  pass, 0 failed, 88 deferred (`surface_p3` 60, `surface_p4` 28); 4000 seeds: 4048 cases,
+  0 failed; `--perturb` SENSITIVE.
+- **Merge with main (PRs #67, #78, #81):** main added UB-98, HANG-12 and WR-73, so this
+  unit's entries are UB-99..102, HANG-13/14 and WR-74..80.

@@ -115,8 +115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "offset_surface_v30",
@@ -1291,8 +1291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_Fillet_fillet1017",
@@ -1303,8 +1303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "db_v30_Fillet_fillet1017",
@@ -1843,8 +1843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_Fillet_vase",
@@ -1855,8 +1855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "db_v30_Fillet_vase",
@@ -1867,8 +1867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_Fillet_vase1",
@@ -1879,8 +1879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "db_v30_Fillet_vase1",
@@ -1891,8 +1891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_Fillet_vase2",
@@ -1903,8 +1903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "db_v30_Fillet_vase2",
@@ -1915,8 +1915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_Fillet_vase3",
@@ -1927,8 +1927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "db_v30_Fillet_vase3",
@@ -3883,8 +3883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -4039,8 +4039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0115",
@@ -4555,8 +4555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0179",
@@ -5111,8 +5111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0248",
@@ -6251,8 +6251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0390",
@@ -6279,8 +6279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0393",
@@ -6443,8 +6443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -6607,8 +6607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0433",
@@ -6883,8 +6883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0467",
@@ -7079,8 +7079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0491",
@@ -7315,8 +7315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0520",
@@ -8279,8 +8279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0640",
@@ -8419,8 +8419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0657",
@@ -8503,8 +8503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0667",
@@ -9291,8 +9291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0765",
@@ -9391,8 +9391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0777",
@@ -9403,8 +9403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0778",
@@ -9607,8 +9607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0803",
@@ -10435,8 +10435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0906",
@@ -11143,8 +11143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0994",
@@ -11715,8 +11715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1065",
@@ -12063,8 +12063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1108",
@@ -12395,8 +12395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1149",
@@ -13271,8 +13271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1258",
@@ -13379,8 +13379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1271",
@@ -13879,8 +13879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1333",
@@ -14203,8 +14203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1373",
@@ -14983,8 +14983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1470",
@@ -15179,8 +15179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1494",
@@ -15655,8 +15655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1553",
@@ -16331,8 +16331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1637",
@@ -16959,8 +16959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1715",
@@ -17259,8 +17259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1752",
@@ -17695,8 +17695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1806",
@@ -18067,8 +18067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1852",
@@ -19261,8 +19261,8 @@
   "cases_total": 2379,
   "deferred_by_unit": {
     "surface.cone_p1": 7,
-    "surface.offset_surface": 46,
-    "surface.surf_of_extrusion_p2": 2
+    "surface.surf_of_extrusion_p2": 2,
+    "surface.surface_p3": 46
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -703,8 +703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::GetSingularities",
+        "unit": "surface.surface_p3"
       },
       "max_rel_err": 0.0,
       "name": "offset_nurb_offset",
@@ -17036,7 +17036,7 @@
   "cases_passed": 2103,
   "cases_total": 2120,
   "deferred_by_unit": {
-    "surface.offset_surface": 1,
+    "surface.surface_p3": 1,
     "surface.surface_p4": 16
   },
   "max_rel_err": 0.0,

@@ -29,6 +29,7 @@
 //! | [`OffsetSurface::set_offset_distance`], [`OffsetSurface::set_allow_extension`], [`OffsetSurface::set_context`] | `SetOffsetDistance`, `SetAllowExtension`, `SetContext` |
 //! | [`SS_UNKNOWN`], [`MAX_DERIVS`]                        | `SM_SS_UNKNOWN` (`SmTypes.h`), `MAX_DERIVS` (local of `EvaluatePlainOrSimple`) |
 //! | [`MAX_STEPOFF_DEPTH`]                                 | no counterpart (recursion bound)                 |
+//! | [`OffsetSurface::with_evaluator`], [`OffsetEval`]     | the offset as an `SmSurface` for inherited bodies (`Evaluate1stDerivatives`, `ComputeInwardVector`, ...) |
 //!
 //! Deviations:
 //! - **Base surfaces.** `m_pSurface` and `m_pExtendedSurface` are owned boxes; a base
@@ -55,6 +56,8 @@
 //!   through a `const` cast. The `&self` evaluators carry the extension through the
 //!   call (recursion and repeated base-body evaluations see it as upstream) and drop it
 //!   at the end; the `*_extending` (`&mut self`) evaluators store it, as upstream.
+//!   [`OffsetSurface::with_evaluator`] runs an inherited `SmSurface` body on the
+//!   offset (as [`OffsetEval`]) and stores an extension its evaluations make.
 //!   [`OffsetSurface::trim_with_domain`] uses the storing evaluator. The `SM_NO_PRE_EDIT`,
 //!   `SM_NO_COPY` and `SM_NO_SPLIT` notifications are the object layer's.
 //! - **Evaluation output.** `Evaluate` / `EvaluateSimple` return `D[i][j]` (`i` times in
@@ -897,9 +900,18 @@ impl OffsetSurface {
         if domain.contains_point(uv, 0.0) {
             return self.surface.evaluate_normal(uv, u_side, v_side);
         }
+        self.with_evaluator(|eval| base_evaluate_normal(eval, uv, u_side, v_side))
+    }
+
+    /// Runs `f` on the offset seen as a generic surface ([`OffsetEval`]), as upstream
+    /// runs an inherited `SmSurface` body (`Evaluate1stDerivatives`,
+    /// `ComputeInwardVector`, ...) whose virtual calls reach the offset's evaluators.
+    /// An extension those evaluations make is stored in `m_pExtendedSurface`, as by
+    /// the `*_extending` evaluators.
+    pub fn with_evaluator<T>(&mut self, f: impl FnOnce(&OffsetEval<'_>) -> T) -> T {
         let (r, made) = {
             let eval = OffsetEval::new(self);
-            let r = base_evaluate_normal(&eval, uv, u_side, v_side);
+            let r = f(&eval);
             (r, eval.made.into_inner())
         };
         if let Some(m) = made {
@@ -1890,10 +1902,11 @@ fn find_nonsingular_stepoff(
 
 // ---- the offset seen through the generic surface interface ------------------------------
 
-/// The offset as an `SmSurface` for the base-class bodies it runs on itself
-/// (`SmSurface::EvaluateNormal`): its evaluations share the extension made during
-/// the call, which upstream stores in `m_pExtendedSurface` at once.
-struct OffsetEval<'a> {
+/// The offset as an `SmSurface` for the base-class bodies run on it
+/// (`SmSurface::EvaluateNormal` here, and the bodies passed to
+/// [`OffsetSurface::with_evaluator`]): its evaluations share the extension made
+/// during the call, which upstream stores in `m_pExtendedSurface` at once.
+pub struct OffsetEval<'a> {
     off: &'a OffsetSurface,
     made: core::cell::Cell<Option<Box<Surface>>>,
 }
