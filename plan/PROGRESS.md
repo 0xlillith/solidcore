@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**147 / 261 units ported** (89 green, 58 partial), **195,196 / 387,903 upstream lines (50.3%)**. 17 claimed, 0 blocked, 97 todo.
+**147 / 261 units ported** (89 green, 58 partial), **195,196 / 387,903 upstream lines (50.3%)**. 18 claimed, 0 blocked, 96 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -29,7 +29,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `intersect.curve_class_p6` (2213 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p4`, `intersect.curve_class_p7`
 - [ ] `topology.face_p2` (1827 lines) — missing: `surface.offset_surface`
 - [ ] `intersect.curve_class_p5` (2017 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p3`, `intersect.curve_class_p6`, `intersect.curve_class_p7`
-- [ ] `topology.edgeuse_p2` (600 lines) — missing: `topology.face_p2`
 - [ ] `intersect.curve_class_p8` (1900 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `intersect.curve_class_p9` (1220 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `topology.vertexuse` (1429 lines) — missing: `topology.face_p2`
@@ -125,6 +124,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (draft)
 - [ ] 🔨 `intersect.surface_intersector_p5` (622 lines) — in progress: #82 @bherbruck (ready for review)
+- [ ] 🔨 `topology.edgeuse_p2` (600 lines) — in progress: #87 @bherbruck (draft)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `query.poly` (2119 lines) — in progress: #73 @bherbruck (ready for review)
@@ -295,7 +295,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.proto_topology_p1` (2746 lines) — in progress: #67 @bherbruck (ready for review)
 - [ ] 🟡 `topology.edgeuse_p1` (1157 lines) — partial, 2722 cases
 - [ ] ⏳ `topology.face_p2` (1827 lines) — waiting
-- [ ] ⏳ `topology.edgeuse_p2` (600 lines) — waiting
+- [ ] 🔨 `topology.edgeuse_p2` (600 lines) — in progress: #87 @bherbruck (draft)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #80 @0xlillith (draft)
 - [ ] ⏳ `topology.vertexuse` (1429 lines) — waiting
 - [ ] ⏳ `topology.vertex` (824 lines) — waiting
