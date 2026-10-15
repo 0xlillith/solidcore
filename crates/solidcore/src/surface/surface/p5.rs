@@ -15,7 +15,7 @@
 //! | [`Surface::create_iso_parametric_curve`], [`IsoParametricCurve`] | `CreateIsoParametricCurve` (virtual: `SmBSplineSurface`, `SmPlane`; the `SmSurface` body for the rest) |
 //! | [`Surface::local_point_solve`], [`PointSolve`]      | `LocalPointSolve`                             |
 //! | [`Surface::local_point_solve_0`], [`PointSolve0`]   | `LocalPointSolve_0`                           |
-//! | [`Surface::drop_point`], [`DropPointOptions`], [`DropPoint`] | `DropPoint`                          |
+//! | [`Surface::drop_point`], [`Surface::drop_point_with_kernel`], [`DropPointOptions`], [`DropPoint`] | `DropPoint`                          |
 //! | [`Surface::local_surface_surface_intersect_xyz`]    | `LocalSurfaceSurfaceIntersect` (from an image-space guess) |
 //! | [`Surface::cover_other_coincident_surface`], [`CoverOtherCoincident`] | `CoverOtherCoincidentSurface` |
 //! | [`sp_local_solve`]                                  | `sm_SpLocalSolve` (static)                    |
@@ -24,6 +24,8 @@
 //! | [`cs_identical_solutions`], [`csi_identical_solutions`] | `SmCSGlobalSolver::IdenticalSolutions`, `SmCSIGlobalSolver::IdenticalSolutions` |
 //!
 //! Deviations:
+//! - **Kernel.** `drop_point_with_kernel` passes the caller's kernel to fast and
+//!   global solves. The existing `drop_point` entry point retains its default kernel.
 //! - **Solver classes without a Rust struct.** `SmCSGlobalSolver` and
 //!   `SmCSIGlobalSolver` have no struct yet (their constructors belong to unit
 //!   `surface.surface_p1`), so their `IdenticalSolutions` are free functions over the

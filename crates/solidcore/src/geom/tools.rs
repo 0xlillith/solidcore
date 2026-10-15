@@ -27,7 +27,7 @@
 //! - **Edge and vertex queries** are those of `topology::edge` and `topology::vertex`.
 //! - **Unported callees.** Curve evaluation of the opaque target
 //!   curve, point drops, curve/curve distance,
-//!   `SmBrep::GetEdges`, `SmBrep::GetTolerance` and exact B-rep cache dependencies
+//!   `SmBrep::GetEdges` and exact B-rep cache dependencies
 //!   belong to units not ported yet; those calls return [`SolidError::Unported`]
 //!   (see the `UNPORTED` markers). The target curve of [`find_coincident_edge`] is
 //!   an opaque `C` until the curve units land (`curve.curve_p2`).
