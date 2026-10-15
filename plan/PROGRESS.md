@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**168 / 261 units ported** (92 green, 76 partial), **226,307 / 387,903 upstream lines (58.3%)**. 22 claimed, 0 blocked, 71 todo.
+**168 / 261 units ported** (92 green, 76 partial), **226,307 / 387,903 upstream lines (58.3%)**. 23 claimed, 0 blocked, 70 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -15,7 +15,6 @@ _None right now; see the next section._
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
 - [ ] `surface.cone_p3` (1939 lines) — missing: `surface.cone_p2`
-- [ ] `surface.surface_p11` (1789 lines) — missing: `surface.surface_p3`
 - [ ] `intersect.surface_drop_lib_p3` (2062 lines) — missing: `intersect.surface_drop_lib_p2`, `surface.offset_surface`, `surface.surface_p3`
 - [ ] `intersect.curve_class_p3` (1986 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
 - [ ] `intersect.curve_class_p4` (2022 lines) — missing: `intersect.curve_class_p2`, `intersect.curve_class_p7`
@@ -92,6 +91,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
+- [ ] 🔨 `surface.surface_p11` (1789 lines) — in progress: #120 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_p8` (2374 lines) — in progress: #118 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_curve` (2014 lines) — in progress: #107 @bherbruck (ready for review)
@@ -261,7 +261,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_p10` (2172 lines) — partial, 867 cases
 - [ ] 🔨 `surface.surface_p3` (1794 lines) — in progress: #52 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
-- [ ] ⏳ `surface.surface_p11` (1789 lines) — waiting
+- [ ] 🔨 `surface.surface_p11` (1789 lines) — in progress: #120 @froglemonade2 (draft)
 - [ ] 🔨 `surface.surface_p8` (2374 lines) — in progress: #118 @froglemonade2 (draft)
 - [ ] 🟡 `surface.surface_point_solve_p1` (1771 lines) — partial, 1035 cases
 - [ ] 🟡 `surface.surface_point_solve_p2` (1882 lines) — partial, 1320 cases
