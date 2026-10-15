@@ -15,7 +15,7 @@
 //! | [`proto_vertex_capture_distance`]     | `SmProtoVertex::GetCaptureDistance`               |
 //! | [`proto_vertex_contains_point`]       | `SmProtoVertex::ContainsPoint`                    |
 //! | [`ProtoTopologyManager::capture_distance`] | `SmProtoTopologyManager::GetCaptureDistance` (already in `topology::proto_topology`) |
-//! | [`face_vertices`]                     | `SmFace::GetVertices(SmTArray&, ..)` with `SmLoopuse::GetVertices(SmTArray&, ..)` (CO-PORTED, `topology.face_p4`) |
+//! | [`face_vertices`]                     | `SmFace::GetVertices(SmTArray&, ..)` (CO-PORTED, `topology.face_p4`) |
 //! | [`face_loop`]                         | the `SmLoop` / `SmEdgeuse` / `SmEdge` / `SmFace` data `SmLoop::ContainsUVPoint` reads |
 //! | `ClassObject for EntityRef`           | the `SmObject*` of a classification of B-rep topology |
 //!
@@ -83,8 +83,9 @@ use crate::surface::surface_cache::p1::FaceContainment;
 use crate::surface::trim_srf_cache::TrimSrfCache;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as fp2;
+use crate::topology::loopuse;
 use crate::topology::proto_topology::{ProtoTopologyManager, ProtoVertex};
-use crate::topology::{Brep, EdgeId, FaceId, LoopId, LoopuseStart, VertexId};
+use crate::topology::{Brep, EdgeId, FaceId, LoopId, VertexId};
 
 const OP_CLASSIFY: &str = "query::face::p2::point_classify";
 const OP_CURVE: &str = "query::face::p2::curve_on_classify";
@@ -115,17 +116,17 @@ fn null(operation: &'static str, reason: &'static str) -> SolidError {
 // ---- co-ported topology access ----------------------------------------------------------
 
 /// `SmFace::GetVertices(SmTArray&, NULL, bTgtLoopsOnly, pOptTgtLoops)` (CO-PORTED from
-/// unit `topology.face_p4`, with `SmLoopuse::GetVertices(SmTArray&, NULL)` of unit
-/// `topology.loopuse`): for every loop use of the upward face use selected as
-/// [`eu1::faceuse_loopuses`] selects them, the vertex of a vertex loop use, else the
-/// distinct start vertices of its edge uses in CCW order; the lists of the loop uses
-/// are appended (a vertex shared by two loops is listed twice). None without face use.
+/// unit `topology.face_p4`): the vertices of the loop uses of the upward face use
+/// selected as [`eu1::faceuse_loopuses`] selects them ([`loopuse::vertices`]: the vertex
+/// of a vertex loop use, else the distinct start vertices of its edge uses in CCW
+/// order), appended (a vertex shared by two loops is listed twice). None without face
+/// use.
 ///
 /// # Errors
 ///
-/// Those of [`eu1::faceuse_loopuses`] and [`eu1::loopuse_edgeuses`];
-/// [`SolidError::InvalidInput`] for a vertex loop use without vertex use, an edge use
-/// without vertex use, or a vertex use without vertex (upstream dereferences them).
+/// Those of [`eu1::faceuse_loopuses`] and [`loopuse::vertices`];
+/// [`SolidError::InvalidInput`] for a vertex use without vertex (upstream dereferences
+/// it).
 pub fn face_vertices(
     b: &Brep,
     f: FaceId,
@@ -140,34 +141,10 @@ pub fn face_vertices(
         return Ok(out);
     };
     for lu in eu1::faceuse_loopuses(b, fu, tgt_loops_only, tgt_loops)? {
-        // SmLoopuse::GetVertices: init output
-        let mut lu_vertices: Vec<VertexId> = Vec::new();
-        if let LoopuseStart::Vertexuse(vu) = b.loopuse(lu)?.start {
-            // get the only Vertex
-            let vu = vu.ok_or_else(|| null(OP_VERTICES, "vertex loop use without vertex use"))?;
-            let v = b
-                .vertexuse(vu)?
-                .vertex
-                .ok_or_else(|| null(OP_VERTICES, "vertex use without vertex"))?;
-            lu_vertices.push(v);
-        } else {
-            // for every Edgeuse until we get back to the StartEU
-            for eu in eu1::loopuse_edgeuses(b, lu)? {
-                let vu = b
-                    .edgeuse(eu)?
-                    .vertexuse
-                    .ok_or_else(|| null(OP_VERTICES, "edge use without vertex use"))?;
-                let v = b
-                    .vertexuse(vu)?
-                    .vertex
-                    .ok_or_else(|| null(OP_VERTICES, "vertex use without vertex"))?;
-                if !lu_vertices.contains(&v) {
-                    lu_vertices.push(v);
-                }
-            }
-        }
         // accumulate vertices
-        out.extend(lu_vertices);
+        for v in loopuse::vertices(b, lu, None)? {
+            out.push(v.ok_or_else(|| null(OP_VERTICES, "vertex use without vertex"))?);
+        }
     }
     Ok(out)
 }
@@ -906,7 +883,7 @@ mod tests {
     use crate::surface::plane::Plane;
     use crate::topology::{
         Edge, Edgeuse, EdgeuseId, EdgeuseOwner, Face, Faceuse, FaceuseId, Loop, Loopuse, LoopuseId,
-        Vertex, Vertexuse, VertexuseId, VertexuseOwner,
+        LoopuseStart, Vertex, Vertexuse, VertexuseId, VertexuseOwner,
     };
 
     /// A unit-square planar face over `[0, 1]^2` with UV trim lines.
@@ -945,6 +922,7 @@ mod tests {
             loop_: Some(LoopId::from_index(0)),
             mate: None,
             start: LoopuseStart::Edgeuse(Some(EdgeuseId::from_index(0))),
+            ..Loopuse::default()
         })
         .unwrap();
         b.add_loop_record(Loop {
