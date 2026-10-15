@@ -3196,8 +3196,8 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   both functions call, so the iso curves keep their own `IsDegenerate`, `GetKnots` and
   `CalculateContinuities`.
 - **`sm_SCLocalSolve` shim.** The verbatim copy takes the evaluated surface, the patch
-  surface and the node boxes instead of the tree nodes, and stops with status `-2` where it
-  would call `sm_SpLocalSolve` (static, `surface.surface_p5`); the Rust side defers there.
+  surface and the node boxes instead of the tree nodes. PR #106 replaces its former
+  `-2` stop marker with the real `sm_SpLocalSolve` reference shared with the p5 shim.
 - **Upstream quirks kept.** `SmSSGlobalSolver::IdenticalSolutions` reads the surface
   parameters from `m_vStart[1..4]` (the solutions hold them in `[0..3]`);
   `CalculateContinuities` keeps the knots of a replaced degenerate iso curve;
@@ -3827,9 +3827,9 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   `pOptSurfCrvOnSurf` and `pOptCrvOrientation` arguments of `DropPoint`; `SmSurface::DropPoint` and
   `LocalPointSolve` of the generic callers (`curve::curve::p2`, `nurbs::b_spline_curve_n_lib`) go through
   `SurfaceEvaluate::{drop_point_minimize, local_point_solve_minimize}`.
-- **Kernel arguments.** `Surface::drop_point` and `Surface::cover_other_coincident_surface`
-  call `drop_point_fast` / `convert_domain_from_*` with a default `Kernel` (they read only
-  tolerances); `drop_point` should take the caller's kernel once its callers have one.
+- **Kernel arguments.** PR #106 threads the caller's kernel through `Surface::drop_point`,
+  its fast/local/global solves and their callers. `Surface::cover_other_coincident_surface`
+  still calls `convert_domain_from_*` with a default `Kernel`.
 
 ## intersect.curve_class_p1 (`SmCurveClassification`, part 1, PR #47 review, 2026-10-14)
 
@@ -4436,9 +4436,10 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   flag, termination reason and iteration count. `FindNextStep` also preserves the
   upstream plane-converged branch assigning `sNREval`, rather than silently changing
   the C++ algorithm.
-- The pre-existing no-kernel `LocalPointSolve` API uses a default kernel; a new
-  `local_point_solve_with_kernel` entry carries the caller's kernel and is used by
-  the global point solver. No global state is introduced.
+- `Surface::local_point_solve`, `Surface::drop_point` and the patch-local point
+  solver take the caller's kernel. The context is threaded through their geometry,
+  intersection and topology callers, including `SurfaceEvaluate` wrappers; local
+  and global fallbacks no longer replace caller tolerances with defaults.
 - Boundary regression `matrix_0363` exposed an overly strict Rust guard in
   `SurfOfRevolution::evaluate_step`: release C++ accepts sweep-only derivative
   orders such as `(2, 0)`, despite its debug-only equal-order assertion. These
@@ -4448,6 +4449,27 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
 - Evaluation copies of nested STEP, curve-bounded and volume surfaces preserve
   exact nested geometry and ownership; a preflight walk bounds every owned
   surface, trim-curve and volume-map branch to 64 levels before recursive copying.
+- **PR #106 review:** the seam jump uses `!new_uv.approx_ne(uv)`, preserving the
+  left operand and the scaled tolerance of `SmVector2d::operator!=`. Two native
+  regressions failed before the fix (`cpp U=0`, `rust U=1e-6`) and pass after it;
+  four controls just beyond the tolerance still jump as upstream does. The large
+  V coordinate makes the short U seam tolerance-equivalent without violating the
+  native harness's minimum parameter-range guard.
+- Six seam-threshold fixtures and 36 STEP-wrapped sphere-, torus- and cone-shaped
+  revolution fixtures cover both seam sides, poles and three solver operations.
+  These use actual `SmSurfOfRevolution` generators, not B-spline stand-ins.
+- Integrated the final p4 back-edges from merged PR #49 and the latest p5
+  back-edges from PR #50. The remaining `heal.gap` surface drop now calls the real
+  `Surface::drop_point`, preserving its optional guess and ignored ordinary status.
+  No `UNPORTED(surface.surface_p4)` or `UNPORTED(surface.surface_p5)` sites remain.
+- Reaching `sm_SpLocalSolve` through p6 uncovered a stale native shim sentinel:
+  its adapted `sm_SCLocalSolve` returned `SC_SP_LOCAL_SOLVE` instead of calling
+  the reference solver. p5/p6 now include the same verbatim `sm_LoadGuesses`,
+  `sm_PassSPConvergenceTest` and `sm_SpLocalSolve` bodies from a shared shim header.
+  No reference numerical logic or differential tolerance is changed.
+- The exact temporary copy remains necessary to preserve the immutable surface's
+  out-of-bounds flag on all exits. Its owned-geometry preflight still bounds copy
+  depth to 64. A borrowing evaluation adapter would be a separate optimization.
 
 ## heal.gap (`SmGap`, `SmGapArray`, `SmGapSample`, `SmGapFunction`, 2026-10-15; partial, no disagreements)
 
@@ -4473,8 +4495,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   last bits, which a distance of near-coincident points amplifies. Parameters are given
   as fractions of the selected edge's interval / the face surface's domain, resolved on
   the imported graph by both sides.
-- **Deferred:** the surface drops of `SmCrvSrfGapFunction` / `SmSrfSrfGapFunction`
-  (`SmSurface::DropPoint`, `surface.surface_p5`), curve drops onto an `SmCrvOnSurf`
+- **Deferred:** curve drops onto an `SmCrvOnSurf`
   (`SmCurveClassification` construction, `intersect.curve_class_p4`), and trim-curve gaps
   on edge uses without a UV trim curve (creating one in
   `SmEdgeuse::GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`; the existing-curve branch
@@ -4485,7 +4506,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   (`CalcEdgeCCWEdgeGap`, `CalcMaxEdgeFaceGap`, which now take the kernel). Their
   runners compare only the cache states of those gaps, so the gap values are compared
   here. `CalcMaxEdgeFaceGap` uses the context-less `SmTol::GetXSectTol3d(NULL)` (the
-  records carry no context); it is deferred anyway by the surface drop.
+  records carry no context). PR #106 wires the surface drop for both gap functions.
 - **Upstream bugs** ported as is: `plan/upstream-issues.md` WR-88 (non-B-spline `v`
   samples spaced by array index), WR-89 (B-spline spans walked from the first knot),
   WR-90 (`SmGapArray::Append` keeps the old longest gap), UB-104 (null dereferences and

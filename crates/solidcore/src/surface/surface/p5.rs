@@ -744,24 +744,8 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the selected solvers. This compatibility entry point uses the default
-    /// kernel; [`Surface::local_point_solve_with_kernel`] retains caller settings.
+    /// Those of the selected local solver. The caller's kernel supplies tolerances.
     pub fn local_point_solve<O: Copy>(
-        &self,
-        domain: &Extent2d,
-        op: SolverOperation,
-        test_point: Point3,
-        guess_uv: Point2,
-    ) -> Result<PointSolve<O>> {
-        self.local_point_solve_with_kernel(&Kernel::default(), domain, op, test_point, guess_uv)
-    }
-
-    /// [`Surface::local_point_solve`] using the caller's kernel for tolerance and cache queries.
-    ///
-    /// # Errors
-    ///
-    /// Those of the selected local solver.
-    pub fn local_point_solve_with_kernel<O: Copy>(
         &self,
         k: &Kernel,
         domain: &Extent2d,
@@ -950,6 +934,7 @@ impl Surface {
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn drop_point<O: SolutionObject>(
         &self,
+        k: &Kernel,
         pt_to_drop: Point3,
         domain: &Extent2d,
         opts: &DropPointOptions,
@@ -981,7 +966,7 @@ impl Surface {
 
         // first try DropPointFast(), to catch special cases.
         if let Some(fast) = ignored(self.drop_point_fast::<O>(
-            &Kernel::default(),
+            k,
             domain,
             op,
             pt_to_drop,
@@ -1004,7 +989,7 @@ impl Surface {
         // Try LocalPointSolve if a guess was supplied.
         if !success {
             if let Some(g) = guess {
-                match ignored(self.local_point_solve::<O>(domain, op, pt_to_drop, g))? {
+                match ignored(self.local_point_solve::<O>(k, domain, op, pt_to_drop, g))? {
                     Some(r) => {
                         success = r.found;
                         sol = r.solution;
@@ -1026,7 +1011,7 @@ impl Surface {
         if !success {
             // Haven't found it yet. Call GlobalPointSolve.
             solutions = self.global_point_solve::<O>(
-                &Kernel::default(),
+                k,
                 domain,
                 op,
                 pt_to_drop,
@@ -1536,6 +1521,7 @@ impl Surface {
 /// [`SolidError::Unported`] from the local point solve.
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)] // upstream's list
 pub fn sp_local_solve<O: SolutionObject>(
+    k: &Kernel,
     surface: &Surface,
     uv_domain: &Extent2d,
     u_conts: [ContinuityType; 2],
@@ -1569,7 +1555,7 @@ pub fn sp_local_solve<O: SolutionObject>(
 
         // for every guess point (there is one)
         // Find NewtonRaphson solution for closest surf point to crPoint
-        if let Some(r) = ignored(surface.local_point_solve::<O>(uv_domain, op, point, guess))? {
+        if let Some(r) = ignored(surface.local_point_solve::<O>(k, uv_domain, op, point, guess))? {
             let mut found = r.found;
             let mut solution = r.solution;
 
@@ -2092,6 +2078,7 @@ mod tests {
         let s = xy_plane();
         let dom = s.natural_uv_domain();
         let r = s.local_point_solve::<Obj>(
+            &Kernel::default(),
             &dom,
             SolverOperation::Minimize,
             Vec3::new(0.0, 0.0, 1.0),
@@ -2105,6 +2092,7 @@ mod tests {
         assert_eq!(result.solution.start.solution_value, 1.0);
         // a maximise solve runs LocalPointSolve_0, whose Newton solve is not ported
         let r = s.local_point_solve::<Obj>(
+            &Kernel::default(),
             &dom,
             SolverOperation::Maximize,
             Vec3::new(0.0, 0.0, 1.0),
@@ -2123,7 +2111,9 @@ mod tests {
             operation: SolverOperation::Normalize,
             ..DropPointOptions::default()
         };
-        let r = s.drop_point::<Obj>(p, &dom, &opts).unwrap();
+        let r = s
+            .drop_point::<Obj>(&Kernel::default(), p, &dom, &opts)
+            .unwrap();
         assert!(r.success);
         assert!((r.gap - 1.5).abs() < 1e-9);
         assert!((r.result_uv.x - c.x).abs() < 1e-9 && (r.result_uv.y - c.y).abs() < 1e-9);

@@ -1226,7 +1226,7 @@ fn local_point_solve<O: SolutionObject>(
 ) -> Result<(bool, Solution<O>)> {
     // (upstream's LocalPointSolve overwrites the solution with its own, default when
     // nothing was found)
-    let r = surface.local_point_solve_with_kernel::<O>(k, domain, op, point, guess)?;
+    let r = surface.local_point_solve::<O>(k, domain, op, point, guess)?;
     Ok((r.found, r.solution))
 }
 

@@ -604,7 +604,7 @@ impl SurfaceIntersector<'_> {
 
         // Set bIsDegenerate = TRUE: a degenerate point xsect curve (status ignored)
         let is_degenerate =
-            ignored(self.classify_boundary_start_point_intersection(&tsp))?.unwrap_or(false);
+            ignored(self.classify_boundary_start_point_intersection(k, &tsp))?.unwrap_or(false);
 
         // when a degenerate point not on an output curve yet: classify it at the end
         if is_degenerate && !self.is_point_on_curve(k, tsp.crv_pos(), &out.curves_3d, None)? {

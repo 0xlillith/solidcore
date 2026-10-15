@@ -534,7 +534,7 @@ fn local_point_solve(
     guess: Point2,
 ) -> Result<(bool, Point2)> {
     // Retain the original virtual evaluator (in particular SmPlane's override).
-    let r = surface.local_point_solve_with_kernel::<crate::surface::surface::p4::NoObject>(
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
         k,
         domain,
         SolverOperation::Intersect,

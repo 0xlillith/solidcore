@@ -660,6 +660,7 @@ pub fn map_to_2d(tol_3d: f64, uv: Point2, surface: &Surface) -> Result<f64> {
 ///
 /// [`SolidError::Unported`] for a curve on surface, and from the evaluations and the drop.
 pub fn map_to_2d_on_curve(
+    k: &Kernel,
     tol_3d: f64,
     param: f64,
     trim_curve: &Curve,
@@ -692,6 +693,7 @@ pub fn map_to_2d_on_curve(
         // general 3 dim Curve: drop its point and tangent to the surface's UV space
         // (statuses ignored upstream: the UV stays undefined when the drop fails)
         let drop = ignored(surface.drop_point::<crate::surface::surface::p4::NoObject>(
+            k,
             p0,
             &surface.natural_uv_domain(),
             &crate::surface::surface::p5::DropPointOptions::default(),

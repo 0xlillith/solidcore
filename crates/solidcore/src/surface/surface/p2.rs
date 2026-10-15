@@ -1474,6 +1474,7 @@ pub trait SurfaceEvaluate {
     /// default solution).
     fn local_point_solve_minimize(
         &self,
+        k: &Kernel,
         domain: &Extent2d,
         point: Point3,
         guess: Point2,
@@ -1487,6 +1488,7 @@ pub trait SurfaceEvaluate {
     /// [`SolidError::Unported`] (upstream ignores the status; a failed drop is `None`).
     fn drop_point_minimize(
         &self,
+        k: &Kernel,
         point: Point3,
         domain: &Extent2d,
         guess: Option<Point2>,
@@ -1567,12 +1569,14 @@ pub trait SurfaceEvaluate {
 impl SurfaceEvaluate for Surface {
     fn local_point_solve_minimize(
         &self,
+        k: &Kernel,
         domain: &Extent2d,
         point: Point3,
         guess: Point2,
     ) -> Result<(bool, f64, Point2)> {
         // (status ignored upstream: a failed solve leaves the default solution)
         let Some(r) = crate::error::ignored(self.local_point_solve::<super::p4::NoObject>(
+            k,
             domain,
             SolverOperation::Minimize,
             point,
@@ -1590,6 +1594,7 @@ impl SurfaceEvaluate for Surface {
 
     fn drop_point_minimize(
         &self,
+        k: &Kernel,
         point: Point3,
         domain: &Extent2d,
         guess: Option<Point2>,
@@ -1600,7 +1605,7 @@ impl SurfaceEvaluate for Surface {
         };
         // (status ignored upstream: a failed drop leaves bSuccess FALSE)
         let r =
-            crate::error::ignored(self.drop_point::<super::p4::NoObject>(point, domain, &opts))?;
+            crate::error::ignored(self.drop_point::<super::p4::NoObject>(k, point, domain, &opts))?;
         Ok(r.and_then(|r| r.success.then_some((r.result_uv, r.gap))))
     }
 
@@ -1668,21 +1673,23 @@ impl SurfaceEvaluate for Surface {
 impl SurfaceEvaluate for BSplineSurface {
     fn local_point_solve_minimize(
         &self,
+        k: &Kernel,
         domain: &Extent2d,
         point: Point3,
         guess: Point2,
     ) -> Result<(bool, f64, Point2)> {
         // the SmSurface body, on a Surface holding a copy
-        Surface::from(self.clone_exact()).local_point_solve_minimize(domain, point, guess)
+        Surface::from(self.clone_exact()).local_point_solve_minimize(k, domain, point, guess)
     }
 
     fn drop_point_minimize(
         &self,
+        k: &Kernel,
         point: Point3,
         domain: &Extent2d,
         guess: Option<Point2>,
     ) -> Result<Option<(Point2, f64)>> {
-        Surface::from(self.clone_exact()).drop_point_minimize(point, domain, guess)
+        Surface::from(self.clone_exact()).drop_point_minimize(k, point, domain, guess)
     }
 
     fn local_curve_maximize(

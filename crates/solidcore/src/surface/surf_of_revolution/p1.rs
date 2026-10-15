@@ -1220,6 +1220,7 @@ impl SurfOfRevolution {
             // Always set output (the status is ignored): LocalPointSolve leaves a default
             // solution when it fails.
             let (u, v) = match ignored(step_surface.local_point_solve::<()>(
+                k,
                 &domain,
                 crate::geom::global_solver::SolverOperation::Intersect,
                 point_3d,
