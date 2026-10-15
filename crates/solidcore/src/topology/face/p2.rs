@@ -93,8 +93,7 @@
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve`
 //!   (`topology.edgeuse_p3`), `SmSurface::IsSingularity` of a non-plane
-//!   (`surface.surface_p5`), `SmOffsetSurface` (`surface.offset_surface`) and
-//!   `SmODEIntegrator::RungeKuttaODEIntegrate` (`mass.integrator`) return
+//!   (`surface.surface_p5`) and `SmOffsetSurface` (`surface.offset_surface`) return
 //!   [`SolidError::Unported`].
 
 use crate::curve::crv_on_surf::CrvOnSurf;
@@ -423,7 +422,12 @@ fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Resul
 
 /// `pSurf->IsSingularity(uv, eDir, dTol3d, TRUE)` (virtual: the plane override, the
 /// base body otherwise).
-fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, SurfParamType)> {
+fn is_singularity(
+    k: &Kernel,
+    surface: &Surface,
+    uv: Point2,
+    tol: f64,
+) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
@@ -431,7 +435,7 @@ fn is_singularity(surface: &Surface, uv: Point2, tol: f64) -> Result<(bool, Surf
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            let r = surface.is_singularity(uv, tol, false)?;
+            let r = surface.is_singularity(k, uv, tol, false)?;
             Ok((r.singular, r.direction))
         }
     }
@@ -448,19 +452,34 @@ fn offset_evaluate_simple(_surface: &Surface, _offset: f64, _uv: Point2) -> Resu
 
 /// `SmODEIntegrator(eval).RungeKuttaODEIntegrate(dY, x1, x2, eps, h1, 0, .., pYScale)`.
 fn runge_kutta_ode_integrate(
-    _eval: &OdeIsoCurveLength<'_>,
-    _y: &mut [f64],
-    _x1: f64,
-    _x2: f64,
-    _eps: f64,
-    _h1: f64,
-    _y_scale: &[f64],
+    eval: &OdeIsoCurveLength<'_>,
+    y: &mut [f64],
+    x1: f64,
+    x2: f64,
+    eps: f64,
+    h1: f64,
+    y_scale: &[f64],
 ) -> Result<()> {
-    // UNPORTED(mass.integrator): SmODEIntegrator::RungeKuttaODEIntegrate
-    Err(SolidError::unported(
-        "SmODEIntegrator::RungeKuttaODEIntegrate",
-        "mass.integrator",
-    ))
+    let mut scratch = vec![0.0; y.len() + 1];
+    crate::mass::integrator::OdeIntegrator::default().integrate(
+        y,
+        x1,
+        x2,
+        crate::mass::integrator::OdeOptions {
+            accuracy: eps,
+            initial_step: h1,
+            minimum_step: 0.0,
+            scale: Some(y_scale),
+        },
+        |t, _, dy| {
+            eval.evaluate(t, &mut scratch)?;
+            for (d, v) in dy.iter_mut().zip(scratch.iter().skip(1)) {
+                *d = *v;
+            }
+            Ok(())
+        },
+    )?;
+    Ok(())
 }
 
 // ---- static helpers of loop orientation ---------------------------------------------------
@@ -588,8 +607,8 @@ pub fn are_connected(
 
     // when gaps across singularities are allowed
     if singularity_ok {
-        let (on_1, dir_1) = is_singularity(surf, uv1, tol_3d)?;
-        let (on_2, dir_2) = is_singularity(surf, uv2, tol_3d)?;
+        let (on_1, dir_1) = is_singularity(k, surf, uv1, tol_3d)?;
+        let (on_2, dir_2) = is_singularity(k, surf, uv2, tol_3d)?;
 
         // both ends are on a singularity
         if on_1 && on_2 {
@@ -1382,8 +1401,7 @@ impl OdeArea<'_> {
     ///
     /// # Errors
     ///
-    /// Those of the curve evaluation; [`SolidError::Unported`] from the inner
-    /// integration (`SmODEIntegrator`, unit `mass.integrator`).
+    /// Those of the curve evaluation and the inner integration evaluator.
     pub fn evaluate(&self, t: f64, dydx: &mut Vec<f64>) -> Result<()> {
         let pv = self.uv_curve.evaluate(t, 1, true, true)?;
         let p0 = pv
