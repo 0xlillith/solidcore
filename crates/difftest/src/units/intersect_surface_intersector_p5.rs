@@ -955,7 +955,7 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         [rng.chance(0.7), rng.chance(0.7)]
     };
     let tol = match rng.below(6) {
-        0 | 1 | 2 => None,
+        0..=2 => None,
         3 => Some(s * rng.uniform(1e-4, 1e-2)),
         4 => Some(s * 1e-6),
         _ => Some(s * rng.uniform(0.01, 0.2)),

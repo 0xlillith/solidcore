@@ -3874,3 +3874,21 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   entries and takes the kernel) call it; their deferrals move to `surface.surface_p6`
   (surface caches). `surf_of_extrusion_p2`'s fall-back stays a stub tagged
   `intersect.adv_surface_intersector` (its output type differs).
+- **Review (PR #82).** 94 adversarial fixture cases
+  (`fixtures/intersect.surface_intersector_p5/review_adversarial.json`: zero, negative,
+  huge and corner-gap tolerances, angle tolerances, collapsed corners, all 16 corner
+  pairings, sector-boundary epsilon, sub/extended/reversed domains, scales 1e-7..1e7,
+  rational bilinears, self intersection, a point-degenerate surface): 47 pass
+  bit-identical, 0 fail, 47 defer. Never compared: the trace loop, the backward
+  re-trace and the degenerate-curve sweep (every start point needs `surface.surface_p8`
+  / `surface.surface_p11`). When those land, recheck the DISPATCH GAP above together
+  with the fact that `DoIntersection` ignores `TraceCurve` errors: the gap would then
+  silently turn a curve into a through point rather than fail. Open follow-ups:
+  `surf_of_extrusion/p2.rs` still stubs `DoIntersection` under the (already partial)
+  `intersect.adv_surface_intersector` tag and should be wired; `do_intersection_with_caches`
+  leaves `point_test_enabled = false` / `process_boundary_curves = true` on the
+  caller's caches (upstream restores them; the solver borrows the caches for `'t`,
+  so restoring needs an API change); `FindBoundaryStartPoints` runs on a full clone
+  of the caches (trees included), a cost only. The upstream prog_tests
+  (`my_test_ssi`, `my_test_parallel_projection`, ...) are not fixtures yet: they
+  would all defer on the real cache build (`surface.surface_p6`).

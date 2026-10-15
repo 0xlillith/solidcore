@@ -31,7 +31,9 @@
 //!   twice). The temporary flags (`m_bPointTestEnabled = FALSE`,
 //!   `m_bProcessBoundaryCurves = TRUE`) are set before the first solve rather than
 //!   after it (that `SM_SO_INTERSECTION_TEST` solve and `GrazingBoxProcess` read
-//!   neither) and stay set on the caller's caches (upstream restores them on return).
+//!   neither) and stay set on the caller's caches (upstream restores them on return; here
+//!   the caches stay borrowed by the solver for `'t`, so they cannot be written
+//!   back on exit; [`do_intersection`]'s caches are local, so it is unaffected).
 //!   The boundary bounding planes are computed on copies of the caches' (each lazily
 //!   computed plane is the same), and `FindBoundaryStartPoints` runs on copies of the
 //!   caches, flags included.
@@ -42,7 +44,9 @@
 //!   ignored except [`SolidError::Unported`], which always propagates; so is
 //!   `EvaluatePoint`'s in the degenerate curve sweep (an unset point is
 //!   [`Vec3::UNDEF`]). `IsDegenerate()` (default tolerance `SM_EFF_ZERO`) and
-//!   `IsPointOnCurve` errors propagate. Mismatched curve arrays in the degenerate
+//!   `IsPointOnCurve` return `SmBoolean` upstream and cannot fail; their Rust ports
+//!   return `Result`, and an error from them (unreachable today) propagates instead
+//!   of reading as `FALSE`. Mismatched curve arrays in the degenerate
 //!   curve sweep (an `SM_ASSERT`, then a read past the array upstream) are
 //!   [`SolidError::InvalidInput`].
 //! - **Bounded loops.** The start point loop pops one start point per pass; no pass

@@ -3,6 +3,946 @@
   "cases": [
     {
       "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol0_plane_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#0 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol0_plane_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#1 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol0_bilin_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#2 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol0_bilin_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#3 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolneg_plane_g1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#4 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolneg_plane_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#5 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolneg_bilin_g1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#6 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::LocalSurfaceIntersect",
+        "unit": "surface.surface_p11"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolneg_bilin_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#7 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolhuge_plane_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#8 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolhuge_plane_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#9 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolhuge_bilin_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#10 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolhuge_bilin_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#11 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolexact_plane_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#12 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolexact_plane_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#13 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolexact_bilin_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#14 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tolexact_bilin_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#15 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol1e-12_plane_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#16 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol1e-12_plane_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#17 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol1e-12_bilin_g1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#18 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_tol1e-12_bilin_g0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#19 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_ang0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#20 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_crossing_ang0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#21 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_angneg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#22 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_crossing_angneg",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#23 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_anghuge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#24 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_crossing_anghuge",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#25 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap0.0_tol1e-6",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#26 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap0.0_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#27 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-07_tol1e-6",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#28 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-07_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#29 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap9.99e-07_tol1e-6",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#30 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap9.99e-07_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#31 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-06_tol1e-6",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#32 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-06_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#33 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1.01e-06_tol1e-6",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#34 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1.01e-06_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#35 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-05_tol1e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#36 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_gap1e-05_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#37 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_collapsed_b",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#38 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_collapsed_b_v",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#39 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_collapsed_a",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#40 (upstream review of PR #82 (adversarial))",
+      "values_compared": 43
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_perp_both",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#41 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#42 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_v_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#43 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_1e-08",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#44 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_v_1e-08",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#45 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#46 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_v_0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#47 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_-0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#48 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_sector_edge_v_-0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#49 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A00_B00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#50 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A00_B01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#51 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A00_B10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#52 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A00_B11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#53 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A01_B00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#54 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A01_B01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#55 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A01_B10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#56 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A01_B11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#57 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A10_B00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#58 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A10_B01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#59 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A10_B10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#60 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A10_B11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#61 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A11_B00",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#62 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_A11_B01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#63 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A11_B10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#64 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_A11_B11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#65 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_scaled_plane_corner_2.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#66 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_scaled_plane_corner_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#67 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_dom_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#68 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_dom_subinner",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#69 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_dom_ext",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#70 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_dom_reversed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#71 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale1e-07",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#72 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale1e-07_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#73 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#74 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale1e-05_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#75 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale100000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#76 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale100000.0_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#77 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale10000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#78 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_scale10000000.0_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#79 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_rational",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#80 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_edge_coplanar_edges(False, True)",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#81 (upstream review of PR #82 (adversarial))",
+      "values_compared": 43
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_edge_fold_edges(False, True)",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#82 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_edges(False, True)",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#83 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_edge_coplanar_edges(True, False)",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#84 (upstream review of PR #82 (adversarial))",
+      "values_compared": 43
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::GlobalCurveIntersect",
+        "unit": "surface.surface_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_edge_fold_edges(True, False)",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#85 (upstream review of PR #82 (adversarial))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_corner_out_edges(True, False)",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#86 (upstream review of PR #82 (adversarial))",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_self_bilinear_leaf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#87 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_self_plane_leaf_tol0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#88 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_apart_x_gap0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#89 (upstream review of PR #82 (adversarial))",
+      "values_compared": 43
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_apart_x_gap1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#90 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_apart_x_gap2e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#91 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_apart_x_gap3e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#92 (upstream review of PR #82 (adversarial))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_b_point_surface",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.surface_intersector_p5/review_adversarial.json#93 (upstream review of PR #82 (adversarial))",
+      "values_compared": 16
+    },
+    {
+      "deferred": {
         "symbol": "SmSurface::CalculateContinuities",
         "unit": "surface.surface_p6"
       },
@@ -17455,15 +18395,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 1101,
+  "cases_deferred": 1148,
   "cases_failed": 0,
-  "cases_passed": 530,
-  "cases_total": 1631,
+  "cases_passed": 577,
+  "cases_total": 1725,
   "deferred_by_unit": {
-    "surface.surface_cache_p1": 438,
-    "surface.surface_p11": 233,
+    "surface.surface_cache_p1": 449,
+    "surface.surface_p11": 234,
     "surface.surface_p6": 174,
-    "surface.surface_p8": 256
+    "surface.surface_p8": 291
   },
   "max_rel_err": 0.0,
   "pass": true,
