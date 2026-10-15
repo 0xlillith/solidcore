@@ -2681,6 +2681,18 @@ behaviour worth knowing:
   extends where a plain B-spline would still be waiting on `surface.surface_p5` /
   `surface.surface_p7`.
 
+- **Port deviation: `natural_uv_domain` does not cache the NURB (found by difftest
+  `--ssi-corpus`, 2026-10-14).** Upstream `SmBSplineSurface::GetNaturalUVDomain` makes the
+  plane's NURB in place (`GetOrCreateGwNurbPointer` through a const cast) and keeps it.
+  `Plane::natural_uv_domain`, like the port's other read-only queries, makes it on a copy
+  and caches nothing. `IntersectWithPlane`'s parallel branch (`SmPlane.cpp:2183`) returns
+  "no intersection, done" when either plane has no NURB, and otherwise tests for
+  coincidence and sends coincident planes to the general intersector. So after the same
+  call sequence, coincident planes (corpus cases `c6_planes_identical`,
+  `c6_planes_overlap`) gave no curves in Rust and four `COINCIDENT` boundary curves in C++.
+  The deviation is noted in `surface::plane::p1` (and `p2`); the follow-up to model the
+  cache is in this unit's `notes` in `plan/modules.toml`.
+
 ## surface.unbend_volume (`SmUnbendVolume`)
 
 All non-deferred difftest cases agree bit for bit with upstream (`max_rel_err = 0`, 1874
@@ -3752,6 +3764,51 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   so the `SurfOfRevolution` arm of `out_of_bounds()` (the base-flag-only
   `SmTemporaryChangeValue`) is ported but not difftested; planes and B-spline surfaces are.
 
+## query.poly (`SmPolyBrep` and its poly objects, 2026-10-14)
+
+- **Harness builds the poly B-rep directly.** Upstream's poly B-rep constructors and
+  `StitchEdgeTopological` are outside the in-scope call graph. The shim builds the B-rep
+  with the real constructors (`SmPolyBrep`, `SmPolyRegion`, `SmPolyShell`, `SmPolyFace`,
+  `SmPolyVertex`, `StartPolyEdgeLoop`, `AddPolyEdge` without an end vertex, so no
+  stitching, `FinishPolyEdgeLoop`, `SmCPolyFace`, `SmPolyVertAuxData`) and sets the radial
+  rings, the vertex list order and `m_bOKBackPtrs` directly. To do that it includes
+  `SmPoly.h` with `protected`/`private` defined as `public`, because the classes are
+  `final`. The Rust side uses the construction mirrors in `query::poly`. Every case dumps
+  the whole structure, so a construction difference would show up as a failure.
+- **Default vectors are `SM_UNDEF_DOUBLE`.** `SmVector3d` has default member initialisers,
+  so a face built without a normal starts with an undefined `m_vNormal` and
+  `m_vSphereCenter`, and a degenerate face then caches `(1,1,1)`.
+- **`SmPolyVertex::SetTolerance` always stores.** `#define cbi` sits just above the
+  function, so a tolerance more than 1000 times the old one is signalled and still
+  stored. The first port refused it, and the generated `Transform` cases with scale 2000
+  caught that.
+- **Deleted objects.** Upstream poly objects live in a calloc'ed arena that is not freed
+  on `delete`, so code reading a deleted face still sees its cleared members. The port
+  uses empty slots instead: `SetPoint` skips deleted faces, and `GetOKBackPtrs` /
+  `IsDegenerate` treat a deleted face as being in no shell and having no original face.
+  The FFI wrapper rejects mutations that touch an already deleted object.
+- **Deferred.** `IsDegenerate` of an edge whose face has an original face while the
+  back pointers are valid needs `SmFace::GetSurface` (`topology.face_p2`). The shim
+  skips that call because the labels are fake pointers, and the case defers.
+- **Nested composite faces rejected (review fix).** `SmCPolyFace::AddPolyFace` accepts any
+  face, including a composite or the composite itself, and the virtual `GetPolyEdges` /
+  `GetNormal` / `CalculateBoundingBox` / `GetOKBackPtrs` of a composite would then recurse
+  without bound (the Rust port overflowed the stack on `add_cpoly_face(f) -> c;
+  cpoly_add_poly_face(c, c)`; on wasm that corrupts memory). Upstream only ever adds shell
+  faces (`SmLineSegClass.cpp:1879-1883`), and adding a composite would also overwrite that
+  composite's own `m_pCPolyFace`. `add_cpoly_face` and `cpoly_add_poly_face` return
+  `InvalidInput` for a composite `face`; the harness never builds nested composites, so
+  difftest is unaffected.
+- **Adversarial fixtures.** `fixtures/query.poly/adversarial.json` (59 cases: bow-tie,
+  collinear, 1-/2-edge and open loops, given/wrong normals, holes, faces at 1e150/1e8/1e-150
+  scale, struts, non-planar faces at the tolerance limits, degenerate/undefined/skew
+  transforms, degenerate edges with zero/negative tolerances, empty faces and B-reps,
+  composites) all pass bit-identically.
+- **Not compared through FFI.** `sm_IsUniformPositiveScale` and
+  `sm_ReportInvalidTransformInput` are in an anonymous namespace of `SmApiGeneral.cpp`;
+  they have unit tests only. The `GetTypeString` / `GetClassString` strings are also
+  covered by unit tests only.
+
 ## intersect.surface_intersector_p4
 
 - **No virtual dispatch in the intersector parts.** `SmSurfaceIntersector`'s
@@ -3845,6 +3902,54 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
 
+## intersect.surface_intersector_p5 (`SmSurfaceIntersector::DoIntersection`, 2026-10-14; partial, no disagreements)
+
+- **Dispatch.** Every upstream caller runs `DoIntersection` on an
+  `SmAdvSurfaceIntersector`, so it is ported on `AdvSurfaceIntersector` (its
+  `SolveBranch`/`LocalSolve` overrides answer the `SM_SO_INTERSECTION_TEST` solve, its
+  `FindInteriorCurves` override finds the loops). DISPATCH GAP for the porters of
+  `surface.surface_p8` / `surface.surface_p11`: `TraceCurve` (part 4) calls the basic
+  `ComputePointValues` -> `ComputeSingularityPoint` (`SM_ERR`), not the advanced
+  override, so a traced point with parallel normals will disagree once start points
+  can be found. Today every start point needs `SmSurface::GlobalCurveIntersect`
+  (`surface.surface_p8`) or `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
+  so no compared case reaches it.
+- **Surface caches.** The real cache build needs `SmSurface::CalculateContinuities`
+  (`surface.surface_p6`): every case without hand-built trees defers there. The runner
+  swaps hand-built trees into the real C++ caches (`m_pTree`, restored after the call)
+  and gives the Rust side caches holding the same trees. `SmCurveBoundedSurface`s
+  without boundary curves get no C++ cache (`NER` -> `SM_ERR_NULL_POINTER`); they run
+  only without trees.
+- **Plane iso curves.** `SmPlane` boundary planes need the cache's
+  `SmPlane::CreateIsoParametricCurve` (self-tagged `surface.surface_cache_p1` gap: the
+  cache stores iso curves as B-splines, a plane makes `SmLine`s), so plane scenes that
+  reach `DoBoundaryPlaneTest` defer; the generator mostly uses the same planes as
+  bilinear B-splines, which compare.
+- **Back-edges.** `base_global_surface_intersect` (surface_p2; plane_p2 and
+  surf_of_revolution_p2 fall back to it) and `CreateParallelProjectionCurves`
+  (surface_p7, whole body ported: it now returns `None` UV curves for `NULL`
+  entries and takes the kernel) call it; their deferrals move to `surface.surface_p6`
+  (surface caches). `surf_of_extrusion_p2`'s fall-back stays a stub tagged
+  `intersect.adv_surface_intersector` (its output type differs).
+- **Review (PR #82).** 94 adversarial fixture cases
+  (`fixtures/intersect.surface_intersector_p5/review_adversarial.json`: zero, negative,
+  huge and corner-gap tolerances, angle tolerances, collapsed corners, all 16 corner
+  pairings, sector-boundary epsilon, sub/extended/reversed domains, scales 1e-7..1e7,
+  rational bilinears, self intersection, a point-degenerate surface): 47 pass
+  bit-identical, 0 fail, 47 defer. Never compared: the trace loop, the backward
+  re-trace and the degenerate-curve sweep (every start point needs `surface.surface_p8`
+  / `surface.surface_p11`). When those land, recheck the DISPATCH GAP above together
+  with the fact that `DoIntersection` ignores `TraceCurve` errors: the gap would then
+  silently turn a curve into a through point rather than fail. Open follow-ups:
+  `surf_of_extrusion/p2.rs` still stubs `DoIntersection` under the (already partial)
+  `intersect.adv_surface_intersector` tag and should be wired; `do_intersection_with_caches`
+  leaves `point_test_enabled = false` / `process_boundary_curves = true` on the
+  caller's caches (upstream restores them; the solver borrows the caches for `'t`,
+  so restoring needs an API change); `FindBoundaryStartPoints` runs on a full clone
+  of the caches (trees included), a cost only. The upstream prog_tests
+  (`my_test_ssi`, `my_test_parallel_projection`, ...) are not fixtures yet: they
+  would all defer on the real cache build (`surface.surface_p6`).
+
 ## topology.proto_topology_p1 (`SmOwningTopology`, `SmAssembly`, `SmCopyBrepMap`, `SmProtoTopology` part 1, API transforms, 2026-10-14; partial, no disagreements)
 
 - **Harness.** One shim entry runs scripts of three kinds (list, proto, transform); the
@@ -3916,6 +4021,70 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   `UNPORTED(surface.offset_surface)` (`SmOffsetSurface::Evaluate`). Wire it
   through the ported `surface::surface::p7::compute_inward_vector`, not a new copy.
 
+## query.tess: BuildTree on a plane face needs the plane's NURB (review of PR #83)
+
+- **Bug fixed.** `SmTessSrfCache::BuildTree` builds its top node from
+  `pBSS->GetNaturalUVDomain()` and `SmBSplineSurface(*pBSS)`. Both read the NURB
+  through the virtual `GetOrCreateGwNurbPointer`, which makes an `SmPlane`'s or
+  `SmSurfOfRevolution`'s missing NURB first. The first port copied `p.base()` as it
+  was; a Rust `Plane::new` has no NURB, so the top node got a zero uv domain and
+  the tree was degenerate (`adv_plane_build`: node_geom[0] C++ -1.5, Rust 0; 16 of
+  40 generated plane cases failed). The port now uses `Plane::base_with_nurb()`, and
+  for a surface of revolution runs `make_nurb` on a copy when the NURB is missing.
+  A failed `MakeNurb` copies the part as is. Upstream makes the NURB on the face
+  surface itself; the port does it on the copy.
+- **Coverage gap that hid it.** The shim built only `SmBSplineSurface`. It now also
+  builds a bounded `SmPlane(o, x, y, scale, D)` (surface kind 1, same guards as
+  surface.surface_cache_p3); 12% of generated cases and 8 adversarial fixtures use
+  it. Still not compared: `SmSurfOfRevolution` faces, face-owned surfaces (the
+  `GetTree` rebuild branch), CurveBounded/STEP faces (base `BuildTree`, unported
+  until surface.surface_p6), and inputs the FFI rejects although upstream defines
+  them (Implant without a tree, Test without a driver, Mark without a poly B-rep).
+
+## blend.fillet_custom_solver (FFI validator audit, 2026-10-14)
+
+- **Validator vs shim.** `validate()` reads every op's input in the shim's order and
+  counts, and its bounds match what upstream indexes: `crX[s1|s2 (+1)]` with
+  `lSurf1Off`/`lSurf2Off` derived exactly as `LoadJacobian` does (offset surfaces share
+  their base pointer, so selectors 1/3 are base A, 2 is B or A, 4 is the copy), `rF[ne..ne+2]`,
+  Jacobian rows `ne..ne+2` and columns `s1, s1+1, s2, s2+1`; `LoadInitialValues` reads
+  `rGuessT[s1_index (+1)]`, `rIntervals[s1_index (+1)]` and writes `rIntervals[ng (+1)]`
+  (`SmExtentNd` has inline storage for 10 and allocates the rest). `CreateSurface` only
+  reads `crFilletPoints[0..k)` after checking `k` against both rails' unique knot counts,
+  and `N_CrvsMakeCompatibleAdjKnots` rescales only when the rails' intervals differ. The
+  output buffer is retried at the size the shim reports. No gap found there.
+- **ASan run.** SMLib, SM_API and the shims built with `-fsanitize=address` (a private
+  build, not `bin/cpp`): 20,000 fuzzed `eval` inputs (all five ops, boundary counts and
+  offsets, same / different rail intervals) were clean. One case in the 448-case corpus
+  was not: `gen0137` (a valid `Create`, same-interval quadratic rails) reads freed memory
+  in `CreateSkinnedSurface`'s skinning retry (upstream UB-99). The FFI guard cannot
+  predict that the first skinning attempt fails without running NLib's skinning, so it
+  still admits such inputs; `gen0137` passes against the release C++ (whose output there
+  depends on the freed memory's contents), and its result should not be taken as proof
+  of upstream behaviour.
+
+## difftest `--ssi-corpus` (jyviko's SSI corpus, 2026-10-14)
+
+- **Correctness report, not a gate.** `--ssi-corpus` grades both engines against the exact
+  ground truth of jyviko's corpus (`corpus/ssi/`, fetched by `scripts/fetch-ssi-corpus.sh`).
+  At approximation tolerance 1e-6 the C++ reference scores PASS=81, INCOMPLETE=25,
+  WRONG TOPOLOGY=11, ERROR=2, the same as the corpus' published SMLib figure (81/119). The
+  38 misses are in `plan/upstream-issues.md` WR-74 to WR-80. A faithful port should score
+  the same. The Rust scorer (`crates/difftest/src/ssi/`) gives the same verdict and the same
+  flags as the corpus' `score.py` on all 119 C++ outputs. Distances agree to roundoff
+  (1e-16 to 1e-12 absolute).
+- **Plane NURB deviation found.** Coincident planes took a different branch in Rust and in
+  C++. This is a port deviation of `surface.plane_p1`, recorded under that unit's
+  heading above (newest entry). The corpus harness builds each plane's NURB
+  (`Plane::make_nurb`) before intersecting, which mirrors the C++ runner's state after
+  `GetNaturalUVDomain`; `c6_planes_identical` / `c6_planes_overlap` are then deferred on
+  `intersect.surface_intersector_p5`.
+- **Rust coverage at the time of writing:** 3 cases answered (plane/plane, identical to the
+  C++ and PASS), 116 deferred. 62 are deferred on `SmSurfaceIntersector::DoIntersection`
+  (`intersect.surface_intersector_p5`), 24 on spheres (`surface.sphere`), 21 on cones and
+  cylinders (`surface.cone_p3`), 9 on tori (`SmTorus` is ported but has no `SurfaceKind`
+  variant yet; deferred on `surface.surface_p2`, which owns the enum).
+
 ## topology.vertexuse (`SmVertexuse`, 2026-10-14; partial, no disagreements)
 
 - **B-rep import.** As `topology.edgeuse_p1`: the shim builds real `SmBrep`s (15 upstream
@@ -3937,7 +4106,7 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   are found by scanning the B-rep's vertex uses (only used to reset caches, so order is
   not observable). `topology.vertex` should add the list.
 - **Upstream bug.** `ComputeUVSector`'s opposite-orientation count has an operator
-  precedence bug (`plan/upstream-issues.md` WR-69); ported as parsed.
+  precedence bug (`plan/upstream-issues.md` WR-83); ported as parsed.
 - **Not wired**, still `UNPORTED(topology.vertexuse)`: `surface::trim_srf_cache`
   (`ComputeUVPoint`, `GetVertex`) and `intersect::point_class` (`IsConnectedTo`). Those
   callers hold opaque object handles without a `Brep` (as for `topology.edgeuse_p1`).
