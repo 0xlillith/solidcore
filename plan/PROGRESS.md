@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**172 / 261 units ported** (96 green, 76 partial), **230,543 / 387,903 upstream lines (59.4%)**. 24 claimed, 0 blocked, 65 todo.
+**172 / 261 units ported** (96 green, 76 partial), **230,543 / 387,903 upstream lines (59.4%)**. 25 claimed, 0 blocked, 64 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -52,7 +52,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `offset.offset_geometry_creation` (2652 lines) — missing: `surface.offset_surface`
 - [ ] `sweep.topology_sweep` (2456 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.brep_p3`, `topology.brep_p5` +2 more
 - [ ] `boolean.topology_intersector_p3` (1849 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`
-- [ ] `sweep.rotational_sweep_geometry` (1542 lines) — missing: `sweep.topology_sweep`
 - [ ] `sweep.trans_sweep_geometry` (817 lines) — missing: `sweep.topology_sweep`
 - [ ] `boolean.merge_p1` (993 lines) — missing: `boolean.topology_intersector_p1`, `topology.brep_p1`, `topology.shell`
 - [ ] `primitive.primitive_creation_p3` (1842 lines) — missing: `primitive.primitive_creation_p1`, `sweep.topology_sweep`, `topology.brep_p1`, `topology.brep_p5` +1 more
@@ -105,6 +104,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] 🔨 `query.api_queries` (809 lines) — in progress: #125 @damgru (ready for review)
 - [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (draft)
+- [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (draft)
 - [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
 ## By module
@@ -353,7 +353,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### sweep (1/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
-- [ ] ⏳ `sweep.rotational_sweep_geometry` (1542 lines) — waiting
+- [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (draft)
 - [ ] ⏳ `sweep.trans_sweep_geometry` (817 lines) — waiting
 - [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
