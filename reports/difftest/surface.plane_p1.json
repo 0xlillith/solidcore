@@ -151,8 +151,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "edge_line_in_plane_point",
@@ -11811,8 +11811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurface::LocalPointSolve_1",
+        "unit": "surface.surface_point_solve_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0246",
@@ -22173,7 +22173,7 @@
   "cases_total": 2705,
   "deferred_by_unit": {
     "intersect.surface_drop_lib_p3": 129,
-    "surface.surface_p6": 2
+    "surface.surface_point_solve_p3": 2
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -2463,8 +2463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_5_4_0",
@@ -2475,8 +2475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_5_4_1",
@@ -2535,8 +2535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_0_0",
@@ -2547,8 +2547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_6_0_1",
@@ -2655,8 +2655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_0_0",
@@ -2667,8 +2667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_included_without_shape_limit_7_0_1",
@@ -19620,9 +19620,10 @@
   "cases_passed": 2384,
   "cases_total": 2429,
   "deferred_by_unit": {
+    "intersect.curve_class_p4": 4,
     "intersect.surface_silhouette": 8,
     "surface.surface_p11": 20,
-    "surface.surface_p8": 6,
+    "surface.surface_p5": 2,
     "surface.surface_point_solve_p3": 4,
     "topology.brep_p1": 4,
     "topology.edge": 3
