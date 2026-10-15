@@ -51,10 +51,12 @@
 //!   upstream dereferences) are `InvalidInput`.
 //! - **Unported callees** (return [`SolidError::Unported`]): the file-static
 //!   `sm_IntersectSrfBndryCrv` (boundary iso curve against the other surface, only with
-//!   `do_boundary_testing`; unit `surface.surface_p8`) and `SmSurface::LocalSurfaceSolve`
-//!   (the tangent-touching refinements when the normals at the solution are within 3
-//!   degrees of parallel, and the last step of every non-intersect surface/surface
-//!   leaf solve; unit `surface.surface_p3`).
+//!   `do_boundary_testing`) and `sm_ExtractIsoCurve` (`LiftCurve`), both unit
+//!   `surface.surface_p8`.
+//! - **Upstream issues.** `IntersectSurfaceBoundaries` dereferences a `NULL` curve
+//!   array (UB-116; the port always returns the curves); `LocalSurfaceIntersect`'s
+//!   boundary retries bind `!bFoundSolution` to the minimum test only (WR-97;
+//!   reproduced).
 //! - Debug-only work (`SM_ASSERT`, `SM_DEBUG_CODE` drawing) is not ported.
 
 use crate::curve::composite_curve::CompositeCurve;
@@ -152,9 +154,10 @@ fn intersect_srf_bndry_crv(
     ))
 }
 
-/// `SmSurface::LocalSurfaceSolve(domain, other, other_domain, op, tol, NULL, NULL,
-/// uv, other_uv, found, solution)`: `[u, v, other u, other v]` and the solution value;
-/// `None` when not found.
+/// `SmSurface::LocalSurfaceSolve(domain, other, other_domain, op, tol, NULL, vectors,
+/// uv, other_uv, found, solution)` (unit `surface.surface_p3`; not overridden, and
+/// its distance tolerance is unused): `[u, v, other u, other v]` and the solution
+/// value; `None` when not found. `opt_vectors` empty is upstream's `NULL`.
 #[allow(clippy::too_many_arguments)]
 fn local_surface_solve(
     surface: &Surface,
@@ -162,25 +165,20 @@ fn local_surface_solve(
     other: &Surface,
     other_uv_domain: &Extent2d,
     op: SolverOperation,
-    tol: f64,
+    opt_vectors: &[Vec3],
     uv: Point2,
     other_uv: Point2,
 ) -> Result<Option<([f64; 4], f64)>> {
-    let _ = (
-        surface,
+    let found = surface.local_surface_solve(
         uv_domain,
         other,
         other_uv_domain,
         op,
-        tol,
+        opt_vectors,
         uv,
         other_uv,
-    );
-    // UNPORTED(surface.surface_p3): SmSurface::LocalSurfaceSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalSurfaceSolve",
-        "surface.surface_p3",
-    ))
+    )?;
+    Ok(found.map(|s| ([s.uv.x, s.uv.y, s.other_uv.x, s.other_uv.y], s.distance)))
 }
 
 // ---- LocalSurfaceIntersect -------------------------------------------------------------------
@@ -659,7 +657,7 @@ impl Surface {
                     other,
                     other_uv_domain,
                     SolverOperation::Minimize,
-                    distance_tolerance,
+                    &[],
                     uv,
                     uv_other,
                 )?;
@@ -758,7 +756,7 @@ impl Surface {
                             other,
                             other_uv_domain,
                             SolverOperation::Normalize,
-                            distance_tolerance,
+                            &[],
                             uv,
                             uv_other,
                         )?;
@@ -1511,7 +1509,14 @@ impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
         let uv_guess2 = dom2.evaluate(0.5, 0.5);
         // (SER: checked; pSrfEval1->LocalSurfaceSolve, not virtual)
         let mut found = local_surface_solve(
-            view1.eval, &dom1, view2.eval, &dom2, op, tol, uv_guess1, uv_guess2,
+            view1.eval,
+            &dom1,
+            view2.eval,
+            &dom2,
+            op,
+            &self.base.opt_vectors,
+            uv_guess1,
+            uv_guess2,
         )?;
         // Have to check for normalized answers here
         if let Some((x, _)) = found {
