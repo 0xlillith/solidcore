@@ -64,8 +64,8 @@
 //! - **Unported callees** (`UNPORTED` stubs): `SmSurface::GetSingularities`
 //!   (`surface.surface_p3`), `SmFace::GetVertices` and `SmFace::HasSeamProblem`
 //!   (`topology.face_p4`), `SmFace::ClassifyLoops` (`query.face_p4`),
-//!   `SmLoop::GetEdges` / `GetEdgeuses` / `IsClosed3d` / `IsClosedPtrs`
-//!   (`topology.loopuse`), `SmCurveClassification::ReSet` (`intersect.curve_class_p2`).
+//!   `SmCurveClassification::ReSet` (`intersect.curve_class_p2`). The `SmLoop` queries
+//!   (`topology.loopuse`) are wired.
 
 use crate::error::{Result, SolidError};
 use crate::geom::tol::{calc_face_zone_tol_3d, xsect_tol_3d_from_zones};
@@ -80,6 +80,7 @@ use crate::nurbs::b_spline_surface::p1::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as face_p2;
+use crate::topology::loopuse;
 use crate::topology::vertex as vertex_mod;
 use crate::topology::{
     Brep, EdgeId, EdgeuseId, FaceId, LoopId, LoopuseStart, VertexId, VertexuseId,
@@ -1015,36 +1016,24 @@ impl Looptree {
 // ---- unported callees -----------------------------------------------------------------
 
 /// `SmLoop::GetEdges(sEdges)`.
-fn loop_edges(_k: &Kernel, _b: &Brep, _l: LoopId) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.loopuse): SmLoop::GetEdges
-    Err(SolidError::unported("SmLoop::GetEdges", "topology.loopuse"))
+fn loop_edges(_k: &Kernel, b: &Brep, l: LoopId) -> Result<Vec<Option<EdgeId>>> {
+    loopuse::loop_edges(b, l)
 }
 
 /// `SmLoop::GetEdgeuses(sEdgeuses)`.
-fn loop_edgeuses(_k: &Kernel, _b: &Brep, _l: LoopId) -> Result<Vec<EdgeuseId>> {
-    // UNPORTED(topology.loopuse): SmLoop::GetEdgeuses
-    Err(SolidError::unported(
-        "SmLoop::GetEdgeuses",
-        "topology.loopuse",
-    ))
+fn loop_edgeuses(_k: &Kernel, b: &Brep, l: LoopId) -> Result<Vec<EdgeuseId>> {
+    loopuse::loop_edgeuses(b, l)
 }
 
-/// `SmLoop::IsClosed3d()` (all default arguments).
-fn loop_is_closed_3d(_k: &Kernel, _b: &Brep, _l: LoopId) -> Result<bool> {
-    // UNPORTED(topology.loopuse): SmLoop::IsClosed3d
-    Err(SolidError::unported(
-        "SmLoop::IsClosed3d",
-        "topology.loopuse",
-    ))
+/// `SmLoop::IsClosed3d()` (upstream's default arguments: `bCheckAllGaps` `TRUE`, no
+/// outputs); a loop without loop use is closed.
+fn loop_is_closed_3d(k: &Kernel, b: &Brep, l: LoopId) -> Result<bool> {
+    Ok(loopuse::loop_is_closed_3d(k, b, l, true)?.is_none_or(|c| c.closed))
 }
 
 /// `SmLoop::IsClosedPtrs()`.
-fn loop_is_closed_ptrs(_k: &Kernel, _b: &Brep, _l: LoopId) -> Result<bool> {
-    // UNPORTED(topology.loopuse): SmLoop::IsClosedPtrs
-    Err(SolidError::unported(
-        "SmLoop::IsClosedPtrs",
-        "topology.loopuse",
-    ))
+fn loop_is_closed_ptrs(_k: &Kernel, b: &Brep, l: LoopId) -> Result<bool> {
+    loopuse::loop_is_closed_ptrs(b, l)
 }
 
 /// What `SmSurface::GetSingularities(&points, &normals, &approx)` returns.

@@ -496,6 +496,11 @@ fn gen_props(rng: &mut Rng) -> CaseIn {
             o[3] = rng.range_i64(0, 2) as f64;
             ops.push([5.0, 24.0, 0.0, 1.0, 0.0]);
         }
+        if o[0] == 1.0 && o[1] >= 3.0 {
+            // a reset past the gaps keeps the face pointer but leaves a stage past the gaps
+            // (upstream then dereferences a null face on the next stage 2)
+            ops.push([5.0, 24.0, 0.0, 1.0, 0.0]);
+        }
         ops.push(o);
     }
     // seeded state is not what stage 3 upstream expects: scripts with seeds stop short of
