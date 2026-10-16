@@ -151,7 +151,7 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::line_line_closest_point;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-use crate::geom::solution_array::{SolutionArray, SolutionObject};
+use crate::geom::solution_array::{ObjectKind, SolutionArray, SolutionObject};
 use crate::geom::tol::{zone_tol3d, USE_DEFAULT};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::CurveClassification;
@@ -1598,9 +1598,9 @@ impl FilletBrep {
         let ivl = curve_3d.natural_interval();
 
         // get FilletSurface/OrigBrepCurve intersection marking this FilletVertex Position3d
-        let solutions = global_curve_intersect(
+        let solutions = fillet_surface.global_curve_intersect(
             k,
-            fillet_surface,
+            [CliffHandle::Curve(curve_3d), CliffHandle::Surface(fillet_surface)],
             &fillet_surface.natural_uv_domain(),
             curve_3d,
             &ivl,
@@ -2096,24 +2096,46 @@ fn ignore_non_unported<T>(r: Result<T>) -> Result<()> {
     }
 }
 
-/// `SmSurface::GlobalCurveIntersect` without solution handles (upstream's solutions
-/// point at the surface and the curve; only their parameters are read here).
-fn global_curve_intersect(
-    k: &Kernel,
-    surface: &Surface,
-    uv_domain: &Extent2d,
-    curve: &Curve,
-    interval: &Extent1d,
-    approx_tol_3d: f64,
-) -> Result<SolutionArray<NoObject>> {
-    surface.global_curve_intersect(
-        k,
-        [NoObject, NoObject],
-        uv_domain,
-        curve,
-        interval,
-        approx_tol_3d,
-    )
+/// The solution handles of `SmFilletVertex::CalcCliffRailIntEdge`'s intersection:
+/// upstream's solutions point at the target curve and the fillet surface, whose
+/// natural domains the solver reads back (`SmSolution::GetParameterInterval`).
+#[derive(Clone, Copy)]
+enum CliffHandle<'a> {
+    Curve(&'a Curve),
+    Surface(&'a Surface),
+}
+
+impl PartialEq for CliffHandle<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Curve(a), Self::Curve(b)) => std::ptr::eq(*a, *b),
+            (Self::Surface(a), Self::Surface(b)) => std::ptr::eq(*a, *b),
+            _ => false,
+        }
+    }
+}
+
+impl SolutionObject for CliffHandle<'_> {
+    fn kind(&self) -> ObjectKind {
+        match self {
+            Self::Curve(_) => ObjectKind::Curve,
+            Self::Surface(_) => ObjectKind::Surface,
+        }
+    }
+
+    fn natural_interval(&self) -> Option<Extent1d> {
+        match self {
+            Self::Curve(c) => Some(c.natural_interval()),
+            Self::Surface(_) => None,
+        }
+    }
+
+    fn natural_uv_domain(&self) -> Option<Extent2d> {
+        match self {
+            Self::Curve(_) => None,
+            Self::Surface(s) => Some(s.natural_uv_domain()),
+        }
+    }
 }
 
 // ---- static helpers ---------------------------------------------------------------------
