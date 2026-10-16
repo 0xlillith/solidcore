@@ -5417,5 +5417,7 @@ strict plain Clippy, 1,208 kernel tests and WASM pass. The adapter-only opt-leve
 CLI override reduces build memory; the numerical kernel remains opt-level 1 and
 the reference flags remain unchanged. All five affected differential runners pass;
 the p1, p3, point-classification and face-query reports are byte-identical to main.
-Native Clippy and the FFI regression are still pending. Earlier bundled pass counts
-do not certify this branch.
+Strict native-enabled workspace Clippy passes with the same profile override, and
+the focused FFI malformed-input regression passes (one test). Full `--green`
+validation remains pending in CI. Earlier bundled pass counts do not certify this
+branch.
