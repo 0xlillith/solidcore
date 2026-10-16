@@ -5483,11 +5483,48 @@ behavior remains wholly behind the plane-intersection deferral and must be
 reviewed before that dependency is wired. Native fixtures use equal V/W volume
 lists and never deliberately execute the known out-of-bounds case.
 
-Validation results are pending below. Earlier implementation-build failures are
-not validation passes. Native validation uses an isolated Ubuntu 26.04.1 x86_64
+Validation below is for `3eaa99f8`, after merging official main `535f53d0`.
+Earlier snapshots and interrupted pre-merge builds are not used to certify this
+revision. Native validation uses an isolated Ubuntu 26.04.1 x86_64
 checkout, GCC 15.2.0, Rust 1.98.0, and the shared pinned C++ reference. The allowed
 SMLib and SM_API source trees match clean local upstream `c9c5979` by recursive
 checksum comparison. A validation-only opt-level-0 override applies to the CLI
 adapter; the Rust numerical kernel stays at difftest opt-level 1, and native flags
 stay `-O2 -ffp-contract=off -fno-fast-math`. No profile/workflow/build-script change
 is submitted.
+
+The final default report has 1,076 cases (276 fixed + 800 fixed-seed generated),
+766 matching states, no failures, and 310 explicit deferrals. Of the compared
+cases, 595 exercise surface-operation states, 119 check defined UV-curve volume
+rejection and its state, and 52 check the no-discontinuity volume early return.
+All 214 actual 3D surface-discontinuity cases defer; 2D inputs to its entry point
+exercise forwarding only. No crossing partition or discontinuous-volume output
+is presented as certified.
+
+```text
+PARTIAL intersect.curve_class_p8 cases=1076 passed=766 failed=0 deferred=310 max_rel_err=0e0 blocked_by=curve.crv_on_surf(52),intersect.curve_class_p4(162),intersect.curve_class_p5(55),surface.surface_p8(41)
+SENSITIVE intersect.curve_class_p8 perturbed=766 detected=766 unperturbed=0 deferred=310
+PARTIAL intersect.curve_class_p1 cases=2125 passed=2048 failed=0 deferred=77 max_rel_err=0e0 blocked_by=curve.crv_on_surf(24),curve.iso_curve(22),intersect.curve_class_p4(6),topology.edge(11),topology.face_p2(12),topology.vertex(2)
+PARTIAL intersect.curve_class_p3 cases=3292 passed=2064 failed=0 deferred=1228 max_rel_err=0e0 blocked_by=intersect.curve_class_p2(886),intersect.curve_class_p7(232),topology.edge(31),topology.face_p2(38),topology.vertex(41)
+PARTIAL curve.crv_on_surf cases=2094 passed=1787 failed=0 deferred=307 max_rel_err=0e0 blocked_by=intersect.curve_class_p4(307)
+PARTIAL curve.crv_in_volume cases=2030 passed=1855 failed=0 deferred=175 max_rel_err=0e0 blocked_by=intersect.curve_class_p4(175)
+```
+
+The four existing reports reproduce byte for byte and are excluded from this PR.
+Formatting, strict plain workspace Clippy, 1,209 kernel tests and WASM pass.
+Strict native-enabled workspace Clippy (difftest profile, all targets) also passes.
+The three new kernel regressions cover volume early-return ordering, empty
+classification safety and owner preservation. Both new harness regressions pass
+with the native feature: one FFI malformed-record test and one result-bundle
+length test (shorter/longer records and a valid bundle). `--status-of` prints
+`partial`. `port-pr-review` was applied to the whole diff, native branches, handle
+resolution, output/status lifecycles, constructor guards, recursion/resource use,
+and revision-specific evidence; the uncovered paths above remain explicit.
+
+Full native gate after recording p8 as partial:
+
+```text
+difftest: 187 unit(s), 99 passed, 88 partial, 0 failed
+```
+
+The p8 report from this full run is byte-identical to its standalone default run.
