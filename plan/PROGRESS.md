@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**189 / 261 units ported** (108 green, 81 partial), **259,247 / 387,903 upstream lines (66.8%)**. 29 claimed, 0 blocked, 43 todo.
+**190 / 261 units ported** (108 green, 82 partial), **261,264 / 387,903 upstream lines (67.4%)**. 29 claimed, 0 blocked, 42 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -45,7 +45,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_solver_p2` (1939 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
 - [ ] `blend.fillet_solver_p3` (1112 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `offset.offset_executive_p1` (2107 lines) — missing: `offset.offset_geometry_creation`, `surface.offset_surface`, `topology.brep_p1`
-- [ ] `primitive.api_primitives` (885 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p2`
 - [ ] `blend.fillet_geom_p3` (1032 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `blend.fillet_geom_p4` (2074 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
 - [ ] `blend.fillet_geom_p6` (1813 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `topology.brep_p3`
@@ -67,7 +66,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_lib_p3` (2062 lines) — in progress: #136 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p4` (2022 lines) — in progress: #137 @froglemonade2 (draft)
-- [ ] 🔨 `intersect.curve_class_p5` (2017 lines) — in progress: #150 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #154 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p8` (1900 lines) — in progress: #152 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (ready for review)
@@ -89,6 +87,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
 - [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
+- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (draft)
 
 ## By module
 
@@ -280,7 +279,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.proto_topology_p2` (2091 lines) — partial, 1533 cases
 - [ ] 🟡 `topology.proto_topology_p3` (1577 lines) — partial, 3013 cases
 
-### intersect (18/25)
+### intersect (19/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
@@ -303,7 +302,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `intersect.curve_class_p6` (2213 lines) — partial, 4438 cases
 - [ ] 🟡 `intersect.surface_intersector_p4` (1570 lines) — partial, 1542 cases
 - [ ] 🟡 `intersect.topology_solver_p2` (1391 lines) — partial, 2429 cases
-- [ ] 🔨 `intersect.curve_class_p5` (2017 lines) — in progress: #150 @Karl-VonRichter (ready for review)
+- [ ] 🟡 `intersect.curve_class_p5` (2017 lines) — partial, 1081 cases
 - [ ] 🟡 `intersect.surface_intersector_p5` (622 lines) — partial, 1725 cases
 - [ ] 🔨 `intersect.curve_class_p8` (1900 lines) — in progress: #152 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (ready for review)
@@ -314,7 +313,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `primitive.primitive_creation_p1` (2322 lines) — waiting
 - [ ] ⏳ `primitive.primitive_creation_p3` (1842 lines) — waiting
 - [ ] ⏳ `primitive.primitive_creation_p2` (2258 lines) — waiting
-- [ ] ⏳ `primitive.api_primitives` (885 lines) — waiting
+- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (draft)
 
 ### query (6/10)
 
