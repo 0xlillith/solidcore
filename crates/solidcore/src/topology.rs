@@ -543,7 +543,10 @@ pub struct Brep {
     /// holds the list in traversal order; the head only rotates it).
     region_list_head: Option<RegionId>,
     /// `m_pFaceListHead` (unit `topology.brep_p1`): the face list in its list order
-    /// (every face record, once; an importer may reorder it).
+    /// (every face record, once; an importer may reorder it). Upstream appends on
+    /// `PostInsert` and unlinks on `Remove`: a record deletion (`DeleteFace` /
+    /// `DeleteEdge` / `DeleteVertex`, not ported yet) must remove the id from this
+    /// list and its siblings below, as `add_*_record` appends it.
     face_list: Vec<FaceId>,
     /// `m_pEdgeListHead` (unit `topology.brep_p1`): the edge list in its list order.
     edge_list: Vec<EdgeId>,

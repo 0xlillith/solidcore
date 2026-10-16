@@ -1085,10 +1085,13 @@ fn map_to_2d(tol_3d: f64, uv: Point2, dir: Vec2, surface: &Surface) -> Result<f6
 
 /// `SmTol::GetZoneTol3d(pFace)`.
 fn face_zone_tol_3d<O>(_face: O) -> Result<f64> {
-    // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
+    // UNPORTED(surface.trim_srf_cache): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
+    // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
+    // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
+    // receives the owning B-rep
     Err(SolidError::unported(
         "SmTol::GetZoneTol3d(const SmObject*)",
-        "geom.tol",
+        "surface.trim_srf_cache",
     ))
 }
 

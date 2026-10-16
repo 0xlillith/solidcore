@@ -431,6 +431,9 @@ fn brep_bounding_box(_b: &Brep) -> Result<Extent3d> {
     ))
 }
 
+// (SmBrep::GetVertices / GetEdges / GetFaces are wired to topology::brep::p1; the
+// B-rep tree build calls brep_bounding_box first, so they are not reached until
+// query.brep lands and the unit's report cannot show them yet)
 fn brep_vertices(b: &Brep) -> Result<Vec<VertexId>> {
     crate::topology::brep::p1::vertices(b, None)
 }

@@ -937,6 +937,19 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         };
         if (set_idx != -2)
             brep->SetInfiniteRegion(region_at(set_idx));
+        // GUARD: ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP) dereferences the old
+        // infinite region (SmBrep.cpp:8630) after the membership check passed
+        if (mode == 1 && flag == 2 && region_at(reset_idx) != nullptr && brep->GetInfiniteRegion() == nullptr)
+        {
+            SmTArray<SmRegion*> regs;
+            brep->GetRegions(regs);
+            ULONG at;
+            if (regs.FindElement(region_at(reset_idx), at))
+            {
+                o.push_back(ST_NULL_DEREF);
+                break;
+            }
+        }
         SmStatus s = SM_SUCCESS;
         if (mode == 1)
             s = brep->ResetInfiniteRegion(region_at(reset_idx), (SmSetRegionVoidType)flag);
@@ -1050,7 +1063,15 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             indexed.Add((ULONG)rd.idx());
         if (t == nullptr)
         {
-            o.push_back(ST_NULL_DEREF);
+            // GUARD: pObject->AddAttribute dereferences the null object once per index;
+            // with no index upstream returns SM_SUCCESS without touching it
+            if (indexed.GetSize() == 0)
+            {
+                o.push_back(0.0);
+                put_list(o, std::vector<int64_t>());
+            }
+            else
+                o.push_back(ST_NULL_DEREF);
             for (ULONG k = 0; k < attrs.GetSize(); k++)
                 delete attrs[k];
             break;
@@ -1264,21 +1285,14 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmTArray<SmEdgeuse*> eus;
         e->GetEdgeuses(eus);
         SmBSplineCurve* uv = NULL;
+        SmLine stand_in(SmPoint3d(0, 0, 0), SmPoint3d(1, 0, 0), 2, &ctx);
         if (has_uv)
+            uv = &stand_in; // the function only tests the trim curve for NULL
+        if (has_uv && seam != SM_SP_NEITHER && eus.GetSize() != 4)
         {
-            // a stand-in trim curve: the function only tests it for NULL
-            uv = eus.GetSize() > 0 ? eus[0]->GetUVTrimCurvePointer() : NULL;
-            if (uv == NULL)
-            {
-                o.push_back(-3.0); // the Rust side defers; nothing comparable
-                break;
-            }
-        }
-        if (has_uv && seam != SM_SP_NEITHER)
-        {
-            // the seam branch runs the unported GetOrCreateUVTrimCurve / NormalizedEvaluate
-            // (and upstream reads sEdgeuses[3] unchecked): the Rust side defers
-            o.push_back(-3.0);
+            // GUARD (UB-162): the seam branch reads sNewEdgeuses[3] of a 16-slot stack
+            // array without checking the count (SM_ASSERT is a release no-op)
+            o.push_back(ST_NULL_DEREF);
             break;
         }
         SmBoolean swapped = sm_RedistributeSeamUVTrimCurves(e, uv, seam, dom);
@@ -1295,10 +1309,16 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         double scaled_zero = rd.num();
         SmOrientType orient = (SmOrientType)rd.idx();
         bool for_tess = rd.flag();
+        // GUARD: the edge is dereferenced (GetTolerance, SmBrep.cpp:21092) only in the
+        // "split param is far from UVTrimCurve->Ends" branch
         if (eu_orig->GetUVTrimCurvePointer() != NULL && eu_orig->GetEdge() == NULL)
         {
-            o.push_back(ST_NULL_DEREF);
-            break;
+            SmExtent1d ivl = eu_orig->GetUVTrimCurvePointer()->GetNaturalInterval();
+            if (!(param < ivl.GetMin() + scaled_zero || param > ivl.GetMax() - scaled_zero))
+            {
+                o.push_back(ST_NULL_DEREF);
+                break;
+            }
         }
         SmStatus s = sm_MakeVertexSplitUVTrimCurve(eu_orig, eu_new, split, param, scaled_zero, orient, for_tess ? TRUE : FALSE);
         o.push_back(st(s));

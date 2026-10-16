@@ -940,7 +940,7 @@ fn rust_heal(
     let extra = ffi::vertex_lists(&path, &block).map_err(|e| harness(format!("c++ lists: {e}")))?;
     restore(&mut b, &extra, c)?;
 
-    let k = Kernel::default();
+    let mut k = Kernel::default();
     let (vs, es, fs) = targets_of(targets, n);
     let mut h: HealData<H> = HealData::with_targets(&vs, &es, &fs);
     h.x_cnt = voxels[0] as usize;
@@ -983,7 +983,7 @@ fn rust_heal(
                 h.cache_face_props_gaps(&k, &mut b, HealerOpType::CacheFacepropsGaps)
             }
             Step::FixTolSizes => h
-                .fix_tol_sizes(&k, &mut b, HealerOpType::FixTolsizes)
+                .fix_tol_sizes(&mut k, &mut b, HealerOpType::FixTolsizes)
                 .map(|()| false),
             Step::CacheCoinVertices => h.cache_coin_vertices(&k, &b, HealerOpType::CacheCoinVertices),
             Step::CacheDegenFaces => h.cache_degen_faces(&k, &b, HealerOpType::CacheDegenFaces),

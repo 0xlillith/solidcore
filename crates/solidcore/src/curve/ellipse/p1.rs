@@ -1389,10 +1389,13 @@ impl Ellipse {
                 || o.type_code == EDGEUSE_TYPE
                 || crate::curve::curve::p2::is_kind_of(o.type_code)
         }) {
-            // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
+            // UNPORTED(curve.ellipse_p1): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
+            // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
+            // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
+            // receives the owning B-rep
             return Err(SolidError::Unported {
                 upstream: "SmTol::GetZoneTol3d(const SmObject*)",
-                unit: "geom.tol",
+                unit: "curve.ellipse_p1",
             });
         }
         let angle_tol = 0.01; // Preserves behavior

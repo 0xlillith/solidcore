@@ -37214,6 +37214,102 @@
     "healer_op": 39,
     "make_uv": false
    }
+  },
+  {
+   "name": "Endcap_set_inf_swap_null_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -1,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
+  },
+  {
+   "name": "Endcap_set_inf_swap_keep_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
+  },
+  {
+   "name": "Mouse_set_inf_swap_null_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -1,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
+  },
+  {
+   "name": "Mouse_set_inf_swap_keep_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
+  },
+  {
+   "name": "vase_rev_set_inf_swap_null_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -1,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
+  },
+  {
+   "name": "vase_rev_set_inf_swap_keep_guard",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2
+   }
   }
  ]
 }

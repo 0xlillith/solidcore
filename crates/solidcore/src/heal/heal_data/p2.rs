@@ -73,14 +73,13 @@
 //!   [`HealData::cache_coin_vertices`] returns `false` there. Its only caller,
 //!   `HealTgts`, initialises that flag to `FALSE` once per call and runs the step
 //!   at most once, so the caller sees the same value.
-//! - **Unported callees** (`UNPORTED` stubs): `SmBrep::GetThisModelSizeEstimate`,
-//!   `SmBrep::SetThisModelSizeEstimate` and `SmBrep::GetTolerance` (the `SmBrep`
-//!   overloads of `SmTol::GetModelSizeEstimate`, `SetModelSizeEstimate`,
-//!   `GetZoneTol3d`, `CalcFaceZoneTol3d`, `CalcEdgeZoneTol3d`, `CalcVertexZoneTol3d`;
-//!   `topology.brep_p1`), `SmBrep::SetTolerance` (`topology.brep_p2`),
-//!   `SmFace::SetTolerance` and `SmFace::IsDegenerate` (`topology.face_p3`).
-//!   `Fix_TolSizes` therefore always stops at its first `SmBrep` query, and
-//!   `Cache_DegenFaces` at its first face.
+//! - **Unported callees** (`UNPORTED` stubs): `SmBrep::SetTolerance`
+//!   (`topology.brep_p2`), `SmFace::SetTolerance` and `SmFace::IsDegenerate`
+//!   (`topology.face_p3`). The `SmBrep` overloads of `SmTol::GetModelSizeEstimate`,
+//!   `SetModelSizeEstimate` and `GetZoneTol3d` (`SmBrep::GetThisModelSizeEstimate`,
+//!   `SetThisModelSizeEstimate`, `GetTolerance`; `topology.brep_p1`) are wired.
+//!   `Fix_TolSizes` therefore stops at `SmBrep::SetTolerance` after setting the model
+//!   size estimate, and `Cache_DegenFaces` at its first face.
 //! - No recursion; no allocation from caller counts beyond the target lists given.
 
 use crate::error::{Result, SolidError};
@@ -1976,15 +1975,10 @@ fn brep_model_size_estimate(k: &Kernel, b: &Brep) -> f64 {
     b.this_model_size_estimate(k, true)
 }
 
-/// `SmTol::SetModelSizeEstimate(SmBrep&, double)` (`SmBrep::SetThisModelSizeEstimate`).
-fn set_brep_model_size_estimate(_b: &mut Brep, _size: f64) -> Result<f64> {
-    // UNPORTED(heal.heal_data_p2): SmBrep::SetThisModelSizeEstimate is ported as
-    // `Brep::set_this_model_size_estimate`, but it writes the kernel context and
-    // `fix_tol_sizes` holds `&Kernel`; wire when the healer takes `&mut Kernel`
-    Err(SolidError::Unported {
-        upstream: "SmBrep::SetThisModelSizeEstimate",
-        unit: "heal.heal_data_p2",
-    })
+/// `SmTol::SetModelSizeEstimate(SmBrep&, double)` (`SmBrep::SetThisModelSizeEstimate`;
+/// the returned value is not used upstream).
+fn set_brep_model_size_estimate(k: &mut Kernel, b: &mut Brep, size: f64) -> f64 {
+    b.set_this_model_size_estimate(k, size)
 }
 
 /// `SmBrep::SetTolerance` (`SM_OLDTOL_LINE`).
@@ -3018,14 +3012,13 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for the `SmBrep` tolerance queries
-    /// (`topology.brep_p1`, `topology.brep_p2`) and `SmFace::SetTolerance`
-    /// (`topology.face_p3`); [`SolidError::InvalidInput`] for a dangling props record
+    /// [`SolidError::Unported`] for `SmBrep::SetTolerance` (`topology.brep_p2`) and
+    /// `SmFace::SetTolerance` (`topology.face_p3`); [`SolidError::InvalidInput`] for a dangling props record
     /// or one without its topology.
     #[allow(clippy::too_many_lines)]
     pub fn fix_tol_sizes(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         b: &mut Brep,
         this_healer_op: HealerOpType,
     ) -> Result<()> {
@@ -3075,9 +3068,9 @@ impl<O: LoopObject> HealData<O> {
         // When The BrepTolerance needs to be set - set it based on ModelSizeEstimate
         if this_est_zone_tol_3d != brep_est_zone_tol_3d {
             if this_est_zone_tol_3d == context_est_zone_tol_3d {
-                set_brep_model_size_estimate(b, USE_DEFAULT)?;
+                set_brep_model_size_estimate(k, b, USE_DEFAULT);
             } else {
-                set_brep_model_size_estimate(b, this_model_size)?;
+                set_brep_model_size_estimate(k, b, this_model_size);
             }
         }
         set_brep_tolerance(b, this_est_zone_tol_3d)?;

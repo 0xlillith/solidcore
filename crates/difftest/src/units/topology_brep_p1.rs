@@ -40,6 +40,7 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::SurfaceKind;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::p1 as bp1;
+use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::edge::AttributeFilter;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
@@ -71,6 +72,12 @@ const KIND_TYPES: [i64; 9] = [16011, 16050, 12060, 11001, 16012, 16001, 16010, 1
 /// `SmBSplineSurface_TYPE`, `SmPlane_TYPE`; `SmBSplineCurve_TYPE`, `SmLine_TYPE`.
 const EXACT_SURFACES: [i64; 2] = [15002, 15011];
 const EXACT_CURVES: [i64; 2] = [14033, 14010];
+
+/// The deferral label of cases whose geometry the shared export of
+/// `topology.edgeuse_p1` flattens to B-spline parts (analytic surfaces and curves):
+/// not an unported unit but a harness limitation, so the ops evaluating that geometry
+/// are not compared on it (the C++ side is not run for them either).
+const HARNESS_ANALYTIC_IMPORT: &str = "harness:analytic-geometry-export";
 
 // ---- inputs -----------------------------------------------------------------------------
 
@@ -475,6 +482,22 @@ fn build_failure(export: &[f64]) -> Output {
     Output::err(format!("brep_build_status_{}", export.get(1).copied().unwrap_or(0.0)))
 }
 
+/// The Rust B-rep of an upstream `.smb` file at `path`, imported through this unit's
+/// export (list orders, vertex use lists and face back-links applied), for the
+/// runners of other units whose Rust side needs the file's B-rep.
+pub(crate) fn import_file(path: &str, rebuild: bool) -> Result<Brep, HarnessError> {
+    // the file block: kind 0, rebuild, validate_only, init_gaps
+    let ex = ffi::eval(Op::Export, path, &[0.0, flag(rebuild), 0.0, 0.0])
+        .map_err(|e| harness(format!("c++ export: {e}")))?;
+    let Some((_, graph_at)) = ffi::counts(&ex) else {
+        return Err(harness(format!(
+            "brep_build_status_{}",
+            ex.get(1).copied().unwrap_or(0.0)
+        )));
+    };
+    Ok(import(&ex, graph_at)?.0)
+}
+
 /// The Rust B-rep of an export with this unit's extras applied, and the geometry
 /// types of the import.
 fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessError> {
@@ -529,6 +552,23 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
         .map_err(|e| harness(format!("edge list: {e}")))?;
     b.set_vertex_list(vl.into_iter().map(VertexId::from_index).collect())
         .map_err(|e| harness(format!("vertex list: {e}")))?;
+    // the geometry's owners (`SmSurface::GetOwner` / `SmCurve::GetOwner`, set by the
+    // B-rep build upstream): the kernel's arena identities
+    let edge_ids: Vec<EdgeId> = b.edges().ids().collect();
+    for id in edge_ids {
+        if let Some(curve) = b.edge_mut(id).map_err(|e| harness(e.to_string()))?.curve.as_mut() {
+            let _ = curve.set_owner(
+                Some(arena_identity(CacheObject::Edge(id))),
+                Some(arena_identity(CacheObject::Brep)),
+            );
+        }
+    }
+    let face_ids: Vec<FaceId> = b.faces().ids().collect();
+    for id in face_ids {
+        if let Some(surface) = b.face_mut(id).map_err(|e| harness(e.to_string()))?.surface.as_mut() {
+            let _ = surface.set_owner(Some(arena_identity(CacheObject::Face(id))));
+        }
+    }
     // the shared import leaves `m_pFU` unset: the face's upward (SAME) face use
     let ups: Vec<(FaceId, FaceuseId)> = b
         .faceuses()
@@ -678,6 +718,16 @@ fn mark_type(code: u8) -> MarkType {
     }
 }
 
+/// The stand-in UV trim curve of `Redistribute` (upstream only tests it for `NULL`):
+/// the unit line of the shim.
+fn stand_in_uv_curve() -> Curve {
+    Curve::from(solidcore::curve::line::Line::from_points(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(1.0, 0.0, 0.0),
+        2,
+    ))
+}
+
 fn plane(k: f64) -> Surface {
     Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, k), Vec3::new(0.0, 0.0, 1.0)))
 }
@@ -716,14 +766,17 @@ fn inexact(types: &ImportTypes, faces: Option<&[FaceId]>, edges: Option<&[EdgeId
     };
     for st in surface_types {
         if st >= 0 && !EXACT_SURFACES.contains(&st) {
-            let (unit, symbol) = match st {
-                15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
-                15014 => ("surface.sphere", "SmSphere"),
-                15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
-                15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
-                _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
+            // a harness limitation, not an unported unit: the shared export of
+            // `topology.edgeuse_p1` hands these surfaces over as their B-spline part
+            let symbol = match st {
+                15012 | 15013 => "SmCone / SmCylinder face surface exported as its B-spline part",
+                15014 => "SmSphere face surface exported as its B-spline part",
+                15015 => "SmTorus face surface exported as its B-spline part",
+                15030 => "SmSurfOfExtrusion face surface exported as its B-spline part",
+                15031 => "SmSurfOfRevolution face surface exported as its B-spline part",
+                _ => "face surface of a kind the shared export flattens to a B-spline",
             };
-            return Some(Output::deferred(unit, symbol));
+            return Some(Output::deferred(HARNESS_ANALYTIC_IMPORT, symbol));
         }
     }
     let curve_types: Vec<i64> = match edges {
@@ -735,7 +788,10 @@ fn inexact(types: &ImportTypes, faces: Option<&[FaceId]>, edges: Option<&[EdgeId
     };
     for t in curve_types {
         if t >= 0 && !EXACT_CURVES.contains(&t) {
-            return Some(Output::deferred("topology.brep_p7", "SmBrep::ReadFromFile"));
+            return Some(Output::deferred(
+                HARNESS_ANALYTIC_IMPORT,
+                "edge curve (SmEllipse / SmCircle / other analytic kind) exported as its B-spline part",
+            ));
         }
     }
     None
@@ -832,19 +888,20 @@ fn run_rust_op(
         OpIn::Lists { which, attr, targets } => {
             let store = attach(targets, *attr)?;
             let key = |e: EntityRef| key_of(e).key;
-            // GetSurfaces / GetCurves test the geometry's own attributes
-            let geometry_key = |e: EntityRef| match e {
-                EntityRef::Face(f) => surface_key(f),
-                EntityRef::Edge(x) => curve_key(x),
-                other => key_of(other).key,
-            };
-            let key_fn: &dyn Fn(EntityRef) -> ObjectKey = if *which == 7 || *which == 8 { &geometry_key } else { &key };
             let filter = (*attr >= 0).then_some(AttributeFilter {
                 attributes: &store,
                 attribute_id: *attr as u64,
-                key_of: key_fn,
+                key_of: &key,
             });
             let f = filter.as_ref();
+            // GetSurfaces / GetCurves test the geometry's own attributes
+            let geometry_filter = (*attr >= 0).then_some(bp1::GeometryAttributeFilter {
+                attributes: &store,
+                attribute_id: *attr as u64,
+                surface_key_of: &surface_key,
+                curve_key_of: &curve_key,
+            });
+            let gf = geometry_filter.as_ref();
             match which {
                 5 | 6 => {
                     if let Some(d) = inexact(types, None, None) {
@@ -869,21 +926,24 @@ fn run_rust_op(
                 5 => ids(&bp1::topological_edges(k, b)?),
                 6 => ids(&bp1::topological_vertices(k, b)?),
                 7 => {
-                    let n = bp1::surfaces(b, f)?.len();
-                    // the surfaces' owning faces, in order: the faces passing the filter
-                    let faces = bp1::faces(b, f)?;
-                    if faces.len() != n {
-                        return Err(harness("surfaces/faces count mismatch").into());
-                    }
-                    ids(&faces)
+                    // the surfaces' owners (`GetOwner()`), as face indices
+                    let owners: Vec<f64> = bp1::surfaces(b, gf)?
+                        .iter()
+                        .map(|s| s.owner().map_or(-1.0, |o| o.key.0 as f64))
+                        .collect();
+                    let mut v = vec![owners.len() as f64];
+                    v.extend(owners);
+                    v
                 }
                 8 => {
-                    let n = bp1::curves(b, f)?.len();
-                    let edges = bp1::edges(b, f)?;
-                    if edges.len() != n {
-                        return Err(harness("curves/edges count mismatch").into());
-                    }
-                    ids(&edges)
+                    // the curves' owners (`GetOwner()`), as edge indices
+                    let owners: Vec<f64> = bp1::curves(b, gf)?
+                        .iter()
+                        .map(|c| c.owner().map_or(-1.0, |o| o.key.0 as f64))
+                        .collect();
+                    let mut v = vec![owners.len() as f64];
+                    v.extend(owners);
+                    v
                 }
                 _ => ids(&bp1::shells(k, b, f)?),
             };
@@ -951,8 +1011,12 @@ fn run_rust_op(
                 Err(e) => status_of(&e),
             };
             o.push(status);
-            o.push(b.infinite_region().map_or(-1.0, |r| f64::from(r.index())));
-            o.extend(ids(&bp1::regions(b, None)?));
+            // the shim stops at the guard where upstream dereferences the null old
+            // infinite region (the swap flag); otherwise it reports the state
+            if status != NULL_DEREF {
+                o.push(b.infinite_region().map_or(-1.0, |r| f64::from(r.index())));
+                o.extend(ids(&bp1::regions(b, None)?));
+            }
             // the void flags of a successful mode 1/2 are never reached: both go through
             // SmRegion::SetIsVoid (unit topology.shell)
         }
@@ -1030,7 +1094,9 @@ fn run_rust_op(
         }
         OpIn::AddAttrs { target, ids: attr_ids, indexed } => {
             let Some(t) = entity(*target) else {
-                return Ok(Ok(vec![NULL_DEREF]));
+                // upstream dereferences the null object once per index; with no index
+                // it returns SM_SUCCESS (and the object has no attributes to list)
+                return Ok(Ok(if indexed.is_empty() { vec![0.0, 0.0] } else { vec![NULL_DEREF] }));
             };
             let mut store = AttributeStore::default();
             let mut handles = Vec::new();
@@ -1216,23 +1282,14 @@ fn run_rust_op(
         OpIn::Redistribute { edge, has_uv, seam, dom } => {
             let e = EdgeId::from_index(*edge as u32);
             let seam = SurfParamType::from_code(u64::from(*seam)).unwrap_or(SurfParamType::Neither);
-            let uv: Option<Curve> = if *has_uv {
-                // the shim's stand-in: the first edge use's own trim curve
-                let eus = &b.edge(e)?.edgeuses;
-                let Some(c) = eus.first().and_then(|&eu| b.edgeuse(eu).ok()).and_then(|r| r.uv_trim_curve.clone()) else {
-                    return Ok(Err(Output::deferred("topology.edgeuse_p3", "SmEdgeuse::GetOrCreateUVTrimCurve")));
-                };
-                Some(c)
-            } else {
-                None
-            };
+            // the trim curve argument is only tested for NULL: a stand-in on both sides
+            let uv: Option<Curve> = has_uv.then(stand_in_uv_curve);
             let d = Extent2d::from_bounds(dom[0], dom[1], dom[2], dom[3]);
-            if uv.is_some() && seam != SurfParamType::Neither {
-                // the seam branch (not run by the shim either): GetOrCreateUVTrimCurve
-                return Ok(Err(Output::deferred("topology.edgeuse_p3", "SmEdgeuse::GetOrCreateUVTrimCurve")));
+            match bp1::redistribute_seam_uv_trim_curves(k, b, e, uv.as_ref(), seam, &d) {
+                Ok(swapped) => o.extend([0.0, flag(swapped)]),
+                Err(err) if err.is_unported() => return Err(err.into()),
+                Err(err) => o.push(status_of(&err)),
             }
-            let swapped = bp1::redistribute_seam_uv_trim_curves(k, b, e, uv.as_ref(), seam, &d)?;
-            o.extend([0.0, flag(swapped)]);
         }
         OpIn::SplitUv { eu_orig, eu_new, p, t, scaled_zero, orient, for_tess } => {
             let eo = EdgeuseId::from_index(*eu_orig as u32);

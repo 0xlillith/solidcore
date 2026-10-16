@@ -129,6 +129,8 @@ pub fn create_linear_sweep(
     let repetitions: u64 = 1;
     let _ = (curve_copies, sweep_dir, sweep_dist, repetitions, cap_ends);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateLinearSweep
     Err(SolidError::unported(
@@ -169,6 +171,8 @@ pub fn create_rotational_sweep(
         cap_ends,
     );
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateRotationalSweep
     Err(SolidError::unported(
@@ -218,6 +222,8 @@ pub fn create_draft_sweep(
         corner,
     );
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreateTaperExtrude
     Err(SolidError::unported(
@@ -255,6 +261,8 @@ pub fn create_pipe_sweep(
     let translational_sweep = false;
     let _ = (k, path_curve, approx_tol, cap_ends, translational_sweep);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreatePipeSweep
     Err(SolidError::unported(
@@ -350,6 +358,8 @@ pub fn create_curve_sweep(
     let _ = (k, profile_curves, path_curve, scale_reference, scale_curve);
     let _ = (approx_tol, options);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateCurveSweep
     Err(SolidError::unported(
@@ -389,6 +399,8 @@ pub fn create_curve_sweep_from_faces(
     let _ = (k, brep, faces, path_curve, scale_reference, scale_curve);
     let _ = (approx_tol, options);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreateCurveSweepFromFaces
     Err(SolidError::unported(
@@ -428,6 +440,8 @@ pub fn create_curve_sweep_from_edges(
     let _ = (k, brep, edges, path_curve, scale_reference, scale_curve);
     let _ = (approx_tol, options);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreateCurveSweepFromEdges
     Err(SolidError::unported(
@@ -479,6 +493,8 @@ pub fn create_taper_extrude(
         corner,
     );
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreateTaperExtrude
     Err(SolidError::unported(
@@ -514,6 +530,8 @@ pub fn create_linear_sweep_with_repetitions(
     // Arguments of the unported call (SmPrimitiveCreation(region)).
     let _ = (curve_copies, sweep_dir, sweep_dist, repetitions, cap_ends);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateLinearSweep
     Err(SolidError::unported(
@@ -558,6 +576,8 @@ pub fn create_rotational_sweep_with_repetitions(
         cap_ends,
     );
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    // ported (topology.brep_p1): SmBrep::GetInfiniteRegion is Brep::infinite_region, called
+    // on the new B-rep once the constructor above lands
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateRotationalSweep
     Err(SolidError::unported(

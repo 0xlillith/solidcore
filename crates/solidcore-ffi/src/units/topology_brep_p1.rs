@@ -214,6 +214,10 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.index(2)?;
             rd.below_or_none(n_r)?;
             rd.index(2)?;
+            // `ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP)` dereferences the
+            // old infinite region (`SmBrep.cpp:8630`) when it is null (set -1, or -2 on a
+            // B-rep without one): the shim stops before that call and reports `-2`, as
+            // the Rust port does, so the input stays comparable here.
         }
         Op::Degenerate => {
             rd.finite()?;
@@ -224,7 +228,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
         Op::Vote => {
             let n = rd.index(MAX_LIST)?;
             for _ in 0..n {
-                rd.below(n_r)?;
+                // a null region (-1) is a valid vote upstream
+                rd.below_or_none(n_r)?;
             }
         }
         Op::ObjMap => {
@@ -299,7 +304,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
         Op::Redistribute => {
             rd.below(n_e)?;
             rd.flag()?;
-            // SmSurfParamType: SM_SP_U .. SM_SP_NEITHER
+            // SmSurfParamType: SM_SP_U (0) .. SM_SP_VMAX (8); SM_SP_OUT (9) is not a seam
+            // kind the Rust runner maps
             rd.index(8)?;
             rd.finites(4)?;
         }
@@ -322,10 +328,14 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             for _ in 0..n {
                 rd.below(n_eu)?;
             }
-            rd.flag()?;
+            let has_tan = rd.flag()?;
             let nt = rd.index(MAX_LIST)?;
             for _ in 0..nt {
                 rd.flag()?;
+            }
+            // upstream indexes pOptIsTangent[ii] per edge use
+            if has_tan && nt < n {
+                return Err(bad("fewer tangency flags than edge uses"));
             }
             rd.finite()?;
             rd.finite()?;

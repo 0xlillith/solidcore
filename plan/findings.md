@@ -5638,11 +5638,21 @@ Every compared value is bit-identical; no absolute floors. Of the passes, 15 are
   Rust `SM_ERR`, upstream finds the edge; the edge curves arrive as B-spline parts of analytic
   curves) and `mass.integrator` face query 4 (1 case: Rust `SM_ERR`, upstream succeeds). Those
   need the owning units' runners to import the list order / defer inexact geometry first.
+- **Stubs retagged** (they named `topology.brep_p1` but their missing callee is elsewhere):
+  the eight `SmTol::GetZoneTol3d(const SmObject*)` sites (`curve_cache`, `ellipse/p1`,
+  `topology_solver/p1`, `trim_srf_cache`, `surface_cache/p1`, `surface_cache/p2`,
+  `solution_array`, the `geom::tol` header) dispatch to `topology::{vertex, edge, face::p2,
+  edgeuse::p1}::tolerance` and `Brep::tolerance`, all ported but all taking `&Brep`, which those
+  sites do not hold; they are self-tagged with that reason (as `query.api_queries`) pending the
+  maintainer's call. `geom::object` -> `query.brep` (`SmBrep::CalculateBoundingBox`, the first
+  missing call after the ported `GetInfiniteRegion`); `proto_topology/p1` -> `topology.brep_p2`
+  (`SmBrep::GetMinEdgeBBoxSize`); `trim_srf_cache` editing flag -> `topology.face_p4`
+  (`SmFace::GetBrep`). Their stored reports were re-run (`deferred_by_unit` only changed).
 - **Deferred, by design until their units land:** `GetShells` / `ResetInfiniteRegion` void flags /
   `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
   `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`
   (`topology.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
-  `LockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`),
-  `CreateBlendSurface` (`surface.surface_p8`). The error paths before each stub are compared
+  `LockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`). The error
+  paths before each stub are compared
   (`ResetInfiniteRegion(NULL)`, the "infinite region not first" check, `CreateCornerBlend` with
   fewer than two edge uses, `CreateEdgeEdgeBlend` without edges or NURBS rails).

@@ -1252,6 +1252,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (the script was run on the C++ reference; the case `edge_proto_p3_rejected_duplicate_manager_entry_0`/`_1` now refuses it on both sides).
 - **Severity:** crash/UB.
 - **Rust port:** proto edges are arena ids that are never freed, so the repeat reads a deleted-edge slot and finds no group; nothing is read after free.
+
 #### UB-136. Fillet geometry substitution reads a missing partner interval
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:16830` (`sm_SetDoFilletingGeometry`), called by `SmCurveClassification::MergeInterval`; unchecked indexing in `source/SMLib/inc/SmCurveClass.h:508`.
 - **What happens:** Fillet merging indexes both classifications at the target interval without checking the paired classification's size. An empty partner yields a null read; a shorter partner permits an out-of-range interval read.
@@ -1260,6 +1261,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes, the maintainer reproduced SIGSEGV for all five curve kinds in full and vertices-only modes (13 crashing probes in total), plus the one-interval out-of-range read.
 - **Severity:** crash / out-of-range read.
 - **Rust port:** Kernel topology mutation remains deferred. Both the safe FFI validator and the C++ shim require equally sized partners for op 3 with fillets. Six `rejected_fillets_*` fixtures check rejection; 660 isolated probes independently exercise both guards at first and last indices of 1/2/3/32 intervals. Valid equal-sized pairs and non-fillet calls remain accepted.
+
+#### UB-162. `sm_RedistributeSeamUVTrimCurves` reads a fourth edge use that need not exist
+- **Location:** `source/SMLib/src/SmBrep.cpp:12097`-`12105` (`sm_RedistributeSeamUVTrimCurves`): `SM_PTR_ARRAY(sNewEdgeuses, SmEdgeuse, 16)`, `pNewE->GetEdgeuses(sNewEdgeuses); SM_ASSERT(sNewEdgeuses.GetSize() == 4)`, then `sNewEdgeuses[0]` and `sNewEdgeuses[3]`.
+- **What happens:** The assertion is a no-op in release builds. For a seam edge with fewer than four edge uses the function reads slot 3 of the 16-slot stack array, an uninitialised pointer, and calls `GetCWEdgeuse()` on it.
+- **Trigger:** A UV trim curve given, a seam direction other than `SM_SP_NEITHER`, and an edge with one, two or three edge uses (a wire or lamina seam edge, or an edge whose other face is not attached yet).
+- **How found:** source review while porting `topology.brep_p1` (PR #145); the difftest shim refuses the call for edges without exactly four edge uses.
+- **Confirmed:** no (source inspection only; the shim never runs it).
+- **Severity:** crash/UB.
+- **Rust port:** `topology::brep::p1::redistribute_seam_uv_trim_curves` returns `InvalidInput` for an edge with fewer than four edge uses.
 
 ## Hang
 
