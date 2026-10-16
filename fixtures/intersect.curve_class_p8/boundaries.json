@@ -1229,6 +1229,156 @@
       "name": "upstream_rectangle_side_3_op3",
       "upstream_ref": "tests/SM_API_test/src/TestSmCurves.cpp:424-430 (10 by 6 rectangle geometry, re-expressed as side segments for p8 boundary classification)",
       "inputs": { "record": [3, 2, 0, 1, 2, 2, -5, 3, 0, -5, -5, -3, 5, 3, 1, 1, -3, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op0_source_tol_-1.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [0, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1.0, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op0_source_tol_-1e-07",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [0, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op0_geometry_scale_1e-09",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [0, 3, 0, 1, 2, 2, 2.0000000000000003e-10, 3e-10, 0, 7e-10, 0, 0, 1, 1, 1e-09, 1e-09, 6e-10, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op0_geometry_scale_1000000000.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [0, 3, 0, 1, 2, 2, 200000000.0, 300000000.0, 0, 700000000.0, 0, 0, 1, 1, 1000000000.0, 1000000000.0, 600000000.0, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op0_circle_radius_1e-10",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [0, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 1e-10, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op0_circle_radius_0.5",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [0, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 0.5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op1_source_tol_-1.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [1, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1.0, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op1_source_tol_-1e-07",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [1, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op1_geometry_scale_1e-09",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [1, 3, 0, 1, 2, 2, 2.0000000000000003e-10, 3e-10, 0, 7e-10, 0, 0, 1, 1, 1e-09, 1e-09, 6e-10, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op1_geometry_scale_1000000000.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [1, 3, 0, 1, 2, 2, 200000000.0, 300000000.0, 0, 700000000.0, 0, 0, 1, 1, 1000000000.0, 1000000000.0, 600000000.0, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op1_circle_radius_1e-10",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [1, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 1e-10, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op1_circle_radius_0.5",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [1, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 0.5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op2_source_tol_-1.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [2, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1.0, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op2_source_tol_-1e-07",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [2, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op2_geometry_scale_1e-09",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [2, 3, 0, 1, 2, 2, 2.0000000000000003e-10, 3e-10, 0, 7e-10, 0, 0, 1, 1, 1e-09, 1e-09, 6e-10, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op2_geometry_scale_1000000000.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [2, 3, 0, 1, 2, 2, 200000000.0, 300000000.0, 0, 700000000.0, 0, 0, 1, 1, 1000000000.0, 1000000000.0, 600000000.0, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op2_circle_radius_1e-10",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [2, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 1e-10, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op2_circle_radius_0.5",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [2, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 0.5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op3_source_tol_-1.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [3, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1.0, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op3_source_tol_-1e-07",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [3, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op3_geometry_scale_1e-09",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [3, 3, 0, 1, 2, 2, 2.0000000000000003e-10, 3e-10, 0, 7e-10, 0, 0, 1, 1, 1e-09, 1e-09, 6e-10, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op3_geometry_scale_1000000000.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [3, 3, 0, 1, 2, 2, 200000000.0, 300000000.0, 0, 700000000.0, 0, 0, 1, 1, 1000000000.0, 1000000000.0, 600000000.0, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op3_circle_radius_1e-10",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [3, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 1e-10, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op3_circle_radius_0.5",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [3, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 0.5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op4_source_tol_-1.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [4, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1.0, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op4_source_tol_-1e-07",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420; SmZoneTol3d scalar-constructor default/negative normalization",
+      "inputs": { "record": [4, 2, 0, 1, 2, 2, 0.2, 0.3, 0, 0.7, 0, 0, 1, 1, 1, 1, 0.6, 0, 0, 1, -1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op4_geometry_scale_1e-09",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [4, 3, 0, 1, 2, 2, 2.0000000000000003e-10, 3e-10, 0, 7e-10, 0, 0, 1, 1, 1e-09, 1e-09, 6e-10, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op4_geometry_scale_1000000000.0",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (tiny/huge-scale branch probe)",
+      "inputs": { "record": [4, 3, 0, 1, 2, 2, 200000000.0, 300000000.0, 0, 700000000.0, 0, 0, 1, 1, 1000000000.0, 1000000000.0, 600000000.0, 0, 0, 1, 1e-07, 0, 1, 0, 1, 100] }
+    },
+    {
+      "name": "op4_circle_radius_1e-10",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [4, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 1e-10, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
+    },
+    {
+      "name": "op4_circle_radius_0.5",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:8462-10420 (full-circle tiny-radius/tangent branch probe)",
+      "inputs": { "record": [4, 2, 1, 1, 2, 2, 0.5, 0.5, 0, 0.5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 360, 1e-07, 0, 1, 0, 360, 100] }
     }
   ]
 }

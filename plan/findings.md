@@ -5381,3 +5381,75 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## intersect.curve_class_p8 (`SmCurveClassification` natural boundaries and discontinuities; PR #152)
+
+Ports all five owned members from `SmCurveClass.cpp:8462-10420`: natural 3D/UV
+boundaries, UV/3D surface discontinuities (including upstream's misspelled
+`Discontinuties` symbols), and volume discontinuities. UV/3D forwarding uses
+shared nonrecursive helpers. Natural boundaries keep native traversal order,
+orientation, `IsDegenerate()`'s `SM_EFF_ZERO` default, left/nonzero-tangent flags,
+strict gap comparisons, temporary NOTHING labels, and classification propagation.
+The surface owner is cleared on an exact evaluation copy, preserving the caller's
+owner and NURBS data. The part-3 interval lookup exposes its initialized result
+on ordinary failure so these callers can retain upstream's ignored-status behavior.
+
+The shared delta is the inline `SetInterval` accessor, visibility for the existing
+curve resolver and initialized `FindInterval` helper, and the module declaration.
+The accessor matches the small interface also present in independent #150; this
+PR includes none of that PR's implementation or ancestry. No active dependency
+PR is bundled or recertified.
+
+Dependency boundaries and integration handoffs:
+
+- Nonempty boundary/iso-curve solutions stop exactly at `sm_InsertSolutions`
+  (`intersect.curve_class_p5`, #150). Wiring it will require registering temporary
+  boundary handles with the caller's geometry adapter; the stub retains the
+  actual boundary curve/plane, solutions and explicit tolerance for that handoff.
+- The general volume plane/curve call is `SmSurface::GlobalCurveIntersect`
+  (`surface.surface_p8`, #118). Native uses the curve's natural interval, ignores
+  its ordinary status, and may still consume solutions. That output lifecycle
+  must be retained when replacing the stub.
+- Real `SmCrvOnSurf` iso-curves are built over B-spline surfaces. Other concrete
+  surface types stop at the existing `curve.crv_on_surf` generic-surface adapter
+  gap; they are not replaced by a B-spline stand-in.
+- Incoming p8 markers in `curve.crv_on_surf` and `curve.crv_in_volume` are after
+  their earlier `intersect.curve_class_p4` construction stubs (#137). Part 4 is
+  still independent. Those sites cannot yet reach p8; no unit is promoted here.
+
+The native oracle builds real segments, full circles and stationary quadratic
+B-splines; planes, flat/warped C0 grids with independent U/V counts; identity and
+C0 B-spline volumes. Fixtures include rectangle-side geometry from
+`TestSmCurves.cpp:424-430`, branch-derived probes, nonunit surface domains,
+subintervals, seams/touches, preclassified intervals, default/negative/zero
+source tolerances and tiny/huge geometry. The plan-listed tests reach this unit
+indirectly; no direct calls to these five members occur in the permitted test
+folders. Generated cases use the harness's recorded fixed seeds.
+
+Coverage limits: solution insertion, crossing-driven partition mutation and the
+following crossing-angle classifications are not certified. All discontinuous
+volume plane paths are deferred; UV-curve rejection and no-discontinuity volume
+returns compare status and unchanged state only. Surface fallback classifications
+without boundary intersections are the directly compared numerical subset;
+preclassified skip/propagation cases are not new topology construction. The
+native status is carried with integer labels and interval state, so the report's
+`cases_both_errored` field is not a count of non-success native status results.
+No absolute floors or tolerance changes are used.
+
+Source review found UB-133 and WR-102..WR-104 (entries in upstream issues). These
+are source findings, not isolated native reproductions. V+V slot selection,
+W-from-V coordinates and U-only unaligned checking are retained where defined;
+invalid indices/empty arrays return errors instead of undefined reads. The volume
+borrowed-buffer alias is not reproduced by the independent Rust vectors; this
+behavior remains wholly behind the plane-intersection deferral and must be
+reviewed before that dependency is wired. Native fixtures use equal V/W volume
+lists and never deliberately execute the known out-of-bounds case.
+
+Validation results are pending below. Earlier implementation-build failures are
+not validation passes. Native validation uses an isolated Ubuntu 26.04.1 x86_64
+checkout, GCC 15.2.0, Rust 1.98.0, and the shared pinned C++ reference. The allowed
+SMLib and SM_API source trees match clean local upstream `c9c5979` by recursive
+checksum comparison. A validation-only opt-level-0 override applies to the CLI
+adapter; the Rust numerical kernel stays at difftest opt-level 1, and native flags
+stay `-O2 -ffp-contract=off -fno-fast-math`. No profile/workflow/build-script change
+is submitted.

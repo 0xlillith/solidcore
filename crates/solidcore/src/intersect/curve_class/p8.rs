@@ -18,6 +18,8 @@
 //! Empty knot lists/interval arrays and out-of-range native volume W/V indexing return
 //! errors instead of native undefined behaviour. The native V+V solution-slot formulas,
 //! W-plane coordinates taken from V, and U-only unaligned test are retained.
+//! Volume solution arrays use independent storage rather than the native aliased
+//! borrowed buffer (WR-103); the entire plane-intersection path remains deferred.
 //! Solution insertion defers to part 5; general plane/curve intersection defers to
 //! `surface.surface_p8`; generic `CrvOnSurf` construction defers to `curve.crv_on_surf`.
 //! No input-driven recursion: dimension forwarding dispatches once through shared helpers.
@@ -51,10 +53,13 @@ use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::volume::{Discontinuities3d, Volume};
 
 #[derive(Clone, Copy, PartialEq)]
-struct BoundaryObject;
+struct BoundaryObject(u8, crate::geom::extent1d::Extent1d);
 impl SolutionObject for BoundaryObject {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Curve
+    }
+    fn natural_interval(&self) -> Option<crate::geom::extent1d::Extent1d> {
+        Some(self.1)
     }
 }
 
@@ -97,7 +102,9 @@ fn pv(curve: &Curve, t: f64) -> Result<[Vec3; 2]> {
 
 fn iso_curve(k: &Kernel, surface: &Surface, line: Line) -> Result<Curve> {
     match surface.kind() {
-        SurfaceKind::BSpline(s) => Ok(CrvOnSurf::new(k, line.into(), s.clone(), None, 0)?.into()),
+        SurfaceKind::BSpline(s) => {
+            Ok(CrvOnSurf::new(k, line.into(), s.clone_exact(), None, 0)?.into())
+        }
         _ => {
             // UNPORTED(curve.crv_on_surf): SmCrvOnSurf on a generic SmSurface
             Err(SolidError::unported(
@@ -123,6 +130,8 @@ fn intersections(
     tol: f64,
     fast: bool,
 ) -> Result<Vec<Solution<BoundaryObject>>> {
+    let this = BoundaryObject(0, curve.natural_interval());
+    let other = BoundaryObject(1, boundary.natural_interval());
     if fast {
         if let CurveKind::Line(line) = boundary.kind() {
             let r =
@@ -137,7 +146,7 @@ fn intersections(
                         start: s.start,
                         end: s.end,
                         num_objects: s.num_objects,
-                        objects: [None; 5],
+                        objects: [Some(this), Some(other), None, None, None],
                         nodes: s.nodes,
                     })
                     .collect());
@@ -151,7 +160,14 @@ fn intersections(
             boundary,
             &boundary.natural_interval(),
             tol,
-            &CurveIntersectOptions::<BoundaryObject>::default(),
+            &CurveIntersectOptions {
+                handles: [Some(this), Some(other)],
+                analytic_handles: [
+                    Some(BoundaryObject(2, this.1)),
+                    Some(BoundaryObject(3, other.1)),
+                ],
+                ..Default::default()
+            },
         )?
         .as_slice()
         .to_vec())
@@ -495,9 +511,10 @@ impl<O: ClassObject> CurveClassification<O> {
                 let normal = if uv {
                     Vec3::Z
                 } else {
-                    let line = uv_lines.get(index).ok_or_else(|| SolidError::sm_err(OP))?;
-                    let p = line.evaluate_point(bt);
-                    surface.evaluate_normal(Point2::new(p.x, p.y), Side::Left, Side::Left)?
+                    let CurveKind::CrvOnSurf(iso) = boundary.kind() else {
+                        return Err(SolidError::sm_err(OP));
+                    };
+                    iso.evaluate_surface_normal(bt, true)?.normal
                 };
                 if are_parallel(bpv[1], cpv[1], None) {
                     continue;
@@ -622,9 +639,9 @@ impl<O: ClassObject> CurveClassification<O> {
                     ),
                 };
                 if !in_param_space {
-                    x = volume.orient_vector(origin, x, [true; 3])?;
-                    y = volume.orient_vector(origin, y, [true; 3])?;
-                    origin = volume.orient_point(origin)?;
+                    x = ignored(volume.orient_vector(origin, x, [true; 3]))?.unwrap_or(x);
+                    y = ignored(volume.orient_vector(origin, y, [true; 3]))?.unwrap_or(y);
+                    origin = ignored(volume.orient_point(origin))?.unwrap_or(origin);
                 }
                 planes.push(Plane::new(
                     origin,
@@ -642,7 +659,7 @@ impl<O: ClassObject> CurveClassification<O> {
             core::array::from_fn(|_| Vec::new());
         for (i, plane) in planes.iter().enumerate() {
             // Native uses the curve's natural interval (not the classification interval).
-            let sols = plane_intersections(k, plane, curve, tol)?;
+            let sols = ignored(plane_intersections(k, plane, curve, tol))?.unwrap_or_default();
             let slot = if i == 0 {
                 Some(0)
             } else if i == nu - 1 {
@@ -743,7 +760,10 @@ impl<O: ClassObject> CurveClassification<O> {
         if position == IntervalPosition::Start {
             (Some(index), index.checked_sub(1))
         } else {
-            ((index + 1 < self.size()).then_some(index + 1), Some(index))
+            (
+                index.checked_add(1).filter(|i| *i < self.size()),
+                Some(index),
+            )
         }
     }
     fn mid_class(&self, index: Option<usize>) -> Result<PointClassType> {
