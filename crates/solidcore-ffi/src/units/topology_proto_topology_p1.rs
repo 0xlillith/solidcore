@@ -682,7 +682,7 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     rd.finite()?;
     let n_ops = rd.int(0, MAX_OPS)?;
     for _ in 0..n_ops {
-        let code = rd.int(0, proto_op_p2::LAST)?;
+        let code = rd.int(0, p::LAST)?;
         // argument shapes: i id, f finite, 3 point, c pc, l id list
         let shape: &str = match code {
             p::PV_NEW => "3f",

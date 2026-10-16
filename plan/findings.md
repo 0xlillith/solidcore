@@ -4905,19 +4905,18 @@ mutated scales and accepted/reduced step counts are compared.
 - `UNPORTED(query.face_p2)` in `p3::face_curve_on_classify` (`SmFace::CurveOnClassify`, called
   from `ResolveOverlappingProtoEdges`) stays: `query::face::p2::curve_on_classify` needs a
   `Brep`, a `FaceId` and a `CurveOnClassifyObjects` implementation, while the proto-topology
-  manager holds opaque object handles (`ProtoBrepAccess`, no `Brep`). Wire it when the manager
-  gets its `Brep` implementation (`topology.proto_topology_p2`'s `ProtoBrep`).
-- `UNPORTED(topology.proto_topology_p2)` (eight callees) are stubs for the open PR #114.
-- The `ProtoBrepAccess` trait overlaps `ProtoBrep` of PR #114 (`edge_interval`, `edge_curve`,
-  `topology_tolerance`, `insert_curve`). Its methods carry the prefix `access_` so a type
-  implementing both traits has no ambiguous call; unify the traits when #114 merges.
+  manager holds opaque object handles (`ProtoBrep`, no `Brep`). Wire it when the manager
+  gets its `Brep` implementation.
+- The callees of `topology.proto_topology_p2` (merged, PR #114) are wired. The p3 functions read
+  the B-reps through p2's `ProtoBrep` trait, which gained `vertex_point`, `edge_faces`,
+  `vertex_common_edges` and `edge_other_vertex` for them; there is no second trait.
 - `ResolveOverlappingProtoEdges` crashes the C++ (exit 139) when an overlap relation is one-way
   (an edge outside its own group is read after it was deleted) or an overlap list repeats an
   edge (the group `[1,1]` processes a deleted edge again). `AddOverlappingPE` and
   `AppendOverlappingPEs` do not de-duplicate. The shim and the Rust runner refuse RESOLVE unless
   every overlap is symmetric, no list repeats an edge and each edge is in its own group; the two
   crashing scripts are the cases `edge_proto_p3_rejected_*`.
-- Coverage: vertices with a point and a zone tolerance (pool kind 8) let
+- Coverage: vertices with a point and a zone tolerance (pool kind 10, `VERTEX_AT`) let
   `GlueCoincidentBrepVertices` compare the paths where the final vertices are one vertex or far
   apart (no glue). Near distinct vertices would glue (needs a B-rep) and are refused. Resolve is
   still compared only for definition-less groups: a group with definitions reaches

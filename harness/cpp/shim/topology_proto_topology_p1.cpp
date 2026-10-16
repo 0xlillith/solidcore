@@ -2155,6 +2155,14 @@ bool position_ok(const SmPointClassification& pc1, const SmPointClassification& 
     return sc_pt_p1::sm_FindPositionFromPCs(a, b, p, dev) == SM_SUCCESS;
 }
 
+// refused when two classifications that can be imprinted have no position (CreateProtoVertex
+// would read an uninitialised one)
+bool pair_position_ok(const SmPointClassification& pc1, const SmPointClassification& pc2)
+{
+    return !(sc_pt_p1::sm_CanImprint(pc1.GetPointClass()) && sc_pt_p1::sm_CanImprint(pc2.GetPointClass())) ||
+           position_ok(pc1, pc2);
+}
+
 // The tangent EvaluateMid of a proto edge / definition writes (all curves present, success).
 bool pe_tangent_ok(SmProtoEdge* e)
 {
@@ -4464,7 +4472,8 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             SmPointClassification pc1, pc2;
             ok = read_pc(rd, r.pool, pc1) && ok;
             ok = read_pc(rd, r.pool, pc2) && ok;
-            if (skip || !ok)
+            if (skip || !ok || (sc_pt_p1::sm_CanImprint(pc1.GetPointClass()) &&
+                                sc_pt_p1::sm_CanImprint(pc2.GetPointClass()) && !position_ok(pc1, pc2)))
             {
                 skip = true;
                 break;
@@ -4472,6 +4481,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             SmProtoVertex* nv = NULL;
             SmBoolean created = FALSE;
             status = st(mgr->FindOrCreateProtoVertex(pc1, pc2, nv, &created));
+            register_new(r);
             out.push_back(r.pvs.id(nv));
             out.push_back(flg(created));
             break;
@@ -4491,7 +4501,8 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             ok = read_pc(rd, r.pool, e2) && ok;
             // creating a proto edge (p2) needs a real B-rep: refused when every end and the middle
             // classify to topology in both B-reps
-            if (skip || !ok || cc_curve == NULL || a > b ||
+            if (skip || !ok || cc_curve == NULL || a > b || !pair_position_ok(s1, s2) || !pair_position_ok(m1, m2) ||
+                !pair_position_ok(e1, e2) ||
                 (sc_pt_p1::sm_CanImprint(s1.GetPointClass()) && sc_pt_p1::sm_CanImprint(s2.GetPointClass()) &&
                  sc_pt_p1::sm_CanImprint(e1.GetPointClass()) && sc_pt_p1::sm_CanImprint(e2.GetPointClass()) &&
                  sc_pt_p1::sm_CanImprint(m1.GetPointClass()) && sc_pt_p1::sm_CanImprint(m2.GetPointClass())))
@@ -4526,6 +4537,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             SmProtoEdge* npe = NULL;
             SmBoolean created = FALSE;
             status = st(mgr->FindOrCreateProtoEdge(ci1, ci2, npe, &created));
+            register_new(r);
             out.push_back(r.pes.id(npe));
             out.push_back(flg(created));
             break;
@@ -4548,6 +4560,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             SmProtoVertex* npv = NULL;
             SmProtoEdge* npe = NULL;
             status = st(e->Split(t, npv, npe));
+            register_new(r);
             out.push_back(r.pvs.id(npv));
             out.push_back(r.pes.id(npe));
             reconcile(r, before, false);
@@ -4575,6 +4588,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             SmVertexDefinition* nvd = NULL;
             SmEdgeDefinition* ned = NULL;
             status = st(d->Split(t, mid, top, nvd, ned));
+            register_new(r);
             out.push_back(r.vds.id(nvd));
             out.push_back(r.eds.id(ned));
             reconcile(r, before, false);
@@ -4607,6 +4621,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             }
             Reach before = reach(r);
             status = st(mgr->SplitIntersectingProtoEdges(e1, e2));
+            register_new(r);
             std::vector<double> dead = reconcile(r, before, false);
             out.push_back((double)dead.size());
             out.insert(out.end(), dead.begin(), dead.end());

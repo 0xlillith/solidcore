@@ -535,6 +535,19 @@ pub(super) fn st<T>(r: solidcore::Result<T>) -> Result<Result<T, f64>, Fail> {
     }
 }
 
+/// The status marking a refusal: undefined behaviour upstream (the shim refuses those inputs).
+const REFUSED: f64 = f64::MIN;
+
+/// `st` for the unit `topology.proto_topology_p3` ops: an [`SolidError::InvalidInput`] (a
+/// dereference of a null or deleted object, a read of an uninitialised value upstream) is a
+/// refusal, as the shim refuses those inputs.
+fn st3<T>(r: solidcore::Result<T>) -> Result<Result<T, f64>, Fail> {
+    match r {
+        Err(SolidError::InvalidInput { .. }) => Ok(Err(REFUSED)),
+        r => st(r),
+    }
+}
+
 /// The status of a call (0 on success).
 fn st0<T>(r: solidcore::Result<T>) -> Result<f64, Fail> {
     Ok(match st(r)? {
@@ -1563,6 +1576,17 @@ impl ProtoRun {
                     .iter()
                     .all(|v| v.is_some_and(|v| m.proto_vertices().contains(&v)))
             })
+    }
+
+    /// Creating a proto vertex reads an uninitialised position when `sm_FindPositionFromPCs`
+    /// fails for two classifications that can be imprinted: such inputs are refused (the
+    /// shim's `position_ok`).
+    fn position_ok(&self, a: &PointClassification<H>, c: &PointClassification<H>) -> Result<bool, Fail> {
+        if !(proto_mod::can_imprint(a.point_class()) && proto_mod::can_imprint(c.point_class())) {
+            return Ok(true);
+        }
+        let (mut x, mut y) = (*a, *c);
+        Ok(st(proto_mod::find_position_from_pcs(&self.k, &self.pool, &mut x, &mut y))?.is_ok())
     }
 
     /// Kills the curves an op deleted; their ids, sorted.
@@ -3370,9 +3394,15 @@ fn run_proto(
             p::FOC_PV => {
                 let pc1 = r.read_pc(&mut rd);
                 let pc2 = r.read_pc(&mut rd);
+                let pos_ok = match (&pc1, &pc2) {
+                    (Some(a), Some(c)) => r.position_ok(a, c)?,
+                    _ => true,
+                };
                 match (pc1, pc2) {
-                    (Some(mut a), Some(mut c)) if !skip => {
-                        match st(r.mgr.find_or_create_proto_vertex_pcs(k, &r.pool, &mut a, &mut c))? {
+                    (Some(mut a), Some(mut c)) if !skip && pos_ok => {
+                        let called = st3(r.mgr.find_or_create_proto_vertex_pcs(k, &r.pool, &mut a, &mut c))?;
+                        super::topology_proto_topology_p2::sync_counts(&mut r);
+                        match called {
                             Ok((pv, created)) => {
                                 out.push(r.pv_id(pv));
                                 out.push(b(created));
@@ -3393,12 +3423,19 @@ fn run_proto(
                 let a = rd.num();
                 let bb = rd.num();
                 let pcs: Vec<Option<PointClassification<H>>> = (0..6).map(|_| r.read_pc(&mut rd)).collect();
+                let mut pos_ok = true;
+                for i in 0..3 {
+                    if let (Some(a), Some(c)) = (pcs.get(i).and_then(Option::as_ref), pcs.get(i + 3).and_then(Option::as_ref)) {
+                        pos_ok &= r.position_ok(a, c)?;
+                    }
+                }
                 if skip
                     || !ok
                     || cc_curve.is_none()
                     || a > bb
                     || pcs.iter().any(Option::is_none)
                     || pcs.iter().flatten().all(|pc| proto_mod::can_imprint(pc.point_class()))
+                    || !pos_ok
                 {
                     skip = true;
                 } else {
@@ -3445,7 +3482,9 @@ fn run_proto(
                         }
                     }
                     if !skip {
-                        match st(r.mgr.find_or_create_proto_edge(k, &mut r.pool, approx_tol, &cc, &mut ci1, &cc, &mut ci2))? {
+                        let called = st3(r.mgr.find_or_create_proto_edge(k, &mut r.pool, approx_tol, &cc, &mut ci1, &cc, &mut ci2))?;
+                        super::topology_proto_topology_p2::sync_counts(&mut r);
+                        match called {
                             Ok((pe, created)) => {
                                 out.push(r.pe_id(pe));
                                 out.push(b(created));
@@ -3471,7 +3510,9 @@ fn run_proto(
                         if interior && (!r.pe_split_ok(e) || !r.ed_curves_unique()) {
                             skip = true;
                         } else {
-                            match st(r.mgr.proto_edge_split(k, &mut r.pool, e, t))? {
+                            let called = st3(r.mgr.proto_edge_split(k, &mut r.pool, e, t))?;
+                            super::topology_proto_topology_p2::sync_counts(&mut r);
+                            match called {
                                 Ok((pv, pe)) => {
                                     out.push(r.pv_id(pv));
                                     out.push(r.pe_id(pe));
@@ -3507,7 +3548,9 @@ fn run_proto(
                         if interior && (!has_curve || !pe_live || !r.ed_curves_unique()) {
                             skip = true;
                         } else {
-                            match st(r.mgr.edge_definition_split(k, &mut r.pool, d, t, Some(mid), Some(top)))? {
+                            let called = st3(r.mgr.edge_definition_split(k, &mut r.pool, d, t, Some(mid), Some(top)))?;
+                            super::topology_proto_topology_p2::sync_counts(&mut r);
+                            match called {
                                 Ok((vd, ed)) => {
                                     out.push(r.vd_id(vd));
                                     out.push(r.ed_id(ed));
@@ -3549,7 +3592,9 @@ fn run_proto(
                         if guard {
                             skip = true;
                         } else {
-                            match st(r.mgr.split_intersecting_proto_edges(k, &mut r.pool, e1, e2))? {
+                            let called = st3(r.mgr.split_intersecting_proto_edges(k, &mut r.pool, e1, e2))?;
+                            super::topology_proto_topology_p2::sync_counts(&mut r);
+                            match called {
                                 Ok(deleted) => {
                                     let ids = r.kill_curves(deleted);
                                     out.push(ids.len() as f64);
@@ -3595,7 +3640,7 @@ fn run_proto(
                         }
                     }
                     if !skip {
-                        match st(r.mgr.glue_coincident_brep_vertices(k, &r.pool))? {
+                        match st3(r.mgr.glue_coincident_brep_vertices(k, &r.pool))? {
                             Ok(deleted) => {
                                 let ids = r.kill_curves(deleted);
                                 out.push(ids.len() as f64);
@@ -3696,7 +3741,7 @@ fn run_proto(
                     if skip || !r.ed_curves_unique() {
                         skip = true;
                     } else {
-                        match st(r.mgr.resolve_overlapping_proto_edges(k, &mut r.pool, approx_tol))? {
+                        match st3(r.mgr.resolve_overlapping_proto_edges(k, &mut r.pool, approx_tol))? {
                             Ok(deleted) => {
                                 let ids = r.kill_curves(deleted);
                                 out.push(ids.len() as f64);
@@ -3717,6 +3762,9 @@ fn run_proto(
         }
         if rd.bad {
             return Err(harness("op arguments").into());
+        }
+        if status == REFUSED {
+            skip = true;
         }
         if !skip && !r.invariant() {
             skip = true;
@@ -3854,7 +3902,9 @@ pub(super) fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
 
 pub(super) fn rust(s: &Script) -> Result<Output, HarnessError> {
     match rust_run(s) {
-        Ok(v) => Ok(Output::new().values("out", v)),
+        Ok(v) => {
+            Ok(Output::new().values("out", v))
+        }
         Err(Fail::Deferred(d)) => Ok(*d),
         Err(Fail::Harness(e)) => Err(e),
     }
