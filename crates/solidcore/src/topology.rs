@@ -542,6 +542,13 @@ pub struct Brep {
     /// its circular region list, `None` for the first region record (the region arena
     /// holds the list in traversal order; the head only rotates it).
     region_list_head: Option<RegionId>,
+    /// `m_pFaceListHead` (unit `topology.brep_p1`): the face list in its list order
+    /// (every face record, once; an importer may reorder it).
+    face_list: Vec<FaceId>,
+    /// `m_pEdgeListHead` (unit `topology.brep_p1`): the edge list in its list order.
+    edge_list: Vec<EdgeId>,
+    /// `m_pVertexListHead` (unit `topology.brep_p1`): the vertex list in its list order.
+    vertex_list: Vec<VertexId>,
     /// `m_bEditingEnabled` (unit `topology.brep_p1`): the B-rep is being edited, so
     /// trimmed-surface caches skip the trimmed face data.
     editing_enabled: bool,
@@ -572,6 +579,9 @@ impl Default for Brep {
             key: ObjectKey(0),
             infinite_region: None,
             region_list_head: None,
+            face_list: Vec::new(),
+            edge_list: Vec::new(),
+            vertex_list: Vec::new(),
             editing_enabled: false,
             model_size_estimate: USE_DEFAULT,
             large_small_size_ratio: USE_DEFAULT,
@@ -841,9 +851,11 @@ impl Brep {
     }
 
     /// Appends a face record as is (no validation; the shell's face list is not
-    /// touched).
+    /// touched); the face joins the end of the B-rep's face list.
     pub fn add_face_record(&mut self, face: Face) -> Result<FaceId> {
-        self.faces.insert(face)
+        let id = self.faces.insert(face)?;
+        self.face_list.push(id);
+        Ok(id)
     }
 
     /// Appends a loop record as is (no validation; the face's loop list is not
@@ -852,14 +864,20 @@ impl Brep {
         self.loops.insert(loop_)
     }
 
-    /// Appends an edge record as is (no validation).
+    /// Appends an edge record as is (no validation); the edge joins the end of the
+    /// B-rep's edge list.
     pub fn add_edge_record(&mut self, edge: Edge) -> Result<EdgeId> {
-        self.edges.insert(edge)
+        let id = self.edges.insert(edge)?;
+        self.edge_list.push(id);
+        Ok(id)
     }
 
-    /// Appends a vertex record as is.
+    /// Appends a vertex record as is; the vertex joins the end of the B-rep's vertex
+    /// list.
     pub fn add_vertex_record(&mut self, vertex: Vertex) -> Result<VertexId> {
-        self.vertices.insert(vertex)
+        let id = self.vertices.insert(vertex)?;
+        self.vertex_list.push(id);
+        Ok(id)
     }
 
     /// Appends a face use record as is (no validation).
@@ -889,7 +907,7 @@ impl Brep {
 
     /// Adds a vertex at `point`.
     pub fn add_vertex(&mut self, point: Point3) -> Result<VertexId> {
-        self.vertices.insert(Vertex {
+        self.add_vertex_record(Vertex {
             point,
             tolerance: ZONE_TOL_3D,
             ..Vertex::default()
@@ -904,7 +922,7 @@ impl Brep {
                 return Err(not_found(OP, v));
             }
         }
-        self.edges.insert(Edge {
+        self.add_edge_record(Edge {
             vertices: [start, end],
             edgeuses: Vec::new(),
             interval: Extent1d::new(),
@@ -919,7 +937,7 @@ impl Brep {
         if self.shells.get(shell).is_none() {
             return Err(not_found(OP, shell));
         }
-        let face = self.faces.insert(Face::new(shell))?;
+        let face = self.add_face_record(Face::new(shell))?;
         self.shells
             .get_mut(shell)
             .ok_or_else(|| not_found(OP, shell))?

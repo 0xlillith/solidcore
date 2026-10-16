@@ -15,6 +15,7 @@
 //! | [`Brep::set_this_large_small_size_ratio`]         | `SmBrep::SetThisLargeSmallSizeRatio`          |
 //! | [`Brep::infinite_region`], [`Brep::set_infinite_region`] | `SmBrep::GetInfiniteRegion`, `SetInfiniteRegion` |
 //! | [`Brep::editing_enabled`], [`Brep::set_editing_enabled`] | `SmBrep::m_bEditingEnabled`             |
+//! | [`Brep::face_list`], [`Brep::edge_list`], [`Brep::vertex_list`] (+ `set_*_list`) | `m_pFaceListHead`, `m_pEdgeListHead`, `m_pVertexListHead` (list order) |
 //! | [`Brep::add_deleted_surface`], [`Brep::deleted_surfaces`] | `SmBrep::AddDeletedSurface`, `m_pDeletedSurfaces` |
 //! | [`num_faces`]                                     | `SmBrep::GetNumFaces`                         |
 //! | [`is_live_topology_member`]                       | `SmBrep::IsLiveTopologyMember`                |
@@ -234,6 +235,60 @@ impl Brep {
         self.infinite_region = region;
     }
 
+    /// `m_pFaceListHead`: the faces in list order.
+    #[must_use]
+    pub fn face_list(&self) -> &[FaceId] {
+        &self.face_list
+    }
+
+    /// `m_pEdgeListHead`: the edges in list order.
+    #[must_use]
+    pub fn edge_list(&self) -> &[EdgeId] {
+        &self.edge_list
+    }
+
+    /// `m_pVertexListHead`: the vertices in list order.
+    #[must_use]
+    pub fn vertex_list(&self) -> &[VertexId] {
+        &self.vertex_list
+    }
+
+    /// Reorders the face list (an importer's friend write): `order` must hold every
+    /// face record exactly once.
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] otherwise.
+    pub fn set_face_list(&mut self, order: Vec<FaceId>) -> Result<()> {
+        check_order(&order, self.faces.len())?;
+        self.face_list = order;
+        Ok(())
+    }
+
+    /// Reorders the edge list (an importer's friend write): `order` must hold every
+    /// edge record exactly once.
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] otherwise.
+    pub fn set_edge_list(&mut self, order: Vec<EdgeId>) -> Result<()> {
+        check_order(&order, self.edges.len())?;
+        self.edge_list = order;
+        Ok(())
+    }
+
+    /// Reorders the vertex list (an importer's friend write): `order` must hold every
+    /// vertex record exactly once.
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] otherwise.
+    pub fn set_vertex_list(&mut self, order: Vec<VertexId>) -> Result<()> {
+        check_order(&order, self.vertices.len())?;
+        self.vertex_list = order;
+        Ok(())
+    }
+
     /// The head of the B-rep's region list (`SmOwningTopology::m_pList`), `None` for
     /// the first region record.
     #[must_use]
@@ -273,22 +328,36 @@ impl Brep {
     }
 }
 
+/// Whether `order` is a permutation of the `count` arena ids.
+fn check_order<I: crate::topology::ArenaId>(order: &[I], count: usize) -> Result<()> {
+    let mut seen = vec![false; count];
+    for id in order {
+        match seen.get_mut(id.index() as usize) {
+            Some(s) if !*s => *s = true,
+            _ => return Err(null("list order is not a permutation of the records")),
+        }
+    }
+    if order.len() != count {
+        return Err(null("list order is not a permutation of the records"));
+    }
+    Ok(())
+}
+
 /// `GetNumFaces`: the face count (`m_pFaceListHead->GetSize()`).
 #[must_use]
 pub fn num_faces(b: &Brep) -> usize {
-    b.faces().len()
+    b.face_list().len()
 }
 
-/// `IsLiveTopologyMember`: whether `target` is a live face, edge or vertex of the
-/// B-rep (pointer identity only; `None` is `FALSE`, as every other entity kind).
+/// `IsLiveTopologyMember`: whether `target` is on the B-rep's face, edge or vertex
+/// list (identity only; `None` is `FALSE`, as every other entity kind).
 #[must_use]
 pub fn is_live_topology_member(b: &Brep, target: Option<EntityRef>) -> bool {
     match target {
-        None => false,
-        Some(EntityRef::Face(f)) => b.faces().get(f).is_some(),
-        Some(EntityRef::Edge(e)) => b.edges().get(e).is_some(),
-        Some(EntityRef::Vertex(v)) => b.vertices().get(v).is_some(),
-        Some(_) => false,
+        Some(EntityRef::Face(f)) => b.face_list().contains(&f),
+        Some(EntityRef::Edge(e)) => b.edge_list().contains(&e),
+        Some(EntityRef::Vertex(v)) => b.vertex_list().contains(&v),
+        _ => false,
     }
 }
 
@@ -339,7 +408,11 @@ pub fn regions(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<
 ///
 /// None (the signature matches the other collections).
 pub fn faces(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<FaceId>> {
-    Ok(filtered(b.faces().ids(), attribute, EntityRef::Face))
+    Ok(filtered(
+        b.face_list().iter().copied(),
+        attribute,
+        EntityRef::Face,
+    ))
 }
 
 /// `GetEdges`: every edge in list order, those carrying `attribute` when given.
@@ -348,7 +421,11 @@ pub fn faces(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<Fa
 ///
 /// None (the signature matches the other collections).
 pub fn edges(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<EdgeId>> {
-    Ok(filtered(b.edges().ids(), attribute, EntityRef::Edge))
+    Ok(filtered(
+        b.edge_list().iter().copied(),
+        attribute,
+        EntityRef::Edge,
+    ))
 }
 
 /// `GetVertices`: every vertex in list order, those carrying `attribute` when given.
@@ -357,7 +434,11 @@ pub fn edges(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<Ed
 ///
 /// None (the signature matches the other collections).
 pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<VertexId>> {
-    Ok(filtered(b.vertices().ids(), attribute, EntityRef::Vertex))
+    Ok(filtered(
+        b.vertex_list().iter().copied(),
+        attribute,
+        EntityRef::Vertex,
+    ))
 }
 
 /// `GetShells`: the distinct shells of every region (`SmRegion::GetShells` under a new
@@ -530,15 +611,20 @@ pub enum SetRegionVoidType {
 ///
 /// # Errors
 ///
-/// `SM_ERR_INVALID_INPUT` when the region is not on the B-rep's list;
+/// `SM_ERR_INVALID_INPUT` for no region (`NULL`) or one not on the B-rep's list;
 /// [`SolidError::Unported`] for the flag update (`SmRegion::SetIsVoid` / `IsVoid`,
 /// unit `topology.shell`), after the region and list head have been changed.
 pub fn reset_infinite_region(
     k: &mut Kernel,
     b: &mut Brep,
-    new_infinite_region: RegionId,
+    new_infinite_region: Option<RegionId>,
     void_setting: SetRegionVoidType,
 ) -> Result<()> {
+    // No work: Null input
+    let Some(new_infinite_region) = new_infinite_region else {
+        return Err(status(SM_ERR_INVALID_INPUT));
+    };
+
     // If given region is not one our our regions, fail.
     if !regions(b, None)?.contains(&new_infinite_region) {
         return Err(status(SM_ERR_INVALID_INPUT));
@@ -1226,8 +1312,8 @@ pub fn find_sector_of_face(
     };
 
     // Get SurfacePoint, SurfaceNormal, rdDistance, and sTestVec
-    let (surf_pnt, norm, test_vec) = match uv_guess {
-        Some(guess) => {
+    let (surf_pnt, norm, test_vec) = if let Some(guess) = uv_guess {
+        {
             // assume that the given cpUVGuess is on the face as expected
             let (surf_pnt, norm) = eval(guess)?;
 
@@ -1255,7 +1341,8 @@ pub fn find_sector_of_face(
                 (surf_pnt, norm, test_dir)
             }
         }
-        None => {
+    } else {
+        {
             // without cpUVGuess do a more expensive global solve (point testing off:
             // every point solution is kept without classifying it against the trims)
             let solutions = surface.global_point_solve::<NoObject>(
@@ -1550,21 +1637,42 @@ pub fn make_vertex_split_uv_trim_curve(
     // copy UVTrimCurve
     let mut new_uv_curve = uv_trim_curve.copy(k)?;
 
-    // make a 3dCurve from the UVTrimCurve
+    // make a 3dCurve from the UVTrimCurve (SmCrvOnSurf(*pNewUVCurve, *pSurface)): its
+    // point evaluation is the UV curve point lifted by the face surface; the Rust
+    // SmCrvOnSurf is built over a B-spline surface only, so the lift goes through the
+    // face surface itself and the local solve of the tessellation branch needs the
+    // B-spline one (DISPATCH GAP as curve.crv_on_surf elsewhere)
     let edge_to_split = eu1::edge(b, eu_orig)?
         .ok_or_else(|| null("sm_MakeVertexSplitUVTrimCurve: edge use without edge"))?;
     let face = eu1::face(b, eu_orig)?.ok_or_else(|| SolidError::null_pointer(OP))?; // NER
-    let surface = face2::surface(b, face)?.ok_or_else(|| SolidError::null_pointer(OP))?; // NER
-    let bs = bspline_surface(surface)?.clone();
-    let uv_3d_curve = Curve::from(CrvOnSurf::new(k, new_uv_curve.clone(), bs, None, 0)?);
+    let surface = face2::surface(b, face)?
+        .ok_or_else(|| SolidError::null_pointer(OP))?
+        .clone(); // NER
+    let lift = |t: f64| -> Result<Point3> {
+        let p = new_uv_curve.evaluate_point(t)?;
+        surface.evaluate_point(Point2::new(p.x, p.y))
+    };
 
     // when 3D distance from splitPoint to UVTrimCurvePoint > tol/100 (was "tol/30" [B606])
     let mut edge_split_parameter_uv = edge_split_parameter;
-    let p3d = uv_3d_curve.evaluate_point(edge_split_parameter_uv)?;
+    let p3d = lift(edge_split_parameter_uv)?;
 
     if p3d.distance(split_pnt) > edge::tolerance(b, edge_to_split)? / 100.0 {
         let mut reuse_trim_curve = false;
         if for_tesselation {
+            let SurfaceKind::BSpline(bs) = surface.kind() else {
+                return Err(SolidError::unported(
+                    "SmSurface (non-B-spline) in SmCrvOnSurf",
+                    "curve.crv_on_surf",
+                ));
+            };
+            let uv_3d_curve = Curve::from(CrvOnSurf::new(
+                k,
+                new_uv_curve.clone(),
+                bs.clone(),
+                None,
+                0,
+            )?);
             // get best UVTrimCurve param possible by projecting splitPoint to 3d UVTrimCurve
             let (found, sol) = uv_3d_curve.local_point_solve::<NoObject>(
                 &new_uv_curve.natural_interval(),
@@ -1662,23 +1770,21 @@ pub fn brep_intersect(
     let this_faces = faces(b, None)?;
     let other_faces = faces(other, None)?;
 
-    // for every thisBrep Face, for every otherBrep Face
-    for &this_face in &this_faces {
-        for &other_face in &other_faces {
-            let _ = (
-                this_face,
-                other_face,
-                approx_tol_3d,
-                crv_angle_tolerance_deg,
-                &mut points,
-            );
-            // intersect the faces
-            // UNPORTED(topology.face_p3): SmFace::FaceIntersect
-            return Err(SolidError::unported(
-                "SmFace::FaceIntersect",
-                "topology.face_p3",
-            ));
-        }
+    // for every thisBrep Face, for every otherBrep Face: intersect the faces and
+    // accumulate the outputs (the pairwise loop runs once FaceIntersect is wired)
+    if let (Some(this_face), Some(other_face)) = (this_faces.first(), other_faces.first()) {
+        let _ = (
+            this_face,
+            other_face,
+            approx_tol_3d,
+            crv_angle_tolerance_deg,
+            &mut points,
+        );
+        // UNPORTED(topology.face_p3): SmFace::FaceIntersect
+        return Err(SolidError::unported(
+            "SmFace::FaceIntersect",
+            "topology.face_p3",
+        ));
     }
 
     crate::curve::curve::p5::remove_duplicate_curves(&mut curves_3d)?;
@@ -1752,7 +1858,8 @@ pub fn create_corner_blend(
         .first()
         .ok_or_else(|| null("CreateCornerBlend: tangent flags shorter than edge uses"))?];
     ordered_eus.push(work_eus.remove(0));
-    eu_orients.push(eu1::orientation(b, ordered_eus[0])?);
+    let first_eu = *ordered_eus.first().ok_or_else(sm_err)?;
+    eu_orients.push(eu1::orientation(b, first_eu)?);
     work_tan.remove(0);
 
     let mut tol_scale = 1.0;
@@ -1763,7 +1870,10 @@ pub fn create_corner_blend(
 
         // for every sWorkEUS edgeuse - look for one sharing a common endPoint with the last
         for i in 0..work_eus.len() {
-            let eu = work_eus[i];
+            let eu = *work_eus.get(i).ok_or_else(sm_err)?;
+            let tan = *work_tan
+                .get(i)
+                .ok_or_else(|| null("CreateCornerBlend: tangent flags shorter than edge uses"))?;
             let last_eu = *ordered_eus.last().ok_or_else(sm_err)?;
             let param = if eu_orients.last() == Some(&OrientType::Same) {
                 1.0
@@ -1780,8 +1890,8 @@ pub fn create_corner_blend(
             // when LastEdge EndPoint coincides with TestEdge Start
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
                 // insert this edge into local inputs in SAME orientation
-                tangencies.push(work_tan[i]);
-                ordered_eus.push(work_eus[i]);
+                tangencies.push(tan);
+                ordered_eus.push(eu);
                 eu_orients.push(OrientType::Same);
                 work_eus.remove(i);
                 work_tan.remove(i);
@@ -1796,8 +1906,8 @@ pub fn create_corner_blend(
             // When LastEdge EndPoint coincides with TestEdge End
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
                 // insert this edge into local inputs in OPPOSITE orientation
-                tangencies.push(work_tan[i]);
-                ordered_eus.push(work_eus[i]);
+                tangencies.push(tan);
+                ordered_eus.push(eu);
                 eu_orients.push(OrientType::Opposite);
                 work_eus.remove(i);
                 work_tan.remove(i);
@@ -1848,10 +1958,8 @@ pub fn create_corner_blend(
         );
 
         // When Needed, put in UVTrimCurve and Surface in sOrderedUV and sOrderedSurfs arrays
-        if !tangencies.get(i).copied().unwrap_or(true) {
-            ordered_uv.push(None);
-            ordered_surfs.push(None);
-        } else {
+        let tangent = tangencies.get(i).copied().unwrap_or(true);
+        if tangent {
             // get Edgeuse->UVTrimCurve, copy UVTrimCurve
             let uv_curve = get_or_create_uv_trim_curve(k, b, eu)?;
             let uv_copy = uv_curve.copy(k)?;
@@ -1865,6 +1973,9 @@ pub fn create_corner_blend(
                     .map(|s| bspline_surface(s).cloned())
                     .transpose()?,
             );
+        } else {
+            ordered_uv.push(None);
+            ordered_surfs.push(None);
         }
     }
 
@@ -1986,14 +2097,14 @@ pub fn create_edge_edge_blend(
     // arrive here to build a blend surface between two edges
 
     // make sure the input is self-consistent: m_eCurvatureType matches lBlendFlag value
-    let ds_def = opt_ds_def.map(|d| {
+    let mut ds_def = opt_ds_def;
+    if let Some(d) = ds_def.as_deref_mut() {
         d.curvature_type = match blend_flag {
             1 => CurvatureType::NoCurvature,
             3 => CurvatureType::G3FromSurface,
             _ => CurvatureType::G2FromSurface,
         };
-        d
-    });
+    }
 
     // Guess curve directions if necessary
     let same_dir_curves = match curves_dir_flag {
@@ -2013,10 +2124,9 @@ pub fn create_edge_edge_blend(
             // Check under which orientation the distance between rail curves is less
             let mut same_direction = 0.0;
             let mut opp_direction = 0.0;
-            for ii in 0..num_loc {
-                let (p1, p2, p2r) = (rail1_pos[ii], rail2_pos[ii], rail2_pos[num_loc - 1 - ii]);
-                same_direction += p1.distance(p2);
-                opp_direction += p1.distance(p2r);
+            for ((p1, p2), p2r) in rail1_pos.iter().zip(&rail2_pos).zip(rail2_pos.iter().rev()) {
+                same_direction += p1.distance(*p2);
+                opp_direction += p1.distance(*p2r);
             }
             same_direction <= opp_direction
         }
@@ -2286,7 +2396,7 @@ mod tests {
         b.set_region_list_head(Some(r[1]));
         assert_eq!(regions(&b, None).unwrap(), vec![r[1], r[2], r[0]]);
         assert!(!regions(&b, None).unwrap().contains(&off));
-        assert!(is_live_topology_member(&b, None) == false);
+        assert!(!is_live_topology_member(&b, None));
     }
 
     #[test]
