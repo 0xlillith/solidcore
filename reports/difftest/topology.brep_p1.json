@@ -20854,12 +20854,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862643",
-      "values_compared": 3
+      "values_compared": 1
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::LockBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0001",
@@ -20869,24 +20869,24 @@
       "values_compared": 0
     },
     {
-      "max_rel_err": 0.0,
-      "name": "gen0002",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=16427431755999862645",
-      "values_compared": 21
-    },
-    {
       "deferred": {
-        "symbol": "SmFace::FaceIntersect",
-        "unit": "topology.face_p3"
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
       },
       "max_rel_err": 0.0,
-      "name": "gen0003",
+      "name": "gen0002",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=16427431755999862646",
+      "source": "generated:seed=16427431755999862645",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0003",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=16427431755999862646",
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -20894,7 +20894,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862647",
-      "values_compared": 5
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -20902,20 +20902,24 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862648",
-      "values_compared": 3
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0006",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=16427431755999862649",
       "values_compared": 2
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0006",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=16427431755999862649",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0007",
@@ -20925,16 +20929,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0008",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427431755999862651",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -20942,7 +20942,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862652",
-      "values_compared": 4
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -20950,15 +20950,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862653",
-      "values_compared": 17
+      "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
+      },
       "max_rel_err": 0.0,
       "name": "gen0011",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427431755999862654",
-      "values_compared": 28
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -20966,7 +20970,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862655",
-      "values_compared": 3
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -20974,7 +20978,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862656",
-      "values_compared": 1
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -20982,35 +20986,39 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862657",
-      "values_compared": 6
+      "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SwapUV",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0015",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427431755999862658",
-      "values_compared": 3
+      "values_compared": 0
     }
   ],
   "cases_both_errored": 15,
-  "cases_deferred": 608,
+  "cases_deferred": 610,
   "cases_failed": 0,
-  "cases_passed": 1710,
+  "cases_passed": 1708,
   "cases_total": 2318,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
-    "heal.heal_data_p1": 16,
-    "query.brep": 70,
+    "heal.heal_data_p1": 15,
+    "query.brep": 71,
     "surface.cone_p1": 29,
     "surface.sphere": 43,
-    "surface.surf_of_extrusion_p2": 46,
+    "surface.surf_of_extrusion_p2": 47,
     "surface.surface_cache_p1": 16,
     "surface.surface_p8": 10,
-    "topology.brep_p7": 86,
-    "topology.edgeuse_p3": 106,
-    "topology.face_p1": 15,
-    "topology.face_p3": 19,
+    "topology.brep_p7": 88,
+    "topology.edgeuse_p3": 105,
+    "topology.face_p1": 16,
+    "topology.face_p3": 18,
     "topology.shell": 148
   },
   "max_rel_err": 0.0,
