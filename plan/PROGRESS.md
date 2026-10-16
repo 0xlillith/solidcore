@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**190 / 261 units ported** (108 green, 82 partial), **261,264 / 387,903 upstream lines (67.4%)**. 30 claimed, 0 blocked, 41 todo.
+**191 / 261 units ported** (108 green, 83 partial), **262,081 / 387,903 upstream lines (67.6%)**. 29 claimed, 0 blocked, 41 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -85,7 +85,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
 - [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (draft)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (draft)
 
@@ -332,11 +331,11 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `mass.integrator` (1031 lines) — partial, 1528 cases
 
-### sweep (3/5)
+### sweep (4/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] 🟡 `sweep.rotational_sweep_geometry` (1542 lines) — partial, 761 cases
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
+- [ ] 🟡 `sweep.trans_sweep_geometry` (817 lines) — partial, 788 cases
 - [ ] 🟡 `sweep.api_brep` (529 lines) — partial
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
