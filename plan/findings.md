@@ -5401,7 +5401,9 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   Explicit one-node/two-leaf cache recipes certify traversal, not cache construction.
   Comparisons include full interval/point records, object identity, gaps and zones.
   Vertex/edge tolerances use `SetTolerance(value, FALSE)` to shrink defaults too.
-  Face tolerance is explicitly 1e-5 on both sides. Loop vertex UVs use the existing
+  Face tolerance is explicitly 1e-5 on both sides. Pole fixtures use the actual
+  collapsed-side point (0,0,0); a standalone native probe confirms vertex insertion
+  there (SM_SUCCESS), rather than inferring pole coverage from the surface type. Loop vertex UVs use the existing
   `ComputeUVPoint` projection, rather than assuming the input UV survives unchanged;
   native recomputes UV even when its stored value is present. The earlier stacked
   experiment had three small gap mismatches with the assumed UVs; that experiment
