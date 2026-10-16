@@ -5792,6 +5792,15 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   its plan notes); #144 (`topology.proto_topology_p1`) changes
   `ProtoBrep::edge_other_vertex` to take `Option<O>`, which also covers this unit's
   `edge_other_vertex_of`; whichever of #144 and #146 lands second adapts the signature.
+- **#163 (`boolean.merge_p1`, merged after the pre-review).** Its co-port of the mate
+  storage over typed ids (`MateMap`, `Relations`, at this unit's module path
+  `boolean::topology_intersector::p1`) is kept in this unit's `p1.rs` (add/add merge; the
+  intersector itself stays generic over handles). Its `UNPORTED(boolean.topology_intersector_p1)`
+  stub `relate_new_vertex` is wired to the new `relate_vertices` (the vertex case of
+  `Relate` over typed ids: conflicting-mate checks, the tolerance maximisation of both
+  vertices, the map insertion); `merge_vertex` therefore takes the other B-rep mutably
+  (`SM_USE_OLDTOL` raises the source vertex's tolerance too). Its runner already held the
+  other B-rep mutably, so no runner change; `boolean.merge_p1`'s difftest re-run: MERGE_P1_RESULT.
 - Coverage: a script cut at its first op compares nothing, so the runner reports it as
   an error on both sides and `cases_both_errored` counts it (the real-pass count of the
   PR body is passed minus both-errored); a few passes compare only a `-2` guard marker

@@ -112,6 +112,9 @@
 //!   (`m_pTI->GetThisApproxTol3d()` in `FindOrCreateProtoEdge`) as a parameter.
 //! - The `SM_DEBUG_CODE` / `CBI_CACHE` / `SM_VALIDATE_TOPOLOGY` blocks are compiled out
 //!   upstream and not ported; `SM_ASSERT` / `SM_ASSERT_TOL` only report.
+//! - **Typed-id mate storage.** [`MateMap`] / [`Relations`] (co-ported by
+//!   `boolean.merge_p1`, which relates typed `EdgeId` / `VertexId`s) live beside the
+//!   handle-generic intersector; [`relate_vertices`] is `Relate`'s vertex case over them.
 //! - **Recursion.** None.
 
 use std::collections::{BTreeMap, BTreeSet};
