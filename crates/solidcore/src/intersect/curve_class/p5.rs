@@ -41,7 +41,7 @@ use crate::error::{ignore_status, ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
-use crate::geom::tol::{xsect_tol3d, xsect_tol_3d_from_zones, ANG_TOL_DEG};
+use crate::geom::tol::{xsect_tol3d, xsect_tol_3d_from_zones, ANG_TOL_DEG, USE_DEFAULT};
 use crate::intersect::point_class::{
     object_zone_tol_3d, ClassGeometry, ClassObject, ClassObjectKind, PointClassType,
     PointClassification,
@@ -142,6 +142,35 @@ fn append_unique<O: PartialEq>(dst: &mut Vec<O>, src: impl IntoIterator<Item = O
             dst.push(value);
         }
     }
+}
+
+/// Native `sBigGapXSectTol3d`: a face gap overrides the default constructor only
+/// when both large-gap processing and a face are present.
+fn vertex_big_gap_tolerance<O: Copy>(
+    k: &Kernel,
+    geometry: &impl ClassGeometry<O>,
+    vertex: O,
+    surface: &Surface,
+    face: Option<O>,
+    has_big_gaps: bool,
+    tolerance: f64,
+) -> Result<f64> {
+    if !has_big_gaps {
+        return Ok(tolerance);
+    }
+    let has_face = face.is_some()
+        || surface
+            .owner()
+            .is_some_and(|owner| owner.type_code == crate::geom::assert_array::labels::FACE_TYPE);
+    if !has_face {
+        return Ok(xsect_tol3d(k, USE_DEFAULT));
+    }
+    let gap = geometry
+        .vertex_face_gap(vertex, surface, face)
+        .ok_or_else(|| {
+            SolidError::invalid_input(OP, "unresolved classification vertex/face gap")
+        })?;
+    Ok(if gap > tolerance { gap } else { tolerance })
 }
 
 impl<O: ClassObject> CurveClassification<O> {
@@ -476,26 +505,15 @@ impl<O: ClassObject> CurveClassification<O> {
                 .ok_or_else(|| {
                     SolidError::invalid_input(OP, "unresolved classification vertex point")
                 })?;
-            // Native uses the explicit classification face, otherwise only a
-            // direct face owner of the surface (not an owning surface's face).
-            let has_face = self.face().is_some()
-                || surface.owner().is_some_and(|owner| {
-                    owner.type_code == crate::geom::assert_array::labels::FACE_TYPE
-                });
-            let big_tolerance = if has_big_gaps && has_face {
-                let gap = geometry
-                    .vertex_face_gap(vertex, surface, self.face())
-                    .ok_or_else(|| {
-                        SolidError::invalid_input(OP, "unresolved classification vertex/face gap")
-                    })?;
-                if gap > tolerance {
-                    gap
-                } else {
-                    tolerance
-                }
-            } else {
-                tolerance
-            };
+            let big_tolerance = vertex_big_gap_tolerance(
+                k,
+                geometry,
+                vertex,
+                surface,
+                self.face(),
+                has_big_gaps,
+                tolerance,
+            )?;
             let solutions = curve.global_point_solve::<NoObject>(
                 k,
                 &self.interval(),
@@ -1039,6 +1057,62 @@ mod tests {
                 assert_eq!(g.gap_calls.get(), 0);
             }
         }
+    }
+
+    #[test]
+    fn no_face_large_gap_keeps_default_cutoff() {
+        let mut k = Kernel::default();
+        let g = VertexGeometry {
+            curve: geometry().0,
+            point: None,
+            gap_calls: core::cell::Cell::new(0),
+        };
+        let surface = Surface::from(crate::surface::plane::Plane::from_normal(
+            Vec3::ZERO,
+            Vec3::new(0., 0., 1.),
+        ));
+        let ordinary = 1e-5;
+        let cutoff = vertex_big_gap_tolerance(
+            &k,
+            &g,
+            VertexTestObject::Vertex,
+            &surface,
+            None,
+            true,
+            ordinary,
+        )
+        .unwrap();
+        assert_eq!(cutoff, 2e-5);
+        assert!(1.5e-5 > ordinary && 1.5e-5 < cutoff);
+        assert!(2.5e-5 > cutoff);
+        assert_eq!(
+            vertex_big_gap_tolerance(
+                &k,
+                &g,
+                VertexTestObject::Vertex,
+                &surface,
+                None,
+                false,
+                ordinary,
+            )
+            .unwrap(),
+            ordinary
+        );
+        k.tolerances.zone_tol_3d = 4e-5;
+        assert_eq!(
+            vertex_big_gap_tolerance(
+                &k,
+                &g,
+                VertexTestObject::Vertex,
+                &surface,
+                None,
+                true,
+                ordinary,
+            )
+            .unwrap(),
+            8e-5
+        );
+        assert_eq!(g.gap_calls.get(), 0);
     }
 
     #[test]

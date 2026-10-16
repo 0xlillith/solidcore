@@ -5547,3 +5547,17 @@ face/no-face condition for querying a gap. Formatting, strict plain Clippy,
 1,210 kernel tests and WASM pass on these changes. Native regeneration and CI
 results for the new revision are tracked in the PR description separately from
 the passing 8adf14f0 evidence above.
+
+Round-3 review fix: without a face, the native default-constructed SmXSectTol3d
+retains twice the system zone tolerance. The Rust large-gap path now uses
+xsect_tol3d(k, USE_DEFAULT), rather than the source-plus-vertex tolerance, in that
+branch. The cutoff regression uses ordinary tolerance 1e-5 and checks the default
+2e-5 cutoff and a changed system zone tolerance. This leaves distance 1.5e-5
+eligible for the later projection checks while excluding distance 2.5e-5; it
+tests cutoff selection directly because the attempted geometric regression was
+filtered by GlobalPointSolve before this branch. UB-126 records that Rust
+continues with no face on an ownerless
+surface, where upstream dereferences a null owner. This Rust regression does not
+certify a new native-oracle branch; the existing oracle still supplies a face.
+Formatting, strict plain workspace Clippy, 1,211 kernel tests and WASM pass after
+this fix. Refreshed native CI evidence is tracked in the PR description.
