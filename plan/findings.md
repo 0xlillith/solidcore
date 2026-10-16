@@ -5625,11 +5625,11 @@ The surface owner is cleared on an exact evaluation copy, preserving the caller'
 owner and NURBS data. The part-3 interval lookup exposes its initialized result
 on ordinary failure so these callers can retain upstream's ignored-status behavior.
 
-The shared delta is the inline `SetInterval` accessor, visibility for the existing
-curve resolver and initialized `FindInterval` helper, and the module declaration.
-The accessor matches the small interface also present in independent #150; this
-PR includes none of that PR's implementation or ancestry. No active dependency
-PR is bundled or recertified.
+After the main merge, the inline `SetInterval` accessor and `pub(super)` curve
+resolver are inherited from landed #150. The remaining shared delta is visibility
+for the initialized `FindInterval` helper and the p8 module declaration. Landed
+dependencies enter through official main; no open dependency branch is bundled
+or recertified.
 
 Dependency boundaries and integration handoffs:
 
@@ -5637,10 +5637,14 @@ Dependency boundaries and integration handoffs:
   (`intersect.curve_class_p5`, #150). Wiring it will require registering temporary
   boundary handles with the caller's geometry adapter; the stub retains the
   actual boundary curve/plane, solutions and explicit tolerance for that handoff.
+  The numeric helper is now inherited from main; the retained deferral denotes
+  the reviewed temporary-boundary handle/geometry registration gap.
 - The general volume plane/curve call is `SmSurface::GlobalCurveIntersect`
   (`surface.surface_p8`, #118). Native uses the curve's natural interval, ignores
   its ordinary status, and may still consume solutions. That output lifecycle
-  must be retained when replacing the stub.
+  must be retained when replacing the stub. The implementation is now inherited
+  from main; plane handle registration and the WR-155 buffer lifecycle remain
+  the reviewed integration boundary.
 - Real `SmCrvOnSurf` iso-curves are built over B-spline surfaces. Other concrete
   surface types stop at the existing `curve.crv_on_surf` generic-surface adapter
   gap; they are not replaced by a B-spline stand-in.
@@ -5788,9 +5792,30 @@ appends can merge independently. No numerical p8 implementation or FFI guard
 changes were needed for the conflicts, and the reviewed adapter deferral
 boundaries remain unchanged. The prior unmerged-main handoff is superseded.
 
-Formatting, strict plain workspace Clippy, all 1,254 kernel tests and WASM pass
-on the integrated source. Fresh native p8 and full-gate validation are pending;
-the preceding native counts remain earlier-head evidence until that run completes.
+Formatting, strict plain and native-enabled workspace Clippy, all 1,254 kernel
+tests and WASM pass on the integrated source. The fresh p8 default report and
+full-suite p8 report both match the reviewed report byte for byte. All 785
+perturbations are detected. The complete native gate passes with 196 units:
+108 pass, 88 partial, zero failures. No other unit's status is changed.
+
+Validation uses the same Ubuntu 26.04.1 / GCC 15.2.0 / Rust 1.98.0 environment
+and pinned C++ reference, with the CLI-only opt-level-0 override described above.
+The allowed pinned `TestFiles/pt_TestFiles` corpus was populated before the full
+run; the initial attempt lacking those fixture files was stopped and discarded.
+The final gate used `nice -n 10 bin/difftest/difftest --green`, the exact CLI built
+by the successful `cargo run` for source `d691bb64`; the strict native Clippy run
+completed alongside it. The C++ build scripts/patches are unchanged from the
+verified reference build, so the existing libraries were reused.
+
+```text
+PARTIAL curve.crv_in_volume cases=2030 passed=1855 failed=0 deferred=175 max_rel_err=0e0 blocked_by=intersect.curve_class_p4(175)
+PARTIAL curve.crv_on_surf cases=2094 passed=1787 failed=0 deferred=307 max_rel_err=0e0 blocked_by=intersect.curve_class_p4(307)
+PARTIAL intersect.curve_class_p1 cases=2125 passed=2048 failed=0 deferred=77 max_rel_err=0e0 blocked_by=curve.crv_on_surf(24),curve.iso_curve(22),intersect.curve_class_p4(6),topology.edge(11),topology.face_p2(12),topology.vertex(2)
+PARTIAL intersect.curve_class_p3 cases=3292 passed=2156 failed=0 deferred=1136 max_rel_err=0e0 blocked_by=intersect.curve_class_p2(1022),topology.edge(32),topology.face_p2(41),topology.vertex(41)
+PARTIAL intersect.curve_class_p8 cases=1115 passed=785 failed=0 deferred=330 max_rel_err=0e0 blocked_by=curve.crv_on_surf(52),intersect.curve_class_p4(162),intersect.curve_class_p5(75),surface.surface_p8(41)
+SENSITIVE intersect.curve_class_p8 perturbed=785 detected=785 unperturbed=0 deferred=330
+difftest: 196 unit(s), 108 passed, 88 partial, 0 failed
+```
 
 ## intersect.curve_class_p5: independent port
 
@@ -5897,4 +5922,3 @@ independent p6 integration.
   `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
   relation state must become mutable and preserve updates for later iterations;
   this integration requirement is also recorded in the module's Deviations.
-
