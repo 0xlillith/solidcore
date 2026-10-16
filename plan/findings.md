@@ -4071,6 +4071,25 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
 - **`ReSet` with a new curve and no interval** dereferences `NULL` upstream; Rust returns
   `InvalidInput` before changing anything (the first port had already set
   `m_bIsCurveCurrent`).
+- **Back-edges wired after merging main (2026-10-16).** `UNPORTED(intersect.curve_class_p2)`
+  sites in `intersect::curve_class::{p3,p5,p6}`, `query::face::p2` (`CurveOnClassify`'s
+  `ReSet`) and `heal::face_props` (`SetProps_Stage2`'s `ReSet`) now call the part-2
+  members. Two sites did not become complete ports, because the code after the part-2
+  call belongs to other units and was never ported:
+  - `sm_InsertSolutions`' edge branch (part 5): its first upstream call on an edge target
+    is `pEdge->GetCurve()`. Opaque edge handles cannot be resolved to a B-rep (the same gap
+    part 3 documents), so it is now `UNPORTED(topology.edge)`. The branch body (vertex
+    snapping, `InsertAt`, `sm_RefineCCIToSurfaces`) still has to be ported with it.
+  - `MergeInterval` (part 6): the two `GetPointObjZoneTol3d` calls are wired. Everything
+    after them is part 6's unported remainder (about 1,000 lines of vertex/edge imprinting
+    through `MergePointClass` and the B-rep). It returns `Unported` naming
+    `intersect.curve_class_p6` itself, with no `UNPORTED(` marker because it is not a call
+    into another unit.
+  - `sm_RefineCCIToSurfaces` (this unit) keeps `UNPORTED(topology.edge)` at
+    `SmEdge::GetCurve`. `topology.edge` is now partial, but the classification's edge is
+    an opaque handle with no B-rep, so the stub waits on handle-to-B-rep resolution, not on
+    that unit. The same applies to `UNPORTED(topology.face_p2)` `SmFace::GetSurface` in
+    `GetMinUV` / `GetMaxUV`.
 
 ## curve.curve_p9: zero-end-tangent Hermite pair, loose tolerance (one case in 30,093)
 

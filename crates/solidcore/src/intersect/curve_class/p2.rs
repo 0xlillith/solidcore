@@ -54,10 +54,13 @@
 //!   surf/surf/surf, surface/edge and edge/surface refinements) is to be ported with the
 //!   `UNPORTED(topology.edge)` site below; it recurses through upstream's own counter
 //!   (`lRecursionCount`, at most 5 levels), which [`RefineCci::recursion_count`] carries.
-//! - **Callees in units not ported yet** return [`SolidError::Unported`]: `SmEdge::GetCurve`
-//!   (`topology.edge`), `SmFace::GetSurface` (`topology.face_p2`),
-//!   `SmBrep::IsLiveTopologyMember` (`topology.brep_p1`), and the topology zone
-//!   tolerances of point classifications (through `intersect.point_class`).
+//! - **Topology callees** return [`SolidError::Unported`]: `SmEdge::GetCurve`
+//!   (`topology.edge`) and `SmFace::GetSurface` (`topology.face_p2`) are called on
+//!   opaque edge / face handles that carry no B-rep the port can reach (as in part 3
+//!   and `intersect::point_class`: the stubs wait for handle-to-B-rep resolution, not
+//!   for those units); `SmBrep::IsLiveTopologyMember` (`topology.brep_p1`, not ported)
+//!   and the topology zone tolerances of point classifications (through
+//!   `intersect.point_class`).
 //! - **Recursion.** None here (see `sm_RefineCCIToSurfaces` above).
 
 use crate::curve::curve::p2::CurveKind;
