@@ -40,6 +40,7 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertexuse as vu1;
+use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::{
     Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse, FaceuseId,
     Loop, LoopId, Loopuse, LoopuseId, LoopuseStart, ObjectHandle, Region, RegionId, Shell,
@@ -74,7 +75,7 @@ const NULL_DEREF: i64 = -2;
 /// A B-spline curve: `dim`, control points `[x y z w]` (`w = NOW` non-rational, `z =
 /// NOZ` 2D), degree, knots.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct CrvIn {
+pub(crate) struct CrvIn {
     dim: u64,
     cpts: Vec<[f64; 4]>,
     p: usize,
@@ -83,7 +84,7 @@ struct CrvIn {
 
 /// A B-spline surface.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct BssIn {
+pub(crate) struct BssIn {
     #[serde(default)]
     oob: bool,
     #[serde(default)]
@@ -97,14 +98,14 @@ struct BssIn {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-enum SrfIn {
+pub(crate) enum SrfIn {
     Bspline(BssIn),
     Plane { o: [f64; 3], n: [f64; 3] },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
-enum BrepIn {
+pub(crate) enum BrepIn {
     /// An upstream test file, relative to `upstream/TestFiles/pt_TestFiles`.
     File {
         file: String,
@@ -144,7 +145,7 @@ struct Inputs {
 
 // ---- encoding ---------------------------------------------------------------------------
 
-fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
+pub(crate) fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
     let n = c.cpts.len().checked_sub(1).ok_or_else(|| harness("curve without points"))?;
     let m = c.u.len().checked_sub(1).ok_or_else(|| harness("curve without knots"))?;
     v.extend([c.dim as f64, n as f64, c.p as f64, m as f64]);
@@ -155,7 +156,7 @@ fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
     Ok(())
 }
 
-fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
+pub(crate) fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
     match s {
         SrfIn::Plane { o, n } => {
             v.push(1.0);
@@ -200,7 +201,7 @@ fn flag(b: bool) -> f64 {
 }
 
 /// The `.smb` path of a B-rep input ("" when it is not a file).
-fn path_of(b: &BrepIn) -> Result<String, HarnessError> {
+pub(crate) fn path_of(b: &BrepIn) -> Result<String, HarnessError> {
     match b {
         BrepIn::File { file, .. } => {
             let p = crate::fixtures::upstream_test_file(&crate::case::repo_root(), file)?;
@@ -236,7 +237,7 @@ fn brep_block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
 }
 
 /// Resolves a selector modulo `n` (`-1` and an empty kind select null).
-fn sel(s: i64, n: usize) -> i64 {
+pub(crate) fn sel(s: i64, n: usize) -> i64 {
     if s < 0 || n == 0 {
         -1
     } else {
@@ -307,7 +308,8 @@ fn orient_of(code: i64) -> Result<OrientType, HarnessError> {
 
 /// An exported curve block (`None` for `-1`). A B-spline or line is rebuilt exactly;
 /// another `SmBSplineCurve` kind is an error for a UV trim curve (`uv`) and its B-spline
-/// part for an edge curve (edge curves are only evaluated on deferred paths).
+/// part for an edge curve (this runner compares no edge curve values; the `heal.gap`
+/// runner, which reuses this importer, gives the C++ edges the same B-splines).
 fn read_curve(rd: &mut Rd<'_>, uv: bool) -> Result<Option<SmCurve>, HarnessError> {
     let ty = rd.num()?;
     if ty == -1.0 {
@@ -400,30 +402,84 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<(Option<Surface>, bool), HarnessError
     Ok((Some(Surface::from(b)), exact))
 }
 
+/// Reads an exported region record's shell list (`SmRegion::m_pList` from its head).
+pub(crate) fn region_shell_list(list: Vec<i64>) -> Result<Vec<ShellId>, HarnessError> {
+    list.into_iter()
+        .map(|x| opt(x, ShellId::from_index)?.ok_or_else(|| harness("null shell")))
+        .collect()
+}
+
+/// An exported shell record's type and face-use list (`m_tShellType`, `m_pList`).
+pub(crate) fn shell_members(ty: i64, list: Vec<i64>) -> Result<(ShellType, ShellMembers), HarnessError> {
+    let list = list
+        .into_iter()
+        .map(|x| opt(x, FaceuseId::from_index)?.ok_or_else(|| harness("null face use")))
+        .collect::<Result<Vec<_>, _>>()?;
+    let members = if list.is_empty() {
+        ShellMembers::Empty
+    } else {
+        ShellMembers::Faceuses(list)
+    };
+    Ok((ShellType::from_code(ty), members))
+}
+
+/// A wire or vertex shell's list head is not exported. The shims' walks register
+/// every such head while visiting the region shell lists, before any other edge or
+/// vertex use, so it is the shell's first owned use in arena order.
+pub(crate) fn set_shell_heads(b: &mut Brep) -> Result<(), HarnessError> {
+    let ids: Vec<ShellId> = b.shells().ids().collect();
+    for id in ids {
+        let shell = b.shell(id).map_err(|e| harness(e.to_string()))?;
+        let members = if shell.is_wire_shell() {
+            b.edgeuses()
+                .iter()
+                .find(|(_, e)| e.owner == EdgeuseOwner::Shell(Some(id)))
+                .map(|(eu, _)| ShellMembers::Edgeuse(eu))
+        } else if shell.is_vertex_shell() {
+            b.vertexuses()
+                .iter()
+                .find(|(_, v)| v.owner == VertexuseOwner::Shell(Some(id)))
+                .map(|(vu, _)| ShellMembers::Vertexuse(vu))
+        } else {
+            None
+        };
+        if let Some(members) = members {
+            b.shell_mut(id).map_err(|e| harness(e.to_string()))?.members = members;
+        }
+    }
+    Ok(())
+}
+
 /// Builds the Rust B-rep from the shim's export (see the module docs), with whether
 /// each face's surface was imported exactly.
-fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
+pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
     let c = ffi::counts(ex).ok_or_else(|| harness("import of a failed build"))?;
     let [n_r, n_s, n_fu, n_f, n_lu, n_l, n_eu, n_e, n_vu, n_v] = c;
     let mut rd = Rd { v: ex, at: 1 };
     let validate_only = rd.num()? != 0.0;
     rd.at = 12;
 
+    // Region shell lists, shell types and face-use lists are the native lists from
+    // their heads. The void flags are not exported (they stay 0).
     let mut regions = Vec::new();
     for _ in 0..n_r {
         let in_brep = rd.num()? != 0.0;
-        rd.list()?;
-        regions.push(Region { in_brep, ..Region::default() });
+        let shells = region_shell_list(rd.list()?)?;
+        regions.push(Region {
+            in_brep,
+            shells,
+            ..Region::default()
+        });
     }
     let mut shells = Vec::new();
     for _ in 0..n_s {
         let region = opt(rd.idx()?, RegionId::from_index)?;
-        rd.idx()?;
-        rd.list()?;
+        let (shell_type, members) = shell_members(rd.idx()?, rd.list()?)?;
         shells.push(Shell {
             faces: Vec::new(),
             region,
-            ..Shell::default()
+            shell_type,
+            members,
         });
     }
     let mut faceuses = Vec::new();
@@ -478,11 +534,13 @@ fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
             VERTEXUSE_TYPE => LoopuseStart::Vertexuse(opt(start, VertexuseId::from_index)?),
             _ => LoopuseStart::Unknown,
         };
+        let orientation = orient_of(rd.idx()?)?;
         loopuses.push(Loopuse {
             faceuse,
             loop_,
             mate,
             start,
+            orientation,
         });
     }
     let mut loop_lus = Vec::new();
@@ -592,7 +650,11 @@ fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex { point, tolerance, vertexuses: Vec::new() });
+        vertices.push(Vertex {
+            point,
+            tolerance,
+            ..Vertex::default()
+        });
     }
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
@@ -678,6 +740,15 @@ fn import(ex: &[f64]) -> Result<(Brep, Vec<bool>), HarnessError> {
     for vu in vertexuses {
         b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
     }
+    // the vertex use lists are not exported: each vertex lists its uses in arena order
+    let uses: Vec<(VertexuseId, Option<VertexId>)> =
+        b.vertexuses().iter().map(|(id, r)| (id, r.vertex)).collect();
+    for (id, v) in uses {
+        if let Some(v) = v {
+            b.vertex_mut(v).map_err(|e| harness(e.to_string()))?.vertexuses.push(id);
+        }
+    }
+    set_shell_heads(&mut b)?;
     Ok((b, exact_faces))
 }
 
@@ -813,7 +884,7 @@ fn domain(s: &SrfIn) -> [f64; 4] {
     }
 }
 
-fn gen_brep(rng: &mut Rng) -> BrepIn {
+pub(crate) fn gen_brep(rng: &mut Rng) -> BrepIn {
     match rng.below(10) {
         0..=5 => BrepIn::File {
             file: (*rng.choose(&FILES).unwrap_or(&"SmallBox.smb")).to_string(),

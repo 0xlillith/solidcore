@@ -16,6 +16,7 @@ use crate::intersect::point_class::{
 };
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
+use crate::query::face::p2 as face_p2;
 use crate::topology::topology as topo;
 
 use crate::curve::curve::p1::GlobalPointSolveOptions;
@@ -959,6 +960,12 @@ impl<O: ClassObject> EdgeDefinition<O> {
         zone_tol3d(k, self.tol)
     }
 
+    /// The raw tolerance `m_dTol` (read directly by `Imprint`).
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
+    }
+
     /// The UV curve on B-rep `which`'s face (1, else 2) (`GetXSectUVCurve`).
     #[must_use]
     pub const fn xsect_uv_curve(&self, which: i32) -> Option<O> {
@@ -1330,6 +1337,11 @@ impl ProtoVertex {
         self.tol
     }
 
+    /// Sets the raw tolerance `m_dTol` (the writes of `AddVertexDefinition`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
+    }
+
     /// `GetNumVertexDefinitions`.
     #[must_use]
     pub fn num_vertex_definitions(&self) -> usize {
@@ -1440,6 +1452,17 @@ impl ProtoEdge {
         zone_tol3d(k, self.tol)
     }
 
+    /// The raw tolerance `m_dTol`.
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
+    }
+
+    /// Sets the raw tolerance `m_dTol` (the write of `CombineProtoEdge`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
+    }
+
     /// The start proto vertex (`GetStartProtoVertex`).
     #[must_use]
     pub const fn start_proto_vertex(&self) -> Option<ProtoVertexId> {
@@ -1456,6 +1479,11 @@ impl ProtoEdge {
     #[must_use]
     pub fn overlapping_pes(&self) -> &[ProtoEdgeId] {
         &self.overlapping_pes
+    }
+
+    /// Empties the overlapping proto edges (`GetOverlappingPEs().ReSet()`).
+    pub fn clear_overlapping_pes(&mut self) {
+        self.overlapping_pes.clear();
     }
 
     /// `GetNumEdgeDefinitions`.
@@ -1598,6 +1626,12 @@ impl<O: ClassObject> ProtoFace<O> {
     #[must_use]
     pub fn coinc_proto_edges(&self) -> &[ProtoEdgeId] {
         &self.coinc_pes
+    }
+
+    /// The bounding proto edges, for the edits of the list upstream makes through the
+    /// pointer `GetCoincProtoEdges` returns.
+    pub fn coinc_proto_edges_mut(&mut self) -> &mut Vec<ProtoEdgeId> {
+        &mut self.coinc_pes
     }
 
     /// Sets the face of B-rep `which` (1, else 2): the object when it is a face
@@ -1800,6 +1834,12 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     #[must_use]
     pub fn tolerance(&self, k: &Kernel) -> f64 {
         zone_tol3d(k, self.tol)
+    }
+
+    /// The raw tolerance `m_dTol` (read directly by the manager's own members).
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
     }
 
     /// Sets the tolerance (`SetTolerance`; the flags are unused).
@@ -2674,19 +2714,25 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] when a proto vertex is listed: the containment test
-    /// (`SmProtoVertex::ContainsPoint`, unit `query.face_p2`).
+    /// [`SolidError::InvalidInput`] for a deleted listed proto vertex.
     pub fn find_proto_vertex(&self, position: Point3) -> Result<(Option<ProtoVertexId>, f64)> {
-        let _ = position;
-        let min_dist = BIG_DOUBLE;
-        if !self.pvs.is_empty() {
-            // UNPORTED(query.face_p2): SmProtoVertex::ContainsPoint
-            return Err(SolidError::unported(
-                "SmProtoVertex::ContainsPoint",
-                "query.face_p2",
-            ));
+        // Init outputs.
+        let mut ret_val = None;
+        let mut min_dist = BIG_DOUBLE;
+
+        // for every ProtoVertex - find the closest one to rPosition that's within
+        // max(m_dTol, GetCaptureDistance())
+        for &id in &self.pvs {
+            let pv = self.pv(Some(id))?;
+            if face_p2::proto_vertex_contains_point(self, pv, position) {
+                let this_dist = face_p2::proto_vertex_distance_to(pv, position);
+                if this_dist < min_dist {
+                    ret_val = Some(id);
+                    min_dist = this_dist;
+                }
+            }
         }
-        Ok((None, min_dist))
+        Ok((ret_val, min_dist))
     }
 
     /// The first edge definition (of the listed proto edges) whose B-rep `which`
@@ -3002,8 +3048,10 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] without `split_pv`: the containment test
-    /// (`SmProtoVertex::ContainsPoint`, unit `query.face_p2`).
+    /// Without `split_pv`: [`SolidError::InvalidInput`] for a deleted proto edge or a
+    /// proto edge without start or end proto vertex (upstream dereferences them), and
+    /// those of [`ProtoTopologyManager::proto_edge_evaluate`] upstream does not ignore
+    /// ([`SolidError::Unported`], [`SolidError::InvalidInput`]).
     pub fn which_pv_to_combine(
         &self,
         geometry: &impl ClassGeometry<O>,
@@ -3015,13 +3063,27 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             return Ok(split_pv);
         }
 
-        // Eval PE at SplitParam (status ignored)
-        ignore_soft(self.proto_edge_evaluate(geometry, orig_pe, split_param, true, false))?;
+        // locals
+        let e = self.pe(Some(orig_pe))?;
+        let start_pv = e.start_pv;
+        let end_pv = e.end_pv;
 
-        // UNPORTED(query.face_p2): SmProtoVertex::ContainsPoint
-        Err(SolidError::unported(
-            "SmProtoVertex::ContainsPoint",
-            "query.face_p2",
-        ))
+        // Eval PE at SplitParam (status ignored: the point stays `SmPoint3d()`)
+        let split_pt = match self.proto_edge_evaluate(geometry, orig_pe, split_param, true, false) {
+            Ok((Some(p), _)) => p,
+            Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
+                return Err(e)
+            }
+            _ => Vec3::UNDEF,
+        };
+
+        // return matching End PV or NULL for none
+        if face_p2::proto_vertex_contains_point(self, self.pv(start_pv)?, split_pt) {
+            Ok(start_pv)
+        } else if face_p2::proto_vertex_contains_point(self, self.pv(end_pv)?, split_pt) {
+            Ok(end_pv)
+        } else {
+            Ok(None)
+        }
     }
 }

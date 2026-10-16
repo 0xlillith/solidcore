@@ -113,7 +113,7 @@ use crate::geom::assert_array::labels::{SPACE_BEND_TYPE, SPACE_UNBEND_TYPE};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
-use crate::geom::global_solver::SolverOperation;
+use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{self, ObjectRef};
 use crate::geom::solution_array::{ObjectKind, SolutionEnd, SolutionObject};
 use crate::geom::tol::{
@@ -123,6 +123,7 @@ use crate::geom::tol::{
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE};
 use crate::nurbs::knots::Side;
+use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
 use crate::surface::volume::Volume;
 use crate::topology::BrepId;
@@ -553,6 +554,7 @@ impl<O: ClassObject> PointClassification<O> {
 
         // find SurfaceDropPt for ObjPt
         let mut solutions = ignored(surface_global_point_solve(
+            k,
             surface,
             &uv_domain,
             obj_pt_3d,
@@ -564,6 +566,7 @@ impl<O: ClassObject> PointClassification<O> {
         if solutions.len() != 1 {
             // find point/face->surface intersection point to 100 * face->Tolerance
             solutions = ignored(surface_global_point_solve(
+                k,
                 surface,
                 &uv_domain,
                 obj_pt_3d,
@@ -1009,12 +1012,13 @@ impl<O: ClassObject> PointClassification<O> {
         else if let Some((surface, uv_domain)) = obj_surface {
             // find point/face->surface intersection point to face->Tolerance
             let mut solutions =
-                surface_global_point_solve(surface, &uv_domain, point, self.src_zone_tol_3d)?;
+                surface_global_point_solve(k, surface, &uv_domain, point, self.src_zone_tol_3d)?;
 
             // when a distinct solution was not found
             if solutions.len() != 1 {
                 // find point/face->surface intersection point to 100 * face->Tolerance
                 solutions = surface_global_point_solve(
+                    k,
                     surface,
                     &uv_domain,
                     point,
@@ -1462,16 +1466,21 @@ fn surface_evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
 /// `SmSurface::GlobalPointSolve(domain, SM_SO_INTERSECT, point, tol, NULL,
 /// SM_SR_SINGLE, solutions)`: the start ends of the solutions.
 fn surface_global_point_solve(
-    _surface: &Surface,
-    _uv_domain: &Extent2d,
-    _point: Point3,
-    _zone_tol_3d: f64,
+    k: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    point: Point3,
+    zone_tol_3d: f64,
 ) -> Result<Vec<SolutionEnd>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+    global_point_solve_starts(
+        k,
+        surface,
+        uv_domain,
+        SolverOperation::Intersect,
+        point,
+        zone_tol_3d,
+        SolutionRequested::Single,
+    )
 }
 
 /// The solution handle of the volume point solve, whose solutions never leave

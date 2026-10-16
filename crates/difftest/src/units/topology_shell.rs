@@ -972,7 +972,11 @@ fn rust_region_order(
         }
         head.extend(original);
         brep.region_mut(region).map_err(failure)?.shells = head;
-        match solidcore::topology::shell::order_region_shells(brep, region) {
+        match solidcore::topology::shell::order_region_shells(
+            &mut solidcore::kernel::Kernel::default(),
+            brep,
+            region,
+        ) {
             Ok(()) => out.push(0),
             Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
         }

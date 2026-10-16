@@ -39,6 +39,12 @@
 //! - **Recursion.** `SubdivideToTolerances` recurses into both children without a
 //!   bound; the port stops past [`MAX_SUBDIVISION_DEPTH`] levels with
 //!   [`SolidError::InvalidInput`] (upstream fixtures stay far below it).
+//! - **Node count.** Neither does upstream bound the number of nodes it makes: a surface
+//!   much larger than the tessellation tolerances (e.g. control points at `1e4` with the
+//!   default tolerances) is split into millions of patches, which upstream allocates for
+//!   minutes and Rust aborts on (a 3.5 GB patch array in a `surface.surface_p11` run).
+//!   The port refuses to split a node once the tree holds [`MAX_SUBDIVISION_NODES`]
+//!   nodes, with [`SolidError::InvalidInput`].
 //! - **Undefined behaviour.** Where upstream would dereference a null tree (a failed
 //!   `GetTree`), a null `m_pNurb`, a node without data or a node that already has
 //!   children, the port returns [`SolidError::InvalidInput`]. `SubdivideToTolerances`
@@ -55,8 +61,6 @@
 //! - **Ignored statuses** stay ignored (`CalculateBoundingBox` of the u split halves,
 //!   `ImplantPolyEdge`, `ImplantEdgeuse`, `sm_ComputeBezierApproximation`), except
 //!   [`SolidError::Unported`], which is always propagated.
-//! - **Unported calls.** `SmSurface::GetSingularities` (`surface.surface_p3`, pole search)
-//!   returns [`SolidError::Unported`].
 //! - **Virtual calls.** `SubdivideToTolerances` calls the virtual
 //!   `TestAgainstTolerances`: the `_with` variants
 //!   ([`SurfaceCache::subdivide_to_tolerances_with`], [`SurfaceCache::build_tree_with`],
@@ -108,6 +112,11 @@ const OP_GET: &str = "surface::surface_cache::p3::SurfaceCache::get_tree";
 /// Deepest `SubdivideToTolerances` recursion the port follows (see the module
 /// deviations).
 pub const MAX_SUBDIVISION_DEPTH: u32 = 512;
+
+/// Most tree nodes `SubdivideToTolerances` splits up to (see the module deviations):
+/// `2^20`, about 1.7 GB of Bezier patches (a generated `surface.surface_p1` case at
+/// `1e-4` scale needs more than `2^18`).
+pub const MAX_SUBDIVISION_NODES: usize = 1 << 20;
 
 /// `SM_SS_UMIN` .. `SM_SS_VMAX`: the singular sides of a surface.
 const SS_UMIN: u32 = 1;
@@ -195,9 +204,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// As [`SurfaceCache::get_tree`]; [`SolidError::Unported`] for
-    /// `SmSurface::GetSingularities` when `uv_domain` reaches a side of the surface's
-    /// natural domain and poles are checked.
+    /// As [`SurfaceCache::get_tree`] and `Surface::get_singularities`.
     pub fn find_uv_nodes(
         &mut self,
         k: &Kernel,
@@ -206,7 +213,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ) -> Result<Vec<NodeId>> {
         // locals
         self.get_tree(k)?;
-        self.find_uv_nodes_built(uv_domain, check_for_poles)
+        self.find_uv_nodes_built(k, uv_domain, check_for_poles)
     }
 
     /// [`SurfaceCache::find_uv_nodes`] once `GetTree` has run: searches the stored
@@ -219,6 +226,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// [`SurfaceCache::find_uv_nodes`].
     pub fn find_uv_nodes_built(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         check_for_poles: bool,
     ) -> Result<Vec<NodeId>> {
@@ -253,11 +261,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
 
             // eliminate boundaries which are not poles
             if poles != 0 {
-                // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-                return Err(SolidError::unported(
-                    "SmSurface::GetSingularities",
-                    "surface.surface_p3",
-                ));
+                poles &= self.surface().get_singularities(k, false, false)?.singular;
             }
         }
 
@@ -741,8 +745,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// `InvalidInput` past [`MAX_SUBDIVISION_DEPTH`] levels; the errors of the tolerance
-    /// test, the block subdivision and [`SurfaceCache::subdivide_node`].
+    /// `InvalidInput` past [`MAX_SUBDIVISION_DEPTH`] levels or [`MAX_SUBDIVISION_NODES`]
+    /// nodes; the errors of the tolerance test, the block subdivision and
+    /// [`SurfaceCache::subdivide_node`].
     pub fn subdivide_to_tolerances(&mut self, k: &Kernel, node: NodeId, depth: u32) -> Result<()> {
         self.subdivide_to_tolerances_with(k, node, depth, &mut |c, k, n| {
             c.test_against_tolerances(k, n)
@@ -790,6 +795,13 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         }
 
         // subdivide the node in two - at mid-point or existing knot near mid-point
+        // (bounded: see MAX_SUBDIVISION_NODES)
+        if self.tree_or(OP_TOL)?.nodes().len() >= MAX_SUBDIVISION_NODES {
+            return Err(invalid(
+                OP_TOL,
+                "subdivision tree exceeds MAX_SUBDIVISION_NODES",
+            ));
+        }
         self.subdivide_node(node, test.direction, false)?;
 
         // recursion - keep subdividing until we satisfy tolerances
