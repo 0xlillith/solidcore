@@ -321,7 +321,8 @@ fn vertexuse_id<'g, O: ClassObject, G: ClassGeometry<O>>(
 }
 
 /// `SmFaceProps::SetProps_Stage2(face, faceIndex, SM_HO_ALL)` (unit `heal.face_props`) on
-/// the face of `face`; upstream dereferences a `NULL` face (UB-131).
+/// the face of `face`, its status ignored as upstream; a `NULL` face (dereferenced upstream,
+/// UB-131) and a face handle `geometry` does not resolve are errors.
 fn set_props_stage_2<O: LoopObject, G: ClassGeometry<O>>(
     k: &Kernel,
     geometry: &G,
@@ -332,7 +333,7 @@ fn set_props_stage_2<O: LoopObject, G: ClassGeometry<O>>(
     let face =
         face.ok_or_else(|| SolidError::invalid_input(OP_CROSS, "loop without a face (UB-131)"))?;
     let (b, f) = face_id(geometry, face, OP_CROSS)?;
-    props.set_props_stage2(k, b, f, face_index, HealerOpType::All)
+    ignore_status(props.set_props_stage2(k, b, f, face_index, HealerOpType::All))
 }
 
 /// `SmLoop::GetFace` (unit `topology.loopuse`).
@@ -911,7 +912,7 @@ impl<O: ClassObject> CurveClassification<O> {
             } else {
                 props.face_index
             };
-            ignore_status(set_props_stage_2(k, geometry, props, face, face_index))?;
+            set_props_stage_2(k, geometry, props, face, face_index)?;
         }
 
         // Tgt Face and Surface Props
