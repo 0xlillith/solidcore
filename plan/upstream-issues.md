@@ -1082,7 +1082,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no (the difftest wrapper never passes NULL curves).
 - **Severity:** crash.
 - **Rust port:** takes a slice of curves (no NULL entries).
-#### UB-130. `CreateBlendSurface` with rails of different natural intervals writes past `sIntParams`
+#### UB-133. `CreateBlendSurface` with rails of different natural intervals writes past `sIntParams`
 - **Location:** `SmBSplineSurfaceNLib.cpp:5305`-`5378` (`SmBSplineSurface::CreateSkinnedSurface`, reads `sIntParams[lNumSections+ii]` at `:5366` and writes it at `:5378`); reached from `SmSurface::CreateBlendSurface` (`SmSurface.cpp:15375`, via `SmDerivSurfDefinition::SkinDerivSurface`, `:3503`), which passes only one parameter per cross section (`sParams`, 101 values). `CreateBlendSurface` also ignores the statuses of both `GetSampleValues` calls (`SmSurface.cpp:15443`, `:15452`) and goes on with partly filled sample arrays.
 - **What happens:** With two rails, `CreateSkinnedSurface` expects `2 * lNumSections` intersection parameters. When `SyncronizeKnotsOfCurves` changes the natural interval of rail 2, the loop reads and writes past the end of the `SmTArray` copy: heap corruption.
 - **Trigger:** `CreateBlendSurface` with two B-spline curves whose natural intervals differ (e.g. `[0, 1]` and `[0, 2]` knot vectors) on surfaces the curves can be dropped onto.
