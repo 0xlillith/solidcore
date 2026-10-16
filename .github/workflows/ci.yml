@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 # The org shares 20 concurrent runners across all its repositories. A new push to a
-# PR supersedes the run on its previous head, so cancel it. Runs on main are never
-# cancelled: the CI watch checks every merge.
+# PR supersedes the run on its previous head, so cancel it. Runs on main are keyed
+# by commit, so they never queue behind or cancel each other: every merge is checked.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
