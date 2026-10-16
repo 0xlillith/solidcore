@@ -205,9 +205,10 @@ fn uv_curve(b: &Brep, eu: EdgeuseId, src: &UvSrc) -> Option<CrvIn> {
     }
 }
 
-/// `SmBSplineSurface_TYPE`, `SmPlane_TYPE`, `SmBSplineCurve_TYPE`, `SmLine_TYPE`.
+/// `SmBSplineSurface_TYPE`, `SmPlane_TYPE`; `SmBSplineCurve_TYPE`, `SmLine_TYPE` and
+/// `SmCrvOnSurf_TYPE` (the import rebuilds a curve on a B-spline surface exactly).
 const EXACT_SURFACES: [i64; 2] = [15002, 15011];
-const EXACT_CURVES: [i64; 2] = [14033, 14010];
+const EXACT_CURVES: [i64; 3] = [14033, 14010, 14048];
 
 /// The deferral of a `CheckSet` case whose face surface or edge curve the import holds
 /// only as its B-spline part (an analytic `SmBSplineSurface` / `SmBSplineCurve`

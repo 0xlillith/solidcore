@@ -5000,6 +5000,7 @@ mutated scales and accepted/reduced step counts are compared.
   clone. The `query.loop` runner builds the one-face B-rep of the shim's `SmBrepConstructor`
   in Rust (face with surface owner and tolerance, loop, edges, edge uses with their trim curves).
   No `UNPORTED(topology.edgeuse_p3)` stub is left in `crates/`.
+- **`topology.proto_topology_p2` stub kept (justified).** `edgeuse_evaluate_binormal` in `topology/proto_topology/p2.rs` (`SmEdgeuse::EvaluateBinormal`, called while re-classifying proto faces of a split face) stays `UNPORTED(topology.edgeuse_p3)`: the proto topology reaches the caller's B-rep only through the `ProtoBrep` trait over opaque handles (the difftest pool is a bare stand-in with no `Brep` and no `Kernel`), so there is nothing to call `topology::edgeuse::p3::evaluate_binormal` on. Wiring it means adding a `ProtoBrep` method and a `Brep`-backed implementation with the owner of that trait (`topology.proto_topology_p2`).
 - **`heal.gap` wired**: `GetGapEndPoints` now creates a missing UV trim curve; the gap constructors,
   setters, `CacheGap` and `GetGapEndPoints` take `k` and `&mut Brep` (and so do
   `vertex_edge_gap`, `calc_vertex_edge_gap`, `edge_ccw_edge_gap`, `calc_edge_ccw_edge_gap`,

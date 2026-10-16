@@ -33,7 +33,8 @@ use solidcore_ffi::units::topology_edgeuse_p1 as ffi1;
 use solidcore_ffi::units::topology_edgeuse_p3::{self as ffi, Op};
 
 use super::topology_edgeuse_p1::{
-    brep_block_of, gen_brep, harness, import_with_types, path_of, sel, BrepIn, FILES,
+    brep_block_of, domain, gen_brep, gen_surface, harness, import_with_types, path_of, sel, BrepIn,
+    SrfIn, FILES,
 };
 use super::topology_edgeuse_p2::{flag, inexact_geometry, put_eu_state, Setup};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -419,9 +420,76 @@ fn gen_op(rng: &mut Rng) -> OpIn {
     }
 }
 
+/// A full-circle NURBS cylinder (radius `r`, height `h`) closed and periodic in U
+/// (`along_u`) or in V.
+fn cylinder_surface(r: f64, h: f64, centre: [f64; 3], along_u: bool) -> Option<SrfIn> {
+    let w = std::f64::consts::FRAC_1_SQRT_2;
+    let ring = [
+        (r, 0.0, 1.0),
+        (r, r, w),
+        (0.0, r, 1.0),
+        (-r, r, w),
+        (-r, 0.0, 1.0),
+        (-r, -r, w),
+        (0.0, -r, 1.0),
+        (r, -r, w),
+        (r, 0.0, 1.0),
+    ];
+    let pt = |(x, y, w): (f64, f64, f64), z: f64| {
+        [(centre[0] + x) * w, (centre[1] + y) * w, (centre[2] + z) * w, w]
+    };
+    let ck = [0.0, 0.0, 0.0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1.0, 1.0, 1.0];
+    let lk = [0.0, 0.0, 1.0, 1.0];
+    let v = if along_u {
+        let net: Vec<_> = ring.iter().map(|&c| vec![pt(c, 0.0), pt(c, h)]).collect();
+        serde_json::json!({"net": net, "p": 2, "q": 1, "u": ck, "v": lk})
+    } else {
+        let net = vec![
+            ring.iter().map(|&c| pt(c, 0.0)).collect::<Vec<_>>(),
+            ring.iter().map(|&c| pt(c, h)).collect::<Vec<_>>(),
+        ];
+        serde_json::json!({"net": net, "p": 1, "q": 2, "u": lk, "v": ck})
+    };
+    serde_json::from_value(v).ok().map(SrfIn::Bspline)
+}
+
+/// A face whose edges are `SmCrvOnSurf`s: on an open B-spline surface, or on a periodic
+/// cylinder closed in U or in V (seam edges).
+fn gen_crv_on_surf_face(rng: &mut Rng) -> BrepIn {
+    let scale = *rng.choose(&[0.01, 1.0, 1.0, 3.0, 100.0]).unwrap_or(&1.0);
+    let centre = rng.point3(-2.0, 2.0).map(|c| c * scale);
+    let surface = match rng.below(3) {
+        0 => cylinder_surface(scale, scale * rng.uniform(0.2, 3.0), centre, true),
+        1 => cylinder_surface(scale, scale * rng.uniform(0.2, 3.0), centre, false),
+        _ => None,
+    };
+    let surface = surface.unwrap_or_else(|| loop {
+        let s = gen_surface(rng);
+        if matches!(s, SrfIn::Bspline(_)) {
+            break s;
+        }
+    });
+    let [u0, v0, u1, v1] = domain(&surface);
+    let dom = if rng.chance(0.3) {
+        let (du, dv) = (u1 - u0, v1 - v0);
+        [
+            u0 + du * rng.uniform(0.0, 0.3),
+            v0 + dv * rng.uniform(0.0, 0.3),
+            u1 - du * rng.uniform(0.0, 0.3),
+            v1 - dv * rng.uniform(0.0, 0.3),
+        ]
+    } else {
+        [u0, v0, u1, v1]
+    };
+    BrepIn::CrvOnSurfFace { surface, dom }
+}
+
 /// B-reps of generated cases: mostly upstream files (their faces carry real UV trim
 /// curves), plus the constructed kinds of `topology.edgeuse_p1`.
 fn gen_brep_p3(rng: &mut Rng) -> BrepIn {
+    if rng.chance(0.12) {
+        return gen_crv_on_surf_face(rng);
+    }
     if rng.chance(0.6) {
         BrepIn::File {
             file: (*rng.choose(&FILES).unwrap_or(&"Mouse.smb")).to_string(),

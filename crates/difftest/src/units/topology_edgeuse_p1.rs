@@ -26,7 +26,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
+use solidcore::curve::crv_on_surf::CrvOnSurf;
+use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, CRV_ON_SURF_TYPE, LINE_TYPE};
 use solidcore::curve::curve::Curve as SmCurve;
 use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
@@ -45,7 +46,7 @@ use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::DropCurveFail;
-use solidcore::surface::surface::Surface;
+use solidcore::surface::surface::{Surface, SurfaceKind};
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::{
     Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse, FaceuseId,
@@ -121,6 +122,9 @@ pub(crate) enum BrepIn {
     },
     Wire { curve: CrvIn, t0: f64, t1: f64 },
     Face { surface: SrfIn, dom: [f64; 4] },
+    /// A face as [`BrepIn::Face`] whose edges are `SmCrvOnSurf`s of the face's (B-spline)
+    /// surface over their UV trim curves: the `CrvOnSurf` path of `CreateUVTrimCurve`.
+    CrvOnSurfFace { surface: SrfIn, dom: [f64; 4] },
     Network,
 }
 
@@ -256,6 +260,11 @@ pub(crate) fn brep_block_of(
         }
         BrepIn::Face { surface, dom } => {
             v.push(2.0);
+            push_surface(&mut v, surface)?;
+            v.extend(dom);
+        }
+        BrepIn::CrvOnSurfFace { surface, dom } => {
+            v.push(4.0);
             push_surface(&mut v, surface)?;
             v.extend(dom);
         }
@@ -630,6 +639,20 @@ fn read_curve(rd: &mut Rd<'_>, uv: bool) -> Result<Option<SmCurve>, HarnessError
         return Err(harness("export: a curve is not an SmBSplineCurve"));
     }
     let ty = ty as i64;
+    if ty == CRV_ON_SURF_TYPE {
+        // an SmCrvOnSurf: the UV curve block, then the (B-spline) base surface block
+        let uv_curve = read_curve(rd, true)?
+            .ok_or_else(|| harness("export: CrvOnSurf without UV curve"))?;
+        let surface = read_surface(rd)?
+            .ok_or_else(|| harness("export: CrvOnSurf without surface"))?;
+        let SurfaceKind::BSpline(base) = surface.kind() else {
+            return Err(harness("export: CrvOnSurf base is not a B-spline surface"));
+        };
+        let k = Kernel::default();
+        let cos = CrvOnSurf::new(&k, uv_curve, base.clone(), None, 0)
+            .map_err(|e| harness(format!("export CrvOnSurf: {e}")))?;
+        return Ok(Some(SmCurve::from(cos)));
+    }
     let dim = rd.num()? as u64;
     let has_nurb = rd.num()? != 0.0;
     let base = if has_nurb {
