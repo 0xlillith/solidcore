@@ -41,8 +41,7 @@
 //!   `EvaluateLawPoint` never sets (an uninitialised `double` upstream) is stored as
 //!   `SM_UNDEF_DOUBLE`.
 //! - **Unported callees.** `SmSurface::IsSingularity` of a surface that is not a
-//!   plane and `SmSurface::LocalPointSolve` (`surface.surface_p5`) and
-//!   `SmSurface::LocalSurfaceSolve` (`surface.surface_p3`) return
+//!   plane and `SmSurface::LocalPointSolve` (`surface.surface_p5`) return
 //!   [`SolidError::Unported`], which always propagates (also where upstream ignores
 //!   the status).
 //! - **Not ported here.** The `SM_DEBUG_CODE` blocks (graphics, dumps) and the
@@ -56,6 +55,7 @@ use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
+use crate::geom::global_solver::SolverOperation;
 use crate::geom::matrix::Matrix;
 use crate::geom::solution_array::{ObjectKind, SolutionObject, SolutionType};
 use crate::geom::tol::are_same;
@@ -399,12 +399,19 @@ impl SurfaceIntersector<'_> {
                             let mut start_pnt = TsectPnt::new();
                             let mut end_pnt = TsectPnt::new();
                             ignored(self.compute_point_values(
+                                k,
                                 [s0, s1],
                                 &mut start_pnt,
                                 None,
                                 None,
                             ))?;
-                            ignored(self.compute_point_values([e0, e1], &mut end_pnt, None, None))?;
+                            ignored(self.compute_point_values(
+                                k,
+                                [e0, e1],
+                                &mut end_pnt,
+                                None,
+                                None,
+                            ))?;
 
                             // classify IntersectionCurve from its endPoint classifications
                             let ty = if start_pnt.point_type == IntersectionPointType::Coincidence
@@ -462,6 +469,7 @@ impl SurfaceIntersector<'_> {
     #[allow(clippy::too_many_lines)]
     pub fn compute_point_values(
         &self,
+        k: &Kernel,
         uv_values: [Point2; 2],
         point: &mut TsectPnt,
         previous: Option<&TsectPnt>,
@@ -580,8 +588,8 @@ impl SurfaceIntersector<'_> {
             {
                 let at_singularity = match previous {
                     Some(_) => {
-                        is_singularity(self.surface(SrfIndex::First), uv_values[0])?.0
-                            || is_singularity(self.surface(SrfIndex::Second), uv_values[1])?.0
+                        is_singularity(k, self.surface(SrfIndex::First), uv_values[0])?.0
+                            || is_singularity(k, self.surface(SrfIndex::Second), uv_values[1])?.0
                     }
                     None => false,
                 };
@@ -625,12 +633,12 @@ impl SurfaceIntersector<'_> {
                     } else {
                         uv_values[1]
                     };
-                    let (sing, sing_dir) = is_singularity(self.surface(s), uv)?;
+                    let (sing, sing_dir) = is_singularity(k, self.surface(s), uv)?;
                     if sing {
                         // step back along the 3D curve and recompute the tangents
                         let mut p = prev.clone();
                         self.step_back_from_singularity_points(
-                            sing_dir, s, true, &mut p, point, step,
+                            k, sing_dir, s, true, &mut p, point, step,
                         )?;
                     }
                 }
@@ -683,7 +691,7 @@ impl SurfaceIntersector<'_> {
                     // further recursion)
                     let uvs_found = [Point2::new(a, b), Point2::new(c, d)];
                     point.point_type = IntersectionPointType::Unknown;
-                    self.compute_point_values(uvs_found, point, None, None)?;
+                    self.compute_point_values(k, uvs_found, point, None, None)?;
 
                     // opposite tangents: invert and recompute the UV tangents
                     if prev.crv_deriv().dot(point.crv_deriv()) < 0.0 {
@@ -1001,7 +1009,11 @@ impl SurfaceIntersector<'_> {
     ///
     /// `SM_ERR` after [`MAX_GAP_SAMPLES`] samples of one side;
     /// [`SolidError::Unported`] from `SmSurface::LocalPointSolve`.
-    pub fn classify_boundary_start_point_intersection(&self, point: &TsectPnt) -> Result<bool> {
+    pub fn classify_boundary_start_point_intersection(
+        &self,
+        k: &Kernel,
+        point: &TsectPnt,
+    ) -> Result<bool> {
         // TangentPoints are always degenerate
         if point.point_type == IntersectionPointType::TangentPoint {
             return Ok(true);
@@ -1092,6 +1104,7 @@ impl SurfaceIntersector<'_> {
                 }
                 let delta = if side == 0 { stride } else { -stride };
                 *degenerate = self.walk_gap_side(
+                    k,
                     point,
                     s,
                     bi_norm,
@@ -1155,6 +1168,7 @@ impl SurfaceIntersector<'_> {
     #[allow(clippy::too_many_arguments)]
     fn walk_gap_side(
         &self,
+        k: &Kernel,
         point: &TsectPnt,
         s: SrfIndex,
         bi_norm: Vec3,
@@ -1204,8 +1218,13 @@ impl SurfaceIntersector<'_> {
                 w.sample_dist = (point.srf_pos(SrfIndex::Second) - cp).length();
 
                 // the in-domain other surface point nearest to it
-                let found =
-                    surface_local_point_solve_normalize(self.surface(o), self.domain(o), cp, uv1)?;
+                let found = surface_local_point_solve_normalize(
+                    k,
+                    self.surface(o),
+                    self.domain(o),
+                    cp,
+                    uv1,
+                )?;
                 if let Some([du, dv]) = found {
                     uv_drop = Point2::new(du, dv);
                     // status ignored: the old values stay
@@ -1507,18 +1526,16 @@ fn surface_evaluate_normal(surface: &Surface, uv: Point2) -> Result<Vec3> {
 
 /// `crSurface.IsSingularity(uv, eSingDir)`: the plane override (none); other kinds
 /// run `SmSurface::IsSingularity`.
-fn is_singularity(surface: &Surface, _uv: Point2) -> Result<(bool, SurfParamType)> {
+fn is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<(bool, SurfParamType)> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity()),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
+            let r = surface.is_singularity(k, uv, EFF_ZERO, false)?;
+            Ok((r.singular, r.direction))
         }
     }
 }
@@ -1526,35 +1543,52 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<(bool, SurfParamType
 /// `crSurface.LocalPointSolve(domain, SM_SO_NORMALIZE, point, guess, found, sol)`:
 /// the solution's start parameters when found.
 fn surface_local_point_solve_normalize(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<Option<[f64; 2]>> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        k,
+        domain,
+        SolverOperation::Normalize,
+        point,
+        guess,
+    )?;
+    if r.found {
+        Ok(Some([
+            r.solution.start.param(0)?,
+            r.solution.start.param(1)?,
+        ]))
+    } else {
+        Ok(None)
+    }
 }
 
 /// `surface.LocalSurfaceSolve(domain, other, other_domain, SM_SO_NORMALIZE, tol, NULL,
 /// NULL, guess, other_guess, found, sol)`: the solution's start parameters `[u0, v0,
 /// u1, v1]` when found.
 fn surface_local_surface_solve_normalize(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _other: &Surface,
-    _other_domain: &Extent2d,
+    surface: &Surface,
+    domain: &Extent2d,
+    other: &Surface,
+    other_domain: &Extent2d,
     _tol: f64,
-    _guess: Point2,
-    _other_guess: Point2,
+    guess: Point2,
+    other_guess: Point2,
 ) -> Result<Option<[f64; 4]>> {
-    // UNPORTED(surface.surface_p3): SmSurface::LocalSurfaceSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalSurfaceSolve",
-        "surface.surface_p3",
-    ))
+    Ok(surface
+        .local_surface_solve(
+            domain,
+            other,
+            other_domain,
+            SolverOperation::Normalize,
+            &[],
+            guess,
+            other_guess,
+        )?
+        .map(|s| [s.uv.x, s.uv.y, s.other_uv.x, s.other_uv.y]))
 }
 
 #[cfg(test)]
@@ -1586,6 +1620,7 @@ mod tests {
         let si = SurfaceIntersector::new(&a, &d, &b, &d, false).unwrap();
         let mut p = TsectPnt::new();
         si.compute_point_values(
+            &Kernel::default(),
             [Point2::new(0.3, 0.5), Point2::new(0.3, 0.5)],
             &mut p,
             None,
@@ -1597,7 +1632,9 @@ mod tests {
         assert!((p.crv_deriv().length() - 1.0).abs() < 1e-15);
         assert!((p.crv_deriv().x.abs() - 1.0).abs() < 1e-15);
         assert!((p.tangent_plane_angle_rad - PI / 2.0).abs() < 1e-15);
-        assert!(!si.classify_boundary_start_point_intersection(&p).unwrap());
+        assert!(!si
+            .classify_boundary_start_point_intersection(&Kernel::default(), &p)
+            .unwrap());
     }
 
     #[test]
@@ -1610,6 +1647,7 @@ mod tests {
         // no previous point: the singularity handling is SM_ERR
         assert!(si
             .compute_point_values(
+                &Kernel::default(),
                 [Point2::new(0.3, 0.5), Point2::new(0.3, 0.5)],
                 &mut p,
                 None,
@@ -1617,7 +1655,9 @@ mod tests {
             )
             .is_err());
         p.point_type = IntersectionPointType::TangentPoint;
-        assert!(si.classify_boundary_start_point_intersection(&p).unwrap());
+        assert!(si
+            .classify_boundary_start_point_intersection(&Kernel::default(), &p)
+            .unwrap());
     }
 
     #[test]
@@ -1634,6 +1674,7 @@ mod tests {
             let t = 0.25 * f64::from(i);
             let mut p = TsectPnt::new();
             si.compute_point_values(
+                &Kernel::default(),
                 [Point2::new(t, 0.5), Point2::new(t, 0.5)],
                 &mut p,
                 None,

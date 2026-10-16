@@ -67,6 +67,11 @@
 //!   (non-zero: `TRUE`) for a missing patch; `sm_GoodDropResult` compares the guess and
 //!   result distances with swapped names; `FindDegenParamForDirection` compares a
 //!   sample fraction with the parameter `dS`.
+//! - **`GlobalPointSolve_0`** takes the kernel and the surface's handle `surface: O`
+//!   (the cache's owner object and the solutions' object), as `GlobalLineIntersect`
+//!   does; it and `SmSPGlobalSolver::BranchMayContainAnswers` (which reads the cache
+//!   through the solver's `surface_cache`) run the solver whose leaf solve is
+//!   [`SpGlobalSolver::local_solve_branch`] (`surface.surface_p8`).
 //! - **Unported callees** (return [`SolidError::Unported`]): the surface cache and its
 //!   tree (`smsurf_GetSurfaceCache` through `SmSurface::CacheMakeOrValidate`, unit
 //!   `surface.surface_p1`; `SmSurfaceCache::GetTree` is
@@ -76,25 +81,28 @@
 //!   `SmFindSingularParamWithGivenTangentDirEFO`, `sm_IsNodeValid`, `IsFlatCorner`,
 //!   `EvaluateSTEP`, `GetFace` and the base `CalculateBoundingBox`
 //!   (`surface.surface_p1`; the solver constructors also hand over the caches holding
-//!   the patch data of tree nodes); `SmSurfaceIntersector::DoIntersection`
-//!   (`intersect.surface_intersector_p5`).
+//!   the patch data of tree nodes).
 
 use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::extent1d::ExtentNd;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p2::{
     evaluate_curve_continuity, frenet_from_derivatives, ContinuityType, CurveEval,
 };
 use crate::geom::global_solver::{
     Branch, GlobalSolve, GlobalSolver, PreferredSolution, SolutionPairType, SolutionRequested,
-    SolverOperation,
+    SolveRequest, SolverOperation,
 };
+use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd};
+use crate::geom::polar_box::PolarBox;
 use crate::geom::pseudo_box::{Planar, PseudoBox};
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionEnd, SolutionObject};
-use crate::geom::tree::AuxDataType;
+use crate::geom::tree::{AuxDataType, Tree};
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt as sm_sqrt;
+use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::{
@@ -102,11 +110,12 @@ use crate::nurbs::b_spline_surface::{
 };
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::surface::surface_cache::SurfaceCache;
 use crate::topology::BrepId;
 
 use super::p1::{
-    evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
-    SecondDerivatives,
+    evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs, is_node_valid,
+    CsNormalizeEnfo, SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
 use super::{Surface, SurfaceKind};
@@ -114,6 +123,7 @@ use super::{Surface, SurfaceKind};
 const OP_DEGEN: &str = "surface::surface::p7::Surface::find_degen_param_for_direction";
 const OP_SEAM: &str = "surface::surface::p7::check_seam_drop";
 const OP_SOLVE: &str = "surface::surface::p7::Surface::global_solve";
+const OP_MAY: &str = "surface::surface::p7::SpGlobalSolver::may_contain_answers";
 const OP_LOCAL: &str = "surface::surface::p7::Surface::local_curve_solve";
 const OP_PROJ: &str = "surface::surface::p7::Surface::create_parallel_projection_curves";
 const OP_MATRIX: &str = "surface::surface::p7::evaluate";
@@ -754,6 +764,7 @@ impl Surface {
                 base_evaluate_normal(self, uv, u_side, v_side)
             }
             SurfaceKind::CurveBounded(s) => s.evaluate_normal(uv, u_side, v_side),
+            SurfaceKind::SrfInVolume(s) => s.evaluate_normal(uv, u_side, v_side),
             SurfaceKind::Plane(p) => Ok(p.evaluate_normal()),
         }
     }
@@ -780,7 +791,8 @@ impl Surface {
             SurfaceKind::BSpline(_)
             | SurfaceKind::CurveBounded(_)
             | SurfaceKind::SurfOfRevolution(_)
-            | SurfaceKind::Step(_) => {
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {
                 base_is_closed(self, uv_domain, param, opt_tol, want_continuity)
             }
         }
@@ -820,13 +832,18 @@ impl Surface {
             SurfaceKind::SurfOfRevolution(s) => {
                 Ok(planar_of(s.base(), &self.natural_uv_domain())?.is_planar(tol_3d))
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                // SmSurface::CalculateBoundingBox (surface::surface::p1) builds a surface
-                // cache, whose tree build needs the continuities
-                // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                // DISPATCH GAP: SmSurface::CalculateBoundingBox
+                // (Surface::base_calculate_bounding_box, surface::surface::p1) builds the
+                // surface's cache, which needs the kernel this signature does not take. No
+                // UNPORTED marker: the callees are ported (the continuities of the cache's
+                // tree build are surface::surface::p6); the error names the owner of the
+                // base body. Once the kernel is plumbed, the next blocker for these kinds is
+                // surface.surface_p5: CalculateContinuities calls the base
+                // CreateIsoParametricCurve, which that unit owns.
                 Err(SolidError::unported(
-                    "SmSurface::CalculateContinuities",
-                    "surface.surface_p6",
+                    "SmSurface::CalculateBoundingBox",
+                    "surface.surface_p1",
                 ))
             }
         }
@@ -856,7 +873,7 @@ impl Surface {
     /// Those of [`Surface::is_flat_corner`].
     pub fn flat_corners(
         &self,
-        k: &crate::kernel::Kernel,
+        k: &Kernel,
         angle_tol_deg: f64,
         want_points: bool,
     ) -> Result<FlatCorners> {
@@ -1052,13 +1069,19 @@ impl Surface {
 
     /// The extrema of the distance from `test_point` to the surface over `uv_domain`
     /// (`GlobalPointSolve_0`, the original global point solve over the surface
-    /// cache's decomposition tree).
+    /// cache's decomposition tree). `surface` is this surface's handle in the
+    /// solutions' objects and the cache's owner.
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the surface cache (`smsurf_GetSurfaceCache`).
+    /// `SM_ERR_NULL_POINTER` for `AtDistance` without a target distance, or when the
+    /// surface cache or its tree cannot be built; those of the solve
+    /// ([`SpGlobalSolver::local_solve_branch`]).
+    #[allow(clippy::too_many_arguments)]
     pub fn global_point_solve_0<O: SolutionObject>(
         &self,
+        k: &Kernel,
+        surface: O,
         uv_domain: &Extent2d,
         op: SolverOperation,
         test_point: Point3,
@@ -1067,26 +1090,54 @@ impl Surface {
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
         // get surface spatial decomposition tree from Surface's cache
-        // (surface::surface::p1::get_surface_cache, SurfaceCache::get_tree and
-        // SpGlobalSolver::new are ported; the cache build needs a kernel, which this
-        // signature gains with the solve)
-        let _ = (uv_domain, test_point, distance_tolerance, requested);
-        let _best = point_solve_best_answer_sq(op, opt_target_distance)?;
-        // UNPORTED(surface.surface_p8): SmSPGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmSPGlobalSolver::LocalSolve",
-            "surface.surface_p8",
-        ))
+        let cache = self.solve_cache(k, surface, OP_SOLVE)?;
+        let surface_tree = cache.tree().ok_or(SolidError::null_pointer(OP_SOLVE))?;
+
+        // put point into a single node PointTree
+        let point_tree: Tree<O> = Tree::from_point(test_point, 0.0, false);
+
+        // instance global Surface/Point solver
+        let mut gs = SpGlobalSolver::new(&point_tree, surface_tree, Some(self), *uv_domain);
+        gs.surface_cache = Some(&cache);
+        gs.kernel = Some(k);
+
+        // init solver.dBestAnswerSoFarSq to properly handle SM_SR_SINGLE requests
+        let best = point_solve_best_answer_sq(op, opt_target_distance)?;
+        if op == SolverOperation::AtDistance {
+            if let Some(t) = opt_target_distance {
+                gs.base.set_at_distance(t);
+            }
+        }
+
+        // solve it
+        let mut solutions = SolutionArray::new();
+        gs.solve_it(
+            &SolveRequest {
+                operation: op,
+                solution_requested: requested,
+                tolerance_3d: distance_tolerance,
+                best_answer_so_far_sq: best,
+                opt_vectors: &[],
+            },
+            &mut solutions,
+        )?;
+        Ok(solutions)
     }
 
     /// The global curve/surface solve over `uv_domain` and the curve's `interval`
-    /// (`GlobalCurveSolve`: minimize, maximize, signed directed minimize, normalize).
+    /// (`GlobalCurveSolve`: minimize, maximize, signed directed minimize, normalize):
+    /// the solutions `[t, u, v]`, naming `handles` (the curve's, this surface's: the
+    /// owners of their cache trees; upstream `&crCurve`, `this`).
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the surface cache (`smsurf_GetSurfaceCache`).
+    /// `SM_ERR_NULL_POINTER` when a cache cannot be built or has no tree, or for
+    /// [`SolverOperation::AtDistance`] without a target; those of the solve (`SER`):
+    /// the leaf solve of unit `surface.surface_p11`
+    /// ([`super::p1::CsGlobalSolver::local_solve_branch`]).
     pub fn global_curve_solve<O: SolutionObject>(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         curve: &Curve,
         interval: &Extent1d,
@@ -1095,37 +1146,71 @@ impl Surface {
         opt_target_distance: Option<f64>,
         opt_vectors: &[Vec3],
         requested: SolutionRequested,
+        handles: [Option<O>; 2],
     ) -> Result<SolutionArray<O>> {
-        // get target cache locals
-        // (the surface cache and tree, then the curve's cache and tree
-        // (SmCacheMgr::GetOrCreateObjectCache(SM_OC_CURVE), SmCurveCache::GetTree:
-        // curve::curve::p5::make_curve_cache, CurveCache::tree) and
-        // CsGlobalSolver::new are ported; the cache build needs a kernel, which this
-        // signature gains with the solve)
-        let _ = (
-            uv_domain,
-            curve,
-            interval,
-            distance_tolerance,
-            opt_vectors,
-            requested,
+        // get target cache locals (NER: a cache that cannot be built or has no tree)
+        let surface_cache = solve_surface_cache(k, self, handles[1])?;
+        let surface_tree = surface_cache
+            .tree()
+            .ok_or(SolidError::null_pointer(OP_SOLVE))?;
+        let curve_cache = match crate::curve::curve::p5::make_curve_cache::<O>(k, curve, handles[0])
+        {
+            Ok(c) => c,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Err(SolidError::null_pointer(OP_SOLVE)),
+        };
+        let curve_tree = curve_cache
+            .tree()
+            .ok_or(SolidError::null_pointer(OP_SOLVE))?;
+
+        // instance the solver (the leaf solve reads the curve and the surface cache)
+        let mut gs = super::p1::CsGlobalSolver::new(
+            curve_tree,
+            surface_tree,
+            Some(self),
+            *interval,
+            *uv_domain,
         );
-        let _best = pair_solve_best_answer_sq(op, opt_target_distance, false)?;
-        // UNPORTED(surface.surface_p11): SmCSGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmCSGlobalSolver::LocalSolve",
-            "surface.surface_p11",
-        ))
+        gs.curve = Some(curve);
+        gs.surface_cache = Some(&surface_cache);
+        gs.kernel = Some(k);
+
+        let best = pair_solve_best_answer_sq(op, opt_target_distance, false)?;
+        if op == SolverOperation::AtDistance {
+            if let Some(t) = opt_target_distance {
+                gs.base.set_at_distance(t);
+            }
+        }
+
+        // pass call along to GlobalSolver (SER: checked)
+        let mut solutions = SolutionArray::new();
+        gs.solve_it(
+            &SolveRequest {
+                operation: op,
+                solution_requested: requested,
+                tolerance_3d: distance_tolerance,
+                best_answer_so_far_sq: best,
+                opt_vectors,
+            },
+            &mut solutions,
+        )?;
+        Ok(solutions)
     }
 
     /// The global surface/surface solve (`GlobalSurfaceSolve`: minimize, maximize,
-    /// normalize, signed directed minimize/maximize, and intersect for nodes).
+    /// normalize, signed directed minimize/maximize, and intersect for nodes): the
+    /// solutions `[u, v, other u, other v]` (for intersect, the node pairs), naming
+    /// `handles` (this surface's and the other's: the owners of their cache trees).
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the surface cache (`smsurf_GetSurfaceCache`).
+    /// `SM_ERR_NULL_POINTER` when a cache cannot be built or has no tree, or for
+    /// [`SolverOperation::AtDistance`] without a target; those of the solve (`SER`):
+    /// the leaf solve of unit `surface.surface_p11`
+    /// ([`SsGlobalSolver::local_solve_branch`]).
     pub fn global_surface_solve<O: SolutionObject>(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         other: &Surface,
         other_uv_domain: &Extent2d,
@@ -1134,23 +1219,98 @@ impl Surface {
         opt_target_distance: Option<f64>,
         opt_vectors: &[Vec3],
         requested: SolutionRequested,
+        handles: [Option<O>; 2],
     ) -> Result<SolutionArray<O>> {
-        // (both surface caches and trees and SsGlobalSolver::new are ported; the cache
-        // builds need a kernel, which this signature gains with the solve)
-        let _ = (
-            other,
-            uv_domain,
-            other_uv_domain,
-            distance_tolerance,
-            opt_vectors,
-            requested,
+        Ok(self
+            .global_surface_solve_with(
+                k,
+                uv_domain,
+                other,
+                other_uv_domain,
+                op,
+                distance_tolerance,
+                opt_target_distance,
+                opt_vectors,
+                requested,
+                handles,
+            )?
+            .0)
+    }
+
+    /// [`Surface::global_surface_solve`], also returning for every solution the boxes
+    /// and patch UV domains of its two tree nodes (`m_apNodes[i]->m_sBBox`,
+    /// `GetUVDomain()` of their `SmBezierPatch`es; what `SM_SR_NODES` callers read).
+    ///
+    /// # Errors
+    ///
+    /// As [`Surface::global_surface_solve`]; `InvalidInput` for a solution node that
+    /// is not a patch of its cache.
+    pub fn global_surface_solve_with<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        other: &Surface,
+        other_uv_domain: &Extent2d,
+        op: SolverOperation,
+        distance_tolerance: f64,
+        opt_target_distance: Option<f64>,
+        opt_vectors: &[Vec3],
+        requested: SolutionRequested,
+        handles: [Option<O>; 2],
+    ) -> Result<(SolutionArray<O>, Vec<SolutionNodes>)> {
+        // both surface caches and trees (NER)
+        let cache1 = solve_surface_cache(k, self, handles[0])?;
+        let cache2 = solve_surface_cache(k, other, handles[1])?;
+        let tree1 = cache1.tree().ok_or(SolidError::null_pointer(OP_SOLVE))?;
+        let tree2 = cache2.tree().ok_or(SolidError::null_pointer(OP_SOLVE))?;
+
+        let mut gs = SsGlobalSolver::new(
+            tree1,
+            tree2,
+            [Some(self), Some(other)],
+            *uv_domain,
+            *other_uv_domain,
+            k,
         );
-        let _best = pair_solve_best_answer_sq(op, opt_target_distance, true)?;
-        // UNPORTED(surface.surface_p11): SmSSGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmSSGlobalSolver::LocalSolve",
-            "surface.surface_p11",
-        ))
+        gs.caches = [Some(&cache1), Some(&cache2)];
+
+        let best = pair_solve_best_answer_sq(op, opt_target_distance, true)?;
+        if op == SolverOperation::AtDistance {
+            if let Some(t) = opt_target_distance {
+                gs.base.set_at_distance(t);
+            }
+        }
+
+        // (SER: checked)
+        let mut solutions = SolutionArray::new();
+        gs.solve_it(
+            &SolveRequest {
+                operation: op,
+                solution_requested: requested,
+                tolerance_3d: distance_tolerance,
+                best_answer_so_far_sq: best,
+                opt_vectors,
+            },
+            &mut solutions,
+        )?;
+
+        let mut nodes = Vec::new();
+        for s in solutions.as_slice() {
+            let mut bboxes = [crate::geom::extent3d::Extent3d::new(); 2];
+            let mut uv_domains = [Extent2d::new(); 2];
+            for (i, (tree, cache)) in [(tree1, &cache1), (tree2, &cache2)].into_iter().enumerate() {
+                if let (Some(id), Some(b), Some(d)) = (
+                    s.nodes.get(i).copied().flatten(),
+                    bboxes.get_mut(i),
+                    uv_domains.get_mut(i),
+                ) {
+                    *b = tree.node(id)?.bbox;
+                    *d = cache.patch(id)?.aux.uv_domain;
+                }
+            }
+            nodes.push(SolutionNodes { bboxes, uv_domains });
+        }
+        Ok((solutions, nodes))
     }
 
     /// The local curve/surface solve from the guesses (`LocalCurveSolve`: minimize,
@@ -1227,21 +1387,29 @@ impl Surface {
 
     /// The curves of the parallel projection of `curve` along `projection_vector`
     /// onto the surface over `uv_domain` (`CreateParallelProjectionCurves`): the
-    /// intersection with the curve's linear sweep.
+    /// intersection with the curve's linear sweep along the unit projection vector
+    /// times the projection distance (given, else four times the largest distance
+    /// between the curve's and the surface's boxes, the sweep then moved back by half
+    /// to run both ways), through `SmAdvSurfaceIntersector::DoIntersection`. Returns
+    /// the 3D curves and their UV curves on this surface (`None` for a `NULL` entry).
+    /// The surface and curve continuity checks only report.
     ///
     /// # Errors
     ///
-    /// `SM_ERR_INVALID_INPUT` for a zero projection vector; [`SolidError::Unported`]:
-    /// the surface cache (`smsurf_GetSurfaceCache`).
+    /// `SM_ERR_INVALID_INPUT` for a zero projection vector; `SM_ERR_NULL_POINTER`
+    /// without a surface cache; those of the continuities, the boxes, the sweep, its
+    /// move and the intersection; [`SolidError::Unported`] from unported callees of the
+    /// surface cache and the intersector.
     pub fn create_parallel_projection_curves(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         curve: &BSplineCurve,
         projection_vector: Vec3,
         opt_projection_distance: Option<f64>,
         opt_approx_tol_3d: Option<f64>,
         opt_angle_tol_rad: Option<f64>,
-    ) -> Result<(Vec<Curve>, Vec<Curve>)> {
+    ) -> Result<(Vec<Curve>, Vec<Option<Curve>>)> {
         // check input (ZERO_VEC_ER: fails unless |v|^2 >= SM_EFF_ZERO_SQ, so also for NaN)
         if projection_vector
             .length_squared()
@@ -1251,25 +1419,72 @@ impl Surface {
             return Err(SolidError::invalid_input(OP_PROJ, "zero projection vector"));
         }
 
-        // check state - internal surface continuities are better than C0 (the surface
-        // cache, surface::surface::p1::get_surface_cache; only reported)
-        let _ = (
+        // check state - internal surface continuities are better than C0 (NER; the
+        // continuity is only reported)
+        let cache = super::p2::surface_cache::<()>(k, self, None).map_err(|e| {
+            if e.is_unported() {
+                e
+            } else {
+                SolidError::null_pointer(OP_PROJ)
+            }
+        })?;
+        cache.surface_continuity(uv_domain)?;
+
+        // check state - internal curve continuities are better than C0 (only reported)
+        curve.calculate_continuities(CONTINUITY_ANGLE)?;
+
+        // Select projection distance to be greater than max dist between curve and
+        // surface
+        let projection_distance = if let Some(d) = opt_projection_distance {
+            d
+        } else {
+            let surf_box = self
+                .calculate_bounding_box(k, uv_domain, [true, false, false], true)?
+                .normal_box
+                .unwrap_or_default();
+            let req = crate::nurbs::b_spline_curve::p2::BoundingBoxRequest {
+                normal: true,
+                pseudo: false,
+                polar: false,
+            };
+            let curve_box = curve
+                .calculate_bounding_box(&curve.natural_interval(), req)?
+                .normal
+                .unwrap_or_default();
+            4.0 * curve_box.max_distance(&surf_box)
+        };
+
+        // sweep vector
+        let sweep_vec = projection_vector.unitize()? * projection_distance;
+
+        // swept surface
+        let mut sweep_curve = curve.clone();
+        let mut projection_surface = Surface::from(BSplineSurface::create_linear_sweep(
+            &mut sweep_curve,
+            sweep_vec,
+        )?);
+
+        // when working with guessed Projection distance - move the swept surface so that
+        // it sweeps forward and backwards from its start point
+        if opt_projection_distance.is_none() {
+            let mut transform = crate::geom::axis2_placement::Axis2Placement::default();
+            transform.translate(sweep_vec * -0.5);
+            projection_surface.transform(k, &transform, None)?;
+        }
+
+        // intersection
+        let projection_domain = projection_surface.natural_uv_domain();
+        let x = crate::intersect::surface_intersector::p5::do_intersection(
+            k,
+            self,
             uv_domain,
-            curve,
-            opt_projection_distance,
+            &projection_surface,
+            &projection_domain,
+            [true, true],
             opt_approx_tol_3d,
             opt_angle_tol_rad,
-        );
-        // then: the cache's SurfaceCache::surface_continuity (only reported), the curve's
-        // CalculateContinuities (only reported), the projection distance (given, or 4x the
-        // largest box distance), the curve's linear sweep along the unit vector times the
-        // distance (translated back by half when not given), the intersector
-        // (`AdvSurfaceIntersector::new` of this surface and the sweep), and:
-        // UNPORTED(intersect.surface_intersector_p5): SmSurfaceIntersector::DoIntersection
-        Err(SolidError::unported(
-            "SmSurfaceIntersector::DoIntersection",
-            "intersect.surface_intersector_p5",
-        ))
+        )?;
+        Ok((x.curves_3d, x.surface1_uv_curves))
     }
 }
 
@@ -1317,6 +1532,37 @@ fn point_solve_best_answer_sq(op: SolverOperation, target: Option<f64>) -> Resul
         }
     }
     Ok(best)
+}
+
+/// The tree nodes of one solution of [`Surface::global_surface_solve_with`]: their
+/// boxes and the UV domains of their Bezier patches.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SolutionNodes {
+    /// `m_apNodes[0]->m_sBBox`, `m_apNodes[1]->m_sBBox` (empty for a missing node).
+    pub bboxes: [crate::geom::extent3d::Extent3d; 2],
+    /// The nodes' `SmBezierPatch::GetUVDomain()` (empty for a missing node).
+    pub uv_domains: [Extent2d; 2],
+}
+
+/// `smsurf_GetSurfaceCache(surface)` and its `GetTree()` for a global solve (`NER`:
+/// a cache that cannot be built or has no tree is `SM_ERR_NULL_POINTER`). The cache
+/// is built for the solve (no cache store: unit `surface.surface_p1`'s
+/// `CacheMakeOrValidate`); its contents are those of upstream's cached one.
+fn solve_surface_cache<O: SolutionObject>(
+    k: &Kernel,
+    surface: &Surface,
+    handle: Option<O>,
+) -> Result<SurfaceCache<O>> {
+    let mut cache = match super::p1::get_surface_cache(k, surface, handle) {
+        Ok(c) => c,
+        Err(e) if e.is_unported() => return Err(e),
+        Err(_) => return Err(SolidError::null_pointer(OP_SOLVE)),
+    };
+    match cache.get_tree(k) {
+        Ok(_) => Ok(cache),
+        Err(e) if e.is_unported() => Err(e),
+        Err(_) => Err(SolidError::null_pointer(OP_SOLVE)),
+    }
 }
 
 /// `dBestAnswerSoFarSq` of `GlobalCurveSolve` (and, with `signed_max`, of
@@ -2016,6 +2262,12 @@ pub struct SpGlobalSolver<'t, 's, O> {
     pub surface: Option<&'s Surface>,
     /// `m_crUVDomain`.
     pub uv_domain: Extent2d,
+    /// The cache holding the patches of the surface tree's nodes, read by the leaf
+    /// solve (upstream reaches it through the node's tree owner).
+    pub surface_cache: Option<&'s SurfaceCache<O>>,
+    /// The kernel for the leaf solve's evaluations (upstream reaches the context
+    /// through the surface).
+    pub kernel: Option<&'s Kernel>,
 }
 
 impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
@@ -2025,34 +2277,50 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `sm_IsNodeValid` and the patch data live in the surface
-    /// cache, which a `Tree` does not reach yet (`surface.surface_cache_p1`).
+    /// `SM_ERR_NULL_POINTER` without `surface_cache`; `InvalidInput` for a node that is
+    /// not a patch node of that cache; those of the polar box build.
     pub fn may_contain_answers(&self, branch: &Branch) -> Result<bool> {
+        // When point testing is on and node is known to be outside of Surface->Face
         let surface_node = self.base.branch_node(branch, 1)?;
-        if !is_node_valid(surface_node)? {
+        let cache = self.surface_cache.ok_or(SolidError::null_pointer(OP_MAY))?;
+        if !is_node_valid(self.base.tree(1)?.owner(), cache, surface_node)? {
             return Ok(false);
         }
 
         // If we are normalizing and have a node with a surface do the angular test
         // using the Gauss map of the normal.
-        if self.base.operation == SolverOperation::Normalize
-            && surface_node.aux_type == AuxDataType::BezierSurface
-            && surface_node.child1.is_some()
-        {
-            // SmBezierPatch::GetPseudoBox / GetPolarBox are ported (BezierPatch::pseudo_box,
-            // SurfaceCache::polar_box), and the patch (the node's m_pData) is
-            // SurfaceCache::patch(node) of the surface's cache. DISPATCH GAP: the
-            // constructor (SpGlobalSolver::new, surface::surface::p1) takes the trees as
-            // upstream does, and a Tree does not reach its cache; handing the caches over
-            // needs them mutable (the polar boxes are built lazily). No UNPORTED marker:
-            // the constructor is ported; the error names the owner of the patch data
-            // (surface.surface_cache_p1).
-            // (then the point inside the pseudo box, else the polar box of the vectors to
-            // its 8 corners against the patch's polar box)
-            return Err(SolidError::unported(
-                "SmBezierPatch::GetPseudoBox",
-                "surface.surface_cache_p1",
-            ));
+        if self.base.operation == SolverOperation::Normalize {
+            // When we have a child SurfacePatch node
+            if surface_node.aux_type == AuxDataType::BezierSurface && surface_node.child1.is_some()
+            {
+                let surface_id = branch
+                    .get(1)
+                    .copied()
+                    .flatten()
+                    .ok_or(SolidError::null_pointer(OP_MAY))?;
+                let patch = cache.patch(surface_id)?;
+
+                // (the second sm_IsNodeValid test upstream repeats the first)
+
+                // when the point is in the surfaceNode's pseudoBox
+                let test_pnt = self.base.branch_node(branch, 0)?.bbox.min();
+                if !patch.pseudo_box.contains_point(test_pnt, EFF_ZERO) {
+                    // get pseudoBox's 8 corner points and build a polarBox of
+                    // corner-point vectors
+                    let mut tmp_polar = PolarBox::default();
+                    for corner in patch.pseudo_box.corners() {
+                        let vec = corner - test_pnt;
+                        if vec.length_squared() > EFF_ZERO {
+                            tmp_polar.add_vector(vec, None);
+                        }
+                    }
+
+                    // when the polar boxes are disjoint
+                    if tmp_polar.are_disjoint(&cache.polar_box_unstored(surface_id)?) {
+                        return Ok(false); // No answer
+                    }
+                }
+            }
         }
 
         // check current node using the Default Branch check
@@ -2073,24 +2341,16 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SpGlobalSolver<'t, '_, O
         self.may_contain_answers(branch)
     }
 
-    fn local_solve(&mut self, _branch: &Branch) -> Result<bool> {
-        // UNPORTED(surface.surface_p8): SmSPGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmSPGlobalSolver::LocalSolve",
-            "surface.surface_p8",
-        ))
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.local_solve_branch(branch)
     }
 
     fn identical_solutions(
         &self,
-        _sol1: &Solution<O>,
-        _sol2: &Solution<O>,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
     ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
-        // UNPORTED(surface.surface_p5): SmSPGlobalSolver::IdenticalSolutions
-        Err(SolidError::unported(
-            "SmSPGlobalSolver::IdenticalSolutions",
-            "surface.surface_p5",
-        ))
+        self.surface_identical_solutions(sol1, sol2)
     }
 }
 
@@ -2108,6 +2368,12 @@ pub struct SsGlobalSolver<'t, 's, O> {
     pub uv_domain1: Extent2d,
     /// `m_crUVDomain2`.
     pub uv_domain2: Extent2d,
+    /// The kernel (upstream's `SmContext`), for the surfaces' seam tests.
+    pub kernel: &'s Kernel,
+    /// The caches holding the patches of the two trees' nodes, for the leaf solve
+    /// (unit `surface.surface_p11`; upstream reaches them through the nodes' tree
+    /// owners).
+    pub caches: [Option<&'s SurfaceCache<O>>; 2],
 }
 
 impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
@@ -2127,6 +2393,46 @@ impl<O: SolutionObject> SsGlobalSolver<'_, '_, O> {
             if node1.aux_type == AuxDataType::BezierSurface
                 && node2.aux_type == AuxDataType::BezierSurface
             {
+                if let [Some(cache1), Some(cache2)] = self.caches {
+                    // the patches of the caches the leaf solve reads (unit
+                    // surface.surface_p11 hands them over)
+                    let id1 = branch.first().copied().flatten();
+                    let id2 = branch.get(1).copied().flatten();
+                    let (Some(id1), Some(id2)) = (id1, id2) else {
+                        return Err(SolidError::null_pointer(OP_SOLVE));
+                    };
+                    let tree1 = self.base.tree(0)?;
+                    let tree2 = self.base.tree(1)?;
+                    // (NER on m_pData: a patch node always holds its patch here; a node
+                    // that is not a patch of these caches is a caller error,
+                    // InvalidInput, not upstream's NULL data)
+                    cache1.patch(id1)?;
+                    cache2.patch(id2)?;
+                    // If the classification of the node is outside then we can quit
+                    // here (SM_SUCCESS: FALSE)
+                    if !is_node_valid(tree1.owner(), cache1, node1)? {
+                        return Ok(false);
+                    }
+                    if !is_node_valid(tree2.owner(), cache2, node2)? {
+                        return Ok(false);
+                    }
+                    // (SER inside a SmBoolean function: a failure returns its non-zero
+                    // status, TRUE)
+                    let Some((cone_vec, cone_angle)) =
+                        ignored(node1.bbox.cone_bound_to(&node2.bbox))?
+                    else {
+                        return Ok(true);
+                    };
+                    let polar1 = cache1.polar_box_unstored(id1)?;
+                    let polar2 = cache2.polar_box_unstored(id2)?;
+                    if polar1.is_disjoint_with_cone(cone_vec, cone_angle)
+                        || polar2.is_disjoint_with_cone(cone_vec, cone_angle)
+                        || polar1.are_disjoint(&polar2)
+                    {
+                        return Ok(false);
+                    }
+                    return self.base.branch_may_contain_answers(branch);
+                }
                 // The patches (the nodes' m_pData) are SurfaceCache::patch(node) of the
                 // two surface caches. DISPATCH GAP: the constructor (SsGlobalSolver::new,
                 // surface::surface::p1) takes the trees as upstream does, and a Tree does
@@ -2160,24 +2466,18 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SsGlobalSolver<'t, '_, O
         self.may_contain_answers(branch)
     }
 
-    fn local_solve(&mut self, _branch: &Branch) -> Result<bool> {
-        // UNPORTED(surface.surface_p11): SmSSGlobalSolver::LocalSolve
-        Err(SolidError::unported(
-            "SmSSGlobalSolver::LocalSolve",
-            "surface.surface_p11",
-        ))
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        // (surface::surface::p11)
+        self.local_solve_branch(branch)
     }
 
     fn identical_solutions(
         &self,
-        _sol1: &Solution<O>,
-        _sol2: &Solution<O>,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
     ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
-        // UNPORTED(surface.surface_p6): SmSSGlobalSolver::IdenticalSolutions
-        Err(SolidError::unported(
-            "SmSSGlobalSolver::IdenticalSolutions",
-            "surface.surface_p6",
-        ))
+        // (surface::surface::p6)
+        self.solutions_identical(sol1, sol2)
     }
 }
 
@@ -2186,19 +2486,6 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SsGlobalSolver<'t, '_, O
 /// `SmSurface::EvaluateSTEP(uv, 1, 1, TRUE, TRUE, TRUE, ..)`.
 fn evaluate_step(surface: &Surface, uv: Point2) -> Result<Vec<Vec<Vec3>>> {
     surface.evaluate_step(uv, 1, 1, flags(Side::Left, Side::Left, true))
-}
-
-/// `sm_IsNodeValid`: false for a node known to lie outside its face.
-fn is_node_valid<O>(_node: &crate::geom::tree::TreeNode<O>) -> Result<bool> {
-    // DISPATCH GAP: sm_IsNodeValid (surface::surface::p1::is_node_valid) reads the
-    // point-test state of the surface cache owning the node's tree; a Tree does not
-    // reach its owning cache, so the solver cannot pass it yet (no UNPORTED marker: the
-    // callee is ported; the error names the owner of the cache state,
-    // surface.surface_cache_p1).
-    Err(SolidError::unported(
-        "sm_IsNodeValid",
-        "surface.surface_cache_p1",
-    ))
 }
 
 /// The Newton solve of `FindDegenParamForDirection`
@@ -2231,20 +2518,35 @@ fn singular_param_solve(
 /// evaluator tolerance `SM_EFF_ZERO^2`, no periodicity): the solution vector, `None`
 /// when not found.
 fn cs_normalize_local_solve(
-    _surface: &Surface,
-    _curve: &Curve,
-    _op: SolverOperation,
-    _distance_tolerance: f64,
-    _opt_vectors: &[Vec3],
-    _intervals: &[Extent1d],
-    _guess: &[f64],
+    surface: &Surface,
+    curve: &Curve,
+    op: SolverOperation,
+    distance_tolerance: f64,
+    opt_vectors: &[Vec3],
+    intervals: &[Extent1d],
+    guess: &[f64],
 ) -> Result<Option<Vec<f64>>> {
-    // (the evaluator, surface::surface::p1::CsNormalizeEnfo, has no Evaluate yet)
-    // UNPORTED(surface.surface_p4): SmCSNormalizeENFO::Evaluate
-    Err(SolidError::unported(
-        "SmCSNormalizeENFO::Evaluate",
-        "surface.surface_p4",
-    ))
+    let mut bounds = ExtentNd::new(intervals.len());
+    for (i, ivl) in intervals.iter().enumerate() {
+        if let Some(slot) = bounds.get_mut(i) {
+            *slot = *ivl;
+        }
+    }
+    // Do not do periodicity for this function. Local solvers should not cross seams.
+    let periodicities = vec![false; guess.len()];
+    let mut equations = CsNormalizeEnfo::new(
+        curve,
+        surface,
+        op,
+        distance_tolerance,
+        (!opt_vectors.is_empty()).then_some(opt_vectors),
+        EFF_ZERO_SQ,
+    );
+    let mut solver = LocalSolveNd::new(&mut equations, Some(&bounds), Some(&periodicities));
+    solver.set_boundary_handler(BoundaryHandler::TotalBoundaryHits, 5);
+    let solution = solver.solve_it(guess, EFF_ZERO_SQRT)?;
+    // No: see note in upstream [B234]: not found is not found, whatever the reason.
+    Ok(solution.found.then_some(solution.x))
 }
 
 #[cfg(test)]

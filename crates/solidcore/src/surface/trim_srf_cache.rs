@@ -52,8 +52,7 @@
 //!   `SmSurfaceCache::BuildTree`, `FindUVNodes` and `SubdivideNode`
 //!   ([`crate::surface::surface_cache::p3`]); `SmSurface::GetFace` (through
 //!   [`SurfaceCache::face`]) and `Evaluate1stDerivatives`, `SmTol::MapTo2d` over a
-//!   surface (`surface.surface_p1`); `SmSurface::GetSingularities`
-//!   (`surface.surface_p3`); `SmPointClassification` (`intersect.point_class`) and
+//!   surface (`surface.surface_p1`); `SmPointClassification` (`intersect.point_class`) and
 //!   `SmFace::PointClassify` (`query.face_p2`); `SmTol::GetZoneTol3d` of a face
 //!   (`topology.brep_p1`, as in [`SurfaceCache::mark_face_containment`]); and the face
 //!   walk of `BuildTree` (`SmFace::GetBrep`, `CreateUVTrimCurves`,
@@ -313,8 +312,8 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// # Errors
     ///
     /// Those of the tree construction, the implanting and the classification;
-    /// [`SolidError::Unported`] for the unported callees (always, today: the tree
-    /// construction or `GetFace`).
+    /// [`SolidError::Unported`] for the unported callees (`GetFace` and those of the tree
+    /// construction).
     pub fn build_tree(&mut self, k: &Kernel) -> Result<()> {
         // prevent bad recursion back into BuildTree
         let saved = self.base.face_containment_done;
@@ -533,8 +532,8 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// # Errors
     ///
     /// `SM_ERR_NULL_POINTER` without trim curve; those of the curve box, the curve
-    /// cache and the tree; [`SolidError::Unported`] for `GetSingularities`,
-    /// `FindUVNodes` and `SubdivideNode`.
+    /// cache and the tree; [`SolidError::Unported`] for `FindUVNodes` and
+    /// `SubdivideNode`.
     #[allow(clippy::too_many_lines)]
     pub fn implant_edgeuse(
         &mut self,
@@ -579,7 +578,7 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
 
             // eliminate boundaries which are not poles
             if poles != 0 {
-                let srf_poles = surface_singularities(self.base.surface())?;
+                let srf_poles = surface_singularities(k, self.base.surface())?;
                 poles &= srf_poles;
             }
             (poles, u_ivl, v_ivl, u_tol, v_tol)
@@ -797,7 +796,7 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     ///
     /// Those of [`SurfaceCache::subdivide_node_split`]; [`SolidError::Unported`]:
     /// `SmEdgeuse::GetUVTrimCurve` (`topology.edgeuse_p1`) for an edge use to move,
-    /// the poly edge points (`query.poly`) for a poly edge to move.
+    /// `SmFace::GetSurface` (`topology.face_p2`) for a poly edge to move.
     fn subdivide_node(
         &mut self,
         k: &Kernel,
@@ -831,11 +830,13 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
                     self.base.aux_mut(node)?.edgeuse_list.pop();
                 }
             } else {
-                // UNPORTED(query.poly): SmPolyEdge::GetStartPoint / GetEndPoint /
-                // GetTolerance (the PolyEdgeInput of ImplantPolyEdge)
+                // UNPORTED(topology.face_p2): SmFace::GetSurface of the poly edge's
+                // original face (the PolyEdgeInput of ImplantPolyEdge; the poly edge
+                // points and tolerance are query::poly, but the cache keeps opaque
+                // handles with no poly B-rep to read them from)
                 return Err(SolidError::unported(
-                    "SmPolyEdge::GetStartPoint",
-                    "query.poly",
+                    "SmFace::GetSurface",
+                    "topology.face_p2",
                 ));
             }
         }
@@ -921,8 +922,7 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// # Errors
     ///
     /// Those of the tree, of `Evaluate1stDerivatives` and of
-    /// [`SurfaceCache::find_uv_nodes`]; [`SolidError::Unported`]: `GetSingularities`
-    /// (`surface.surface_p3`).
+    /// [`SurfaceCache::find_uv_nodes`] and `GetSingularities`.
     pub fn implant_vertexuse(
         &mut self,
         k: &Kernel,
@@ -980,7 +980,7 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
         // when sUV is close enough to boundaries for a pole check
         if poles != SS_NONE {
             // only check those boundaries which are poles
-            poles &= surface_singularities(self.base.surface())?;
+            poles &= surface_singularities(k, self.base.surface())?;
 
             // when UV point is in constant U singular side
             if (poles & SS_UMIN) != 0 || (poles & SS_UMAX) != 0 {
@@ -1059,11 +1059,9 @@ fn find_uv_nodes<O: Copy + PartialEq>(
 }
 
 /// `SmSurface::GetSingularities`: the `SM_SS_*` sides that are poles.
-fn surface_singularities(_surface: &Surface) -> Result<u64> {
-    // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-    Err(SolidError::unported(
-        "SmSurface::GetSingularities",
-        "surface.surface_p3",
+fn surface_singularities(k: &Kernel, surface: &Surface) -> Result<u64> {
+    Ok(u64::from(
+        surface.get_singularities(k, false, false)?.singular,
     ))
 }
 
@@ -1380,10 +1378,10 @@ mod tests {
     }
 
     #[test]
-    fn build_tree_unported_restores_state() {
+    fn build_tree_without_face_restores_state() {
         let k = Kernel::default();
         let mut c: TrimSrfCache<i64> = TrimSrfCache::new(plane(), SurfaceCacheOptions::default());
-        assert!(c.build_tree(&k).unwrap_err().is_unported());
+        c.build_tree(&k).unwrap();
         assert_eq!(c.base().face_containment_done, FaceContainment::NotDone);
     }
 }

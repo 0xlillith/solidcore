@@ -55,7 +55,7 @@
 //! | [`output`]                                        | `sm_Output` (static)                             |
 //! | [`test_step`], [`TessStepResult`]                 | `sm_TestStep`, `SmTessStepTestResultType`        |
 //! | [`find_test_params`]                              | `sm_FindTestParams` (static)                     |
-//! | [`CcGlobalSolver`]                                | `SmCCGlobalSolver` (constructor, `BranchMayContainAnswers`) |
+//! | [`CcGlobalSolver`]                                | `SmCCGlobalSolver` (constructor, `BranchMayContainAnswers`; `LocalSolve` is unit `curve.curve_p9`) |
 //! | [`CpGlobalSolver`]                                | `SmCPGlobalSolver` (constructor, `BranchMayContainAnswers`; `LocalSolve` is unit `curve.curve_p1`) |
 //! | [`CurvePropertyGs`], [`CurvePropertyType`]        | `SmCurvePropertyGS` (constructor, `FindBestSubdivisionNode`, `BranchMayContainAnswers`), `SmCurvePropertyType` |
 //! | [`CciGlobalSolver`]                               | `SmCCIGlobalSolver` (constructor; `LocalSolve` is unit `curve.curve_p7`) |
@@ -112,14 +112,14 @@
 //!   end parameter is then the start parameter).
 //! - **Solvers.** The four curve solvers are structs holding a [`GlobalSolver`] and
 //!   implementing [`GlobalSolve`]. Their `LocalSolve` overrides belong to units
-//!   `curve.curve_p9` (`SmCCGlobalSolver`), `curve.curve_p1` (`SmCPGlobalSolver`,
+//!   `curve.curve_p9` (`SmCCGlobalSolver`, ported there; the solver carries its two
+//!   curves and the kernel, [`CcGlobalSolver::with_curves`]), `curve.curve_p1` (`SmCPGlobalSolver`,
 //!   ported there; the solver carries its curve, [`CpGlobalSolver::curve`]),
 //!   `curve.curve_p3` (`SmCurvePropertyGS`, ported there; the solver carries the
 //!   curve it evaluates, [`CurvePropertyGs::curve`], since a tree's owner object is
 //!   only the caller's handle) and `curve.curve_p7`
 //!   (`SmCCIGlobalSolver`, ported there; the solver carries its two curves and the
-//!   kernel, [`CciGlobalSolver::with_curves`]); the unported ones return
-//!   [`SolidError::Unported`]. Curve tree nodes
+//!   kernel, [`CciGlobalSolver::with_curves`]). Curve tree nodes
 //!   hold `SmBezierSpan` / `SmBezierAux1d` data built by the curve cache
 //!   ([`crate::curve::curve_cache`]), read from the tree
 //!   ([`Tree::curve_aux`], [`Tree::curve_span`]); the span end points are those the
@@ -775,7 +775,7 @@ impl Curve {
             (CurveKind::Hyperbola(a), CurveKind::Hyperbola(b)) => Ok(a.approx_eq(b)),
             (CurveKind::Conic(a), CurveKind::Conic(b)) => Ok(a.approx_eq(b)),
             (CurveKind::Projected(a), CurveKind::Projected(b)) => a.approx_eq(b),
-            (CurveKind::Iso(a), CurveKind::Iso(b)) => Ok(a.approx_eq(b)),
+            (CurveKind::Iso(a), CurveKind::Iso(b)) => a.approx_eq(b),
             (CurveKind::Offset(a), CurveKind::Offset(b)) => a.approx_eq(b),
             (CurveKind::CrvInVolume(a), CurveKind::CrvInVolume(b)) => a.approx_eq(b),
             (CurveKind::CrvOnSurf(a), CurveKind::CrvOnSurf(b)) => a.approx_eq(b),
@@ -1589,6 +1589,7 @@ impl Curve {
     /// `SmSurface::DropPoint` and `LocalCurveSolve`.
     pub fn surface_max_distance_between<S: SurfaceEvaluate>(
         &self,
+        k: &Kernel,
         interval: &Extent1d,
         surface: &S,
         domain: &Extent2d,
@@ -1626,18 +1627,18 @@ impl Curve {
             let mut param = interval.evaluate(per);
 
             let crv_pt = ignored(self.evaluate_point(param))?.unwrap_or(Vec3::UNDEF);
-            let mut drop = surface_drop_point(surface, crv_pt, domain, guess_uv)?;
+            let mut drop = surface_drop_point(k, surface, crv_pt, domain, guess_uv)?;
 
             // If drop failed for first or last point, try moving a small distance from the end.
             if drop.is_none() && ii == 0 {
                 param = interval.evaluate(0.001);
                 let crv_pt = self.evaluate_point(param)?;
-                drop = surface_drop_point(surface, crv_pt, domain, guess_uv)?;
+                drop = surface_drop_point(k, surface, crv_pt, domain, guess_uv)?;
             }
             if drop.is_none() && ii + 1 == num_samples {
                 param = interval.evaluate(0.999);
                 let crv_pt = self.evaluate_point(param)?;
-                drop = surface_drop_point(surface, crv_pt, domain, guess_uv)?;
+                drop = surface_drop_point(k, surface, crv_pt, domain, guess_uv)?;
             }
 
             if let Some((uv, dist)) = drop {
@@ -1668,7 +1669,7 @@ impl Curve {
         if do_precise && max_dist > scaled_zero {
             // Find the gap maximum near the largest sampled gap point.
             if let Some((param, uv)) =
-                surface_local_curve_solve(surface, domain, interval, max_uv, max_param)?
+                surface.local_curve_maximize(self, domain, interval, max_uv, max_param)?
             {
                 let crv_pt = self.evaluate_point(param)?;
                 let srf_pt = surface.evaluate_point(uv)?;
@@ -2116,35 +2117,14 @@ fn surface_knot_count<S: SurfaceEvaluate>(surface: &S, v: bool) -> Result<usize>
 
 /// `SmSurface::DropPoint`: the surface parameters and distance of the drop, `None`
 /// when it failed.
-fn surface_drop_point<S>(
-    _surface: &S,
-    _point: Point3,
-    _domain: &Extent2d,
-    _guess: Option<Point2>,
+fn surface_drop_point<S: SurfaceEvaluate>(
+    k: &Kernel,
+    surface: &S,
+    point: Point3,
+    domain: &Extent2d,
+    guess: Option<Point2>,
 ) -> Result<Option<(Point2, f64)>> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::Unported {
-        upstream: "SmSurface::DropPoint",
-        unit: "surface.surface_p5",
-    })
-}
-
-/// `SmSurface::LocalCurveSolve(.., SM_SO_MAXIMIZE, SM_EFF_ZERO_SQRT, ..)`: the
-/// curve parameter and surface parameters of the found gap maximum, if any.
-fn surface_local_curve_solve<S>(
-    _surface: &S,
-    _domain: &Extent2d,
-    _interval: &Extent1d,
-    _guess_uv: Point2,
-    _guess_t: f64,
-) -> Result<Option<(f64, Point2)>> {
-    // SmSurface::LocalCurveSolve is surface::surface::p7::Surface::local_curve_solve; its
-    // evaluator is not ported yet.
-    // UNPORTED(surface.surface_p4): SmCSNormalizeENFO::Evaluate (via SmSurface::LocalCurveSolve)
-    Err(SolidError::Unported {
-        upstream: "SmCSNormalizeENFO::Evaluate",
-        unit: "surface.surface_p4",
-    })
+    surface.drop_point_minimize(k, point, domain, guess)
 }
 
 // ---- file-static helpers --------------------------------------------------------------
@@ -2878,6 +2858,13 @@ pub struct CcGlobalSolver<'t, O> {
     pub interval1: Extent1d,
     /// `m_crInterval2`: interval of the second curve.
     pub interval2: Extent1d,
+    /// The curves the two trees decompose (upstream reads them back from the trees'
+    /// curve caches, `GetOwner()->GetCurve()`); `None` until set with
+    /// [`CcGlobalSolver::with_curves`].
+    pub curves: Option<[&'t Curve; 2]>,
+    /// The kernel the local solves run in (upstream reaches it through the curves'
+    /// context); `None` until set with [`CcGlobalSolver::with_curves`].
+    pub kernel: Option<&'t Kernel>,
 }
 
 impl<'t, O: SolutionObject + 't> CcGlobalSolver<'t, O> {
@@ -2893,7 +2880,23 @@ impl<'t, O: SolutionObject + 't> CcGlobalSolver<'t, O> {
             base: GlobalSolver::with_trees(tree1, tree2, 1),
             interval1,
             interval2,
+            curves: None,
+            kernel: None,
         }
+    }
+
+    /// The solver with `curve1` and `curve2`, the curves its trees were built for,
+    /// and the kernel `k`, which [`GlobalSolve::local_solve`] needs.
+    #[must_use]
+    pub const fn with_curves(
+        mut self,
+        curve1: &'t Curve,
+        curve2: &'t Curve,
+        k: &'t Kernel,
+    ) -> Self {
+        self.curves = Some([curve1, curve2]);
+        self.kernel = Some(k);
+        self
     }
 
     /// `SmCCGlobalSolver::BranchMayContainAnswers`: the base test, except for
@@ -3017,12 +3020,8 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for CcGlobalSolver<'t, O> {
         self.may_contain_answers(branch)
     }
 
-    fn local_solve(&mut self, _branch: &Branch) -> Result<bool> {
-        // UNPORTED(curve.curve_p9): SmCCGlobalSolver::LocalSolve
-        Err(SolidError::Unported {
-            upstream: "SmCCGlobalSolver::LocalSolve",
-            unit: "curve.curve_p9",
-        })
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.local_solve_branch(branch)
     }
 }
 
@@ -3777,7 +3776,7 @@ mod tests {
     }
 
     #[test]
-    fn split_and_unported_paths() {
+    fn split_and_surface_distance() {
         let k = Kernel::default();
         let mut b = cubic();
         let tail = b.create_by_split_curve(&k, 0.5).unwrap();
@@ -3793,13 +3792,20 @@ mod tests {
             Vec3::new(1.0, 1.0, 0.0),
         )
         .unwrap();
-        let s = b.surface_max_distance_between(
-            &Extent1d::from_min_max(0.0, 0.5),
-            &srf,
-            &Extent2d::new(),
-            0,
-            None,
+        let line = Curve::from(
+            Line::create_line_segment(3, Vec3::new(0.0, 0.0, 1.0), Vec3::new(1.0, 0.0, 1.0), None)
+                .unwrap(),
         );
-        assert!(matches!(s, Err(SolidError::Unported { .. })));
+        let gap = line
+            .surface_max_distance_between(
+                &Kernel::default(),
+                &Extent1d::from_min_max(0.0, 1.0),
+                &srf,
+                &srf.natural_uv_domain(),
+                2,
+                None,
+            )
+            .unwrap();
+        assert_eq!(gap.max_distance, 1.0);
     }
 }

@@ -5050,16 +5050,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_line_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#631",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5070,16 +5066,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_inv_eval_g_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#633",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5154,16 +5146,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_line_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#643",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5174,14 +5162,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_inv_eval_g_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#645",
       "values_compared": 0
     },
@@ -5354,16 +5338,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_line_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#667",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5470,14 +5450,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_inv_eval_g_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#681",
       "values_compared": 0
     },
@@ -5762,14 +5738,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_inv_eval_g_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#717",
       "values_compared": 0
     },
@@ -5918,16 +5890,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_box_in_param_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#736",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5954,16 +5922,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_pbox_in_in_space_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#740",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5998,40 +5962,28 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_pbox_in_in_space_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#745",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_map_pbox_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#746",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_box_in_param_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#747",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6058,16 +6010,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_pbox_in_in_space_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#751",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6118,16 +6066,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_box_in_param_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#758",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6154,16 +6098,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_pbox_in_in_space_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#762",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6198,28 +6138,20 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_pbox_in_in_space_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#767",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_map_pbox_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#768",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -6295,8 +6227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_line_0",
@@ -6315,8 +6247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_inv_eval_g_0",
@@ -6399,8 +6331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_line_1",
@@ -6419,8 +6351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_inv_eval_g_1",
@@ -6599,8 +6531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_line_3",
@@ -6619,8 +6551,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_inv_eval_g_3",
@@ -6887,8 +6819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_line_6",
@@ -6907,8 +6839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_inv_eval_g_6",
@@ -7007,8 +6939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_inv_eval_g_7",
@@ -7163,8 +7095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_box_in_param_0",
@@ -7191,8 +7123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_0",
@@ -7211,8 +7143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_0",
@@ -7247,8 +7179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_1",
@@ -7267,8 +7199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_1",
@@ -7279,8 +7211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_box_in_param_2",
@@ -7307,8 +7239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_2",
@@ -7327,8 +7259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_2",
@@ -7363,8 +7295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_3",
@@ -7383,8 +7315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_3",
@@ -7395,8 +7327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_box_in_param_4",
@@ -7415,8 +7347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_4",
@@ -7451,8 +7383,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_5",
@@ -7471,8 +7403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_5",
@@ -7483,8 +7415,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_box_in_param_6",
@@ -7511,8 +7443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_eval_bbox_6",
@@ -7531,8 +7463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_unbend_then_pbox_in_in_space_6",
@@ -7575,8 +7507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_0",
@@ -7667,8 +7599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_1",
@@ -7855,8 +7787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_3",
@@ -7947,8 +7879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_4",
@@ -8135,8 +8067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_6",
@@ -8227,8 +8159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_line_7",
@@ -8391,8 +8323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_box_in_param_0",
@@ -8411,8 +8343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_0",
@@ -8431,8 +8363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_0",
@@ -8459,8 +8391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_1",
@@ -8479,8 +8411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_1",
@@ -8491,8 +8423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_map_pbox_1",
@@ -8503,8 +8435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_box_in_param_2",
@@ -8523,8 +8455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_2",
@@ -8543,8 +8475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_2",
@@ -8555,8 +8487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_map_pbox_2",
@@ -8583,8 +8515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_3",
@@ -8603,8 +8535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_3",
@@ -8615,8 +8547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_box_in_param_4",
@@ -8635,8 +8567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_4",
@@ -8655,8 +8587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_4",
@@ -8667,8 +8599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_map_pbox_4",
@@ -8695,8 +8627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_5",
@@ -8715,8 +8647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_5",
@@ -8727,8 +8659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_map_pbox_5",
@@ -8739,8 +8671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_box_in_param_6",
@@ -8759,8 +8691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_eval_bbox_6",
@@ -8779,8 +8711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_t_then_pbox_in_in_space_6",
@@ -10087,8 +10019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_line_0",
@@ -10107,8 +10039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_inv_eval_g_0",
@@ -10191,8 +10123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_line_1",
@@ -10211,8 +10143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_inv_eval_g_1",
@@ -10391,8 +10323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_line_3",
@@ -10507,8 +10439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_inv_eval_g_4",
@@ -10799,8 +10731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_inv_eval_g_7",
@@ -10955,8 +10887,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_box_in_param_0",
@@ -10983,8 +10915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_eval_bbox_0",
@@ -11003,8 +10935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_pbox_in_in_space_0",
@@ -11047,8 +10979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_eval_bbox_1",
@@ -11067,8 +10999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_pbox_in_in_space_1",
@@ -11079,8 +11011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_map_pbox_1",
@@ -11091,8 +11023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_box_in_param_2",
@@ -11119,8 +11051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_eval_bbox_2",
@@ -11139,8 +11071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_pbox_in_in_space_2",
@@ -11151,8 +11083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_map_pbox_2",
@@ -11219,8 +11151,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_box_in_param_4",
@@ -11247,8 +11179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_eval_bbox_4",
@@ -11267,8 +11199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_pbox_in_in_space_4",
@@ -11279,8 +11211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_map_pbox_4",
@@ -11315,8 +11247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_eval_bbox_5",
@@ -11335,8 +11267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_pbox_in_in_space_5",
@@ -11347,8 +11279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_std_then_bend_map_pbox_5",
@@ -16470,16 +16402,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_line_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2011",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -16490,14 +16418,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_inv_eval_g_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2013",
       "values_compared": 0
     },
@@ -16590,14 +16514,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_inv_eval_g_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2025",
       "values_compared": 0
     },
@@ -16882,14 +16802,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_inv_eval_g_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2061",
       "values_compared": 0
     },
@@ -17174,14 +17090,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_inv_eval_g_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2097",
       "values_compared": 0
     },
@@ -17330,16 +17242,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_box_in_param_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2116",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17422,16 +17330,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_box_in_param_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2127",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17514,16 +17418,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_box_in_param_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2138",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17550,16 +17450,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_unbend_pbox_in_in_space_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2142",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17683,8 +17579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_0",
@@ -17703,8 +17599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_inv_eval_g_0",
@@ -17787,8 +17683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_1",
@@ -17807,8 +17703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_inv_eval_g_1",
@@ -17987,8 +17883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_3",
@@ -18007,8 +17903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_inv_eval_g_3",
@@ -18091,8 +17987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_4",
@@ -18279,8 +18175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_6",
@@ -18299,8 +18195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_inv_eval_g_6",
@@ -18383,8 +18279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_line_7",
@@ -18403,8 +18299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_inv_eval_g_7",
@@ -18559,8 +18455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_box_in_param_0",
@@ -18587,8 +18483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_0",
@@ -18607,8 +18503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_0",
@@ -18643,8 +18539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_1",
@@ -18663,8 +18559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_1",
@@ -18675,8 +18571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_box_in_param_2",
@@ -18703,8 +18599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_2",
@@ -18723,8 +18619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_2",
@@ -18759,8 +18655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_3",
@@ -18779,8 +18675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_3",
@@ -18791,8 +18687,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_box_in_param_4",
@@ -18811,8 +18707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_4",
@@ -18847,8 +18743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_5",
@@ -18875,8 +18771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_box_in_param_6",
@@ -18903,8 +18799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_eval_bbox_6",
@@ -18923,8 +18819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_unbend_then_pbox_in_in_space_6",
@@ -18967,8 +18863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_0",
@@ -19059,8 +18955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_1",
@@ -19247,8 +19143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_3",
@@ -19339,8 +19235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_4",
@@ -19527,8 +19423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_6",
@@ -19619,8 +19515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_line_7",
@@ -19783,8 +19679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_box_in_param_0",
@@ -19803,8 +19699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_0",
@@ -19823,8 +19719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_0",
@@ -19851,8 +19747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_1",
@@ -19871,8 +19767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_1",
@@ -19883,8 +19779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_map_pbox_1",
@@ -19895,8 +19791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_box_in_param_2",
@@ -19915,8 +19811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_2",
@@ -19935,8 +19831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_2",
@@ -19947,8 +19843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_map_pbox_2",
@@ -19975,8 +19871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_3",
@@ -19995,8 +19891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_3",
@@ -20007,8 +19903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_box_in_param_4",
@@ -20027,8 +19923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_4",
@@ -20047,8 +19943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_4",
@@ -20059,8 +19955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_map_pbox_4",
@@ -20087,8 +19983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_5",
@@ -20107,8 +20003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_5",
@@ -20119,8 +20015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_map_pbox_5",
@@ -20131,8 +20027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_box_in_param_6",
@@ -20151,8 +20047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_eval_bbox_6",
@@ -20171,8 +20067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_t_then_pbox_in_in_space_6",
@@ -21479,8 +21375,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_line_0",
@@ -21499,8 +21395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_inv_eval_g_0",
@@ -21599,8 +21495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_inv_eval_g_1",
@@ -21891,8 +21787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_inv_eval_g_4",
@@ -22183,8 +22079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_inv_eval_g_7",
@@ -22339,8 +22235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_box_in_param_0",
@@ -22367,8 +22263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_eval_bbox_0",
@@ -22427,8 +22323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_eval_bbox_1",
@@ -22463,8 +22359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_box_in_param_2",
@@ -22491,8 +22387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_eval_bbox_2",
@@ -22583,8 +22479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_box_in_param_4",
@@ -22611,8 +22507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_eval_bbox_4",
@@ -22631,8 +22527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_pbox_in_in_space_4",
@@ -22643,8 +22539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_map_pbox_4",
@@ -22679,8 +22575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bend_tilted_then_bend_eval_bbox_5",
@@ -70906,16 +70802,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1846",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71006,16 +70898,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1858",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71106,16 +70994,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1870",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71206,16 +71090,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1882",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71306,16 +71186,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1894",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71406,16 +71282,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1906",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71506,16 +71378,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1918",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71606,16 +71474,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1930",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -71706,184 +71570,124 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_line_8",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1942",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1943",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1944",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1945",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1946",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1947",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1948",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1949",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1950",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1951",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1952",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1953",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1954",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_eval_bbox_nc_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1955",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_box_in_param_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1956",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -71894,16 +71698,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_pbox_in_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1958",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -71914,16 +71714,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tf_std_pbox_in_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1960",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -72046,16 +71842,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1976",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72146,16 +71938,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1988",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72246,16 +72034,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2000",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72346,16 +72130,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2012",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72446,16 +72226,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2024",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72546,16 +72322,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2036",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72646,16 +72418,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2048",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72746,16 +72514,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2060",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72846,16 +72610,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_line_8",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2072",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -72874,50 +72634,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2075",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2076",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2077",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2078",
       "values_compared": 0
     },
@@ -72938,52 +72682,36 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2081",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2082",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2083",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2084",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -73002,50 +72730,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2087",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2088",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2089",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2090",
       "values_compared": 0
     },
@@ -73066,50 +72778,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2093",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2094",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2095",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2096",
       "values_compared": 0
     },
@@ -73130,52 +72826,36 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2099",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2100",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2101",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2102",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -73194,52 +72874,36 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2105",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2106",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2107",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2108",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -73258,50 +72922,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_eval_bbox_nc_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2111",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_box_in_param_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2112",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2113",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2114",
       "values_compared": 0
     },
@@ -73314,16 +72962,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_pbox_in_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2116",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -73342,16 +72986,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_pbox_in_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2119",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -73482,16 +73122,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_line_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2136",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -74158,16 +73794,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_line_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2220",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -74258,16 +73890,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_line_8",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2232",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -74286,50 +73914,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2235",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2236",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2237",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2238",
       "values_compared": 0
     },
@@ -74350,50 +73962,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2241",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2242",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2243",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2244",
       "values_compared": 0
     },
@@ -74414,50 +74010,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2247",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2248",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2249",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2250",
       "values_compared": 0
     },
@@ -74478,50 +74058,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2253",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2254",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2255",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2256",
       "values_compared": 0
     },
@@ -74542,52 +74106,36 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2259",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2260",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2261",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2262",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -74606,50 +74154,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2265",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2266",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2267",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2268",
       "values_compared": 0
     },
@@ -74670,50 +74202,34 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2271",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_box_in_param_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2272",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2273",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2274",
       "values_compared": 0
     },
@@ -74726,16 +74242,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_pbox_in_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2276",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -74746,16 +74258,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_pbox_in_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2278",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -75206,16 +74714,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0045",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137348",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -75715,8 +75219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0108",
@@ -76567,8 +76071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0214",
@@ -76914,16 +76418,12 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0257",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137560",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -77295,8 +76795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -77395,8 +76895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0316",
@@ -78510,16 +78010,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0455",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137758",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -79410,16 +78906,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0567",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137870",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -79495,8 +78987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -80154,16 +79646,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0659",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784137962",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -80335,8 +79823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0681",
@@ -80570,16 +80058,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0710",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138013",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -81126,16 +80610,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0779",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138082",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -81211,8 +80691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0789",
@@ -81647,8 +81127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0843",
@@ -82194,16 +81674,12 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0911",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138214",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -83207,8 +82683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1037",
@@ -83475,8 +82951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1070",
@@ -83591,8 +83067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1084",
@@ -86298,16 +85774,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1422",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138725",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -86438,16 +85910,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1439",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138742",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -87274,16 +86742,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1543",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784138846",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -87343,8 +86807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1551",
@@ -87427,8 +86891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1561",
@@ -89079,8 +88543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::IsOnPositiveSideOfPlanes",
-        "unit": "curve.curve_p9"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1767",
@@ -90322,16 +89786,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1922",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139225",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -90422,14 +89882,10 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen1934",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=525457818784139237",
       "values_compared": 0
     },
@@ -90955,13 +90411,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 298,
+  "cases_deferred": 162,
   "cases_failed": 0,
-  "cases_passed": 10922,
+  "cases_passed": 11058,
   "cases_total": 11220,
   "deferred_by_unit": {
-    "curve.curve_p9": 162,
-    "surface.surface_p8": 136
+    "intersect.curve_class_p4": 162
   },
   "max_rel_err": 0.0,
   "pass": true,

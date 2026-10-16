@@ -64,7 +64,10 @@
 //!   arguments upstream marks `NotUsed` (`CreateIsoParametricCurve`'s approximation
 //!   tolerance, `EvaluateSTEP`'s side flags, `IntersectWithPlane`'s UV domain and
 //!   angle tolerance) are dropped. `EvaluateSTEP` entries it does not write are `0`
-//!   (upstream leaves the caller's values).
+//!   (upstream leaves the caller's values). Unequal STEP derivative orders retain
+//!   release C++ behavior despite its equal-order assertion: unevaluated generator
+//!   derivatives keep `SmVector3d`'s default `UNDEF` values. Boundary iso curves
+//!   require the sweep-only (`hv = 0`) case, whose outputs are fully evaluated.
 //! - **Statuses.** Calls whose status upstream ignores keep upstream's values, except
 //!   that [`SolidError::Unported`] always propagates and a failure whose output
 //!   upstream would read uninitialised (a failed generator or surface evaluation, a
@@ -357,6 +360,28 @@ pub struct SurfOfRevolution {
 impl SurfOfRevolution {
     /// `SmSurfOfRevolution_TYPE` (`SURF_BASE_TYPE + 20`).
     pub const TYPE: i64 = SURF_OF_REVOLUTION_TYPE;
+
+    /// A copy whose B-spline objects (the base surface, the generator and the sweep
+    /// circle) are kept exactly ([`BSplineSurface::clone_exact`],
+    /// [`BSplineCurve::clone_exact`]): `Clone` goes through the `copy`s, which fix the
+    /// knots up, while upstream works on the original objects.
+    #[must_use]
+    pub fn clone_exact(&self) -> Self {
+        let mut copy = Self {
+            base: self.base.clone_exact(),
+            ..self.clone()
+        };
+        if let (Some(dst), Some(src)) = (
+            copy.gen_curve.as_mut().and_then(gen_base_mut),
+            self.gen_curve.as_ref().and_then(|g| gen_base(g).ok()),
+        ) {
+            *dst = src.clone_exact();
+        }
+        if let (Some(dst), Some(src)) = (copy.polar_curve.as_mut(), self.polar_curve.as_ref()) {
+            dst.base = src.base.clone_exact();
+        }
+        copy
+    }
 
     // ---- construction ---------------------------------------------------------------
 
@@ -1104,8 +1129,8 @@ impl SurfOfRevolution {
     /// # Errors
     ///
     /// `SM_ERR` when the clamped point does not map to the STEP domain; those of the
-    /// conversions; [`SolidError::Unported`] without exact polar conversion (the local
-    /// solve on `SmSTEPSurface`, unit `surface.surface_p1`).
+    /// conversions; [`SolidError::Unported`] from the local solve on the
+    /// `SmSTEPSurface` of this surface (without exact polar conversion).
     pub fn convert_uv_from_nurbs_to_step(&self, k: &Kernel, nurbs_uv: Point2) -> Result<Point2> {
         let mut written = Point2::new(0.0, 0.0);
         self.convert_uv_from_nurbs_to_step_into(k, nurbs_uv, &mut written)
@@ -1181,13 +1206,31 @@ impl SurfOfRevolution {
 
         // when conversion was not exact - use solution as input to a local solve
         if !exact_conversion {
-            // (an SmSTEPSurface of this surface, then a local point solve on it; the
-            // surface of revolution is not a Surface kind yet)
-            // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-            return Err(SolidError::unported(
-                "SmSurface::LocalPointSolve",
-                "surface.surface_p5",
-            ));
+            // Use numerical techniques to convert to polar coordinates: a local point
+            // solve on an SmSTEPSurface of this surface.
+            let anal_guess = step_uv;
+            let step_surface = crate::surface::surface::Surface::from(
+                crate::surface::surface::p1::StepSurface::new(
+                    crate::surface::surface::Surface::from(self.clone_exact()),
+                    false,
+                ),
+            );
+            let point_3d = self.base.evaluate_point(nurbs_uv)?;
+            let domain = step_surface.natural_uv_domain();
+            // Always set output (the status is ignored): LocalPointSolve leaves a default
+            // solution when it fails.
+            let (u, v) = match ignored(step_surface.local_point_solve::<()>(
+                k,
+                &domain,
+                crate::geom::global_solver::SolverOperation::Intersect,
+                point_3d,
+                anal_guess,
+            ))? {
+                Some(r) => (r.solution.start.param(0)?, r.solution.start.param(1)?),
+                None => (0.0, 0.0),
+            };
+            step_uv = Point2::new(u, v);
+            *written = step_uv;
         }
         Ok(step_uv)
     }
@@ -1200,8 +1243,9 @@ impl SurfOfRevolution {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` for orders above 3; `InvalidInput` for unequal orders (upstream asserts
-    /// and then indexes as if they were equal); those of the generator evaluation.
+    /// `SM_ERR` for orders above 3; those of the generator evaluation. Unequal
+    /// orders retain release C++ behavior (including default `UNDEF` generator
+    /// derivatives beyond the smaller requested order).
     pub fn evaluate_step(&self, k: &Kernel, uv: Point2, hu: usize, hv: usize) -> Result<Vec<Vec3>> {
         let _ = k;
         self.evaluate_step_at(uv, hu, hv)
@@ -1213,12 +1257,6 @@ impl SurfOfRevolution {
         // check input
         if hu > 3 || hv > 3 {
             return Err(SolidError::sm_err(OP_EVAL_STEP));
-        }
-        if hu != hv {
-            return Err(SolidError::invalid_input(
-                OP_EVAL_STEP,
-                "derivative orders must be equal",
-            ));
         }
 
         // locals
@@ -1882,7 +1920,13 @@ mod tests {
         let du = d.get(2).copied().unwrap();
         assert!((du - Vec3::new(0.0, 2.0 * PI / 180.0, 0.0)).length() < 1e-12);
         assert!(s.evaluate_step(&k(), Point2::new(0.0, 0.0), 4, 4).is_err());
-        assert!(s.evaluate_step(&k(), Point2::new(0.0, 0.0), 1, 2).is_err());
+        // Boundary iso curves request pure U derivatives, despite C++'s
+        // debug-only equal-order assertion. These are all defined in release.
+        let sweep = s.evaluate_step(&k(), Point2::new(0.0, 0.0), 3, 0).unwrap();
+        assert_eq!(sweep.len(), 4);
+        assert_eq!(sweep[1], du);
+        assert!((sweep[2] - Vec3::new(-2.0 * (PI / 180.0).powi(2), 0.0, 0.0)).length() < 1e-12);
+        assert!((sweep[3] - Vec3::new(0.0, -2.0 * (PI / 180.0).powi(3), 0.0)).length() < 1e-12);
     }
 
     #[test]

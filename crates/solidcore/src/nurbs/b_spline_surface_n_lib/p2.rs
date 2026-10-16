@@ -36,11 +36,13 @@
 //!   derivatives) instead of writing the caller's array; entries upstream leaves
 //!   untouched (the lower half with `bOnlyUpperHalf`) are zero. Its flags are an
 //!   [`EvaluateFlags`] value; the internal `bDoZeroSampling` argument is private.
+//!   `SmSurfaceEval` retains the matrix written before a zero-tangent correction
+//!   failure, because upstream accessors ignore that failure and read the output.
 //! - **Tangent fields** are [`TangentField`]s of `SmCurve` views of the B-spline
 //!   curves (the same data, not a copy-constructed curve).
 //! - **Unported callees** return [`SolidError::Unported`]:
-//!   `SmCrvOnSurf::ApproximateCurve` (`curve.crv_on_surf`),
-//!   `SmSurface::EvaluateNormalSection` (`surface.surface_p3`). (`SmSurface::EvaluateNormal`
+//!   `SmCrvOnSurf::ApproximateCurve` (`curve.crv_on_surf`). (`SmSurface::EvaluateNormalSection`
+//!   is `surface::surface::p3`'s, `SmSurface::EvaluateNormal`
 //!   is `surface::surface::p7`'s, `Evaluate1stDerivatives` `surface::surface::p1`'s.) Upstream ignores the status of
 //!   most of these calls; an unported one still stops the port.
 //! - Status values upstream ignores stay ignored (`EditParameterization` before
@@ -264,12 +266,15 @@ fn evaluate_normal(surface: &BSplineSurface, uv: Point2) -> Result<Vec3> {
 
 /// `SmSurface::EvaluateNormalSection(uv, TRUE, TRUE, direction, ..)`: the cross
 /// tangent (the unit projection of `direction` into the tangent plane).
-fn evaluate_normal_section(_surface: &BSplineSurface, _uv: Point2, _dir: Vec3) -> Result<Vec3> {
-    // UNPORTED(surface.surface_p3): SmSurface::EvaluateNormalSection
-    Err(SolidError::Unported {
-        upstream: "SmSurface::EvaluateNormalSection",
-        unit: "surface.surface_p3",
-    })
+fn evaluate_normal_section(surface: &BSplineSurface, uv: Point2, dir: Vec3) -> Result<Vec3> {
+    Ok(crate::surface::surface::p3::evaluate_normal_section_of(
+        surface,
+        uv,
+        Side::Left,
+        Side::Left,
+        dir,
+    )?
+    .tangent)
 }
 
 /// `SmSurface::Evaluate1stDerivatives(uv, TRUE, TRUE, ..)`: `(Su, Sv)`.
@@ -972,7 +977,21 @@ impl BSplineSurface {
         highest_v_deriv: usize,
         flags: EvaluateFlags,
     ) -> Result<Vec<Vec<Vec3>>> {
-        self.evaluate_impl(uv, highest_u_deriv, highest_v_deriv, flags, true)
+        self.evaluate_impl(uv, highest_u_deriv, highest_v_deriv, flags, true, None)
+    }
+
+    /// Preserve the output written before zero-tangent correction reports failure.
+    /// `SmSurfaceEval` accessors deliberately read that output after a failed eval.
+    pub(crate) fn evaluate_with_partial_output(
+        &self,
+        uv: Point2,
+        flags: EvaluateFlags,
+    ) -> (Result<()>, Vec<Vec<Vec3>>) {
+        let mut partial = Vec::new();
+        match self.evaluate_impl(uv, 2, 2, flags, true, Some(&mut partial)) {
+            Ok(values) => (Ok(()), values),
+            Err(error) => (Err(error), partial),
+        }
     }
 
     /// `Evaluate` with its internal `bDoZeroSampling` argument.
@@ -983,6 +1002,7 @@ impl BSplineSurface {
         highest_v_deriv: usize,
         flags: EvaluateFlags,
         do_zero_sampling: bool,
+        failed_output: Option<&mut Vec<Vec<Vec3>>>,
     ) -> Result<Vec<Vec<Vec3>>> {
         const OP: &str = OP_EVAL;
         let EvaluateFlags {
@@ -1110,6 +1130,7 @@ impl BSplineSurface {
                     non_zero_tangents: true,
                 },
                 true,
+                None,
             )?;
             let re_at = |i: usize, j: usize| -> Result<Vec3> {
                 re.get(i)
@@ -1203,6 +1224,7 @@ impl BSplineSurface {
                         non_zero_tangents: false,
                     },
                     false,
+                    None,
                 ) else {
                     continue;
                 };
@@ -1239,7 +1261,10 @@ impl BSplineSurface {
         }
 
         // If we make it to here we are unable to get both of the first derivatives to
-        // a non-zero size.
+        // a non-zero size. C++ has already written the matrix to the caller's array.
+        if let Some(output) = failed_output {
+            *output = d;
+        }
         Err(SolidError::sm_err(OP))
     }
 }

@@ -778,7 +778,11 @@ fn st<T>(r: solidcore::Result<T>) -> solidcore::Result<f64> {
 fn the_cbs(s: &Surface) -> solidcore::Result<&CurveBoundedSurface> {
     match s.kind() {
         SurfaceKind::CurveBounded(c) => Ok(c),
-        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::BSpline(_)
+        | SurfaceKind::Plane(_)
+        | SurfaceKind::SurfOfRevolution(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             Err(SolidError::sm_err("difftest: not a curve bounded surface"))
         }
     }
@@ -903,7 +907,7 @@ fn rust_surface_op(op: &OpIn, this: &CbsIn) -> Result<Run, HarnessError> {
         OpIn::Singular { uv, tol } => record(|o| {
             push3(
                 o,
-                the_cbs(&s)?.evaluate_normal_at_singularity(p2(*uv), *tol)?,
+                the_cbs(&s)?.evaluate_normal_at_singularity(&Kernel::default(), p2(*uv), *tol)?,
             );
             Ok(())
         }),
