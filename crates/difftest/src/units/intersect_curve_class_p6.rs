@@ -1,6 +1,8 @@
 //! Real Rust/C++ comparisons for curve-classification interval integration (part 6).
 //! Classifications are built with p1 setters; native geometry uses its true dynamic type.
 //! Unported p2/p7 calls defer the whole case. Construction failures are harness errors.
+//! Explicit `expected_rejection` fixtures check FFI rejection only; they are reported
+//! as both-errored cases, separately from successful kernel comparisons.
 
 use crate::{Case, CaseContext, CaseSource, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
@@ -27,6 +29,8 @@ pub struct Runner;
 
 #[derive(Clone, Serialize, Deserialize)]
 struct Fixture {
+    #[serde(default)]
+    expected_rejection: bool,
     op: i32,
     kind: i32,
     scale: f64,
@@ -267,6 +271,7 @@ fn record(bounds: [f64; 2], classes: [i32; 3], stored: bool) -> Vec<f64> {
 fn base() -> Fixture {
     let p = record([0.0, 1.0], [0, 0, 0], false);
     Fixture {
+        expected_rejection: false,
         op: 0,
         kind: 0,
         scale: 1.0,
@@ -287,24 +292,41 @@ fn add(v: &mut Vec<Case>, name: String, i: Fixture) -> Result<(), HarnessError> 
     });
     Ok(())
 }
+fn rejected<T>(result: Result<T, solidcore_ffi::FfiError>) -> Result<Output, HarnessError> {
+    match result {
+        Err(
+            solidcore_ffi::FfiError::InvalidArgument(_)
+            | solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG),
+        ) => Ok(Output::err("fixture_rejected")),
+        Err(e) => Err(h(format!("unexpected rejection: {e}"))),
+        Ok(_) => Err(h("expected invalid fixture to be rejected")),
+    }
+}
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "intersect.curve_class_p6"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Fixture = case.parse()?;
-        ffi::run(
+        let result = ffi::run(
             i.op, i.kind, i.scale, i.tol, i.flags, i.index, &i.a, &i.b, &i.input,
-        )
-        .map(|v| Output::new().values("out", v))
-        .map_err(|e| h(e.to_string()))
+        );
+        if i.expected_rejection {
+            return rejected(result);
+        }
+        result
+            .map(|v| Output::new().values("out", v))
+            .map_err(|e| h(e.to_string()))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Fixture = case.parse()?;
-        ffi::validate(
+        let validation = ffi::validate(
             i.op, i.kind, i.scale, i.tol, i.flags, i.index, &i.a, &i.b, &i.input,
-        )
-        .map_err(|e| h(e.to_string()))?;
+        );
+        if i.expected_rejection {
+            return rejected(validation);
+        }
+        validation.map_err(|e| h(e.to_string()))?;
         let k = Kernel::default();
         let g = geometry(&k, i.kind, i.scale)?;
         let point: &[f64; 3] = i

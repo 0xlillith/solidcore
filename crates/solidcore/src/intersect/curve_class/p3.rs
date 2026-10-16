@@ -195,7 +195,7 @@ fn point_class_mate_loc_by_index<O: ClassObject>(
 }
 
 /// `SmCurveClassification::GetClassifyCrvLoc(ULONG)`: the location of boundary `index`.
-fn classify_crv_loc_by_index<O: ClassObject>(
+pub(super) fn classify_crv_loc_by_index<O: ClassObject>(
     cc: &CurveClassification<O>,
     index: usize,
 ) -> Result<Point3> {

@@ -46,6 +46,60 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_empty_full",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#0 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_empty_vertices_only",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#1 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_short_partner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#2 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_long_partner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#3 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_face_empty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#4 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "rejected_fillets_region_empty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p6/rejected_fillets.json#5 (upstream source/SMLib/src/SmCurveClass.cpp:16815-16830; source/SMLib/inc/SmCurveClass.h:508 (maintainer review #138))",
+      "values_compared": 0
+    },
+    {
       "deferred": {
         "symbol": "SmCurveClassification::GetPointClassByIndex",
         "unit": "intersect.curve_class_p7"
@@ -37478,11 +37532,11 @@
       "values_compared": 9
     }
   ],
-  "cases_both_errored": 0,
+  "cases_both_errored": 6,
   "cases_deferred": 505,
   "cases_failed": 0,
-  "cases_passed": 3927,
-  "cases_total": 4432,
+  "cases_passed": 3933,
+  "cases_total": 4438,
   "deferred_by_unit": {
     "intersect.curve_class_p2": 110,
     "intersect.curve_class_p7": 335,

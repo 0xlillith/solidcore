@@ -184,7 +184,8 @@ SC_EXPORT int32_t sc_intersect_curve_class_p6_run(
     double* out, int64_t cap, int64_t* len)
 {
     if (op < 0 || op > 3 || kind < 0 || kind > 4 || flags < 0 || flags > 3 ||
-        na < 0 || na > 32 || nb < 0 || nb > 32 || index < 0)
+        na < 0 || na > 32 || nb < 0 || nb > 32 || index < 0 ||
+        (op == 3 && (index >= na || ((flags & 2) && nb != na))))
         return SC_ERR_ARG;
     SC_TRY
     const SmContext* ctx = SmApiGetOrCreateContext();

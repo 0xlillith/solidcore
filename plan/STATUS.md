@@ -957,8 +957,8 @@ perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 c
 
 ## Curve-classification interval integration (2026-10-16, PR #138)
 
-`intersect.curve_class_p6` is partial: 4432 cases, 3927 bit-identical comparisons,
-zero failures and 505 explicit deferrals, without absolute floors. Insertion,
+`intersect.curve_class_p6` is partial: 4438 cases: 3927 bit-identical kernel comparisons,
+6 expected FFI rejection checks, zero failures and 505 explicit deferrals, without absolute floors. Insertion,
 homogenization and endpoint repair follow the upstream control flow, retaining
 explicit dependency boundaries. `MergeInterval` implements its early exits;
 its topology mutation remains deferred at the p2 boundary-tolerance lookup.
@@ -968,4 +968,4 @@ The oracle uses concrete native geometric types and real box topology, records
 point-classification state and created-entity outputs, and compares actual curve
 evaluations. Native FFI regressions include 27440 isolated combinations of
 operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
-probes. They run locally with the project CI workflow unchanged. The PR remains draft.
+probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.

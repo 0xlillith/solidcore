@@ -20,7 +20,10 @@
 //! `MergeInterval` ports its early exits and defers at `GetPointObjZoneTol3d` (p2):
 //! the subsequent topology mutation is not implemented or certified here.
 
-use super::p3::{are_coincident_maybe, connect_intervals, point_class_loc_by_index, Coincident};
+use super::p3::{
+    are_coincident_maybe, classify_crv_loc_by_index, connect_intervals, point_class_loc_by_index,
+    Coincident,
+};
 use super::{
     curve_is_degenerate, fix_problems_by_squeezing, CurveClassification, CurveInterval,
     IntervalPosition,
@@ -85,14 +88,14 @@ impl<O: ClassObject> CurveClassification<O> {
         fix_problems_by_squeezing(k, geometry, other, self)?;
         while self.size() > other.size() {
             let count = self.size();
-            squeeze_smallest(self)?;
+            crate::error::ignore_status(squeeze_smallest(self))?;
             if self.size() >= count {
                 return Err(SolidError::sm_err(OP));
             }
         }
         while other.size() > self.size() {
             let count = other.size();
-            squeeze_smallest(other)?;
+            crate::error::ignore_status(squeeze_smallest(other))?;
             if other.size() >= count {
                 return Err(SolidError::sm_err(OP));
             }
@@ -384,14 +387,13 @@ fn homogenize_boundaries<O: ClassObject>(
         }
         let loc = point_class_loc_by_index(src, index)?;
         let pc = src.pc_at(loc)?;
-        // UNPORTED(intersect.curve_class_p2): SmCurveClassification::GetClassifyCrvLoc
         let ivl = src.at(loc.interval)?;
         let param = if loc.end == IntervalPosition::Start {
             ivl.min()
         } else {
             ivl.max()
         };
-        let (point, _) = boundary_location(src, index)?;
+        let point = classify_crv_loc_by_index(src, index)?;
         let tol = pc.obj_zone_tol_3d(k, geometry)?;
         let found = dst.find_interval(k, geometry, param, last, tol)?;
         let mut pos = found.position;
@@ -430,7 +432,7 @@ fn homogenize_boundaries<O: ClassObject>(
             new_pc.set_pre_snap_param(param);
             new_pc.copy_sss_point(pc);
             if matches!(new_pc.point_class(), Pc::Face | Pc::Edge) {
-                let (point, _) = boundary_location(src, index)?;
+                let point = classify_crv_loc_by_index(src, index)?;
                 // Ordinary projection failures turn the classification into UNKNOWN.
                 match new_pc.compute_point_parameters(k, geometry, point) {
                     Ok(()) => {}
@@ -445,18 +447,6 @@ fn homogenize_boundaries<O: ClassObject>(
         last = param;
     }
     Ok(())
-}
-
-fn boundary_location<O: ClassObject>(
-    cc: &CurveClassification<O>,
-    index: usize,
-) -> Result<(Point3, f64)> {
-    let _ = (cc, index);
-    // UNPORTED(intersect.curve_class_p2): SmCurveClassification::GetClassifyCrvLoc
-    Err(SolidError::unported(
-        "SmCurveClassification::GetClassifyCrvLoc",
-        "intersect.curve_class_p2",
-    ))
 }
 
 fn squeeze_smallest<O: ClassObject>(cc: &mut CurveClassification<O>) -> Result<()> {

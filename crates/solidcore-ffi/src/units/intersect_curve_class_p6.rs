@@ -92,6 +92,7 @@ fn partition(v: &[f64]) -> Result<(), FfiError> {
 ///
 /// # Errors
 /// Rejects malformed layouts, flags, partitions and invalid operation indices.
+/// Fillet merging requires equally sized, homogenized partner classifications.
 #[allow(clippy::too_many_arguments)]
 pub fn validate(
     op: i32,
@@ -123,6 +124,7 @@ pub fn validate(
         || (op == 1 && a.is_empty() != b.is_empty())
         || (op == 2 && index > count)
         || (op == 3 && index >= count)
+        || (op == 3 && flags & 2 != 0 && b.len() / WIDTH != count)
     {
         return Err(bad());
     }
@@ -252,6 +254,40 @@ mod isolated_tests {
                 b,
                 input,
             );
+            if std::env::var_os("SC_CC_P6_EXPECT_REJECT").is_some() {
+                assert!(
+                    matches!(result, Err(FfiError::InvalidArgument(_))),
+                    "{s}: {result:?}"
+                );
+                let mut out = [0.0];
+                let mut len = 0;
+                // SAFETY: the parent constructs complete, bounded records. Only the
+                // partner count is invalid, and the shim must reject it before access.
+                let status = unsafe {
+                    sys::sc_intersect_curve_class_p6_run(
+                        v[0] as i32,
+                        v[1] as i32,
+                        v[2],
+                        v[3],
+                        v[4] as i32,
+                        v[5] as i64,
+                        a.as_ptr(),
+                        na as i64,
+                        b.as_ptr(),
+                        nb as i64,
+                        input.as_ptr(),
+                        out.as_mut_ptr(),
+                        1,
+                        &raw mut len,
+                    )
+                };
+                assert_eq!(
+                    status,
+                    crate::SC_ERR_ARG,
+                    "{s}: native guard accepted invalid partner"
+                );
+                return;
+            }
             // Invalid native preconditions are fixture rejection, never a parity pass.
             assert!(
                 matches!(
@@ -281,13 +317,27 @@ mod isolated_tests {
         );
     }
     fn isolated_probe(exe: &std::path::Path, variable: &str, probe: &str) {
-        let mut child = Command::new(exe)
+        isolated_probe_with_rejection(exe, variable, probe, false);
+    }
+    fn isolated_rejected_probe(exe: &std::path::Path, probe: &str) {
+        isolated_probe_with_rejection(exe, "SC_CC_P6_FULL", probe, true);
+    }
+    fn isolated_probe_with_rejection(
+        exe: &std::path::Path,
+        variable: &str,
+        probe: &str,
+        rejected: bool,
+    ) {
+        let mut command = Command::new(exe);
+        command
             .args(["--ignored", "--exact", CHILD])
             .env(variable, probe)
             .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
-            .unwrap();
+            .stderr(Stdio::null());
+        if rejected {
+            command.env("SC_CC_P6_EXPECT_REJECT", "1");
+        }
+        let mut child = command.spawn().unwrap();
         let start = Instant::now();
         loop {
             if let Some(status) = child.try_wait().unwrap() {
@@ -320,6 +370,94 @@ mod isolated_tests {
             ]);
         }
         v
+    }
+    #[test]
+    fn rejects_fillets_with_unhomogenized_partner_in_subprocesses() {
+        let exe = std::env::current_exe().unwrap();
+        let listing = Command::new(&exe)
+            .args(["--ignored", "--list"])
+            .output()
+            .unwrap();
+        assert!(String::from_utf8(listing.stdout).unwrap().contains(CHILD));
+        for n in [1, 2, 3, MAX_INTERVALS] {
+            for index in [0, n - 1] {
+                for nb in [0, n - 1, n + 1] {
+                    if nb == n || nb > MAX_INTERVALS {
+                        continue;
+                    }
+                    let b: Vec<f64> = (0..nb)
+                        .flat_map(|j| {
+                            record(
+                                j as f64 / nb as f64,
+                                (j + 1) as f64 / nb as f64,
+                                [0, 0, 0],
+                                false,
+                            )
+                        })
+                        .collect();
+                    for classes in [[4, 3, 4], [2, 2, 2], [5, 5, 5]] {
+                        let a: Vec<f64> = (0..n)
+                            .flat_map(|j| {
+                                record(
+                                    j as f64 / n as f64,
+                                    (j + 1) as f64 / n as f64,
+                                    if j == index { classes } else { [0, 0, 0] },
+                                    false,
+                                )
+                            })
+                            .collect();
+                        let input = record(0.0, 1.0, [0, 0, 0], false);
+                        for kind in 0..5 {
+                            for flags in [2, 3] {
+                                let mut payload = vec![
+                                    3.0,
+                                    f64::from(kind),
+                                    1.0,
+                                    1e-6,
+                                    f64::from(flags),
+                                    index as f64,
+                                    n as f64,
+                                    nb as f64,
+                                ];
+                                payload.extend(&a);
+                                payload.extend(&b);
+                                payload.extend(&input);
+                                let probe = payload
+                                    .iter()
+                                    .map(ToString::to_string)
+                                    .collect::<Vec<_>>()
+                                    .join(",");
+                                isolated_rejected_probe(&exe, &probe);
+                            }
+                            // Without fillets the partner is unused by this early exit.
+                            if classes == [4, 3, 4] {
+                                for flags in [0, 1] {
+                                    assert!(run(3, kind, 1.0, 1e-6, flags, index, &a, &b, &input)
+                                        .is_ok());
+                                }
+                                // A correctly sized partner remains a real native call.
+                                let partner: Vec<f64> = (0..n)
+                                    .flat_map(|j| {
+                                        record(
+                                            j as f64 / n as f64,
+                                            (j + 1) as f64 / n as f64,
+                                            [0, 0, 0],
+                                            false,
+                                        )
+                                    })
+                                    .collect();
+                                for flags in [2, 3] {
+                                    assert!(run(
+                                        3, kind, 1.0, 1e-6, flags, index, &a, &partner, &input
+                                    )
+                                    .is_ok());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     #[test]
     fn rejects_null_start_vertex_but_keeps_native_early_exits() {
