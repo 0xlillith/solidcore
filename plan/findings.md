@@ -5605,6 +5605,20 @@ torus, cylinder, "raise the tolerances" and "non-synchronised" branches of
 `EdgeuseOffset`; three rational arcs through an offset corner reach the sphere of
 `VertexOffset`.
 
+**Upstream hang (HANG-17).** `SmOffsetExecutive::GetCreateExtendedSurface` extends the
+face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
+`SM_CT_G1R`); `ST_surxsdr` splits a large extension and recurses twice per level to
+depth 10, so a surface whose iso-curves are short relative to the distance (cone,
+torus, Endcap of `pt_TestFiles`) runs through up to `2^11` extensions and does not
+return in practice (28 minutes, killed; `plan/upstream-issues.md`). The port never
+reaches it (`UNPORTED(offset.offset_executive_p1)`), so the shim and the runner refuse,
+with the hang-guard status `-5` on both sides, exactly the calls that would:
+`ExtendTrimEdges` always, `MateEdges` with four edge uses, `EdgeuseOffset` with
+`GetExtendConvexEdges` on a tangent or lamina edge or with four edge uses, and
+`TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use (the
+neighbour classification is replicated on both sides). These are hang guards, not
+deferrals.
+
 **Guards.** The topology-walking functions dereference edge, curve, vertex use, mate,
 CW/CCW neighbour, face use, face and surface pointers without checking, so the shim
 refuses them (`-2`) unless every edge use of both B-reps is a loop edge use with all of
@@ -5626,8 +5640,8 @@ in `ReplaceEdgeCurves`, the UV-curve candidates of a tangent neighbour without a
 curve); `SmBrep::MateLaminaEdgeToSurface` (`topology.brep_p2`, the inset-on-shell-face
 branch of `EdgeuseOffset`); `SmCircularCrossSectionFSG` (`blend.fillet_standard_solver_p1`,
 the general cap of `EdgeuseOffset`). `SmSurface::GlobalCurveIntersect`
-(`surface.surface_p8`) is only reached after the extended surface, so it never
-deferred a case on its own.
+(`surface.surface_p8`, partial since the merge of `main`) is a real call, only reached
+after the extended surface.
 
 **Not compared by construction.** The script's store curves are plain
 `SmBSplineCurve`s, so a line or conic registered as a 3D or UV curve is never

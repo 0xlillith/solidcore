@@ -1428,6 +1428,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 ## Nondeterminism
 
+#### HANG-17. `ST_surxsdr` (surface extension by distance) explores an exponential split for surfaces with short iso-curves
+- **Location:** `source/SMLib/src/NL_SrfAdv.cpp:696`-`960`, `ST_surxsdr` (the recursive body of `N_SrfExtendByDist`), reached through `SmBSplineSurface::CreateExtendedSurface(SM_SP_BOTH, 5 * offset, SM_CT_G1R)` from `SmOffsetExecutive::GetCreateExtendedSurface` (`SmOffsetExecutive.cpp`).
+- **What happens:** The routine extends five sample iso-curves by the requested distance and averages their extension parameters. When that average exceeds `0.9313` of the surface's knot range it splits the distance and calls itself twice per level (`dist - d2` on the original, then `d2` on the result), with the depth only limited to 10. Each call extracts and extends five iso-curves of a surface that grows at every level, so a surface whose iso-curves are short relative to the distance (closed iso-curves of a surface of revolution extended by five offset distances) runs through up to `2^11` surface extensions.
+- **Trigger:** `SmOffsetGeometryCreation::EdgeuseOffset` with `GetExtendConvexEdges()` (or `ExtendTrimEdges` / `MateEdges` / the extended-surface candidates of `TrimExtendedEdge`) on `pt_TestFiles/cone.smb`, `torus.smb` or `Endcap.smb` at offset distances `0.1`-`0.5`; `box_with_large_fillet.smb` and `Mouse.smb` (open iso-curves) return at once.
+- **How found:** the first difftest run of `offset.offset_geometry_creation` (PR #156) stalled for 28 minutes; two gdb backtraces 20 s apart sat inside `N_SrfExtractIsoCrv` / `N_CrvExtendByDist` under `ST_surxsdr`; the built-in `*_edgeuse_offset_extend` cases reproduce it alone (cone, torus, endcap time out at 120 s; box, mouse finish).
+- **Confirmed:** runs for more than 28 minutes (13.5 minutes of CPU) and was killed; not proven infinite (the recursion is bounded by depth 10, so it may be exponential rather than endless).
+- **Severity:** hang in practice.
+- **Rust port:** `GetCreateExtendedSurface` is `UNPORTED(offset.offset_executive_p1)` in the port, so the Rust side never reaches it; the difftest shim and runner refuse (`-5`, a hang guard, not a deferral) exactly the calls that would reach it: `ExtendTrimEdges`, `MateEdges` with four non-null edge uses, `EdgeuseOffset` with `GetExtendConvexEdges()` on a tangent or lamina edge or with four non-null edge uses, and `TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use.
+
 #### ND-1. `srand(time(NULL))` in face sampling and shell classification
 - **Location:** `SmFace.cpp:21183` `SmFace::GetPointsInFace` (def. `:21167`); `SmShell.cpp:888`, `:905` (in `SmShell::IsInnerShellOf`, def. `:827`).
 - **What happens:** The C RNG is reseeded from the clock and used to dither sample parameters / ray directions. Results differ between runs, and the global `rand()` state is clobbered for the whole process.

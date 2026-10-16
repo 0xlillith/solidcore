@@ -52,10 +52,10 @@
 //!   `SmSurface::CreateOffsetSurface` (`surface.offset_surface`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `CreateUVTrimCurve` (`topology.edgeuse_p3`),
 //!   `SmBrep::MateLaminaEdgeToSurface` / `ReplaceSurface` (`topology.brep_p2`),
-//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
-//!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) and
+//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`) and
 //!   `SmCircularCrossSectionFSG` (`blend.fillet_solver_p1`,
-//!   `blend.fillet_standard_solver_p1`). The code after a stub is ported in full.
+//!   `blend.fillet_standard_solver_p1`). The code after a stub is ported in full;
+//!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) is a real call.
 //! - `SM_CAST_PTR(SmOffsetSurface, ..)` on an analytic copy is always null here (no
 //!   surface kind is an offset surface until `surface.offset_surface` lands), so
 //!   `SetAllowExtension(FALSE)` is never reached.
@@ -396,19 +396,20 @@ fn face_uv_domain_from_uv_trim_curves<O>(_face: O) -> Result<Extent2d> {
     ))
 }
 
-/// `SmSurface::GlobalCurveIntersect(domain, curve, interval, tol, solutions)`.
-fn surface_global_curve_intersect<O>(
-    _surface: O,
-    _domain: &Extent2d,
-    _curve: O,
-    _interval: &Extent1d,
-    _tol: f64,
+/// `SmSurface::GlobalCurveIntersect(domain, curve, interval, tol, solutions)` of the
+/// surface and curve behind the handles (unit `surface.surface_p8`).
+fn surface_global_curve_intersect<O: ClassObject + SolutionObject>(
+    k: &Kernel,
+    geometry: &impl ClassGeometry<O>,
+    surface: O,
+    domain: &Extent2d,
+    curve: O,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
+    let s = surface_of(geometry, surface)?;
+    let c = curve_of(geometry, curve)?;
+    s.global_curve_intersect(k, [curve, surface], domain, c, interval, tol)
 }
 
 /// `SmOffsetSurface(dSign * dist, *pSurface, FALSE)` followed by `SmCrvOnSurf(uvCurve,
@@ -1580,6 +1581,8 @@ impl OffsetGeometryCreation {
                 // intersect pF->ExtendedSurface with 3DCurve
                 let crv_ivl = curve_of(brep, curve_3d)?.natural_interval();
                 let Some(sols2) = ignore_soft(surface_global_curve_intersect(
+                    k,
+                    brep,
                     ext_surface,
                     &ext_domain,
                     curve_3d,

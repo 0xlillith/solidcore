@@ -29,9 +29,14 @@
 //! an edge's curve, 4 a face's surface, 11 the UV trim curve stored on an edge use, 5 a
 //! curve of the script's store, 7 a surface of the script's store (both in `add` order),
 //! 6 a B-rep (`index` 0 or 1), 8 null. A status is `0` (success), the upstream `SmStatus`
-//! code, or `-2` when the shim refused the op because upstream would dereference null
+//! code, `-2` when the shim refused the op because upstream would dereference null
 //! (an op that walks the topology needs every edge use of both B-reps to be a loop edge
-//! use with edge, curve, vertex, mate, neighbours and a face with surface).
+//! use with edge, curve, vertex, mate, neighbours and a face with surface), or `-5` when
+//! it refused the op because upstream would not return (HANG-17: the extended surface
+//! of `SmOffsetExecutive::GetCreateExtendedSurface`, reached by `ExtendTrimEdges`,
+//! `MateEdges` with four edge uses, `EdgeuseOffset` with `GetExtendConvexEdges` on a
+//! tangent or lamina edge or with four edge uses, and `TrimExtendedEdge` when a
+//! non-tangent neighbour has a mapped offset edge use).
 //!
 //! Geometry outputs: `curve` is the fixture header's `put_curve` block (`-1` null,
 //! `-2` not a B-spline curve, else `type dim has_nurb [n p m cpts knots] [line data]`);
