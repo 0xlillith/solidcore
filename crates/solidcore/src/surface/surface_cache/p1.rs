@@ -1487,7 +1487,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 });
             }
             Ok(BezierAux2d {
-                polar_box: a.polar_box.clone(),
+                polar_box: a.polar_box,
                 is_tess_only: a.is_tess_only,
                 uv_domain: a.uv_domain,
                 has_inside_part: a.has_inside_part,
@@ -1515,7 +1515,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 bezier: p.bezier.clone(),
                 u_curve_conts: p.u_curve_conts,
                 v_curve_conts: p.v_curve_conts,
-                pseudo_box: p.pseudo_box.clone(),
+                pseudo_box: p.pseudo_box,
             });
         }
         let mut auxs = Vec::new();
@@ -1540,7 +1540,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             v_continuities: self.v_continuities.clone(),
             patches,
             auxs,
-            opts: self.opts.clone(),
+            opts: self.opts,
             iso_curve_tolerance: self.iso_curve_tolerance,
             tessellation_algorithm: self.tessellation_algorithm,
             start_fast_subdivision_angle_deg: self.start_fast_subdivision_angle_deg,

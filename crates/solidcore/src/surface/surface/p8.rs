@@ -1122,12 +1122,11 @@ impl Surface {
 
         // local Surface Cache
         let built;
-        let cache = match cache {
-            Some(c) => Self::held_cache(k, c, OP_LINE)?,
-            None => {
-                built = self.solve_cache_of(k, surface, OP_LINE)?;
-                &built
-            }
+        let cache = if let Some(c) = cache {
+            Self::held_cache(k, c, OP_LINE)?
+        } else {
+            built = self.solve_cache_of(k, surface, OP_LINE)?;
+            &built
         };
         let tree = cache.tree().ok_or(SolidError::null_pointer(OP_LINE))?;
         let top = tree.top_node().ok_or(SolidError::null_pointer(OP_LINE))?;
@@ -1777,12 +1776,11 @@ impl Surface {
         // cause lots of additions to the curve cache, which could push this curve's
         // cache right out of the queue. So get the curve's cache afterwards.)
         let built;
-        let surface_cache = match cache {
-            Some(c) => Self::held_cache(k, c, OP_CURVE)?,
-            None => {
-                built = self.solve_cache_of(k, surface_handle, OP_CURVE)?;
-                &built
-            }
+        let surface_cache = if let Some(c) = cache {
+            Self::held_cache(k, c, OP_CURVE)?
+        } else {
+            built = self.solve_cache_of(k, surface_handle, OP_CURVE)?;
+            &built
         };
         let surface_tree = surface_cache
             .tree()
