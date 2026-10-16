@@ -25,16 +25,16 @@
 //! `CreateUVTrimCurves`), `FindIfRectangularTrim` of a one-loop face with two to four
 //! edges, `ShrinkGeometry` of a face with an owned surface, and the seam ops past their
 //! early returns (`GetUpwardLoopuses`, `HasSeamProblem`, `topology.face_p4`;
-//! `IsCrossedByEdge`, `intersect.curve_class_p7`; `MergeIntervals`,
-//! `intersect.curve_class_p5`).
+//! `IsCrossedByEdge`, `intersect.curve_class_p7`; the callees `MergeIntervals` of unit
+//! `intersect.curve_class_p5` still defers to).
 //!
 //! **C++ crash guard.** Upstream `SplitAtSeam`'s U-then-V branch recurses on the wrong
-//! face and crashes (`plan/upstream-issues.md` UB-134). The shim skips (`-3`) every seam
+//! face and crashes (`plan/upstream-issues.md` UB-158). The shim skips (`-3`) every seam
 //! call that can reach it: a `SplitAtSeam` merging in both directions on a face periodic
 //! in either (by the face properties' closed flags or by the surface itself), and every
 //! `MoveSeam` with split past its early return (it recomputes the seam problem before
 //! splitting). The Rust side defers all of these before anything is compared. The Rust side
-//! reports those cases as deferred to `cpp-crash-guard:UB-134`; they never become
+//! reports those cases as deferred to `cpp-crash-guard:UB-158`; they never become
 //! comparable.
 //!
 //! **Not compared.** The normalisation to plain B-splines means `MoveSeam`'s analytic
@@ -584,11 +584,11 @@ fn seam_guard(
     Ok(!quiet)
 }
 
-/// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-134): not a
+/// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-158): not a
 /// deferral to a unit, they never become comparable.
 fn merge_deferred() -> Fail {
     Fail::Deferred(Box::new(Output::deferred(
-        "cpp-crash-guard:UB-134",
+        "cpp-crash-guard:UB-158",
         "SmFace::SplitAtSeam",
     )))
 }
@@ -661,7 +661,8 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
                 Some(l) => b.loop_(l).map_err(e)?.loopuse.is_some(),
                 None => true,
             };
-            if b.face(f).map_err(e)?.faceuse.is_none() || !lu_ok {
+            // (upstream dereferences the upward face use only without a loop to use)
+            if (l.is_none() && b.face(f).map_err(e)?.faceuse.is_none()) || !lu_ok {
                 o.push(NULL_DEREF);
                 return Ok(o);
             }
@@ -1006,11 +1007,11 @@ impl UnitDiff for Runner {
                 }
             }
         }
-        // the review's crash reproducers (vase_rev.smb face 0, face properties claiming a
-        // crossed seam in both directions and a missing seam, closed in one direction
-        // only, with split): the guard must keep them away from upstream's UB-134
+        // the reviews' crash reproducers (vase_rev.smb face 0, face properties claiming a
+        // crossed seam in both directions and a missing seam, closed in U, V or both, with
+        // split): the guard must keep them away from upstream's UB-158
         for missing in [0u8, 1, 3] {
-            for (cu, cv) in [(1u8, 0u8), (0, 1)] {
+            for (cu, cv) in [(1u8, 0u8), (0, 1), (1, 1)] {
                 for center in [false, true] {
                     for rebuild in [false, true] {
                         let inputs = Inputs {

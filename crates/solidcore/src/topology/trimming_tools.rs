@@ -366,7 +366,7 @@ fn face_split_at_seam_problem(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec
         problem,
         None,
         &|o: SeamObject| match o {
-            SeamObject::Vertex(v) => Some(v),
+            SeamObject::Vertex(v) => Some(EntityRef::Vertex(v)),
             SeamObject::Loop(_) => None,
         },
     )?;

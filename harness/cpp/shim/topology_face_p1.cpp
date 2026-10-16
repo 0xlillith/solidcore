@@ -245,8 +245,9 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                                                          want_2nd ? &gap2 : NULL);
         o.push_back(st(r));
         fp1_put_domain(o, dom);
-        o.push_back(want_max ? gap : 0.0);
-        o.push_back(want_2nd ? gap2 : 0.0);
+        // (the gaps of a failed call are partial: compared only on success)
+        o.push_back(r == SM_SUCCESS && want_max ? gap : 0.0);
+        o.push_back(r == SM_SUCCESS && want_2nd ? gap2 : 0.0);
         break;
     }
     case OP_ORIENTED:
@@ -255,7 +256,8 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmBoolean fill = ad.bflag();
         int64_t li = ad.idx();
         SmLoop* l = (li >= 0 && li < (int64_t)g.loops.size()) ? g.loops[(size_t)li] : nullptr;
-        if (f->GetUpwardFaceuse() == nullptr || (l != nullptr && l->GetLoopuse() == nullptr))
+        // (upstream dereferences the upward face use only without a loop to use)
+        if ((l == nullptr && f->GetUpwardFaceuse() == nullptr) || (l != nullptr && l->GetLoopuse() == nullptr))
         {
             o.push_back(FP1_NULL_DEREF);
             break;
