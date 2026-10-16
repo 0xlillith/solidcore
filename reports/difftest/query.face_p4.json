@@ -442,8 +442,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_fresh_props",
@@ -513,21 +513,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "file_box_fresh_foreign_loop",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.face_p4/cases.json#57 (upstream SmFace::ClassifyLoops AERN with fresh props (SetProps_Stage2 then the face check))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_plane_square_fresh",
@@ -804,8 +800,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0029",
@@ -1118,8 +1114,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0063",
@@ -1906,8 +1902,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0156",
@@ -2030,8 +2026,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -2183,8 +2179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0187",
@@ -2335,8 +2331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0204",
@@ -2395,8 +2391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0210",
@@ -2758,8 +2754,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0250",
@@ -2838,8 +2834,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0259",
@@ -3235,8 +3231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0303",
@@ -3319,8 +3315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0312",
@@ -3674,8 +3670,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -4106,13 +4102,12 @@
     }
   ],
   "cases_both_errored": 27,
-  "cases_deferred": 101,
+  "cases_deferred": 100,
   "cases_failed": 0,
-  "cases_passed": 358,
+  "cases_passed": 359,
   "cases_total": 459,
   "deferred_by_unit": {
-    "query.face_p3": 86,
-    "topology.face_p2": 15
+    "query.face_p3": 100
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -960,6 +960,12 @@ impl<O: ClassObject> EdgeDefinition<O> {
         zone_tol3d(k, self.tol)
     }
 
+    /// The raw tolerance `m_dTol` (read directly by `Imprint`).
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
+    }
+
     /// The UV curve on B-rep `which`'s face (1, else 2) (`GetXSectUVCurve`).
     #[must_use]
     pub const fn xsect_uv_curve(&self, which: i32) -> Option<O> {
@@ -1331,6 +1337,11 @@ impl ProtoVertex {
         self.tol
     }
 
+    /// Sets the raw tolerance `m_dTol` (the writes of `AddVertexDefinition`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
+    }
+
     /// `GetNumVertexDefinitions`.
     #[must_use]
     pub fn num_vertex_definitions(&self) -> usize {
@@ -1441,6 +1452,17 @@ impl ProtoEdge {
         zone_tol3d(k, self.tol)
     }
 
+    /// The raw tolerance `m_dTol`.
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
+    }
+
+    /// Sets the raw tolerance `m_dTol` (the write of `CombineProtoEdge`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
+    }
+
     /// The start proto vertex (`GetStartProtoVertex`).
     #[must_use]
     pub const fn start_proto_vertex(&self) -> Option<ProtoVertexId> {
@@ -1457,6 +1479,11 @@ impl ProtoEdge {
     #[must_use]
     pub fn overlapping_pes(&self) -> &[ProtoEdgeId] {
         &self.overlapping_pes
+    }
+
+    /// Empties the overlapping proto edges (`GetOverlappingPEs().ReSet()`).
+    pub fn clear_overlapping_pes(&mut self) {
+        self.overlapping_pes.clear();
     }
 
     /// `GetNumEdgeDefinitions`.
@@ -1599,6 +1626,12 @@ impl<O: ClassObject> ProtoFace<O> {
     #[must_use]
     pub fn coinc_proto_edges(&self) -> &[ProtoEdgeId] {
         &self.coinc_pes
+    }
+
+    /// The bounding proto edges, for the edits of the list upstream makes through the
+    /// pointer `GetCoincProtoEdges` returns.
+    pub fn coinc_proto_edges_mut(&mut self) -> &mut Vec<ProtoEdgeId> {
+        &mut self.coinc_pes
     }
 
     /// Sets the face of B-rep `which` (1, else 2): the object when it is a face
@@ -1801,6 +1834,12 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     #[must_use]
     pub fn tolerance(&self, k: &Kernel) -> f64 {
         zone_tol3d(k, self.tol)
+    }
+
+    /// The raw tolerance `m_dTol` (read directly by the manager's own members).
+    #[must_use]
+    pub const fn raw_tolerance(&self) -> f64 {
+        self.tol
     }
 
     /// Sets the tolerance (`SetTolerance`; the flags are unused).
