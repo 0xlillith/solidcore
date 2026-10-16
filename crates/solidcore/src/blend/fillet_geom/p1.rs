@@ -124,6 +124,9 @@
 //!   (`SmFilletSolver::GetSurface`, `blend.fillet_solver_p1`) and drops the new rail
 //!   onto them (`SmSurface::DropCurve`, `intersect.surface_drop_lib_p3`) and returns
 //!   [`SolidError::Unported`] there.
+//! - **Difftest coverage.** The shim builds plain `SmBSplineSurface` / `SmBSplineCurve`
+//!   geometry only: the plane and surface-of-revolution arms of [`evaluate_mate`]'s cast
+//!   and any analytic-kind path inside the surface callees are never compared.
 //! - **Unported callees.** `SmSurface::PointBasedSurfaceIntersect` defers in
 //!   `intersect.surface_intersector_p4`; `SmSurface::GlobalCurveIntersect`
 //!   (`surface.surface_p8`); `SmFace::CalculateUVDomainFromUVTrimCurves`
@@ -2138,9 +2141,12 @@ pub fn evaluate_mate(brep: &Brep, face: FaceId, uv: Point2) -> Result<Point3> {
     if natural_uv_domain.contains_point(uv, 0.0) {
         surface.evaluate_point(uv)
     } else {
+        // SM_CAST_PTR(SmBSplineSurface, ..): B-spline surfaces and the kinds deriving from
+        // them (planes, surfaces of revolution); the other kinds fail the cast (NER)
         match surface.kind() {
             SurfaceKind::BSpline(s) => s.evaluate_point_on_extended_surface(uv),
             SurfaceKind::Plane(p) => p.base_for_query().evaluate_point_on_extended_surface(uv),
+            SurfaceKind::SurfOfRevolution(s) => s.base().evaluate_point_on_extended_surface(uv),
             _ => Err(SolidError::null_pointer(OP_EVALUATE_MATE)),
         }
     }
@@ -2202,12 +2208,13 @@ fn is_closed(surface: &Surface, domain: &Extent2d, param: SurfParamType) -> Resu
 /// Those of the point drops ([`surface_drop_point`]) and of
 /// [`Surface::point_based_surface_intersect`] (deferred:
 /// `intersect.surface_intersector_p4`); [`SolidError::InvalidInput`] for a zero
-/// direction.
+/// direction. `direction` is unitised in place before the intersection (upstream
+/// `pDirection->Unitize()`).
 pub fn two_pnts_intersection(
     k: &Kernel,
     start_pnt: Point3,
     opt_end_pnt: Option<Point3>,
-    direction: Vec3,
+    direction: &mut Vec3,
     opt_end_direction: Option<Vec3>,
     surf1: &Surface,
     surf2: &Surface,
@@ -2235,7 +2242,7 @@ pub fn two_pnts_intersection(
     if solutions.len() == 2 {
         // Closed surface
         let uv = solution_uv(&solutions, 0);
-        let uv_dir = drop_vector(surf1, uv, direction)?;
+        let uv_dir = drop_vector(surf1, uv, *direction)?;
         if (is_closed(surf1, &domain1, SurfParamType::U)? && uv_dir.x < 0.0)
             || (is_closed(surf1, &domain1, SurfParamType::V)? && uv_dir.y < 0.0)
         {
@@ -2255,7 +2262,7 @@ pub fn two_pnts_intersection(
     if solutions.len() == 2 {
         // Closed surface
         let uv = solution_uv(&solutions, 0);
-        let uv_dir = drop_vector(surf2, uv, direction)?;
+        let uv_dir = drop_vector(surf2, uv, *direction)?;
         if (is_closed(surf2, &domain2, SurfParamType::U)? && uv_dir.x < 0.0)
             || (is_closed(surf2, &domain2, SurfParamType::V)? && uv_dir.y < 0.0)
         {
@@ -2277,7 +2284,7 @@ pub fn two_pnts_intersection(
             // Closed surface
             for ii in 0..2 {
                 let uv = solution_uv(&solutions, ii);
-                let uv_dir = drop_vector(surf1, uv, direction)?;
+                let uv_dir = drop_vector(surf1, uv, *direction)?;
                 if uv_dir.dot(uv - uv11) < 0.0 {
                     index12 = 1;
                     break;
@@ -2293,7 +2300,7 @@ pub fn two_pnts_intersection(
             // Closed surface
             for ii in 0..2 {
                 let uv = solution_uv(&solutions, ii);
-                let uv_dir = drop_vector(surf2, uv, direction)?;
+                let uv_dir = drop_vector(surf2, uv, *direction)?;
                 if uv_dir.dot(uv - uv21) < 0.0 {
                     index22 = 1;
                 }
@@ -2306,7 +2313,7 @@ pub fn two_pnts_intersection(
         surface2_points.push(uv22);
     }
 
-    let direction = direction.unitize()?;
+    *direction = direction.unitize()?;
 
     surf1.point_based_surface_intersect(
         &domain1,
@@ -2315,7 +2322,7 @@ pub fn two_pnts_intersection(
         &surface1_points,
         &surface2_points,
         [false, false],
-        [Some(direction), opt_end_direction],
+        [Some(*direction), opt_end_direction],
         Some(ssi_tol),
         Some(angle_tol),
     )

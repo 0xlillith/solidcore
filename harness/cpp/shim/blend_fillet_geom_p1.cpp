@@ -1039,6 +1039,7 @@ int32_t run_geometry(int32_t op, Rd& rd, std::vector<double>& o)
         put_curve(o, c3);
         put_curve(o, uv1);
         put_curve(o, uv2);
+        put_pt(o, dir); // unitised in place on success
         delete c3;
         delete uv1;
         delete uv2;

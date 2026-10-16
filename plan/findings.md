@@ -5498,5 +5498,15 @@ Gate: `PARTIAL blend.fillet_geom_p1 cases=436 passed=401 failed=0 deferred=35 ma
   `m_bPointTestEnabled` / `m_bProcessBoundaryCurves` around `GlobalPointSolve`; for a
   standalone surface the cache already has that state, and the Rust point solve of a
   face-owned surface is itself unported (`query.face_p2`), so nothing is toggled.
-- Upstream defect UB-133 (`SmFilletGeom` constructor leaves `m_dOrientations` and
+- **Coverage.** The shim builds plain B-spline surfaces and curves only, so the plane /
+  surface-of-revolution arms of `sm_EvaluateMate`'s `SmBSplineSurface` cast and any
+  analytic-kind path inside the surface callees are never compared. Ops with no passing
+  case: `fb` `cliff` (all deferred), `classify_face_point` (all deferred), `fb`
+  `split_face` of a vertex classified to the split face (deferred; other vertices
+  pass), `capping` when a cap is needed (deferred; the no-gap cases pass), `two_pnts`
+  past its point drops (deferred; drop failures pass), `sm_FindStepoffUV` and
+  `sm_CreateCubicRailRailInterpolant` (no cases: they take an `SmFilletSolver`). The
+  FFI guards were fuzzed with 60k mutated programs (`fuzz_guards` test in the runner):
+  every accepted program ran without a crash.
+- Upstream defect UB-159 (`SmFilletGeom` constructor leaves `m_dOrientations` and
   `m_bCapped` uninitialised) recorded in `plan/upstream-issues.md`.

@@ -20,7 +20,7 @@
 //! | `AdjustUvOnSeam`  | `sm_AdjustUVOnSeam`               | `surface ref[3] u v`                         | `u v` |
 //! | `Interpolate`     | `sm_InterpolateEndptsAndTangents` | `start[3] end[3] svec[3] evec[3] dim`        | `svec[3] evec[3]`, then the curve (`has ...`) |
 //! | `SurfaceDropPoint`| `sm_SurfaceDropPoint`             | `surface pnt[3] tol`                         | `n` then `n` x `u v value` |
-//! | `TwoPnts`         | `sm_TwoPntsIntersection`          | `surface1 surface2 start[3] has_end end[3] dir[3] has_end_dir end_dir[3] tol` | three curves (`has ...`) |
+//! | `TwoPnts`         | `sm_TwoPntsIntersection`          | `surface1 surface2 start[3] has_end end[3] dir[3] has_end_dir end_dir[3] tol` | three curves (`has ...`), `dir[3]` as left by the call |
 //! | `EvaluateMate`    | `sm_EvaluateMate`                 | `surface u v` (a face on the surface)        | `pnt[3]` |
 //! | `Capping`         | `JoinVertsByCapping`              | `tol surface uvcurve1 orient1 uvcurve2 orient2` | `n` then `n` x `uvcurve curve3d orient` |
 //! | `ClassifyFacePoint` | `sm_ClassifyFacePoint`          | `surface1 surface2 pos[3]` (two faces)       | `which` |
@@ -70,14 +70,17 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: well-formed
 //! clamped B-splines (`1 <= p <= n`, at most [`MAX_INDEX`] control points per direction,
-//! degrees at most [`MAX_DEGREE`], finite data, consistent rationality, non-decreasing
+//! degrees at most [`MAX_DEGREE`], finite data of magnitude at most [`MAX_MAGNITUDE`],
+//! consistent rationality, non-decreasing
 //! knots with end multiplicity `degree + 1` and interior multiplicity at most the degree),
 //! 3D edge, centre-line and target curves and 2D UV curves, enum values in range, indices
 //! inside the block, at most [`MAX_LIST`] objects per list, a curve on an edge whose
 //! fillet B-rep edge is looked for, both rails on a trimmed or rail-queried geometry, a
 //! vertex-classified vertex for `FbVertOnVert`, an edge-use-classified one for `FbCliff`,
-//! two different geometries with surfaces for `FbExamine`, a deleted vertex without
-//! edges, finite tolerances and parameters.
+//! two different geometries for `FbExamine`, a deleted vertex without edges (its edge
+//! uses would keep dangling vertex-use pointers the export reads), finite tolerances
+//! and parameters of magnitude at most [`MAX_MAGNITUDE`]. Inverted intervals are accepted (upstream `SetInterval` and `Trim`
+//! take them).
 
 use crate::{call_with_buffer, FfiError};
 
@@ -87,6 +90,11 @@ pub const MAX_INDEX: usize = 64;
 pub const MAX_DEGREE: usize = 9;
 /// Largest number of objects in any list (vertices, edges, geometries, candidates, ...).
 pub const MAX_LIST: usize = 64;
+/// Largest magnitude of any coordinate, knot, parameter or tolerance. From about `1.3e154`
+/// squared distances overflow to infinity and the closed-curve split in upstream
+/// `SmCurve::GlobalCoincidenceChecker` (reached from `sm_ClassifyFacePoint`) never
+/// terminates (HANG-16: a control point of `1e153` returns, `1e154` hangs).
+pub const MAX_MAGNITUDE: f64 = 1e150;
 /// `NL_NOZ`.
 const NOZ: f64 = f64::MAX;
 /// `NL_NOW`.
@@ -174,8 +182,8 @@ impl Reader<'_> {
 
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
-        if !v.is_finite() {
-            return Err(bad("non-finite value"));
+        if !v.is_finite() || v.abs() > MAX_MAGNITUDE {
+            return Err(bad("non-finite or oversized value"));
         }
         Ok(v)
     }
@@ -492,11 +500,7 @@ fn validate_block(rd: &mut Reader<'_>) -> Result<Block, FfiError> {
             curve(rd, 3, "edge curve")?;
         }
         if rd.flag()? {
-            let t0 = rd.finite()?;
-            let t1 = rd.finite()?;
-            if t0 > t1 {
-                return Err(bad("edge: inverted interval"));
-            }
+            rd.finites(2)?; // any interval, as SetInterval
         }
         rd.opt_index(nfb)?;
         rd.opt_index(nfb)?;
@@ -606,11 +610,7 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         }
         Op::FbTrim => {
             let g = rd.opt_index(b.ng())?.ok_or_else(|| bad("geometry -1"))?;
-            let t0 = rd.finite()?;
-            let t1 = rd.finite()?;
-            if t0 > t1 {
-                return Err(bad("trim: inverted interval"));
-            }
+            rd.finites(2)?;
             if !b.geom_rails.get(g).copied().unwrap_or(false) {
                 return Err(bad("trim: geometry without both rails"));
             }

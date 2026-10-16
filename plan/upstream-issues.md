@@ -1226,7 +1226,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** proto edges are arena ids that are never freed, so the repeat reads a deleted-edge slot and finds no group; nothing is read after free.
 
-#### UB-133. `SmFilletGeom(SmFilletSolver*, SmFilletGeomType)` leaves `m_dOrientations` and `m_bCapped` uninitialised
+#### UB-159. `SmFilletGeom(SmFilletSolver*, SmFilletGeomType)` leaves `m_dOrientations` and `m_bCapped` uninitialised
 - **Location:** `source/SMLib/src/SmFilletGeom.cpp:8971-9004` (`SmFilletGeom::SmFilletGeom`).
 - **What happens:** The constructor's initialiser list and loop set the type, solver, centre line, surface, split flag, status, offset surfaces, rails and deviations, but never `m_dOrientations[2]` or `m_bCapped[2]`; they hold whatever the allocation held until `CalcBlendingGeom` / the surface generator assign them. Readers before that (`m_dOrientations` in `SmFilletGeom::Copy`, `m_bCapped` in the end-curve code) see indeterminate values.
 - **Trigger:** Any `SmFilletGeom` read for its orientations or capping flags before its geometry is computed.

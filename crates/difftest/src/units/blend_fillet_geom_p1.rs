@@ -918,6 +918,7 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
             s.curve("c3d_")?;
             s.curve("uv1_")?;
             s.curve("uv2_")?;
+            s.vals("dir", 3)?;
         }
         Inputs::EvaluateMate { .. } => s.vals("pnt", 3)?,
         Inputs::Capping { .. } => {
@@ -1743,12 +1744,13 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         } => {
             let s1 = surface_of(surface1)?;
             let s2 = surface_of(surface2)?;
+            let mut d = Vec3::new(dir[0], dir[1], dir[2]);
             let r = fg::two_pnts_intersection(
                 &k,
                 pt(*start),
                 end.map(pt),
-                Vec3::new(dir[0], dir[1], dir[2]),
-                end_dir.map(|d| Vec3::new(d[0], d[1], d[2])),
+                &mut d,
+                end_dir.map(|e| Vec3::new(e[0], e[1], e[2])),
                 &s1,
                 &s2,
                 *tol,
@@ -1762,6 +1764,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
                 }
                 Err(st) => o.extend([st, 0.0, 0.0, 0.0]),
             }
+            o.extend([d.x, d.y, d.z]);
         }
         Inputs::EvaluateMate { surface, uv: p } => {
             let (b, f) = face_brep(surface_of(surface)?)?;
@@ -2543,7 +2546,8 @@ fn gen_model(rng: &mut Rng) -> Model {
             },
             interval: if rng.chance(0.7) {
                 let a = rng.uniform(0.0, 0.5);
-                Some([a, a + rng.uniform(0.0, 0.5)])
+                let b = a + rng.uniform(0.0, 0.5);
+                Some(if rng.chance(0.1) { [b, a] } else { [a, b] })
             } else {
                 None
             },
@@ -2646,9 +2650,10 @@ fn gen_query(rng: &mut Rng, m: &Model) -> Query {
         8 if (0..ng).any(rail_ok) => {
             let g = (0..ng).filter(|&g| rail_ok(g)).collect::<Vec<_>>();
             let a = rng.uniform(-0.2, 0.6);
+            let b = a + rng.uniform(0.0, 0.8);
             Query::Trim {
                 g: g.get(pick(rng, g.len())).copied().unwrap_or(0),
-                interval: [a, a + rng.uniform(0.0, 0.8)],
+                interval: if rng.chance(0.1) { [b, a] } else { [a, b] },
             }
         }
         9 if free_vertex.is_some() => Query::DeleteVertex {
@@ -2751,6 +2756,110 @@ impl UnitDiff for Runner {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Mutates generated and fixture programs and feeds them to the FFI: every program
+    /// the guards accept must run without crashing (a crash kills the test process).
+    /// `cargo test -p difftest --features cpp -- --ignored fuzz_guards`.
+    #[test]
+    #[ignore = "60k FFI calls; run on demand"]
+    fn fuzz_guards() {
+        let ctx = CaseContext {
+            root: crate::case::repo_root(),
+            seeds: 0,
+        };
+        let mut bases: Vec<(Op, Vec<f64>)> = Vec::new();
+        for case in Runner.cases(&ctx).unwrap_or_default() {
+            if let Ok(i) = case.parse::<Inputs>() {
+                if let Ok(flat) = cpp_input(&i) {
+                    bases.push((i.op(), flat));
+                }
+            }
+        }
+        for i in 0..2000 {
+            let mut rng = Rng::new(0x5eed_f00d + i);
+            if let Some(v) = Runner.generate(&mut rng) {
+                let inputs: Inputs = serde_json::from_value(v).unwrap();
+                bases.push((inputs.op(), cpp_input(&inputs).unwrap()));
+            }
+        }
+        let specials = [
+            0.0, 1.0, -1.0, 2.0, 0.5, 100.0, 1e300, -1e300, 1e-300, f64::NAN, f64::INFINITY,
+            -f64::INFINITY, 1e20, -1e20, 1e-12, 13.0, 999.0,
+        ];
+        let mut rng = Rng::new(0xfa11_ba11);
+        let (mut accepted, mut rejected) = (0u64, 0u64);
+        let mut calls = 0u64;
+        while calls < 60_000 {
+            let (op, base) = &bases[rng.below(bases.len() as u64) as usize];
+            let mut input = base.clone();
+            let n_mut = rng.below(4);
+            for _ in 0..n_mut {
+                match rng.below(6) {
+                    0 if !input.is_empty() => {
+                        let at = rng.below(input.len() as u64) as usize;
+                        input[at] = specials[rng.below(specials.len() as u64) as usize];
+                    }
+                    1 if !input.is_empty() => {
+                        let at = rng.below(input.len() as u64) as usize;
+                        input[at] *= rng.uniform(-3.0, 3.0);
+                    }
+                    2 if !input.is_empty() => {
+                        let at = rng.below(input.len() as u64) as usize;
+                        input.truncate(at);
+                    }
+                    3 => input.push(specials[rng.below(specials.len() as u64) as usize]),
+                    4 if input.len() > 1 => {
+                        let a = rng.below(input.len() as u64) as usize;
+                        let b = rng.below(input.len() as u64) as usize;
+                        input.swap(a, b);
+                    }
+                    _ if !input.is_empty() => {
+                        let at = rng.below(input.len() as u64) as usize;
+                        input[at] = (input[at] + 1.0).round();
+                    }
+                    _ => {}
+                }
+            }
+            let op = if rng.chance(0.05) {
+                // the same program under a random op
+                let ops = [
+                    Op::CleanupNoise, Op::CheckSeamOut, Op::CheckSeamOn, Op::SurfaceClosure,
+                    Op::IsOrderCorrect, Op::AdjustUvOnSeam, Op::Interpolate,
+                    Op::SurfaceDropPoint, Op::TwoPnts, Op::EvaluateMate, Op::Capping,
+                    Op::ClassifyFacePoint, Op::FbExport, Op::FbVertexGeoms, Op::FbVuAtRailEnd,
+                    Op::FbRailVertexuse, Op::FbEdgeName, Op::FbFindEdge, Op::FbClearEdges,
+                    Op::FbTrim, Op::FbDeleteVertex, Op::FbDeleteEdge, Op::FbVertOnVert,
+                    Op::FbCliff, Op::FbSplitFace, Op::FbExamine, Op::FbSetEuGeom,
+                    Op::FbSetUvCurve, Op::FbOrigUvCurve, Op::FbSetVuProperty, Op::FbBrepEdges,
+                    Op::FbRemoveEdge,
+                ];
+                ops[rng.below(ops.len() as u64) as usize]
+            } else {
+                *op
+            };
+            // Each call runs on its own thread so a C++ hang fails the test with the
+            // offending program printed instead of stalling the sweep forever.
+            let (tx, rx) = std::sync::mpsc::channel();
+            let program = input.clone();
+            std::thread::spawn(move || {
+                let _ = tx.send(ffi::eval(op, &program).map(|_| ()));
+            });
+            match rx.recv_timeout(std::time::Duration::from_secs(30)) {
+                Ok(Ok(())) | Ok(Err(solidcore_ffi::FfiError::Status(_))) => accepted += 1,
+                Ok(Err(_)) => rejected += 1,
+                Err(_) => panic!(
+                    "fuzz_guards: call {calls} (op {}) hung for 30 s; input = {}",
+                    op as i32,
+                    serde_json::to_string(&input).unwrap()
+                ),
+            }
+            calls += 1;
+            if calls % 5000 == 0 {
+                eprintln!("fuzz_guards: {calls} calls ({accepted} ran, {rejected} rejected)");
+            }
+        }
+        eprintln!("fuzz_guards: {calls} calls, {accepted} ran, {rejected} rejected by the wrapper");
+    }
 
     #[test]
     fn generated_cases_cover_every_op() {
