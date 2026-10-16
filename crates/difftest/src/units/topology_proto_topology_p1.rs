@@ -3977,7 +3977,6 @@ fn run_transform(obj: &TObjIn, op: &TOpIn) -> Result<Vec<f64>, Fail> {
     if let Some(sf) = &surface {
         put_surface(&mut o, sf);
     }
-    drop(poly_target);
     if let Some(b) = &poly {
         // the poly B-rep's tolerance, then each vertex's point and tolerance
         o.push(b.tolerance());

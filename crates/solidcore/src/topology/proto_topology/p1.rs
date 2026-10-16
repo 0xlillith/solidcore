@@ -140,7 +140,9 @@
 //! - `sm_FindPositionFromPCs` does not compute `SmTol::GetXSectTol3d` of the two
 //!   objects: it only feeds a diagnostic message.
 //! - `CanCombineEdgeDefinitions` keeps upstream's comparison of the second curve over
-//!   the first definition's interval.
+//!   the first definition's interval. Its degenerate-face branch
+//!   (`sm_FindEDOnDegenFace`) is unreachable from it (two different edges are never
+//!   connected) but is ported.
 //! - **B-rep walks.** The topology walks of `sm_AreConnected`, `GetFinalVertex` and
 //!   `sm_FindEDOnDegenFace` (`SmVertex::GetVertexuses`, `SmVertexuse::GetFaceuse`,
 //!   `SmFaceuse::GetFace`, `SmEdge::GetEdgeuses`, `SmEdgeuse::GetFace`,
