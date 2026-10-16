@@ -871,19 +871,21 @@ impl<O: ClassObject> CurveClassification<O> {
         if props.closed_u || props.closed_v {
             let smp_cnt: u32 = 3;
             let mut on_seam = true;
+            // sSmpPt / sSmpPtUV live across the samples: a failed call leaves the last value
+            let mut smp_pt = Vec3::UNDEF;
+            let mut smp_uv = Vec2::UNDEF;
             for ii in 1..=smp_cnt {
                 // From SmpParam => SmpPtUV
                 let smp_param = classify_crv_ivl.evaluate(f64::from(ii) / f64::from(smp_cnt + 1));
-                let smp_pt =
-                    ignored(classify_crv.evaluate_point(smp_param))?.unwrap_or(Vec3::UNDEF);
-                let smp_uv = drop_uv(
+                smp_pt = ignored(classify_crv.evaluate_point(smp_param))?.unwrap_or(smp_pt);
+                smp_uv = drop_uv(
                     k,
                     surface,
                     smp_pt,
                     &surface.natural_uv_domain(),
                     None,
                     None,
-                    Vec2::UNDEF,
+                    smp_uv,
                 )?;
 
                 // Classify SmpPtUV against Seams
@@ -1252,8 +1254,9 @@ impl<O: ClassObject> CurveClassification<O> {
             Vec2::UNDEF,
         )?;
         let classify_crv_uv_1st_dir = drop_vector(c.surface, classify_crv_uv, classify_crv_pn[1])?;
+        // a failed Unitize leaves the vector unchanged
         let classify_crv_uv_tan =
-            ignored(classify_crv_uv_1st_dir.unitize())?.unwrap_or(Vec2::new(0.0, 0.0));
+            ignored(classify_crv_uv_1st_dir.unitize())?.unwrap_or(classify_crv_uv_1st_dir);
         let depart_uv_ang_rad = ccw_angle(classify_crv_uv_tan)?;
         let arrive_uv_ang_rad = if depart_uv_ang_rad < PI {
             depart_uv_ang_rad + PI
