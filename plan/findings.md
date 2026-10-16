@@ -5616,11 +5616,11 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 
 Builds on #121 (`topology.proto_topology_p3`) and #150 (`intersect.curve_class_p5`), both
-merged as-is. After the maintainer review (follow-up below): 827 cases (8 upstream-derived
-fixtures, 19 edge cases built in code, 800 generated two-B-rep scripts): 642 pass bit for
-bit (`max_rel_err 0`), 0 fail, 185 deferred, 0 cases where both sides reject the script;
-`--perturb` SENSITIVE 642/642. (Before the review: 819 cases, 679 "passes" of which 211
-compared nothing, 140 deferred.)
+merged as-is. After the maintainer review and the swarm pre-review (follow-ups below): 827
+cases (8 upstream-derived fixtures, 19 edge cases built in code, 800 generated two-B-rep
+scripts): 653 pass bit for bit (`max_rel_err 0`), 0 fail, 174 deferred, 3 cases where both
+sides reject the script (cut at op 0); `--perturb` SENSITIVE 653/653. (Before the reviews:
+819 cases, 679 "passes" of which 211 compared nothing, 140 deferred.)
 
 - **Scripts on two real B-reps.** The shim builds the primary and the other `SmBrep` with
   the `sc_topology_fixture.h` blocks (`.smb` files, a wire edge, a face from a surface, the
@@ -5796,7 +5796,7 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   an error on both sides and `cases_both_errored` counts it (the real-pass count of the
   PR body is passed minus both-errored); a few passes compare only a `-2` guard marker
   (`Relate` of a null). `SetBreps` is generated now (4% of ops), so the null-B-rep guard
-  is exercised by the difftest. Final numbers: FINAL_NUMBERS.
+  is exercised by the difftest. Final numbers: `PARTIAL boolean.topology_intersector_p1 cases=827 passed=653 failed=0 deferred=174 max_rel_err=0e0 blocked_by=query.face_p1(7),topology.brep_p1(74),topology.face_p2(82),topology.face_p4(11)`, `SENSITIVE boolean.topology_intersector_p1 perturbed=653 detected=653 unperturbed=0 deferred=174`, `cases_both_errored` 3 (scripts cut at op 0), 32 of the 653 passes compare one refused op's status only; real-value comparisons 618.
 
 ## intersect.curve_class_p5: independent port
 
