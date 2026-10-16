@@ -245,7 +245,8 @@ fn classified_curve_intervals<O>(
         ti: None,
     };
     let _classification = CurveClassification::with_curve(kernel, &init)?;
-    // UNPORTED(query.face_p2): SmFace::CurveOnClassify
+    // UNPORTED(query.face_p2): SmFace::CurveOnClassify -- the face is an opaque handle `O` with no
+    // Brep (as for PointClassify in topology_solver::p1, plan/findings.md query.face_p2)
     Err(SolidError::unported(
         "SmFace::CurveOnClassify",
         "query.face_p2",

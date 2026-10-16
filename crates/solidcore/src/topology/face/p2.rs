@@ -87,8 +87,8 @@
 //! - **`CreateCurvesByTrimming`** drops its unused `bForceUVClassify` argument; the
 //!   output arrays are asked for with `want_3d` / `want_uv`.
 //! - **Unported callees.** `sm_FaceClassifyUVLine` (`query.face_p3`),
-//!   `SmFace::CurveOnClassify` (`query.face_p2`), `SmCurveClassification::ReSet` in the
-//!   constructor of a curve (`intersect.curve_class_p2`), the face member
+//!   `SmCurveClassification::ReSet` in the constructor of a curve
+//!   (`intersect.curve_class_p2`; `SmFace::CurveOnClassify` follows it), the face member
 //!   `GetUpwardFaceuse` of an opaque handle in `SmCurveInterval::GetIvlBound_EdgeuseObj`,
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve`
@@ -116,6 +116,7 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::p1::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType};
 use crate::nurbs::knots::Side;
+use crate::query::face::p2::{curve_on_classify, CurveOnClassifyObjects};
 use crate::surface::surface::p1::map_to_2d;
 use crate::surface::surface::p7::approx_derivative_lengths;
 use crate::surface::surface::{Surface, SurfaceKind};
@@ -376,12 +377,38 @@ fn face_classify_uv_line(
     ))
 }
 
+/// The handles `SmFace::CurveOnClassify` stores for this face's classifications: the face,
+/// its surface and the classified curve are [`StubHandle`]s; the curve behind one is
+/// `curve`.
+struct FaceClassifyObjects<'c> {
+    /// The classified curve.
+    curve: &'c Curve,
+}
+
+impl CurveOnClassifyObjects<StubHandle> for FaceClassifyObjects<'_> {
+    fn face(&self, _f: FaceId) -> StubHandle {
+        StubHandle
+    }
+    fn surface(&self, _f: FaceId) -> Option<StubHandle> {
+        Some(StubHandle)
+    }
+    fn curve(&self, _curve: StubHandle) -> Option<&Curve> {
+        Some(self.curve)
+    }
+    fn loop_id(&self, _tgt_loop: StubHandle) -> Option<LoopId> {
+        None
+    }
+}
+
 /// `SmCurveClassification(curve, curve->GetNaturalInterval(), uv_curve, tol, data_size,
 /// data, FALSE, TRUE, surface)` (the curve, UV curve and surface are this face's, behind
 /// [`StubHandle`]), then `SetDoingCrossHatch(TRUE)` when `cross_hatch`, followed by
-/// `SmFace::CurveOnClassify` of a face.
+/// `SER(CurveOnClassify(TRUE, classification))` of face `f`: the intervals.
+#[allow(clippy::too_many_arguments)]
 fn classify_curve_on_face(
     k: &Kernel,
+    b: &Brep,
+    f: FaceId,
     curve: &Curve,
     with_uv_curve: bool,
     tol: f64,
@@ -401,14 +428,24 @@ fn classify_curve_on_face(
         uv_curve2: None,
         ti: None,
     };
-    let _classification = CurveClassification::with_curve(k, &init)?;
-    // (SetDoingCrossHatch(TRUE) when cross_hatch: an inline setter, not ported yet)
+    let mut classification = CurveClassification::with_curve(k, &init)?;
+    // SetDoingCrossHatch(TRUE) when cross_hatch: an inline setter part 1 does not expose;
+    // unreachable until the constructor's ReSet (intersect.curve_class_p2) is ported
     let _ = cross_hatch;
-    // UNPORTED(query.face_p2): SmFace::CurveOnClassify
-    Err(SolidError::unported(
-        "SmFace::CurveOnClassify",
-        "query.face_p2",
-    ))
+    let objects = FaceClassifyObjects { curve };
+    // bHasBigGaps, bDoCheck3d: FALSE; bUVSpaceOkay: TRUE (the defaults)
+    curve_on_classify(
+        k,
+        b,
+        f,
+        &objects,
+        true,
+        &mut classification,
+        false,
+        false,
+        true,
+    )?;
+    Ok(classification.intervals().to_vec())
 }
 
 /// `SmFace::CalculateUVDomainFromUVTrimCurves(rTrimUVDomain)`.
@@ -955,7 +992,7 @@ pub fn points_in_face(
             // classify the isoParameter UVTrimCurve against the face
             let tol = face.tolerance;
             let crv = Curve::from(uv_curve.clone());
-            let intervals = classify_curve_on_face(k, &crv, true, tol, 10, true)?;
+            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 10, true)?;
             if intervals
                 .iter()
                 .any(|ivl| ivl.mid.point_class() == PointClassType::Face)
@@ -1560,7 +1597,7 @@ pub fn create_curves_by_trimming(
             }
 
             // classify the UVCurve against the face
-            let intervals = classify_curve_on_face(k, curve, true, tol_uv, 20, false)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, true, tol_uv, 20, false)?;
 
             // for every curve classification
             for ivl in &intervals {
@@ -1619,7 +1656,7 @@ pub fn create_curves_by_trimming(
             }
 
             // Classify the curve against the face
-            let intervals = classify_curve_on_face(k, curve, false, tol_3d, 20, false)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, false, tol_3d, 20, false)?;
 
             for ivl in &intervals {
                 if ivl.mid.point_class() == PointClassType::Face
