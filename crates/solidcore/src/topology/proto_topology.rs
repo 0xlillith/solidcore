@@ -9,6 +9,7 @@
 //! [`p1`].
 
 pub mod p1;
+pub mod p2;
 pub mod p3;
 
 pub use p1::{
@@ -16,3 +17,4 @@ pub use p1::{
     ProtoFaceId, ProtoGeometry, ProtoTopologyManager, ProtoVertex, ProtoVertexId, VertexDefId,
     VertexDefinition,
 };
+pub use p2::ProtoBrep;

@@ -1337,6 +1337,11 @@ impl ProtoVertex {
         self.tol
     }
 
+    /// Sets the raw tolerance `m_dTol` (the writes of `AddVertexDefinition`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
+    }
+
     /// `GetNumVertexDefinitions`.
     #[must_use]
     pub fn num_vertex_definitions(&self) -> usize {
@@ -1451,6 +1456,11 @@ impl ProtoEdge {
     #[must_use]
     pub const fn raw_tolerance(&self) -> f64 {
         self.tol
+    }
+
+    /// Sets the raw tolerance `m_dTol` (the write of `CombineProtoEdge`).
+    pub fn set_raw_tolerance(&mut self, tol: f64) {
+        self.tol = tol;
     }
 
     /// The start proto vertex (`GetStartProtoVertex`).
