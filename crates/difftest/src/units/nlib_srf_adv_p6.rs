@@ -34,6 +34,7 @@ use solidcore_ffi::FfiError;
 
 use crate::case::CaseContext;
 use crate::runner::default_cases;
+use crate::util::{flag, v3};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -267,14 +268,6 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
 
 // ---- C++ side -----------------------------------------------------------------------
 
-fn flag(b: bool) -> f64 {
-    if b {
-        1.0
-    } else {
-        0.0
-    }
-}
-
 /// Upstream's `der` array has one entry per curve; missing trailing entries are NULL.
 fn der_entry(der: &[Option<CrvIn>], i: usize) -> Option<&CrvIn> {
     der.get(i).and_then(Option::as_ref)
@@ -364,10 +357,6 @@ fn dump_crv(o: &mut Vec<f64>, c: &Curve) {
         o.extend_from_slice(&pw.to_array());
     }
     o.extend_from_slice(c.knots());
-}
-
-fn v3(a: [f64; 3]) -> Vec3 {
-    Vec3::new(a[0], a[1], a[2])
 }
 
 fn rust_flat(i: &Inputs) -> Result<Vec<f64>, HarnessError> {

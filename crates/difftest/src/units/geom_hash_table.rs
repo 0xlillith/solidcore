@@ -32,6 +32,7 @@ use solidcore_ffi::units::geom_hash_table as ffi;
 
 use crate::case::CaseContext;
 use crate::runner::default_cases;
+use crate::util::v3;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -120,10 +121,6 @@ enum Inputs {
 
 fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
-}
-
-fn v3(p: P3) -> Vec3 {
-    Vec3::new(p[0], p[1], p[2])
 }
 
 fn put_ext(o: &mut Vec<f64>, e: &Extent3d) {

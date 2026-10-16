@@ -23,6 +23,7 @@ use solidcore_ffi::FfiError;
 
 use crate::case::CaseContext;
 use crate::runner::default_cases;
+use crate::util::v3;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -229,10 +230,6 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
 }
 
 // ---- Rust side --------------------------------------------------------------------
-
-fn v3(a: [f64; 3]) -> Vec3 {
-    Vec3::new(a[0], a[1], a[2])
-}
 
 fn arc(a: &CircIn) -> Arc {
     Arc {
