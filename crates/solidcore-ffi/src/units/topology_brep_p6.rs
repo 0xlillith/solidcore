@@ -27,9 +27,19 @@ pub struct Request {
 mod sys {
     extern "C" {
         pub fn sc_topology_brep_p6_eval(
-            op: i32, path: *const std::ffi::c_char, input: *const f64, n: i64,
-            seed: i64, indices: *const i64, count: i64, repeat: i32,
-            lock_mask: i32, flags: i32, out: *mut f64, cap: i64, len: *mut i64,
+            op: i32,
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            n: i64,
+            seed: i64,
+            indices: *const i64,
+            count: i64,
+            repeat: i32,
+            lock_mask: i32,
+            flags: i32,
+            out: *mut f64,
+            cap: i64,
+            len: *mut i64,
         ) -> i32;
     }
 }
@@ -48,15 +58,21 @@ pub fn eval(path: &str, input: &[f64], request: &Request) -> Result<Vec<f64>, Ff
         || !(1..=2).contains(&request.repeat)
         || ![0, 1, 2, 4, 8, 16].contains(&request.lock_mask)
         || !(0..=31).contains(&request.flags)
-        || request.indices.len() > 64
+        || u32::try_from(request.indices.len()).is_err()
         || (request.op != 1 && !request.indices.is_empty())
-    { return Err(invalid()); }
+    {
+        return Err(invalid());
+    }
     let fixture = export(path, input)?;
     if let Some(c) = counts(&fixture.graph) {
         if request.op == 0 && (request.seed < 0 || request.seed as usize >= c[2]) {
             return Err(invalid());
         }
-        if request.indices.iter().any(|i| *i < 0 || *i as usize >= c[7]) {
+        if request
+            .indices
+            .iter()
+            .any(|i| *i < 0 || *i as usize >= c[7])
+        {
             return Err(invalid());
         }
     }
@@ -67,10 +83,19 @@ pub fn eval(path: &str, input: &[f64], request: &Request) -> Result<Vec<f64>, Ff
         // buffers remain live for the call; native objects never cross FFI.
         unsafe {
             sys::sc_topology_brep_p6_eval(
-                request.op, path.as_ptr(), input.as_ptr(), input.len() as i64,
-                request.seed, request.indices.as_ptr(), request.indices.len() as i64,
-                request.repeat, request.lock_mask, request.flags,
-                buffer.as_mut_ptr(), buffer.len() as i64, &raw mut *len,
+                request.op,
+                path.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                request.seed,
+                request.indices.as_ptr(),
+                request.indices.len() as i64,
+                request.repeat,
+                request.lock_mask,
+                request.flags,
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
             )
         }
     })
@@ -81,20 +106,75 @@ mod tests {
     use super::*;
 
     #[test]
-    fn rejects_selectors_flags_and_counts_before_native_execution() {
-        let base = Request { op: 1, seed: 0, indices: vec![], repeat: 1, lock_mask: 0, flags: 2 };
+    fn rejects_selectors_flags_and_counts_before_native_operation() {
+        let base = Request {
+            op: 1,
+            seed: 0,
+            indices: vec![],
+            repeat: 1,
+            lock_mask: 0,
+            flags: 2,
+        };
         for request in [
-            Request { indices: vec![-1], ..base.clone() },
-            Request { indices: vec![i64::MAX], ..base.clone() },
-            Request { indices: vec![0; 65], ..base.clone() },
-            Request { op: 0, seed: -1, ..base.clone() },
-            Request { op: 0, seed: i64::MAX, ..base.clone() },
-            Request { repeat: 0, ..base.clone() },
-            Request { repeat: 3, ..base.clone() },
-            Request { lock_mask: 31, ..base.clone() },
+            Request {
+                indices: vec![-1],
+                ..base.clone()
+            },
+            Request {
+                indices: vec![i64::MAX],
+                ..base.clone()
+            },
+            Request {
+                op: 0,
+                indices: vec![0],
+                ..base.clone()
+            },
+            Request {
+                op: 0,
+                seed: -1,
+                ..base.clone()
+            },
+            Request {
+                op: 0,
+                seed: i64::MAX,
+                ..base.clone()
+            },
+            Request {
+                repeat: 0,
+                ..base.clone()
+            },
+            Request {
+                repeat: 3,
+                ..base.clone()
+            },
+            Request {
+                lock_mask: 31,
+                ..base.clone()
+            },
             Request { flags: 32, ..base },
         ] {
-            assert!(matches!(eval("", &[3.0, 0.0, 0.0], &request), Err(FfiError::InvalidArgument(_))));
+            assert!(
+                matches!(
+                    eval("", &[3.0, 0.0, 0.0], &request),
+                    Err(FfiError::InvalidArgument(_))
+                ),
+                "{request:?}"
+            );
         }
+    }
+
+    #[test]
+    fn accepts_longer_valid_copy_lists_and_duplicate_edges() {
+        let request = Request {
+            op: 1,
+            seed: 0,
+            indices: vec![0; 65],
+            repeat: 1,
+            lock_mask: 0,
+            flags: 2,
+        };
+        let result = eval("", &[3.0, 0.0, 0.0], &request).unwrap();
+        assert_eq!(result.first(), Some(&0.0));
+        assert_eq!(result.get(1), Some(&65.0));
     }
 }

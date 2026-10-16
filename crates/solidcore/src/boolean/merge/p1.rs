@@ -23,10 +23,10 @@
 //! borrowed explicitly; edge/vertex mate storage is co-ported in
 //! `boolean::topology_intersector::p1` and shared mutably with `merge_p5`. B-rep
 //! edge/shell traversal waits for `topology.brep_p1`; arena allocation order does
-//! not substitute for native owning-list order. Region propagation takes refs and
-//! their `IsVoid` results and source-list callback handles, because arena regions
-//! do not yet carry shell state.
-//! Missing topology mutations, region `IsVoid` and point classification return
+//! not substitute for native owning-list order. Region propagation takes refs,
+//! their `IsVoid` results, source-list callback handles and a borrowed lookup of
+//! the actual region state for attribute handlers.
+//! Missing topology mutations and point classification return
 //! Unported at the first call reached. The temporary transform waits on B-rep
 //! bounding boxes before any mutation; no translation is faked. Destruction is
 //! Rust ownership. There is no input-dependent recursion.
@@ -514,11 +514,15 @@ pub struct RegionPropagation {
 /// source-list identities for the context callbacks.
 /// Void regions lose propagating attributes; solid regions with bookkeeping
 /// notify once, then every processed region loses its temporary merge attribute.
+/// `region_lookup` resolves the actual caller-owned topology for region attribute
+/// handlers, including color propagation; it must be provided when a handler
+/// queries a region. No region flags are inferred from attributes.
 pub fn propagate_other_src_region_attribs(
     regions: &[RegionPropagation],
     attributes: &mut AttributeStore,
     mut context: Option<&mut Context>,
     operation: BooleanOperation,
+    region_lookup: Option<&dyn crate::topology::shell::RegionLookup>,
 ) -> Result<()> {
     for &RegionPropagation {
         region,
@@ -547,7 +551,7 @@ pub fn propagate_other_src_region_attribs(
                 })?;
             data.operation = operation as i32;
             let [this_sources, other_sources] = source_lists;
-            a_object::notify(
+            a_object::notify_with_regions(
                 attributes,
                 context.as_deref_mut(),
                 NotifyOperation::RegPropagation,
@@ -555,6 +559,7 @@ pub fn propagate_other_src_region_attribs(
                 Some(this_sources),
                 Some(other_sources),
                 Some(region),
+                region_lookup,
             )?;
         }
         if let Some(h) = merge {
@@ -657,6 +662,7 @@ mod tests {
             &mut attrs,
             None,
             BooleanOperation::Union,
+            None,
         )
         .unwrap();
         assert_eq!(attrs.attributes(r.key), vec![long]);

@@ -8,8 +8,8 @@ SC_EXPORT int32_t sc_topology_brep_p6_eval(
     int64_t seed, const int64_t* indices, int64_t count, int32_t repeat,
     int32_t lock_mask, int32_t flags, double* out, int64_t cap, int64_t* len)
 {
-    if (!path || !input || !len || n < 1 || op < 0 || op > 2 || count < 0 || count > 64 ||
-        (count && !indices) || repeat < 1 || repeat > 2 || flags < 0 || flags > 31 ||
+    if (!path || !input || !len || n < 1 || op < 0 || op > 2 || count < 0 || static_cast<uint64_t>(count) > UINT32_MAX ||
+        (count && !indices) || (op != 1 && count != 0) || repeat < 1 || repeat > 2 || flags < 0 || flags > 31 ||
         (lock_mask && lock_mask != 1 && lock_mask != 2 && lock_mask != 4 && lock_mask != 8 && lock_mask != 16))
         return SC_ERR_ARG;
     SC_TRY

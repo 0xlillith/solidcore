@@ -15,7 +15,8 @@
 //! (`brep_p2`). The dependent remainder of each algorithm is deferred, rather than
 //! approximating construction, attributes, radial sectors, trims or ray casting.
 //! The shell implementation comes from PR #154. Surface owner identities are
-//! supplied by the caller, independently of arena indices. There is no recursion;
+//! supplied by the caller, independently of arena indices. A null trimmed copy
+//! returns a null-pointer error instead of the upstream dereference. There is no recursion;
 //! the traverser uses its bounded, iterative implementation.
 
 use crate::error::{Result, SolidError};

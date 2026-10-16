@@ -1,6 +1,6 @@
 # solidcore status
 
-Last updated: 2026-10-16. Integrating topology.shell (PR #154) as a dependency of topology.brep_p6 (PR #169). Per-unit state and evidence are in plan/modules.toml and reports/difftest/.
+Last updated: 2026-10-17, PR #169 (`topology.brep_p6` partial: 394 native comparisons pass, 48 dependency deferrals, 0 failures; sensitivity 394/394). Built on the existing `topology.shell` PR #154. The healer back-edge is wired, and region-attribute propagation passes the caller topology lookup. Per-unit evidence is in `plan/modules.toml` and `reports/difftest/`.
 
 
 ## Integration update (2026-10-15, PR #119)

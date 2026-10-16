@@ -5925,3 +5925,48 @@ independent p6 integration.
   `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
   relation state must become mutable and preserve updates for later iterations;
   this integration requirement is also recorded in the module's Deviations.
+
+## topology.brep_p6 — dependency boundaries and coverage (PR #169)
+
+This port builds on the existing `topology.shell` PR #154, including its real
+region/shell records and mutation helpers. It reuses the traverser's co-ported
+`SmFace::HasLaminaEdge`; it does not re-port the open face or B-rep dependencies.
+
+The current gate is partial. `CopyEdges` trims the first source edge in the
+**destination** context, then reaches `CreateWireEdgeFromCurve` (`brep_p5`).
+`MakeFaceTopology` checks the region/surface and ordered input loops, allocates
+its partial face/use records, and reaches the active `SM_USE_OLDTOL`
+`SmFace::SetTolerance` call (`face_p3`) before inserting face uses or building
+loops, radial sectors or trims. `TestClosureSplitRegion` handles separated mates,
+lamina edges and open traversals; a closed traversal creates a solid region and
+shell, transfers the connected face uses in native order and reaches
+`SmBrep::Notify` (`brep_p2`). The dependent remainder of those algorithms remains
+deferred. No completed copy, successful face construction, region split, radial
+sector recovery, trim generation or ray classification is certified here.
+
+There are 426 explicit fixtures plus 16 fixed-seed generated inputs. Of the
+fixtures, 369 compare successful no-split closure paths, two compare empty copy
+paths and 16 compare actual null-surface operation errors and reset outputs.
+The other 39 fixtures and nine generated inputs defer at actual missing calls;
+seven generated inputs pass. Parity includes statuses, optional output reset,
+face-use shell identities, all five face-use mark classes, context mark
+increments and lock state, including held caller locks and repeated calls.
+Geometry inputs include 15 upstream `.smb` B-reps, analytic planes, actual curved
+edges and scaled B-spline faces. The large-scale B-splines keep their UV domain
+inside the natural domain rather than asking the plane fixture builder to accept
+an invalid domain. There are no absolute floors. Nonempty copies and non-null
+face construction are deferred, not counted as geometric parity passes.
+
+Rust regressions check extreme loop counts without allocation from those counts,
+and release of the operation's mark lock after a dependency error while preserving
+the caller's lock and the already performed shell mutation. Native FFI tests
+exercise invalid selectors/flags and accept a valid 65-entry duplicate-edge copy
+list; a fixture-size policy must not reject an otherwise safe copy list.
+
+Integrating shell state with the newer `boolean.merge_p1` exposed five existing
+region-color fixtures that lacked a borrowed `RegionLookup`: C++ succeeded while
+Rust returned `InvalidInput("region lookup context required")`. Region propagation
+now forwards the caller's lookup into `a_object::notify_with_regions`. The runner
+maps its native callback keys to the actual imported regions in the two operand
+arenas and applies the same `SetIsVoid` as C++. It does not infer region state
+from attributes. These are integration fixes, not upstream defects.
