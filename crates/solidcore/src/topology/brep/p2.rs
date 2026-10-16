@@ -32,7 +32,7 @@
 use std::collections::BTreeMap;
 
 use crate::curve::curve::{p8::CurveIntersectOptions, Curve, CurveKind};
-use crate::error::{EntityRef, Result, SolidError};
+use crate::error::{EntityRef, Result, SolidError, SM_ERR};
 use crate::geom::a_object::{self, BREP_TYPE};
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::geom::extent1d::Extent1d;
@@ -57,11 +57,13 @@ use crate::query::edge as qedge;
 use crate::query::face::p2::{curve_on_classify, CurveOnClassifyObjects};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::trim_srf_cache::TrimSrfCache;
+use crate::topology::brep::p1;
 use crate::topology::brep_cache::{self, BrepObjects, CacheObject, CacheSource};
 use crate::topology::edge::{self, AttributeFilter, NotifyEnv, SetCurveOptions};
 use crate::topology::edgeuse::p1::{self as eu1, UvTrimCurveArg};
 use crate::topology::edgeuse::p2 as eu2;
 use crate::topology::face::p2 as face2;
+use crate::topology::topology_traverser::Marks;
 use crate::topology::vertexuse as vu1;
 use crate::topology::{
     vertex, Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, FaceId, ObjectHandle, RegionId,
@@ -146,9 +148,9 @@ pub fn is_manifold_solid(b: &Brep) -> Result<bool> {
 ///
 /// [`SolidError::Unported`] for the B-rep lists (`topology.brep_p1`);
 /// [`SolidError::NotFound`] for a dangling id.
-pub fn is_sheet(b: &Brep) -> Result<bool> {
+pub fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
     // sheets have just one shell
-    if brep_shells(b)?.len() != 1 {
+    if brep_shells(k, b)?.len() != 1 {
         return Ok(false);
     }
 
@@ -180,9 +182,9 @@ pub fn is_sheet(b: &Brep) -> Result<bool> {
 /// [`SolidError::InvalidInput`] where upstream dereferences null (a manifold edge's
 /// primary edge use, its radial, or either face use missing);
 /// [`SolidError::NotFound`] for a dangling id.
-pub fn is_oriented_sheet(b: &Brep) -> Result<bool> {
+pub fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
     // sheets have just one shell
-    if brep_shells(b)?.len() != 1 {
+    if brep_shells(k, b)?.len() != 1 {
         return Ok(false);
     }
 
@@ -404,7 +406,7 @@ pub fn check_and_fix_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
 ///
 /// [`SolidError::Unported`] for `SmBrep::GetFaces` and `sm_SwapFaceUV`
 /// (`topology.brep_p1`).
-pub fn swap_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
+pub fn swap_uv(k: &mut Kernel, b: &mut Brep, marks: &mut Marks) -> Result<()> {
     let faces = brep_faces(b)?;
 
     // increment and lock an unlocked mark
@@ -415,7 +417,7 @@ pub fn swap_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
     let mut res = Ok(());
     for f in faces {
         // swap the face's orientation - watch for composites
-        if let Err(e) = swap_face_uv(k, b, f, mark) {
+        if let Err(e) = p1::swap_face_uv(k, b, marks, f, mark) {
             res = Err(e);
             break;
         }
@@ -426,70 +428,38 @@ pub fn swap_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
 
 // ---- unported callees ---------------------------------------------------------------------
 
-/// `SmBrep::GetEdges` (unit `topology.brep_p1`).
+/// `SmBrep::GetEdges`.
 fn brep_edges(b: &Brep) -> Result<Vec<EdgeId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+    p1::edges(b, None)
 }
 
-/// `SmBrep::GetFaces` (unit `topology.brep_p1`).
+/// `SmBrep::GetFaces`.
 fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+    p1::faces(b, None)
 }
 
-/// `SmBrep::GetVertices(.., pOptAttributeId)` (unit `topology.brep_p1`).
+/// `SmBrep::GetVertices(.., pOptAttributeId)`.
 fn brep_vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<VertexId>> {
-    let _ = (b, attribute);
-    // UNPORTED(topology.brep_p1): SmBrep::GetVertices
-    Err(SolidError::unported(
-        "SmBrep::GetVertices",
-        "topology.brep_p1",
-    ))
+    p1::vertices(b, attribute)
 }
 
-/// `SmBrep::GetRegions` (unit `topology.brep_p1`).
+/// `SmBrep::GetRegions`.
 fn brep_regions(b: &Brep) -> Result<Vec<RegionId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetRegions
-    Err(SolidError::unported(
-        "SmBrep::GetRegions",
-        "topology.brep_p1",
-    ))
+    p1::regions(b, None)
 }
 
-/// `SmBrep::GetShells` (unit `topology.brep_p1`).
-fn brep_shells(b: &Brep) -> Result<Vec<ShellId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetShells
-    Err(SolidError::unported(
-        "SmBrep::GetShells",
-        "topology.brep_p1",
-    ))
+/// `SmBrep::GetShells`.
+fn brep_shells(k: &mut Kernel, b: &Brep) -> Result<Vec<ShellId>> {
+    p1::shells(k, b, None)
 }
 
-/// `sm_CheckUVTrimCurve` (unit `topology.brep_p1`): `true` for `SM_SUCCESS`.
+/// `sm_CheckUVTrimCurve`: `true` for `SM_SUCCESS`, `false` for its `SM_ERR`.
 fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<bool> {
-    let _ = (k, b, eu);
-    // UNPORTED(topology.brep_p1): sm_CheckUVTrimCurve
-    Err(SolidError::unported(
-        "sm_CheckUVTrimCurve",
-        "topology.brep_p1",
-    ))
-}
-
-/// `sm_SwapFaceUV` (unit `topology.brep_p1`).
-fn swap_face_uv(
-    k: &mut Kernel,
-    b: &mut Brep,
-    f: FaceId,
-    mark: crate::geom::context::MarkType,
-) -> Result<()> {
-    let _ = (k, b, f, mark);
-    // UNPORTED(topology.brep_p1): sm_SwapFaceUV
-    Err(SolidError::unported("sm_SwapFaceUV", "topology.brep_p1"))
+    match p1::check_uv_trim_curve(k, b, eu) {
+        Ok(()) => Ok(true),
+        Err(SolidError::Upstream { code: SM_ERR, .. }) => Ok(false),
+        Err(e) => Err(e),
+    }
 }
 
 /// `SmBrep::CalculateBoundingBox(box)` with defaults (unit `query.brep`).
@@ -1009,7 +979,8 @@ pub fn local_curve_sector(
         (PointClassType::Face, Some(EntityRef::Face(f))) => {
             // Just find the local sectoring of this one face.
             let uv_guess = hit.uv_param();
-            let (_dist, region) = find_sector_of_face(k, b, f, Some(uv_guess), test_pnt, test_dir)?;
+            let (_dist, region) =
+                p1::find_sector_of_face(k, b, f, Some(uv_guess), test_pnt, test_dir)?;
             Ok(Some(region))
         }
         (PointClassType::Edge, Some(EntityRef::Edge(e))) => {
@@ -1083,7 +1054,7 @@ pub fn local_curve_sector(
                     };
                     let region =
                         edgeuse_region(b, found)?.ok_or(null_deref("shell without region"))?;
-                    vote_for_region(&mut regions, &mut votes, region)?;
+                    p1::vote_for_region(&mut regions, &mut votes, region);
                 } else {
                     // when vertex DOES NOT connect to an edge
                     if vu1::is_loop_vertexuse(b, vu)? {
@@ -1095,15 +1066,15 @@ pub fn local_curve_sector(
                             .face
                             .ok_or(null_deref("face use without face"))?;
                         let (_dist, found) =
-                            find_sector_of_face(k, b, f, None, test_pnt, test_dir)?;
-                        vote_for_region(&mut regions, &mut votes, found)?;
+                            p1::find_sector_of_face(k, b, f, None, test_pnt, test_dir)?;
+                        p1::vote_for_region(&mut regions, &mut votes, found);
                     } else {
                         return Err(SolidError::sm_err(OP));
                     }
                 }
             }
 
-            find_highest_vote(&regions, &votes)
+            p1::find_highest_vote(&regions, &votes)
         }
         _ => Err(SolidError::sm_err(OP)),
     }
@@ -1182,9 +1153,9 @@ pub fn ray_fire(
     // when no intersections are found - set region = infiniteRegion
     let Some(first) = solutions.get(0) else {
         // But sometimes callers will set the infinite region to Null... [B111]
-        let region = match infinite_region(b)? {
+        let region = match b.infinite_region() {
             Some(r) => Some(r),
-            None => brep_regions(b)?.first().copied(),
+            None => b.region_list_head(),
         };
         intersection.set_class_object(PointClassType::Unknown, None);
         return Ok(RayFireResult {
@@ -1218,7 +1189,7 @@ pub fn ray_fire(
     // when ray solution distance is negative (the region is overwritten below)
     let mut region = None;
     if best.start.solution_value < -EFF_ZERO {
-        region = infinite_region(b)?;
+        region = b.infinite_region();
         intersection.set_class_object(PointClassType::Unknown, None);
     }
 
@@ -1322,7 +1293,7 @@ pub fn replace_surface(
     let kept = match old {
         OldSurface::AddToDeletedList => {
             if let Some(s) = old_surface {
-                add_deleted_surface(b, s)?;
+                b.add_deleted_surface(s);
             }
             None
         }
@@ -1348,7 +1319,9 @@ fn region_or_infinite(b: &Brep, region: Option<RegionId>) -> Result<RegionId> {
             b.region(r)?;
             Ok(r)
         }
-        None => infinite_region(b)?.ok_or(null_deref("B-rep without infinite region")),
+        None => b
+            .infinite_region()
+            .ok_or(null_deref("B-rep without infinite region")),
     }
 }
 
@@ -1558,64 +1531,6 @@ fn shell_region(b: &Brep, s: ShellId) -> Result<Option<RegionId>> {
     Ok(b.shell(s)?.region)
 }
 
-/// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
-fn infinite_region(b: &Brep) -> Result<Option<RegionId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
-}
-
-/// `sm_FindSectorOfFace` (unit `topology.brep_p1`): `(distance, region)`.
-fn find_sector_of_face(
-    k: &Kernel,
-    b: &Brep,
-    f: FaceId,
-    uv_guess: Option<Point2>,
-    test_point: Point3,
-    test_dir: Vec3,
-) -> Result<(f64, RegionId)> {
-    let _ = (k, b, f, uv_guess, test_point, test_dir);
-    // UNPORTED(topology.brep_p1): sm_FindSectorOfFace
-    Err(SolidError::unported(
-        "sm_FindSectorOfFace",
-        "topology.brep_p1",
-    ))
-}
-
-/// `sm_VoteForRegion` (unit `topology.brep_p1`).
-fn vote_for_region(
-    regions: &mut Vec<RegionId>,
-    votes: &mut Vec<u64>,
-    region: RegionId,
-) -> Result<()> {
-    let _ = (regions, votes, region);
-    // UNPORTED(topology.brep_p1): sm_VoteForRegion
-    Err(SolidError::unported("sm_VoteForRegion", "topology.brep_p1"))
-}
-
-/// `sm_FindHighestVote` (unit `topology.brep_p1`).
-fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<RegionId>> {
-    let _ = (regions, votes);
-    // UNPORTED(topology.brep_p1): sm_FindHighestVote
-    Err(SolidError::unported(
-        "sm_FindHighestVote",
-        "topology.brep_p1",
-    ))
-}
-
-/// `SmBrep::AddDeletedSurface` (unit `topology.brep_p1`).
-fn add_deleted_surface(b: &mut Brep, s: Surface) -> Result<()> {
-    let _ = (b, s);
-    // UNPORTED(topology.brep_p1): SmBrep::AddDeletedSurface
-    Err(SolidError::unported(
-        "SmBrep::AddDeletedSurface",
-        "topology.brep_p1",
-    ))
-}
-
 /// `SmFace::Notify(operation, face, brep, NULL)` (unit `topology.face_p3`).
 fn face_notify(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Result<()> {
     let _ = (b, f, operation);
@@ -1804,7 +1719,7 @@ pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     options: MergeCurvesOptions<O>,
 ) -> Result<MergedCurves> {
     // check state - m_bEditingEnabled must be on
-    if !editing_enabled(b)? {
+    if !b.editing_enabled() {
         return Err(SolidError::sm_err(OP));
     }
 
@@ -1985,16 +1900,6 @@ fn merge_intervals<O>(
     ))
 }
 
-/// `SmBrep::m_bEditingEnabled` (co-ported by unit `topology.brep_p1`).
-fn editing_enabled(b: &Brep) -> Result<bool> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::m_bEditingEnabled
-    Err(SolidError::unported(
-        "SmBrep::GetEditingEnabled",
-        "topology.brep_p1",
-    ))
-}
-
 // ---- mating a lamina edge -----------------------------------------------------------------
 
 /// The B-spline of a curve (`SM_CAST_PTR(SmBSplineCurve, ..)`, `NER` on failure).
@@ -2089,7 +1994,7 @@ pub fn mate_lamina_edge_to_surface(
 ) -> Result<()> {
     let _ = uv_curve_extension_factor;
     // check state - m_bEditingEnabled must be on
-    if !editing_enabled(b)? {
+    if !b.editing_enabled() {
         return Err(SolidError::sm_err(OP));
     }
 
