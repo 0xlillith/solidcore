@@ -26,7 +26,7 @@ use solidcore_ffi::units::intersect_curve_class_p6 as ffi;
 pub struct Runner;
 
 #[derive(Clone, Serialize, Deserialize)]
-struct Input {
+struct Fixture {
     op: i32,
     kind: i32,
     scale: f64,
@@ -46,7 +46,8 @@ impl ClassObject for Handle {
             2 => ClassObjectKind::Face,
             3 => ClassObjectKind::Edge,
             4 => ClassObjectKind::Vertex,
-            _ => ClassObjectKind::Region,
+            5 => ClassObjectKind::Region,
+            _ => ClassObjectKind::Other,
         }
     }
 }
@@ -65,8 +66,8 @@ impl ClassGeometry<Handle> for Geometry {
         None
     }
 }
-fn h(e: impl ToString) -> HarnessError {
-    HarnessError::new(e.to_string())
+fn h(e: impl Into<String>) -> HarnessError {
+    HarnessError::new(e)
 }
 fn geometry(k: &Kernel, kind: i32, scale: f64) -> Result<Geometry, HarnessError> {
     let domain = Extent1d::from_min_max(0.0, 1.0);
@@ -90,7 +91,7 @@ fn geometry(k: &Kernel, kind: i32, scale: f64) -> Result<Geometry, HarnessError>
                 scale,
                 &EllipseOptions::default(),
             )
-            .map_err(h)?,
+            .map_err(|e| h(e.to_string()))?,
         ),
         2 => Curve::from(
             Ellipse::new(
@@ -103,10 +104,10 @@ fn geometry(k: &Kernel, kind: i32, scale: f64) -> Result<Geometry, HarnessError>
                 scale * 0.5,
                 &EllipseOptions::default(),
             )
-            .map_err(h)?,
+            .map_err(|e| h(e.to_string()))?,
         ),
         _ => {
-            let mut c = allocate_nurb_curve(2, 2, 5).map_err(h)?;
+            let mut c = allocate_nurb_curve(2, 2, 5).map_err(|e| h(e.to_string()))?;
             for (i, p) in c.cpts_mut().iter_mut().enumerate() {
                 p.x = if kind == 4 { scale } else { scale * i as f64 };
                 p.y = if kind == 4 {
@@ -175,9 +176,9 @@ fn classification(
     let mut c = CurveClassification::new(k);
     c.set_curve(Some(Handle(1)), false);
     c.set_src_zone_tol_3d(tol);
-    c.set_size(k, p.len() / ffi::WIDTH).map_err(h)?;
-    for (i, p) in p.chunks_exact(ffi::WIDTH).enumerate() {
-        *c.at_mut(i).map_err(h)? = ivl(p, tol)?;
+    c.set_size(k, p.len() / ffi::WIDTH).map_err(|e| h(e.to_string()))?;
+    for (i, p) in p.as_chunks::<{ ffi::WIDTH }>().0.iter().enumerate() {
+        *c.at_mut(i).map_err(|e| h(e.to_string()))? = ivl(p, tol)?;
     }
     Ok(c)
 }
@@ -223,7 +224,7 @@ fn put_cc(
                 Ok(p) => out.extend([0.0, p.x, p.y, p.z]),
                 Err(e) => {
                     if e.is_unported() {
-                        return Err(h(e));
+                        return Err(h(e.to_string()));
                     }
                     out.push(status(&e));
                 }
@@ -254,9 +255,9 @@ fn record(bounds: [f64; 2], classes: [i32; 3], stored: bool) -> Vec<f64> {
     }
     p
 }
-fn base() -> Input {
+fn base() -> Fixture {
     let p = record([0.0, 1.0], [0, 0, 0], false);
-    Input {
+    Fixture {
         op: 0,
         kind: 0,
         scale: 1.0,
@@ -268,12 +269,12 @@ fn base() -> Input {
         input: p,
     }
 }
-fn add(v: &mut Vec<Case>, name: String, i: Input) -> Result<(), HarnessError> {
+fn add(v: &mut Vec<Case>, name: String, i: Fixture) -> Result<(), HarnessError> {
     v.push(Case {
         unit: "intersect.curve_class_p6".into(),
         name,
         source: CaseSource::Inline,
-        inputs: serde_json::to_value(i).map_err(h)?,
+        inputs: serde_json::to_value(i).map_err(|e| h(e.to_string()))?,
     });
     Ok(())
 }
@@ -282,24 +283,24 @@ impl UnitDiff for Runner {
         "intersect.curve_class_p6"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
-        let i: Input = case.parse()?;
+        let i: Fixture = case.parse()?;
         ffi::run(
             i.op, i.kind, i.scale, i.tol, i.flags, i.index, &i.a, &i.b, &i.input,
         )
         .map(|v| Output::new().values("out", v))
-        .map_err(h)
+        .map_err(|e| h(e.to_string()))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
-        let i: Input = case.parse()?;
+        let i: Fixture = case.parse()?;
         ffi::validate(
             i.op, i.kind, i.scale, i.tol, i.flags, i.index, &i.a, &i.b, &i.input,
         )
-        .map_err(h)?;
+        .map_err(|e| h(e.to_string()))?;
         let k = Kernel::default();
         let g = geometry(&k, i.kind, i.scale)?;
         let mut a = classification(&k, &i.a, i.tol)?;
         let mut b = classification(&k, &i.b, i.tol)?;
-        a.set_fillet_data((i.flags & 2 != 0).then_some(Handle(5)), i.flags & 2 != 0);
+        a.set_fillet_data((i.flags & 2 != 0).then_some(Handle(7)), i.flags & 2 != 0);
         let result = match i.op {
             0 => a
                 .insert_curve_interval(&k, &g, &ivl(&i.input, i.tol)?)
