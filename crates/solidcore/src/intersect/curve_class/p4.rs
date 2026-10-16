@@ -9,7 +9,6 @@
 //! |---------------------------------------------------------|--------------------------------------------------|
 //! | [`CurveClassification::with_curve`], [`ClassificationInit`] | `SmCurveClassification(cpCurve, crInterval, cpUVCurve, sSrcZoneTol3d, lOptDataSize, pOptBorrowedData, bIsCurveOwned, bIsCurveCurrent, cpSurface1, cpSurface2, cpUVCurve2, cpTI)` |
 //! | [`CurveClassification::get_loop_crossings`], [`LoopCrossings`] | `SmCurveClassification::GetLoopCrossings`  |
-//! | [`LoopCrossingFaceProps`], [`PROP_STAGE_2A`]            | the `SmFaceProps` members `GetLoopCrossings` reads (co-ported, unit `heal.face_props`) |
 //! | [`CurveClassification::ivl_bound_edgeuse_obj`]          | `SmCurveInterval::GetIvlBound_EdgeuseObj`        |
 //! | [`squeeze_out_smallest_interval`]                       | `sm_SqueezeOutSmallestInterval` (static)         |
 //!
@@ -31,10 +30,11 @@
 //!   intervals; it is resolved through `m_lPtClassifyIndx` exactly as
 //!   `GetPointClassifiesConnectedTo` set it (index 0: the first start, `i`: the end of
 //!   interval `i - 1`).
-//! - **Face properties.** `SmFaceProps` (unit `heal.face_props`, not ported) is reduced to
-//!   the members `GetLoopCrossings` reads, [`LoopCrossingFaceProps`]; `SetProps_Stage2` is
-//!   a stub. The tri-state `m_bClosedU` / `m_bClosedV` are booleans: they are only read
-//!   after `SetProps_Stage2` (or from a caller's stage-2 properties).
+//! - **Face properties.** `pOptFaceProps` is the real [`FaceProps`] (unit `heal.face_props`);
+//!   its `UNSURE` tri-states read as true, as `if(m_bClosedU)` does. `SetProps_Stage2`
+//!   needs a `Brep` and a face id, which the handle `O` of `loops[0]` does not carry, so
+//!   a call that has to compute stage 2 is [`SolidError::Unported`] (justified: see
+//!   `plan/findings.md`, `intersect.curve_class_p4`).
 //! - **Out-params.** `GetLoopCrossings` returns a [`LoopCrossings`] holding the three
 //!   output arrays; its two `SM_ERR` returns are `Ok` with [`LoopCrossings::sm_err`] set
 //!   and the arrays as upstream leaves them. The constructor returns the classification.
@@ -51,8 +51,7 @@
 //!   messages and the `SM_DEBUG_CODE` blocks (the release build compiles them out).
 //! - **Callees in units not ported yet** return [`SolidError::Unported`]:
 //!   `intersect.curve_class_p2` (`ReSet`, `ConnectIntervals`, `SmCurveInterval::GetMinUV`
-//!   / `GetMaxUV`), `intersect.curve_class_p7` (`GetPointClassifiesConnectedTo`) and
-//!   `heal.face_props` (`SmFaceProps::SetProps_Stage2`).
+//!   / `GetMaxUV`) and `intersect.curve_class_p7` (`GetPointClassifiesConnectedTo`).
 //! - **Recursion.** None.
 
 use crate::curve::curve::p2::Curve;
@@ -66,6 +65,7 @@ use crate::geom::tol::{
     are_same, eff_zero, is_degenerate_vec3, scaled_zero2, xsect_tol_3d_from_zones, zone_tol_3d,
     SmallTopoType, ANG_TOL_DEG,
 };
+use crate::heal::face_props::{FaceProps, LoopObject, PropStage, Tri, UNDEF_ULONG};
 use crate::intersect::curve_class::p1::{
     get_connected_touches, CrvDirOnFaceType, CurveClassification, IntervalPosition, TouchData,
 };
@@ -86,9 +86,6 @@ use crate::surface::surface::Surface;
 const OP_CROSS: &str = "intersect::curve_class::p4::CurveClassification::get_loop_crossings";
 const OP_BOUND: &str = "intersect::curve_class::p4::CurveClassification::ivl_bound_edgeuse_obj";
 const OP_SQUEEZE: &str = "intersect::curve_class::p4::squeeze_out_smallest_interval";
-
-/// `SM_PROPSTAGE_2a` (`SmFaceProps.h`): the stage `SetProps_Stage2` is in or past.
-pub const PROP_STAGE_2A: i32 = 3;
 
 /// `SM_2PI`.
 const TWO_PI: f64 = 2.0 * PI;
@@ -121,54 +118,6 @@ pub struct ClassificationInit<O> {
     pub uv_curve2: Option<O>,
     /// `cpTI`.
     pub ti: Option<O>,
-}
-
-/// The members of `SmFaceProps` that [`CurveClassification::get_loop_crossings`] reads
-/// (co-ported from unit `heal.face_props`).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct LoopCrossingFaceProps {
-    /// `m_ePropStage` (`SM_PROPSTAGE_0` = 0 after construction).
-    pub prop_stage: i32,
-    /// `m_lFaceIndx` (`None` = `SM_UNDEF_ULONG`).
-    pub face_index: Option<u64>,
-    /// `m_sZoneTol3d`.
-    pub zone_tol_3d: f64,
-    /// `m_sNaturalUVDomain`.
-    pub natural_uv_domain: Extent2d,
-    /// `m_bClosedU`.
-    pub closed_u: bool,
-    /// `m_bClosedV`.
-    pub closed_v: bool,
-    /// `m_lPoles`: `SS_NONE` or a mask of `SS_UMIN`, `SS_VMIN`, `SS_UMAX`, `SS_VMAX`.
-    pub poles: u32,
-    /// `m_lNoVertexPoles`: the poles without a vertex (same mask).
-    pub no_vertex_poles: u32,
-    /// `m_sPolePoints`: `[UMin, VMin, UMax, VMax]` poles (`UNDEF` when not set).
-    pub pole_points: [Point3; 4],
-}
-
-impl LoopCrossingFaceProps {
-    /// The properties of `SmFaceProps(cpContext)` before any stage is computed.
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            prop_stage: 0,
-            face_index: None,
-            zone_tol_3d: UNDEF_DOUBLE,
-            natural_uv_domain: Extent2d::new(),
-            closed_u: true,
-            closed_v: true,
-            poles: u32::MAX,
-            no_vertex_poles: u32::MAX,
-            pole_points: [Vec3::UNDEF; 4],
-        }
-    }
-}
-
-impl Default for LoopCrossingFaceProps {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 /// The outputs of [`CurveClassification::get_loop_crossings`].
@@ -285,13 +234,13 @@ fn point_classifies_connected_to<O: ClassObject>(
 }
 
 /// `SmFaceProps::SetProps_Stage2(face, faceIndex, SM_HO_ALL)`.
-fn set_props_stage_2<O: ClassObject>(
-    props: &mut LoopCrossingFaceProps,
+fn set_props_stage_2<O: LoopObject>(
+    props: &mut FaceProps<O>,
     face: Option<O>,
     face_index: u64,
 ) -> Result<()> {
     let _ = (props, face, face_index);
-    // UNPORTED(heal.face_props): SmFaceProps::SetProps_Stage2
+    // UNPORTED(heal.face_props): SmFaceProps::SetProps_Stage -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)2
     Err(SolidError::unported(
         "SmFaceProps::SetProps_Stage2",
         "heal.face_props",
@@ -301,14 +250,14 @@ fn set_props_stage_2<O: ClassObject>(
 /// `SmLoop::GetFace` (opaque handle: no `Brep`).
 fn loop_face<O: ClassObject>(lp: O) -> Result<Option<O>> {
     let _ = lp;
-    // UNPORTED(topology.loopuse): SmLoop::GetFace
+    // UNPORTED(topology.loopuse): SmLoop::GetFace -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported("SmLoop::GetFace", "topology.loopuse"))
 }
 
 /// `SmFace::GetUpwardFaceuse` (opaque handle: no `Brep`).
 fn face_upward_faceuse<O: ClassObject>(face: O) -> Result<Option<O>> {
     let _ = face;
-    // UNPORTED(topology.face_p2): SmFace::GetUpwardFaceuse
+    // UNPORTED(topology.face_p2): SmFace::GetUpwardFaceuse -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmFace::GetUpwardFaceuse",
         "topology.face_p2",
@@ -321,7 +270,7 @@ fn face_surface<O: ClassObject, G: ClassGeometry<O>>(
     face: O,
 ) -> Result<Option<&Surface>> {
     let _ = (geometry, face);
-    // UNPORTED(topology.face_p2): SmFace::GetSurface
+    // UNPORTED(topology.face_p2): SmFace::GetSurface -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmFace::GetSurface",
         "topology.face_p2",
@@ -331,28 +280,28 @@ fn face_surface<O: ClassObject, G: ClassGeometry<O>>(
 /// `SmEdge::GetEdgeuses(edgeuses, NULL, faceuse)` (opaque handle: no `Brep`).
 fn edge_edgeuses<O: ClassObject>(edge: O, faceuse: Option<O>) -> Result<Vec<O>> {
     let _ = (edge, faceuse);
-    // UNPORTED(topology.edge): SmEdge::GetEdgeuses
+    // UNPORTED(topology.edge): SmEdge::GetEdgeuses -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported("SmEdge::GetEdgeuses", "topology.edge"))
 }
 
 /// `SmEdge::GetCurve` (opaque handle: no `Brep`).
 fn edge_curve<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, edge: O) -> Result<&Curve> {
     let _ = (geometry, edge);
-    // UNPORTED(topology.edge): SmEdge::GetCurve
+    // UNPORTED(topology.edge): SmEdge::GetCurve -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported("SmEdge::GetCurve", "topology.edge"))
 }
 
 /// `SmEdge::GetInterval` (opaque handle: no `Brep`).
 fn edge_interval<O: ClassObject>(edge: O) -> Result<Extent1d> {
     let _ = edge;
-    // UNPORTED(topology.edge): SmEdge::GetInterval
+    // UNPORTED(topology.edge): SmEdge::GetInterval -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported("SmEdge::GetInterval", "topology.edge"))
 }
 
 /// `SmEdgeuse::GetEdge` (opaque handle: no `Brep`).
 fn edgeuse_edge<O: ClassObject>(edgeuse: O) -> Result<O> {
     let _ = edgeuse;
-    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetEdge
+    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetEdge -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmEdgeuse::GetEdge",
         "topology.edgeuse_p1",
@@ -362,7 +311,7 @@ fn edgeuse_edge<O: ClassObject>(edgeuse: O) -> Result<O> {
 /// `SmEdgeuse::GetOrientation` (opaque handle: no `Brep`).
 fn edgeuse_orientation<O: ClassObject>(edgeuse: O) -> Result<OrientType> {
     let _ = edgeuse;
-    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetOrientation
+    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetOrientation -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmEdgeuse::GetOrientation",
         "topology.edgeuse_p1",
@@ -372,7 +321,7 @@ fn edgeuse_orientation<O: ClassObject>(edgeuse: O) -> Result<OrientType> {
 /// `SmEdgeuse::EvaluateBinormal(param, TRUE, ...)` (opaque handle: no `Brep`).
 fn edgeuse_evaluate_binormal<O: ClassObject>(edgeuse: O, param: f64) -> Result<Binormal> {
     let _ = (edgeuse, param);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
+    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmEdgeuse::EvaluateBinormal",
         "topology.edgeuse_p3",
@@ -386,7 +335,7 @@ fn vertex_vertexuses_of_face<O: ClassObject>(
     faceuse: Option<O>,
 ) -> Result<Vec<O>> {
     let _ = (vertex, face, faceuse);
-    // UNPORTED(topology.vertex): SmVertex::GetVertexusesOfFace
+    // UNPORTED(topology.vertex): SmVertex::GetVertexusesOfFace -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmVertex::GetVertexusesOfFace",
         "topology.vertex",
@@ -396,7 +345,7 @@ fn vertex_vertexuses_of_face<O: ClassObject>(
 /// `SmVertexuse::GetVertexuseType() == SmLoopuse_TYPE` (opaque handle: no `Brep`).
 fn vertexuse_is_loop_vertexuse<O: ClassObject>(vertexuse: O) -> Result<bool> {
     let _ = vertexuse;
-    // UNPORTED(topology.vertexuse): SmVertexuse::GetVertexuseType
+    // UNPORTED(topology.vertexuse): SmVertexuse::GetVertexuseType -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmVertexuse::GetVertexuseType",
         "topology.vertexuse",
@@ -406,7 +355,7 @@ fn vertexuse_is_loop_vertexuse<O: ClassObject>(vertexuse: O) -> Result<bool> {
 /// `SmVertexuse::ComputeUVSector(sectorIO, FALSE)` (opaque handle: no `Brep`).
 fn vertexuse_compute_uv_sector<O: ClassObject>(vertexuse: O) -> Result<UvSectorIo<O>> {
     let _ = vertexuse;
-    // UNPORTED(topology.vertexuse): SmVertexuse::ComputeUVSector
+    // UNPORTED(topology.vertexuse): SmVertexuse::ComputeUVSector -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
     Err(SolidError::unported(
         "SmVertexuse::ComputeUVSector",
         "topology.vertexuse",
@@ -480,7 +429,7 @@ fn uv_coord(uv: Point2, param: SurfParamType) -> f64 {
 }
 
 /// The `SM_SS_*` mask of the poles of `props` within its zone tolerance of `pt`.
-fn on_pole_mask(props: &LoopCrossingFaceProps, pt: Point3) -> u32 {
+fn on_pole_mask<O: LoopObject>(props: &FaceProps<O>, pt: Point3) -> u32 {
     let near = |i: usize, bit: u32| -> u32 {
         match props.pole_points.get(i) {
             Some(p) if p.is_initialized() && pt.distance(*p) < props.zone_tol_3d => bit,
@@ -491,8 +440,8 @@ fn on_pole_mask(props: &LoopCrossingFaceProps, pt: Point3) -> u32 {
 }
 
 /// The touch end direction on a natural boundary of the surface.
-fn boundary_dir(no_vertex_pole: u32, on_pole: u32, on_seam: bool) -> CrvDirOnFaceType {
-    if no_vertex_pole != SS_NONE {
+fn boundary_dir(no_vertex_pole: u64, on_pole: u32, on_seam: bool) -> CrvDirOnFaceType {
+    if no_vertex_pole != u64::from(SS_NONE) {
         CrvDirOnFaceType::PoleNoVertex
     } else if on_pole != SS_NONE {
         CrvDirOnFaceType::Pole
@@ -533,10 +482,10 @@ fn set_touch<O>(list: &mut [TouchData<O>], index: usize, value: TouchData<O>) ->
 /// Where a `ClassifyCrv` end lies relative to the seams of a closed surface: the
 /// `ebTouch_*OnSeamU` / `ebTouch_*OnSeamV` pair for one end of the classification curve.
 #[allow(clippy::too_many_arguments)]
-fn end_on_seams(
+fn end_on_seams<O: LoopObject>(
     k: &Kernel,
     surface: &Surface,
-    props: &LoopCrossingFaceProps,
+    props: &FaceProps<O>,
     on_pole: u32,
     on_seam: SurfParamType,
     end_pn: &[Vec3; 2],
@@ -547,8 +496,8 @@ fn end_on_seams(
     // when Closed3d ClassifyCrv starts/stops on a pole - also on the Seams when not
     // coincident to the Seam
     if on_pole != SS_NONE {
-        let u = props.closed_u && on_seam != SurfParamType::U;
-        let v = props.closed_v && on_seam != SurfParamType::V;
+        let u = props.closed_u != Tri::False && on_seam != SurfParamType::U;
+        let v = props.closed_v != Tri::False && on_seam != SurfParamType::V;
         return Ok((u, v));
     }
 
@@ -574,14 +523,14 @@ fn end_on_seams(
     } else {
         (srf_max_uv, srf_min_uv)
     };
-    if props.closed_u && on_seam != SurfParamType::U {
+    if props.closed_u != Tri::False && on_seam != SurfParamType::U {
         end_uv.x = if end_pn[1].dot(du) > 0.0 {
             pos.x
         } else {
             neg.x
         };
     }
-    if props.closed_v && on_seam != SurfParamType::V {
+    if props.closed_v != Tri::False && on_seam != SurfParamType::V {
         end_uv.y = if end_pn[1].dot(dv) > 0.0 {
             pos.y
         } else {
@@ -776,7 +725,7 @@ impl<O: ClassObject> CurveClassification<O> {
     /// and joins a closed curve's two seam ends.
     ///
     /// `face_props` are the face's properties when already at stage 2
-    /// ([`PROP_STAGE_2A`] or later); otherwise `SetProps_Stage2` computes them (into
+    /// ([`PropStage::Stage2A`] or later); otherwise `SetProps_Stage2` computes them (into
     /// `face_props` when given).
     ///
     /// # Errors
@@ -792,11 +741,14 @@ impl<O: ClassObject> CurveClassification<O> {
         k: &Kernel,
         geometry: &G,
         loops: &[O],
-        face_props: Option<&mut LoopCrossingFaceProps>,
-    ) -> Result<LoopCrossings<O>> {
+        face_props: Option<&mut FaceProps<O>>,
+    ) -> Result<LoopCrossings<O>>
+    where
+        O: LoopObject,
+    {
         // direct optional input and output
-        let mut local_props = LoopCrossingFaceProps::new();
-        let props: &mut LoopCrossingFaceProps = match face_props {
+        let mut local_props = FaceProps::<O>::new();
+        let props: &mut FaceProps<O> = match face_props {
             Some(p) => p,
             None => &mut local_props,
         };
@@ -815,9 +767,13 @@ impl<O: ClassObject> CurveClassification<O> {
         };
 
         // must have Face SM_PROPSTAGE_2 Props - when pOptFaceProps is not given
-        if props.prop_stage < PROP_STAGE_2A {
+        if props.prop_stage < PropStage::Stage2A {
             let face = loop_face(loop0)?;
-            let face_index = props.face_index.unwrap_or(0);
+            let face_index = if props.face_index == UNDEF_ULONG {
+                0
+            } else {
+                props.face_index
+            };
             ignore_status(set_props_stage_2(props, face, face_index))?;
         }
 
@@ -868,7 +824,7 @@ impl<O: ClassObject> CurveClassification<O> {
         let classify_crv_stop_pn = eval_pn(classify_crv, crv_classification_interval.max())?;
 
         // When working with a periodic surface - set eClassifyCrv_OnSeam
-        if props.closed_u || props.closed_v {
+        if props.closed_u != Tri::False || props.closed_v != Tri::False {
             let smp_cnt: u32 = 3;
             let mut on_seam = true;
             // sSmpPt / sSmpPtUV live across the samples: a failed call leaves the last value
@@ -922,7 +878,7 @@ impl<O: ClassObject> CurveClassification<O> {
         // when Surface has poles - remember if TouchList first/last is on Pole
         let mut touch_1st_on_pole = SS_NONE;
         let mut touch_last_on_pole = SS_NONE;
-        if props.poles != SS_NONE {
+        if props.poles != u64::from(SS_NONE) {
             touch_1st_on_pole = on_pole_mask(props, touch_1st_pn[0]);
             touch_last_on_pole = on_pole_mask(props, touch_last_pn[0]);
         }
@@ -1019,13 +975,13 @@ impl<O: ClassObject> CurveClassification<O> {
         // when there is a touch on the ClassifyCrv Ends at Surface NaturalBoundaries
         let is_end = |t: ExtentPointType| t == ExtentPointType::Start || t == ExtentPointType::End;
         if is_end(touch_1st_type) || is_end(touch_last_type) {
-            let touch_1st_on_no_vertex_pole = touch_1st_on_pole & props.no_vertex_poles;
-            let touch_last_on_no_vertex_pole = touch_last_on_pole & props.no_vertex_poles;
+            let touch_1st_on_no_vertex_pole = u64::from(touch_1st_on_pole) & props.no_vertex_poles;
+            let touch_last_on_no_vertex_pole = u64::from(touch_last_on_pole) & props.no_vertex_poles;
             let mut touch_1st_on_seam = (false, false);
             let mut touch_last_on_seam = (false, false);
 
             // when Surface has Seams and ClassifyCrv Closed3d (unset tri-states end FALSE)
-            if classify_crv_closed_3d && (props.closed_u || props.closed_v) {
+            if classify_crv_closed_3d && (props.closed_u != Tri::False || props.closed_v != Tri::False) {
                 touch_1st_on_seam = end_on_seams(
                     k,
                     surface,

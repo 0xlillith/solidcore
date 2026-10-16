@@ -135,7 +135,7 @@ fn classify_against_volume(
     _volume: &Volume,
     _in_param_space: bool,
 ) -> Result<Vec<Extent1d>> {
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification -- justified: findings.md "intersect.curve_class_p4" (no Kernel here)
+    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification -- justified: findings.md "intersect.curve_class_p4" (no Kernel in scope: the caller is the Curve::knots virtual; the constructor defers on ReSet (intersect.curve_class_p2) and the next call on intersect.curve_class_p8 either way)
     // UNPORTED(intersect.curve_class_p8): SmCurveClassification::Intersect3DDiscontinuities
     // (then the intervals: intersect::curve_class::CurveClassification::size / at)
     Err(SolidError::unported(

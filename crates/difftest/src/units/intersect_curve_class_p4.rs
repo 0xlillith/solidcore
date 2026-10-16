@@ -36,12 +36,14 @@ use solidcore::geom::tol::zone_tol3d;
 use solidcore::geom::vector3d::Vec3;
 use solidcore::intersect::curve_class::{
     self as cc_mod, squeeze_out_smallest_interval, ClassificationInit, CurveClassification,
-    CurveInterval, LoopCrossingFaceProps, TouchData,
+    CurveInterval, TouchData,
 };
 use solidcore::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
+use solidcore::heal::face_props::{FaceProps, LoopObject};
 use solidcore::kernel::Kernel;
+use solidcore::topology::LoopId;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::math::CPoint;
@@ -544,6 +546,12 @@ impl ClassObject for H {
     }
 }
 
+impl LoopObject for H {
+    fn from_loop(l: LoopId) -> Self {
+        Self(l.index() as usize, ClassObjectKind::Loop)
+    }
+}
+
 enum PoolObj {
     Curve(Curve),
     Surface(Surface),
@@ -919,7 +927,7 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
                             .iter()
                             .map(|&l| pool.handle(Some(l))?.ok_or_else(|| harness("no loop")))
                             .collect::<Result<Vec<H>, HarnessError>>()?;
-                        let mut props = LoopCrossingFaceProps::new();
+                        let mut props = FaceProps::<H>::new();
                         let r = cc.get_loop_crossings(&k, &pool, &hs, with_props.then_some(&mut props));
                         match st(r)? {
                             Ok(lc) => {

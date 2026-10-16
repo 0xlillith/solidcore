@@ -196,20 +196,6 @@ fn name_curve_face<O: Copy + PartialEq>(
     solution.num_variables = 3;
 }
 
-fn surface_curve_intersect<O>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
-) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
-}
-
 /// The classification handle of this solver's curve (`m_pCurve`): the curve itself is passed
 /// alongside.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -418,7 +404,16 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let domain = ts.objects.face_uv_domain(face)?;
         let tol = ts.base.tolerance_3d + ts.objects.face_tolerance(face)?;
         let solutions = if ts.base.operation == SolverOperation::Intersect {
-            surface_curve_intersect(surface, &domain, curve.curve, &self.interval, tol)?
+            // surface->GlobalCurveIntersect(domain, curve, interval, tol, solutions)
+            // (SER): the solutions name the curve and the surface
+            surface.global_curve_intersect(
+                ts.kernel,
+                [curve.handle, surface_handle],
+                &domain,
+                curve.curve,
+                &self.interval,
+                tol,
+            )?
         } else {
             let mut vectors = ts.base.opt_vectors.clone();
             if ts.base.operation == SolverOperation::Signed3dDirectedMinimize && self.swap_order {
@@ -429,6 +424,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 vectors.truncate(1);
             }
             surface.global_curve_solve(
+                ts.kernel,
                 &domain,
                 curve.curve,
                 &self.interval,
@@ -437,6 +433,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 best,
                 &vectors,
                 SolutionRequested::All,
+                [Some(curve.handle), Some(face_surface_handle)],
             )?
         };
         for found in solutions.as_slice() {
@@ -558,6 +555,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let a = ts.objects.surface(surface1)?;
             let b = ts.objects.surface(surface2)?;
             let solutions = a.global_surface_solve(
+                ts.kernel,
                 &ts.objects.face_uv_domain(face1)?,
                 b,
                 &ts.objects.face_uv_domain(face2)?,
@@ -566,6 +564,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 best,
                 &ts.base.opt_vectors,
                 ts.base.solution_requested,
+                [Some(surface1), Some(surface2)],
             )?;
             for found in solutions.as_slice() {
                 let mut solution = *found;

@@ -104,7 +104,7 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::SolverOperation;
 use crate::geom::object::ObjectRef;
-use crate::geom::tol::are_same;
+use crate::geom::tol::{are_same, zone_tol3d};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::{CurveClassification, CurveInterval};
 use crate::intersect::curve_class::p4::ClassificationInit;
@@ -120,6 +120,7 @@ use crate::query::face::p2::{curve_on_classify, CurveOnClassifyObjects};
 use crate::surface::surface::p1::map_to_2d;
 use crate::surface::surface::p7::approx_derivative_lengths;
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::surface::volume::Volume;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::topology as topo;
 use crate::topology::vertexuse as vu1;
@@ -377,34 +378,98 @@ fn face_classify_uv_line(
     ))
 }
 
-/// The handles `SmFace::CurveOnClassify` stores for this face's classifications: the face,
-/// its surface and the classified curve are [`StubHandle`]s; the curve behind one is
-/// `curve`.
+/// The handles of a curve classification of face `f` (`SmFace::CurveOnClassify`): the face,
+/// its vertices and surface, and the classified curve.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ClassHandle {
+    /// A face.
+    Face(FaceId),
+    /// A vertex.
+    Vertex(VertexId),
+    /// The surface of a face.
+    Surface(FaceId),
+    /// The classified curve (and its UV curve: upstream passes the same curve for both).
+    Curve,
+}
+
+impl ClassObject for ClassHandle {
+    fn class_kind(&self) -> ClassObjectKind {
+        match self {
+            Self::Face(_) => ClassObjectKind::Face,
+            Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Surface(_) => ClassObjectKind::Surface,
+            Self::Curve => ClassObjectKind::Curve,
+        }
+    }
+}
+
+/// The objects behind the [`ClassHandle`]s of one `CurveOnClassify` call.
 struct FaceClassifyObjects<'c> {
+    /// The B-rep of the face.
+    brep: &'c Brep,
     /// The classified curve.
     curve: &'c Curve,
 }
 
-impl CurveOnClassifyObjects<StubHandle> for FaceClassifyObjects<'_> {
-    fn face(&self, _f: FaceId) -> StubHandle {
-        StubHandle
+impl CurveOnClassifyObjects<ClassHandle> for FaceClassifyObjects<'_> {
+    fn face(&self, f: FaceId) -> ClassHandle {
+        ClassHandle::Face(f)
     }
-    fn surface(&self, _f: FaceId) -> Option<StubHandle> {
-        Some(StubHandle)
+    fn vertex(&self, v: VertexId) -> ClassHandle {
+        ClassHandle::Vertex(v)
     }
-    fn curve(&self, _curve: StubHandle) -> Option<&Curve> {
-        Some(self.curve)
+    fn surface(&self, f: FaceId) -> Option<ClassHandle> {
+        self.brep
+            .face(f)
+            .ok()
+            .and_then(|r| r.surface.as_ref())
+            .map(|_| ClassHandle::Surface(f))
     }
-    fn loop_id(&self, _tgt_loop: StubHandle) -> Option<LoopId> {
+    fn curve(&self, curve: ClassHandle) -> Option<&Curve> {
+        (curve == ClassHandle::Curve).then_some(self.curve)
+    }
+    fn loop_id(&self, _tgt_loop: ClassHandle) -> Option<LoopId> {
+        // the classification has no target loops
+        None
+    }
+}
+
+impl ClassGeometry<ClassHandle> for FaceClassifyObjects<'_> {
+    fn classification_vertex_point(&self, o: ClassHandle) -> Option<Point3> {
+        match o {
+            ClassHandle::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: ClassHandle) -> Option<f64> {
+        match o {
+            ClassHandle::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
+            ClassHandle::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            _ => None,
+        }
+    }
+    fn curve(&self, o: ClassHandle) -> Option<&Curve> {
+        (o == ClassHandle::Curve).then_some(self.curve)
+    }
+    fn surface(&self, o: ClassHandle) -> Option<&Surface> {
+        match o {
+            ClassHandle::Surface(f) => self.brep.face(f).ok().and_then(|r| r.surface.as_ref()),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: ClassHandle) -> Option<&Volume> {
+        None
+    }
+    fn point(&self, _o: ClassHandle) -> Option<Point3> {
         None
     }
 }
 
 /// `SmCurveClassification(curve, curve->GetNaturalInterval(), uv_curve, tol, data_size,
-/// data, FALSE, TRUE, surface)` (the curve, UV curve and surface are this face's, behind
-/// [`StubHandle`]), then `SetDoingCrossHatch(TRUE)` when `cross_hatch`, followed by
+/// data, FALSE, TRUE, surface)` (the UV curve, when given, is the curve itself; the surface
+/// is the face's), then `SetDoingCrossHatch(TRUE)` when `cross_hatch`, followed by
 /// `SER(CurveOnClassify(TRUE, classification))` of face `f`: the intervals.
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)] // upstream's constructor arguments
 fn classify_curve_on_face(
     k: &Kernel,
     b: &Brep,
@@ -414,25 +479,26 @@ fn classify_curve_on_face(
     tol: f64,
     data_size: usize,
     cross_hatch: bool,
-) -> Result<Vec<CurveInterval<StubHandle>>> {
+) -> Result<Vec<CurveInterval<ClassHandle>>> {
+    let objects = FaceClassifyObjects { brep: b, curve };
     let init = ClassificationInit {
-        curve: Some(StubHandle),
+        curve: Some(ClassHandle::Curve),
         interval: curve.natural_interval(),
-        uv_curve: with_uv_curve.then_some(StubHandle),
-        src_zone_tol_3d: tol,
+        uv_curve: with_uv_curve.then_some(ClassHandle::Curve),
+        src_zone_tol_3d: zone_tol3d(k, tol),
         opt_data_size: data_size,
         is_curve_owned: false,
         is_curve_current: true,
-        surface1: Some(StubHandle),
+        // this->GetSurface()
+        surface1: CurveOnClassifyObjects::surface(&objects, f),
         surface2: None,
         uv_curve2: None,
         ti: None,
     };
     let mut classification = CurveClassification::with_curve(k, &init)?;
-    // SetDoingCrossHatch(TRUE) when cross_hatch: an inline setter part 1 does not expose;
-    // unreachable until the constructor's ReSet (intersect.curve_class_p2) is ported
-    let _ = cross_hatch;
-    let objects = FaceClassifyObjects { curve };
+    if cross_hatch {
+        classification.set_doing_cross_hatch(true);
+    }
     // bHasBigGaps, bDoCheck3d: FALSE; bUVSpaceOkay: TRUE (the defaults)
     curve_on_classify(
         k,
@@ -968,7 +1034,7 @@ pub fn points_in_face(
         .map_err(|_| SolidError::sm_err(OP))?;
 
         // for all u values of interest - see if any map to inside the face
-        let mut classes: Vec<(f64, Vec<CurveInterval<StubHandle>>, Curve)> = Vec::new();
+        let mut classes: Vec<(f64, Vec<CurveInterval<ClassHandle>>, Curve)> = Vec::new();
         let mut ii: u64 = 0;
         while ii < trim_curve_cnt && (classes.len() as u64) < point_count {
             // start in the middle work our way out
@@ -992,7 +1058,7 @@ pub fn points_in_face(
             // classify the isoParameter UVTrimCurve against the face
             let tol = face.tolerance;
             let crv = Curve::from(uv_curve.clone());
-            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 10, true)?;
+            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 0, false)?;
             if intervals
                 .iter()
                 .any(|ivl| ivl.mid.point_class() == PointClassType::Face)
@@ -2571,7 +2637,7 @@ mod tests {
         fn surface(&self, _o: H) -> Option<&Surface> {
             None
         }
-        fn volume(&self, _o: H) -> Option<&crate::surface::volume::Volume> {
+        fn volume(&self, _o: H) -> Option<&Volume> {
             None
         }
         fn point(&self, _o: H) -> Option<Point3> {

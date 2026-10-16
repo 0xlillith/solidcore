@@ -10,6 +10,8 @@
 pub mod p1;
 pub mod p3;
 pub mod p4;
+pub mod p5;
+pub mod p6;
 
 pub use p1::{
     apply_point_solution, compute_face_point_class, cull_or_refine_cci_in_3d, get_cci_geometry,
@@ -27,6 +29,5 @@ pub use p3::{
 };
 
 pub use p4::{
-    squeeze_out_smallest_interval, ClassificationInit, LoopCrossingFaceProps, LoopCrossings,
-    PROP_STAGE_2A,
+    squeeze_out_smallest_interval, ClassificationInit, LoopCrossings,
 };

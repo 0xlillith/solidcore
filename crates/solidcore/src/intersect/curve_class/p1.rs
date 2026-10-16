@@ -47,6 +47,7 @@
 //! | [`CurveClassification::set_face`]                      | `SetFace`                                        |
 //! | [`CurveClassification::set_ignore_tangency`]           | `SetIgnoreTangency`                              |
 //! | [`CurveClassification::set_is_curve_owned`], [`CurveClassification::is_curve_owned`] | `SetIsCurveOwned`, `m_bIsCurveOwned` |
+//! | [`CurveClassification::set_doing_cross_hatch`]         | `SetDoingCrossHatch`                             |
 //! | [`CurveClassification::set_ok_to_set_tolerance`]       | `SetOKToSetTolerance`                            |
 //! | [`CurveClassification::set_fillet_data`]               | `SetFilletData`                                  |
 //! | [`CurveClassification::set_uv_curve1`], [`CurveClassification::set_uv_curve2`] | `SetUVCurve1`, `SetUVCurve2` (no plan unit: unreachable from the entry points) |
@@ -524,6 +525,14 @@ impl<O: ClassObject> CurveClassification<O> {
         &self.data
     }
 
+    /// Sets the complete classification domain (inline `SetInterval`).
+    ///
+    /// # Errors
+    /// Returns the interval validation error instead of ignoring an invalid domain.
+    pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
+        self.interval.set_min_max(interval.min(), interval.max())
+    }
+
     /// The face classified against (`GetFace`).
     #[must_use]
     pub const fn face(&self) -> Option<O> {
@@ -618,6 +627,11 @@ impl<O: ClassObject> CurveClassification<O> {
     #[must_use]
     pub const fn doing_cross_hatch(&self) -> bool {
         self.doing_cross_hatch
+    }
+
+    /// `SetDoingCrossHatch`.
+    pub fn set_doing_cross_hatch(&mut self, doing_cross_hatch: bool) {
+        self.doing_cross_hatch = doing_cross_hatch;
     }
 
     /// `GetDoingFillets`.
@@ -1031,7 +1045,10 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     /// The curve geometry, or an error for no curve.
-    fn curve_geometry<'g>(&self, geometry: &'g impl ClassGeometry<O>) -> Result<&'g Curve> {
+    pub(super) fn curve_geometry<'g>(
+        &self,
+        geometry: &'g impl ClassGeometry<O>,
+    ) -> Result<&'g Curve> {
         let c = self
             .curve
             .ok_or(SolidError::invalid_input(OP_CC, "no classification curve"))?;
@@ -2019,6 +2036,7 @@ fn surface_global_point_solve(
     let solutions = ignored(
         surface.global_point_solve::<crate::surface::surface::p4::NoObject>(
             k,
+            Some(crate::surface::surface::p4::NoObject),
             &surface.natural_uv_domain(),
             SolverOperation::Minimize,
             point,
