@@ -83,8 +83,8 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 
 use super::p1::proto::{are_connected, can_imprint, find_position_from_pcs, topo_dimension};
 use super::p1::{
-    EdgeDefId, EdgeDefinition, ProtoEdgeId, ProtoGeometry, ProtoTopologyManager, ProtoVertex,
-    ProtoVertexId, VertexDefId, VertexDefinition,
+    EdgeDefId, EdgeDefinition, ProtoEdgeId, ProtoGeometry, ProtoTopology, ProtoTopologyManager,
+    ProtoVertex, ProtoVertexId, VertexDefId, VertexDefinition,
 };
 
 const OP: &str = "topology::proto_topology::p2";
@@ -108,7 +108,7 @@ const VD_TOL_FACTOR: f64 = 5.0;
 ///
 /// Every method answers for a live handle of the kind it names; `None` is an unknown
 /// handle or one of another kind (a dereference of a bad pointer upstream).
-pub trait ProtoBrep<O>: ProtoGeometry<O> {
+pub trait ProtoBrep<O>: ProtoGeometry<O> + ProtoTopology<O> {
     /// `SmEdge::GetInterval`.
     fn edge_interval(&self, edge: O) -> Option<Extent1d>;
     /// `SmEdge::GetCurve`: the handle of the edge's curve (`Some(None)` for none).
@@ -652,7 +652,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                     jj += 1;
                     continue;
                 };
-                let delete_which = self.can_combine_vertex_definitions_ignored(k, vd1, vd2)?;
+                let delete_which =
+                    self.can_combine_vertex_definitions_ignored(k, brep, vd1, vd2)?;
                 if delete_which == 1 {
                     self.delete_vertex_definition(vd1);
                     if let Some(s) = vds.get_mut(ii) {
@@ -692,10 +693,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     fn can_combine_vertex_definitions_ignored(
         &self,
         k: &Kernel,
+        topology: &impl ProtoTopology<O>,
         vd1: VertexDefId,
         vd2: VertexDefId,
     ) -> Result<u64> {
-        Ok(ignore_soft(self.can_combine_vertex_definitions(k, vd1, vd2))?.unwrap_or(0))
+        Ok(ignore_soft(self.can_combine_vertex_definitions(k, topology, vd1, vd2))?.unwrap_or(0))
     }
 
     /// Finds or creates a vertex definition of the classifications `pc1`, `pc2` at
@@ -1941,13 +1943,13 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     ///
     /// # Errors
     ///
-    /// `SM_ERR_NULL_POINTER` for a definition without a topology source object;
-    /// [`SolidError::Unported`] for the connectivity of different B-rep objects (unit
-    /// `topology.edge`, `topology.vertex`); [`SolidError::InvalidInput`] for deleted
-    /// definitions.
+    /// `SM_ERR_NULL_POINTER` for a definition without a topology source object; those
+    /// of the `topology` walks of [`are_connected`]; [`SolidError::InvalidInput`] for
+    /// deleted definitions.
     pub fn can_combine_vertex_definitions(
         &self,
         k: &Kernel,
+        topology: &impl ProtoTopology<O>,
         vd1: VertexDefId,
         vd2: VertexDefId,
     ) -> Result<u64> {
@@ -1975,10 +1977,10 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         }
 
         // If either pair is not connected in their Brep, can't combine.
-        if !are_connected(Some(t11), Some(t21))? {
+        if !are_connected(topology, Some(t11), Some(t21))? {
             return Ok(0);
         }
-        if !are_connected(Some(t12), Some(t22))? {
+        if !are_connected(topology, Some(t12), Some(t22))? {
             return Ok(0);
         }
 
@@ -2067,6 +2069,32 @@ mod tests {
         }
     }
 
+    /// The bare stand-ins: no uses, no B-rep; an edge's start vertex dereferences its
+    /// missing primary edge use.
+    impl ProtoTopology<H> for Geo {
+        fn vertex_use_faces(&self, _vertex: H) -> Result<Vec<Option<H>>> {
+            Ok(Vec::new())
+        }
+        fn edge_use_faces(&self, _edge: H) -> Result<Vec<Option<H>>> {
+            Ok(Vec::new())
+        }
+        fn edge_start_vertex(&self, _edge: H) -> Result<Option<H>> {
+            Err(SolidError::invalid_input("test", "no primary edge use"))
+        }
+        fn edge_other_vertex(&self, _edge: H, _vertex: Option<H>) -> Result<Option<H>> {
+            Ok(None)
+        }
+        fn vertex_point(&self, _vertex: H) -> Result<Point3> {
+            Ok(Point3::new(0.0, 0.0, 0.0))
+        }
+        fn edge_brep(&self, _edge: H) -> Result<Option<crate::geom::attribute::ObjectKey>> {
+            Ok(None)
+        }
+        fn edge_faces(&self, _edge: H) -> Result<Vec<H>> {
+            Ok(Vec::new())
+        }
+    }
+
     impl ProtoBrep<H> for Geo {
         fn edge_interval(&self, edge: H) -> Option<Extent1d> {
             self.edge_ivl.iter().find(|e| e.0 == edge.0).map(|e| e.1)
@@ -2143,10 +2171,10 @@ mod tests {
         let b = mk(&mut m, R0, R1, 1e-6);
         let c = mk(&mut m, R0, L0, 1e-6);
         // same topology in both: the larger gap goes
-        assert_eq!(m.can_combine_vertex_definitions(&k, a, b).unwrap(), 1);
-        assert_eq!(m.can_combine_vertex_definitions(&k, b, a).unwrap(), 2);
+        assert_eq!(m.can_combine_vertex_definitions(&k, &geo, a, b).unwrap(), 1);
+        assert_eq!(m.can_combine_vertex_definitions(&k, &geo, b, a).unwrap(), 2);
         // a region and a loop are not connected
-        assert_eq!(m.can_combine_vertex_definitions(&k, a, c).unwrap(), 0);
+        assert_eq!(m.can_combine_vertex_definitions(&k, &geo, a, c).unwrap(), 0);
 
         // resolving a proto vertex with both keeps one
         let pv = m.new_proto_vertex(p, 1e-5).unwrap();
