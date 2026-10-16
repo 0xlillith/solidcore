@@ -518,11 +518,13 @@ fn import(ex: &[f64]) -> Result<Imported, HarnessError> {
             VERTEXUSE_TYPE => LoopuseStart::Vertexuse(opt(start, VertexuseId::from_index)?),
             _ => LoopuseStart::Unknown,
         };
+        let orientation = orient_of(rd.idx()?)?;
         loopuses.push(Loopuse {
             faceuse,
             loop_,
             mate,
             start,
+            orientation,
         });
     }
     let mut loop_lus = Vec::new();
@@ -2043,7 +2045,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             };
             out.push(slot(r, flag)?);
         }
-        OpIn::Topological { e, gain, .. } => match ed::is_topological(b, eid(*e), *gain) {
+        OpIn::Topological { e, gain, .. } => match ed::is_topological(&k, b, eid(*e), *gain) {
             Ok(t) => out.extend([
                 flag(t.is_topological),
                 ix(t.surf_to_keep, FaceId::index),

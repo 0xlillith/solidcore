@@ -97,8 +97,11 @@
 //! - **Unported callees** return [`SolidError::Unported`]: `SmEdgeuse::NormalizedEvaluate`,
 //!   `EvaluateBinormal` and `GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`),
 //!   `SmBrep::Notify` (`topology.brep_p2`), `SmBrep::GetInfiniteRegion`
-//!   (`topology.brep_p1`), `SmSurface::CoverOtherCoincidentSurface` (`surface.surface_p5`) and
-//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`).
+//!   (`topology.brep_p1`) and `SmFace::CalculateUVDomainFromUVTrimCurves`
+//!   (`topology.face_p1`). `SmSurface::CoverOtherCoincidentSurface` is wired to
+//!   `surface.surface_p5` (and its `CoverCoincidentSurface` to `surface.surface_p3`); the
+//!   two face surfaces are moved out of their faces for the call and back, so the
+//!   covering surface keeps any expansion, as upstream.
 
 use std::collections::BTreeMap;
 
@@ -246,9 +249,7 @@ fn vertex_set_tolerance(b: &mut Brep, v: VertexId, tolerance: f64) -> Result<()>
     crate::topology::vertex::set_tolerance(b, v, tolerance, true, true)
 }
 
-/// Which of the two input surfaces `SmSurface::CoverOtherCoincidentSurface` keeps
-/// (constructed once its unit, `surface.surface_p5`, is ported).
-#[allow(dead_code)]
+/// Which of the two input surfaces `SmSurface::CoverOtherCoincidentSurface` keeps.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Covering {
     /// `this` (the first surface), possibly expanded.
@@ -265,20 +266,47 @@ struct Cover {
     merged_domain: Extent2d,
 }
 
-/// `SmSurface::CoverOtherCoincidentSurface` (unit `surface.surface_p5`).
+/// `pSurf0->CoverOtherCoincidentSurface(pSurf1, dTol, rdMaxDist, rpCoveringSurf,
+/// &sDomain0, &sDomain1, &rMergedDomain)` (unit `surface.surface_p5`) on the surfaces
+/// of `face0` and `face1` (two different faces). The covering surface may be expanded
+/// in place, as upstream. A merged domain that was not written stays the caller's
+/// default-constructed `sMergedDomain`.
+#[allow(clippy::too_many_arguments)] // upstream's argument list plus the B-rep
 fn cover_other_coincident_surface(
-    this: &Surface,
-    other: &Surface,
+    k: &Kernel,
+    b: &mut Brep,
+    face0: FaceId,
+    face1: FaceId,
     tol: f64,
     domain0: &Extent2d,
     domain1: &Extent2d,
 ) -> Result<Cover> {
-    let _ = (this, other, tol, domain0, domain1);
-    // UNPORTED(surface.surface_p5): SmSurface::CoverOtherCoincidentSurface
-    Err(SolidError::unported(
-        "SmSurface::CoverOtherCoincidentSurface",
-        "surface.surface_p5",
-    ))
+    // move the surfaces out of their faces for the call (keeping their owners) and back
+    let mut this = b
+        .face_mut(face0)?
+        .surface
+        .take()
+        .ok_or_else(|| null("sm_CoverOtherCoincidentFace: face without surface"))?;
+    let Some(mut other) = b.face_mut(face1)?.surface.take() else {
+        b.face_mut(face0)?.surface = Some(this);
+        return Err(null("sm_CoverOtherCoincidentFace: face without surface"));
+    };
+    let r =
+        this.cover_other_coincident_surface(k, &mut other, tol, Some(domain0), Some(domain1), true);
+    b.face_mut(face0)?.surface = Some(this);
+    b.face_mut(face1)?.surface = Some(other);
+    let r = r?;
+    Ok(Cover {
+        max_dist: r.max_dist,
+        covering: r.covering_is_other.map(|is_other| {
+            if is_other {
+                Covering::Other
+            } else {
+                Covering::This
+            }
+        }),
+        merged_domain: r.merged_domain.unwrap_or_else(Extent2d::new),
+    })
 }
 
 /// `SmFace::CalculateUVDomainFromUVTrimCurves(dom, TRUE)` (unit `topology.face_p1`).
@@ -1577,22 +1605,18 @@ pub struct Topological {
 /// other's that its face uses (stored face domains first, then once more with
 /// trim-derived domains), as `(max_dist, covering face, merged domain)`.
 fn cover_other_coincident_face(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     face0: FaceId,
     face1: FaceId,
     tol: f64,
     refine_domains: bool,
 ) -> Result<(f64, Option<FaceId>, Extent2d)> {
-    let surf0 = b
-        .face(face0)?
-        .surface
-        .as_ref()
-        .ok_or_else(|| null("sm_CoverOtherCoincidentFace: face without surface"))?;
-    let surf1 = b
-        .face(face1)?
-        .surface
-        .as_ref()
-        .ok_or_else(|| null("sm_CoverOtherCoincidentFace: face without surface"))?;
+    for f in [face0, face1] {
+        if b.face(f)?.surface.is_none() {
+            return Err(null("sm_CoverOtherCoincidentFace: face without surface"));
+        }
+    }
 
     // Use the stored conservative face domains, without generating all UV trims.
     let mut domain0 = face2::uv_domain(b, face0)?;
@@ -1617,7 +1641,7 @@ fn cover_other_coincident_face(
         }
     }
 
-    let cover = cover_other_coincident_surface(surf0, surf1, tol, &domain0, &domain1)?;
+    let cover = cover_other_coincident_surface(k, b, face0, face1, tol, &domain0, &domain1)?;
     let covering = cover.covering.map(|c| match c {
         Covering::This => face0,
         Covering::Other => face1,
@@ -1629,7 +1653,7 @@ fn cover_other_coincident_face(
     // only after the inexpensive stored-domain attempts have failed (one level of
     // recursion: the second call refines)
     if !refine_domains {
-        return cover_other_coincident_face(b, face0, face1, tol, true);
+        return cover_other_coincident_face(k, b, face0, face1, tol, true);
     }
     Ok((cover.max_dist, None, cover.merged_domain))
 }
@@ -1638,7 +1662,8 @@ fn cover_other_coincident_face(
 /// faces: the faces are tangent and coincident along the edge at three samples, the
 /// edge does not run along a seam of a closed surface, and either both sides are one
 /// surface or (analytic or planar surfaces) one covers the other within
-/// `approx_tol_3d_gain` times the smaller face approximation tolerance.
+/// `approx_tol_3d_gain` times the smaller face approximation tolerance. As upstream,
+/// the covering face's surface may be expanded in place by the coverage test.
 ///
 /// # Errors
 ///
@@ -1646,7 +1671,12 @@ fn cover_other_coincident_face(
 /// face, a face without surface); those of the surface queries;
 /// [`SolidError::Unported`] from `SmEdgeuse::NormalizedEvaluate` and the coverage
 /// test.
-pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<Topological> {
+pub fn is_topological(
+    k: &Kernel,
+    b: &mut Brep,
+    e: EdgeId,
+    approx_tol_3d_gain: f64,
+) -> Result<Topological> {
     let mut out = Topological {
         is_topological: false,
         surf_to_keep: None,
@@ -1840,7 +1870,7 @@ pub fn is_topological(b: &Brep, e: EdgeId, approx_tol_3d_gain: f64) -> Result<To
 
         // See if this surface can 'cover' the part of the other surface that its face uses
         let (dist, keep, merged) =
-            match cover_other_coincident_face(b, face1, face2_, approx_tol, false) {
+            match cover_other_coincident_face(k, b, face1, face2_, approx_tol, false) {
                 Ok(r) => r,
                 Err(err) => {
                     failed(err)?;

@@ -248,12 +248,16 @@ fn create_iso_parametric_curve(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
             "surface.surface_cache_p1",
         )),
+        // the SmSurface body (surface.surface_p5); tolerance 0.0 as upstream's callers
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
-            Err(SolidError::unported(
-                "SmSurface::CreateIsoParametricCurve",
-                "surface.surface_p5",
-            ))
+            let r =
+                surface.create_iso_parametric_curve(k, param, iso, 0.0, domain.as_ref(), false)?;
+            match r.curve.into_kind() {
+                CurveKind::BSpline(b) => Ok(b),
+                _ => Err(SolidError::sm_err(
+                    "surface::surface_cache::p1::create_iso_parametric_curve",
+                )),
+            }
         }
     }
 }
@@ -313,7 +317,7 @@ pub(super) fn calculate_bounding_box(
 
 /// `SmSurface::IsSingularity(uv, eSingDir)`: the `SmPlane` override (a plane has no
 /// singularity); the other ported kinds run the base class body.
-fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
+fn is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
@@ -321,11 +325,7 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
         }
     }
 }
@@ -835,7 +835,7 @@ pub fn compute_bezier_approximation(
         };
         let p00 = d(&mat, 0, 0)?;
         let (du, dv, duv);
-        if is_singularity(surface, uv)? {
+        if is_singularity(&Kernel::default(), surface, uv)? {
             let uvu = Point2::new(uv.x + su * (size.x * EFF_ZERO_SQRT), uv.y);
             let uvv = Point2::new(uv.x, uv.y + sv * (size.y * EFF_ZERO_SQRT));
             let mu = surface.evaluate(uvu, 1, 1, flags)?;
