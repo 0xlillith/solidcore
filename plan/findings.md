@@ -5817,6 +5817,44 @@ SENSITIVE intersect.curve_class_p8 perturbed=785 detected=785 unperturbed=0 defe
 difftest: 196 unit(s), 108 passed, 88 partial, 0 failed
 ```
 
+### PR #152 part-5 and surface part-8 wiring (maintainer)
+
+Both p8 back-edge stubs are now wired (AGENTS section 4a):
+
+- `sm_InsertSolutions` -> `p5::insert_solutions` at all three native call sites.
+  Each passes the explicit tolerance (`XSectTol3d`, or `XSectTol2d` for UV) and
+  propagates status (`SER`), as native does. Native records the temporary boundary
+  curve or plane pointer as the end object and frees it on return. The shim numbers
+  these dangling pointers in order of first appearance. Rust names temporaries with
+  `ClassObject::temporary(index, kind)`, a new defaulted trait method (`None`:
+  insertion returns invalid-input), CO-PORTED in `intersect.point_class`. A geometry
+  wrapper resolves every temporary of the call, because native keeps all of them
+  alive until return. The difftest runner numbers them the same way as the shim.
+  Solution objects map curve/analytic-curve to the classification curve and
+  boundary/analytic-boundary to the temporary. Collapsed short ranges are copied
+  back, so the crossing loops see native's in-place edits.
+- Volume planes call `Surface::global_curve_intersect` over the plane's natural UV
+  domain and the curve's natural interval, ignoring ordinary status. An ordinary
+  failure yields no solutions, where native may keep partial output.
+- WR-155: `sSolutions4` and `sSolutions5` borrow `aData4`. `ReSet`/`Add` keep the
+  borrow, so slot 5's final (inserted) solutions overwrite slot 4's leading entries
+  while slot 4 holds at most 20. The port emulates that. When slot 5 holds more
+  than 20 over a borrowed, nonempty slot 4, it returns invalid-input, because the
+  buffer then holds intermediate state. Intermediate `SetSize(0)` un-borrowing
+  inside the tree solve's combine step is not modelled. Twelve `wr155_*` fixtures
+  exercise the alias: vertical, downward and slanted lines through both W boundary
+  planes, single-plane controls and a preclassified case, each in parameter space
+  and in space. Every crossing insertion currently defers deeper to
+  `intersect.curve_class_p2` (`InsertAt`), so the emulation is not yet compared.
+  Disabling it changes no current comparison.
+
+```text
+PARTIAL intersect.curve_class_p8 cases=1127 passed=853 failed=0 deferred=274 max_rel_err=0e0 blocked_by=curve.crv_on_surf(52),intersect.curve_class_p2(60),intersect.curve_class_p4(162)
+```
+
+The p5 (75) and surface_p8 (41) deferrals are gone: 68 of those cases now compare
+exactly and 48 defer deeper to p2 (plus the 12 new wr155 fixtures).
+
 ## intersect.curve_class_p5: independent port
 
 Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
