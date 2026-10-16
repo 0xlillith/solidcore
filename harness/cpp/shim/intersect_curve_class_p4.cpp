@@ -556,6 +556,11 @@ int32_t run(Rd& rd, std::vector<double>& o)
                     e->GetCurve()->EvaluatePoint(e->GetInterval().GetMin(), start) != SM_SUCCESS ||
                     vu->GetVertex()->GetPoint().DistanceBetweenSquared(start) > 1e-18)
                     return SC_ERR_ARG;
+                // the edge line with its NURB made (SmPlane::DropCurve of a UV trim curve reads it)
+                SmBSplineCurve* line = dynamic_cast<SmBSplineCurve*>(e->GetCurve());
+                if (line == NULL)
+                    return SC_ERR_ARG;
+                line->GetOrCreateGwNurbPointer();
                 add(e, K_EDGE);
                 add(vu->GetVertex(), K_VERTEX);
                 add(eu, K_EDGEUSE);

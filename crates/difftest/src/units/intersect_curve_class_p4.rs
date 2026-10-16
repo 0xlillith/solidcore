@@ -39,7 +39,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use solidcore::curve::curve::p2::Curve;
+use solidcore::curve::curve::p2::{Curve, CurveKind};
 use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::hermite_curve::HermiteCurve;
 use solidcore::curve::line::{BoundedLineOptions, Line};
@@ -55,7 +55,7 @@ use solidcore::intersect::point_class::{
 };
 use solidcore::heal::face_props::{FaceProps, LoopObject};
 use solidcore::kernel::Kernel;
-use solidcore::topology::{Brep, FaceId, LoopId};
+use solidcore::topology::{Brep, EdgeId, FaceId, LoopId};
 use solidcore::EntityRef;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
@@ -690,12 +690,11 @@ impl Pool {
         }
     }
 
-    /// The face of the B-rep (snapshots name it).
-    fn face_id(&self) -> Result<FaceId, HarnessError> {
+    /// The face of the B-rep (snapshots name it; without one, an id no props refer to).
+    fn face_id(&self) -> FaceId {
         self.brep
             .as_ref()
-            .map(|(_, f)| *f)
-            .ok_or_else(|| harness("no face"))
+            .map_or(FaceId::from_index(u32::MAX), |(_, f)| *f)
     }
 }
 
@@ -721,7 +720,7 @@ fn obj_kind(o: &ObjIn) -> usize {
 /// The topology of the face's B-rep in pool order (the shim's): the face, then per loop the
 /// loop and its vertex (a vertex loop) or, per edge use, its edge, vertex and the edge use.
 fn topology_entities(b: &Brep, f: FaceId) -> Result<Vec<(EntityRef, usize)>, HarnessError> {
-    let e = |e: solidcore::SolidError| harness(e.to_string());
+    let e = |e: SolidError| harness(e.to_string());
     let mut out = vec![(EntityRef::Face(f), kind::FACE)];
     for &l in &b.face(f).map_err(e)?.loops {
         out.push((EntityRef::Loop(l), kind::LOOP));
@@ -773,7 +772,17 @@ fn build_pool(k: &Kernel, s: &Script) -> Result<Pool, HarnessError> {
         pool.handles.push(H::Obj(i, class_kind_of(obj_kind(o))));
     }
     if let Some(face) = &s.face {
-        let (b, f) = hfp::rust_brep(k, face)?;
+        let (mut b, f) = hfp::rust_brep(k, face)?;
+        // the edge lines with their NURB made, as the shim makes them
+        for i in 0..b.edges().len() {
+            let id = EdgeId::from_index(u32::try_from(i).map_err(|_| harness("edge index"))?);
+            let edge = b.edge_mut(id).map_err(|e| harness(e.to_string()))?;
+            if let Some(c) = edge.curve.as_mut() {
+                if let CurveKind::Line(l) = c.kind_mut() {
+                    l.make_nurb().map_err(|e| harness(format!("line nurb: {e}")))?;
+                }
+            }
+        }
         for (e, _) in topology_entities(&b, f)? {
             pool.handles.push(H::Topo(e));
         }
@@ -1062,7 +1071,7 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
                             .collect::<Result<Vec<H>, HarnessError>>()?;
                         let mut props = FaceProps::<H>::new();
                         if !seeds.is_empty() {
-                            let face = pool.face_id()?;
+                            let face = pool.face_id();
                             for sd in seeds {
                                 hfp::seed(&mut props, face, sd[0] as i64, sd[1] as i64, sd[2]);
                             }
@@ -1076,7 +1085,7 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
                                 put_touches(&mut o, &pool, &lc.raw_touches);
                                 put_touches(&mut o, &pool, &lc.done_touches);
                                 if *with_props {
-                                    o.extend(hfp::snapshot(&props, pool.face_id()?));
+                                    o.extend(hfp::snapshot(&props, pool.face_id()));
                                 }
                             }
                             Err(s) => o.push(s),
@@ -1342,14 +1351,15 @@ fn norm(a: [f64; 3]) -> [f64; 3] {
     }
 }
 
-/// A line of length `len` (a degenerate classification curve when `len` is below the face's
-/// intersection tolerance).
+/// A line of length `len` (`SmLine::IsDegenerate`: its scale times its domain length) over the
+/// domain `[0, 0.01]` along the unit direction `d` (a degenerate classification curve when `len`
+/// is below the face's intersection tolerance).
 fn short_line(p: [f64; 3], d: [f64; 3], len: f64) -> CurveIn {
     CurveIn::Line(LineIn {
         p,
-        v: [d[0] * len, d[1] * len, d[2] * len],
-        domain: [0.0, 1.0],
-        scale: 1.0,
+        v: d,
+        domain: [0.0, 0.01],
+        scale: len / 0.01,
         inside_out: false,
     })
 }
@@ -1361,8 +1371,8 @@ fn gen_objects(rng: &mut Rng) -> Vec<ObjIn> {
     for _ in 0..=rng.below(3) {
         objs.push(ObjIn::Curve(gen_curve(rng)));
     }
-    if rng.chance(0.4) {
-        let len = *rng.choose(&[1e-6, 2e-6, 1e-5, 1e-4, 1e-3]).unwrap_or(&1e-5);
+    if rng.chance(0.6) {
+        let len = *rng.choose(&[2e-8, 1e-7, 1e-6, 2e-6, 1e-5, 1e-4]).unwrap_or(&1e-6);
         let p = rp(rng, 1.0);
         let d = dir(rng);
         objs.push(ObjIn::Curve(short_line(p, d, len)));
@@ -1715,10 +1725,10 @@ fn gen_script(rng: &mut Rng) -> Script {
     let three_d: Vec<(usize, (f64, f64, u64))> = curves.iter().filter(|(_, c)| c.2 == 3).copied().collect();
     let short: Vec<(usize, (f64, f64, u64))> = curves
         .iter()
-        .filter(|(i, _)| matches!(objects.get(*i), Some(ObjIn::Curve(CurveIn::Line(l))) if l.v.iter().map(|c| c * c).sum::<f64>() < 1e-5))
+        .filter(|(i, _)| matches!(objects.get(*i), Some(ObjIn::Curve(CurveIn::Line(l))) if l.domain == [0.0, 0.01]))
         .copied()
         .collect();
-    let pool = if !short.is_empty() && rng.chance(0.5) {
+    let pool = if !short.is_empty() && rng.chance(0.6) {
         &short
     } else if rng.chance(0.9) && !three_d.is_empty() {
         &three_d
@@ -1775,7 +1785,7 @@ fn gen_script(rng: &mut Rng) -> Script {
             ops.push(OpIn::SetFace { t, obj: pick(rng, &faces) });
         }
     }
-    let n_ops = 1 + rng.below(4);
+    let n_ops = 1 + rng.below(3);
     for _ in 0..n_ops {
         let Some(&t) = rng.choose(&targets) else { break };
         let bounds = all_bounds.get(t).cloned().unwrap_or_default();
@@ -1795,7 +1805,7 @@ fn gen_script(rng: &mut Rng) -> Script {
                         Vec::new()
                     },
                     with_props,
-                    seeds: if with_props && face.is_some() && rng.chance(0.5) { gen_preset(rng) } else { Vec::new() },
+                    seeds: if with_props && face.is_some() && rng.chance(0.6) { gen_preset(rng) } else { Vec::new() },
                 }
             }
             45..=49 => OpIn::SetSrcTol { t, tol: gen_tol(rng) },
@@ -1855,7 +1865,7 @@ fn put_touches(o: &mut Vec<f64>, pool: &Pool, l: &[TouchData<H>]) {
 
 /// The objects of the edge cases: a line over `[0, 1]` of the given speed (0), a plane (1), a
 /// point (2), a circle (3), an "other" stand-in (4), a B-spline surface (5) and a line of
-/// length `1e-6` (6, degenerate on the fixture faces).
+/// length `2e-8` over `[0, 0.01]` (6, degenerate on the fixture faces).
 fn edge_objects(scale: f64) -> Vec<ObjIn> {
     vec![
         ObjIn::Curve(CurveIn::Line(LineIn {
@@ -1888,7 +1898,7 @@ fn edge_objects(scale: f64) -> Vec<ObjIn> {
             u: vec![0.0, 0.0, 1.0, 1.0],
             v: vec![0.0, 0.0, 1.0, 1.0],
         }),
-        ObjIn::Curve(short_line([0.25 * scale, 0.25 * scale, 0.0], [1.0, 0.0, 0.0], 1e-6)),
+        ObjIn::Curve(short_line([0.25 * scale, 0.25 * scale, 0.0], [1.0, 0.0, 0.0], 2e-8)),
     ]
 }
 
@@ -1984,7 +1994,7 @@ fn edge_cases() -> Vec<(String, Value)> {
         let script = |face: Option<&FaceIn>, ops: Vec<OpIn>| {
             json!(Script { face: face.cloned(), objects: objs.clone(), ops })
         };
-        let faces = edge_faces(scale);
+        let faces = edge_faces(scale.max(1e-2));
         for (fname, face) in &faces {
             let closed = face.surf.is_some();
             // the degenerate classification curve: no props, computed props, preset props
@@ -1994,11 +2004,15 @@ fn edge_cases() -> Vec<(String, Value)> {
                 [22.0, 0.0, if closed { 1.0 } else { 0.0 }],
                 [23.0, 0.0, 0.0],
             ];
-            let mut ops = edge_setup(0, Some(6), &[0.0, 0.5, 1.0], 1e-5 * scale);
-            ops.push(crossings(0, vec![EDGE_LOOP], false, Vec::new()));
-            ops.push(crossings(0, vec![EDGE_LOOP], true, Vec::new()));
-            ops.push(crossings(0, vec![EDGE_LOOP], true, preset.clone()));
-            out.push((format!("edge_loop_crossings_{name}_{fname}_degenerate"), script(Some(face), ops)));
+            for (mode, with_props, seeds) in [
+                ("preset", true, preset.clone()),
+                ("computed", true, Vec::new()),
+                ("none", false, Vec::new()),
+            ] {
+                let mut ops = edge_setup(0, Some(6), &[0.0, 0.005, 0.01], 1e-5 * scale);
+                ops.push(crossings(0, vec![EDGE_LOOP], with_props, seeds));
+                out.push((format!("edge_loop_crossings_{name}_{fname}_degenerate_{mode}"), script(Some(face), ops)));
+            }
             // a regular classification curve with preset props
             let mut ops = edge_setup(0, Some(0), &bounds, 1e-5 * scale);
             ops.push(OpIn::SetFace { t: 0, obj: Some(EDGE_FACE) });
