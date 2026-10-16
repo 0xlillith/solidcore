@@ -52,6 +52,9 @@ pub fn export(path: &str, input: &[f64]) -> Result<Fixture, FfiError> {
 /// Execute a checked native request. `[-1, status]` means fixture construction
 /// failed, `[-2]` means a trimmed curve constructor returned null; both happen
 /// before the operation. Other statuses/exceptions are operation/harness errors.
+/// Closure outputs and face-use shell links use -1 for null, -3 for a non-null
+/// object outside the original graph, and nonnegative original-graph indices.
+/// These new-object paths are currently deferred in the differential runner.
 pub fn eval(path: &str, input: &[f64], request: &Request) -> Result<Vec<f64>, FfiError> {
     let invalid = || FfiError::InvalidArgument("brep_p6 request".into());
     if !(0..=2).contains(&request.op)
@@ -185,5 +188,25 @@ mod tests {
                 Some([1.0, 0.0, 1.0].as_slice())
             );
         }
+    }
+
+    #[test]
+    fn native_split_error_keeps_nonnull_outputs_without_original_graph_ids() {
+        // The tiny plane is edgeless in SMLib and reaches the split branch.
+        // New shell/region pointers cannot resolve in the pre-operation graph.
+        let input = [
+            2.0, 1.0, 2e-9, -3e-9, 5e-9, 0.0, 0.0, 1.0, -1e-9, -2e-9, 3e-9, 4e-9, 0.0, 0.0,
+        ];
+        let request = Request {
+            op: 0,
+            seed: 1,
+            indices: vec![],
+            repeat: 2,
+            lock_mask: 0,
+            flags: 1,
+        };
+        let result = eval("", &input, &request).unwrap();
+        assert!(result.first().is_some_and(|status| *status > 0.0));
+        assert_eq!(result.get(1..3), Some([-3.0, -3.0].as_slice()));
     }
 }

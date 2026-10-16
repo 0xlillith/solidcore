@@ -7,6 +7,7 @@
 //! | [`copy_edges`] | `SmBrep::CopyEdges` |
 //! | [`make_face_topology`] | `SmBrep::MakeFaceTopology` |
 //! | [`test_closure_split_region`] | `SmBrep::TestClosureSplitRegion(SmFaceuse*)` |
+//! | [`test_closure_split_region_attempt`] | same, retaining native status and partial outputs |
 //!
 //! Deviations: pointers become arena ids; optional outputs become return values.
 //! Edits preserve the upstream mutations preceding an error. Missing callees stop
@@ -18,6 +19,8 @@
 //! supplied by the caller, independently of arena indices. A null trimmed copy
 //! returns a null-pointer error instead of the upstream dereference. There is no recursion;
 //! the traverser uses its bounded, iterative implementation.
+//! An attempt exposes native status separately for callers that ignore it;
+//! missing dependencies and Rust representation failures remain outer errors.
 
 use crate::error::{Result, SolidError};
 use crate::geom::attribute::ObjectKey;
@@ -38,6 +41,12 @@ const OP: &str = "topology::brep::p6";
 
 fn required<T>(value: Option<T>) -> Result<T> {
     value.ok_or_else(|| SolidError::null_pointer(OP))
+}
+
+// The split's bare pointer dereferences have no native error status to ignore.
+// Refuse missing arena links as representation errors, not synthetic SmStatus.
+fn split_link<T>(value: Option<T>) -> Result<T> {
+    value.ok_or_else(|| SolidError::invalid_input(OP, "unlinked topology in region split"))
 }
 
 /// Copy edges to independent wires in `destination`, in input order.
@@ -191,20 +200,82 @@ pub fn test_closure_split_region(
     k: &mut Kernel,
     brep: &mut Brep,
     marks: &mut Marks,
-    _do_infinite_region_testing: bool,
+    do_infinite_region_testing: bool,
     start: FaceuseId,
 ) -> Result<(Option<ShellId>, Option<RegionId>)> {
+    let attempt =
+        test_closure_split_region_attempt(k, brep, marks, do_infinite_region_testing, start)?;
+    attempt.status?;
+    Ok((attempt.shell, attempt.region))
+}
+
+/// Native status and outputs written by `TestClosureSplitRegion` before it exits.
+#[derive(Debug)]
+pub struct RegionSplitAttempt {
+    /// The native `SmStatus`, represented as success or [`SolidError::Upstream`].
+    /// A caller whose C++ counterpart ignores the status may ignore this field.
+    pub status: Result<()>,
+    /// New shell once the upstream output assignment is reached, even on error.
+    pub shell: Option<ShellId>,
+    /// New region once the upstream output assignment is reached, even on error.
+    pub region: Option<RegionId>,
+}
+
+fn finish_split_attempt(
+    mut attempt: RegionSplitAttempt,
+    status: Result<()>,
+) -> Result<RegionSplitAttempt> {
+    match status {
+        Ok(()) => Ok(attempt),
+        Err(error @ SolidError::Upstream { .. }) => {
+            attempt.status = Err(error);
+            Ok(attempt)
+        }
+        // These failures do not correspond to a native status. In particular,
+        // an unavailable callee or missing typed resolver must never become a
+        // successful empty split just because native callers ignore SmStatus.
+        Err(error) => Err(error),
+    }
+}
+
+/// Test region closure, retaining native error status and partial output writes.
+/// The outer result propagates unported dependencies and Rust representation
+/// failures. Native `SmStatus` errors are in [`RegionSplitAttempt::status`], so
+/// unchecked C++ callers can continue with the same partially written outputs.
+pub fn test_closure_split_region_attempt(
+    k: &mut Kernel,
+    brep: &mut Brep,
+    marks: &mut Marks,
+    _do_infinite_region_testing: bool,
+    start: FaceuseId,
+) -> Result<RegionSplitAttempt> {
+    let mut attempt = RegionSplitAttempt {
+        status: Ok(()),
+        shell: None,
+        region: None,
+    };
+    let status = split_region_into(k, brep, marks, start, &mut attempt);
+    finish_split_attempt(attempt, status)
+}
+
+fn split_region_into(
+    k: &mut Kernel,
+    brep: &mut Brep,
+    marks: &mut Marks,
+    start: FaceuseId,
+    attempt: &mut RegionSplitAttempt,
+) -> Result<()> {
     let seed = brep.faceuse(start)?;
     if let Some(mate) = seed.mate {
         if brep.faceuse(mate)?.shell != seed.shell {
-            return Ok((None, None));
+            return Ok(());
         }
     }
-    if tr::has_lamina_edge(brep, required(seed.face)?)? {
-        return Ok((None, None));
+    if tr::has_lamina_edge(brep, split_link(seed.face)?)? {
+        return Ok(());
     }
     let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)?;
-    let result = split_closed(k, brep, marks, start, &lock);
+    let result = split_closed(k, brep, marks, start, &lock, attempt);
     lock.release(std::slice::from_mut(&mut k.context))?;
     result
 }
@@ -215,9 +286,10 @@ fn split_closed(
     marks: &mut Marks,
     start: FaceuseId,
     lock: &MarkLock,
-) -> Result<(Option<ShellId>, Option<RegionId>)> {
+    attempt: &mut RegionSplitAttempt,
+) -> Result<()> {
     if !tr::closure_traversal(k, brep, marks, start, lock, None)? {
-        return Ok((None, None));
+        return Ok(());
     }
     let new_shell = brep.add_shell_record(Shell {
         shell_type: ShellType::Faceuse,
@@ -230,8 +302,8 @@ fn split_closed(
     })?;
     brep.shell_mut(new_shell)?.region = Some(new_region);
 
-    let old_shell = required(brep.faceuse(start)?.shell)?;
-    let old_region = required(brep.shell(old_shell)?.region)?;
+    let old_shell = split_link(brep.faceuse(start)?.shell)?;
+    let old_region = split_link(brep.shell(old_shell)?.region)?;
     // Keep these native list queries in their upstream order; arena iteration
     // would include detached objects and change the traversal.
     let _wires = shell::wire_edges(brep, old_shell)?;
@@ -244,10 +316,14 @@ fn split_closed(
         k,
         brep,
         marks,
-        required(brep.faceuse(start)?.mate)?,
+        split_link(brep.faceuse(start)?.mate)?,
         lock.mark_type(),
         Some(&mut other),
     )?;
+    // Upstream publishes these pointers only after both traversals. They stay
+    // available to unchecked callers when a later native operation fails.
+    attempt.shell = Some(new_shell);
+    attempt.region = Some(new_region);
     // Notify(PRE_EDIT) and Notify(SPLIT_IN_BREP) precede CalculateBoundingBox,
     // infinite-region testing, classification of residual faces/wires/shells,
     // and empty-shell/region cleanup. None of those may run before this call.
@@ -307,7 +383,8 @@ mod tests {
             MarkType::Mark.code(),
         )
         .unwrap();
-        let result = test_closure_split_region(&mut k, &mut b, &mut Marks::default(), true, first);
+        let result =
+            test_closure_split_region_attempt(&mut k, &mut b, &mut Marks::default(), true, first);
         assert!(matches!(
             result,
             Err(SolidError::Unported {
@@ -326,6 +403,45 @@ mod tests {
         );
         assert_eq!(b.faceuse(second).unwrap().shell, Some(shell));
         outer.release(std::slice::from_mut(&mut k.context)).unwrap();
+    }
+
+    #[test]
+    fn ignored_native_status_preserves_outputs_but_never_hides_rust_refusals() {
+        let partial = || RegionSplitAttempt {
+            status: Ok(()),
+            shell: Some(ShellId::from_index(7)),
+            region: Some(RegionId::from_index(11)),
+        };
+        let error = SolidError::sm_err("native::split");
+        let attempt = finish_split_attempt(partial(), Err(error.clone())).unwrap();
+        assert_eq!(attempt.status, Err(error));
+        assert_eq!(attempt.shell, Some(ShellId::from_index(7)));
+        assert_eq!(attempt.region, Some(RegionId::from_index(11)));
+        for error in [
+            SolidError::invalid_input(OP, "typed resolver required"),
+            SolidError::unported("SmBrep::Notify", "topology.brep_p2"),
+        ] {
+            assert_eq!(
+                finish_split_attempt(partial(), Err(error.clone())).unwrap_err(),
+                error
+            );
+        }
+    }
+
+    #[test]
+    fn missing_split_links_are_outer_errors_even_for_unchecked_callers() {
+        let mut b = Brep::new();
+        let seed = b.add_faceuse_record(Faceuse::default()).unwrap();
+        let result = test_closure_split_region_attempt(
+            &mut Kernel::default(),
+            &mut b,
+            &mut Marks::default(),
+            true,
+            seed,
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(b.shells().len(), 0);
+        assert_eq!(b.regions().len(), 0);
     }
 
     #[test]

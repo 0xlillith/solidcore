@@ -507,7 +507,9 @@ impl<O: LoopObject> HealData<O> {
                 continue;
             }
 
-            // check up and down faceuse shell closures
+            // ClosureTraversal has no native error return on a consistent
+            // graph. Its Rust link/lock refusals must still propagate.
+            // Check up and down faceuse shell closures.
             let up_closed =
                 closure_traversal(k, b, marks, up_faceuse, mark_lock, Some(&mut up_faceuses))?;
             let down_closed = closure_traversal(
@@ -536,9 +538,13 @@ impl<O: LoopObject> HealData<O> {
             if up_closed && down_closed && !has_common_elements && up_shell == down_shell {
                 // fix - Split the Region on either side of the BadSheet into two
                 // different regions - increments mark again
-                let (new_shell, new_region) = crate::topology::brep::p6::test_closure_split_region(
+                let split = crate::topology::brep::p6::test_closure_split_region_attempt(
                     k, b, marks, true, up_faceuse,
                 )?;
+                // Bare call in SmHealData.cpp:4832: ignore the native SmStatus
+                // and retain its partial outputs. The outer Result still
+                // propagates Unported and Rust topology/resolver refusals.
+                let (new_shell, new_region) = (split.shell, split.region);
 
                 // count the TestClosureSplitRegion runs
                 self.ran_region_test_closure_cnt += 1;

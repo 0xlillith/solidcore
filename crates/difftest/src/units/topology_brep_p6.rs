@@ -145,18 +145,19 @@ impl UnitDiff for Runner {
         let mut status = 0;
         for _ in 0..request.repeat {
             let result = match request.op {
-                0 => p6::test_closure_split_region(
+                0 => p6::test_closure_split_region_attempt(
                     &mut k,
                     &mut b,
                     &mut marks,
                     i.flags & 1 != 0,
                     FaceuseId::from_index(request.seed as u32),
                 )
-                .map(|(s, r)| {
+                .and_then(|attempt| {
                     body = vec![
-                        s.map_or(-1, |s| i64::from(s.index())),
-                        r.map_or(-1, |r| i64::from(r.index())),
+                        attempt.shell.map_or(-1, |s| i64::from(s.index())),
+                        attempt.region.map_or(-1, |r| i64::from(r.index())),
                     ];
+                    attempt.status
                 }),
                 1 => {
                     let edges: Vec<_> = request

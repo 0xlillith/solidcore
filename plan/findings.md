@@ -5997,3 +5997,20 @@ only regenerates `PROGRESS.md`. The guard-only compound-mask extension was
 additionally checked with native FFI regressions, C++ Clippy, the standard
 442-case brep_p6 run and 394/394 detected sensitivity perturbations. It leaves
 all existing manifest inputs and operation results unchanged.
+
+`SmHealData::Fix_BadSheets` calls `TestClosureSplitRegion` without checking its
+status (`SmHealData.cpp:4832`) and consumes its partial outputs. The original
+adapter's `?` would propagate a later native error and lose those outputs once
+the remaining split dependencies were wired. `RegionSplitAttempt` now keeps
+the native `SmStatus` beside its shell/region writes. The healer ignores only
+that status; missing dependencies and Rust link/resolver refusals remain outer
+errors. Missing split links are representation errors rather than invented
+null-pointer statuses that an unchecked caller could accidentally ignore.
+The differential runner also retains the split outputs on a native error.
+
+A direct FFI regression reaches a real native error on a tiny edgeless plane
+and verifies that both allocated outputs remain non-null: the pre-operation
+graph encodes them as -3, distinct from NULL (-1). Native errors therefore must
+not be replaced by empty output lists. Kernel regressions check partial output
+retention, outer propagation of `Unported`/typed-resolver failures, and rejection
+of missing split links. Completed region splits remain deferred and uncertified.

@@ -2,12 +2,17 @@
 
 Last updated: 2026-10-17, PR #169 (`topology.brep_p6` partial: 394 native comparisons pass, 48 dependency deferrals, 0 failures; sensitivity 394/394). Built on the existing `topology.shell` PR #154. The healer back-edge is wired, and region-attribute propagation passes the caller topology lookup. Per-unit evidence is in `plan/modules.toml` and `reports/difftest/`.
 
-Local verification: fmt, default and C++ Clippy, 1258 kernel tests, wasm32,
+Local verification: fmt, default and C++ Clippy, 1260 kernel tests, wasm32,
 native FFI regressions and all six directly touched differential units pass.
 The complete manifest run finished with 197 units: 109 passed, 88 partial,
 0 failed. Current main `4757b211` is merged; its last commit only regenerates
 the progress checklist. The compound-mark-mask FFI follow-up also passes its
 native tests, standard brep_p6 comparison and 394/394 sensitivity checks.
+
+The unchecked healer split call now retains partial outputs and ignores only
+native status through `RegionSplitAttempt`; missing dependencies and Rust
+topology/resolver refusals still propagate. Four p6 kernel regressions and three
+native FFI regressions cover the status boundary and partial split outputs.
 
 
 ## Integration update (2026-10-15, PR #119)
