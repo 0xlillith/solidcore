@@ -16,7 +16,7 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::p6::{self, FaceTopologyOptions};
 use solidcore::topology::topology_traverser::{Entity, Marks};
-use solidcore::topology::{Brep, EdgeId, FaceuseId};
+use solidcore::topology::{Brep, EdgeId, FaceuseId, Region};
 use solidcore::SolidError;
 use solidcore_ffi::units::topology_brep_p6::{self as ffi, Request};
 use solidcore_ffi::units::topology_vertexuse::counts;
@@ -117,7 +117,19 @@ impl UnitDiff for Runner {
         let c = counts(&fixture.graph).ok_or_else(|| harness("fixture construction failed"))?;
         let request = request(&i, c);
         let (mut b, _) = shared::import(&fixture.graph)?;
+        // SmBrep.cpp:549-552: even an empty native B-rep owns a void
+        // infinite region. Re-express that input fixture, not an empty arena.
+        b.set_key(ObjectKey(0xB000_0000));
         let mut destination = Brep::new();
+        destination.set_key(ObjectKey(0xD000_0000));
+        let infinite = destination
+            .add_region_record(Region {
+                in_brep: true,
+                is_void: 1,
+                ..Region::default()
+            })
+            .map_err(harness)?;
+        destination.set_infinite_region_record(Some(infinite));
         let mut k = Kernel::default();
         let mut marks = Marks::default();
         let mut outer = if i.lock_mask == 0 {
@@ -228,6 +240,11 @@ impl UnitDiff for Runner {
             b.edges().len() as i64,
             b.vertices().len() as i64,
             destination.edges().len() as i64,
+            destination.regions().len() as i64,
+            destination
+                .infinite_region()
+                .map_or(-1, |r| i64::from(r.index())),
+            i64::from(destination.region(infinite).map_err(harness)?.is_void()),
         ]);
         if let Some(lock) = &mut outer {
             lock.release(std::slice::from_mut(&mut k.context))

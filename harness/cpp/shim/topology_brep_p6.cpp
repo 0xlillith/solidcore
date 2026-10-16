@@ -95,6 +95,15 @@ SC_EXPORT int32_t sc_topology_brep_p6_eval(
     SmTArray<SmVertex*> vertices; brep->GetVertices(vertices);
     result.push_back(faces.GetSize()); result.push_back(edges.GetSize()); result.push_back(vertices.GetSize());
     SmTArray<SmEdge*> dest_edges; destination.brep->GetEdges(dest_edges); result.push_back(dest_edges.GetSize());
+    SmTArray<SmRegion*> dest_regions; destination.brep->GetRegions(dest_regions);
+    SmRegion* infinite = destination.brep->GetInfiniteRegion();
+    int64_t infinite_index = -1;
+    for (ULONG i=0; i<dest_regions.GetSize(); ++i) {
+        if (dest_regions[i] == infinite) { infinite_index = i; break; }
+    }
+    result.push_back(dest_regions.GetSize());
+    result.push_back(infinite_index);
+    result.push_back(infinite ? infinite->IsVoid() : -1);
     return sc_copy_out(result.data(), result.size(), out, cap, len);
     SC_CATCH
 }

@@ -176,5 +176,9 @@ mod tests {
         let result = eval("", &[3.0, 0.0, 0.0], &request).unwrap();
         assert_eq!(result.first(), Some(&0.0));
         assert_eq!(result.get(1), Some(&65.0));
+        assert_eq!(
+            result.get(result.len() - 3..),
+            Some([1.0, 0.0, 1.0].as_slice())
+        );
     }
 }

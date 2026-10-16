@@ -5970,3 +5970,19 @@ now forwards the caller's lookup into `a_object::notify_with_regions`. The runne
 maps its native callback keys to the actual imported regions in the two operand
 arenas and applies the same `SetIsVoid` as C++. It does not infer region state
 from attributes. These are integration fixes, not upstream defects.
+
+The empty destination fixture explicitly includes the native constructor's void
+infinite region (`SmBrep.cpp:549-552`). Its region count, infinite-region identity
+and raw void flag are read back from C++ and compared with the Rust fixture;
+source and destination have distinct caller-owned object keys. Null-surface face
+fixtures start from a populated B-rep, so every optional native output can be
+preseeded with a non-null object before checking its reset.
+
+The whole-manifest run exposed the existing **HANG-15** cost in
+`topology.edgeuse_p2`, including `bs1_cs0_1e-11_1` from `adversarial.json`. A debugger
+stack shows `CheckAndSetUVTrimCurve -> CreateUVTrimCurve -> DropCurve ->
+SmSurfaceCache::SubdivideToTolerances` about twenty levels deep. An isolated case
+finishes as deferred on `intersect.curve_class_p4`; the full 4583-case unit exceeds
+a 60-second diagnostic timeout. No comparisons or fixtures were removed to hide
+this cost. Progress tracing for the full run is external GDB instrumentation,
+without changes to the test harness or its tolerance policy.
