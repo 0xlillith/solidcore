@@ -101,6 +101,7 @@ use super::p2::{
 };
 use super::{Surface, SurfaceKind};
 
+const OP_GPS: &str = "surface::surface::p4::Surface::global_point_solve";
 const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersectEnfo::evaluate";
 const OP_CS_NORMALIZE: &str = "surface::surface::p4::CsNormalizeEnfo::evaluate";
 const OP_SSP_INTERSECT: &str = "surface::surface::p4::SspIntersectEnfo::evaluate";
@@ -1240,7 +1241,9 @@ impl Surface {
 
     /// The extrema of the distance from `test_point` to the surface over `uv_domain`, as
     /// UV parameter values (`GlobalPointSolve`): a fast drop for planes (intersect and
-    /// minimize), else the global solvers.
+    /// minimize), else the global solvers. `surface` is this surface's handle, which the
+    /// original solver (`GlobalPointSolve_0`, maximize) names in its solutions and
+    /// needs for its cache; `None` is for callers without one, which cannot maximize.
     ///
     /// # Errors
     ///
@@ -1250,6 +1253,7 @@ impl Surface {
     pub fn global_point_solve<O: SolutionObject>(
         &self,
         k: &Kernel,
+        surface: Option<O>,
         uv_domain: &Extent2d,
         op: SolverOperation,
         test_point: Point3,
@@ -1257,6 +1261,43 @@ impl Surface {
         opt_target_distance: Option<f64>,
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
+        let mut solutions = SolutionArray::new();
+        self.global_point_solve_into(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            src_zone_tol_3d,
+            opt_target_distance,
+            requested,
+            &mut solutions,
+        )?;
+        Ok(solutions)
+    }
+
+    /// [`Surface::global_point_solve`] with upstream's out-parameter: `solutions` keeps
+    /// what was found when the call fails (for callers that ignore the status), except
+    /// what the fast drop produced before it failed itself.
+    ///
+    /// # Errors
+    ///
+    /// As [`Surface::global_point_solve`].
+    pub fn global_point_solve_into<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        solutions: &mut SolutionArray<O>,
+    ) -> Result<()> {
+        // init output
+        *solutions = SolutionArray::new();
+
         // Try for cheap drop fast solutions for SmPlane, SmSurfOfExtrusion, and
         // SmSurfOfRevolution cases when appropriate
         if op == SolverOperation::Intersect || op == SolverOperation::Minimize {
@@ -1273,7 +1314,9 @@ impl Surface {
             ))?;
 
             // when dropPointFast works
-            if let Some(mut solutions) = fast.filter(|s| !s.is_empty()) {
+            if let Some(fast) = fast.filter(|s| !s.is_empty()) {
+                *solutions = fast;
+
                 // Reject results that are not within the given domain.  DropPointFast
                 // might not do that.
                 let mut i = 0;
@@ -1311,7 +1354,7 @@ impl Surface {
                 }
 
                 if !solutions.is_empty() {
-                    return Ok(solutions); // all done
+                    return Ok(()); // all done
                 }
             }
         }
@@ -1321,7 +1364,7 @@ impl Surface {
         // MAXIMIZE, but always for DIRECTED.
         let use_new =
             (op != SolverOperation::Maximize) || op == SolverOperation::Signed3dDirectedMaximize;
-        if use_new {
+        *solutions = if use_new {
             self.global_point_solve_1(
                 k,
                 uv_domain,
@@ -1331,17 +1374,26 @@ impl Surface {
                 opt_target_distance,
                 requested,
                 None,
-            )
+            )?
         } else {
+            let Some(surface) = surface else {
+                return Err(SolidError::invalid_input(
+                    OP_GPS,
+                    "maximizing needs the surface's handle",
+                ));
+            };
             self.global_point_solve_0(
+                k,
+                surface,
                 uv_domain,
                 op,
                 test_point,
                 src_zone_tol_3d,
                 opt_target_distance,
                 requested,
-            )
-        }
+            )?
+        };
+        Ok(())
     }
 }
 
@@ -1894,6 +1946,7 @@ pub fn global_point_solve_starts(
 ) -> Result<Vec<SolutionEnd>> {
     let solutions = surface.global_point_solve::<NoObject>(
         k,
+        Some(NoObject),
         uv_domain,
         op,
         point,

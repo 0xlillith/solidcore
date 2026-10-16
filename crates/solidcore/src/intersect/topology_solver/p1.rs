@@ -1477,6 +1477,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let face_tol = objects.face_tolerance(face)?;
             let solutions = surface_global_point_solve(
                 ts.kernel,
+                face_surface,
                 objects.surface(face_surface)?,
                 &uv_domain,
                 op,
@@ -1794,6 +1795,7 @@ pub(super) fn face_silhouettes<O: Copy + PartialEq>(
 /// pdBestAnswer, SM_SR_ALL, solutions)`.
 fn surface_global_point_solve<O: SolutionObject>(
     kernel: &Kernel,
+    handle: O,
     surface: &Surface,
     uv_domain: &Extent2d,
     op: SolverOperation,
@@ -1803,6 +1805,7 @@ fn surface_global_point_solve<O: SolutionObject>(
 ) -> Result<SolutionArray<O>> {
     surface.global_point_solve::<O>(
         kernel,
+        Some(handle),
         uv_domain,
         op,
         point,

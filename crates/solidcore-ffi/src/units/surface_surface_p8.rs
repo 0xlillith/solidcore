@@ -41,6 +41,8 @@ pub const MAX_INDEX: usize = 32;
 pub const MAX_DEGREE: usize = 5;
 /// Largest coordinate magnitude.
 pub const MAX_COORD: f64 = 1.0e6;
+/// `SM_BIG_DOUBLE`.
+const SM_BIG_DOUBLE: f64 = 1.0e20;
 
 const NOW: f64 = -f64::MAX;
 const NOZ: f64 = f64::MAX;
@@ -449,9 +451,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 return Err(bad(format!("solver operation {sop} not supported here")));
             }
             rd.positive("tolerance")?;
-            let best = rd.finite()?;
-            if best < 0.0 {
-                return Err(bad("negative best answer"));
+            // upstream commonly passes SM_BIG_DOUBLE (1e20), above the coordinate bound
+            let best = rd.num()?;
+            if !best.is_finite() || !(0.0..=SM_BIG_DOUBLE).contains(&best) {
+                return Err(bad("best answer outside 0..=SM_BIG_DOUBLE"));
             }
         }
     }

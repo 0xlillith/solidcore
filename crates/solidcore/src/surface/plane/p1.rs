@@ -1134,6 +1134,10 @@ impl Plane {
 
             // when line parameters are the same
             if are_same(t_start, t_end) {
+                // the interval is [tStart - 1, tEnd + 1], or the caller's interval
+                let sub_interval = line_interval
+                    .copied()
+                    .unwrap_or(Extent1d::from_min_max(t_start - 1.0, t_end + 1.0));
                 // try global surface/curve solver (SmSurface::GlobalLineIntersect: the
                 // solutions name `surface`)
                 return Surface::from(self.clone()).base_global_line_intersect(
@@ -1142,7 +1146,7 @@ impl Plane {
                     uv_domain,
                     line_point,
                     line_vector,
-                    line_interval,
+                    Some(&sub_interval),
                     fire_ray,
                     distance_tolerance,
                 );

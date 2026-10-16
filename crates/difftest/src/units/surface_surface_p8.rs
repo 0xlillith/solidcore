@@ -568,6 +568,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 return Ok(vec![-3.0]);
             };
             match st(s.create_blend_surface(
+                &k,
                 &c1,
                 &ivl_of(*ivl1),
                 *right,
@@ -622,6 +623,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             let mut solver =
                 SpGlobalSolver::new(&point_tree, stree, Some(cache.surface()), dom_of(*dom));
             solver.surface_cache = Some(&cache);
+            solver.kernel = Some(&k);
             solver.base.operation = sop_of(*sop)?;
             solver.base.tolerance_3d = *tol;
             solver.base.best_answer_so_far_sq = *best_sq;
@@ -1308,7 +1310,8 @@ fn gen_plane(rng: &mut Rng) -> SrfIn {
     }
 }
 
-/// A revolution of a line coplanar with the axis (a cylinder or a cone).
+/// A revolution of a line coplanar with the axis (a cylinder or a cone, sometimes with its
+/// apex on the axis).
 fn gen_revolution(rng: &mut Rng) -> SrfIn {
     let axis = *rng
         .choose(&[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.5]])
@@ -1322,8 +1325,18 @@ fn gen_revolution(rng: &mut Rng) -> SrfIn {
     } else {
         [1.0, -1.0, 0.0]
     };
-    let r0 = rng.uniform(0.5, 3.0);
-    let r1 = if rng.chance(0.5) { r0 } else { rng.uniform(0.5, 3.0) };
+    // some touch the axis at one end (a cone apex: a collapsed row of the surface)
+    let apex = rng.chance(0.2);
+    let apex_first = rng.chance(0.5);
+    let mut r0 = rng.uniform(0.5, 3.0);
+    let mut r1 = if rng.chance(0.5) { r0 } else { rng.uniform(0.5, 3.0) };
+    if apex {
+        if apex_first {
+            r0 = 0.0;
+        } else {
+            r1 = 0.0;
+        }
+    }
     let h0 = rng.uniform(-2.0, 0.0);
     let h1 = rng.uniform(0.5, 3.0);
     let at = |r: f64, h: f64| {

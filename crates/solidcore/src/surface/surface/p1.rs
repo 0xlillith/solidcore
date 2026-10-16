@@ -2758,6 +2758,7 @@ impl<'t, 's, O: SolutionObject> SpGlobalSolver<'t, 's, O> {
             surface,
             uv_domain,
             surface_cache: None,
+            kernel: None,
         }
     }
 }

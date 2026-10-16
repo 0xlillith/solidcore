@@ -178,11 +178,12 @@ fn surface_drop_point(
 /// `SmSurface::ClassifyIntersectingRangeSolution`: `bIsDegenerate` and, when it is,
 /// the tangent point solution written to `rSolPoint`.
 fn classify_intersecting_range_solution<O: SolutionObject>(
+    k: &Kernel,
     surface: &Surface,
     curve: &Curve,
     solution: &Solution<O>,
 ) -> Result<(bool, Option<RangeTangentPoint>)> {
-    surface.classify_intersecting_range_solution(curve, solution)
+    surface.classify_intersecting_range_solution(k, curve, solution)
 }
 
 /// The outputs of `SmSurface::DropAndTrimCurve` used here.
@@ -1376,9 +1377,9 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
         if !small_interval {
             // (`ClassifyIntersectingRangeSolution` writes only the deviation and the
             // first three parameters of `rCurrSol.m_vStart`)
-            if let Some((degenerate, point)) =
-                ignored(classify_intersecting_range_solution(surface, curve, &curr))?
-            {
+            if let Some((degenerate, point)) = ignored(classify_intersecting_range_solution(
+                k, surface, curve, &curr,
+            ))? {
                 is_degenerate = degenerate;
                 if let Some(pt) = point {
                     curr.start.solution_value = pt.solution_value;
