@@ -83,7 +83,6 @@ const fn null_deref(reason: &'static str) -> SolidError {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetEdges` (`topology.brep_p1`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn edgeuses(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<EdgeuseId>> {
     // init output
@@ -102,7 +101,6 @@ pub fn edgeuses(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetVertices` (`topology.brep_p1`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn shell_vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<VertexId>> {
     let mut out = Vec::new();
@@ -123,7 +121,6 @@ pub fn shell_vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Resu
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep lists (`topology.brep_p1`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn is_manifold_solid(b: &Brep) -> Result<bool> {
     if brep_regions(b)?.len() < 2 {
@@ -146,8 +143,8 @@ pub fn is_manifold_solid(b: &Brep) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep lists (`topology.brep_p1`);
-/// [`SolidError::NotFound`] for a dangling id.
+/// [`SolidError::Unported`] for `SmBrep::GetShells` (`SmRegion::GetShells`,
+/// `topology.shell`); [`SolidError::NotFound`] for a dangling id.
 pub fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
     // sheets have just one shell
     if brep_shells(k, b)?.len() != 1 {
@@ -178,8 +175,8 @@ pub fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep lists (`topology.brep_p1`);
-/// [`SolidError::InvalidInput`] where upstream dereferences null (a manifold edge's
+/// [`SolidError::Unported`] for `SmBrep::GetShells` (`SmRegion::GetShells`,
+/// `topology.shell`); [`SolidError::InvalidInput`] where upstream dereferences null (a manifold edge's
 /// primary edge use, its radial, or either face use missing);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
@@ -238,8 +235,7 @@ pub fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetEdges` (`topology.brep_p1`) and from the
-/// box computation's unported callees (other statuses are ignored, as upstream).
+/// [`SolidError::Unported`] from the box computation's unported callees (other statuses are ignored, as upstream).
 pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)> {
     let edges = brep_edges(b)?;
     if edges.is_empty() {
@@ -288,8 +284,7 @@ pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)>
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep lists (`topology.brep_p1`), the B-rep box
-/// (`query.brep`) and `SmFace::SetTolerance` (`topology.face_p3`);
+/// [`SolidError::Unported`] for the B-rep box (`query.brep`) and `SmFace::SetTolerance` (`topology.face_p3`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn set_tolerance(
     k: &Kernel,
@@ -356,8 +351,8 @@ pub fn set_tolerance(
 ///
 /// # Errors
 ///
-/// The last failing rebuild's error; [`SolidError::Unported`] (immediately) for
-/// `SmBrep::GetEdges` (`topology.brep_p1`) or an unported callee of a rebuild.
+/// The last failing rebuild's error; [`SolidError::Unported`] (immediately) from an
+/// unported callee of a rebuild.
 pub fn rebuild_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
     // init return
     let mut ret = Ok(());
@@ -387,8 +382,8 @@ pub fn rebuild_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetEdges` and `sm_CheckUVTrimCurve`
-/// (`topology.brep_p1`); errors of [`eu1::set_uv_trim_curve`].
+/// Errors of `sm_CheckUVTrimCurve` other than its `SM_ERR` (null dereferences) and of
+/// [`eu1::set_uv_trim_curve`].
 pub fn check_and_fix_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
     for eu in edgeuses(b, None)? {
         if !check_uv_trim_curve(k, b, eu)? {
@@ -404,8 +399,8 @@ pub fn check_and_fix_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetFaces` and `sm_SwapFaceUV`
-/// (`topology.brep_p1`).
+/// [`SolidError::Unported`] from `sm_SwapFaceUV` (`SmFace::SwapUV`,
+/// `topology.face_p1`).
 pub fn swap_uv(k: &mut Kernel, b: &mut Brep, marks: &mut Marks) -> Result<()> {
     let faces = brep_faces(b)?;
 
@@ -820,7 +815,6 @@ fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep face list (`topology.brep_p1`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn delete_stale_caches<O: Copy + PartialEq>(
     b: &Brep,
@@ -938,8 +932,7 @@ fn edgeuse_region(b: &Brep, eu: EdgeuseId) -> Result<Option<RegionId>> {
 /// finds no edge use, and for a vertex use that is neither an edge nor a loop vertex
 /// use; errors of the curve evaluations and sectoring; [`SolidError::InvalidInput`]
 /// where upstream dereferences null; [`SolidError::Unported`] from
-/// `sm_FindSectorOfFace`, `sm_VoteForRegion` and `sm_FindHighestVote`
-/// (`topology.brep_p1`) and `SmShell::GetRegion` (`topology.shell`).
+/// the sectoring callees.
 pub fn local_curve_sector(
     k: &Kernel,
     b: &Brep,
@@ -1111,8 +1104,7 @@ fn cache_entity(object: CacheObject) -> Result<EntityRef> {
 ///
 /// `SM_ERR` when the best hit is closer than `SM_EFF_ZERO * (1 + max |start|)`; errors
 /// of the B-rep box, the solve, the classification load and [`local_curve_sector`];
-/// [`SolidError::Unported`] from the B-rep box (`query.brep`), `GetInfiniteRegion` and
-/// the B-rep lists (`topology.brep_p1`).
+/// [`SolidError::Unported`] from the B-rep box (`query.brep`).
 pub fn ray_fire(
     k: &Kernel,
     b: &Brep,
@@ -1251,7 +1243,7 @@ pub enum OldSurface {
 /// [`SolidError::InvalidInput`] for a face without surface (upstream dereferences it);
 /// [`SolidError::Unported`] for `SmFace::Notify`, `SmFace::CreateUVTrimCurves`
 /// (`topology.face_p3`), `SmFace::SetSurface`, `SmFace::RemoveUVTrimCurves`
-/// (`topology.face_p1`) and `SmBrep::AddDeletedSurface` (`topology.brep_p1`).
+/// (`topology.face_p1`).
 pub fn replace_surface(
     k: &Kernel,
     b: &mut Brep,
@@ -1332,8 +1324,7 @@ fn region_or_infinite(b: &Brep, region: Option<RegionId>) -> Result<RegionId> {
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] without infinite region; [`SolidError::Unported`] for
-/// `GetInfiniteRegion` (`topology.brep_p1`) and the region shell list and shell type
-/// (`topology.shell`); [`SolidError::NotFound`] for a dangling region.
+/// the region shell list and shell type (`topology.shell`); [`SolidError::NotFound`] for a dangling region.
 pub fn make_shell_vertex_topology(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -1447,8 +1438,8 @@ fn remove_vertexuse_from_vertex(b: &mut Brep, vu: VertexuseId) -> Result<()> {
 /// # Errors
 ///
 /// `SM_ERR` when `start` has no shell in the region; [`SolidError::InvalidInput`]
-/// without infinite region; [`SolidError::Unported`] for `GetInfiniteRegion`
-/// (`topology.brep_p1`) and the shell type and members (`topology.shell`);
+/// without infinite region; [`SolidError::Unported`] for the shell type and members
+/// (`topology.shell`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn make_edge_vertex_topology(
     b: &mut Brep,
@@ -1481,9 +1472,8 @@ pub fn make_edge_vertex_topology(
 /// # Errors
 ///
 /// `SM_ERR` when a vertex has no shell in the region; [`SolidError::InvalidInput`]
-/// without infinite region; [`SolidError::Unported`] for `GetInfiniteRegion`
-/// (`topology.brep_p1`) and the shell type, members, child transfer and region shell
-/// list (`topology.shell`); [`SolidError::NotFound`] for a dangling id.
+/// without infinite region; [`SolidError::Unported`] for the shell type, members,
+/// child transfer and region shell list (`topology.shell`); [`SolidError::NotFound`] for a dangling id.
 pub fn make_edge_topology(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -1703,8 +1693,8 @@ pub struct MergedCurves {
 ///
 /// `SM_ERR` when editing is not enabled or a coincident-maybe test is `UNSURE`;
 /// errors of the classification; [`SolidError::InvalidInput`] for a curve handle that
-/// does not resolve or a missing UV curve; [`SolidError::Unported`] from
-/// `m_bEditingEnabled` (`topology.brep_p1`) and the curve classification constructor,
+/// does not resolve or a missing UV curve; [`SolidError::Unported`] from the curve
+/// classification constructor,
 /// `AreCoincidentMaybe`, `ConnectIntervals` and `MergeIntervals`
 /// (`intersect.curve_class_p4`, `_p7`, `_p2`, `_p5`).
 #[allow(clippy::too_many_arguments)]
@@ -1979,8 +1969,7 @@ fn give_edge_curve(
 /// `SM_ERR` when editing is disabled, the edge or a neighbour is not lamina (nor seam),
 /// or no intersection curve meets both extended curves; errors of the geometry calls;
 /// [`SolidError::InvalidInput`] where upstream dereferences null;
-/// [`SolidError::Unported`] from `m_bEditingEnabled` (`topology.brep_p1`),
-/// `SmFace::Notify` (`topology.face_p3`), `SmEdgeuse::GetOrCreateUVTrimCurve` and
+/// [`SolidError::Unported`] from `SmFace::Notify` (`topology.face_p3`), `SmEdgeuse::GetOrCreateUVTrimCurve` and
 /// `NormalizedEvaluate` (`topology.edgeuse_p3`) and those of [`replace_surface`].
 #[allow(clippy::too_many_lines)]
 pub fn mate_lamina_edge_to_surface(
@@ -2390,4 +2379,134 @@ fn normalized_evaluate_3d(k: &Kernel, b: &Brep, eu: EdgeuseId, t: f64) -> Result
         "SmEdgeuse::NormalizedEvaluate",
         "topology.edgeuse_p3",
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::surface::plane::Plane;
+    use crate::topology::Face;
+
+    fn line(a: Point3, b: Point3) -> Curve {
+        Curve::from(BSplineCurve::create_line_segment(3, a, b).unwrap())
+    }
+
+    /// A B-rep with one vertex, one edge (a line from the origin to (2, 0, 0)) and one
+    /// face on the plane z = 1.
+    fn brep() -> (Brep, VertexId, EdgeId, FaceId) {
+        let mut b = Brep::new();
+        let v = b.add_vertex(Point3::new(1.0, 2.0, 3.0)).unwrap();
+        let e = b.add_edge(v, v).unwrap();
+        b.edge_mut(e).unwrap().curve =
+            Some(line(Point3::new(0.0, 0.0, 0.0), Point3::new(2.0, 0.0, 0.0)));
+        let s = b.add_shell().unwrap();
+        let f = b.add_face_record(Face::new(s)).unwrap();
+        b.face_mut(f).unwrap().surface = Some(Surface::from(Plane::from_normal(
+            Point3::new(0.0, 0.0, 1.0),
+            Vec3::new(0.0, 0.0, 1.0),
+        )));
+        (b, v, e, f)
+    }
+
+    fn solution(objects: &[CacheObject], params: &[f64]) -> Solution<CacheObject> {
+        let mut s = Solution::new();
+        for (i, o) in objects.iter().enumerate() {
+            s.objects[i] = Some(*o);
+        }
+        s.num_objects = objects.len();
+        for (i, p) in params.iter().enumerate() {
+            s.start.parameters[i] = *p;
+        }
+        s
+    }
+
+    #[test]
+    fn point_from_solution_walks_the_parameters() {
+        let (b, v, e, f) = brep();
+        // edge (1 parameter), face (2), vertex (0), curve (1)
+        let objs = [
+            CacheObject::Edge(e),
+            CacheObject::Face(f),
+            CacheObject::Vertex(v),
+            CacheObject::Curve(e),
+        ];
+        let s = solution(&objs, &[0.25, 0.5, 0.75, 1.0]);
+        let edge = b.edge(e).unwrap().curve.as_ref().unwrap();
+        assert_eq!(
+            point_from_solution(&b, &s, 0).unwrap(),
+            edge.evaluate_point(0.25).unwrap()
+        );
+        let plane = b.face(f).unwrap().surface.as_ref().unwrap();
+        assert_eq!(
+            point_from_solution(&b, &s, 1).unwrap(),
+            plane.evaluate_point(Point2::new(0.5, 0.75)).unwrap()
+        );
+        assert_eq!(
+            point_from_solution(&b, &s, 2).unwrap(),
+            Point3::new(1.0, 2.0, 3.0)
+        );
+        assert_eq!(
+            point_from_solution(&b, &s, 3).unwrap(),
+            edge.evaluate_point(1.0).unwrap()
+        );
+    }
+
+    #[test]
+    fn point_from_solution_odd_objects() {
+        let (b, _, _, f) = brep();
+        // a surface object is no curve, edge, vertex or face: SE(SM_ERR), the origin
+        let s = solution(&[CacheObject::Surface(f)], &[]);
+        assert_eq!(
+            point_from_solution(&b, &s, 0).unwrap(),
+            Point3::new(0.0, 0.0, 0.0)
+        );
+        // a null object is dereferenced upstream
+        let s = solution(&[], &[]);
+        assert!(matches!(
+            point_from_solution(&b, &s, 0),
+            Err(SolidError::InvalidInput { .. })
+        ));
+    }
+
+    #[test]
+    fn check_and_fix_without_edge_uses() {
+        let (mut b, ..) = brep();
+        let k = Kernel::default();
+        check_and_fix_uv_trim_curves(&k, &mut b).unwrap();
+    }
+
+    #[test]
+    fn notify_without_cache_only_propagates() {
+        let (b, _, e, _) = brep();
+        let mut records = BTreeMap::new();
+        let mut attrs = crate::geom::attribute::AttributeStore::default();
+        let key_of = |x: EntityRef| ObjectRef {
+            type_code: 0,
+            key: crate::geom::attribute::ObjectKey(match x {
+                EntityRef::Edge(e) => u64::from(e.index()) + 1,
+                _ => 0,
+            }),
+        };
+        let mut env = NotifyEnv {
+            records: &mut records,
+            attributes: &mut attrs,
+            context: None,
+            key_of: &key_of,
+            brep_cache: None,
+        };
+        for op in [
+            NotifyOperation::AddToBrep,
+            NotifyOperation::RmFromBrep,
+            NotifyOperation::PreEdit,
+            NotifyOperation::Destruction,
+        ] {
+            notify(
+                &b,
+                &mut env,
+                op,
+                [Some(NotifyArg::Entity(EntityRef::Edge(e))), None, None],
+            )
+            .unwrap();
+        }
+    }
 }
