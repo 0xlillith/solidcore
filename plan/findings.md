@@ -5043,7 +5043,11 @@ suite still requires the supported GNU C++/libstdc++ CI environment.
 
 The two harness units changed for Clang compatibility pass independently:
 `geom.geom_utility_p1` 4185/4185 and `curve.projected_curve` 2727/2727, both
-bit-identical. `surface.cone_p3` passes 1197 cases with 79 dependency deferrals;
-a 10076-case stress run has 9329 passes, 747 dependency deferrals and zero
+bit-identical. `surface.cone_p3` passes 1155 cases with 121 dependency deferrals;
+a 10076-case stress run has 9016 passes, 1060 dependency deferrals and zero
 failures, all compared values bit-identical. Perturbation detects every one of
-1197 comparable default cases.
+1155 comparable default cases.
+
+Crossing-axis coverage uses equal radii and an axis intersection inside both finite
+segments, including generated tiny/huge scales and subdomains; these cases reach
+`sm_AddEllipseIntervalsTrimmedToTwoCones` and explicitly defer on cone part 2.

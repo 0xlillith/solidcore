@@ -302,7 +302,7 @@ impl UnitDiff for Runner {
             17..=19 => 7,
             mode => mode,
         };
-        let top = if mode.is_multiple_of(3) {
+        let top = if mode.is_multiple_of(3) && mode != 9 {
             radius * 0.5
         } else {
             radius
@@ -364,7 +364,7 @@ impl UnitDiff for Runner {
                 },
             );
             if mode == 9 {
-                set(&mut b, 1, -height * 0.5);
+                set(&mut b, 1, height * 0.5);
                 set(&mut b, 2, height * 0.5);
                 set(&mut b, 6, 0.0);
                 set(&mut b, 7, 0.0);
