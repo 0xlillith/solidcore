@@ -259,8 +259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertex::GetTolerance",
-        "unit": "topology.vertex"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "tiny_vertex_check_3d_explicit_zone",
@@ -1303,8 +1303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertex::GetTolerance",
-        "unit": "topology.vertex"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -2195,8 +2195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertex::GetTolerance",
-        "unit": "topology.vertex"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -3103,8 +3103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmVertex::GetTolerance",
-        "unit": "topology.vertex"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0276",
@@ -4249,9 +4249,9 @@
   "cases_total": 411,
   "deferred_by_unit": {
     "curve.crv_on_surf": 27,
-    "intersect.curve_class_p4": 10,
+    "intersect.curve_class_p4": 14,
     "intersect.curve_class_p5": 114,
-    "topology.vertex": 87
+    "topology.vertex": 83
   },
   "max_rel_err": 0.0,
   "pass": true,

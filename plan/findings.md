@@ -5386,7 +5386,7 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 - **Scope.** Ports `IntersectEdges` and `IntersectTSBound` only, with borrowed
   arena boundary views, a native shim, full-record differential runner and fixtures.
-  No implementation or commits from the open part-5 dependency stack are included.
+  No part-5 port implementation or dependency-stack commits are included.
   Part-1 gains a single-interval constructor and its inline cross-hatch setter;
   these initialize the boundary API without co-porting part 2's `ReSet`.
 - **Dependency boundaries.** Edge hits defer on `intersect.curve_class_p5` at
@@ -5432,24 +5432,32 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   9.999999999999999e-14, check3d false, under-construction cache) returned
   C++ 0 versus Rust 1.1102230246251565e-16. All used cross-hatch true.
   Native `ComputeUVPoint` ignores its stored UV and projects the world vertex;
-  the Rust fixture now calls that existing topology operation too. A separate
-  diagnostic confirms bit-identical computed UVs for these three inputs with the
-  current explicit face tolerance; the earlier gap cause is not proven. This
-  validates the current UV construction, not positive insertion: the standalone
-  base still defers those calls. Re-run these seeds when insertion dependencies
-  land, rather than adding a floor or assuming gap agreement.
-- **Validation.** Standalone code/fixture revision `2a3054f0`, official main base
+  the Rust fixture now calls that existing topology operation too and uses the same
+  two-point `Line::from_points` constructor as native. Separate probes confirm
+  bit-identical projected UVs and UV-drop parameter/gap pairs for all three inputs
+  (gap 0), including the formerly mismatched tiny case.
+  The two checked cases exposed native argument aliasing: `IntersectTSBound` passes
+  `&dParam` as its guess and `dParam` as output; `SmCrvOnSurf::DropPoint` (line 1071)
+  initializes the output to zero before reading the guess, as does the base method.
+  Native aliased calls return parameters 0.7192119893119358 / 0.9142183376440705
+  and gaps 1.1641532182693481e-10; separate retained guesses return gap 0.
+  Part 9 now explicitly supplies `Some(0.0)` to preserve this defined behavior.
+  A focused kernel regression matches both native parameter/gap pairs exactly.
+  These probes certify the pre-insertion drop measurements, not the deferred final
+  insertion state. Re-run the complete seeds when insertion dependencies land.
+- **Validation.** Standalone code/fixture revision `3d957eea`, official main base
   `3ae8f8f5`; 1,133 source/config/fixture files match the Linux VM snapshot SHA-256
-  `7dd777246f1df874dd51468667493feffd4f90d07dc57c91144e08e3494d461b`.
+  `65d90049337303bd073f97fa010672a39f5ab0e7a47b8c5f8c38f48c1f9e87f7`.
   Ubuntu 26.04.1 x86_64, Rust 1.98.0, GCC 15.2.0; pinned upstream `c9c5979`.
   Default `difftest` profile (opt-level 1, overflow checks and debug assertions),
   C++ reference `-O2 -ffp-contract=off -fno-fast-math`; one Cargo job under nice.
-  Formatting, strict plain/native Clippy, 1,209 kernel tests, wasm32 checking and
-  34 native FFI tests pass. The fixed relative gate uses no absolute floors:
-  `PARTIAL intersect.curve_class_p9 cases=411 passed=173 failed=0 deferred=238 max_rel_err=0e0 blocked_by=curve.crv_on_surf(27),intersect.curve_class_p4(10),intersect.curve_class_p5(114),topology.vertex(87)`.
+  Formatting, strict plain Clippy, 1,210 kernel tests and wasm32 checking pass.
+  Native Clippy and the 34 native FFI tests are pending on this revision. The fixed relative gate uses no absolute floors:
+  `PARTIAL intersect.curve_class_p9 cases=411 passed=173 failed=0 deferred=238 max_rel_err=0e0 blocked_by=curve.crv_on_surf(27),intersect.curve_class_p4(14),intersect.curve_class_p5(114),topology.vertex(83)`.
   Affected units: `query.face_p2` 1,344 cases / 1,271 pass / 73 deferred;
   `intersect.curve_class_p1` 2,125 cases / 2,048 pass / 77 deferred; neither fails,
   both max_rel_err 0. All three runs include the final native loop-start correction.
-  Rust sources are unchanged from the successful formatting/lint/kernel/wasm/FFI
-  checks. Full `--green` regression is pending: VM ballooning/OOM interrupted its
-  first attempt; temporary pinned memory and swap are retained through the rerun.
+  These results include the aliased-guess fix and two-point-constructor correction.
+  Full `--green` regression is pending.
+  VM ballooning/OOM interrupted the first full attempt; temporary pinned memory
+  and swap are retained through all remaining checks.
