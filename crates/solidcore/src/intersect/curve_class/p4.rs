@@ -15,14 +15,14 @@
 //! Deviations:
 //! - **Object handles.** As in parts 1 and 3, every `SmObject` pointer is a caller-chosen
 //!   handle `O` ([`ClassObject`]) whose geometry comes from a [`ClassGeometry`]; the kernel
-//!   is passed explicitly. A handle of a loop, face, edge, edge use, vertex or vertex use
-//!   carries no `Brep` the port can reach, so every topology member these functions call
-//!   (`SmLoop::GetFace`, `SmFace::GetUpwardFaceuse` / `GetSurface`,
-//!   `SmEdge::GetEdgeuses` / `GetCurve` / `GetInterval`, `SmEdgeuse::GetEdge` /
-//!   `GetOrientation` / `EvaluateBinormal`, `SmVertex::GetVertexusesOfFace`,
-//!   `SmVertexuse::GetVertexuseType` / `ComputeUVSector`) is [`SolidError::Unported`]
-//!   tagged with its owning unit; the reason is the missing handle-to-B-rep resolution
-//!   (`plan/findings.md`, `intersect.curve_class_p4`), not a missing unit.
+//!   is passed explicitly. A loop, face, face use, edge, edge use, vertex or vertex use
+//!   handle reaches its B-rep through the hooks [`ClassGeometry::topology_entity`] and
+//!   [`ClassGeometry::topology_handle`], and the topology members (`SmLoop::GetFace`,
+//!   `SmFace::GetUpwardFaceuse` / `GetSurface`, `SmEdge::GetEdgeuses` / `GetCurve` /
+//!   `GetInterval`, `SmEdgeuse::GetEdge` / `GetOrientation` / `EvaluateBinormal`,
+//!   `SmVertex::GetVertexusesOfFace`, `SmVertexuse::GetVertexuseType` /
+//!   `ComputeUVSector`) are the ported ones; a handle the adapter does not resolve is
+//!   [`SolidError::InvalidInput`] (a gap in the caller's adapter).
 //! - **No back pointer.** `GetIvlBound_EdgeuseObj` is a member of the interval that reaches
 //!   its classification through `m_pCurveClassification`; here it is a method of the
 //!   classification taking the interval index (as in part 1).
@@ -31,10 +31,12 @@
 //!   `GetPointClassifiesConnectedTo` set it (index 0: the first start, `i`: the end of
 //!   interval `i - 1`).
 //! - **Face properties.** `pOptFaceProps` is the real [`FaceProps`] (unit `heal.face_props`);
-//!   its `UNSURE` tri-states read as true, as `if(m_bClosedU)` does. `SetProps_Stage2`
-//!   needs a `Brep` and a face id, which the handle `O` of `loops[0]` does not carry, so
-//!   a call that has to compute stage 2 is [`SolidError::Unported`] (justified: see
-//!   `plan/findings.md`, `intersect.curve_class_p4`).
+//!   its `UNSURE` tri-states read as true, as `if(m_bClosedU)` does. `SetProps_Stage2` runs
+//!   on the B-rep and face id the face handle of `loops[0]` resolves to.
+//! - **`ComputeUVSector`** takes `&mut Brep` in the port; with `bOkToMake` false it creates
+//!   nothing, so it runs on a copy of the B-rep. Its status is ignored as upstream, but an
+//!   error it returns (a failed evaluation, `Unported`) propagates instead of leaving the
+//!   partial outputs.
 //! - **Out-params.** `GetLoopCrossings` returns a [`LoopCrossings`] holding the three
 //!   output arrays; its two `SM_ERR` returns are `Ok` with [`LoopCrossings::sm_err`] set
 //!   and the arrays as upstream leaves them. The constructor returns the classification.
@@ -51,11 +53,12 @@
 //!   messages and the `SM_DEBUG_CODE` blocks (the release build compiles them out).
 //! - **Callees in units not ported yet** return [`SolidError::Unported`]:
 //!   `intersect.curve_class_p2` (`ReSet`, `ConnectIntervals`, `SmCurveInterval::GetMinUV`
-//!   / `GetMaxUV`) and `intersect.curve_class_p7` (`GetPointClassifiesConnectedTo`).
+//!   / `GetMaxUV`), `intersect.curve_class_p7` (`GetPointClassifiesConnectedTo`) and
+//!   `topology.edgeuse_p3` (`SmEdgeuse::EvaluateBinormal`, the stub in `topology::edge`).
 //! - **Recursion.** None.
 
 use crate::curve::curve::p2::Curve;
-use crate::error::{ignore_status, ignored, Result, SolidError};
+use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::{Extent2d, SS_NONE, SS_UMAX, SS_UMIN, SS_VMAX, SS_VMIN};
 use crate::geom::global_solver::SolverOperation;
@@ -65,7 +68,7 @@ use crate::geom::tol::{
     are_same, eff_zero, is_degenerate_vec3, scaled_zero2, xsect_tol_3d_from_zones, zone_tol_3d,
     SmallTopoType, ANG_TOL_DEG,
 };
-use crate::heal::face_props::{FaceProps, LoopObject, PropStage, Tri, UNDEF_ULONG};
+use crate::heal::face_props::{FaceProps, HealerOpType, LoopObject, PropStage, Tri, UNDEF_ULONG};
 use crate::intersect::curve_class::p1::{
     get_connected_touches, CrvDirOnFaceType, CurveClassification, IntervalPosition, TouchData,
 };
@@ -82,6 +85,13 @@ use crate::surface::surface::p1::{map_to_2d, map_to_2d_dir};
 use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::Surface;
+use crate::topology::edge as topo_edge;
+use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::face::p2 as face_p2;
+use crate::topology::loopuse;
+use crate::topology::vertex as topo_vertex;
+use crate::topology::vertexuse as topo_vertexuse;
+use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, VertexuseId};
 
 const OP_CROSS: &str = "intersect::curve_class::p4::CurveClassification::get_loop_crossings";
 const OP_BOUND: &str = "intersect::curve_class::p4::CurveClassification::ivl_bound_edgeuse_obj";
@@ -233,133 +243,259 @@ fn point_classifies_connected_to<O: ClassObject>(
     ))
 }
 
-/// `SmFaceProps::SetProps_Stage2(face, faceIndex, SM_HO_ALL)`.
-fn set_props_stage_2<O: LoopObject>(
+// ---- topology members, through the handle hooks ------------------------------------------
+
+/// The B-rep entity behind topology handle `o` ([`ClassGeometry::topology_entity`]).
+fn entity_of<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    o: O,
+    op: &'static str,
+) -> Result<(&'g Brep, EntityRef)> {
+    geometry
+        .topology_entity(o)
+        .ok_or_else(|| SolidError::invalid_input(op, "unresolved topology handle"))
+}
+
+/// The handle of B-rep entity `e` ([`ClassGeometry::topology_handle`]).
+fn handle_of<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    e: EntityRef,
+    op: &'static str,
+) -> Result<O> {
+    geometry
+        .topology_handle(e)
+        .ok_or_else(|| SolidError::invalid_input(op, "topology entity without handle"))
+}
+
+/// A handle of the wrong topology kind (`reason` names the wanted kind).
+const fn wrong_kind(op: &'static str, reason: &'static str) -> SolidError {
+    SolidError::invalid_input(op, reason)
+}
+
+/// The face of face handle `face`.
+fn face_id<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    face: O,
+    op: &'static str,
+) -> Result<(&'g Brep, FaceId)> {
+    match entity_of(geometry, face, op)? {
+        (b, EntityRef::Face(f)) => Ok((b, f)),
+        _ => Err(wrong_kind(op, "handle is not a face")),
+    }
+}
+
+/// The edge of edge handle `edge`.
+fn edge_id<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    edge: O,
+    op: &'static str,
+) -> Result<(&'g Brep, EdgeId)> {
+    match entity_of(geometry, edge, op)? {
+        (b, EntityRef::Edge(e)) => Ok((b, e)),
+        _ => Err(wrong_kind(op, "handle is not a edge")),
+    }
+}
+
+/// The edge use of edge use handle `edgeuse`.
+fn edgeuse_id<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    edgeuse: O,
+    op: &'static str,
+) -> Result<(&'g Brep, EdgeuseId)> {
+    match entity_of(geometry, edgeuse, op)? {
+        (b, EntityRef::Edgeuse(eu)) => Ok((b, eu)),
+        _ => Err(wrong_kind(op, "handle is not a edge use")),
+    }
+}
+
+/// The vertex use of vertex use handle `vertexuse`.
+fn vertexuse_id<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    vertexuse: O,
+    op: &'static str,
+) -> Result<(&'g Brep, VertexuseId)> {
+    match entity_of(geometry, vertexuse, op)? {
+        (b, EntityRef::Vertexuse(vu)) => Ok((b, vu)),
+        _ => Err(wrong_kind(op, "handle is not a vertex use")),
+    }
+}
+
+/// `SmFaceProps::SetProps_Stage2(face, faceIndex, SM_HO_ALL)` (unit `heal.face_props`) on
+/// the face of `face`; upstream dereferences a `NULL` face (UB-131).
+fn set_props_stage_2<O: LoopObject, G: ClassGeometry<O>>(
+    k: &Kernel,
+    geometry: &G,
     props: &mut FaceProps<O>,
     face: Option<O>,
     face_index: u64,
 ) -> Result<()> {
-    let _ = (props, face, face_index);
-    // UNPORTED(heal.face_props): SmFaceProps::SetProps_Stage -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)2
-    Err(SolidError::unported(
-        "SmFaceProps::SetProps_Stage2",
-        "heal.face_props",
-    ))
+    let face =
+        face.ok_or_else(|| SolidError::invalid_input(OP_CROSS, "loop without a face (UB-131)"))?;
+    let (b, f) = face_id(geometry, face, OP_CROSS)?;
+    props.set_props_stage2(k, b, f, face_index, HealerOpType::All)
 }
 
-/// `SmLoop::GetFace` (opaque handle: no `Brep`).
-fn loop_face<O: ClassObject>(lp: O) -> Result<Option<O>> {
-    let _ = lp;
-    // UNPORTED(topology.loopuse): SmLoop::GetFace -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported("SmLoop::GetFace", "topology.loopuse"))
+/// `SmLoop::GetFace` (unit `topology.loopuse`).
+fn loop_face<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, lp: O) -> Result<Option<O>> {
+    let (b, l) = match entity_of(geometry, lp, OP_CROSS)? {
+        (b, EntityRef::Loop(l)) => (b, l),
+        _ => return Err(wrong_kind(OP_CROSS, "handle is not a loop")),
+    };
+    loopuse::loop_face(b, l)?
+        .map(|f| handle_of(geometry, EntityRef::Face(f), OP_CROSS))
+        .transpose()
 }
 
-/// `SmFace::GetUpwardFaceuse` (opaque handle: no `Brep`).
-fn face_upward_faceuse<O: ClassObject>(face: O) -> Result<Option<O>> {
-    let _ = face;
-    // UNPORTED(topology.face_p2): SmFace::GetUpwardFaceuse -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmFace::GetUpwardFaceuse",
-        "topology.face_p2",
-    ))
-}
-
-/// `SmFace::GetSurface` (opaque handle: no `Brep`).
-fn face_surface<O: ClassObject, G: ClassGeometry<O>>(
+/// `SmFace::GetUpwardFaceuse` (unit `topology.face_p2`).
+fn face_upward_faceuse<O: ClassObject, G: ClassGeometry<O>>(
     geometry: &G,
     face: O,
-) -> Result<Option<&Surface>> {
-    let _ = (geometry, face);
-    // UNPORTED(topology.face_p2): SmFace::GetSurface -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmFace::GetSurface",
-        "topology.face_p2",
-    ))
+    op: &'static str,
+) -> Result<Option<O>> {
+    let (b, f) = face_id(geometry, face, op)?;
+    face_p2::upward_faceuse(b, f)?
+        .map(|fu| handle_of(geometry, EntityRef::Faceuse(fu), op))
+        .transpose()
 }
 
-/// `SmEdge::GetEdgeuses(edgeuses, NULL, faceuse)` (opaque handle: no `Brep`).
-fn edge_edgeuses<O: ClassObject>(edge: O, faceuse: Option<O>) -> Result<Vec<O>> {
-    let _ = (edge, faceuse);
-    // UNPORTED(topology.edge): SmEdge::GetEdgeuses -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported("SmEdge::GetEdgeuses", "topology.edge"))
+/// `SmFace::GetSurface` (unit `topology.face_p2`).
+fn face_surface<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    face: O,
+    op: &'static str,
+) -> Result<Option<&'g Surface>> {
+    let (b, f) = face_id(geometry, face, op)?;
+    Ok(b.face(f)?.surface.as_ref())
 }
 
-/// `SmEdge::GetCurve` (opaque handle: no `Brep`).
-fn edge_curve<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, edge: O) -> Result<&Curve> {
-    let _ = (geometry, edge);
-    // UNPORTED(topology.edge): SmEdge::GetCurve -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported("SmEdge::GetCurve", "topology.edge"))
+/// The B-rep entity of an optional connected-to handle (`NULL` stays `None`).
+fn connected_entity<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    o: Option<O>,
+    op: &'static str,
+) -> Result<Option<EntityRef>> {
+    o.map(|o| entity_of(geometry, o, op).map(|(_, e)| e))
+        .transpose()
 }
 
-/// `SmEdge::GetInterval` (opaque handle: no `Brep`).
-fn edge_interval<O: ClassObject>(edge: O) -> Result<Extent1d> {
-    let _ = edge;
-    // UNPORTED(topology.edge): SmEdge::GetInterval -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported("SmEdge::GetInterval", "topology.edge"))
+/// `SmEdge::GetEdgeuses(edgeuses, NULL, faceuse)` (unit `topology.edge`).
+fn edge_edgeuses<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    edge: O,
+    faceuse: Option<O>,
+    op: &'static str,
+) -> Result<Vec<O>> {
+    let (b, e) = edge_id(geometry, edge, op)?;
+    let connected = connected_entity(geometry, faceuse, op)?;
+    topo_edge::edgeuses(b, e, None, connected)?
+        .into_iter()
+        .map(|eu| handle_of(geometry, EntityRef::Edgeuse(eu), op))
+        .collect()
 }
 
-/// `SmEdgeuse::GetEdge` (opaque handle: no `Brep`).
-fn edgeuse_edge<O: ClassObject>(edgeuse: O) -> Result<O> {
-    let _ = edgeuse;
-    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetEdge -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmEdgeuse::GetEdge",
-        "topology.edgeuse_p1",
-    ))
+/// `SmEdge::GetCurve` (unit `topology.edge`), dereferenced upstream.
+fn edge_curve<'g, O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &'g G,
+    edge: O,
+) -> Result<&'g Curve> {
+    let (b, e) = edge_id(geometry, edge, OP_CROSS)?;
+    topo_edge::curve(b, e)?.ok_or_else(|| SolidError::null_pointer(OP_CROSS))
 }
 
-/// `SmEdgeuse::GetOrientation` (opaque handle: no `Brep`).
-fn edgeuse_orientation<O: ClassObject>(edgeuse: O) -> Result<OrientType> {
-    let _ = edgeuse;
-    // UNPORTED(topology.edgeuse_p1): SmEdgeuse::GetOrientation -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrientation",
-        "topology.edgeuse_p1",
-    ))
+/// `SmEdge::GetInterval` (unit `topology.edge`).
+fn edge_interval<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, edge: O) -> Result<Extent1d> {
+    let (b, e) = edge_id(geometry, edge, OP_CROSS)?;
+    topo_edge::interval(b, e)
 }
 
-/// `SmEdgeuse::EvaluateBinormal(param, TRUE, ...)` (opaque handle: no `Brep`).
-fn edgeuse_evaluate_binormal<O: ClassObject>(edgeuse: O, param: f64) -> Result<Binormal> {
-    let _ = (edgeuse, param);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+/// `SmEdgeuse::GetEdge` (unit `topology.edgeuse_p1`), dereferenced upstream.
+fn edgeuse_edge<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, edgeuse: O) -> Result<O> {
+    let (b, eu) = edgeuse_id(geometry, edgeuse, OP_CROSS)?;
+    let e = eu1::edge(b, eu)?.ok_or_else(|| SolidError::null_pointer(OP_CROSS))?;
+    handle_of(geometry, EntityRef::Edge(e), OP_CROSS)
 }
 
-/// `SmVertex::GetVertexusesOfFace(face, vertexuses, faceuse)` (opaque handle: no `Brep`).
-fn vertex_vertexuses_of_face<O: ClassObject>(
+/// `SmEdgeuse::GetOrientation` (unit `topology.edgeuse_p1`).
+fn edgeuse_orientation<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    edgeuse: O,
+    op: &'static str,
+) -> Result<OrientType> {
+    let (b, eu) = edgeuse_id(geometry, edgeuse, op)?;
+    eu1::orientation(b, eu)
+}
+
+/// `SmEdgeuse::EvaluateBinormal(param, TRUE, ...)` (unit `topology.edgeuse_p3`, through the
+/// stub in `topology::edge`).
+fn edgeuse_evaluate_binormal<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    edgeuse: O,
+    param: f64,
+) -> Result<Binormal> {
+    let (b, eu) = edgeuse_id(geometry, edgeuse, OP_CROSS)?;
+    let r = topo_edge::evaluate_binormal(b, eu, param, true)?;
+    Ok(Binormal {
+        point: r.point,
+        binormal: r.binormal,
+    })
+}
+
+/// `SmVertex::GetVertexusesOfFace(face, vertexuses, faceuse)` (unit `topology.vertex`).
+fn vertex_vertexuses_of_face<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
     vertex: O,
     face: Option<O>,
     faceuse: Option<O>,
 ) -> Result<Vec<O>> {
-    let _ = (vertex, face, faceuse);
-    // UNPORTED(topology.vertex): SmVertex::GetVertexusesOfFace -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmVertex::GetVertexusesOfFace",
-        "topology.vertex",
-    ))
+    let (b, v) = match entity_of(geometry, vertex, OP_CROSS)? {
+        (b, EntityRef::Vertex(v)) => (b, v),
+        _ => return Err(wrong_kind(OP_CROSS, "handle is not a vertex")),
+    };
+    let face = face
+        .map(|f| face_id(geometry, f, OP_CROSS).map(|(_, f)| f))
+        .transpose()?;
+    let connected = connected_entity(geometry, faceuse, OP_CROSS)?;
+    topo_vertex::vertexuses_of_face(b, v, face, connected)?
+        .into_iter()
+        .map(|vu| handle_of(geometry, EntityRef::Vertexuse(vu), OP_CROSS))
+        .collect()
 }
 
-/// `SmVertexuse::GetVertexuseType() == SmLoopuse_TYPE` (opaque handle: no `Brep`).
-fn vertexuse_is_loop_vertexuse<O: ClassObject>(vertexuse: O) -> Result<bool> {
-    let _ = vertexuse;
-    // UNPORTED(topology.vertexuse): SmVertexuse::GetVertexuseType -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmVertexuse::GetVertexuseType",
-        "topology.vertexuse",
-    ))
+/// `SmVertexuse::GetVertexuseType() == SmLoopuse_TYPE` (unit `topology.vertexuse`).
+fn vertexuse_is_loop_vertexuse<O: ClassObject, G: ClassGeometry<O>>(
+    geometry: &G,
+    vertexuse: O,
+) -> Result<bool> {
+    let (b, vu) = vertexuse_id(geometry, vertexuse, OP_CROSS)?;
+    Ok(topo_vertexuse::vertexuse_type(b, vu)? == topo_vertexuse::LOOPUSE_TYPE)
 }
 
-/// `SmVertexuse::ComputeUVSector(sectorIO, FALSE)` (opaque handle: no `Brep`).
-fn vertexuse_compute_uv_sector<O: ClassObject>(vertexuse: O) -> Result<UvSectorIo<O>> {
-    let _ = vertexuse;
-    // UNPORTED(topology.vertexuse): SmVertexuse::ComputeUVSector -- justified: findings.md "intersect.curve_class_p4" (the opaque handle `O` reaches no Brep)
-    Err(SolidError::unported(
-        "SmVertexuse::ComputeUVSector",
-        "topology.vertexuse",
-    ))
+/// `SmVertexuse::ComputeUVSector(sectorIO, FALSE)` (unit `topology.vertexuse`) with the
+/// status ignored: a failed computation keeps the outputs it wrote. With `bOkToMake` false
+/// nothing is created, so the port runs it on a copy of the B-rep (it takes `&mut Brep`).
+fn vertexuse_compute_uv_sector<O: ClassObject, G: ClassGeometry<O>>(
+    k: &Kernel,
+    geometry: &G,
+    vertexuse: O,
+) -> Result<UvSectorIo<O>> {
+    let (b, vu) = vertexuse_id(geometry, vertexuse, OP_CROSS)?;
+    let mut scratch = b.clone();
+    let io = topo_vertexuse::compute_uv_sector(k, &mut scratch, vu, false)?.io;
+    let eu_handle = |eu: Option<EdgeuseId>| -> Result<Option<O>> {
+        eu.map(|eu| handle_of(geometry, EntityRef::Edgeuse(eu), OP_CROSS))
+            .transpose()
+    };
+    Ok(UvSectorIo {
+        beg_edgeuse: eu_handle(io.beg_edgeuse)?,
+        end_edgeuse: eu_handle(io.end_edgeuse)?,
+        beg_edge_param: io.beg_edge_param,
+        end_edge_param: io.end_edge_param,
+        beg_edge_uv_point: io.beg_edge_uv_point,
+        end_edge_uv_point: io.end_edge_uv_point,
+        beg_edge_uv_tan: io.beg_edge_uv_tan,
+        end_edge_uv_tan: io.end_edge_uv_tan,
+        vertex_on_pole: io.vertex_on_pole,
+    })
 }
 
 // ---- helpers ------------------------------------------------------------------------------
@@ -618,10 +754,10 @@ impl<O: ClassObject> CurveClassification<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::InvalidInput`] for `index >= size()` and a classification without a
-    /// face (upstream calls `GetUpwardFaceuse` on `NULL`, UB-124);
-    /// [`SolidError::Unported`] for the face, edge and edge use members (opaque handles)
-    /// and `GetMinUV` / `GetMaxUV` (unit `intersect.curve_class_p2`).
+    /// [`SolidError::InvalidInput`] for `index >= size()`, a classification without a
+    /// face (upstream calls `GetUpwardFaceuse` on `NULL`, UB-124) and a face, edge or edge
+    /// use handle `geometry` does not resolve; [`SolidError::Unported`] for `GetMinUV` /
+    /// `GetMaxUV` (unit `intersect.curve_class_p2`).
     pub fn ivl_bound_edgeuse_obj<G: ClassGeometry<O>>(
         &self,
         geometry: &G,
@@ -638,8 +774,8 @@ impl<O: ClassObject> CurveClassification<O> {
         let face = classify_face.ok_or_else(|| {
             SolidError::invalid_input(OP_BOUND, "classification without a face (UB-124)")
         })?;
-        let upper_faceuse = face_upward_faceuse(face)?;
-        let classify_surface = face_surface(geometry, face)?;
+        let upper_faceuse = face_upward_faceuse(geometry, face, OP_BOUND)?;
+        let classify_surface = face_surface(geometry, face, OP_BOUND)?;
 
         // no work - not bounded by an Edge on a Face with a Surface
         let (Some(tgt_edge_obj), Some(classify_surface)) = (tgt_edge_obj, classify_surface) else {
@@ -647,7 +783,7 @@ impl<O: ClassObject> CurveClassification<O> {
         };
 
         // Get TgtEdgeObj Edgeuses connected to CrvClassification->Face->UpperFaceuse
-        let edgeuses = edge_edgeuses(tgt_edge_obj, upper_faceuse)?;
+        let edgeuses = edge_edgeuses(geometry, tgt_edge_obj, upper_faceuse, OP_BOUND)?;
 
         // ObjCrv Pt/1stDer at ObjCrv/ClassifyCrv XSect
         let tgt_object_crv = tgt_pt_classify
@@ -692,12 +828,12 @@ impl<O: ClassObject> CurveClassification<O> {
 
         // get IvlBounding Edgeuse from desired Edgeuse orientation
         if let Some(&e0) = edgeuses.first() {
-            if edgeuse_orientation(e0)? == tgt_orient {
+            if edgeuse_orientation(geometry, e0, OP_BOUND)? == tgt_orient {
                 return Ok(Some(e0));
             }
         }
         if let Some(&e1) = edgeuses.get(1) {
-            if edgeuse_orientation(e1)? == tgt_orient {
+            if edgeuse_orientation(geometry, e1, OP_BOUND)? == tgt_orient {
                 return Ok(Some(e1));
             }
         }
@@ -731,10 +867,11 @@ impl<O: ClassObject> CurveClassification<O> {
     /// # Errors
     ///
     /// [`SolidError::InvalidInput`] for a face without surface or a classification without
-    /// curve (upstream dereferences them before its `NULL` checks, UB-124);
-    /// [`SolidError::Unported`] for the loop, face, edge and vertex members (opaque
-    /// handles), `SetProps_Stage2` (`heal.face_props`) and
-    /// `GetPointClassifiesConnectedTo` (`intersect.curve_class_p7`).
+    /// curve (upstream dereferences them before its `NULL` checks, UB-124), a loop without
+    /// face when stage 2 is computed (UB-131) and a topology handle `geometry` does not
+    /// resolve; those of `SetProps_Stage2`; [`SolidError::Unported`] for
+    /// `GetPointClassifiesConnectedTo` (`intersect.curve_class_p7`) and
+    /// `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn get_loop_crossings<G: ClassGeometry<O>>(
         &self,
@@ -768,24 +905,24 @@ impl<O: ClassObject> CurveClassification<O> {
 
         // must have Face SM_PROPSTAGE_2 Props - when pOptFaceProps is not given
         if props.prop_stage < PropStage::Stage2A {
-            let face = loop_face(loop0)?;
+            let face = loop_face(geometry, loop0)?;
             let face_index = if props.face_index == UNDEF_ULONG {
                 0
             } else {
                 props.face_index
             };
-            ignore_status(set_props_stage_2(props, face, face_index))?;
+            ignore_status(set_props_stage_2(k, geometry, props, face, face_index))?;
         }
 
         // Tgt Face and Surface Props
-        let face = loop_face(loop0)?;
+        let face = loop_face(geometry, loop0)?;
         let face_xsect_tol_3d = xsect_tol_3d_from_zones(k, props.zone_tol_3d, props.zone_tol_3d);
         let upper_faceuse = match face {
-            Some(f) => face_upward_faceuse(f)?,
+            Some(f) => face_upward_faceuse(geometry, f, OP_CROSS)?,
             None => None,
         };
         let surface = match face {
-            Some(f) => face_surface(geometry, f)?,
+            Some(f) => face_surface(geometry, f, OP_CROSS)?,
             None => None,
         };
         // pSurface->GetNaturalUVDomain() before the NULL check: UB-124
@@ -1238,7 +1375,8 @@ impl<O: ClassObject> CurveClassification<O> {
 
         if let Some(vertex) = this_vertex {
             // ---- VertexTouch branch
-            let mut vertexuses = vertex_vertexuses_of_face(vertex, c.face, c.upper_faceuse)?;
+            let mut vertexuses =
+                vertex_vertexuses_of_face(c.geometry, vertex, c.face, c.upper_faceuse)?;
 
             // no work - no Vertexuses connected to Face->TgtLoop
             if vertexuses.is_empty() {
@@ -1248,7 +1386,7 @@ impl<O: ClassObject> CurveClassification<O> {
             // Vertex-loop vertexuses are not two-arm face sectors: zero-length cracks
             let mut kept = Vec::with_capacity(vertexuses.len());
             for &vu in &vertexuses {
-                if vertexuse_is_loop_vertexuse(vu)? {
+                if vertexuse_is_loop_vertexuse(c.geometry, vu)? {
                     continue;
                 }
                 kept.push(vu);
@@ -1268,7 +1406,7 @@ impl<O: ClassObject> CurveClassification<O> {
             let mut sectors = Vec::with_capacity(vertexuses.len());
             let mut sector_ivl_rad = Vec::with_capacity(vertexuses.len());
             for &vu in &vertexuses {
-                let sector = vertexuse_compute_uv_sector(vu)?;
+                let sector = vertexuse_compute_uv_sector(c.k, c.geometry, vu)?;
                 let beg_rad = ccw_angle(sector.beg_edge_uv_tan)?;
                 let end_rad = ccw_angle(sector.end_edge_uv_tan)?;
                 let mut ivl = PeriodicExtent1d::full(TWO_PI);
@@ -1394,7 +1532,8 @@ impl<O: ClassObject> CurveClassification<O> {
                         let tgt_edgeuse =
                             tgt_edgeuse.ok_or_else(|| SolidError::null_pointer(OP_CROSS))?;
                         let speed_ratio = classify_crv_uv_1st_dir.length() / end_speed;
-                        let tgt_ivl = edge_interval(edgeuse_edge(tgt_edgeuse)?)?;
+                        let tgt_ivl =
+                            edge_interval(c.geometry, edgeuse_edge(c.geometry, tgt_edgeuse)?)?;
                         let ivl_beg = are_same(end_param, tgt_ivl.min());
                         let mut smp_edgeuse_param = if ivl_beg {
                             tgt_ivl.min()
@@ -1412,7 +1551,11 @@ impl<O: ClassObject> CurveClassification<O> {
                             * smp_edgeuse_step.abs();
                         for _ in 0..10 {
                             let smp_pn = eval_pn(c.classify_crv, smp_classify_crv_param)?;
-                            let bn = edgeuse_evaluate_binormal(tgt_edgeuse, smp_edgeuse_param)?;
+                            let bn = edgeuse_evaluate_binormal(
+                                c.geometry,
+                                tgt_edgeuse,
+                                smp_edgeuse_param,
+                            )?;
                             let gap = smp_pn[0] - bn.point;
                             if !is_degenerate_vec3(c.k, gap, None) {
                                 let dir = if bn.binormal.dot(gap) > 0.0 {
@@ -1451,11 +1594,11 @@ impl<O: ClassObject> CurveClassification<O> {
         } else if let Some(edge) = this_edge {
             // ---- EdgeTouch branch
             let edge_crv = edge_curve(c.geometry, edge)?;
-            let edge_ivl = edge_interval(edge)?;
+            let edge_ivl = edge_interval(c.geometry, edge)?;
             let edge_param = pt_classify.t_param();
 
             // Edge->Edgeuses connected to the face's upper faceuse, Edge Pt/1stDer
-            let edgeuses = edge_edgeuses(edge, c.upper_faceuse)?;
+            let edgeuses = edge_edgeuses(c.geometry, edge, c.upper_faceuse, OP_CROSS)?;
             let edge_pn = eval_pn(edge_crv, edge_param)?;
             let _edge_uv = drop_uv(
                 c.k,
@@ -1471,7 +1614,7 @@ impl<O: ClassObject> CurveClassification<O> {
             let are_tangent = edge_pn[1].is_parallel_to(classify_crv_pn[1], ANG_TOL_DEG);
 
             for &edgeuse in &edgeuses {
-                let orient = edgeuse_orientation(edgeuse)?;
+                let orient = edgeuse_orientation(c.geometry, edgeuse, OP_CROSS)?;
                 let edgeuse_tan = if orient == OrientType::Same {
                     edge_pn[1]
                 } else {
@@ -1562,7 +1705,8 @@ impl<O: ClassObject> CurveClassification<O> {
 
                         for _ in 0..smp_cnt {
                             let smp_pn = eval_pn(c.classify_crv, smp_classify_crv_param)?;
-                            let bn = edgeuse_evaluate_binormal(edgeuse, smp_edgeuse_param)?;
+                            let bn =
+                                edgeuse_evaluate_binormal(c.geometry, edgeuse, smp_edgeuse_param)?;
                             let gap = smp_pn[0] - bn.point;
                             if !is_degenerate_vec3(c.k, gap, None) {
                                 let dir = if bn.binormal.dot(gap) > 0.0 {

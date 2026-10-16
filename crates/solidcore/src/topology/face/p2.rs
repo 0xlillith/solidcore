@@ -99,7 +99,7 @@
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::CurveKind;
 use crate::curve::curve::Curve;
-use crate::error::{Result, SolidError};
+use crate::error::{EntityRef, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::SolverOperation;
@@ -378,14 +378,25 @@ fn face_classify_uv_line(
     ))
 }
 
-/// The handles of a curve classification of face `f` (`SmFace::CurveOnClassify`): the face,
-/// its vertices and surface, and the classified curve.
+/// The handles of a curve classification of face `f` (`SmFace::CurveOnClassify`): the
+/// B-rep's topology (the face, its loops, edges, vertices and their uses), the face's
+/// surface, and the classified curve.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ClassHandle {
     /// A face.
     Face(FaceId),
     /// A vertex.
     Vertex(VertexId),
+    /// A loop.
+    Loop(LoopId),
+    /// An edge.
+    Edge(EdgeId),
+    /// A face use.
+    Faceuse(FaceuseId),
+    /// An edge use.
+    Edgeuse(EdgeuseId),
+    /// A vertex use.
+    Vertexuse(VertexuseId),
     /// The surface of a face.
     Surface(FaceId),
     /// The classified curve (and its UV curve: upstream passes the same curve for both).
@@ -397,6 +408,11 @@ impl ClassObject for ClassHandle {
         match self {
             Self::Face(_) => ClassObjectKind::Face,
             Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Loop(_) => ClassObjectKind::Loop,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Faceuse(_) => ClassObjectKind::Faceuse,
+            Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
+            Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
             Self::Surface(_) => ClassObjectKind::Surface,
             Self::Curve => ClassObjectKind::Curve,
         }
@@ -428,9 +444,11 @@ impl CurveOnClassifyObjects<ClassHandle> for FaceClassifyObjects<'_> {
     fn curve(&self, curve: ClassHandle) -> Option<&Curve> {
         (curve == ClassHandle::Curve).then_some(self.curve)
     }
-    fn loop_id(&self, _tgt_loop: ClassHandle) -> Option<LoopId> {
-        // the classification has no target loops
-        None
+    fn loop_id(&self, tgt_loop: ClassHandle) -> Option<LoopId> {
+        match tgt_loop {
+            ClassHandle::Loop(l) => Some(l),
+            _ => None,
+        }
     }
 }
 
@@ -463,12 +481,37 @@ impl ClassGeometry<ClassHandle> for FaceClassifyObjects<'_> {
     fn point(&self, _o: ClassHandle) -> Option<Point3> {
         None
     }
+    fn topology_entity(&self, o: ClassHandle) -> Option<(&Brep, EntityRef)> {
+        let e = match o {
+            ClassHandle::Face(f) => EntityRef::Face(f),
+            ClassHandle::Vertex(v) => EntityRef::Vertex(v),
+            ClassHandle::Loop(l) => EntityRef::Loop(l),
+            ClassHandle::Edge(e) => EntityRef::Edge(e),
+            ClassHandle::Faceuse(fu) => EntityRef::Faceuse(fu),
+            ClassHandle::Edgeuse(eu) => EntityRef::Edgeuse(eu),
+            ClassHandle::Vertexuse(vu) => EntityRef::Vertexuse(vu),
+            ClassHandle::Surface(_) | ClassHandle::Curve => return None,
+        };
+        Some((self.brep, e))
+    }
+    fn topology_handle(&self, e: EntityRef) -> Option<ClassHandle> {
+        match e {
+            EntityRef::Face(f) => Some(ClassHandle::Face(f)),
+            EntityRef::Vertex(v) => Some(ClassHandle::Vertex(v)),
+            EntityRef::Loop(l) => Some(ClassHandle::Loop(l)),
+            EntityRef::Edge(e) => Some(ClassHandle::Edge(e)),
+            EntityRef::Faceuse(fu) => Some(ClassHandle::Faceuse(fu)),
+            EntityRef::Edgeuse(eu) => Some(ClassHandle::Edgeuse(eu)),
+            EntityRef::Vertexuse(vu) => Some(ClassHandle::Vertexuse(vu)),
+            _ => None,
+        }
+    }
 }
 
 /// `SmCurveClassification(curve, curve->GetNaturalInterval(), uv_curve, tol, data_size,
 /// data, FALSE, TRUE, surface)` (the UV curve, when given, is the curve itself; the surface
-/// is the face's), then `SetDoingCrossHatch(TRUE)` when `cross_hatch`, followed by
-/// `SER(CurveOnClassify(TRUE, classification))` of face `f`: the intervals.
+/// is the face's), followed by `SER(CurveOnClassify(TRUE, classification))` of face `f`:
+/// the intervals.
 #[allow(clippy::too_many_arguments)] // upstream's constructor arguments
 fn classify_curve_on_face(
     k: &Kernel,
@@ -478,7 +521,6 @@ fn classify_curve_on_face(
     with_uv_curve: bool,
     tol: f64,
     data_size: usize,
-    cross_hatch: bool,
 ) -> Result<Vec<CurveInterval<ClassHandle>>> {
     let objects = FaceClassifyObjects { brep: b, curve };
     let init = ClassificationInit {
@@ -496,9 +538,6 @@ fn classify_curve_on_face(
         ti: None,
     };
     let mut classification = CurveClassification::with_curve(k, &init)?;
-    if cross_hatch {
-        classification.set_doing_cross_hatch(true);
-    }
     // bHasBigGaps, bDoCheck3d: FALSE; bUVSpaceOkay: TRUE (the defaults)
     curve_on_classify(
         k,
@@ -1058,7 +1097,7 @@ pub fn points_in_face(
             // classify the isoParameter UVTrimCurve against the face
             let tol = face.tolerance;
             let crv = Curve::from(uv_curve.clone());
-            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 0, false)?;
+            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 0)?;
             if intervals
                 .iter()
                 .any(|ivl| ivl.mid.point_class() == PointClassType::Face)
@@ -1663,7 +1702,7 @@ pub fn create_curves_by_trimming(
             }
 
             // classify the UVCurve against the face
-            let intervals = classify_curve_on_face(k, b, f, curve, true, tol_uv, 20, false)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, true, tol_uv, 20)?;
 
             // for every curve classification
             for ivl in &intervals {
@@ -1722,7 +1761,7 @@ pub fn create_curves_by_trimming(
             }
 
             // Classify the curve against the face
-            let intervals = classify_curve_on_face(k, b, f, curve, false, tol_3d, 20, false)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, false, tol_3d, 20)?;
 
             for ivl in &intervals {
                 if ivl.mid.point_class() == PointClassType::Face

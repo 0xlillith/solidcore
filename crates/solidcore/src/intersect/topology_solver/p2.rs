@@ -48,7 +48,7 @@ use crate::geom::global_solver::{GlobalSolve, SolutionRequested, SolverOperation
 use crate::geom::object::{Shape, ShapeMember};
 use crate::geom::solution_array::SolutionObject;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionType, SortKey};
-use crate::geom::tol::are_same;
+use crate::geom::tol::{are_same, zone_tol3d};
 use crate::geom::tree::{AuxDataType, Tree};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::curve_class::p4::ClassificationInit;
@@ -221,7 +221,8 @@ fn classified_curve_intervals<O>(
         curve: Some(SolverCurveHandle),
         interval: *interval,
         uv_curve: None,
-        src_zone_tol_3d: tol,
+        // the double converts to the SmZoneTol3d parameter
+        src_zone_tol_3d: zone_tol3d(kernel, tol),
         opt_data_size: 10,
         is_curve_owned: false,
         is_curve_current: true,
@@ -232,8 +233,9 @@ fn classified_curve_intervals<O>(
     };
     let _classification = CurveClassification::with_curve(kernel, &init)?;
     // UNPORTED(query.face_p2): SmFace::CurveOnClassify -- justified: plan/findings.md
-    // "intersect.curve_class_p4" (the face is an opaque handle `O` that reaches no Brep, as for
-    // PointClassify in topology_solver::p1; the constructor above defers on ReSet first)
+    // "intersect.curve_class_p4" (the solver's object adapter has no face -> (Brep, FaceId) /
+    // CurveOnClassifyObjects resolution for its handle `O`, as for PointClassify in
+    // topology_solver::p1; unreachable today: the constructor above defers on ReSet first)
     Err(SolidError::unported(
         "SmFace::CurveOnClassify",
         "query.face_p2",
