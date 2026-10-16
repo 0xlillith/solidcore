@@ -5458,3 +5458,29 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## topology.brep_p7 (`SmBrep.cpp` part 7: `ReadFromFile`, `MakeFace`, `MakeFaceWithCurves`, `GlueEdgesGeneral`, `CopyFaces`, `MergeSelfIntersectionCurves`; PR #155, 2026-10-16; partial, no disagreements)
+
+- **Mostly deferred by design.** Every path that builds topology reaches an unported
+  `SmBrep` part first: `MakeTopologyFromData` (`topology.brep_p10`) for every read past
+  `SmBrepData::ReadFromFile`, `MakeShellVertex` / `MakeFaceTopology` / `GetInfiniteRegion`
+  (`topology.brep_p9` / `_p6` / `_p1`) for every face made, `SmBrep::Notify`
+  (`topology.brep_p2`) for every glue past its early returns, `SmBrep::SetTolerance`
+  (`topology.brep_p2`) for every copy. The passing cases are the read errors of damaged
+  files, the input errors of the face makers, `MakeFace`'s null-surface status, the glue
+  no-ops and `MergeSelfIntersectionCurves` without curves.
+- **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
+  on both sides (rejected streams are not generated). A damaged stream whose
+  `SmBrepData` read still succeeds is not run in C++ (`MakeTopologyFromData` on
+  unvalidated topology); the Rust side defers it to `cpp-guard:unvalidated-topology`.
+  `GlueEdgesGeneral` of two distinct non-wire edges sharing both vertices (or without
+  curves) is not run in C++ (a real merge of arbitrary fixture edges); the Rust side
+  defers it to `cpp-guard:glue-shared-vertices`. Neither label ever becomes comparable.
+- **Gaps in other units' ports** (stubbed, unreachable by the current cases):
+  `SmCurve::DeformToEndPointTargets`' `pOptSurfCrvOnSurf` branch (it edits the UV curve of
+  a curve on surface) is not in the port of `curve.curve_p6` (green), and
+  `curve::crv_on_surf::CrvOnSurf` holds only `SmBSplineSurface` kinds (`curve.crv_on_surf`,
+  partial). `MakeFaceWithCurves` with `pbOptCrvOnSurf` reaches them only for loops with
+  gaps larger than tolerance, or on other surface kinds.
+- **Back-edge wired:** `trimming_tools::trim_surface_with_model_space_curves` calls
+  `make_face_with_curves` (its new face owns the surface as `(SmFace_TYPE, 1 + index)`).

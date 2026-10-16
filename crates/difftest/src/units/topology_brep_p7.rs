@@ -19,6 +19,9 @@
 //! share both vertices is not run in C++ either (`-3`); the Rust side defers it
 //! (`SmBrep::Notify`, unit `topology.brep_p2`).
 //!
+//! These C++-skipped cases are deferred on the Rust side to `cpp-guard:unvalidated-topology`
+//! and `cpp-guard:glue-shared-vertices` (they never become comparable).
+//!
 //! **Deferred.** Every read that gets past `SmBrepData::ReadFromFile`, every face made
 //! (`MakeShellVertex`, `MakeFaceTopology`, `GetInfiniteRegion`), every glue past its
 //! early returns, every copy (`SmBrep::SetTolerance`). The comparisons are the read
@@ -566,6 +569,17 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             rebuild,
         } => {
             let bytes = read_bytes(file, *damage)?;
+            // the C++ side does not run a modified stream its B-rep data read accepts
+            // (the topology is not known to be safe for MakeTopologyFromData)
+            if damage.is_some()
+                && solidcore::topology::brep_data::BrepData::read_from_file(k, bytes.clone(), FileType::Ascii)
+                    .is_ok()
+            {
+                return Err(Fail::Deferred(Box::new(Output::deferred(
+                    "cpp-guard:unvalidated-topology",
+                    "SmBrep::MakeTopologyFromData",
+                ))));
+            }
             let mut b = Brep::new();
             let r = p7::read_from_file(k, &mut b, bytes, FileType::Ascii, *rebuild);
             Ok(vec![status(&r)?])
@@ -675,6 +689,27 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let (mut b, _) = shared::import(ex)?;
             let c = fixture::counts(ex).ok_or_else(|| hfail("counts"))?;
             let eid = |x: i64| (x >= 0).then(|| EdgeId::from_index(x as u32));
+            // the C++ side does not glue two distinct non-wire edges sharing both
+            // vertices (or without curves): a real merge of arbitrary fixture edges
+            if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
+                if a != d && !ed::is_wire(&b, d).map_err(hfail)? {
+                    let ends = |e: EdgeId| -> Result<_, Fail> {
+                        let s = ed::start_vertex(&b, e).map_err(hfail)?;
+                        Ok((s, ed::other_vertex(&b, e, s).map_err(hfail)?))
+                    };
+                    let (a1, b1) = ends(a)?;
+                    let (a2, b2) = ends(d)?;
+                    let shared = (a1 == a2 || a1 == b2) && (b1 == a2 || b1 == b2);
+                    let no_curve = b.edge(a).map_err(hfail)?.curve.is_none()
+                        || b.edge(d).map_err(hfail)?.curve.is_none();
+                    if shared || no_curve {
+                        return Err(Fail::Deferred(Box::new(Output::deferred(
+                            "cpp-guard:glue-shared-vertices",
+                            "SmBrep::GlueEdgesGeneral",
+                        ))));
+                    }
+                }
+            }
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
             let mut env = ed::NotifyEnv {
@@ -878,21 +913,46 @@ fn face_cases() -> Vec<Inputs> {
     v
 }
 
+/// A B-rep with faces (a wire or the network would make a case both sides reject).
+fn gen_face_brep(rng: &mut Rng) -> BrepIn {
+    loop {
+        let b = shared::gen_brep(rng);
+        if matches!(b, BrepIn::File { .. } | BrepIn::Face { .. }) {
+            return b;
+        }
+    }
+}
+
 fn gen_inputs(rng: &mut Rng) -> Inputs {
     let file = (*rng.choose(&FILES).unwrap_or(&"disk.smb")).to_string();
     match rng.below(4) {
-        0 => Inputs::Read {
-            file,
-            damage: Some(if rng.chance(0.5) {
-                Damage::Truncate(rng.below(4000) as usize)
-            } else {
-                Damage::Overwrite {
-                    at: rng.below(1 << 16) as usize,
-                    byte: *rng.choose(b"0123456789 -.eX\n").unwrap_or(&b'9'),
+        0 => {
+            // damaged streams the B-rep data guard accepts (a rejected one would be a
+            // case both sides refuse; give up after a few tries)
+            let mut damage = Damage::Truncate(0);
+            for _ in 0..16 {
+                let d = if rng.chance(0.5) {
+                    Damage::Truncate(rng.below(4000) as usize)
+                } else {
+                    Damage::Overwrite {
+                        at: rng.below(1 << 16) as usize,
+                        byte: *rng.choose(b"0123456789 -.eX\n").unwrap_or(&b'9'),
+                    }
+                };
+                damage = d;
+                let ok = read_bytes(&file, Some(d))
+                    .and_then(|bytes| guard_accepts(&bytes, false))
+                    .unwrap_or(false);
+                if ok {
+                    break;
                 }
-            }),
-            rebuild: rng.chance(0.5),
-        },
+            }
+            Inputs::Read {
+                file,
+                damage: Some(damage),
+                rebuild: rng.chance(0.5),
+            }
+        }
         1 => Inputs::Glue {
             brep: shared::gen_brep(rng),
             e1: rng.range_i64(-1, 1 << 10),
@@ -902,7 +962,7 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
             nesting: rng.chance(0.5),
         },
         2 => Inputs::MergeSelf {
-            brep: shared::gen_brep(rng),
+            brep: gen_face_brep(rng),
             face: rng.below(1 << 10) as i64,
             tol: rng.uniform(1.0e-6, 1.0e-2),
         },
@@ -976,6 +1036,10 @@ impl UnitDiff for Runner {
             .into_iter()
             .enumerate()
             {
+                // (a stream the B-rep data guard rejects compares nothing)
+                if !guard_accepts(&read_bytes(file, Some(d))?, false)? {
+                    continue;
+                }
                 push(
                     &mut v,
                     format!("read_{file}_damaged{j}"),

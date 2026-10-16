@@ -38,6 +38,11 @@
 //! - **Index checks.** Loop counts that add up to more curves, orientations or edge uses
 //!   than given, and self-intersection UV curve arrays shorter than the 3D curves, are
 //!   [`SolidError::InvalidInput`] (upstream reads past its arrays).
+//! - **Flags.** `IsDegenerate`, `IsDegenerateCurve` and `IsDegeneratePoint` return flags
+//!   upstream; a Rust error of those tests (other than [`SolidError::Unported`]) counts as
+//!   "not degenerate". A curve on surface of a surface that is not a B-spline kind is
+//!   [`SolidError::Unported`] (unit `curve.crv_on_surf`: the port's curve on surface holds
+//!   an `SmBSplineSurface`).
 //! - **Statuses ignored upstream** (`LiftCurve`, `DeformToEndPointTargets`, `ConvertTo2D`
 //!   of the UV curves, `GetEnds`, `CopyAndAddAnalytics`, `FindRadialSector`,
 //!   `SetUVTrimCurve`, `TestClosureSplitRegion`, `sm_CheckAndFixUVTrimCurves`,
@@ -57,8 +62,8 @@
 //!   `SmShell::IsInnerShell` (`topology.shell`); `SmFace::Notify`, `SetTolerance`,
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetBrep`, `GetEdges`
 //!   (`topology.face_p4`); `SmMerge` (`boolean.merge_p2`); the curve constructor of
-//!   `SmCurveClassification` (`intersect.curve_class_p4`) and its `MergeIntervals`
-//!   (`intersect.curve_class_p5`). `MergeSelfIntersectionCurves`' classification of a
+//!   `SmCurveClassification` (`intersect.curve_class_p4`), which the classification and
+//!   merge helper of `MergeSelfIntersectionCurves` reaches first. `MergeSelfIntersectionCurves`' classification of a
 //!   UV curve against the faces and its merge are one stubbed helper returning the faces
 //!   made and the intervals classified to an edge; whoever ports `curve_class_p4/p5`
 //!   replaces it with the upstream interval loop (`GetSize() != 1` skips, `SM_ERR` after
@@ -342,7 +347,8 @@ fn classify_and_merge(
     _tol: f64,
 ) -> Result<ClassifiedMerge> {
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    // (then UNPORTED(intersect.curve_class_p5): SmCurveClassification::MergeIntervals)
+    // (then SmFace::CurveOnClassify, unit query.face_p2, and
+    // CurveClassification::merge_intervals, unit intersect.curve_class_p5)
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
         "intersect.curve_class_p4",
@@ -621,13 +627,16 @@ pub fn make_face_with_curves(
         Some(r) => r,
         None => infinite_region(b)?,
     };
-    if surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D)? {
+    // (the surface tests return flags upstream: a failed test is "no")
+    if ignored(surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D))?
+        .unwrap_or(false)
+    {
         return Err(SolidError::invalid_input(
             OP,
             "surface degenerates to a curve",
         ));
     }
-    if surface.is_degenerate_point(DEGENERATE_TOL_3D, None)? {
+    if ignored(surface.is_degenerate_point(DEGENERATE_TOL_3D, None))?.unwrap_or(false) {
         return Err(SolidError::invalid_input(
             OP,
             "surface degenerates to a point",
@@ -664,11 +673,19 @@ pub fn make_face_with_curves(
                             SurfaceKind::BSpline(s) => s.clone(),
                             SurfaceKind::Plane(p) => p.base_for_query().into_owned(),
                             SurfaceKind::SurfOfRevolution(s) => s.base().clone(),
-                            _ => return Err(null("curve on surface needs a B-spline surface")),
+                            // UNPORTED(curve.crv_on_surf): SmCrvOnSurf of a surface that is
+                            // not an SmBSplineSurface (the port's curve on surface holds one)
+                            _ => {
+                                return Err(SolidError::unported(
+                                    "SmCrvOnSurf::SmCrvOnSurf",
+                                    "curve.crv_on_surf",
+                                ))
+                            }
                         };
                         let c = CrvOnSurf::new(k, uv_curve, base, Some(*uv_domain), 2)?;
                         let c = Curve::from(c);
-                        if c.is_degenerate(EFF_ZERO, None)? {
+                        // (IsDegenerate returns a flag upstream: a failed test is "no")
+                        if ignored(c.is_degenerate(EFF_ZERO, None))?.unwrap_or(false) {
                             None
                         } else {
                             Some(c)
@@ -776,7 +793,7 @@ pub fn make_face_with_curves(
                 continue;
             };
             let ivl = curve.natural_interval();
-            let is_degen = curve.is_degenerate(EFF_ZERO, None)?;
+            let is_degen = ignored(curve.is_degenerate(EFF_ZERO, None))?.unwrap_or(false);
             let approx_len = curve.approximate_length(&ivl, 5, false)?.0;
             if is_degen || approx_len < zone_tol {
                 degenerate += 1;

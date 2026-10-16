@@ -128,12 +128,9 @@ impl Reader<'_> {
     }
 
     fn orient(&mut self) -> Result<(), FfiError> {
-        // SM_OT_SAME (1) or SM_OT_OPPOSITE (2)
-        let o = self.index(2)?;
-        if o == 0 {
-            return Err(bad("orientation must be SAME or OPPOSITE"));
-        }
-        Ok(())
+        // SM_OT_UNKNOWN (0), SM_OT_SAME (1) or SM_OT_OPPOSITE (2): upstream tests for
+        // SAME and treats anything else as the other branch
+        self.index(2).map(|_| ())
     }
 
     fn done(&self) -> Result<(), FfiError> {
@@ -152,7 +149,7 @@ fn check_knots(knots: &[f64], p: usize) -> Result<(), FfiError> {
     let (Some(&a), Some(&b)) = (knots.first(), knots.last()) else {
         return Err(bad("no knots"));
     };
-    if !(b > a) {
+    if b.partial_cmp(&a) != Some(core::cmp::Ordering::Greater) {
         return Err(bad("empty knot domain"));
     }
     let lo = knots.iter().take(p + 1).all(|&k| k == a);
@@ -310,9 +307,10 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
         }
         Op::MakeFace => {
             rd.index(1)?;
+            // (the shim builds the square's lines: they need distinct ends)
             let side = rd.finite()?;
-            if !(side > 1.0e-3) {
-                return Err(bad("square side must exceed the tolerance"));
+            if side.partial_cmp(&0.0) != Some(core::cmp::Ordering::Greater) {
+                return Err(bad("square side must be positive"));
             }
             rd.orient()?;
             rd.flag()?;
@@ -337,10 +335,7 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
                         }
                     }
                     ar.orient()?;
-                    let gap = ar.finite()?;
-                    if gap < 0.0 {
-                        return Err(bad("negative gap"));
-                    }
+                    ar.finite()?;
                     ar.flag()?;
                 }
                 Op::Copy => {
@@ -351,10 +346,7 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
                     if ar.index(1 << 20)? >= n_f {
                         return Err(bad("face index out of range"));
                     }
-                    let tol = ar.finite()?;
-                    if !(tol > 0.0) {
-                        return Err(bad("tolerance must be positive"));
-                    }
+                    ar.finite()?;
                 }
             }
             ar.done()?;
