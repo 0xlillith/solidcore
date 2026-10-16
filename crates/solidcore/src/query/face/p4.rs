@@ -41,10 +41,15 @@
 //! - **Dropped** (no effect on results in the reference build, which defines neither
 //!   `SM_DEBUG_CODE` nor active asserts): the `SM_DEBUG_CODE` dumps and graphics, every
 //!   `SM_ASSERT*` and `SM_DBG_WARN`, `ebClassifyCrvClosed3d` (read only by asserts),
-//!   `pParent` of `FindItem` (never read), the `SmObjDelete` cleanup of the bisector's
-//!   new curves (no objects are created by the stubs).
-//! - **Unported callees** (`UNPORTED` stubs): `sms_FindAndClassifyLoopBisector`
-//!   (`query.face_p3`) and `SmCurveClassification::GetLoopCrossings`
+//!   `pParent` of `FindItem` (never read).
+//! - **Bisector curves.** `sms_FindAndClassifyLoopBisector` (`query.face_p3`) hands the
+//!   curves it makes to a [`qf3::LoopObjectCurves`] over the handle type, kept for the
+//!   pass (upstream: the curves the caller deletes). A handle type that cannot name the
+//!   face and the curves ([`LoopObject::from_face`],
+//!   [`LoopObject::from_classify_curve`]; `EntityRef` cannot name curves) cannot run
+//!   the bisector: `ClassifyLoops` then returns [`SolidError::InvalidInput`]
+//!   ([`qf3::NO_CURVE_HANDLES`]) instead of ignoring it as a status.
+//! - **Unported callees** (`UNPORTED` stubs): `SmCurveClassification::GetLoopCrossings`
 //!   (`intersect.curve_class_p4`), reached only for a target loop that crosses no seam
 //!   the face props already classified. Faces whose loops all cross a periodic seam
 //!   (no-area loops of a missing seam) are classified entirely by the port.
@@ -69,6 +74,7 @@ use crate::intersect::curve_class::p2::ResetOptions;
 use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use crate::query::face::p3 as qf3;
 use crate::topology::face::p2 as face_p2;
 use crate::topology::{loopuse, vertex, Brep, FaceId, LoopId, LoopuseStart, VertexId};
 
@@ -113,6 +119,10 @@ impl LoopObject for EntityRef {
             Self::Vertex(v) => Some(*v),
             _ => None,
         }
+    }
+
+    fn from_face(f: FaceId) -> Option<Self> {
+        Some(Self::Face(f))
     }
 }
 
@@ -223,21 +233,33 @@ struct Bisector {
 /// bStartOnSeam, bStopOnSeam, ebClosed3d)`.
 #[allow(clippy::too_many_arguments)]
 fn find_and_classify_loop_bisector<O: LoopObject>(
-    _k: &Kernel,
-    _b: &Brep,
-    _face: FaceId,
-    _target: usize,
-    _loops: &[LoopId],
-    _ios: &[ClassifyLoopIo],
-    _marked: &BTreeSet<LoopId>,
-    _props: &FaceProps<O>,
-    _classification: &mut CurveClassification<O>,
+    k: &Kernel,
+    b: &Brep,
+    face: FaceId,
+    target: usize,
+    loops: &[LoopId],
+    ios: &[ClassifyLoopIo],
+    marked: &BTreeSet<LoopId>,
+    props: &FaceProps<O>,
+    curves: &mut qf3::LoopObjectCurves<O>,
+    classification: &mut CurveClassification<O>,
 ) -> Result<Bisector> {
-    // UNPORTED(query.face_p3): sms_FindAndClassifyLoopBisector
-    Err(SolidError::unported(
-        "sms_FindAndClassifyLoopBisector",
-        "query.face_p3",
-    ))
+    let r = qf3::find_and_classify_loop_bisector(
+        k,
+        b,
+        face,
+        target,
+        loops,
+        ios,
+        marked,
+        props,
+        curves,
+        classification,
+    )?;
+    Ok(Bisector {
+        start_on_seam: r.start_on_seam,
+        stop_on_seam: r.stop_on_seam,
+    })
 }
 
 /// `rCrvClassification.GetLoopCrossings(rLoops, &rFaceProps, &sCrossingCounts,
@@ -289,7 +311,9 @@ fn touch_orient<O: Copy>(done: &[TouchData<O>], j1: usize) -> Result<OrientType>
 /// without touches to walk; [`SolidError::InvalidInput`] ([`NOT_THIS_FACE`],
 /// [`NO_SURFACE`]) when the first loop is not on `face` or the face has no surface, and
 /// where upstream's behaviour is undefined (module docs); [`SolidError::Unported`] for a
-/// target loop that crosses no seam (`query.face_p3`, `intersect.curve_class_p4`); the
+/// target loop that crosses no seam (the bisector's callees, `intersect.curve_class_p4`);
+/// [`SolidError::InvalidInput`] ([`qf3::NO_CURVE_HANDLES`]) when such a loop meets a
+/// handle type that cannot name the bisector's curves; the
 /// errors of the topology queries and of [`FaceProps::set_props_stage2`]'s
 /// [`SolidError::Unported`].
 #[allow(clippy::too_many_lines)]
@@ -417,7 +441,9 @@ pub fn classify_loops<O: LoopObject>(
             stop_on_seam = doubly_periodic;
         } else {
             // loop does not cross an existing seam ClassifyCrv (the status is not
-            // checked upstream)
+            // checked upstream; a handle type that cannot name the bisector's curves is
+            // an error of the caller, not a status)
+            let mut bisector_curves = qf3::LoopObjectCurves::new(face)?;
             if let Some(bisector) = ignored(find_and_classify_loop_bisector(
                 k,
                 b,
@@ -427,6 +453,7 @@ pub fn classify_loops<O: LoopObject>(
                 &out.classify_loop_ios,
                 &marked,
                 props,
+                &mut bisector_curves,
                 scratch,
             ))? {
                 start_on_seam = bisector.start_on_seam;
@@ -962,7 +989,8 @@ mod tests {
     }
 
     #[test]
-    fn loop_without_seam_crossing_is_unported() {
+    fn loop_without_seam_crossing_needs_curve_handles() {
+        // the bisector needs handles for its curves, which EntityRef cannot name
         let k = Kernel::default();
         let mut b = Brep::new();
         let f = face_with_loops(&mut b, &[false], true);
@@ -970,7 +998,10 @@ mod tests {
         props.loop_props[0].seam_crossing_cnt_u = 0;
         let mut loops = Vec::new();
         let (r, _) = run(&b, f, &mut props, &mut loops);
-        assert!(r.unwrap_err().is_unported());
+        assert!(matches!(
+            r,
+            Err(SolidError::InvalidInput { reason, .. }) if reason == qf3::NO_CURVE_HANDLES
+        ));
     }
 
     #[test]

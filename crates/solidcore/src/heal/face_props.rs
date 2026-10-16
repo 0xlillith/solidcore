@@ -529,6 +529,26 @@ pub trait LoopObject: ClassObject {
     /// The vertex this handle names, if it is a vertex (`GetVertexObject` of a vertex
     /// point classification).
     fn as_vertex(&self) -> Option<VertexId>;
+
+    /// The handle of face `f` (the face a curve classification classifies against),
+    /// `None` (the default) when this handle type cannot name faces. Used by
+    /// [`crate::query::face::p3::LoopObjectCurves`].
+    fn from_face(_f: FaceId) -> Option<Self> {
+        None
+    }
+
+    /// The handle of face `f`'s surface (a classification's surface 1), `None` (the
+    /// default) when this handle type cannot name it.
+    fn from_face_surface(_f: FaceId) -> Option<Self> {
+        None
+    }
+
+    /// The handle of a curve a classification makes and classifies: its 3D curve
+    /// (`uv` false) or its UV curve (`uv` true); `None` (the default) when this handle
+    /// type cannot name them.
+    fn from_classify_curve(_uv: bool) -> Option<Self> {
+        None
+    }
 }
 
 // ---- SmClassifyLoopIO -----------------------------------------------------------------

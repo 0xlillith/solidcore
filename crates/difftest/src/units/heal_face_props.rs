@@ -42,26 +42,53 @@ pub const MIN_GENERATED: usize = 1500;
 /// `heal.face_props` runner.
 pub struct Runner;
 
+/// The classification handles: loops, and the face, its surface and the two curves of
+/// `SmFace::ClassifyLoops`' loop bisector.
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct H(LoopId);
+enum H {
+    Loop(LoopId),
+    Face(FaceId),
+    Surface(FaceId),
+    Curve(bool),
+}
 
 impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
-        ClassObjectKind::Loop
+        match self {
+            Self::Loop(_) => ClassObjectKind::Loop,
+            Self::Face(_) => ClassObjectKind::Face,
+            Self::Surface(_) => ClassObjectKind::Surface,
+            Self::Curve(_) => ClassObjectKind::Curve,
+        }
     }
 }
 
 impl LoopObject for H {
     fn from_loop(l: LoopId) -> Self {
-        Self(l)
+        Self::Loop(l)
     }
 
     fn as_loop(&self) -> Option<LoopId> {
-        Some(self.0)
+        match self {
+            Self::Loop(l) => Some(*l),
+            _ => None,
+        }
     }
 
     fn as_vertex(&self) -> Option<solidcore::topology::VertexId> {
         None
+    }
+
+    fn from_face(f: FaceId) -> Option<Self> {
+        Some(Self::Face(f))
+    }
+
+    fn from_face_surface(f: FaceId) -> Option<Self> {
+        Some(Self::Surface(f))
+    }
+
+    fn from_classify_curve(uv: bool) -> Option<Self> {
+        Some(Self::Curve(uv))
     }
 }
 
