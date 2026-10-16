@@ -1405,3 +1405,223 @@ pub fn merge_self_intersection_curves(
     let _ = face;
     Ok(new_edges)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geom::attribute::{AttributeStore, ObjectKey};
+    use crate::geom::vector2d::Point2;
+    use crate::math::Vec3;
+    use crate::surface::plane::Plane;
+    use crate::topology::Region;
+
+    fn key_of(_e: EntityRef) -> ObjectRef {
+        ObjectRef {
+            type_code: 0,
+            key: ObjectKey(0),
+        }
+    }
+
+    fn face_ref(f: FaceId) -> ObjectRef {
+        ObjectRef {
+            type_code: fp2::TYPE,
+            key: ObjectKey(1 + u64::from(f.index())),
+        }
+    }
+
+    fn plane() -> Surface {
+        Surface::from(Plane::from_normal(Vec3::ZERO, Vec3::Z))
+    }
+
+    fn dom() -> Extent2d {
+        Extent2d::from_points(Point2::new(0.0, 0.0), Point2::new(1.0, 1.0))
+    }
+
+    #[test]
+    fn glue_no_ops() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let v0 = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+        let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+        let e = b.add_edge(v0, v1).unwrap();
+        let mut records = std::collections::BTreeMap::new();
+        let mut attrs = AttributeStore::default();
+        let mut env = ed::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attrs,
+            context: None,
+            key_of: &key_of,
+        };
+        for (s, d) in [
+            (None, Some(e)),
+            (Some(e), None),
+            (None, None),
+            (Some(e), Some(e)),
+        ] {
+            glue_edges_general(
+                &k,
+                &mut b,
+                s,
+                OrientType::Same,
+                0.0,
+                true,
+                d,
+                None,
+                &mut env,
+            )
+            .unwrap();
+        }
+        let e2 = b.add_edge(v0, v1).unwrap();
+        let r = glue_edges_general(
+            &k,
+            &mut b,
+            Some(e),
+            OrientType::Same,
+            0.0,
+            true,
+            Some(e2),
+            None,
+            &mut env,
+        );
+        assert!(r.unwrap_err().is_unported());
+    }
+
+    #[test]
+    fn make_face_needs_a_surface() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let opts = MakeFaceOptions::default();
+        let e = make_face(
+            &k,
+            &mut b,
+            None,
+            &[],
+            &[],
+            &[],
+            None,
+            &dom(),
+            OrientType::Same,
+            &opts,
+            &face_ref,
+        );
+        assert!(matches!(
+            e,
+            Err(SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            })
+        ));
+        let e = make_face(
+            &k,
+            &mut b,
+            None,
+            &[],
+            &[],
+            &[],
+            Some(plane()),
+            &dom(),
+            OrientType::Same,
+            &opts,
+            &face_ref,
+        );
+        assert!(e.unwrap_err().is_unported());
+    }
+
+    #[test]
+    fn face_with_curves_input_errors() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let r = b.add_region_record(Region { in_brep: true }).unwrap();
+        let run = |b: &mut Brep, input: FaceCurvesInput, region| {
+            make_face_with_curves(
+                &k,
+                b,
+                region,
+                input,
+                plane(),
+                &dom(),
+                OrientType::Same,
+                None,
+                &face_ref,
+            )
+        };
+        // no curves
+        let e = run(
+            &mut b,
+            FaceCurvesInput {
+                loops: vec![1],
+                ..Default::default()
+            },
+            Some(r),
+        );
+        assert!(matches!(e, Err(SolidError::InvalidInput { .. })));
+        // no loops
+        let input = FaceCurvesInput {
+            curves_3d: Some(Vec::new()),
+            ..Default::default()
+        };
+        assert!(matches!(
+            run(&mut b, input, Some(r)),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        // the infinite region is unported
+        let input = FaceCurvesInput {
+            loops: vec![1],
+            curves_3d: Some(vec![None]),
+            orientations: vec![OrientType::Same],
+            ..Default::default()
+        };
+        assert!(run(&mut b, input.clone(), None).unwrap_err().is_unported());
+        // a degenerate curve only: the face topology is unported
+        assert!(run(&mut b, input, Some(r)).unwrap_err().is_unported());
+        // more loop entries than curves
+        let input = FaceCurvesInput {
+            loops: vec![3],
+            curves_3d: Some(vec![None]),
+            orientations: vec![OrientType::Same],
+            ..Default::default()
+        };
+        assert!(matches!(
+            run(&mut b, input, Some(r)),
+            Err(SolidError::InvalidInput { .. })
+        ));
+    }
+
+    #[test]
+    fn merge_self_without_curves() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let s = b.add_shell().unwrap();
+        let f = b.add_face(s).unwrap();
+        let mut records = std::collections::BTreeMap::new();
+        let mut attrs = AttributeStore::default();
+        let mut env = ed::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attrs,
+            context: None,
+            key_of: &key_of,
+        };
+        assert!(
+            merge_self_intersection_curves(&k, &mut b, Some(f), 1e-5, &[], &mut env)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(
+            merge_self_intersection_curves(&k, &mut b, None, 1e-5, &[], &mut env)
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn read_errors_and_deferral() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        assert!(read_from_file(&k, &mut b, Vec::new(), FileType::Ascii, false).is_err());
+        let mut src = Brep::new();
+        let mut dest = Brep::new();
+        assert!(copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref)
+            .unwrap_err()
+            .is_unported());
+    }
+}
