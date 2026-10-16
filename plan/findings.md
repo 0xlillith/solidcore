@@ -5178,6 +5178,38 @@ mutated scales and accepted/reduced step counts are compared.
   whose three unit-test fixes are needed for `cargo test -p solidcore`. Merge #122 first
   (or with this PR) so the CO-PORTED types are not duplicated.
 
+## heal.heal_data_p1 (`SmHealData` entry points and stage 2/3, sheet, trim curve, infinite region steps; `SmApiHealBrep`; PR #109, 2026-10-16; partial, no disagreements)
+
+- **Built on PR #128 (heal.heal_data_p2).** The branch merges #128 (which merges #122,
+  heal.face_props). The p1 steps run as codes `23..=31` of p2's heal scripts (shim
+  `p1_step` in `harness/cpp/shim/heal_heal_data_p2.cpp`, `check_heal`, the p2 runner's
+  `Step`), so the healer state compared after them is p2's full dump plus a stage 2/3
+  face props snapshot (step 31). `SmApiHealBrep` has its own shim
+  (`heal_heal_data_p1.cpp`). Merge #122 and #128 first.
+- **Coverage is limited by stubs in other units, not by this unit.** Most deferrals
+  (219 of 331 at merge time) are `SmFace::GetTolerance` (topology.face_p2): `Cache_FaceProps_Stage2`
+  on a plane face, or a B-spline face whose surface queries take the zone tolerance
+  of the surface's face (`surface::surface::p1::zone_tol_3d`, `surface::plane::p2`
+  `zone_tolerance`). face_p2 is `partial` and its `tolerance` is ported, but those
+  stubs only have the surface, not the B-rep, so they cannot be wired without a
+  surface-to-B-rep accessor; whoever adds one should rewire them. Closed surfaces
+  stop at `SmFace::HasSeamProblem` (topology.face_p4), stage 3 past its op gate at
+  `SmFace::ClassifyLoops` (query.face_p4). Compared for real: `ReSet`,
+  `MoveToNotYetProblems`, stage 2 on non-plane open faces (surf_extrude, surf_rev,
+  surf_sphere150 and generated faces), stage 2/3 below their op gates (the
+  `SM_ERR` paths, where stage 3 lists every face because its counts are still
+  `SM_UNDEF_ULONG`), `Fix_BadSheets` on sheet faces (lamina closure traversals),
+  `Make_UVTrimCurves(FALSE)`, `HealBrep(NULL)`, `SmApiHealBrep(NULL)`.
+- **Props without a face.** Stage 2/3 and `Make_UVTrimCurves(TRUE)` on props that
+  `Cache_FaceProps_Gaps` never set (no upstream caller does this) run `SetProps` on a
+  null face. Upstream either fails the stage (op before `Fix_TolSizes`, a defined path
+  through `SmTol::GetZoneTol3d(NULL)`) or dereferences it. The port returns
+  `InvalidInput` for both and the shim refuses both (`-2`): this one defined path is
+  refused too, deliberately, because the Rust `SmFaceProps::SetProps` takes a face id.
+- **Last-step-only steps.** `ReSet`, `Fix_InfiniteRegion` and `HealBrep` on a B-rep
+  free or rebuild the props the shim's registry tracks by address, so the FFI accepts
+  them only as the last step (as `FreeTargets`).
+
 ## topology.proto_topology_p2 (`SmProtoTopology.cpp` part 2, PR #114, 2026-10-15; partial, no disagreements)
 
 - **B-rep access without UNPORTED stubs into partial units.** The members these functions
@@ -5722,3 +5754,38 @@ report now point to UB-134. The maintainer has assigned UB-134 to this PR and wi
 renumber the parallel claim in #148. No bundled numerical results certify this
 independent tree. The maintainer confirmed all review items resolved before the
 independent p6 integration.
+
+## boolean.merge_p5
+
+- The wire/shell-vertex stage is tested directly through the real protected
+  `SmMerge::ProcessWiresAndShellVertices`, without running the surrounding boolean
+  engine. Raw fixture topology is exported before the stage; ids follow native
+  B-rep edge/vertex owning-list order. The intersector's `Relate` call is fixture
+  setup, including its tolerance propagation, on both sides.
+- `SmallBox.smb` is a part container, not a B-rep stream. Feeding it to the shared
+  `ReadFromFile` builder reconfirmed UB-1 (`SmTopologyData::ReadFromDB`, GDB).
+  The new FFI wrapper rejects that header before C++; the solid operands use
+  `box_with_large_fillet.smb`. This is a fixture-format exclusion, not a parity
+  pass or a deferred kernel operation.
+- Classification-dependent paths stop at `query.brep::SmBrep::Point3DClassify`.
+  Their downstream topology deletion and copy paths remain uncertified, with
+  explicit `topology.brep_p4` and `boolean.merge_p1` / `_p2` adapters. Arena B-reps
+  do not yet carry an attached B-rep cache; optional cache-resizing integration
+  remains for the merge engine's eventual cache binding.
+- **PR #161 review:** a marked other wire without a mate is valid for Unknown,
+  Difference, ExclusiveOr, Imprint, ImprintClassify, ExtractSeparate and Slice.
+  The release C++ assertion does not reject it, and those operations never use
+  the mate. Rust now looks up/validates mates only for Union, Intersection,
+  Merge and PartialMerge. The shim excludes null keep-list entries only for
+  those four operations because `Vec<EdgeId>` cannot represent them; appending
+  null is defined in this upstream stage, rather than an immediate C++ crash.
+  Seven differential regressions exercise the previously over-rejected inputs,
+  and eleven more check nonidentity network mate order for every operation.
+- Both runners validate one-to-one mate setup before tolerance propagation:
+  duplicate primary targets (e.g. `[0,0,1,2,3]`) conflict in upstream `Relate`
+  and are invalid fixture input. Generated cases now choose operands and mark
+  masks independently, permute targets and leave edges unrelated where valid.
+- The current borrowed relation maps and immutable other operand cannot express
+  `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
+  relation state must become mutable and preserve updates for later iterations;
+  this integration requirement is also recorded in the module's Deviations.
