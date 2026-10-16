@@ -1459,7 +1459,7 @@ fn gen_face(rng: &mut Rng) -> FaceIn {
                     .collect();
                 let mut loops = vec![outer];
                 if rng.chance(0.4) {
-                    loops.push((0..3).map(|i| polar(0.4 * s, -120.0 * i as f64, 0.0)).collect());
+                    loops.push((0..3).map(|i| polar(0.4 * s, -120.0 * f64::from(i), 0.0)).collect());
                 }
                 face.loops = Some(LoopsIn::Edges { loops });
             }

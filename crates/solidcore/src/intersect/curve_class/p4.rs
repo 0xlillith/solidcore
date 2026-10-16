@@ -338,9 +338,8 @@ fn set_props_stage_2<O: LoopObject, G: ClassGeometry<O>>(
 
 /// `SmLoop::GetFace` (unit `topology.loopuse`).
 fn loop_face<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, lp: O) -> Result<Option<O>> {
-    let (b, l) = match entity_of(geometry, lp, OP_CROSS)? {
-        (b, EntityRef::Loop(l)) => (b, l),
-        _ => return Err(wrong_kind(OP_CROSS, "handle is not a loop")),
+    let (b, EntityRef::Loop(l)) = entity_of(geometry, lp, OP_CROSS)? else {
+        return Err(wrong_kind(OP_CROSS, "handle is not a loop"));
     };
     loopuse::loop_face(b, l)?
         .map(|f| handle_of(geometry, EntityRef::Face(f), OP_CROSS))
@@ -395,10 +394,7 @@ fn edge_edgeuses<O: ClassObject, G: ClassGeometry<O>>(
 }
 
 /// `SmEdge::GetCurve` (unit `topology.edge`), dereferenced upstream.
-fn edge_curve<'g, O: ClassObject, G: ClassGeometry<O>>(
-    geometry: &'g G,
-    edge: O,
-) -> Result<&'g Curve> {
+fn edge_curve<O: ClassObject, G: ClassGeometry<O>>(geometry: &G, edge: O) -> Result<&Curve> {
     let (b, e) = edge_id(geometry, edge, OP_CROSS)?;
     topo_edge::curve(b, e)?.ok_or_else(|| SolidError::null_pointer(OP_CROSS))
 }
@@ -448,9 +444,8 @@ fn vertex_vertexuses_of_face<O: ClassObject, G: ClassGeometry<O>>(
     face: Option<O>,
     faceuse: Option<O>,
 ) -> Result<Vec<O>> {
-    let (b, v) = match entity_of(geometry, vertex, OP_CROSS)? {
-        (b, EntityRef::Vertex(v)) => (b, v),
-        _ => return Err(wrong_kind(OP_CROSS, "handle is not a vertex")),
+    let (b, EntityRef::Vertex(v)) = entity_of(geometry, vertex, OP_CROSS)? else {
+        return Err(wrong_kind(OP_CROSS, "handle is not a vertex"));
     };
     let face = face
         .map(|f| face_id(geometry, f, OP_CROSS).map(|(_, f)| f))
