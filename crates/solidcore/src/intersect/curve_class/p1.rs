@@ -758,6 +758,13 @@ impl<O: ClassObject> CurveClassification<O> {
         self.is_curve_current = true;
     }
 
+    /// Sets the whole interval classified (`SetInterval`: `m_vInterval.SetMinMax`, which
+    /// swaps the ends when given in descending order).
+    pub fn set_interval(&mut self, interval: &Extent1d) {
+        let (a, b) = (interval.min(), interval.max());
+        self.interval = Extent1d::from_min_max(a.min(b), a.max(b));
+    }
+
     /// Sets the surf/surf intersection data (`SetIntersectData`; upstream defaults
     /// `bIsCurveCurrent = TRUE`, `cpTI = NULL`).
     pub fn set_intersect_data(
