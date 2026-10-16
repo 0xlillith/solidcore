@@ -563,7 +563,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#52",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -571,7 +571,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#53",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -579,7 +579,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#54",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -587,7 +587,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#55 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep (HealTgts order))",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -595,7 +595,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#56 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep (HealTgts order))",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -603,7 +603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#57 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -611,7 +611,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#58 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -619,7 +619,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#59 (upstream SmHealData::HealTgts last step)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -627,7 +627,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#60 (upstream SmHealData::HealTgts last step)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -635,7 +635,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#61 (upstream SmHealData::HealBrep ReSet(TRUE))",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -643,7 +643,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#62 (upstream SmHealData::HealBrep ReSet(TRUE))",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -651,7 +651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#63 (upstream tests/prog_test/src/smTopoTest.cpp:222 my_test_squeeze_edge_tracks_removal)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -659,7 +659,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#64 (upstream tests/prog_test/src/smTopoTest.cpp:222 my_test_squeeze_edge_tracks_removal)",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -712,6 +712,206 @@
       "pass": false,
       "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#69 (upstream tests/prog_test/src/smTopoTest.cpp:4572 my_test_heal_single_vertex_sphere (Fix_DegenFaces target))",
       "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_forged_done_6_unsized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#0 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_forged_done_8_unsized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#1 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_forged_done_9_unsized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#2 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_forged_done_16_unsized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#3 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_forged_done_26_unsized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#4 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_valid_initialized_voxels",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#5 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_valid_no_prior_targets",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#6 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_valid_below_coin_through",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#7 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_valid_below_coin_done",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#8 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_valid_remove_all_prior_vertices",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#9 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_null_face_fix_degen_faces",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#10 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_null_face_fix_split_edges_at_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#11 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_null_face_fix_split_face_at_seams",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#12 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_crossed_neither_updates_flags",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#13 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 26
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_forged_done_6_unsized_voxels",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#14 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_forged_done_8_unsized_voxels",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#15 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_forged_done_9_unsized_voxels",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#16 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_forged_done_16_unsized_voxels",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#17 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_forged_done_26_unsized_voxels",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#18 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_valid_below_coin_through_4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.heal_data_p3/review.json#19 (upstream PR #164 maintainer review; SmHealData.cpp UpdateTargetLists / Fix_SplitEdgesAtSeam)",
+      "values_compared": 2846
     },
     {
       "deferred": {
@@ -807,7 +1007,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572286",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -827,7 +1027,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572288",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "deferred": {
@@ -891,7 +1091,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572294",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -1087,7 +1287,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572313",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "deferred": {
@@ -1131,7 +1331,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572317",
-      "values_compared": 2962
+      "values_compared": 2963
     },
     {
       "max_rel_err": 0.0,
@@ -1139,7 +1339,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572318",
-      "values_compared": 2831
+      "values_compared": 2835
     },
     {
       "max_rel_err": 0.0,
@@ -1331,7 +1531,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572337",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -1379,7 +1579,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572342",
-      "values_compared": 2877
+      "values_compared": 2881
     },
     {
       "max_rel_err": 0.0,
@@ -1403,7 +1603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572345",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "deferred": {
@@ -1431,7 +1631,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572348",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -1499,7 +1699,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572356",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -1527,7 +1727,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572359",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -1607,7 +1807,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572368",
-      "values_compared": 2831
+      "values_compared": 2835
     },
     {
       "max_rel_err": 0.0,
@@ -1667,7 +1867,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572374",
-      "values_compared": 2817
+      "values_compared": 2818
     },
     {
       "deferred": {
@@ -1687,7 +1887,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572376",
-      "values_compared": 2962
+      "values_compared": 2963
     },
     {
       "max_rel_err": 0.0,
@@ -1703,7 +1903,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572378",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -1711,7 +1911,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572379",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -1719,7 +1919,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572380",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -1727,7 +1927,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572381",
-      "values_compared": 3797
+      "values_compared": 3801
     },
     {
       "deferred": {
@@ -1747,7 +1947,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572383",
-      "values_compared": 2905
+      "values_compared": 2909
     },
     {
       "max_rel_err": 0.0,
@@ -1755,7 +1955,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572384",
-      "values_compared": 2814
+      "values_compared": 2815
     },
     {
       "max_rel_err": 0.0,
@@ -1763,7 +1963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572385",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -1779,7 +1979,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572387",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -1795,7 +1995,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572389",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "deferred": {
@@ -1847,7 +2047,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572394",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -1855,7 +2055,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572395",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -1923,7 +2123,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572402",
-      "values_compared": 2859
+      "values_compared": 2863
     },
     {
       "max_rel_err": 0.0,
@@ -1931,7 +2131,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572403",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -1939,7 +2139,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572404",
-      "values_compared": 3797
+      "values_compared": 3801
     },
     {
       "max_rel_err": 0.0,
@@ -1947,7 +2147,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572405",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -1955,7 +2155,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572406",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -1995,7 +2195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572410",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "deferred": {
@@ -2023,7 +2223,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572413",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "deferred": {
@@ -2043,7 +2243,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572415",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "deferred": {
@@ -2075,7 +2275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572418",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -2179,7 +2379,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572429",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -2219,7 +2419,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572433",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -2263,7 +2463,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572438",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -2271,7 +2471,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572439",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -2303,7 +2503,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572443",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -2311,7 +2511,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572444",
-      "values_compared": 2814
+      "values_compared": 2815
     },
     {
       "max_rel_err": 0.0,
@@ -2359,7 +2559,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572449",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -2375,7 +2575,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572451",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -2407,7 +2607,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572454",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -2415,7 +2615,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572455",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "deferred": {
@@ -2435,7 +2635,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572457",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -2451,7 +2651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572459",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -2551,7 +2751,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572469",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -2691,7 +2891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572482",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "deferred": {
@@ -2835,7 +3035,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572496",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -2951,7 +3151,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572507",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -2959,7 +3159,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572508",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -3039,7 +3239,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572516",
-      "values_compared": 2814
+      "values_compared": 2815
     },
     {
       "deferred": {
@@ -3079,7 +3279,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572520",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -3087,7 +3287,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572521",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -3095,7 +3295,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572522",
-      "values_compared": 2859
+      "values_compared": 2863
     },
     {
       "max_rel_err": 0.0,
@@ -3111,7 +3311,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572524",
-      "values_compared": 2831
+      "values_compared": 2835
     },
     {
       "max_rel_err": 0.0,
@@ -3155,7 +3355,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572529",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -3215,7 +3415,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572535",
-      "values_compared": 2965
+      "values_compared": 2966
     },
     {
       "deferred": {
@@ -3255,7 +3455,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572539",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -3295,7 +3495,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572543",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "deferred": {
@@ -3479,7 +3679,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572561",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -3515,7 +3715,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572565",
-      "values_compared": 2905
+      "values_compared": 2909
     },
     {
       "deferred": {
@@ -3547,7 +3747,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572568",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "deferred": {
@@ -3707,7 +3907,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572582",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "deferred": {
@@ -3787,7 +3987,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572590",
-      "values_compared": 2962
+      "values_compared": 2963
     },
     {
       "max_rel_err": 0.0,
@@ -3795,7 +3995,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572591",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -3803,7 +4003,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572592",
-      "values_compared": 2849
+      "values_compared": 2853
     },
     {
       "max_rel_err": 0.0,
@@ -3811,7 +4011,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572593",
-      "values_compared": 2814
+      "values_compared": 2815
     },
     {
       "max_rel_err": 0.0,
@@ -3839,7 +4039,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572596",
-      "values_compared": 3440
+      "values_compared": 3459
     },
     {
       "max_rel_err": 0.0,
@@ -3907,7 +4107,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572603",
-      "values_compared": 2877
+      "values_compared": 2881
     },
     {
       "max_rel_err": 0.0,
@@ -3979,7 +4179,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572611",
-      "values_compared": 2965
+      "values_compared": 2966
     },
     {
       "deferred": {
@@ -4011,7 +4211,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572614",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -4051,7 +4251,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572619",
-      "values_compared": 3425
+      "values_compared": 3444
     },
     {
       "max_rel_err": 0.0,
@@ -4075,7 +4275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572622",
-      "values_compared": 2969
+      "values_compared": 2973
     },
     {
       "max_rel_err": 0.0,
@@ -4159,7 +4359,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=8971100046885572630",
-      "values_compared": 2831
+      "values_compared": 2835
     },
     {
       "max_rel_err": 0.0,
@@ -4223,13 +4423,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 195,
+  "cases_deferred": 205,
   "cases_failed": 0,
-  "cases_passed": 235,
-  "cases_total": 430,
+  "cases_passed": 245,
+  "cases_total": 450,
   "deferred_by_unit": {
     "topology.brep_p1": 50,
-    "topology.edgeuse_p3": 62,
+    "topology.edgeuse_p3": 72,
     "topology.face_p2": 61,
     "topology.face_p3": 20,
     "topology.face_p4": 2

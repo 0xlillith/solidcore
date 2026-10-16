@@ -23,6 +23,7 @@
 #include <SmBrepData.h>
 #include <SmTrackTopologyChanges.h>
 
+#include <algorithm>
 #include <set>
 
 namespace
@@ -1389,11 +1390,58 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
                 stop = true;
                 continue;
             }
+            // Predict the old vertex count after removals without touching the
+            // healer. A forged done>=Cache_CoinVertices can otherwise enter the
+            // incremental voxel path before its first SetSize, which crashes.
+            std::vector<SmVertex*> remaining;
+            for (ULONG i = 0; i < h->m_sTgtVertices.GetSize(); ++i)
+                remaining.push_back(h->m_sTgtVertices[i]);
+            for (ULONG i = 0; i < rv.GetSize(); ++i)
+            {
+                auto it = std::find(remaining.begin(), remaining.end(), rv[i]->m_pVertex);
+                if (it != remaining.end()) remaining.erase(it);
+            }
+            ULONG new_vertices = 0;
+            for (ULONG i = 0; i < added.GetSize(); ++i)
+                if (added[i] != NULL && brep->IsLiveTopologyMember(added[i]) && added[i]->IsKindOf(SmVertex_TYPE))
+                    ++new_vertices;
+            SmHealerOpType through = op < h->m_eDoneHealOp ? op : h->m_eDoneHealOp;
+            size_t vertex_props_after = h->m_sTgtVertexProps.GetSize() - rv.GetSize() + new_vertices;
+            if (added.GetSize() != 0 && through >= SM_HO_CACHE_COIN_VERTICES &&
+                !remaining.empty() && vertex_props_after != remaining.size() &&
+                (h->m_pVerticesInVoxels->*VxPeek::box()).IsInit())
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
+            // Catch-up from Fix_CoinVertices onward can invalidate fixture
+            // topology and recycle props addresses, just like HealTgts.
+            if (added.GetSize() != 0 && through >= SM_HO_FIX_COIN_VERTICES)
+            {
+                mark_all_dead(*h, r);
+                stop = true;
+            }
             for (ULONG i = 0; i < rf.GetSize(); ++i) r.dead.insert(rf[i]);
             for (ULONG i = 0; i < re.GetSize(); ++i) r.dead.insert(re[i]);
             for (ULONG i = 0; i < rv.GetSize(); ++i) r.dead.insert(rv[i]);
             stat = h->UpdateTargetLists(&removed, &added, op);
             r.note(*h);
+            break;
+        }
+        case 42:
+        {
+            bool null_face = rd.flag();
+            for (ULONG i = 0; i < h->m_sTgtFaceProps.GetSize(); ++i)
+            {
+                SmFaceProps* p = h->m_sTgtFaceProps[i];
+                p->m_pFace = null_face || i >= h->m_sTgtFaces.GetSize() ? NULL : h->m_sTgtFaces[i];
+                p->m_lFaceIndx = i;
+                p->m_eBadCrossedSeam = SM_SP_NEITHER;
+                h->m_sBadFaceProps_DegenFaces.Add(p);
+                h->m_sBadFaceProps_CrossedSeam.Add(p);
+                h->m_sBadFaceProps_MissingSeam.Add(p);
+            }
             break;
         }
         case 41:
@@ -1427,6 +1475,17 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
             break;
         }
         default: stat = SC_ERR_ARG; break;
+        }
+        if (code == 38 && stat == SM_SUCCESS)
+        {
+            o.push_back((double)h->m_sTgtFaceProps.GetSize());
+            for (ULONG i = 0; i < h->m_sTgtFaceProps.GetSize(); ++i)
+            {
+                SmFaceProps* p = h->m_sTgtFaceProps[i];
+                o.push_back((double)p->m_eBadCrossedSeam);
+                o.push_back((double)p->m_bBadCrossedSeam);
+                o.push_back((double)p->m_eBeenThroughSplitEdgesAtSeam);
+            }
         }
         if (repair) { r.note(*h); stop = true; }
         o.push_back(st(stat));

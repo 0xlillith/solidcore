@@ -5687,14 +5687,14 @@ independent p6 integration.
 
 ## heal.heal_data_p3 (healer sequencing, target refresh and repair stages; PR #164, 2026-10-16; partial, no disagreements)
 
-- **Gate:** 430 cases, 235 passed, 195 deferred, zero failures, `max_rel_err=0`,
+- **Gate:** 450 cases, 245 passed, 205 deferred, zero failures, `max_rel_err=0`,
   no absolute floors. The shared real-B-rep scripts compare target/props lists,
   problem-list order, linked flags, statistics and counters. Terminal `HealTgts`
   cases compare status, stop/done step, recursion depth and target counts; repair
   attempts with populated queues are terminal because native mutations invalidate
   the original fixture graph. Empty repair queues retain the complete state dump.
 - **Missing dependencies:** 50 cases stop at B-rep tolerance/model-size operations
-  (`topology.brep_p1`), 62 at edge-use gaps (`topology.edgeuse_p3`), 61 at a
+  (`topology.brep_p1`), 72 at edge-use gaps (`topology.edgeuse_p3`), 61 at a
   face-owner tolerance lookup (`topology.face_p2`, existing context-free surface
   dispatch), 20 at face degeneracy (`topology.face_p3`), and two single-vertex
   sphere reconstruction cases at `SmFace::GetEdges` (`topology.face_p4`). No
@@ -5718,6 +5718,26 @@ independent p6 integration.
   for the existing tracker's opaque keys. Nonempty generic classification outputs
   must gain a typed topology resolver when their missing callees are wired; the
   current implementation rejects unresolved handles, never invents arena ids.
+- **PR #164 review:** restored the successful seam-merge flag/tried-state block,
+  retaining U/V merge statuses and the last split-edge list across faces. The
+  wire-deletion list retains the last duplicate, matching `SmTArray`. Null faces
+  skip all three live-member guarded repairs. Bare/SE mutation calls ignore
+  ordinary statuses but retain `Unported`; a missing degenerate edge reports
+  native `SM_ERR`. The recursion counter decrements only while positive.
+  `SmBrep::IsLiveTopologyMember` is recorded as a private co-port in its owner's
+  notes. After merging PR #65, `FindEdgeObjects` calls the p7 implementation;
+  nonempty opaque handles still require the documented typed resolver.
+- **Native safety regression:** a forged done step >=6 can send new vertices into
+  an unsized incremental voxel model (UB-36), as confirmed by the maintainer's
+  SIGSEGV. Step 33 predicts the post-removal vertex counts and refuses only that
+  unsized incremental path. Direct FFI tests exercise all five reported ops and
+  preserve initialized/empty/fully-removed old targets and both step-limit
+  boundaries. Catch-up at step 7 or later is terminal because it can mutate the
+  fixture graph. Twenty review fixtures include null-face skips and a
+  no-direction crossed-seam flag snapshot. Wire variants compare all five guard
+  refusals without the box's earlier unported edge-use gap calculations; native FFI tests run independently
+  of Rust deferrals. Nonempty mutation paths remain uncertified at their missing
+  dependencies.
 - **Harness:** a generation-aware props registry prevents allocator address reuse
   from reviving retired records. Duplicate removals are refused only if they
   resolve to the same props twice (or trigger the existing native pair-removal UB);

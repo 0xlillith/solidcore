@@ -1,6 +1,6 @@
 //! Healer target updates, ordered healing and coincidence, degeneracy and seam repairs.
 //!
-//! Upstream: `source/SMLib/src/SmHealData.cpp`.
+//! Upstream: `source/SMLib/src/SmHealData.cpp`, `source/SMLib/src/SmBrep.cpp`.
 //!
 //! | Rust | Upstream |
 //! |------|----------|
@@ -13,6 +13,7 @@
 //! | [`HealData::fix_move_seam`] | `SmHealData::Fix_MoveSeam` |
 //! | [`HealData::fix_split_edges_at_seam`] | `SmHealData::Fix_SplitEdgesAtSeam` |
 //! | [`HealData::fix_split_face_at_seams`] | `SmHealData::Fix_SplitFaceAtSeams` |
+//! | `live` (private co-port) | `SmBrep::IsLiveTopologyMember` |
 //!
 //! Deviations: topology and props are arena ids as in [`super::p2`]. The B-rep and
 //! kernel are explicit arguments. Tracker object keys are resolved by the caller,
@@ -25,12 +26,14 @@
 //! callback. Recursive target catch-up is limited to 32 nested updates (upstream
 //! has no bound); temporary counters and healer state are restored on every exit.
 //! Ordinary statuses from nested `HealTgts` are ignored as upstream, but unported
-//! calls and invalid memory accesses propagate. `Fix_BadLoops` stays disabled,
-//! Opaque nonempty classification outputs require a typed resolver and are
-//! rejected if unresolved (currently unreachable behind missing callees).
+//! calls and invalid memory accesses propagate. Bare/SE mutation statuses are
+//! ignored except `Unported`; failed calls with no output skip uses of that output.
+//! `Fix_BadLoops` stays disabled. Opaque nonempty classification outputs (including
+//! p7 `FindEdgeObjects`) require a typed resolver and are rejected if unresolved
+//! (currently unreachable behind missing callees).
 //! `Fix_SplitFaceAtSeams` updates the split-*edge* tried list, as upstream.
 
-use crate::error::{EntityRef, Result, SolidError, SM_ERR};
+use crate::error::{ignored as ignore_soft, EntityRef, Result, SolidError, SM_ERR};
 use crate::geom::attribute::ObjectKey;
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::heal::face_props::{HealerOpType, LoopObject};
@@ -209,7 +212,9 @@ impl<O: LoopObject> HealData<O> {
         self.done_heal_op = HealerOpType::None;
         self.recursion_count += 1;
         let result = ignore_status(self.heal_targets(k, b, through, false));
-        self.recursion_count -= 1;
+        if self.recursion_count > 0 {
+            self.recursion_count -= 1;
+        }
         (self.stop_heal_op, self.done_heal_op) = saved_state;
         (self.old_face_cnt, self.old_edge_cnt, self.old_vertex_cnt) = saved_counts;
         result
@@ -413,9 +418,11 @@ impl<O: LoopObject> HealData<O> {
         let mut changes = Changes::default();
         for id in queue.into_iter().rev() {
             let p = self.edge_props.props(id)?;
-            let e = p
-                .edge
-                .ok_or_else(|| invalid("degenerate edge props without edge"))?;
+            let e = p.edge.ok_or(SolidError::Upstream {
+                operation: OP,
+                code: SM_ERR,
+                entity: None,
+            })?;
             if p.bad_degen_edge.is_false() {
                 continue;
             }
@@ -482,9 +489,9 @@ impl<O: LoopObject> HealData<O> {
             if p.bad_degen_face.is_false() {
                 continue;
             }
-            let f = p
-                .face
-                .ok_or_else(|| invalid("degenerate face props without face"))?;
+            let Some(f) = p.face else {
+                continue; // IsLiveTopologyMember(NULL) is false upstream.
+            };
             if !live(b, EntityRef::Face(f)) {
                 continue;
             }
@@ -519,11 +526,20 @@ impl<O: LoopObject> HealData<O> {
                         .vertexuse(vu)?
                         .vertex
                         .ok_or_else(|| invalid("vertex loop without vertex"))?;
-                    let new_surface = surface.copy_and_add_analytics()?;
-                    let deleted = delete_face(b, f, true, Some(old_region))?;
+                    let new_surface = ignore_soft(surface.copy_and_add_analytics())?;
+                    let deleted =
+                        ignore_soft(delete_face(b, f, true, Some(old_region)))?.unwrap_or_default();
                     let vertex_deleted = deleted.removed.contains(&EntityRef::Vertex(old_vertex));
                     changes.append(deleted);
-                    let (new_face, edits) = create_face_from_surface(b, old_region, new_surface)?;
+                    // A failed copy/create has no returned face to dereference.
+                    let Some(new_surface) = new_surface else {
+                        continue;
+                    };
+                    let Some((new_face, edits)) =
+                        ignore_soft(create_face_from_surface(b, old_region, new_surface))?
+                    else {
+                        continue;
+                    };
                     changes.append(edits);
                     self.new_faces_from_fix_degen_faces.push(new_face);
                     if !vertex_deleted {
@@ -534,16 +550,21 @@ impl<O: LoopObject> HealData<O> {
                                 vertex::tolerance(b, old_vertex)?,
                             );
                             if (b.vertex(v)?.point - b.vertex(old_vertex)?.point).length() < tol {
-                                changes.append(glue_vertices(b, v, old_vertex)?);
+                                changes.append(
+                                    ignore_soft(glue_vertices(b, v, old_vertex))?
+                                        .unwrap_or_default(),
+                                );
                                 break;
                             }
                         }
                     }
                 } else {
-                    changes.append(delete_face(b, f, false, None)?);
+                    changes
+                        .append(ignore_soft(delete_face(b, f, false, None))?.unwrap_or_default());
                 }
             } else {
-                let (new_edges, deleted_edges, edits) = squeeze_face(b, f)?;
+                let (new_edges, deleted_edges, edits) =
+                    ignore_soft(squeeze_face(b, f))?.unwrap_or_default();
                 changes.append(edits);
                 for e in new_edges {
                     if !edges.contains(&e) {
@@ -559,25 +580,21 @@ impl<O: LoopObject> HealData<O> {
                             edge::vertex(b, e)?.ok_or_else(|| invalid("wire without vertex"))?;
                         let d = edge::other_vertex(b, e, Some(a))?
                             .ok_or_else(|| invalid("wire without other vertex"))?;
-                        changes.append(delete_edge(b, e)?);
+                        changes.append(ignore_soft(delete_edge(b, e))?.unwrap_or_default());
                         if a == d && vertex::is_shell_vertex(b, a)? {
-                            changes.append(delete_vertex(b, a)?);
+                            changes.append(ignore_soft(delete_vertex(b, a))?.unwrap_or_default());
                         } else {
                             if vertex::is_shell_vertex(b, a)? {
-                                changes.append(delete_vertex(b, a)?);
+                                changes
+                                    .append(ignore_soft(delete_vertex(b, a))?.unwrap_or_default());
                             }
                             if vertex::is_shell_vertex(b, d)? {
-                                changes.append(delete_vertex(b, d)?);
+                                changes
+                                    .append(ignore_soft(delete_vertex(b, d))?.unwrap_or_default());
                             }
                         }
                         if !removed_duplicates {
-                            let mut unique = Vec::new();
-                            for &edge in &edges {
-                                if !unique.contains(&edge) {
-                                    unique.push(edge);
-                                }
-                            }
-                            edges = unique;
+                            remove_duplicates_keep_last(&mut edges);
                             removed_duplicates = true;
                         }
                     }
@@ -639,7 +656,7 @@ impl<O: LoopObject> HealData<O> {
             }
             marks.mark(k, Entity::Face(f), lock.mark_type());
             // MoveSeam(TRUE /* move inside */, FALSE /* do not split */, props).
-            changes.append(move_seam(b, f, p, true, false)?);
+            changes.append(ignore_soft(move_seam(b, f, p, true, false))?.unwrap_or_default());
         }
         self.update_target_lists(
             k,
@@ -680,14 +697,17 @@ impl<O: LoopObject> HealData<O> {
         }
         lock.new_mark(std::slice::from_mut(&mut k.context))?;
         let mut changes = Changes::default();
+        // Upstream keeps both statuses and the last direction's edges across faces.
+        let mut merge_ok = [true, true];
+        let mut this_split_edges = Vec::new();
         for id in queue.into_iter().rev() {
             if !self.tgt_face_props.contains(&id) {
                 continue;
             }
             let p = &mut self.face_props.props_mut(id)?.props;
-            let f = p
-                .face
-                .ok_or_else(|| invalid("crossed seam props without face"))?;
+            let Some(f) = p.face else {
+                continue; // IsLiveTopologyMember(NULL) is false upstream.
+            };
             if !live(b, EntityRef::Face(f)) || p.bad_crossed_seam.is_false() {
                 continue;
             }
@@ -699,15 +719,16 @@ impl<O: LoopObject> HealData<O> {
                     continue;
                 }
             }
-            let mut this_split_edges = Vec::new();
             if has_u(p.bad_crossed_seam_dir) {
-                this_split_edges = classified_edges(p.crv_class_u.as_ref())?;
+                this_split_edges =
+                    ignore_soft(classified_edges(p.crv_class_u.as_ref()))?.unwrap_or_default();
             }
             if has_v(p.bad_crossed_seam_dir) {
-                this_split_edges = classified_edges(p.crv_class_v.as_ref())?;
+                this_split_edges =
+                    ignore_soft(classified_edges(p.crv_class_v.as_ref()))?.unwrap_or_default();
             }
             let mut rebuild = false;
-            for e in this_split_edges {
+            for &e in &this_split_edges {
                 if marks.is_marked(k, Entity::Edge(e), lock.mark_type()) {
                     rebuild = true;
                 }
@@ -731,10 +752,16 @@ impl<O: LoopObject> HealData<O> {
                     p.crv_class_v.as_mut()
                 }
                 .ok_or_else(|| invalid("crossed seam without classification"))?;
-                let merged = class.merge_intervals(true)?;
+                let merged = ignore_soft(class.merge_intervals(true))?;
+                if let Some(status) = merge_ok.get_mut(usize::from(!u)) {
+                    *status = merged.is_some();
+                }
                 // These handles are generic. A successful mutation must resolve
                 // them through its topology adapter before updating the B-rep.
-                let edits = merged_changes(b, &merged)?;
+                let edits = match merged {
+                    Some(merged) => merged_changes(b, &merged)?,
+                    None => Changes::default(),
+                };
                 self.new_edges_from_split_edges_at_seams.extend(
                     edits.added.iter().flatten().filter_map(|e| {
                         if let EntityRef::Edge(x) = e {
@@ -761,6 +788,17 @@ impl<O: LoopObject> HealData<O> {
                 )?;
                 // End the arena borrow before adding the tried record.
                 // The next direction obtains the classification again below.
+            }
+            if merge_ok == [true, true] {
+                let p = &mut self.face_props.props_mut(id)?.props;
+                p.bad_crossed_seam_dir = SurfParamType::Neither;
+                // Test the old flags before clearing the crossed-seam flag.
+                p.been_through_split_edges_at_seam = if seam_problem(p) {
+                    TriedLinkType::NoFix
+                } else {
+                    TriedLinkType::Fixed
+                };
+                p.bad_crossed_seam = crate::heal::face_props::Tri::False;
             }
         }
         self.update_target_lists(
@@ -791,9 +829,9 @@ impl<O: LoopObject> HealData<O> {
                 continue;
             }
             let p = &mut self.face_props.props_mut(id)?.props;
-            let f = p
-                .face
-                .ok_or_else(|| invalid("missing seam props without face"))?;
+            let Some(f) = p.face else {
+                continue; // IsLiveTopologyMember(NULL) is false upstream.
+            };
             if !live(b, EntityRef::Face(f)) || p.bad_missing_seam.is_false() {
                 continue;
             }
@@ -805,7 +843,7 @@ impl<O: LoopObject> HealData<O> {
                     continue;
                 }
             }
-            let (new_faces, edits) = split_face_at_seam(b, f, p)?;
+            let (new_faces, edits) = ignore_soft(split_face_at_seam(b, f, p))?.unwrap_or_default();
             changes.append(edits);
             if new_faces.is_empty() {
                 self.ran_face_props_split_edges_at_seam.add(
@@ -837,6 +875,17 @@ impl<O: LoopObject> HealData<O> {
     }
 }
 
+fn remove_duplicates_keep_last<T: Copy + PartialEq>(items: &mut Vec<T>) {
+    let mut unique = Vec::new();
+    for &item in items.iter().rev() {
+        if !unique.contains(&item) {
+            unique.push(item);
+        }
+    }
+    unique.reverse();
+    *items = unique;
+}
+
 fn seam_problem<O: LoopObject>(p: &FaceProps<O>) -> bool {
     !p.bad_missing_seam.is_false()
         || !p.bad_crossed_seam.is_false()
@@ -855,7 +904,7 @@ fn refresh_stage2<O: LoopObject>(
     done: HealerOpType,
 ) -> Result<()> {
     p.reset(PropStage::Stage2);
-    ignore_status(p.set_props(
+    crate::error::ignore_status(p.set_props(
         k,
         b,
         PropStage::Stage2,
@@ -948,12 +997,16 @@ fn classification_has_dead_topology<O: LoopObject>(
         "intersect.curve_class_p2",
     ))
 }
-fn classified_edges<O: LoopObject>(_class: Option<&CurveClassification<O>>) -> Result<Vec<EdgeId>> {
-    // UNPORTED(intersect.curve_class_p7): SmCurveClassification::FindEdgeObjects
-    Err(SolidError::unported(
-        "SmCurveClassification::FindEdgeObjects",
-        "intersect.curve_class_p7",
-    ))
+fn classified_edges<O: LoopObject>(class: Option<&CurveClassification<O>>) -> Result<Vec<EdgeId>> {
+    let class = class.ok_or_else(|| invalid("crossed seam without classification"))?;
+    let edges = class.find_edge_objects(None, 2)?;
+    if edges.is_empty() {
+        Ok(Vec::new())
+    } else {
+        Err(invalid(
+            "classified edge handles require a typed B-rep resolver",
+        ))
+    }
 }
 fn merged_changes<O: LoopObject>(
     _b: &Brep,
@@ -1136,5 +1189,98 @@ mod tests {
         h.bad_edge_props_degen_edges.prob_array.push(id);
         h.fix_degen_edges(&mut Kernel::default(), &mut b, HealerOpType::FixDegenEdges)
             .unwrap();
+    }
+    #[test]
+    fn wire_dedup_retains_last_occurrences_in_original_order() {
+        let mut edges = vec![1, 2, 1, 3, 2, 4, 3];
+        remove_duplicates_keep_last(&mut edges);
+        assert_eq!(edges, [1, 2, 4, 3]);
+    }
+
+    #[test]
+    fn null_faces_are_skipped_in_all_live_member_guarded_repairs() {
+        let mut k = Kernel::default();
+        let mut b = Brep::default();
+        let mut h = HealData::<L>::new();
+        let id = h.face_props.alloc(FacePropsEntry::new());
+        h.tgt_face_props.push(id);
+        h.bad_face_props_degen_faces
+            .add(&mut h.face_props, id, true)
+            .unwrap();
+        h.bad_face_props_crossed_seam
+            .add(&mut h.face_props, id, true)
+            .unwrap();
+        h.bad_face_props_missing_seam
+            .add(&mut h.face_props, id, true)
+            .unwrap();
+        h.fix_degen_faces(&mut k, &mut b, HealerOpType::FixDegenFaces)
+            .unwrap();
+        let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS).unwrap();
+        h.fix_split_edges_at_seam(
+            &mut k,
+            &mut b,
+            &mut Marks::default(),
+            &lock,
+            HealerOpType::FixSplitedgeAtseam,
+        )
+        .unwrap();
+        lock.release(std::slice::from_mut(&mut k.context)).unwrap();
+        h.fix_split_face_at_seams(&mut k, &mut b, HealerOpType::FixSplitfaceAtseams)
+            .unwrap();
+        assert_eq!(
+            h.face_props.props(id).unwrap().props.bad_crossed_seam,
+            Tri::True
+        );
+    }
+
+    #[test]
+    fn neither_direction_still_updates_crossed_seam_flags_in_native_order() {
+        let mut k = Kernel::default();
+        let mut b = Brep::default();
+        let f = b
+            .add_face_record(crate::topology::Face::new(
+                crate::topology::ShellId::from_index(0),
+            ))
+            .unwrap();
+        let mut h = HealData::<L>::with_targets(&[], &[], &[f]);
+        let id = h.tgt_face_props[0];
+        let p = &mut h.face_props.props_mut(id).unwrap().props;
+        p.face = Some(f);
+        p.bad_crossed_seam_dir = SurfParamType::Neither;
+        p.bad_missing_seam = Tri::False;
+        p.bad_near_miss_seam = Tri::False;
+        h.bad_face_props_crossed_seam
+            .add(&mut h.face_props, id, true)
+            .unwrap();
+        let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS).unwrap();
+        h.fix_split_edges_at_seam(
+            &mut k,
+            &mut b,
+            &mut Marks::default(),
+            &lock,
+            HealerOpType::FixSplitedgeAtseam,
+        )
+        .unwrap();
+        lock.release(std::slice::from_mut(&mut k.context)).unwrap();
+        let p = &h.face_props.props(id).unwrap().props;
+        assert_eq!(p.bad_crossed_seam_dir, SurfParamType::Neither);
+        assert_eq!(p.bad_crossed_seam, Tri::False);
+        // FIXED is decided before clearing the old crossed-seam flag.
+        assert_eq!(p.been_through_split_edges_at_seam, TriedLinkType::NoFix);
+    }
+
+    #[test]
+    fn missing_edge_has_native_sm_err_status() {
+        let mut h = HealData::<L>::new();
+        let id = h.edge_props.alloc(EdgeProps::new());
+        h.bad_edge_props_degen_edges.prob_array.push(id);
+        assert!(matches!(
+            h.fix_degen_edges(
+                &mut Kernel::default(),
+                &mut Brep::default(),
+                HealerOpType::FixDegenEdges
+            ),
+            Err(SolidError::Upstream { code: SM_ERR, .. })
+        ));
     }
 }

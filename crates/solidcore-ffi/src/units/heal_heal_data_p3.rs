@@ -17,7 +17,7 @@ mod sys {
     }
 }
 
-/// Runs a validated healer script, including steps 32..41 documented in
+/// Runs a validated healer script, including steps 32..42 documented in
 /// [`super::heal_heal_data_p2::check_heal`], on a real C++ B-rep.
 pub fn heal(path: &str, block: &[f64], args: &[f64]) -> Result<Vec<f64>, FfiError> {
     check_block(path, block)?;

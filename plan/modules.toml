@@ -2800,7 +2800,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "50 fns; largest: SmBrep::HealBrep, SmBrep::CreateCornerBlend, SmBrep::CreateEdgeEdgeBlend, sm_MakeVertexSplitUVTrimCurve; cycle back-edges (call into later units; stub or co-port): query.brep(3), heal.heal_data_p1(2); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmBrep::m_bValidateOnly, the region/face use/loop use/edge use/vertex use arenas -> topology::Brep (validate_only, regions(), faceuses(), ..., add_*_record, *_mut); CO-PORTED in topology.edgeuse_p2 (PR #87): SmBrep::m_sThisZoneTol3d, GetTolerance -> topology::Brep::tolerance, set_tolerance"
+notes = "50 fns; largest: SmBrep::HealBrep, SmBrep::CreateCornerBlend, SmBrep::CreateEdgeEdgeBlend, sm_MakeVertexSplitUVTrimCurve; cycle back-edges (call into later units; stub or co-port): query.brep(3), heal.heal_data_p1(2); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit; CO-PORTED in topology.edgeuse_p1 (PR #55): SmBrep::m_bValidateOnly, the region/face use/loop use/edge use/vertex use arenas -> topology::Brep (validate_only, regions(), faceuses(), ..., add_*_record, *_mut); CO-PORTED in topology.edgeuse_p2 (PR #87): SmBrep::m_sThisZoneTol3d, GetTolerance -> topology::Brep::tolerance, set_tolerance; CO-PORTED in heal.heal_data_p3 (PR #164): SmBrep::IsLiveTopologyMember -> heal::heal_data::p3::live (private, arena identity checks)"
 
 [[unit]]
 id = "topology.brep_p6"
@@ -3150,7 +3150,7 @@ tests = ["prog_test:my_test_closed_sphere_properties", "prog_test:my_test_squeez
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "9 fns; largest: SmHealData::HealTgts, SmHealData::Fix_SplitEdgesAtSeam, SmHealData::Fix_DegenFaces, SmHealData::UpdateTargetLists; unit-SCC #22 (220 units); 59 upstream test entry points reach this unit; PR #164: 430 difftest cases, 235 passed, 0 failed, 195 deferred (topology.brep_p1 50, topology.edgeuse_p3 62, topology.face_p2 61, topology.face_p3 20, topology.face_p4 2), max_rel_err=0, no absolute floors. Ports all 9 owned functions and wires HealBrep to HealTgts; target catch-up recursion bounded at 32. Topology mutations defer at their owning units; generic nonempty classification outputs require a typed resolver when those callees land."
+notes = "9 fns; largest: SmHealData::HealTgts, SmHealData::Fix_SplitEdgesAtSeam, SmHealData::Fix_DegenFaces, SmHealData::UpdateTargetLists; unit-SCC #22 (220 units); 59 upstream test entry points reach this unit; PR #164: 450 difftest cases, 245 passed, 0 failed, 205 deferred (topology.brep_p1 50, topology.edgeuse_p3 72, topology.face_p2 61, topology.face_p3 20, topology.face_p4 2), max_rel_err=0, no absolute floors. Ports all 9 owned functions and wires HealBrep to HealTgts; target catch-up recursion bounded at 32. Topology mutations defer at their owning units; generic nonempty classification outputs require a typed resolver when those callees land. Maintainer review: restored seam-success flags, cross-face merge statuses/edge list, last-occurrence wire dedupe, null-face skips and ignored statuses; native incremental-voxel catch-up guard (UB-36), 20 review fixtures and 3 independent safe-FFI regression tests. FindEdgeObjects now calls p7 after merging PR #65; IsLiveTopologyMember co-port recorded under topology.brep_p1."
 
 [[unit]]
 id = "heal.stitch_p2"
