@@ -5413,7 +5413,8 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 ## intersect.curve_class_p5: independent port
 
-The seven part-5 functions are ported without bundling the open p2/p7/p6 PRs
+The seven part-5 entry points are implemented with the unported blocks below,
+without bundling the open p2/p7/p6 PRs
 (#85/#65/#138). The replacement branch starts directly at official main. Calls into
 those missing units return `SolidError::Unported` with their owning unit; no
 successful result is substituted. The former bundled branch and its numerical
@@ -5428,14 +5429,17 @@ preserves that quirk. No tolerance floors or profile/build-script changes are ad
 
 Uncertified paths include extraction behind Homogenize (p6), endpoint repair behind
 FixEndPointClass (p6), interval insertion/merge (p6), point-index queries (p7),
-classification boundary locations (p2), mutable edge/SSS topology and nonempty
-large-gap projection. Fixup and merge comparisons certify only exercised no-op/skip
+classification boundary locations (p2) and nonempty large-gap projection.
+The entire edge-target insertion branch (vertex snapping, surface refinement and
+the 2D class object) remains unported, blocked first by p2 InsertAt and also p7
+point-index queries. The SSS refinement block remains unported pending mutable
+geometry/topology ownership in p5. Fixup and merge comparisons certify only exercised no-op/skip
 paths. The inline SetInterval setter and curve resolver visibility are minimal
 support on the existing part-1 type. Face callers map vertices through
 CurveOnClassifyObjects::vertex; their other dependency stubs remain untouched.
 
 The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
-UB-125/126 are source-found native null dereferences; UB-127 was reproduced during
+UB-125/126 are source-found native null dereferences; UB-134 was reproduced during
 the original bundled validation. The shim retains those narrow preconditions.
 Independent-port evidence on numerical source `abb5cc7a`, based on official main
 `f22eaae0`, uses the clean pinned upstream `c9c5979`, Ubuntu 26.04.1 x86_64,
@@ -5450,3 +5454,23 @@ Strict native-enabled workspace Clippy passes with the same profile override, an
 the focused FFI malformed-input regression passes (one test). Full `--green` CI on
 `12797d2` passes: 186 units, 99 green, 87 partial, zero failed. Earlier bundled pass
 counts do not certify this branch.
+
+Review follow-up (#150): UB-134 replaces this PR's conflicting UB-127; UB-125/126
+are unchanged. Both proto-topology p3 extraction sites now call the mutable p5
+method with geometry and default outputs, discarding the temporary curves as
+upstream does. When reached, these calls currently defer to p6 Homogenize.
+`ClassGeometry::classification_vertex_point` avoids the name collision with
+`ProtoBrep::vertex_point`; the prior collision-only changes in p3 and its runner
+are removed. The small shared adapters/setter/visibility changes are recorded as
+CO-PORTED in the owning units' notes. Generic-Surface CrvOnSurf construction is
+still an unported type/dispatch extension of the already-partial curve unit;
+its notes distinguish this from an unported existing topology algorithm.
+
+Missing vertex-point and vertex/face-gap callbacks are p5 ownership-adapter gaps,
+not missing SmVertex/SmVertexuse methods. The edge insertion and SSS stubs name
+their actual blockers. The module header records the object-index restriction,
+unresolved-curve error in p5_closed and runner-only face tolerance zero. All 24
+zero_tangent fixtures defer on p2 InsertAt; flipping the nonzero-tangent flag does
+not affect a compared result yet. No tangent fallback behavior is certified by
+those fixtures. Review-fix validation is pending; the results above cover the
+previous revisions explicitly named there.

@@ -961,4 +961,8 @@ The p5 implementation and oracle are isolated from the open p2/p7/p6 PRs. Their
 code, fixtures, reports, status changes and integration promotions are excluded.
 Calls into those units explicitly defer until they land independently. The reduced scope compares 267/1,081 cases exactly, with zero failures and 814
 explicit deferrals. Perturbation detects all 267 compared cases. Bundled results
-are not reused.
+are not reused. The edge-target insertion branch and SSS refinement block remain
+unported (p2/p7 integration and mutable ownership respectively). All 24 zero-tangent
+fixtures defer, so they do not certify the tangent-flag branch. Small shared
+interfaces are recorded as CO-PORTED in their owning units' notes. The extraction
+back-edge from proto-topology p3 now calls p5; the lazy-UV issue is UB-134.

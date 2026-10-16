@@ -1215,7 +1215,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash / undefined behaviour.
 - **Rust port:** optional topology-data callbacks report unresolved vertex/face relationships explicitly instead of dereferencing a missing vertexuse.
 
-#### UB-127. `ExtractGeometry` slices a lazy analytic UV curve into an uninitialized B-spline
+#### UB-134. `ExtractGeometry` slices a lazy analytic UV curve into an uninitialized B-spline
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:13524`-`:13534`, the `SmBSplineCurve` copies of the two UV curves and their `Trim` calls.
 - **What happens:** An `SmLine` is a B-spline subclass but can have no materialized NURB. The explicit base copy keeps that null NURB; trimming the sliced curve calls `SmBSplineCurve::Evaluate` through `SmTol::MapTo1d` and dereferences it.
 - **Trigger:** a common classified interval and a requested UV output whose valid `SmLine` has not had `MakeNurb` called. Reproduced with a 3D circle of radius 1e6, five face-classified intervals over `[0,1]`, and both UV line outputs.

@@ -1242,9 +1242,7 @@ impl ProtoBrep<H> for Pool {
     }
     fn vertex_common_edges(&self, v1: H, v2: H) -> solidcore::Result<Vec<H>> {
         // vertices with points have no vertex uses: no edges
-        if ProtoBrep::vertex_point(self, v1).is_some()
-            && ProtoBrep::vertex_point(self, v2).is_some()
-        {
+        if self.vertex_point(v1).is_some() && self.vertex_point(v2).is_some() {
             return Ok(Vec::new());
         }
         Err(SolidError::invalid_input(
@@ -3643,10 +3641,7 @@ fn run_proto(
                                     (f.final_vertex(1), t.final_vertex(1), f.final_vertex(2), t.final_vertex(2))
                                 {
                                     for (x, y) in [(a1, b1), (a2, b2)] {
-                                        match (
-                                            ProtoBrep::vertex_point(&r.pool, x),
-                                            ProtoBrep::vertex_point(&r.pool, y),
-                                        ) {
+                                        match (r.pool.vertex_point(x), r.pool.vertex_point(y)) {
                                             (Some(px), Some(py)) => {
                                                 // `dist > xs` is the no-glue test of the port
                                                 let xs = match (

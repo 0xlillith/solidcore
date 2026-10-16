@@ -166,7 +166,7 @@ impl ClassGeometry<H> for Pool {
     fn point(&self, _o: H) -> Option<Vec3> {
         None
     }
-    fn vertex_point(&self, o: H) -> Option<Vec3> {
+    fn classification_vertex_point(&self, o: H) -> Option<Vec3> {
         if o.1 == ClassObjectKind::Vertex {
             Some(self.vertex)
         } else {

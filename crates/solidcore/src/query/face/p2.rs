@@ -59,10 +59,11 @@
 //!   classification; [`CurveOnClassifyObjects`] makes the face and surface handles and
 //!   resolves curve and loop handles. Its callees `SmCurveClassification::ReSet`
 //!   (`intersect.curve_class_p2`), `IntersectTSBound` / `IntersectEdges`
-//!   (`intersect.curve_class_p9`), `IntersectVertices` (implemented by `intersect.curve_class_p5`),
-//!   `ClassifyFaceInterval` (`intersect.curve_class_p7`) and `SmFace::GetEdges`
+//!   (`intersect.curve_class_p9`), `ClassifyFaceInterval`
+//!   (`intersect.curve_class_p7`) and `SmFace::GetEdges`
 //!   (`topology.face_p4`) return [`SolidError::Unported`]. `pbOptModifiedCurve` is the
-//!   result.
+//!   result. `IntersectVertices` calls the part-5 implementation through the caller's
+//!   vertex handles and [`ClassGeometry`] callbacks.
 //! - No recursion.
 
 use crate::curve::curve::Curve;

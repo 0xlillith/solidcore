@@ -16,13 +16,17 @@
 //! model. Optional [`ClassGeometry`] callbacks resolve vertex points, topology tolerances
 //! and vertex/face gaps. Opaque handles still defer. The SSS refinement block
 //! (upstream lines 14812–15082) needs mutable curve/topology ownership and defers
-//! before editing geometry; ordinary and large-gap vertex projections are ported.
+//! before editing geometry; this block and the edge branch of `insert_solutions`
+//! remain unported. Ordinary and large-gap vertex projections are ported.
 //! Parts 2/6/7 remain explicit dependency stubs until their independent PRs land. The fixup
 //! restart loop is bounded by three times the initial interval count plus one: fixes remove an interval or
 //! snap an edge classification to a vertex. Undefined
 //! native null dereferences and unequal paired classification lengths return errors.
 //! Debug drawing/assertions are omitted. Ignored ordinary Trim failures stay ignored;
 //! failed Copy returns an error rather than dereferencing a null native result.
+//! `insert_topology_intersections` rejects `object_index > 1`, which upstream accepts.
+//! `p5_closed` errors on an unresolved curve, where upstream returns FALSE.
+//! The differential runner's face zone tolerance of zero is not compared against C++.
 
 use super::{
     make_consistent_classifications, src_zone_tol_3d_of, CurveClassification, CurveInterval,
@@ -464,21 +468,23 @@ impl<O: ClassObject> CurveClassification<O> {
         for &vertex in vertices {
             let vertex_zone = object_zone_tol_3d(k, geometry, Some(vertex))?;
             let tolerance = xsect_tol_3d_from_zones(k, source_zone, vertex_zone);
-            let point = geometry.vertex_point(vertex).ok_or_else(|| {
-                // UNPORTED(topology.vertex): SmVertex::GetPoint
-                SolidError::unported(
-                    "SmVertex::GetPoint (classification handle)",
-                    "topology.vertex",
-                )
-            })?;
+            let point = geometry
+                .classification_vertex_point(vertex)
+                .ok_or_else(|| {
+                    // UNPORTED(intersect.curve_class_p5): classification vertex-point ownership adapter
+                    SolidError::unported(
+                        "classification vertex-point ownership adapter",
+                        "intersect.curve_class_p5",
+                    )
+                })?;
             let big_tolerance = if has_big_gaps {
                 let gap = geometry
                     .vertex_face_gap(vertex, surface, self.face())
                     .ok_or_else(|| {
-                        // UNPORTED(topology.vertexuse): SmVertexuse::GetVertexFaceGap
+                        // UNPORTED(intersect.curve_class_p5): classification vertex/face-gap ownership adapter
                         SolidError::unported(
-                            "SmVertexuse::GetVertexFaceGap (classification handle)",
-                            "topology.vertexuse",
+                            "classification vertex/face-gap ownership adapter",
+                            "intersect.curve_class_p5",
                         )
                     })?;
                 if gap > tolerance {
@@ -512,13 +518,13 @@ impl<O: ClassObject> CurveClassification<O> {
                             s.start.solution_value > 1e-7 && s.start.solution_value < tolerance
                         })))
             {
-                // UNPORTED(topology.vertex): SmVertex::GetEdges
+                // UNPORTED(intersect.curve_class_p5): sm_RefineCCIToSurfaces mutable geometry ownership
                 // The SSS refinement edits the classification curve and clears UV
                 // trims on all connected edges and boolean mates. ClassGeometry has
                 // no mutable topology/curve ownership interface for those updates.
                 return Err(SolidError::unported(
-                    "SmVertex::GetEdges / mutable classification geometry for SSS refinement",
-                    "topology.vertex",
+                    "sm_RefineCCIToSurfaces mutable classification geometry ownership",
+                    "intersect.curve_class_p5",
                 ));
             }
             for solution in solutions.as_slice() {
@@ -709,10 +715,13 @@ pub fn insert_solutions<O: ClassObject>(
         .surface(object)
         .is_some_and(|s| matches!(s.kind(), SurfaceKind::Plane(_)));
     if object.class_kind() == ClassObjectKind::Edge {
-        // UNPORTED(topology.edge): SmEdge::GetCurve
+        // UNPORTED(intersect.curve_class_p2): sm_InsertSolutions edge branch (InsertAt)
+        // The unported branch also needs p7 point-index queries, vertex snapping,
+        // sm_RefineCCIToSurfaces and the 2D class object; resolving an edge curve
+        // alone does not implement it.
         return Err(SolidError::unported(
-            "SmEdge::GetCurve (classification handle)",
-            "topology.edge",
+            "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
+            "intersect.curve_class_p2",
         ));
     }
     if target.is_none() && !plane {

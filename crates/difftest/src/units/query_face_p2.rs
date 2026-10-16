@@ -542,7 +542,7 @@ impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
 }
 
 impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
-    fn vertex_point(&self, o: H) -> Option<Vec3> {
+    fn classification_vertex_point(&self, o: H) -> Option<Vec3> {
         match o {
             H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.point),
             _ => None,

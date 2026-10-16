@@ -247,7 +247,7 @@ pub trait ClassGeometry<O> {
     fn point(&self, o: O) -> Option<Point3>;
     /// The point of a vertex handle resolved through its owning B-rep. `None`
     /// leaves opaque-handle topology operations explicitly deferred.
-    fn vertex_point(&self, vertex: O) -> Option<Point3> {
+    fn classification_vertex_point(&self, vertex: O) -> Option<Point3> {
         let _ = vertex;
         None
     }
