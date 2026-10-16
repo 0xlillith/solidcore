@@ -443,29 +443,28 @@ void put_curve(std::vector<double>& o, const SmCurve* c)
 }
 
 // A surface block: `-1` (none), `-2` (neither an SmPlane nor an SmBSplineSurface),
-// `3 O[3] X[3] Y[3] su sv umin vmin umax vmax` for an SmPlane (its frame, UV scale and
-// analytic domain; it is an SmBSplineSurface upstream, but evaluates analytically), else the SmBSplineSurface block
+// `1 O[3] X[3] Y[3] scale[2] anal_domain[4]` for an SmPlane (it is an SmBSplineSurface
+// upstream, but evaluates analytically), else the SmBSplineSurface block
 // `0 oob form n m p q r s cpts(x y z w) u v`.
 void put_surface(std::vector<double>& o, const SmSurface* s)
 {
     if (s != nullptr && s->GetType() == SmPlane_TYPE)
     {
+        // `1 O[3] X[3] Y[3] scale[2] anal_domain(u0 v0 u1 v1)` (as sc_topology_fixture.h)
         const SmPlane* pl = (const SmPlane*)s;
-        // `3 O[3] X[3] Y[3] su sv umin vmin umax vmax`: the whole plane (axes, UV scale and
-        // analytic domain), so a Rust plane built from it evaluates like the SmPlane
-        // (`SmPlane::GetPosition`, `GetUVScale`, `GetSTEPUVDomain` = m_vAnalUVDomain)
-        o.push_back(3.0);
-        put_vec(o, pl->GetPosition().GetOrigin());
-        put_vec(o, pl->GetPosition().GetXAxisRef());
-        put_vec(o, pl->GetPosition().GetYAxisRef());
+        const SmAxis2Placement& pos = pl->GetPosition();
+        o.push_back(1.0);
+        put_vec(o, pos.GetOrigin());
+        put_vec(o, pos.GetXAxis());
+        put_vec(o, pos.GetYAxis());
         SmVector2d sc = pl->GetUVScale();
-        SmExtent2d dom = pl->GetSTEPUVDomain();
         o.push_back(sc.x);
         o.push_back(sc.y);
-        o.push_back(dom.GetUMin());
-        o.push_back(dom.GetVMin());
-        o.push_back(dom.GetUMax());
-        o.push_back(dom.GetVMax());
+        SmExtent2d d = pl->GetSTEPUVDomain();
+        o.push_back(d.GetMin().x);
+        o.push_back(d.GetMin().y);
+        o.push_back(d.GetMax().x);
+        o.push_back(d.GetMax().y);
         return;
     }
     if (s == nullptr || !s->IsKindOf(SmBSplineSurface_TYPE))

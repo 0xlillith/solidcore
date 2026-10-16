@@ -908,6 +908,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Returns `SM_ERR_NULL_POINTER`; the shim refuses the input.
 
+#### UB-123. `SmCone::IntersectWithCone` dereferences an absent tolerance for coincident cylinders
+- **Location:** `source/SMLib/src/SmCone.cpp:2832,2860`, both `IntersectSurfaceBoundaries` calls in the `bCoincidence` branch of `SmCone::IntersectWithCone`.
+- **What happens:** The routine computes a default local `dTol` but dereferences `pdOptApproxTol3d` instead when passing the tolerance to the boundary calls.
+- **Trigger:** Distinct objects representing coincident, overlapping cylinders with `pdOptApproxTol3d == NULL`, after the bounding-box, angular, radial and axial early exits.
+- **How found:** read during porting (`surface.cone_p3`, PR #131).
+- **Confirmed:** no. Native guard tests reject this path and preserve defined default-tolerance calls (same object, disjoint heights, nested radii); an intentional undefined null dereference was not executed.
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Represents optional tolerances with `Option`; coincident-boundary calls currently defer to the missing Cone/Cylinder adapter in `surface.surface_p2` (#76/#133); the boundary algorithm itself merged in #120. The FFI adapter rejects exactly the native undefined path before its boundary calls.
+
 ### Intersection
 
 #### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
@@ -1606,7 +1615,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
 
-#### WR-101. `SmEdgeuse::CreateUVTrimCurve`'s two-singular-end-points recovery joins its curve into a temporary array
+#### WR-102. `SmEdgeuse::CreateUVTrimCurve`'s two-singular-end-points recovery joins its curve into a temporary array
 - **Location:** `source/SMLib/src/SmEdgeuse.cpp:1859`-`1874` (`SmEdgeuse::CreateUVTrimCurve`, the `SM_CTC_TWOSINGULARENDPTS_RECOVERY` branch).
 - **What happens:** After dropping both halves of the edge curve, the first half's UV curve and the second half's are stitched with `SmBSplineCurve::CreateByJoining`, and the joined curve is added to `s2ndUVCurves` (line 1871), the temporary array of the second half, which `SmObjsDelete` (`sClean5`) destroys when the block ends. The result array `sUVCurves` stays empty while `lResult` is set to `SM_SUCCESS` and `m_eCreatePathType` to `SM_CTC_TWOSINGULARENDPTS_RECOVERY`, so the later `sUVCurves.GetSize() == 0` test skips the iteration: the recovery never produces a trim curve (and the fail record claims it did).
 - **Trigger:** an edge whose start and end both drop onto singularities of the face's surface (for example a meridian of a sphere from pole to pole) after the plain drop and the reversed drop failed.
