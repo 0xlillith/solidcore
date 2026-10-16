@@ -44,7 +44,7 @@
 //!   (`UNDEF` for points and vectors).
 //! - **Undefined behaviour upstream** is an error here: a classification without a face,
 //!   or a face without a surface or classification curve, where the code dereferences them
-//!   before its own `NULL` checks (UB-118); an empty classification in
+//!   before its own `NULL` checks (UB-124); an empty classification in
 //!   `sm_SqueezeOutSmallestInterval` (`FindBestSqueezeEnd(0)` reads `m_pData[0]`); a touch
 //!   whose interval index is past the intervals.
 //! - **Not ported (reporting only).** `SM_ASSERT*`, `SM_DBG_WARN`, `ERR_MSG` and `MSG`
@@ -230,7 +230,10 @@ impl SolutionObject for SurfHandle {
 // ---- callees in units not ported yet ----------------------------------------------------
 
 /// `SmCurveClassification::ReSet(...)` with the constructor's arguments.
-fn reset<O: ClassObject>(cc: &mut CurveClassification<O>, init: &ClassificationInit<O>) -> Result<()> {
+fn reset<O: ClassObject>(
+    cc: &mut CurveClassification<O>,
+    init: &ClassificationInit<O>,
+) -> Result<()> {
     let _ = (cc, init);
     // UNPORTED(intersect.curve_class_p2): SmCurveClassification::ReSet
     Err(SolidError::unported(
@@ -319,7 +322,10 @@ fn face_surface<O: ClassObject, G: ClassGeometry<O>>(
 ) -> Result<Option<&Surface>> {
     let _ = (geometry, face);
     // UNPORTED(topology.face_p2): SmFace::GetSurface
-    Err(SolidError::unported("SmFace::GetSurface", "topology.face_p2"))
+    Err(SolidError::unported(
+        "SmFace::GetSurface",
+        "topology.face_p2",
+    ))
 }
 
 /// `SmEdge::GetEdgeuses(edgeuses, NULL, faceuse)` (opaque handle: no `Brep`).
@@ -438,8 +444,10 @@ fn drop_uv(
         tgt_seam_side,
         want_solutions: false,
     };
-    Ok(ignored(surface.drop_point::<SurfHandle>(k, pt, domain, &opts))?
-        .map_or(initial, |d| d.result_uv))
+    Ok(
+        ignored(surface.drop_point::<SurfHandle>(k, pt, domain, &opts))?
+            .map_or(initial, |d| d.result_uv),
+    )
 }
 
 /// `pSurface->DropVectors(uv, TRUE, TRUE, 1, &v, &out)` with the status ignored.
@@ -567,10 +575,18 @@ fn end_on_seams(
         (srf_max_uv, srf_min_uv)
     };
     if props.closed_u && on_seam != SurfParamType::U {
-        end_uv.x = if end_pn[1].dot(du) > 0.0 { pos.x } else { neg.x };
+        end_uv.x = if end_pn[1].dot(du) > 0.0 {
+            pos.x
+        } else {
+            neg.x
+        };
     }
     if props.closed_v && on_seam != SurfParamType::V {
-        end_uv.y = if end_pn[1].dot(dv) > 0.0 { pos.y } else { neg.y };
+        end_uv.y = if end_pn[1].dot(dv) > 0.0 {
+            pos.y
+        } else {
+            neg.y
+        };
     }
 
     // classify end against seam
@@ -596,7 +612,9 @@ fn end_on_seams(
 /// [`SolidError::InvalidInput`] for a classification without intervals (upstream reads
 /// `m_pData[0]`); those of `ConnectIntervals` ([`SolidError::Unported`]: unit
 /// `intersect.curve_class_p2`).
-pub fn squeeze_out_smallest_interval<O: ClassObject>(cc: &mut CurveClassification<O>) -> Result<()> {
+pub fn squeeze_out_smallest_interval<O: ClassObject>(
+    cc: &mut CurveClassification<O>,
+) -> Result<()> {
     // find the shortest classification interval
     let mut smallest = 0;
     for j in 1..cc.size() {
@@ -652,7 +670,7 @@ impl<O: ClassObject> CurveClassification<O> {
     /// # Errors
     ///
     /// [`SolidError::InvalidInput`] for `index >= size()` and a classification without a
-    /// face (upstream calls `GetUpwardFaceuse` on `NULL`, UB-118);
+    /// face (upstream calls `GetUpwardFaceuse` on `NULL`, UB-124);
     /// [`SolidError::Unported`] for the face, edge and edge use members (opaque handles)
     /// and `GetMinUV` / `GetMaxUV` (unit `intersect.curve_class_p2`).
     pub fn ivl_bound_edgeuse_obj<G: ClassGeometry<O>>(
@@ -667,9 +685,9 @@ impl<O: ClassObject> CurveClassification<O> {
         let classify_crv = self.curve();
         let tgt_edge_obj = tgt_pt_classify.edge_object();
         let classify_face = self.face();
-        // pClassifyFace->GetUpwardFaceuse() / GetSurface() before the NULL check: UB-118
+        // pClassifyFace->GetUpwardFaceuse() / GetSurface() before the NULL check: UB-124
         let face = classify_face.ok_or_else(|| {
-            SolidError::invalid_input(OP_BOUND, "classification without a face (UB-118)")
+            SolidError::invalid_input(OP_BOUND, "classification without a face (UB-124)")
         })?;
         let upper_faceuse = face_upward_faceuse(face)?;
         let classify_surface = face_surface(geometry, face)?;
@@ -700,7 +718,8 @@ impl<O: ClassObject> CurveClassification<O> {
         let classify_crv_pn = eval_pn(classify_crv, tgt_classify_crv_param)?;
 
         // CrvClassification Face locals (statuses ignored)
-        let tgt_classify_surf_uv = ignored(interval_end_uv(self, index, do_min))?.unwrap_or(Vec2::UNDEF);
+        let tgt_classify_surf_uv =
+            ignored(interval_end_uv(self, index, do_min))?.unwrap_or(Vec2::UNDEF);
         let tgt_classify_surf_norm = ignored(classify_surface.evaluate_normal(
             tgt_classify_surf_uv,
             Side::Left,
@@ -743,7 +762,10 @@ impl<O: ClassObject> CurveClassification<O> {
         match usize::try_from(touch.pt_classify_index).ok() {
             Some(0) => Ok(&self.at(0)?.start),
             Some(i) => Ok(&self.at(i - 1)?.end),
-            None => Err(SolidError::invalid_input(OP_CROSS, "touch index past the intervals")),
+            None => Err(SolidError::invalid_input(
+                OP_CROSS,
+                "touch index past the intervals",
+            )),
         }
     }
 
@@ -760,7 +782,7 @@ impl<O: ClassObject> CurveClassification<O> {
     /// # Errors
     ///
     /// [`SolidError::InvalidInput`] for a face without surface or a classification without
-    /// curve (upstream dereferences them before its `NULL` checks, UB-118);
+    /// curve (upstream dereferences them before its `NULL` checks, UB-124);
     /// [`SolidError::Unported`] for the loop, face, edge and vertex members (opaque
     /// handles), `SetProps_Stage2` (`heal.face_props`) and
     /// `GetPointClassifiesConnectedTo` (`intersect.curve_class_p7`).
@@ -810,9 +832,9 @@ impl<O: ClassObject> CurveClassification<O> {
             Some(f) => face_surface(geometry, f)?,
             None => None,
         };
-        // pSurface->GetNaturalUVDomain() before the NULL check: UB-118
+        // pSurface->GetNaturalUVDomain() before the NULL check: UB-124
         let surface = surface.ok_or_else(|| {
-            SolidError::invalid_input(OP_CROSS, "face without a surface (UB-118)")
+            SolidError::invalid_input(OP_CROSS, "face without a surface (UB-124)")
         })?;
         let srf_domain = surface.natural_uv_domain();
         let srf_min_uv = srf_domain.min();
@@ -820,17 +842,18 @@ impl<O: ClassObject> CurveClassification<O> {
         let crv_classification_interval = self.interval();
         let crv_classification_ivl_cnt = self.size();
 
-        // ClassifyCrv Props: pClassifyCrv->GetNaturalInterval() before the NULL check: UB-118
+        // ClassifyCrv Props: pClassifyCrv->GetNaturalInterval() before the NULL check: UB-124
         let classify_crv_handle = self.curve();
         let classify_crv = classify_crv_handle
             .and_then(|h| geometry.curve(h))
             .ok_or_else(|| {
-                SolidError::invalid_input(OP_CROSS, "classification without a curve (UB-118)")
+                SolidError::invalid_input(OP_CROSS, "classification without a curve (UB-124)")
             })?;
         let classify_crv_ivl = classify_crv.natural_interval();
         // SmTol::IsClosed(pClassifyCrv, &tol): GetZoneTol3d(pObj) is evaluated first
         let _ = object_zone_tol_3d(k, geometry, classify_crv_handle)?;
-        let classify_crv_closed_3d = classify_crv.is_closed(&classify_crv_ivl, face_xsect_tol_3d)?;
+        let classify_crv_closed_3d =
+            classify_crv.is_closed(&classify_crv_ivl, face_xsect_tol_3d)?;
         let classify_crv_degen =
             curve_is_degenerate(Some(classify_crv), &classify_crv_ivl, face_xsect_tol_3d)?;
         let mut classify_crv_on_seam = SurfParamType::Neither;
@@ -850,11 +873,18 @@ impl<O: ClassObject> CurveClassification<O> {
             let mut on_seam = true;
             for ii in 1..=smp_cnt {
                 // From SmpParam => SmpPtUV
-                let smp_param =
-                    classify_crv_ivl.evaluate(f64::from(ii) / f64::from(smp_cnt + 1));
-                let smp_pt = ignored(classify_crv.evaluate_point(smp_param))?.unwrap_or(Vec3::UNDEF);
-                let smp_uv =
-                    drop_uv(k, surface, smp_pt, &surface.natural_uv_domain(), None, None, Vec2::UNDEF)?;
+                let smp_param = classify_crv_ivl.evaluate(f64::from(ii) / f64::from(smp_cnt + 1));
+                let smp_pt =
+                    ignored(classify_crv.evaluate_point(smp_param))?.unwrap_or(Vec3::UNDEF);
+                let smp_uv = drop_uv(
+                    k,
+                    surface,
+                    smp_pt,
+                    &surface.natural_uv_domain(),
+                    None,
+                    None,
+                    Vec2::UNDEF,
+                )?;
 
                 // Classify SmpPtUV against Seams
                 let seam = surface.is_on_seam(k, smp_uv, None)?;
@@ -954,7 +984,8 @@ impl<O: ClassObject> CurveClassification<O> {
             crv_classification_interval.classify_point(last_touch.param, last_zone_tol_2d);
 
         // check state - stored params must be on or inside the interval
-        if touch_1st_type == ExtentPointType::Outside || touch_last_type == ExtentPointType::Outside {
+        if touch_1st_type == ExtentPointType::Outside || touch_last_type == ExtentPointType::Outside
+        {
             // Snap offending val to a boundary value
             let mut last = touch_at(&raw, touch_cnt - 1)?;
             last.param = crv_classification_interval.clamp_value(last.param);
@@ -964,13 +995,15 @@ impl<O: ClassObject> CurveClassification<O> {
                 let mut first = touch_at(&raw, 0)?;
                 first.param = crv_classification_interval.clamp_value(first.param);
                 set_touch(&mut raw, 0, first)?;
-                touch_1st_type = crv_classification_interval.classify_point(first.param, eff_zero());
+                touch_1st_type =
+                    crv_classification_interval.classify_point(first.param, eff_zero());
             }
             if touch_last_type == ExtentPointType::Outside {
                 let mut last = touch_at(&raw, touch_cnt - 1)?;
                 last.param = crv_classification_interval.clamp_value(last.param);
                 set_touch(&mut raw, touch_cnt - 1, last)?;
-                touch_last_type = crv_classification_interval.classify_point(last.param, eff_zero());
+                touch_last_type =
+                    crv_classification_interval.classify_point(last.param, eff_zero());
             }
         }
 
@@ -1066,8 +1099,12 @@ impl<O: ClassObject> CurveClassification<O> {
             let i0 = i1 - 1;
             let arrive_touch = touch_at(&raw, i0)?;
             let depart_touch = touch_at(&raw, i1)?;
-            let (arrive, depart) =
-                self.classify_touch(&ctx, &arrive_touch, arrive_touch.loop_dir, depart_touch.loop_dir)?;
+            let (arrive, depart) = self.classify_touch(
+                &ctx,
+                &arrive_touch,
+                arrive_touch.loop_dir,
+                depart_touch.loop_dir,
+            )?;
             let mut a = arrive_touch;
             a.loop_dir = arrive;
             set_touch(&mut raw, i0, a)?;
@@ -1215,7 +1252,8 @@ impl<O: ClassObject> CurveClassification<O> {
             Vec2::UNDEF,
         )?;
         let classify_crv_uv_1st_dir = drop_vector(c.surface, classify_crv_uv, classify_crv_pn[1])?;
-        let classify_crv_uv_tan = ignored(classify_crv_uv_1st_dir.unitize())?.unwrap_or(Vec2::new(0.0, 0.0));
+        let classify_crv_uv_tan =
+            ignored(classify_crv_uv_1st_dir.unitize())?.unwrap_or(Vec2::new(0.0, 0.0));
         let depart_uv_ang_rad = ccw_angle(classify_crv_uv_tan)?;
         let arrive_uv_ang_rad = if depart_uv_ang_rad < PI {
             depart_uv_ang_rad + PI
@@ -1225,11 +1263,12 @@ impl<O: ClassObject> CurveClassification<O> {
 
         // the touch's neighbouring interval interiors
         let next_prev_mid = |s: &Self| -> Result<(PointClassType, PointClassType)> {
-            let idx = usize::try_from(arrive_touch.pt_classify_index)
-                .map_err(|_| SolidError::invalid_input(OP_CROSS, "touch index past the intervals"))?;
-            let next = idx
-                .checked_rem(c.ivl_cnt)
-                .ok_or_else(|| SolidError::invalid_input(OP_CROSS, "classification without intervals"))?;
+            let idx = usize::try_from(arrive_touch.pt_classify_index).map_err(|_| {
+                SolidError::invalid_input(OP_CROSS, "touch index past the intervals")
+            })?;
+            let next = idx.checked_rem(c.ivl_cnt).ok_or_else(|| {
+                SolidError::invalid_input(OP_CROSS, "classification without intervals")
+            })?;
             let prev = (next + c.ivl_cnt - 1) % c.ivl_cnt;
             Ok((s.at(next)?.mid.point_class(), s.at(prev)?.mid.point_class()))
         };
@@ -1283,11 +1322,15 @@ impl<O: ClassObject> CurveClassification<O> {
 
                 // tangent ClassifyCrv Arrivals/Departures in 3d with SM_ANG_TOL_DEG
                 let t1 = classify_crv_pn[1];
-                let depart_beg_tan = t1.is_parallel_to(beg_pn[1], ANG_TOL_DEG) && t1.dot(beg_pn[1]) > 0.0;
-                let depart_end_tan = t1.is_parallel_to(end_pn[1], ANG_TOL_DEG) && t1.dot(end_pn[1]) > 0.0;
+                let depart_beg_tan =
+                    t1.is_parallel_to(beg_pn[1], ANG_TOL_DEG) && t1.dot(beg_pn[1]) > 0.0;
+                let depart_end_tan =
+                    t1.is_parallel_to(end_pn[1], ANG_TOL_DEG) && t1.dot(end_pn[1]) > 0.0;
                 // -v.IsParallelTo(..) negates the flag, not the vector
-                let arrive_beg_tan = t1.is_parallel_to(beg_pn[1], ANG_TOL_DEG) && -t1.dot(beg_pn[1]) > 0.0;
-                let arrive_end_tan = t1.is_parallel_to(end_pn[1], ANG_TOL_DEG) && -t1.dot(end_pn[1]) > 0.0;
+                let arrive_beg_tan =
+                    t1.is_parallel_to(beg_pn[1], ANG_TOL_DEG) && -t1.dot(beg_pn[1]) > 0.0;
+                let arrive_end_tan =
+                    t1.is_parallel_to(end_pn[1], ANG_TOL_DEG) && -t1.dot(end_pn[1]) > 0.0;
                 let depart_tangent = depart_beg_tan || depart_end_tan;
                 let arrive_tangent = arrive_beg_tan || arrive_end_tan;
 
@@ -1295,11 +1338,12 @@ impl<O: ClassObject> CurveClassification<O> {
                 let mut pole_contains_depart = CrvDirOnFaceType::Uninit;
                 let mut pole_contains_arrive = CrvDirOnFaceType::Uninit;
                 if sector.vertex_on_pole {
-                    let free_param = if are_same(sector.beg_edge_uv_point.x, sector.end_edge_uv_point.x) {
-                        SurfParamType::V
-                    } else {
-                        SurfParamType::U
-                    };
+                    let free_param =
+                        if are_same(sector.beg_edge_uv_point.x, sector.end_edge_uv_point.x) {
+                            SurfParamType::V
+                        } else {
+                            SurfParamType::U
+                        };
                     let system_zone = zone_tol_3d(c.k, SmallTopoType::NormalSize);
                     let depart_uv = ignored(c.surface.find_degen_param_for_direction(
                         classify_crv_uv,
@@ -1319,12 +1363,14 @@ impl<O: ClassObject> CurveClassification<O> {
                     .map_or(classify_crv_uv, |d| d.uv);
                     let beg = uv_coord(sector.beg_edge_uv_point, free_param);
                     let end = uv_coord(sector.end_edge_uv_point, free_param);
-                    pole_contains_depart = if is_between(uv_coord(depart_uv, free_param), beg, end) {
+                    pole_contains_depart = if is_between(uv_coord(depart_uv, free_param), beg, end)
+                    {
                         CrvDirOnFaceType::In
                     } else {
                         CrvDirOnFaceType::Out
                     };
-                    pole_contains_arrive = if is_between(uv_coord(arrive_uv, free_param), beg, end) {
+                    pole_contains_arrive = if is_between(uv_coord(arrive_uv, free_param), beg, end)
+                    {
                         CrvDirOnFaceType::In
                     } else {
                         CrvDirOnFaceType::Out
@@ -1370,15 +1416,28 @@ impl<O: ClassObject> CurveClassification<O> {
                         }
                         let use_beg = (kk == 0 && depart_beg_tan) || (kk == 1 && arrive_beg_tan);
                         let (tgt_edgeuse, end_param, end_speed) = if use_beg {
-                            (sector.beg_edgeuse, sector.beg_edge_param, sector.beg_edge_uv_tan.length())
+                            (
+                                sector.beg_edgeuse,
+                                sector.beg_edge_param,
+                                sector.beg_edge_uv_tan.length(),
+                            )
                         } else {
-                            (sector.end_edgeuse, sector.end_edge_param, sector.end_edge_uv_tan.length())
+                            (
+                                sector.end_edgeuse,
+                                sector.end_edge_param,
+                                sector.end_edge_uv_tan.length(),
+                            )
                         };
-                        let tgt_edgeuse = tgt_edgeuse.ok_or_else(|| SolidError::null_pointer(OP_CROSS))?;
+                        let tgt_edgeuse =
+                            tgt_edgeuse.ok_or_else(|| SolidError::null_pointer(OP_CROSS))?;
                         let speed_ratio = classify_crv_uv_1st_dir.length() / end_speed;
                         let tgt_ivl = edge_interval(edgeuse_edge(tgt_edgeuse)?)?;
                         let ivl_beg = are_same(end_param, tgt_ivl.min());
-                        let mut smp_edgeuse_param = if ivl_beg { tgt_ivl.min() } else { tgt_ivl.max() };
+                        let mut smp_edgeuse_param = if ivl_beg {
+                            tgt_ivl.min()
+                        } else {
+                            tgt_ivl.max()
+                        };
                         let smp_edgeuse_step = if ivl_beg {
                             tgt_ivl.length() / 100.0
                         } else {
@@ -1455,8 +1514,12 @@ impl<O: ClassObject> CurveClassification<O> {
                 } else {
                     -edge_pn[1]
                 };
-                let surf_norm = ignored(c.surface.evaluate_normal(classify_crv_uv, Side::Left, Side::Left))?
-                    .unwrap_or(Vec3::UNDEF);
+                let surf_norm = ignored(c.surface.evaluate_normal(
+                    classify_crv_uv,
+                    Side::Left,
+                    Side::Left,
+                ))?
+                .unwrap_or(Vec3::UNDEF);
                 let cross_mag_3d = classify_crv_pn[1].cross(edgeuse_tan).dot(surf_norm);
 
                 let edgeuse_depart = if is_boundary_dir(depart_type) {
@@ -1487,7 +1550,8 @@ impl<O: ClassObject> CurveClassification<O> {
                 }
 
                 // ON disambiguation by divergence sampling
-                if edgeuse_depart == CrvDirOnFaceType::On || edgeuse_arrive == CrvDirOnFaceType::On {
+                if edgeuse_depart == CrvDirOnFaceType::On || edgeuse_arrive == CrvDirOnFaceType::On
+                {
                     let (next_mid, prev_mid) = next_prev_mid(self)?;
                     let depart_coin =
                         edgeuse_depart == CrvDirOnFaceType::On && next_mid == PointClassType::Edge;
@@ -1507,15 +1571,19 @@ impl<O: ClassObject> CurveClassification<O> {
                             1.0
                         } else {
                             -1.0
-                        }) * (if orient == OrientType::Same { 1.0 } else { -1.0 })
-                            * (if kk == 0 {
-                                (edge_ivl.max() - this_param) / smp_div_cnt
-                            } else {
-                                (edge_ivl.min() - this_param) / smp_div_cnt
-                            });
+                        }) * (if orient == OrientType::Same {
+                            1.0
+                        } else {
+                            -1.0
+                        }) * (if kk == 0 {
+                            (edge_ivl.max() - this_param) / smp_div_cnt
+                        } else {
+                            (edge_ivl.min() - this_param) / smp_div_cnt
+                        });
                         let mut smp_classify_crv_param = this_param;
-                        let mut smp_classify_crv_step =
-                            (if kk == 0 { 1.0 } else { -1.0 }) * speed_ratio * smp_edgeuse_step.abs();
+                        let mut smp_classify_crv_step = (if kk == 0 { 1.0 } else { -1.0 })
+                            * speed_ratio
+                            * smp_edgeuse_step.abs();
 
                         // limit the ClassifyCrv step to stay in its interval
                         let max_step = ((if kk == 0 {
@@ -1572,7 +1640,10 @@ impl<O: ClassObject> CurveClassification<O> {
         dir: Vec2,
     ) -> Result<[Vec3; 2]> {
         let mut pn = [Vec3::UNDEF; 2];
-        if let Some(d) = ignored(c.surface.evaluate_directional_derivs(uv, dir, 1, true, true))? {
+        if let Some(d) = ignored(
+            c.surface
+                .evaluate_directional_derivs(uv, dir, 1, true, true),
+        )? {
             for (o, v) in pn.iter_mut().zip(d) {
                 *o = v;
             }
