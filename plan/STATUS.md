@@ -988,8 +988,8 @@ probes and 660 mismatched fillet-partner probes. They run locally with the proje
 
 ## Boolean wire/shell-vertex stage (2026-10-16, PR #161)
 
-`boolean.merge_p5` is partial: 122 cases, 92 bit-identical comparisons, zero
-failures, and 30 explicit deferrals on `query.brep::SmBrep::Point3DClassify`.
+`boolean.merge_p5` is partial: 140 cases, 108 bit-identical comparisons, zero
+failures, and 32 explicit deferrals on `query.brep::SmBrep::Point3DClassify`.
 No absolute floors. The real `SmMerge::ProcessWiresAndShellVertices` oracle checks
 native topology order, mate retention, complete arena connectivity, established
 marks, geometry and output resetting across all 11 operations. Classification,
@@ -999,3 +999,14 @@ are not certified. No incoming back-edges or new dependency types were co-ported
 The FFI guard rejects part-container headers before the B-rep reader (UB-1,
 reconfirmed with GDB); actual B-rep files supply the solid fixtures. Both shared
 mark types and marked non-wire edges without mates remain valid and covered.
+
+PR #161 review fixes: mate validation is limited to the four keep operations;
+unmated marked wires pass for all seven other operations. Eighteen added fixtures
+cover missing mates and nonidentity mate order. Both runners reject conflicting
+`Relate` mappings, generated operands/marks/mates vary independently, and the
+module header records the future need for mutable relation state when wiring copy
+adapters.
+
+Review verification: the extended 256-seed run has 380 cases, 291 bit-identical
+passes, zero failures and 89 query deferrals. Perturbation detects every compared
+case (108/108 default, 291/291 extended).

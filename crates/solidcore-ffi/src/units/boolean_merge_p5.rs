@@ -168,6 +168,25 @@ pub fn export(o: Operand<'_>) -> Result<Fixture, FfiError> {
     Ok(Fixture { graph, vertexuses })
 }
 
+/// Validate the one-to-one edge relation established by fixture `Relate` calls.
+/// A primary edge cannot mate with two other edges; -1 entries remain unrelated.
+/// Both differential engines use this before setting up the intersector state.
+pub fn validate_mates(
+    mates: &[i64],
+    primary_edges: usize,
+    other_edges: usize,
+) -> Result<(), FfiError> {
+    let mut seen = std::collections::BTreeSet::new();
+    if mates.len() != other_edges
+        || mates
+            .iter()
+            .any(|&m| m < -1 || (m >= 0 && (m as usize >= primary_edges || !seen.insert(m))))
+    {
+        return Err(invalid());
+    }
+    Ok(())
+}
+
 /// Execute the real upstream unit after checking programs, array lengths, marks
 /// and mate indices. Invalid requests never reach upstream pointer dereferences.
 /// Output is `integer_count integers... geometry_values...`.
@@ -186,20 +205,16 @@ pub fn eval(a: Operand<'_>, b: Operand<'_>, r: Request<'_>) -> Result<Vec<f64>, 
     let bb = export(b)?;
     let ac = shared::counts(&aa.graph).ok_or_else(invalid)?;
     let bc = shared::counts(&bb.graph).ok_or_else(invalid)?;
-    if r.primary_marked.len() != ac[7] + ac[9]
-        || r.other_marked.len() != bc[7] + bc[9]
-        || r.mates.len() != bc[7]
-        || r.mates
-            .iter()
-            .any(|&m| m < -1 || (m >= 0 && m as usize >= ac[7]))
-    {
+    if r.primary_marked.len() != ac[7] + ac[9] || r.other_marked.len() != bc[7] + bc[9] {
         return Err(invalid());
     }
+    validate_mates(r.mates, ac[7], bc[7])?;
     let pa = validate(a)?;
     let pb = validate(b)?;
     call_with_buffer(1024, |buf, len| {
         // SAFETY: both complete programs, flags, mark locks, lengths and mate
-        // indices are checked above. The shim also rejects unmated marked wires.
+        // indices are checked above. The shim rejects unmated marked wires only
+        // for operations that append the mate to the unrepresentable null list.
         // All pointers reference live borrowed arrays or caller-owned output.
         unsafe {
             sys::sc_boolean_merge_p5_eval(
@@ -232,6 +247,45 @@ pub fn eval(a: Operand<'_>, b: Operand<'_>, r: Request<'_>) -> Result<Vec<f64>, 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn relations_are_one_to_one_with_unrelated_edges_allowed() {
+        assert!(validate_mates(&[0, 0, 1, 2, 3], 5, 5).is_err());
+        assert!(validate_mates(&[4, 3, 2, 1, 0], 5, 5).is_ok());
+        assert!(validate_mates(&[-1, -1, 0, -1, 1], 2, 5).is_ok());
+    }
+
+    #[test]
+    fn unmated_marked_wires_are_guarded_only_for_keep_operations() {
+        let network = Operand {
+            path: "",
+            block: &[3.0, 0.0, 0.0],
+        };
+        let f = export(network).unwrap();
+        let counts = shared::counts(&f.graph).unwrap();
+        let flags = vec![1; counts[7] + counts[9]];
+        let mates = vec![-1; counts[7]];
+        for operation in 0..=10 {
+            let result = eval(
+                network,
+                network,
+                Request {
+                    operation,
+                    marks: [1, 2],
+                    primary_marked: &flags,
+                    other_marked: &flags,
+                    mates: &mates,
+                    prefill: true,
+                    repeat: 2,
+                },
+            );
+            assert_eq!(
+                result.is_err(),
+                matches!(operation, 1 | 2 | 5 | 6),
+                "{operation}"
+            );
+        }
+    }
 
     #[test]
     fn reject_invalid_programs_and_requests() {

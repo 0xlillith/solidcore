@@ -136,10 +136,12 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
     if (nma != (int64_t)(ga.edges.size()+ga.vertices.size()) ||
         nmb != (int64_t)(gb.edges.size()+gb.vertices.size()) || nm != (int64_t)gb.edges.size())
         return SC_ERR_ARG;
-    // A marked other wire must have a real primary edge mate: upstream
-    // asserts this and then dereferences it in later stages.
-    for (size_t i=0;i<gb.edges.size();++i)
-        if (marked_b[i] && gb.edges[i]->IsWire() && mates[i] < 0) return SC_ERR_ARG;
+    // Only these operations append the mate to keep. Upstream permits NULL
+    // here, but Rust's Vec<EdgeId> cannot represent it. Other operations never
+    // use the mate, so unmated marked wires remain valid comparison inputs.
+    if (operation == 1 || operation == 2 || operation == 5 || operation == 6)
+        for (size_t i=0;i<gb.edges.size();++i)
+            if (marked_b[i] && gb.edges[i]->IsWire() && mates[i] < 0) return SC_ERR_ARG;
     SmNewMarkAndLock la(&the_context(),mark_a);
     std::unique_ptr<SmNewMarkAndLock> lb;
     if (mark_a != mark_b) lb = std::make_unique<SmNewMarkAndLock>(&the_context(),mark_b);

@@ -281,6 +281,7 @@ impl UnitDiff for Runner {
         let am = flags(ac, i.primary_pre, &i.primary_unmark);
         let bm = flags(bc, i.other_pre, &i.other_unmark);
         let mates = mapping(&i, ac, bc);
+        ffi::validate_mates(&mates, ac[7], bc[7]).map_err(|e| err(&e))?;
         let r = Request {
             operation: i.operation,
             marks: i.marks,
@@ -302,6 +303,8 @@ impl UnitDiff for Runner {
             .ok_or_else(|| err("primary graph"))?;
         let bc = solidcore_ffi::units::topology_vertexuse::counts(&bb.graph)
             .ok_or_else(|| err("other graph"))?;
+        let edge_mates = mapping(&i, ac, bc);
+        ffi::validate_mates(&edge_mates, ac[7], bc[7]).map_err(|e| err(&e))?;
         let mut a = import(&aa)?;
         let mut b = import(&bb)?;
         let mut k = Kernel::default();
@@ -336,7 +339,7 @@ impl UnitDiff for Runner {
         let mut mates = BTreeMap::new();
         // Fixture setup mirrors SmTopologyIntersector::Relate, including the
         // tolerance propagation it performs BEFORE the unit under test is called.
-        for (j, m) in mapping(&i, ac, bc).into_iter().enumerate() {
+        for (j, m) in edge_mates.into_iter().enumerate() {
             if m < 0 {
                 continue;
             }
@@ -384,25 +387,91 @@ impl UnitDiff for Runner {
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let scale = *rng.choose(&[1.0e-9, 1.0, 1.0e9])?;
-        let graph = match rng.below(4) {
-            0 => json!({"kind":"vertex","point":rng.point3(-scale,scale)}),
-            1 => json!({"kind":"graph","brep":{"kind":"network"}}),
-            2 => {
-                // Shared plane fixtures support a bounded UV domain. Keep the
-                // large world-space translation while using a valid sub-domain.
-                let extent = scale.min(1.0e3);
-                json!({"kind":"graph","brep":{"kind":"face","surface":{"plane":{"o":rng.point3(-scale,scale),"n":[0.0,0.0,1.0]}},"dom":[-extent,-extent,extent,extent]}})
-            }
-            _ => {
-                let p = rng.point3(-scale, scale);
-                let q = [p[0] + scale, p[1] + scale, p[2] + scale];
-                json!({"kind":"graph","brep":{"kind":"wire","curve":{"dim":3,"cpts":[[p[0],p[1],p[2],-f64::MAX],[q[0],q[1],q[2],-f64::MAX]],"p":1,"u":[0.0,0.0,1.0,1.0]},"t0":0.2,"t1":0.8}})
-            }
+        let (primary, _) = generated_operand(rng, scale);
+        let (other, other_wire) = generated_operand(rng, scale);
+        // Topology comes from construction only, before the operation. Count
+        // actual edges because tiny face domains can collapse during setup.
+        let edge_count = |v: &Value| {
+            let spec: Spec = serde_json::from_value(v.clone()).ok()?;
+            let p = program(&spec).ok()?;
+            let f = ffi::export(operand(&p)).ok()?;
+            solidcore_ffi::units::topology_vertexuse::counts(&f.graph).map(|c| c[7])
         };
+        let primary_edges = edge_count(&primary)?;
+        let other_edges = edge_count(&other)?;
+        let operation = rng.below(11);
+        let primary_pre = if rng.below(2) == 0 { 3 } else { rng.below(4) };
+        let mut other_pre = if rng.below(2) == 0 { 3 } else { rng.below(4) };
+        let keeps_mates = matches!(operation, 1 | 2 | 5 | 6);
+        // A null keep-list entry has no Rust representation. Exercise unmapped
+        // wires through classification, or through the seven non-keep gates.
+        if keeps_mates && other_wire && primary_edges < other_edges {
+            other_pre &= !1;
+        }
+        let mut targets: Vec<i64> = (0..primary_edges as i64).collect();
+        for j in (1..targets.len()).rev() {
+            let at = rng.below((j + 1) as u64) as usize;
+            targets.swap(j, at);
+        }
+        let mates: Vec<i64> = (0..other_edges)
+            .map(|j| {
+                if (!keeps_mates || other_pre & 1 == 0) && rng.below(2) == 0 {
+                    -1
+                } else {
+                    targets.get(j).copied().unwrap_or(-1)
+                }
+            })
+            .collect();
         let mask_pairs = [[1, 2], [4, 8], [8, 16], [2, 4], [16, 1], [1, 1]];
         Some(
-            json!({"primary":graph,"other":graph,"operation":rng.below(11),
-            "primary_pre":3,"other_pre":3,"marks":rng.choose(&mask_pairs)?,"prefill":true,"repeat":2}),
+            json!({"primary":primary,"other":other,"operation":operation,
+            "primary_pre":primary_pre,"other_pre":other_pre,"mates":mates,
+            "marks":rng.choose(&mask_pairs)?,"prefill":rng.below(2)==0,"repeat":1+rng.below(2)}),
         )
+    }
+}
+
+fn generated_operand(rng: &mut Rng, scale: f64) -> (Value, bool) {
+    match rng.below(5) {
+        0 => (json!({"kind":"empty"}), false),
+        1 => (
+            json!({"kind":"vertex","point":rng.point3(-scale,scale)}),
+            false,
+        ),
+        2 => (json!({"kind":"graph","brep":{"kind":"network"}}), true),
+        3 => {
+            let extent = scale.min(1.0e3);
+            (
+                json!({"kind":"graph","brep":{"kind":"face","surface":{"plane":{"o":rng.point3(-scale,scale),"n":[0.0,0.0,1.0]}},"dom":[-extent,-extent,extent,extent]}}),
+                false,
+            )
+        }
+        _ => {
+            let p = rng.point3(-scale, scale);
+            let q = [p[0] + scale, p[1] + scale, p[2] + scale];
+            (
+                json!({"kind":"graph","brep":{"kind":"wire","curve":{"dim":3,"cpts":[[p[0],p[1],p[2],-f64::MAX],[q[0],q[1],q[2],-f64::MAX]],"p":1,"u":[0.0,0.0,1.0,1.0]},"t0":0.2,"t1":0.8}}),
+                true,
+            )
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn duplicate_mates_are_rejected_by_both_engines() {
+        let case = Case {
+            unit: "boolean.merge_p5".into(),
+            name: "conflicting_relate".into(),
+            source: crate::CaseSource::Inline,
+            inputs: json!({"primary":{"kind":"graph","brep":{"kind":"network"}},
+                "other":{"kind":"graph","brep":{"kind":"network"}},"operation":5,
+                "primary_pre":3,"other_pre":3,"mates":[0,0,1,2,3]}),
+        };
+        assert!(Runner.run_cpp(&case).is_err());
+        assert!(Runner.run_rust(&case).is_err());
     }
 }

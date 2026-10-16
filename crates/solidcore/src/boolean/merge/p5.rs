@@ -15,6 +15,11 @@
 //! caches are not attached to arena B-reps yet, so the optional cache resizing is
 //! absent. The deletion retry loop is iterative; wire collection uses the bounded
 //! explicit stack of `topology_traverser`. No input-dependent recursion is added.
+//! Mate maps and `other` are read-only while copying is unported: wiring
+//! `MergeEdge` / `MergeVertex` must make relation state mutable so their
+//! `Relate` updates are visible to subsequent edges and vertices in this stage.
+//! Missing/dangling mates are rejected only when added to the keep list:
+//! typed ids cannot represent the null pointer upstream can append there.
 
 use std::collections::BTreeMap;
 
@@ -216,17 +221,19 @@ pub fn process_wires_and_shell_vertices(
         let is_wire = vertexuse::edge_is_wire(other, id)?;
         let marked = other_marks.is_marked(k, Entity::Edge(id), other_mark);
         if is_wire && marked {
-            let mate = relations
-                .other_edges
-                .get(&id)
-                .copied()
-                .ok_or_else(|| SolidError::null_pointer(OP))?;
-            brep.edge(mate)?;
             match operation {
                 BooleanOperation::Union
                 | BooleanOperation::Intersection
                 | BooleanOperation::Merge
-                | BooleanOperation::PartialMerge => keep_as_wires.push(mate),
+                | BooleanOperation::PartialMerge => {
+                    let mate = relations
+                        .other_edges
+                        .get(&id)
+                        .copied()
+                        .ok_or_else(|| SolidError::null_pointer(OP))?;
+                    brep.edge(mate)?;
+                    keep_as_wires.push(mate);
+                }
                 // Upstream SE(SM_ERR) records the error but does not return.
                 _ => {}
             }
@@ -390,30 +397,66 @@ mod tests {
         let be = wire(&mut b);
         let mut am = Marks::default();
         let mut bm = Marks::default();
+        am.mark(&k, Entity::Edge(ae), mt);
         bm.mark(&k, Entity::Edge(be), mt);
         let vertices = BTreeMap::new();
         for edges in [
             BTreeMap::new(),
             BTreeMap::from([(be, EdgeId::from_index(u32::MAX))]),
         ] {
-            let mut keep = vec![ae];
-            assert!(process_wires_and_shell_vertices(
-                &k,
-                &mut a,
-                &b,
-                &mut am,
-                &mut bm,
-                WireRelations {
-                    other_edges: &edges,
-                    vertices: &vertices
-                },
+            for operation in [
+                BooleanOperation::Union,
+                BooleanOperation::Intersection,
                 BooleanOperation::Merge,
-                mt,
-                mt,
-                &mut keep,
-            )
-            .is_err());
-            assert!(keep.is_empty());
+                BooleanOperation::PartialMerge,
+            ] {
+                let mut keep = vec![ae];
+                assert!(process_wires_and_shell_vertices(
+                    &k,
+                    &mut a,
+                    &b,
+                    &mut am,
+                    &mut bm,
+                    WireRelations {
+                        other_edges: &edges,
+                        vertices: &vertices
+                    },
+                    operation,
+                    mt,
+                    mt,
+                    &mut keep,
+                )
+                .is_err());
+                assert!(keep.is_empty());
+            }
+            for operation in [
+                BooleanOperation::Unknown,
+                BooleanOperation::Difference,
+                BooleanOperation::ExclusiveOr,
+                BooleanOperation::Imprint,
+                BooleanOperation::ImprintClassify,
+                BooleanOperation::ExtractSeparate,
+                BooleanOperation::Slice,
+            ] {
+                let mut keep = vec![ae];
+                process_wires_and_shell_vertices(
+                    &k,
+                    &mut a,
+                    &b,
+                    &mut am,
+                    &mut bm,
+                    WireRelations {
+                        other_edges: &edges,
+                        vertices: &vertices,
+                    },
+                    operation,
+                    mt,
+                    mt,
+                    &mut keep,
+                )
+                .unwrap();
+                assert!(keep.is_empty(), "{operation:?}");
+            }
         }
     }
 }

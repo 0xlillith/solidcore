@@ -5701,3 +5701,20 @@ independent p6 integration.
   explicit `topology.brep_p4` and `boolean.merge_p1` / `_p2` adapters. Arena B-reps
   do not yet carry an attached B-rep cache; optional cache-resizing integration
   remains for the merge engine's eventual cache binding.
+- **PR #161 review:** a marked other wire without a mate is valid for Unknown,
+  Difference, ExclusiveOr, Imprint, ImprintClassify, ExtractSeparate and Slice.
+  The release C++ assertion does not reject it, and those operations never use
+  the mate. Rust now looks up/validates mates only for Union, Intersection,
+  Merge and PartialMerge. The shim excludes null keep-list entries only for
+  those four operations because `Vec<EdgeId>` cannot represent them; appending
+  null is defined in this upstream stage, rather than an immediate C++ crash.
+  Seven differential regressions exercise the previously over-rejected inputs,
+  and eleven more check nonidentity network mate order for every operation.
+- Both runners validate one-to-one mate setup before tolerance propagation:
+  duplicate primary targets (e.g. `[0,0,1,2,3]`) conflict in upstream `Relate`
+  and are invalid fixture input. Generated cases now choose operands and mark
+  masks independently, permute targets and leave edges unrelated where valid.
+- The current borrowed relation maps and immutable other operand cannot express
+  `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
+  relation state must become mutable and preserve updates for later iterations;
+  this integration requirement is also recorded in the module's Deviations.
