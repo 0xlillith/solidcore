@@ -4969,7 +4969,7 @@ mutated scales and accepted/reduced step counts are compared.
   B-spline and analytic results are both covered. Edge intervals are in the curve's natural
   (NURB) interval: `[0, 1]` for circles and ellipses, not degrees.
 - **Out-of-range read** in `sm_CheckEdgeOnAxis` (`sSolutions[1]` with one solution): the port
-  reads a zero-filled slot; upstream-issues UB-121. The C++ agrees on every case reaching it.
+  reads a zero-filled slot; upstream-issues UB-130. The C++ agrees on every case reaching it.
 - **`SM_SWEEP_CHECKS` is not defined**, so `CheckCurveSweep` only detects rotation about an
   interior point of the curve, and only through `IntersectWithLine` (no solutions for a general
   B-spline, which upstream then sweeps even when it crosses the axis); the port does the same.

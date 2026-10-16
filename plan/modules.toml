@@ -3248,7 +3248,7 @@ tests = ["prog_test:my_sweep_null_region_counts", "prog_test:my_test_dosweep_nul
 status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "16 fns; largest: SmRotationalSweepGeometry::EdgeSweepHigher, SmRotationalSweepGeometry::CheckCurveSweep, sm_CheckEdgeOnAxis, SmRotationalSweepGeometry::EdgeSweepSame; unit-SCC #22 (220 units); 45 upstream test entry points reach this unit; PR #126: 761 cases (361 fixtures, 400 generated), 718 passed, 43 deferred (surface.cone_p2: SmCone::IsNurbSurfaceCone via CopyAndAddAnalytics), max_rel_err 0; 4361 cases with --seeds 4000 also pass (396 deferred). Co-ports SmSweepGeometryCreation members into sweep::topology_sweep; UB-121 (sSolutions[1] with one solution) reads a zero-filled slot"
+notes = "16 fns; largest: SmRotationalSweepGeometry::EdgeSweepHigher, SmRotationalSweepGeometry::CheckCurveSweep, sm_CheckEdgeOnAxis, SmRotationalSweepGeometry::EdgeSweepSame; unit-SCC #22 (220 units); 45 upstream test entry points reach this unit; PR #126: 761 cases (361 fixtures, 400 generated), 718 passed, 43 deferred (surface.cone_p2: SmCone::IsNurbSurfaceCone via CopyAndAddAnalytics), max_rel_err 0; 4361 cases with --seeds 4000 also pass (396 deferred). Co-ports SmSweepGeometryCreation members into sweep::topology_sweep; UB-130 (sSolutions[1] with one solution) reads a zero-filled slot"
 
 [[unit]]
 id = "sweep.trans_sweep_geometry"
