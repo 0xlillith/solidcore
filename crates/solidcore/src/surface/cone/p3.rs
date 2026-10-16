@@ -18,6 +18,9 @@
 //! bare geometry (no face owner), with upstream's zone-tolerance expansion.
 //! A generator solve with no solution explicitly writes EXTERIOR upstream:
 //! intersections skip that result while the public inversion API still errors.
+//! Start-plane transform failures propagate here; upstream initializes EXTERIOR
+//! before that transform and skips the point on failure. Parallel boundary-output
+//! arrays are checked before deduplication rather than assuming equal lengths.
 //! No input-driven recursion is introduced.
 
 use super::{Cone, ConeStepInversion};
@@ -99,6 +102,55 @@ fn append(out: &mut SurfaceIntersection, more: SurfaceIntersection) {
     out.surface2_uv_curves.extend(more.surface2_uv_curves);
     out.curve_types.extend(more.curve_types);
     out.deviations.extend(more.deviations);
+}
+
+fn append_boundary_intersections(
+    k: &Kernel,
+    out: &mut SurfaceIntersection,
+    mut second: SurfaceIntersection,
+    tol: f64,
+) -> Result<()> {
+    for result in [&*out, &second] {
+        let count = result.curves_3d.len();
+        if result.surface1_uv_curves.len() != count
+            || result.surface2_uv_curves.len() != count
+            || result.curve_types.len() != count
+            || result.deviations.len() != count
+        {
+            return Err(SolidError::sm_err(OP));
+        }
+    }
+    for (i, first) in out.curves_3d.iter().enumerate() {
+        let mut duplicate = None;
+        for (j, candidate) in second.curves_3d.iter().enumerate() {
+            let coincidence = ignored(super::total_coincidence_checker(
+                k,
+                first,
+                &first.natural_interval(),
+                candidate,
+                &candidate.natural_interval(),
+                tol,
+            ))?;
+            if coincidence.is_some_and(|c| c.coincident) {
+                duplicate = Some(j);
+                break;
+            }
+        }
+        if let Some(j) = duplicate {
+            second.curves_3d.remove(j);
+            second.surface1_uv_curves.remove(j);
+            second.surface2_uv_curves.remove(j);
+            second.curve_types.remove(j);
+            second.deviations.remove(j);
+            if let Some(kind) = out.curve_types.get_mut(i) {
+                *kind = TsectCurveType::Coincident;
+            }
+        }
+    }
+    // The upstream second boundary call appends UV arrays without
+    // reversing them; keep that order even though operands swapped.
+    append(out, second);
+    Ok(())
 }
 
 fn boundary_intersections(
@@ -530,37 +582,8 @@ impl Cone {
                 let second =
                     boundary_intersections(k, other, other_domain, self, domain, approx_tol);
                 // Upstream overwrites the first status/needs-more with the second.
-                let mut second = second?;
-                for (i, first) in out.curves_3d.iter().enumerate() {
-                    let mut duplicate = None;
-                    for (j, candidate) in second.curves_3d.iter().enumerate() {
-                        let coincidence = ignored(super::total_coincidence_checker(
-                            k,
-                            first,
-                            &first.natural_interval(),
-                            candidate,
-                            &candidate.natural_interval(),
-                            tol,
-                        ))?;
-                        if coincidence.is_some_and(|c| c.coincident) {
-                            duplicate = Some(j);
-                            break;
-                        }
-                    }
-                    if let Some(j) = duplicate {
-                        second.curves_3d.remove(j);
-                        second.surface1_uv_curves.remove(j);
-                        second.surface2_uv_curves.remove(j);
-                        second.curve_types.remove(j);
-                        second.deviations.remove(j);
-                        if let Some(kind) = out.curve_types.get_mut(i) {
-                            *kind = TsectCurveType::Coincident;
-                        }
-                    }
-                }
-                // The upstream second boundary call appends UV arrays without
-                // reversing them; keep that order even though operands swapped.
-                append(&mut out, second);
+                let second = second?;
+                append_boundary_intersections(k, &mut out, second, tol)?;
                 return Ok((false, out));
             }
             let start = bottom + param * axis;
@@ -702,6 +725,7 @@ impl Cone {
 // EXTERIOR classification. The one local error below is exactly the generator
 // solve's empty-result branch: it explicitly writes EXTERIOR before returning
 // SM_ERR. No UV coordinate is fabricated or consumed on that branch.
+// Start-plane transform errors still propagate (see the module Deviations).
 fn intersection_inversion(
     cone: &Cone,
     k: &Kernel,
@@ -831,7 +855,7 @@ impl Cone {
             },
             _ => other,
         };
-        let (needs_more, mut out) = match target {
+        let (needs_more, out) = match target {
             IntersectTarget::Plane(p) => {
                 self.intersect_with_plane(k, domain, p, other_domain, approx_tol_3d)?
             }
@@ -860,7 +884,8 @@ impl Cone {
             _ => (true, SurfaceIntersection::default()),
         };
         if needs_more {
-            let more = general(GeneralIntersectionRequest {
+            // DoIntersection resets every native output before its general solve.
+            return general(GeneralIntersectionRequest {
                 kernel: k,
                 cone: self,
                 domain,
@@ -869,12 +894,7 @@ impl Cone {
                 use_surface_edges,
                 approx_tol_3d,
                 ang_tol_rad,
-            })?;
-            out.curves_3d.extend(more.curves_3d);
-            out.surface1_uv_curves.extend(more.surface1_uv_curves);
-            out.surface2_uv_curves.extend(more.surface2_uv_curves);
-            out.curve_types.extend(more.curve_types);
-            out.deviations.extend(more.deviations);
+            });
         }
         Ok(out)
     }
@@ -927,5 +947,51 @@ mod tests {
             )
             .unwrap();
         assert!(result.curves_3d.is_empty());
+    }
+
+    #[test]
+    fn boundary_dedup_rejects_misaligned_parallel_arrays() {
+        let k = Kernel::default();
+        let mut valid = SurfaceIntersection::default();
+        add(
+            &mut valid,
+            Curve::from(BSplineCurve::create_degenerate_curve(3, Vec3::ZERO).unwrap()),
+            TsectCurveType::Crossing,
+        );
+        for first in [false, true] {
+            for field in 0..4 {
+                for count in [0, 2] {
+                    let mut malformed = valid.clone();
+                    match field {
+                        0 => malformed.surface1_uv_curves.resize(count, None),
+                        1 => malformed.surface2_uv_curves.resize(count, None),
+                        2 => malformed
+                            .curve_types
+                            .resize(count, TsectCurveType::Crossing),
+                        _ => malformed.deviations.resize(count, 0.0),
+                    }
+                    let (mut out, second) = if first {
+                        (malformed, valid.clone())
+                    } else {
+                        (valid.clone(), malformed)
+                    };
+                    let error =
+                        append_boundary_intersections(&k, &mut out, second, 1e-7).unwrap_err();
+                    assert!(
+                        matches!(
+                            error,
+                            SolidError::Upstream {
+                                operation: OP,
+                                code: crate::error::SM_ERR,
+                                ..
+                            }
+                        ),
+                        "first={first} field={field} count={count}: {error}"
+                    );
+                    // No removals occurred before the contract failure.
+                    assert_eq!(out.curves_3d.len(), 1);
+                }
+            }
+        }
     }
 }

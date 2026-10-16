@@ -908,6 +908,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Returns `SM_ERR_NULL_POINTER`; the shim refuses the input.
 
+#### UB-123. `SmCone::IntersectWithCone` dereferences an absent tolerance for coincident cylinders
+- **Location:** `source/SMLib/src/SmCone.cpp:2832,2860`, both `IntersectSurfaceBoundaries` calls in the `bCoincidence` branch of `SmCone::IntersectWithCone`.
+- **What happens:** The routine computes a default local `dTol` but dereferences `pdOptApproxTol3d` instead when passing the tolerance to the boundary calls.
+- **Trigger:** Distinct objects representing coincident, overlapping cylinders with `pdOptApproxTol3d == NULL`, after the bounding-box, angular, radial and axial early exits.
+- **How found:** read during porting (`surface.cone_p3`, PR #131).
+- **Confirmed:** no. Native guard tests reject this path and preserve defined default-tolerance calls (same object, disjoint heights, nested radii); an intentional undefined null dereference was not executed.
+- **Severity:** crash/UB (null dereference).
+- **Rust port:** Represents optional tolerances with `Option`; coincident-boundary calls currently defer to `surface.surface_p11`. The FFI adapter rejects exactly the native undefined path before its boundary calls.
+
 ### Intersection
 
 #### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
@@ -2238,17 +2247,3 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes for the release build: the sweep-only boundary solve returns U `158.85355268828013`; the assertion conflict and sentinel initialization were confirmed by source inspection. Debug builds were not run.
 - **Severity:** docs / debug assertion.
 - **Rust port:** Matches release C++ rather than enforcing the assertion; derivative orders remain bounded to 3.
-
-## SmCone::IntersectWithCone: absent tolerance dereferenced for coincident cylinders (PR #131)
-
-- **Location:** `source/SMLib/src/SmCone.cpp`, the `bCoincidence` branch of
-  `SmCone::IntersectWithCone`, both calls to `IntersectSurfaceBoundaries`.
-- **Trigger:** distinct cone/cylinder objects representing coincident, overlapping
-  cylinders, with `pdOptApproxTol3d == NULL`. The function computes a default local
-  `dTol` earlier, but passes `*pdOptApproxTol3d` to the boundary calls anyway.
-- **Found:** source audit while porting `surface.cone_p3`. The adapter guards the
-  exact path after the native bounding-box, angular, radial and axial early exits.
-- **C++ confirmation:** the reference and guarded adapter build successfully.
-  Native guard tests reject this null-reference path and preserve defined calls
-  without a tolerance (same object, disjoint heights, nested radii). An intentional
-  undefined null dereference was not executed.
