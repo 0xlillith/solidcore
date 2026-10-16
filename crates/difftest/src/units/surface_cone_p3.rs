@@ -45,12 +45,13 @@ fn ext(a: &[f64]) -> Extent2d {
     Extent2d::from_bounds(at(a, 0), at(a, 1), at(a, 2), at(a, 3))
 }
 fn build(k: &Kernel, a: &[f64]) -> solidcore::Result<Cone> {
-    let mut c = if at(a, 16) != 0.0 {
-        Cone::new_cylinder_bounded(
+    let mut c = if at(a, 16) == 0.0 {
+        Cone::new_bounded(
             v(a, 0),
             v(a, 3),
             v(a, 6),
             at(a, 9),
+            at(a, 10),
             at(a, 12),
             at(a, 13),
             at(a, 11),
@@ -59,12 +60,11 @@ fn build(k: &Kernel, a: &[f64]) -> solidcore::Result<Cone> {
             false,
         )
     } else {
-        Cone::new_bounded(
+        Cone::new_cylinder_bounded(
             v(a, 0),
             v(a, 3),
             v(a, 6),
             at(a, 9),
-            at(a, 10),
             at(a, 12),
             at(a, 13),
             at(a, 11),
@@ -221,15 +221,15 @@ fn rust(i: &Inputs) -> solidcore::Result<Vec<f64>> {
     };
     put_intersection(more, &out)
 }
-fn output(v: Vec<f64>) -> Result<Output, HarnessError> {
+fn output(v: &[f64]) -> Result<Output, HarnessError> {
     if v.len() < 3 {
         return Err(HarnessError::new("short cone intersection result"));
     }
-    if at(&v, 0) != 1000.0 {
-        return Ok(Output::err(format!("status_{}", at(&v, 0) as i64)));
+    if at(v, 0) != 1000.0 {
+        return Ok(Output::err(format!("status_{}", at(v, 0) as i64)));
     }
     Ok(Output::new()
-        .ints("status_and_more", vec![at(&v, 0) as i64, at(&v, 1) as i64])
+        .ints("status_and_more", vec![at(v, 0) as i64, at(v, 1) as i64])
         .values("geometry", v.get(2..).unwrap_or(&[]).to_vec()))
 }
 fn cone(bot: f64, top: f64, height: f64) -> Vec<f64> {
@@ -272,12 +272,12 @@ impl UnitDiff for Runner {
         let i: Inputs = case.parse()?;
         let out = ffi::intersect(i.op, &i.cone, &i.other, &i.domains, i.tolerance, i.same)
             .map_err(|e| HarnessError::new(e.to_string()))?;
-        output(out)
+        output(&out)
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
         match rust(&i) {
-            Ok(v) => output(v),
+            Ok(v) => output(&v),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| {
                 Output::err(format!(
                     "status_{}",
@@ -294,8 +294,19 @@ impl UnitDiff for Runner {
         let scale = *[1e-7, 1.0, 1e6].get(rng.below(3) as usize)?;
         let radius = rng.uniform(0.5, 2.0) * scale;
         let height = rng.uniform(1.0, 5.0) * scale;
-        let mode = rng.below(10);
-        let top = if mode % 3 == 0 { radius * 0.5 } else { radius };
+        // Weight cases which produce geometry, while retaining disjoint,
+        // coincident, general-request and unfinished-dependency paths.
+        let mode = match rng.below(20) {
+            10..=13 => 0,
+            14..=16 => 2,
+            17..=19 => 7,
+            mode => mode,
+        };
+        let top = if mode.is_multiple_of(3) {
+            radius * 0.5
+        } else {
+            radius
+        };
         let mut a = cone(radius, top, height);
         set(&mut a, 14, rng.below(2) as f64);
         set(&mut a, 15, rng.below(2) as f64);

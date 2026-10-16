@@ -16,9 +16,11 @@
 //! cones (without erasing their virtual methods). It receives every original
 //! argument. Sphere dispatch awaits the sphere type. Bounding boxes are those of
 //! bare geometry (no face owner), with upstream's zone-tolerance expansion.
+//! A generator solve with no solution explicitly writes EXTERIOR upstream:
+//! intersections skip that result while the public inversion API still errors.
 //! No input-driven recursion is introduced.
 
-use super::Cone;
+use super::{Cone, ConeStepInversion};
 use crate::curve::curve::{Curve, CurveKind};
 use crate::curve::ellipse::{Ellipse, EllipseOptions};
 use crate::curve::line::{BoundedLineOptions, CurveLocationType, Line};
@@ -580,8 +582,11 @@ impl Cone {
             for point in points {
                 let line_point = point + (min - param) * axis;
                 let zero = EFF_ZERO * (1.0 + line_point.max_dimension());
-                let inv = self.step_inversion(k, line_point, zero, None)?;
-                let other_inv = other.step_inversion(k, line_point, zero, None)?;
+                let inv = intersection_inversion(self, k, line_point, zero)?;
+                let other_inv = intersection_inversion(other, k, line_point, zero)?;
+                let (Some(inv), Some(other_inv)) = (inv, other_inv) else {
+                    continue;
+                };
                 if inv.location == LocationType::Exterior
                     || other_inv.location == LocationType::Exterior
                 {
@@ -690,6 +695,27 @@ impl Cone {
             }
         }
         Ok((false, out))
+    }
+}
+
+// The native intersection ignores STEPInversion's status, then skips an
+// EXTERIOR classification. The one local error below is exactly the generator
+// solve's empty-result branch: it explicitly writes EXTERIOR before returning
+// SM_ERR. No UV coordinate is fabricated or consumed on that branch.
+fn intersection_inversion(
+    cone: &Cone,
+    k: &Kernel,
+    point: Point3,
+    tol: f64,
+) -> Result<Option<ConeStepInversion>> {
+    match cone.step_inversion(k, point, tol, None) {
+        Ok(inversion) => Ok(Some(inversion)),
+        Err(SolidError::Upstream {
+            operation: "surface::surf_of_revolution::p2::SurfOfRevolution::step_inversion",
+            code: crate::error::SM_ERR,
+            ..
+        }) => Ok(None),
+        Err(e) => Err(e),
     }
 }
 

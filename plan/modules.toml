@@ -1887,10 +1887,10 @@ soft_depends_on = ["curve.curve_p4", "curve.ellipse_p1", "curve.ellipse_p2", "cu
 est_lines = 1939
 layer = 29
 tests = ["prog_test:my_test_surface_interface", "prog_test:my_test_ssi", "prog_test:my_test_tsurf_section", "prog_test:my_test_planar_section", "prog_test:my_test_section", "prog_test:my_test_edge_geometry_repairs", "pt_TestFiles/shovel.srf"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "4 fns; largest: SmCone::IntersectWithPlane, SmCone::IntersectWithCone, sm_AddEllipseIntervalsTrimmedToTwoCones, SmCone::GlobalSurfaceIntersect; cycle back-edges (call into later units; stub or co-port): surface.surf_of_extrusion_p2(1), surface.surface_p11(1); unit-SCC #22 (220 units); 144 upstream test entry points reach this unit"
+notes = "PARTIAL (PR #131): 1276 difftest cases (76 fixtures + 1200 generated), 1197 pass bit-identical, 0 failed, 79 deferred (surface.cone_p2 49: sm_GetEllipseTrimIntervals; surface.surface_p11 30: IntersectSurfaceBoundaries), max_rel_err 0, no absolute floors; 10076-case stress run clean (9329 pass, 747 deferred), all 1197 default perturbations detected. Global dispatch retains original arguments through a typed general-intersector callback until SurfaceKind can hold cones; sphere/shared Surface dispatch remains a documented gap (issue #76). 4 fns; largest: SmCone::IntersectWithPlane, SmCone::IntersectWithCone, sm_AddEllipseIntervalsTrimmedToTwoCones, SmCone::GlobalSurfaceIntersect; cycle back-edges (call into later units; stub or co-port): surface.surf_of_extrusion_p2(1), surface.surface_p11(1); unit-SCC #22 (220 units); 144 upstream test entry points reach this unit"
 
 [[unit]]
 id = "surface.surface_p1"

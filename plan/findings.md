@@ -4940,3 +4940,67 @@ mutated scales and accepted/reduced step counts are compared.
 - **Null-pointer coverage.** Typed Rust APIs cannot receive native null pointers.
   The 25 native null contracts are FFI tests, not differential passes with a
   synthesized Rust status.
+
+## surface.cone_p3: analytic intersections and dispatch handoff (PR #131)
+
+The cone part-3 port keeps complete analytic and NURBS intersection curve records,
+UV curve presence, classifications and deviations in its differential protocol.
+The direct methods operate on bare geometry; face-owned tolerance context is not
+available through the standalone `Cone` type.
+
+Two unfinished callees are isolated in `surface/cone/p3.rs`:
+
+- `ellipse_trim_intervals`: wire to `surface.cone_p2`'s
+  `sm_GetEllipseTrimIntervals` when PR #71 lands. This enables oblique elliptical
+  plane sections and the trimmed ellipses of intersecting equal-radius cylinders.
+- `boundary_intersections`: wire to `surface.surface_p11`'s
+  `SmSurface::IntersectSurfaceBoundaries` for coincident cylinders. The owned
+  caller already retains upstream's second-call status overwrite, duplicate
+  removal order, coincident classification and UV-array ordering.
+
+The global dispatch entry is `Cone::global_surface_intersect_with`. Its general
+intersector callback receives the original cone, both domains, the other surface,
+both edge flags and both optional tolerances. This preserves cone virtual methods
+until the shared enum can hold cones with the caller's Kernel (issue #76); it does
+not substitute a default Kernel or a plain B-spline/revolution. Plane, cone,
+revolution and extrusion dispatch are present. Sphere dispatch and integration in
+`Surface::global_surface_intersect` await their concrete enum kinds. In particular,
+upstream's `SmCylinder_TYPE` other operand intentionally does not match its
+`SmCone_TYPE` switch arm.
+
+Resolved regression `cylinder_ends_near_touch`: two radius-1, height-3 cylinders
+with origins `(0,0,0)` and `(1,0,3.00000005)`, full sweeps and approximation tolerance
+`1e-7`. C++ returns success with no curves; the first Rust translation returned
+`SM_ERR` (1001). `SmSurfOfRevolution::STEPInversion` explicitly writes EXTERIOR
+when its generator solve returns no solutions, before returning SM_ERR. The native
+intersection ignores that status and skips the EXTERIOR result. The port now
+recognizes that specific no-solution error and skips it without fabricating or
+reading an unwritten UV coordinate. Other errors, including Unported, propagate.
+
+### Apple Clang/libc++ baseline limitation observed during PR #131
+
+The complete `difftest --green` run on the Mac aborts with SIGABRT (exit 134)
+after `nlib.math`, inside the existing `topology.database_io` unit. This is
+independently reproducible without running cone code:
+
+```sh
+nice -n 10 bin/difftest/difftest --unit topology.database_io --filter gen0185 --no-report
+```
+
+Generated seed: `573100365250327377`. Running the 59 database fixtures separately
+also shows libc++ numeric-extraction differences: `surface_sms_ascii`'s first
+compared double is C++ `-7777.25` (the extraction sentinel) versus Rust
+`4.404800473510645`; overflow/underflow, incomplete exponents and hex extraction
+fixtures disagree too. The Rust reader explicitly implements libstdc++ semantics.
+The source of `SmDatabaseIO::ReadType` contains unbounded extraction into
+`char sBuff[SM_MAXSIZE]`; this is a candidate for the generated abort, but an abort
+backtrace was not obtained. No reader semantics, fixtures or tolerances were
+changed to hide these platform differences. Full certification of the project
+suite still requires the supported GNU C++/libstdc++ CI environment.
+
+The two harness units changed for Clang compatibility pass independently:
+`geom.geom_utility_p1` 4185/4185 and `curve.projected_curve` 2727/2727, both
+bit-identical. `surface.cone_p3` passes 1197 cases with 79 dependency deferrals;
+a 10076-case stress run has 9329 passes, 747 dependency deferrals and zero
+failures, all compared values bit-identical. Perturbation detects every one of
+1197 comparable default cases.

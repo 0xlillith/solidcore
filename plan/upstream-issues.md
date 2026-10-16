@@ -2193,3 +2193,17 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes for the release build: the sweep-only boundary solve returns U `158.85355268828013`; the assertion conflict and sentinel initialization were confirmed by source inspection. Debug builds were not run.
 - **Severity:** docs / debug assertion.
 - **Rust port:** Matches release C++ rather than enforcing the assertion; derivative orders remain bounded to 3.
+
+## SmCone::IntersectWithCone: absent tolerance dereferenced for coincident cylinders (PR #131)
+
+- **Location:** `source/SMLib/src/SmCone.cpp`, the `bCoincidence` branch of
+  `SmCone::IntersectWithCone`, both calls to `IntersectSurfaceBoundaries`.
+- **Trigger:** distinct cone/cylinder objects representing coincident, overlapping
+  cylinders, with `pdOptApproxTol3d == NULL`. The function computes a default local
+  `dTol` earlier, but passes `*pdOptApproxTol3d` to the boundary calls anyway.
+- **Found:** source audit while porting `surface.cone_p3`. The adapter guards the
+  exact path after the native bounding-box, angular, radial and axial early exits.
+- **C++ confirmation:** the reference and guarded adapter build successfully.
+  Native guard tests reject this null-reference path and preserve defined calls
+  without a tolerance (same object, disjoint heights, nested radii). An intentional
+  undefined null dereference was not executed.
