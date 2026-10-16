@@ -89,7 +89,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.trimming_tools` (2878 lines) — in progress: #124 @bherbruck (ready for review)
-- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (ready for review)
@@ -275,7 +275,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.trimming_tools` (2878 lines) — in progress: #124 @bherbruck (ready for review)
 - [ ] ⏳ `topology.face_p4` (1812 lines) — waiting
-- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (draft)
+- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (ready for review)
 - [ ] ⏳ `topology.face_p3` (1881 lines) — waiting
 - [ ] 🟡 `topology.topology_traverser` (784 lines) — partial, 909 cases
 - [ ] ⏳ `topology.brep_p7` (2503 lines) — waiting
