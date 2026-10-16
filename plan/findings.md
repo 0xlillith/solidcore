@@ -5381,3 +5381,32 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## intersect.curve_class_p5: independent port
+
+The seven part-5 functions are ported without bundling the open p2/p7/p6 PRs
+(#85/#65/#138). The replacement branch starts directly at official main. Calls into
+those missing units return `SolidError::Unported` with their owning unit; no
+successful result is substituted. The former bundled branch and its numerical
+counts are historical evidence, not validation of this independent port.
+
+The oracle retains real line/circle and stationary B-spline geometry, full-circle
+parameter ranges, independent extraction partitions, mutable solution records,
+optional geometry outputs and upstream error statuses. Both ignore-tangency calls
+request nonzero tangents as the base-class declaration does. Native B-spline
+one-derivative evaluation recursively uses its subclass default FALSE; the port
+preserves that quirk. No tolerance floors or profile/build-script changes are added.
+
+Uncertified paths include extraction behind Homogenize (p6), endpoint repair behind
+FixEndPointClass (p6), interval insertion/merge (p6), point-index queries (p7),
+classification boundary locations (p2), mutable edge/SSS topology and nonempty
+large-gap projection. Fixup and merge comparisons certify only exercised no-op/skip
+paths. The inline SetInterval setter and curve resolver visibility are minimal
+support on the existing part-1 type. Face callers map vertices through
+CurveOnClassifyObjects::vertex; their other dependency stubs remain untouched.
+
+The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
+UB-125/126 are source-found native null dereferences; UB-127 was reproduced during
+the original bundled validation. The shim retains those narrow preconditions.
+Independent-port checks and reports are pending; earlier bundled pass counts do not
+certify this branch.

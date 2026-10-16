@@ -954,3 +954,10 @@ suite passes 173 units
 (97 green, 76 partial), with zero failures; the final API rerun and touched-unit
 perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
 422,654 compared, 12,618 deferred, zero failed.
+
+## Independent curve-classification part 5
+
+The p5 implementation and oracle are isolated from the open p2/p7/p6 PRs. Their
+code, fixtures, reports, status changes and integration promotions are excluded.
+Calls into those units explicitly defer until they land independently. Fresh
+validation of the reduced scope is pending; bundled results are not reused.

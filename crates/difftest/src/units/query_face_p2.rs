@@ -497,6 +497,7 @@ impl solidcore::intersect::point_class::ClassGeometry<EntityRef> for NoGeometry 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum H {
     Face(FaceId),
+    Vertex(VertexId),
     Surface(FaceId),
     Curve,
 }
@@ -505,6 +506,7 @@ impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
         match self {
             Self::Face(_) => ClassObjectKind::Face,
+            Self::Vertex(_) => ClassObjectKind::Vertex,
             Self::Surface(_) => ClassObjectKind::Surface,
             Self::Curve => ClassObjectKind::Curve,
         }
@@ -517,6 +519,7 @@ struct Objects<'a> {
 }
 
 impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
+    fn vertex(&self, v: VertexId) -> H { H::Vertex(v) }
     fn face(&self, f: FaceId) -> H {
         H::Face(f)
     }
@@ -535,6 +538,38 @@ impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
         None
     }
 }
+
+impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
+    fn vertex_point(&self, o: H) -> Option<Vec3> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
+            H::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            _ => None,
+        }
+    }
+    fn curve(&self, o: H) -> Option<&Curve> {
+        (o == H::Curve).then_some(&self.curve)
+    }
+    fn surface(&self, o: H) -> Option<&solidcore::surface::surface::Surface> {
+        match o {
+            H::Surface(f) => self.brep.face(f).ok().and_then(|r| r.surface.as_ref()),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: H) -> Option<&solidcore::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _o: H) -> Option<solidcore::math::Point3> {
+        None
+    }
+}
+
 
 /// A Rust error as the case outcome: deferred for [`SolidError::Unported`], else an
 /// error no C++ output has (a visible failure).

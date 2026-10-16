@@ -2394,7 +2394,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "7 fns; largest: sm_InsertSolutions, SmCurveClassification::IntersectVertices, SmCurveClassification::MergeClassifications, SmCurveClassification::ExtractGeometry; cycle back-edges (call into later units; stub or co-port): topology.edge(6), topology.vertex(5), boolean.topology_intersector_p1(2), heal.gap(1), topology.edgeuse_p1(1), topology.vertexuse(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "Independent p5 draft; p2/p6/p7 are excluded and remain explicit dependency deferrals. Fresh validation pending. 7 fns; largest: sm_InsertSolutions, SmCurveClassification::IntersectVertices, SmCurveClassification::MergeClassifications, SmCurveClassification::ExtractGeometry; cycle back-edges (call into later units; stub or co-port): topology.edge(6), topology.vertex(5), boolean.topology_intersector_p1(2), heal.gap(1), topology.edgeuse_p1(1), topology.vertexuse(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "intersect.surface_intersector_p5"
