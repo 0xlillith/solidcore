@@ -49,7 +49,9 @@ use crate::geom::solution_array::Solution;
 use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
-use crate::intersect::point_class::{ClassObject, PointClassType, PointClassification};
+use crate::intersect::point_class::{
+    ClassGeometry, ClassObject, PointClassType, PointClassification,
+};
 use crate::intersect::topology_solver::p1::TopologySolver;
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
@@ -1690,10 +1692,12 @@ fn shell_transfer_children(b: &mut Brep, from: ShellId, to: ShellId) -> Result<(
 // ---- merging curves into faces ------------------------------------------------------------
 
 /// What [`merge_curves_on_surface`] needs of the caller's classification handles, on
-/// top of [`CurveOnClassifyObjects`].
-pub trait MergeCurvesObjects<O>: CurveOnClassifyObjects<O> {
+/// top of [`CurveOnClassifyObjects`] and [`ClassGeometry`].
+pub trait MergeCurvesObjects<O>: CurveOnClassifyObjects<O> + ClassGeometry<O> {
     /// The edge behind an edge handle (an interval's `m_vMid.GetObject()`).
     fn edge(&self, object: O) -> Option<EdgeId>;
+    /// The face behind a face handle (a new face of `MergeIntervals`).
+    fn face_of(&self, object: O) -> Option<FaceId>;
 }
 
 /// The options of [`merge_curves_on_surface`].
@@ -1744,8 +1748,8 @@ pub struct MergedCurves {
 /// errors of the classification; [`SolidError::InvalidInput`] for a curve handle that
 /// does not resolve or a missing UV curve; [`SolidError::Unported`] from the curve
 /// classification constructor,
-/// `AreCoincidentMaybe`, `ConnectIntervals` and `MergeIntervals`
-/// (`intersect.curve_class_p4`, `_p7`, `_p2`, `_p5`).
+/// `AreCoincidentMaybe` and `ConnectIntervals` (`intersect.curve_class_p4`, `_p7`,
+/// `_p2`), and from the graph edits `MergeIntervals` defers.
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
@@ -1781,7 +1785,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
     options: MergeCurvesOptions<O>,
 ) -> Result<MergedCurves> {
     let mut out = MergedCurves::default();
-    let surface = objects.surface(face);
+    let surface = CurveOnClassifyObjects::surface(objects, face);
 
     // init queue of Faces to be merged with curves - later, gets children faces when
     // pFace is split
@@ -1789,8 +1793,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
 
     // iter every input curve - check to see if the curves need to be split
     for (ii, &curve_h) in curves.iter().enumerate() {
-        let curve = objects
-            .curve(curve_h)
+        let curve = CurveOnClassifyObjects::curve(objects, curve_h)
             .ok_or(null_deref("unresolved curve handle"))?;
 
         // skip very short curves (gwc:this is tolerance bug waiting to happen)
@@ -1846,7 +1849,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
 
             // merge classified intersection curve segments into this Brep
             // Don't SER on failure for one curve. Merge the rest. [B674]
-            let new_faces = match merge_intervals(k, b, &mut cc, f) {
+            let new_faces = match merge_intervals(objects, &mut cc) {
                 Ok(v) => v,
                 Err(e) if e.is_unported() => return Err(e),
                 Err(_) => Vec::new(),
@@ -1923,20 +1926,23 @@ fn connect_intervals<O>(
     ))
 }
 
-/// `MergeIntervals(&newFaces, NULL, NULL, pFace)` (unit `intersect.curve_class_p5`): the
-/// new faces.
-fn merge_intervals<O>(
-    k: &Kernel,
-    b: &mut Brep,
+/// `MergeIntervals(&newFaces, NULL, NULL, pFace)` (unit `intersect.curve_class_p5`,
+/// `bVerticesOnly` default `FALSE`; the debug-only face argument is not passed): the new
+/// faces.
+fn merge_intervals<O: ClassObject + Copy>(
+    objects: &impl MergeCurvesObjects<O>,
     cc: &mut CurveClassification<O>,
-    face: FaceId,
 ) -> Result<Vec<FaceId>> {
-    let _ = (k, b, cc, face);
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::MergeIntervals
-    Err(SolidError::unported(
-        "SmCurveClassification::MergeIntervals",
-        "intersect.curve_class_p5",
-    ))
+    let merged = cc.merge_intervals(false)?;
+    merged
+        .faces
+        .into_iter()
+        .map(|o| {
+            objects
+                .face_of(o)
+                .ok_or(null_deref("new face handle without face"))
+        })
+        .collect()
 }
 
 // ---- mating a lamina edge -----------------------------------------------------------------

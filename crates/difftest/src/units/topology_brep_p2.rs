@@ -780,6 +780,9 @@ impl solidcore::query::face::p2::CurveOnClassifyObjects<H> for MergeObjects<'_> 
     fn face(&self, _f: FaceId) -> H {
         H(usize::MAX)
     }
+    fn vertex(&self, _v: VertexId) -> H {
+        H(usize::MAX)
+    }
     fn surface(&self, _f: FaceId) -> Option<H> {
         None
     }
@@ -791,8 +794,26 @@ impl solidcore::query::face::p2::CurveOnClassifyObjects<H> for MergeObjects<'_> 
     }
 }
 
+impl solidcore::intersect::point_class::ClassGeometry<H> for MergeObjects<'_> {
+    fn curve(&self, o: H) -> Option<&SmCurve> {
+        self.curves.get(o.0)
+    }
+    fn surface(&self, _o: H) -> Option<&Surface> {
+        None
+    }
+    fn volume(&self, _o: H) -> Option<&solidcore::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _o: H) -> Option<solidcore::geom::vector3d::Point3> {
+        None
+    }
+}
+
 impl bp2::MergeCurvesObjects<H> for MergeObjects<'_> {
     fn edge(&self, _object: H) -> Option<EdgeId> {
+        None
+    }
+    fn face_of(&self, _object: H) -> Option<FaceId> {
         None
     }
 }
