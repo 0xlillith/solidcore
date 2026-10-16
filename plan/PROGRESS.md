@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**177 / 261 units ported** (97 green, 80 partial), **236,006 / 387,903 upstream lines (60.8%)**. 23 claimed, 0 blocked, 61 todo.
+**177 / 261 units ported** (97 green, 80 partial), **236,006 / 387,903 upstream lines (60.8%)**. 24 claimed, 0 blocked, 60 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -22,7 +22,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `intersect.curve_class_p8` (1900 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `intersect.curve_class_p9` (1220 lines) — missing: `intersect.curve_class_p3`, `intersect.curve_class_p5`
 - [ ] `topology.face_p4` (1812 lines) — missing: `intersect.curve_class_p7`
-- [ ] `topology.brep_p10` (1890 lines) — missing: `topology.shell`
 - [ ] `topology.face_p3` (1881 lines) — missing: `topology.edgeuse_p3`, `topology.face_p4`
 - [ ] `query.face_p3` (1620 lines) — missing: `topology.face_p4`
 - [ ] `topology.brep_p7` (2503 lines) — missing: `topology.brep_p10`, `topology.shell`
@@ -91,6 +90,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
 - [ ] 🔨 `topology.trimming_tools` (2878 lines) — in progress: #124 @bherbruck (ready for review)
+- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (draft)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (draft)
 - [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (ready for review)
@@ -276,7 +276,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (draft)
 - [ ] 🔨 `topology.trimming_tools` (2878 lines) — in progress: #124 @bherbruck (ready for review)
 - [ ] ⏳ `topology.face_p4` (1812 lines) — waiting
-- [ ] ⏳ `topology.brep_p10` (1890 lines) — waiting
+- [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (draft)
 - [ ] ⏳ `topology.face_p3` (1881 lines) — waiting
 - [ ] 🟡 `topology.topology_traverser` (784 lines) — partial, 909 cases
 - [ ] ⏳ `topology.brep_p7` (2503 lines) — waiting
