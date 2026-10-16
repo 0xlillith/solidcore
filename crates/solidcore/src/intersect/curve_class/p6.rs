@@ -17,7 +17,7 @@
 //! order, bounded by the initial interval count plus one (every restart removes one).
 //! Homogenization's final squeezes must reduce the count. Nonempty boundary lookups
 //! and coincident-maybe handling await p7; interval splicing/squeezing awaits p2.
-//! `MergeInterval` ports its early exits and defers at `GetPointObjZoneTol3d` (p7):
+//! `MergeInterval` ports its early exits and defers at `GetPointObjZoneTol3d` (p2):
 //! the subsequent topology mutation is not implemented or certified here.
 
 use super::p3::{are_coincident_maybe, connect_intervals, point_class_loc_by_index, Coincident};
@@ -303,10 +303,10 @@ impl<O: ClassObject> CurveClassification<O> {
 
     /// Merges an interval's classifications into topology (`MergeInterval`).
     /// The unknown-interior and vertex/edge/vertex early exits are implemented;
-    /// topology creation awaits p7's boundary tolerance accessor.
+    /// topology creation awaits p2's boundary tolerance accessor.
     ///
     /// # Errors
-    /// Invalid interval indices, or [`SolidError::Unported`] for p7/fillet handling.
+    /// Invalid interval indices, or [`SolidError::Unported`] for p2 tolerance lookup or p7 fillet handling.
     pub fn merge_interval(
         &mut self,
         index: usize,
@@ -329,10 +329,10 @@ impl<O: ClassObject> CurveClassification<O> {
             }
             return Ok(MergeIntervalOutput::default());
         }
-        // UNPORTED(intersect.curve_class_p7): SmCurveClassification::GetPointObjZoneTol3d
+        // UNPORTED(intersect.curve_class_p2): SmCurveClassification::GetPointObjZoneTol3d
         Err(SolidError::unported(
             "SmCurveClassification::GetPointObjZoneTol3d",
-            "intersect.curve_class_p7",
+            "intersect.curve_class_p2",
         ))
     }
 }

@@ -5041,3 +5041,38 @@ mutated scales and accepted/reduced step counts are compared.
   UB-117 (`UpdateEdges` dereferences its optional calling definition), UB-118 (null and
   deleted definitions in the two `Resolve`s), WR-95 (`CombineProtoEdge` moves every other
   definition; confirmed by `edge_pe_combine_every_other_*`).
+
+## intersect.curve_class_p6 (partial; PR #138)
+
+- **Certified scope.** 787 default cases: 281 bit-identical comparisons, zero
+  failures and 506 explicit deferrals; no absolute floors. The compared paths are
+  non-splicing `InsertCurveInterval`, empty `Homogenize`, and the early
+  `MergeInterval` exits. The native oracle calls the real four upstream members;
+  geometry evaluations and interval/point-classification fields are compared along
+  with statuses and created-entity output arrays. No status-only shortcut replaces
+  a Rust or C++ operation.
+- **Dependency boundaries.** Nonempty homogenization and endpoint repair first need
+  `GetPointClassByIndex` (p7). Insertion that splits or squeezes needs p2; its
+  coincident-maybe decisions need p7. The last homogenization squeeze belongs to p4.
+  `MergeInterval` stops at `GetPointObjZoneTol3d` (p2), before the remaining topology
+  mutation. That continuation is not implemented or certified by this port.
+  Existing generic `point_class` tolerance access also defers on `topology.edge`
+  and `topology.face_p2`: these are adapter gaps in the opaque `ClassObject`
+  interface, even though those topology units already have arena APIs. The new
+  unit does not substitute stand-in topology results for these calls.
+- **Fixture scope.** The native side builds real `SmLine`, `SmCircle`, `SmEllipse`
+  and quadratic/constant `SmBSplineCurve` objects, and obtains topology from an
+  actual box. Fixtures exercise all operations and flag combinations, end and
+  interior subintervals, stored SSS points, adjacent short spans, degenerate
+  curves, and scales 1e-15 through 1e9. They do not certify 2D classification or
+  the deferred topology mutation. Constructor status/null checks precede topology
+  traversal; objects are scoped and destroyed after the classifications.
+- **Safety and recursion.** FFI validates complete bounded records, partitions,
+  enum values, flags and operation indices. Invalid geometry-as-topology merge
+  inputs are rejected; safe vertices-only paths remain accepted. A 720-process
+  regression matrix checks operations, true geometric kinds and flags with a
+  five-second per-child timeout, separately from differential pass counts. Tiny
+  and large constructor paths and malformed records have dedicated native tests.
+  The native FFI suite is now an explicit CI step. Rust insertion replaces tail
+  recursion with the same restart order, bounded by the initial interval count
+  plus one; homogenization refuses a squeeze that makes no progress.
