@@ -25,7 +25,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use solidcore::math::Vec3;
 use solidcore::nurbs::crv_adv::p1::BARE_FLAG_REASON;
 use solidcore::nurbs::crv_basic::{Boundary, Curve};
 use solidcore::nurbs::knots::KnotVector;

@@ -23,7 +23,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use solidcore::math::Vec3;
 use solidcore::nurbs::crv_basic::Curve;
 use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_adv::p6 as adv;

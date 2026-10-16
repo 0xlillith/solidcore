@@ -26,7 +26,6 @@ use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::hash_table::{FindPairsOptions, ObjsInVoxels, GAP_HISTOGRAM_BUCKETS};
 use solidcore::geom::tol::zone_tol3d;
 use solidcore::kernel::{Kernel, KernelOptions};
-use solidcore::math::Vec3;
 use solidcore::SolidError;
 use solidcore_ffi::units::geom_hash_table as ffi;
 

@@ -14,7 +14,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use solidcore::math::Vec3;
 use solidcore::nurbs::crv_basic::{ConicType, Curve};
 use solidcore::nurbs::crv_common::{self as cc, AngleType, Arc, EllipseArc};
 use solidcore::SolidError;

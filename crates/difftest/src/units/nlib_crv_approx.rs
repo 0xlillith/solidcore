@@ -28,7 +28,7 @@ use solidcore::nurbs::crv_basic::Curve;
 use solidcore::nurbs::crv_fit::p1::ParamMethod;
 use solidcore::nurbs::crv_fit::p3::ParamSource;
 use solidcore::nurbs::math::{CPoint, NOW, NOZ};
-use solidcore::{SolidError, Vec3};
+use solidcore::SolidError;
 use solidcore_ffi::units::nlib_crv_approx::{self as ffi, Op};
 use solidcore_ffi::FfiError;
 
