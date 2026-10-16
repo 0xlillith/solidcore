@@ -4512,8 +4512,8 @@ shell traversal; PR #88's cache-reset scans keep their existing behavior.
 ## topology.shell: review round on PR #154 (shell state export, generator, transfer fixtures)
 
 - **Shared shell state.** Every exporter (`sc_topology_fixture.h`, and the private
-  `export_graph` of the `topology.vertex`, `topology.edge`, `topology.face_p2` and `heal.gap`
-  shims) now appends `sc_topology_fixture::append_shell_state` (version 3: infinite region,
+  `export_graph` of the `topology.vertex`, `topology.edge`, `topology.face_p2`, `heal.gap` and
+  `query.face_p2` shims) now appends `sc_topology_fixture::append_shell_state` (version 3: infinite region,
   region void flags, wire/vertex shell heads, vertex-use lists, face-use next/last links), read
   from the native records. The four Rust importers read it through
   `topology_vertexuse::read_shell_state`; `set_shell_heads` and the arena-order vertex-use lists
@@ -4521,7 +4521,7 @@ shell traversal; PR #88's cache-reset scans keep their existing behavior.
   `SetIsVoid(TRUE)` for the infinite region; `Region::new_with_infinite_region` of #130 uses 1).
   Preconditions that made the exporter fail in #80: every walk now registers the vertex-use lists
   (`walk(.., include_vertex_lists = true)`, and the same closure in the private walks) so
-  `identity()` never meets an unregistered vertex use. All nine affected units were re-run with
+  `identity()` never meets an unregistered vertex use. All ten affected units (`query.face_p2` imports through `topology_face_p2::import`) were re-run with
   unchanged case, pass and deferred counts, except `topology.edge`: the GetEdges-first registration
   changes which edge an edge selector picks, and 5 cases moved from deferred (`topology.edgeuse_p3` 67
   -> 62) to passing (1710/77 -> 1715/72); 0 failures, `--perturb` SENSITIVE everywhere.
