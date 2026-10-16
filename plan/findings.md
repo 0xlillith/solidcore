@@ -5667,12 +5667,12 @@ independent p6 integration.
   the C++ shim for its classifications (`Probe` op) and rebuilds classifications of the
   same shape; nothing past the first unported callee reads more than that.
 - **C++ crash guard.** Upstream `SplitAtSeam`'s U-then-V branch recurses on the wrong
-  face (`plan/upstream-issues.md` UB-158) and crashes in `MergeInterval`. The shim skips
+  face (`plan/upstream-issues.md` UB-137) and crashes in `MergeInterval`. The shim skips
   (`-3`) every seam call that can reach that branch: every `MoveSeam` with split past its
   early return (it recomputes the seam problem before splitting) and every `SplitAtSeam`
   merging in both directions on a face periodic in either (by the face properties' closed
   flags or by the surface itself). The Rust side reports those cases as deferred to
-  `cpp-crash-guard:UB-158`; they never become comparable. **The guard is very
+  `cpp-crash-guard:UB-137`; they never become comparable. **The guard is very
   conservative:** a guard-free sweep of 60,600 seam calls (15 files x faces 0-3 x rebuild x
   face properties x center x split, pre-review of PR #148) crashed 36 times, all
   `vase_rev.smb` face 0 `MoveSeam` with split and fabricated crossed-BOTH verdicts, all

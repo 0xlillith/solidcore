@@ -69,11 +69,11 @@
 //!   an empty pairing (upstream's unsigned `GetSize() - 1`). `SplitAt` / `JoinSurface`
 //!   halves that are not plain B-spline surfaces (an assert upstream, then a C cast)
 //!   are [`SolidError::InvalidInput`]. A failed `JoinSurface` (unchecked upstream,
-//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-160)
+//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-138)
 //!   returns its error. The `ShellSort` of the vertex parameters is a sort by value
 //!   (equal doubles are indistinguishable). `SplitAtSeam`'s V pass after a U merge
 //!   recurses on this face with the classifications of each new face, as upstream
-//!   (UB-158).
+//!   (UB-137).
 //! - **`bUseJGU`** (`static constexpr FALSE` in `SplitAtSeam`) branches are dead code
 //!   upstream and are not ported. The `SmTemporaryChangeValue`s of `SplitAtSeam`
 //!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) guard calls that are all unported.
