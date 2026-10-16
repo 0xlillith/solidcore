@@ -5990,3 +5990,10 @@ this cost. Progress tracing for the full run is external GDB instrumentation,
 without changes to the test harness or its tolerance policy.
 The complete `topology.edgeuse_p2` run subsequently finished: 4583 cases,
 3218 passed, 1365 deferred, 0 failed, maximum relative error 0.
+
+The complete integrated manifest run finished with 197 units: 109 passed,
+88 partial, 0 failed. It includes main `7f760470`; the subsequent `4757b211`
+only regenerates `PROGRESS.md`. The guard-only compound-mask extension was
+additionally checked with native FFI regressions, C++ Clippy, the standard
+442-case brep_p6 run and 394/394 detected sensitivity perturbations. It leaves
+all existing manifest inputs and operation results unchanged.
