@@ -23,7 +23,7 @@
 //! | [`Plane::evaluate_point`], [`Plane::evaluate_point_fast`] | `EvaluatePoint`, `EvaluatePointFast`  |
 //! | [`Plane::evaluate`], [`Plane::evaluate_simple`] | `Evaluate`, `EvaluateSimple` (inline)           |
 //! | [`Plane::evaluate_normal`]                    | `EvaluateNormal`                                  |
-//! | [`Plane::global_line_intersect`]              | `GlobalLineIntersect`                             |
+//! | [`Plane::global_line_intersect`], [`Plane::global_line_intersect_in`] | `GlobalLineIntersect`                             |
 //! | [`Plane::trim_plane_line_to_plane_domain`]    | `TrimPlaneLineToPlaneDomain`                      |
 //! | [`is_grazing_intersection`]                   | `sm_IsGrazingIntersection` (static)               |
 //! | [`Plane::is_bounded`]                         | `IsBounded`                                       |
@@ -131,6 +131,7 @@ use crate::nurbs::knots::Side;
 use crate::nurbs::math::MAX_DERIVATIVE;
 use crate::surface::surface::p1::{self as surface_p1, SecondDerivatives};
 use crate::surface::surface::p2::{Surface, SurfaceKind, PLANE_TYPE};
+use crate::surface::surface_cache::p1::SurfaceCache;
 
 const OP_EVAL: &str = "surface::plane::p1::Plane::evaluate";
 const OP_DROP: &str = "surface::plane::p1::Plane::drop_point_fast";
@@ -1039,6 +1040,39 @@ impl Plane {
         fire_ray: bool,
         distance_tolerance: f64,
     ) -> Result<SolutionArray<O>> {
+        self.global_line_intersect_in(
+            k,
+            Some(surface),
+            None,
+            uv_domain,
+            line_point,
+            line_vector,
+            line_interval,
+            fire_ray,
+            distance_tolerance,
+        )
+    }
+
+    /// [`Plane::global_line_intersect`] whose general intersector runs over `cache`,
+    /// this plane's surface cache when the caller holds it (see
+    /// [`Surface::global_line_intersect_in`]); `surface` (optional) is the plane's
+    /// handle.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Plane::global_line_intersect`].
+    pub fn global_line_intersect_in<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        cache: Option<&mut SurfaceCache<O>>,
+        uv_domain: &Extent2d,
+        line_point: Point3,
+        line_vector: Vec3,
+        line_interval: Option<&Extent1d>,
+        fire_ray: bool,
+        distance_tolerance: f64,
+    ) -> Result<SolutionArray<O>> {
         if line_vector.length_squared() < EFF_ZERO_SQ {
             return Err(SolidError::invalid_input(OP_LINE, "zero line vector"));
         }
@@ -1140,9 +1174,10 @@ impl Plane {
                     .unwrap_or(Extent1d::from_min_max(t_start - 1.0, t_end + 1.0));
                 // try global surface/curve solver (SmSurface::GlobalLineIntersect: the
                 // solutions name `surface`)
-                return Surface::from(self.clone()).base_global_line_intersect(
+                return Surface::from(self.clone()).base_global_line_intersect_in(
                     k,
                     surface,
+                    cache,
                     uv_domain,
                     line_point,
                     line_vector,
