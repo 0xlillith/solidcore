@@ -1382,15 +1382,15 @@ mod tests {
         si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out)
             .unwrap();
         assert_eq!(out.curves_3d.len(), 1);
-        // a far pair reaches the local intersection
+        // a far pair reaches the local intersection (surface.surface_p11, ported): it
+        // succeeds, or stops at an unported boundary solve (surface.surface_p8)
         let far = Extent3d::from_bounds(5.0, 5.0, 5.0, 6.0, 6.0, 6.0);
         let pair = InteriorNodePair {
             bboxes: [far, far],
             uv_domains: [unit(), unit()],
         };
-        assert!(matches!(
-            si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out),
-            Err(SolidError::Unported { .. })
-        ));
+        if let Err(e) = si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out) {
+            assert!(e.is_unported(), "{e}");
+        }
     }
 }
