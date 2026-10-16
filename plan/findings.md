@@ -5073,6 +5073,7 @@ mutated scales and accepted/reduced step counts are compared.
   regression matrix checks operations, true geometric kinds and flags with a
   five-second per-child timeout, separately from differential pass counts. Tiny
   and large constructor paths and malformed records have dedicated native tests.
-  The native FFI suite is now an explicit CI step. Rust insertion replaces tail
+  The native FFI suite is run locally with the existing CI workflow unchanged.
+  Rust insertion replaces tail
   recursion with the same restart order, bounded by the initial interval count
   plus one; homogenization refuses a squeeze that makes no progress.
