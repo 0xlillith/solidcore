@@ -4736,26 +4736,42 @@ mutated scales and accepted/reduced step counts are compared.
   trimmed cache, which creates the UV trim curves of the face's edge uses) defers as
   `UNPORTED(topology.face_p3)` (`SmFace::CreateUVTrimCurves`) on the paths that reach the global point
   solve.
-- **`query.loop` (`FaceLoop`) not wired** (`UNPORTED(query.loop)`, retagged from
-  `topology.edgeuse_p3`): `GetOrCreateUVTrimCurve` needs the B-rep mutably, the kernel and the edge
-  use id; the `FaceLoop` view is a borrowed, B-rep-free copy. Creating all missing curves before the
-  walk would not be faithful (upstream makes them lazily in walk order and ends the walk at the first
-  failure). `query.face_p2` builds the view from a B-rep, so a faithful fix is a creator callback or a
-  B-rep-holding view there.
+- **`query.loop` (`FaceLoop`) not wired; stub kept, tagged `UNPORTED(topology.edgeuse_p3)`**
+  (the unit that owns `SmEdgeuse::GetOrCreateUVTrimCurve`, AGENTS.md section 4 step 5 item 9;
+  `prepush.sh stubs` fails on it by design). `GetOrCreateUVTrimCurve` needs the B-rep mutably, the
+  kernel and the edge use id; the `FaceLoop` view is a borrowed, B-rep-free copy whose trim
+  curves are `&Curve` borrowed from that B-rep. Creating all missing curves before the walk would
+  not be faithful (upstream makes them lazily in walk order and ends the walk at the first
+  failure), and a creator callback cannot hand out a `&Curve` while it holds `&mut Brep`.
+  `query.face_p2` builds the view from a B-rep, so a faithful fix is a B-rep-holding walk there
+  (a change of the `FaceLoop` API and of both difftest runners). The `query.loop` difftest never
+  reaches it (3040/3040, 0 deferred); `query.face_p2` defers 15 cases on it.
 - **`heal.gap` wired**: `GetGapEndPoints` now creates a missing UV trim curve; the gap constructors,
   setters, `CacheGap` and `GetGapEndPoints` take `k` and `&mut Brep` (and so do
   `vertex_edge_gap`, `calc_vertex_edge_gap`, `edge_ccw_edge_gap`, `calc_edge_ccw_edge_gap`,
   `max_down_dim_gap_3d`).
-- **OPEN DISAGREEMENT, `query.edge` (`SmEdgeuse::EvaluateBinormalStepOff` not wired there).** With
-  `evaluate_binormal_step_off_into` called from `radial_sector_classify`, two generated cases of
-  `query.edge` disagree with the C++: `gen0091` (seed 2056831836502447629; `box_with_large_fillet.smb`
-  read with `rebuild`, eu 328290, classify 192469, nparam 0.41016510631606873: cpp result 4, rust 1) and
-  `gen0261` (seed 2056831836502447799; same file, edits `p0`, nparam -1e-9: cpp 4, rust 1). Cause not
-  found (both files have rebuilt UV trim curves; suspects: the `EvaluateBinormal` surface-cache side
-  effect, partial out-param contents of a failing step-off). The stub stays
-  (`UNPORTED(query.edge)`); the other classification cases (1299) pass with it wired. A zero-length
-  `Unitize`/`AngleBetween` in those functions is now an `SM_ERR` status, as `SER` returns it, not a null
-  dereference (6 more cases agreed after that fix).
+- **`query.edge` radial classifications wired (`gen0091`, `gen0261` solved: harness gap).** With
+  `evaluate_binormal_step_off_into` called from `radial_sector_classify`, two generated cases
+  disagreed with the C++: `gen0091` (seed 2056831836502447629; `box_with_large_fillet.smb` read with
+  `rebuild`, eu 328290, classify 192469, nparam 0.41016510631606873: cpp result 4, rust 1) and
+  `gen0261` (seed 2056831836502447799; same file, edits `p0`, nparam -1e-9). Cause: not the
+  port. The `query.edge` shim's private `put_surface` was a copy that predated the `SmPlane` branch of
+  `sc_edgeuse_graph.h`; `SmPlane` derives from `SmBSplineSurface`, so it exported the faces' B-spline
+  part and the Rust import saw B-spline faces. `RadialSectorClassify` tests `IsKindOf(SmPlane_TYPE)`
+  (`bAllPlanes`): true in the C++ (all three faces planes), false in Rust, so the C++ declared
+  coincidence at once (`bAllPlanes` and `dAng3 < 0.001` degrees: result 4, `CoincidentRadial`) where
+  Rust stepped off four times (count > 2 and `dMinDist > dTolerance`) and returned inside. Every step-off
+  call, its distances and its outputs agreed bit for bit (checked by calling
+  `EvaluateBinormalStepOff` from the shim at the same distances). Fix: the shim exports an `SmPlane`
+  as `1 O Z` (item 5 of the AGENTS.md checklist: the shim builds every geometry kind the code branches
+  on). Those faces are now real planes in Rust, so 28 cases that passed on a B-spline stand-in defer on
+  the global point solve instead (`surface.surface_point_solve_p3`): query.edge 1368 cases, 1279 pass, 0
+  fail, 89 deferred. A zero-length `Unitize`/`AngleBetween` in the classifications is an `SM_ERR`
+  status, as `SER` returns it, not a null dereference; the step-off locals start at
+  `SM_UNDEF_DOUBLE` like upstream's default-constructed vectors. Other shim copies of `put_surface`
+  without the plane branch (`topology.vertex`, `topology.brep_data`, `topology.proto_topology_p1`,
+  `curve.crv_on_surf`, `surface_plane_p1`, `blend_fillet_custom_solver`, `sweep_api_surfaces`) were
+  not touched; any of them used by a unit that branches on `IsKindOf(SmPlane_TYPE)` has the same gap.
 - **Harness.** The `topology.edgeuse_p2` shim called nothing on edge uses outside a loop (it reported a
   null dereference); `EvaluateBinormal` returns `SM_ERR_INVALID_INPUT` for them without dereferencing,
   so the shim now calls the C++ there (40 cases). The `topology.loopuse` shim runs

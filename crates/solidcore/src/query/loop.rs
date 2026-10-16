@@ -31,8 +31,9 @@
 //!   use's id: the borrowed [`FaceLoop`] view holds none of them, and building the
 //!   missing curves before the walk would change which curves are made (upstream makes
 //!   them lazily, in walk order, stopping at the first answer) and when a failing
-//!   build ends the walk. So that path returns [`SolidError::Unported`] naming this
-//!   unit (`UNPORTED(query.loop)`, reasoning in `plan/findings.md`).
+//!   build ends the walk. So that path returns [`SolidError::Unported`] naming the
+//!   unit that owns the callee (`UNPORTED(topology.edgeuse_p3)`, not wireable here:
+//!   reasoning in `plan/findings.md`).
 //! - **Poles.** `SmSurface::GetSingularities` (unit `surface.surface_p3`) is only
 //!   reached when the point lies on a side of the surface's natural domain and an edge
 //!   use end of the loop does too.
@@ -158,9 +159,9 @@ pub struct UvCornerBoundaries {
 /// `GetOrCreateUVTrimCurve` of an edge use: its existing trim curve.
 fn uv_trim_curve<'a>(eu: &LoopEdgeuse<'a>) -> Result<&'a Curve> {
     eu.uv_trim_curve.ok_or_else(|| {
-        // UNPORTED(query.loop): SmEdgeuse::GetOrCreateUVTrimCurve (the Brep-free view
-        // cannot create the curve, see the module docs)
-        SolidError::unported("SmEdgeuse::GetOrCreateUVTrimCurve", "query.loop")
+        // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve (ported, but
+        // the Brep-free view cannot create the curve faithfully, see the module docs)
+        SolidError::unported("SmEdgeuse::GetOrCreateUVTrimCurve", "topology.edgeuse_p3")
     })
 }
 
@@ -171,7 +172,7 @@ fn uv_trim_curve<'a>(eu: &LoopEdgeuse<'a>) -> Result<&'a Curve> {
 /// # Errors
 ///
 /// [`SolidError::Unported`] for an edge use without UV trim curve
-/// (`SmEdgeuse::GetOrCreateUVTrimCurve`, `query.loop`: module docs); those of the trim
+/// (`SmEdgeuse::GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`: module docs); those of the trim
 /// curve evaluations.
 pub fn uv_corner_boundaries(
     lp: &FaceLoop<'_>,
@@ -314,7 +315,7 @@ fn unit_from(origin: Point3, p: Point3) -> (Vec3, f64) {
 /// # Errors
 ///
 /// [`SolidError::Unported`]: `SmEdgeuse::GetOrCreateUVTrimCurve` for an edge use
-/// without trim curve (`query.loop`: module docs), and those of the callees (the
+/// without trim curve (`topology.edgeuse_p3`: module docs), and those of the callees (the
 /// tolerance of a face-owned surface in `SmSurface::GetSingularities`); the errors of the surface and trim curve
 /// evaluations (see the module Deviations).
 pub fn contains_uv_point(
