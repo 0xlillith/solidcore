@@ -4714,3 +4714,25 @@ mutated scales and accepted/reduced step counts are compared.
   `surface::surface::p4` (`GlobalPointSolve` on a face-owned surface), `intersect::ray_tracer` and `intersect::topology_solver::p1` call `PointClassify` on opaque
   face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
   reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.
+
+## heal.face_props (`SmFaceProps` / `SmLoopProps` / `SmLooptreeItem`, 2026-10-16; partial, no disagreements)
+
+- **UB-121 (`plan/upstream-issues.md`).** `SmFaceProps::SetProps_Gaps` returns at once from stage
+  `GAPSa` on (`SmFaceProps.cpp:768`), so the `m_pFace != cpFace` re-run in `SetProps_Stage2`
+  (`:875`) and `SetProps_Stage3` (`:1258`) never sets `m_pFace`; a stage past the gaps with no
+  face (`ReSet(2a)` then `SetProps(2)`, or a seeded stage `GAPS` then Stage 2) dereferences NULL
+  (`:898`) and the reference segfaults. No disagreement: the harness rejects those scripts
+  (`ffi::validate` simulates the stage and the face pointer) and the port returns `InvalidInput`.
+  Regression fixtures: `rejected_reset_then_stage2`, `rejected_seeded_gaps_then_stage2`.
+- **Harness.** The shim and the runner build the same one-face B-rep: a plane or an
+  `SmSurfOfRevolution::CreateCanonical` surface (cylinder, cone with or without apex, sphere,
+  torus; `AdjustSTEPUVDomain` opens the 360 degree sweep) owned by the face, with a vertex loop
+  or edge loops (outer loop and holes of `SmLine` edges). The Rust B-rep is rebuilt record by
+  record (`rust_brep`) and the shim checks the realised edge use order. The face tolerance reaches
+  `GetSingularities` through `Surface::get_singularities_of_face` (a `Surface` holds only an owner
+  handle; the other `UNPORTED(topology.face_p2)` tolerance stubs on surfaces are unchanged).
+- **Deferred by design.** Closed faces (any full sweep): `SetProps_Stage2` reaches
+  `SmFace::HasSeamProblem` (`topology.face_p4`); every `SetProps_Stage3` reaches
+  `SmFace::ClassifyLoops` (`query.face_p4`). Op 8 compares `SmLoopProps::SetProps` of each loop
+  (the loop-props loop of Stage 3) without the classification. Wire loops cannot be built with
+  `SmBrepConstructor` (it closes every loop) and are not compared.
