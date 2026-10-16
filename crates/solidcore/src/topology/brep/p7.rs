@@ -1227,7 +1227,11 @@ pub fn glue_edges_general(
         let del_tol = b.edge(del)?.tolerance;
         let surv_tol = b.edge(surv)?.tolerance;
         // (smos_Max: a > b ? a : b)
-        let max_tol = if del_tol > surv_tol { del_tol } else { surv_tol };
+        let max_tol = if del_tol > surv_tol {
+            del_tol
+        } else {
+            surv_tol
+        };
         let mut radius = edge_gap + max_tol;
         if radius < edge_gap * 2.0 {
             radius = edge_gap * 2.0;
