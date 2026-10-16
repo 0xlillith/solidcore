@@ -965,7 +965,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** Treats a point like any other non-topology object (system zone tolerance, not connected, not mergeable).
 
-#### UB-98. `SmCurveClassification::InsertAt(0, ..)` into a non-empty classification never ends its shift loop
+#### UB-158. `SmCurveClassification::InsertAt(0, ..)` into a non-empty classification never ends its shift loop
 - **Location:** `SmCurveClass.cpp:5349` (`InsertAt`: `for(i1=m_lSize-1,ii=i1-nCount;ii>=nIndex;ii--,i1--)`).
 - **What happens:** `ii` and `nIndex` are `ULONG`. With `nIndex == 0` the test `ii >= 0` is always true: after `ii = 0` the loop decrements `ii` to `ULONG_MAX` and copies `m_pData[ULONG_MAX]` into `m_pData[0]`, then keeps walking down memory.
 - **Trigger:** `InsertAt(0, interval)` on a classification with at least one interval.

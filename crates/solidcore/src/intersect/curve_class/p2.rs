@@ -524,14 +524,7 @@ impl<O: ClassObject> CurveClassification<O> {
 
         // copy rNewValues into corresponding PC in adjacent interval: the mate is the
         // end of an interval
-        let mate_at = match self.point_class_mate_by_index(k, geometry, index)? {
-            Some(mate) => self
-                .data
-                .iter()
-                .position(|ivl| core::ptr::eq(&raw const ivl.end, mate)),
-            None => None,
-        };
-        if let Some(i) = mate_at {
+        if let Some(i) = self.point_class_mate_interval(k, geometry, index)? {
             self.at_mut(i)?.end = *new_values;
         }
 

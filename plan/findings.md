@@ -4050,7 +4050,7 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   neighbour removes the interval before the last one, upstream's next `(*this)[lIndex]`
   is past the end: the slot `RemoveAt` left behind, a copy of the last interval. The port
   reads that copy the same way; the following `CollapseInterval` fails (status ignored).
-- **`InsertAt(0, ..)` into a non-empty classification** is UB-98 (unsigned shift loop);
+- **`InsertAt(0, ..)` into a non-empty classification** is UB-158 (unsigned shift loop);
   Rust returns `InvalidInput` and the shim rejects it.
 - **Shim guards.** Edits are rejected when any interval end classifies to an
   `SmPoint3d` (UB-79: its zone tolerance is taken through `SmObject` virtuals); this is
@@ -4090,6 +4090,26 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
     an opaque handle with no B-rep, so the stub waits on handle-to-B-rep resolution, not on
     that unit. The same applies to `UNPORTED(topology.face_p2)` `SmFace::GetSurface` in
     `GetMinUV` / `GetMaxUV`.
+- **Second review (2026-10-16).** The `InsertAt(0)` upstream issue was renumbered
+  UB-98 -> UB-158 (main already had a UB-98, `SmCopyBrepMap`). `UpdatePointClass` now
+  takes the mate's index from `point_class_mate_interval` instead of searching the
+  intervals by address (same result). Added `fixtures/intersect.curve_class_p2/review_extra.json`
+  (128 reviewer cases: `EditIntervalMin`/`Max` at scales 1e-6..1e5, offsets 0/1e5, shrink
+  steps 0..2e-5 including the stale-slot path; `ConnectIntervals` over all end codes x
+  allow x j; `UpdatePointClass` on a closed size-1 circle at index 0 and size; `ReSet`
+  with tolerance 0/negative/1e-12/1e3 and an inverted interval, on an empty
+  classification; assign from empty; mid insert then edits); all pass, perturb detects
+  all. Open items for other owners, flagged by the review:
+  - `intersect.curve_class_p6` is `partial` while 52 of its deferred cases are its own
+    unported `MergeInterval` imprinting (no `UNPORTED(` marker, by design). Its porter
+    should finish that remainder; those cases are not a back-edge.
+  - The ~1,250-line body of `sm_RefineCCIToSurfaces` after `SmEdge::GetCurve` has never
+    been compared against the C++ (the shim stops every refine call past the entry
+    checks). Whoever wires `UNPORTED(topology.edge)` here ports and compares it.
+  - `UNPORTED(topology.edge)` / `UNPORTED(topology.face_p2)` here name units that are now
+    `partial`, against the letter of AGENTS.md 4a: the real blocker is cross-unit
+    opaque-handle-to-`Brep` resolution (same as parts 1/3/7 and `intersect.point_class`),
+    which needs its own tracked work item.
 
 ## curve.curve_p9: zero-end-tangent Hermite pair, loose tolerance (one case in 30,093)
 
