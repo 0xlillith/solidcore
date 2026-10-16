@@ -6,7 +6,7 @@ use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::curve::curve::Curve;
-use solidcore::curve::line::{BoundedLineOptions, Line};
+use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::extent3d::Extent3d;
@@ -186,18 +186,9 @@ fn v(a: [f64; 3]) -> Vec3 {
     Vec3::new(a[0], a[1], a[2])
 }
 fn line(a: Vec3, b: Vec3, dim: u64) -> Curve {
-    let delta = b - a;
-    Curve::from(Line::bounded(
-        a,
-        delta,
-        &Extent1d::from_min_max(0., 1.),
-        &BoundedLineOptions {
-            scale: delta.length(),
-            dim,
-            ..BoundedLineOptions::default()
-        },
-    ))
+    Curve::from(Line::from_points(a, b, dim))
 }
+
 fn surface(i: &Input) -> ScResult<Surface> {
     let domain = Extent2d::from_bounds(0., 0., 1., 1.);
     if i.kind == 1 {
