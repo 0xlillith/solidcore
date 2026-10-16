@@ -161,10 +161,12 @@ fn boundary_intersections(
     _other_domain: &Extent2d,
     _approx_tol: Option<f64>,
 ) -> Result<SurfaceIntersection> {
-    // UNPORTED(surface.surface_p11): SmSurface::IntersectSurfaceBoundaries
+    // The boundary algorithm is ported, but requires Surface operands. Preserve
+    // Cone/Cylinder virtual dispatch rather than wrapping their B-spline base.
+    // UNPORTED(surface.surface_p2): SurfaceKind::Cone (issue #76 / PR #133)
     Err(SolidError::unported(
-        "SmSurface::IntersectSurfaceBoundaries",
-        "surface.surface_p11",
+        "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "surface.surface_p2",
     ))
 }
 

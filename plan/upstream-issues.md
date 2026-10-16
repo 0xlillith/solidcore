@@ -915,7 +915,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** read during porting (`surface.cone_p3`, PR #131).
 - **Confirmed:** no. Native guard tests reject this path and preserve defined default-tolerance calls (same object, disjoint heights, nested radii); an intentional undefined null dereference was not executed.
 - **Severity:** crash/UB (null dereference).
-- **Rust port:** Represents optional tolerances with `Option`; coincident-boundary calls currently defer to `surface.surface_p11`. The FFI adapter rejects exactly the native undefined path before its boundary calls.
+- **Rust port:** Represents optional tolerances with `Option`; coincident-boundary calls currently defer to the missing Cone/Cylinder adapter in `surface.surface_p2` (#76/#133); the boundary algorithm itself merged in #120. The FFI adapter rejects exactly the native undefined path before its boundary calls.
 
 ### Intersection
 

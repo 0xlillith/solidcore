@@ -83,8 +83,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "coincident_swap0_inside0",
@@ -175,8 +175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "coincident_swap0_inside1",
@@ -267,8 +267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "coincident_swap1_inside0",
@@ -359,8 +359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "coincident_swap1_inside1",
@@ -1255,8 +1255,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0044",
@@ -1567,8 +1567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0082",
@@ -2015,8 +2015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0135",
@@ -2167,8 +2167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -2447,8 +2447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0187",
@@ -2583,8 +2583,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0202",
@@ -2595,8 +2595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0203",
@@ -2739,8 +2739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0220",
@@ -3259,8 +3259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0282",
@@ -3343,8 +3343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -3735,8 +3735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0338",
@@ -3747,8 +3747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -4075,8 +4075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0378",
@@ -4759,8 +4759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0458",
@@ -5439,8 +5439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0541",
@@ -5983,8 +5983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0606",
@@ -6959,8 +6959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0722",
@@ -7459,8 +7459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0781",
@@ -7663,8 +7663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0805",
@@ -7731,8 +7731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0813",
@@ -7883,8 +7883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0831",
@@ -8019,8 +8019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0847",
@@ -8747,8 +8747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0934",
@@ -9859,8 +9859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1069",
@@ -9903,8 +9903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1074",
@@ -10915,8 +10915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::IntersectSurfaceBoundaries",
-        "unit": "surface.surface_p11"
+        "symbol": "SurfaceKind::Cone (SmSurface::IntersectSurfaceBoundaries)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1196",
@@ -10957,7 +10957,7 @@
   "cases_total": 1308,
   "deferred_by_unit": {
     "surface.cone_p2": 91,
-    "surface.surface_p11": 30
+    "surface.surface_p2": 30
   },
   "max_rel_err": 0.0,
   "pass": true,

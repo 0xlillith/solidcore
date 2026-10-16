@@ -5056,9 +5056,13 @@ Two unfinished callees are isolated in `surface/cone/p3.rs`:
   plane sections and the trimmed ellipses of intersecting equal-radius cylinders.
   PR #71 currently takes `&Ellipse`, while this stub retains raw center/axes/radii;
   whichever PR lands second must adapt the signature and rerun cone part 3.
-- `boundary_intersections`: wire to `surface.surface_p11`'s
-  `SmSurface::IntersectSurfaceBoundaries` for coincident cylinders. The owned
-  caller already retains upstream's second-call status overwrite, duplicate
+- `boundary_intersections`: #120 merged `Surface::intersect_surface_boundaries`,
+  but its operands require a `SurfaceKind::Cone` adapter absent from official main.
+  This adapter belongs to active #76/#133; the stub now names `surface.surface_p2`.
+  Do not substitute a B-spline/revolution wrapper: it erases Cone/Cylinder virtual
+  methods. Once the typed adapter merges, wire the boundary API and rerun every
+  formerly deferred case without claiming its output is certified in advance.
+  The owned caller already retains upstream's second-call status overwrite, duplicate
   removal order, coincident classification and UV-array ordering.
 
 The global dispatch entry is `Cone::global_surface_intersect_with`. Its general
@@ -5289,3 +5293,40 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
 - **Upstream issues:** UB-121 (`IntersectSurfaceBoundaries` dereferences a NULL curve
   array), WR-99 (`LocalSurfaceIntersect` boundary retries: `!bFoundSolution` binds to
   the minimum test only; reproduced).
+
+
+### PR #131 after #120 merged (official main `0d6885b2`)
+
+Merged main and preserved both findings sections. `Surface::intersect_surface_boundaries`
+is now available, but it accepts `Surface` operands and main still lacks
+`SurfaceKind::Cone`. Wiring via the B-spline/revolution base would discard native
+Cone/Cylinder virtual dispatch. The remaining adapter belongs to active issue #76 /
+PR #133; no part of that claim is duplicated here. The cone boundary stub and its
+30 report deferrals now name `surface.surface_p2`, not the already-ported p11 unit.
+The p11 findings above also record a typed iso-boundary limitation; reassess that
+coverage when the cone adapter is wired rather than certifying it in advance.
+
+Fresh merged-tree checks: 1194 kernel tests, formatting, strict plain workspace
+Clippy and wasm32 pass. Native comparison gives:
+
+```
+PARTIAL surface.cone_p3 cases=1308 passed=1187 failed=0 deferred=121 max_rel_err=0e0 blocked_by=surface.cone_p2(91),surface.surface_p2(30)
+PARTIAL surface.surface_p2 cases=869 passed=858 failed=0 deferred=11 max_rel_err=0e0 blocked_by=surface.cone_p2(10),surface.surface_p8(1)
+PARTIAL surface.surface_p11 cases=600 passed=498 failed=0 deferred=102 max_rel_err=0e0 blocked_by=surface.surface_p8(102)
+PARTIAL topology.trimming_tools cases=3263 passed=2842 failed=0 deferred=421 max_rel_err=0e0 blocked_by=topology.edgeuse_p3(193),topology.face_p3(219),topology.face_p4(9)
+SENSITIVE surface.cone_p3 perturbed=1187 detected=1187 unperturbed=0 deferred=121
+PARTIAL surface.cone_p3 cases=10108 passed=9048 failed=0 deferred=1060 max_rel_err=0e0 blocked_by=surface.cone_p2(803),surface.surface_p2(257)
+```
+
+Only the 30 cone dependency records and their blocker summary change; compared
+values and all three other reports reproduce committed bytes. No deferred path
+is counted as a pass. Native validation used the separate disposable Mac checkout
+and the excluded platform prerequisites. The first runner build exhausted local
+disk space before comparisons ran. After clearing this thread's old build cache,
+the retry used `--config 'profile.difftest.package.difftest.opt-level=0'` for the
+runner only; kernel and C++ build settings are unchanged. No configuration change
+is submitted. Full clean Linux/GNU certification remains outstanding; the known
+independent Apple libc++ database abort was not rerun.
+
+Strict C++-feature workspace Clippy also passes in the same disposable checkout
+with the runner-only profile override. No platform prerequisites enter this PR.
