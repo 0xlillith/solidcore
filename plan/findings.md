@@ -5510,6 +5510,7 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   the 366 deferrals move to `GetUpwardEdgeuses`, `topology.face_p4`),
   `heal.heal_data_p2` (`SetTolerance`, `IsDegenerate`; `Cache_DegenFaces` now takes the
   B-rep mutably, since `IsDegenerate`'s quick check may build UV trim curves).
-- **Upstream defects.** UB-158 (`ComputeLoopOrientation` reads an uninitialised
-  `sVeryFirstUV`), UB-159 (`FaceIntersect` hands out deleted curves through
-  `pOptCC3DCrvs`).
+- **Upstream defects.** UB-158 (`ComputeLoopOrientation` reads the last of an empty
+  edge use array), UB-159 (`FaceIntersect` hands out deleted curves through
+  `pOptCC3DCrvs` without classification arrays). `sVeryFirstUV` is defined (the
+  `SmVector2d` default initialisers) and ported as such.

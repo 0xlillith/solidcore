@@ -902,7 +902,8 @@ fn notify_ref(e: EntityRef) -> ObjectRef {
     }
 }
 
-/// `SmFace::Notify(SM_NO_PRE_EDIT / SM_NO_POST_EDIT, NULL, NULL, NULL)`. The B-rep
+/// `SmFace::Notify(SM_NO_PRE_EDIT / SM_NO_POST_EDIT, pFace, SM_NO_GET_BREP(pFace) (0), NULL)`: the
+/// face itself is the first argument. The B-rep
 /// carries no attribute store, topology records, context callbacks or trimmed surface
 /// caches, so the notification runs with empty ones (upstream on a face and uses
 /// without attributes or cache).
@@ -915,7 +916,14 @@ fn face_notify_edit(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Resu
         context: None,
         key_of: &notify_ref,
     };
-    face3::notify(b, f, &mut env, None, operation, [None; 3])
+    face3::notify(
+        b,
+        f,
+        &mut env,
+        None,
+        operation,
+        [Some(notify_ref(EntityRef::Face(f))), None, None],
+    )
 }
 
 /// `FlipLoopOrientation`: swaps the starts of the loop's two loop uses (the vertex

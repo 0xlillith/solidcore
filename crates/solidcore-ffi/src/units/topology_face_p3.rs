@@ -25,7 +25,7 @@
 //! | `LoopOrient`  | `face loop want_bounds do_3d`               | `status orient [u0 v0 u1 v1]`, use states |
 //! | `Degenerate`  | `face skip_quick has_tol tol`               | `flag` |
 //! | `Composites`  | `face`                                      | `status n` then per composite `segments t0 t1 closed` and per segment `transition sense gap0 gap1 samples` |
-//! | `UvTrim`      | `face adjust`                               | `status gaps*6`, tolerances, use states |
+//! | `UvTrim`      | `face adjust own_curves` (`own_curves`: pass copies of the face's UV trim curves, cleared first) | `status gaps*6`, tolerances, use states |
 //! | `Intersect`   | `face other approx_tol ang_tol_deg coincidence want_points` (`coincidence` `-1` none, `0`, `1`) | `status n samples* n_pts xyz*` |
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: valid B-rep
@@ -115,8 +115,9 @@ fn flag(v: f64, what: &str) -> Result<(), FfiError> {
 }
 
 fn tol(v: f64, what: &str) -> Result<(), FfiError> {
-    if !v.is_finite() || !(0.0..=1e3).contains(&v) {
-        return Err(bad(format!("{what}: tolerance outside [0, 1e3]")));
+    // SetTolerance / IsDegenerate are defined for any finite value.
+    if !v.is_finite() {
+        return Err(bad(format!("{what}: tolerance must be finite")));
     }
     Ok(())
 }
@@ -167,12 +168,13 @@ fn check_args(op: Op, a: &[f64], c: [usize; 10]) -> Result<(), FfiError> {
         Op::Composites => unused(&[a1, a2, a3, a4, a5])?,
         Op::UvTrim => {
             flag(a1, "adjust")?;
-            unused(&[a2, a3, a4, a5])?;
+            flag(a2, "pass own UV curves")?;
+            unused(&[a3, a4, a5])?;
         }
         Op::Intersect => {
             index(a1, n_f, "other face")?;
-            if !(a2.is_finite() && a2 > 0.0 && a2 <= 1e3) {
-                return Err(bad("approximation tolerance outside (0, 1e3]"));
+            if !(a2.is_finite() && a2 > 0.0) {
+                return Err(bad("approximation tolerance must be finite and positive"));
             }
             if !(a3.is_finite() && a3 > 0.0 && a3 <= 180.0) {
                 return Err(bad("angle tolerance outside (0, 180] degrees"));

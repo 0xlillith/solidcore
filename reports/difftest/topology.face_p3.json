@@ -16733,6 +16733,2086 @@
     },
     {
       "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1550 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1551 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1552 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1553 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1554 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1555 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1556 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1557 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1558 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1559 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1560 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1561 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1562 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_50_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1563 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1564 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1565 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1566 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1567 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1568 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1569 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1570 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1571 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1572 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1573 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1574 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1575 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1576 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_vloop_25_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1577 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1578 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1579 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1580 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1581 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1582 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1583 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1584 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1585 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1586 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1587 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1588 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1589 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1590 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_50_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1591 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1592 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1593 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1594 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1595 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1596 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1597 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1598 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1599 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1600 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1601 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1602 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1603 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1604 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_vloop_25_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1605 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1606 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1607 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1608 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1609 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1610 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1611 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1612 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1613 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1614 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1615 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1616 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1617 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1618 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_50_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1619 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1620 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1621 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1622 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1623 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1624 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1625 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1626 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1627 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1628 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1629 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1630 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1631 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1632 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bilinear_vloop_25_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1633 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1634 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1635 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1636 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1637 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1638 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1639 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1640 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1641 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1642 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1643 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1644 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1645 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1646 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_50_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1647 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l0_b0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1648 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l0_b0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1649 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l0_b1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1650 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l0_b1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1651 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l1_b0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1652 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l1_b0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1653 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 47
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l1_b1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1654 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_loop_orient_l1_b1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1655 (upstream source/SMLib/src/SmFace.cpp:1678)",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_lamina",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1656 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_set_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1657 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 11
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_degenerate",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1658 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_composites",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1659 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_uv_trim",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1660 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "biquadratic_vloop_25_notify",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1661 (upstream source/SMLib/src/SmFace.cpp:15304)",
+      "values_compared": 46
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1662 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1663 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1664 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1665 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1666 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1667 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1668 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_square_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1669 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1670 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1671 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1672 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1673 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1674 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1675 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1676 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_circ_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1677 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1678 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1679 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1680 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1681 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1682 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1683 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1684 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "disk_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1685 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1686 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1687 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1688 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1689 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1690 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1691 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1692 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Mouse_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1693 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1694 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1695 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1696 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1697 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1698 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1699 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1700 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "Endcap_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1701 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1702 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1703 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1704 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1705 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1706 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1707 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1708 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1709 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1710 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1711 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1712 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1713 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_rebuilt_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1714 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_rebuilt_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1715 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_rebuilt_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1716 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "cone_rebuilt_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1717 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1718 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1719 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1720 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1721 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1722 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1723 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1724 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "plane_face_tilted_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1725 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1726 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1727 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1728 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1729 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_subdomain_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1730 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_subdomain_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1731 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_subdomain_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1732 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "bilinear_subdomain_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1733 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "triangle_pole_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1734 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "triangle_pole_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1735 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "triangle_pole_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1736 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "triangle_pole_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1737 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_uv_trim_46_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1738 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_uv_trim_46_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1739 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_uv_trim_47_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1740 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "biquadratic_uv_trim_47_gaps_own",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/constructed.json#1741 (upstream source/SMLib/src/SmFace.cpp:7965)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
         "symbol": "SmEdgeuse::NormalizedEvaluate",
         "unit": "topology.edgeuse_p3"
       },
@@ -16778,8 +18858,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::SmCurveClassification",
-        "unit": "intersect.curve_class_p4"
+        "symbol": "SmSurface::CoincidenceCheck",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -16813,16 +18893,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9751867694585732552",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -16853,16 +18929,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0011",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9751867694585732556",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -16885,35 +18957,43 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
+      },
       "max_rel_err": 0.0,
       "name": "gen0014",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9751867694585732559",
-      "values_compared": 2
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::GetUpwardEdgeuses",
+        "unit": "topology.face_p4"
+      },
       "max_rel_err": 0.0,
       "name": "gen0015",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9751867694585732560",
-      "values_compared": 2
+      "values_compared": 0
     }
   ],
   "cases_both_errored": 3,
-  "cases_deferred": 1092,
+  "cases_deferred": 1228,
   "cases_failed": 0,
-  "cases_passed": 474,
-  "cases_total": 1566,
+  "cases_passed": 530,
+  "cases_total": 1758,
   "deferred_by_unit": {
-    "intersect.curve_class_p4": 156,
-    "surface.cone_p1": 208,
-    "surface.surf_of_extrusion_p2": 104,
-    "surface.surface_p8": 42,
-    "topology.edgeuse_p3": 381,
-    "topology.face_p2": 59,
-    "topology.face_p4": 142
+    "intersect.curve_class_p4": 163,
+    "surface.cone_p1": 224,
+    "surface.surf_of_extrusion_p2": 112,
+    "surface.surface_p8": 43,
+    "topology.edgeuse_p3": 420,
+    "topology.face_p2": 122,
+    "topology.face_p4": 144
   },
   "max_rel_err": 0.0,
   "pass": true,

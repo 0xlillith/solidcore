@@ -74,23 +74,32 @@ void put_curve_samples(std::vector<double>& o, const SmCurve* c)
 const SmNotifyOperation NOTIFY_OPS[] = {SM_NO_PRE_EDIT, SM_NO_POST_EDIT, SM_NO_CHANGE_GEOMETRY,
                                         SM_NO_ADD_TO_BREP, SM_NO_RM_FROM_BREP};
 
-// Whether every face has a surface and every edge a curve: the geometric ops
-// dereference them without checks (GetSurface()->..., pEdge->GetCurve()->...).
-bool geometry_complete(Graph& g)
+// Whether the face has a surface and every edge of its loops a curve: the geometric ops
+// dereference them without checks (GetSurface()->..., pEdge->GetCurve()->...), and only
+// the target face(s) and their loops' edges.
+bool face_geometry_complete(SmFace* f)
 {
-    for (SmFace* p : g.faces)
-        if (p->*FPeek::srf() == nullptr)
-            return false;
-    for (SmEdge* p : g.edges)
-        if (p->GetCurve() == nullptr)
+    if (f->*FPeek::srf() == nullptr)
+        return false;
+    SmTArray<SmEdge*> edges;
+    f->GetEdges(edges);
+    for (ULONG i = 0; i < edges.GetSize(); i++)
+        if (edges[i] == nullptr || edges[i]->GetCurve() == nullptr)
             return false;
     return true;
+}
+
+bool geometry_complete(int32_t op, Graph& g, const double* a)
+{
+    if (!face_geometry_complete(g.faces.at((size_t)a[0])))
+        return false;
+    return op != P3_INTERSECT || face_geometry_complete(g.faces.at((size_t)a[1]));
 }
 
 void run(int32_t op, Graph& g, const double* a, std::vector<double>& o)
 {
     o.push_back(0.0);
-    if (op >= P3_LOOP_ORIENT && !geometry_complete(g))
+    if (op >= P3_LOOP_ORIENT && !geometry_complete(op, g, a))
     {
         o.push_back(-2.0);
         return;
@@ -179,7 +188,29 @@ void run(int32_t op, Graph& g, const double* a, std::vector<double>& o)
     {
         SmFace* f = g.faces.at((size_t)a[0]);
         double g1 = 0, g2 = 0, g3 = 0, g4 = 0, g5 = 0, g6 = 0;
-        SmStatus s = f->CreateUVTrimCurves(a[1] != 0.0 ? TRUE : FALSE, nullptr, nullptr, g1, g2, g3, g4, g5, g6);
+        // a[2] != 0: hand the face's own UV trim curves (copies, with their edge use's
+        // orientation) to CreateUVTrimCurves after clearing them, so that
+        // sm_FindBestUVCurve / CheckAndSetUVTrimCurve match them to the edge uses again.
+        SmTArray<SmBSplineCurve*> uvs;
+        SmTArray<SmOrientType> ors;
+        const bool opt = a[2] != 0.0;
+        if (opt)
+        {
+            std::vector<SmEdgeuse*> fes;
+            for (SmEdgeuse* eu : g.edgeuses)
+                if (eu->IsLoopEdgeuse() && eu->GetFace() == f)
+                    fes.push_back(eu);
+            for (SmEdgeuse* eu : fes)
+                if (SmBSplineCurve* c = eu->*EuPeek::uv())
+                {
+                    uvs.Add(new (the_context()) SmBSplineCurve(*c));
+                    ors.Add(eu->GetOrientation());
+                }
+            for (SmEdgeuse* eu : fes)
+                eu->DeleteUVTrimCurve();
+        }
+        SmStatus s = f->CreateUVTrimCurves(a[1] != 0.0 ? TRUE : FALSE, opt ? &uvs : nullptr, opt ? &ors : nullptr,
+                                           g1, g2, g3, g4, g5, g6);
         o.push_back(st(s));
         for (double x : {g1, g2, g3, g4, g5, g6})
             o.push_back(x);

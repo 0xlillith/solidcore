@@ -33,6 +33,8 @@ use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::topology::face::p3;
+use solidcore::topology::edgeuse::p1 as eu1;
+use solidcore::topology::topology_traverser;
 use solidcore::topology::{Brep, FaceId, LoopId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_face_p3::{self as ffi, Op, N_ARGS};
@@ -85,7 +87,13 @@ enum OpIn {
     },
     Degenerate { face: i64, skip_quick: bool, tol: Option<f64> },
     Composites { face: i64 },
-    UvTrim { face: i64, adjust: bool },
+    /// `own_curves`: pass copies of the face's UV trim curves, cleared first.
+    UvTrim {
+        face: i64,
+        adjust: bool,
+        #[serde(default)]
+        own_curves: bool,
+    },
     /// `coincidence`: `None` runs `CoincidenceCheck`.
     Intersect {
         face: i64,
@@ -108,6 +116,10 @@ struct Inputs {
     validate_only: bool,
     #[serde(default)]
     init_gaps: bool,
+    /// For a `Face` B-rep: parameter fractions of the face domain at which an inner
+    /// vertex loop is added (`SmBrep::MakeVertexLoop`); block kind 4.
+    #[serde(default)]
+    vertex_loop: Option<[f64; 2]>,
     #[serde(flatten)]
     op: OpIn,
 }
@@ -127,9 +139,12 @@ fn block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
             v.extend([*t0, *t1]);
         }
         BrepIn::Face { surface, dom } => {
-            v.push(2.0);
+            v.push(if i.vertex_loop.is_some() { 4.0 } else { 2.0 });
             shared::push_surface(&mut v, surface)?;
             v.extend(dom);
+            if let Some(l) = i.vertex_loop {
+                v.extend(l);
+            }
         }
         BrepIn::Network => v.push(3.0),
     }
@@ -218,7 +233,11 @@ fn args(op: &OpIn, b: &Built, loop_of_face: impl Fn(usize) -> Option<usize>) -> 
             0.0,
         ],
         OpIn::Composites { face } => [f(face)?, 0.0, 0.0, 0.0, 0.0, 0.0],
-        OpIn::UvTrim { face, adjust } => [f(face)?, flag(adjust), 0.0, 0.0, 0.0, 0.0],
+        OpIn::UvTrim {
+            face,
+            adjust,
+            own_curves,
+        } => [f(face)?, flag(adjust), flag(own_curves), 0.0, 0.0, 0.0],
         OpIn::Intersect {
             face,
             other,
@@ -332,11 +351,19 @@ fn put_samples(c: &SmCurve, out: &mut Vec<f64>) -> Result<(), SolidError> {
     Ok(())
 }
 
-/// Whether every face has a surface and every edge a curve (the shim's
-/// `geometry_complete`).
-fn geometry_complete(b: &Brep) -> bool {
-    b.faces().iter().all(|(_, f)| f.surface.is_some())
-        && b.edges().iter().all(|(_, e)| e.curve.is_some())
+/// Whether the face has a surface and every edge of its loops a curve (the shim's
+/// `face_geometry_complete`).
+fn face_geometry_complete(b: &Brep, f: FaceId) -> bool {
+    let Ok(face) = b.face(f) else { return false };
+    if face.surface.is_none() {
+        return false;
+    }
+    match topology_traverser::face_edges(b, f) {
+        Ok(es) => es
+            .iter()
+            .all(|&e| b.edge(e).is_ok_and(|e| e.curve.is_some())),
+        Err(_) => false,
+    }
 }
 
 /// The deferral of a geometric op on a B-rep holding a kind the import has only as its
@@ -431,7 +458,10 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
     let k = Kernel::default();
     let f = FaceId::from_index(a[0] as u32);
     let mut out = vec![0.0];
-    if op as i32 >= Op::LoopOrient as i32 && !geometry_complete(&b) {
+    let complete = face_geometry_complete(&b, f)
+        && (!matches!(i.op, OpIn::Intersect { .. })
+            || face_geometry_complete(&b, FaceId::from_index(a[1] as u32)));
+    if op as i32 >= Op::LoopOrient as i32 && !complete {
         out.push(NULL_DEREF);
         return Ok(Output::new().values("out", out));
     }
@@ -517,7 +547,29 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
             Err(code) => out.extend([f64::from(code), 0.0]),
         },
         OpIn::UvTrim { .. } => {
-            match status!(p3::create_uv_trim_curves(&k, &mut b, f, a[1] != 0.0, None)) {
+            // a[2] != 0: the face's own UV trim curves (copies with their edge use's
+            // orientation) are cleared and handed to the call (the shim's UV_TRIM).
+            let mut own: Vec<Option<SmCurve>> = Vec::new();
+            let mut orients = Vec::new();
+            if a[2] != 0.0 {
+                let mut face_eus = Vec::new();
+                for (eu, _) in b.edgeuses().iter() {
+                    if value!(eu1::is_loop_edgeuse(&b, eu)) && value!(eu1::face(&b, eu)) == Some(f) {
+                        face_eus.push(eu);
+                    }
+                }
+                for &eu in &face_eus {
+                    if let Some(c) = value!(eu1::uv_trim_curve_pointer(&b, eu)) {
+                        own.push(Some(c.clone()));
+                        orients.push(value!(eu1::orientation(&b, eu)));
+                    }
+                }
+                for &eu in &face_eus {
+                    value!(eu1::delete_uv_trim_curve(&mut b, eu));
+                }
+            }
+            let opt = (a[2] != 0.0).then_some((&mut own[..], &orients[..]));
+            match status!(p3::create_uv_trim_curves(&k, &mut b, f, a[1] != 0.0, opt)) {
                 Ok(g) => {
                     out.push(0.0);
                     out.extend([
@@ -568,10 +620,13 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
 
 fn gen_op(rng: &mut Rng) -> OpIn {
     let face = rng.below(1 << 20) as i64;
-    let tol = |rng: &mut Rng| match rng.below(4) {
+    let tol = |rng: &mut Rng| match rng.below(8) {
         0 => 0.0,
         1 => 1e-7,
         2 => 1e-3,
+        3 => 1e-12,
+        4 => rng.uniform(1e2, 1e3),
+        5 => 1e3,
         _ => rng.uniform(0.0, 0.5),
     };
     match rng.below(10) {
@@ -604,11 +659,14 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         7 => OpIn::UvTrim {
             face,
             adjust: rng.chance(0.5),
+            own_curves: rng.chance(0.5),
         },
         _ => OpIn::Intersect {
             face,
             other: rng.below(1 << 20) as i64,
-            approx_tol: *rng.choose(&[1e-6, 1e-4, 1e-3, 1e-2]).unwrap_or(&1e-4),
+            approx_tol: *rng
+                .choose(&[1e-12, 1e-8, 1e-6, 1e-4, 1e-3, 1e-2, 1e2, 1e3])
+                .unwrap_or(&1e-4),
             ang_tol_deg: *rng.choose(&[0.5, 5.0, 30.0]).unwrap_or(&5.0),
             coincidence: match rng.below(3) {
                 0 => None,
@@ -634,8 +692,12 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
+        let brep = shared::gen_brep(rng);
+        let vertex_loop = (matches!(brep, BrepIn::Face { .. }) && rng.chance(0.4))
+            .then(|| [rng.uniform(0.1, 0.9), rng.uniform(0.1, 0.9)]);
         let i = Inputs {
-            brep: shared::gen_brep(rng),
+            brep,
+            vertex_loop,
             validate_only: rng.chance(0.1),
             init_gaps: rng.chance(0.3),
             op: gen_op(rng),

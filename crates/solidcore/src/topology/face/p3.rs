@@ -38,9 +38,11 @@
 //!   propagates. `CreateUVTrimCurves` reads the face domain, the surface poles and the
 //!   natural domain before clearing the surface owner, as upstream.
 //! - **`ComputeLoopOrientation`** walks with a copy of the face surface; its last-to-first
-//!   span reads `sVeryFirstUV`, which upstream leaves uninitialised when no sample point
-//!   dropped with a guess (UB-158); the port returns
-//!   [`SolidError::InvalidInput`] there.
+//!   span reads `sVeryFirstUV`, which stays at the `SmVector2d` default
+//!   (`SM_UNDEF_DOUBLE`, `SM_UNDEF_DOUBLE`) when no sample point dropped with a guess;
+//!   the port does the same (defined upstream). A loop use of edge type without edge
+//!   uses reaches `GetLast` of an empty array (UB-158) and returns
+//!   [`SolidError::InvalidInput`].
 //! - **`CreateUVTrimCurves`** takes the optional UV curves and their orientations as one
 //!   argument (upstream requires both or neither). The surface owner is cleared and
 //!   restored around the walk ([`face2::RescueSurfaceOwner`]), also on errors. A chosen
@@ -49,11 +51,14 @@
 //! - **`FaceIntersect`** returns its outputs in [`FaceIntersection`] (the optional ones
 //!   when asked for in [`FaceIntersectOptions`]). Its classifications refer to the
 //!   surface/surface intersection curves by index ([`IntersectObject::Curve`]); with
-//!   `want_cc_curves` those curves are returned. The coincidence solutions of
+//!   `want_cc_curves` (or any classification array) those curves are returned. The coincidence solutions of
 //!   `IsDegenerate` name the curves by a handle carrying their natural interval; the
 //!   objects are then switched to the edges, as upstream. All returned curves are owned
 //!   (upstream hands out deleted ones through `pOptCC3DCrvs` without classification
-//!   arrays, UB-159).
+//!   arrays, UB-159). Outputs are return values, so upstream's quirk that
+//!   `pOptThisCCUVCrvs` / `pOptOtherCCUVCrvs` are never reset (they append to the
+//!   caller's arrays) has no counterpart; in the coincident branch the failing-copy
+//!   path replaces all four vectors with the intersector's.
 //! - **`Notify`** takes the face surface's trimmed surface cache (if any) for
 //!   `SM_NO_PRE_EDIT` (`SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, ..)` has no counterpart:
 //!   B-rep surfaces carry no object cache) and the notification state of
@@ -87,7 +92,7 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::query::face::p2 as qf2;
-use crate::surface::surface::p2::TsectCurveType;
+use crate::surface::surface::p2::{smos_max, TsectCurveType};
 use crate::surface::surface::p4::NoObject;
 use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::Surface;
@@ -538,8 +543,8 @@ const NUM_SAMPLES: u32 = 20;
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for missing
-/// topology, a face without surface, an edge loop without edge uses or the
-/// uninitialised first UV point (see the module docs); those of the surface copy,
+/// topology, a face without surface, an edge loop without edge uses
+/// (upstream reads an empty array, UB-158); those of the surface copy,
 /// evaluations and solves; [`SolidError::Unported`] (`SmEdgeuse::NormalizedEvaluate`,
 /// `GetOrCreateUVTrimCurve`).
 #[allow(clippy::too_many_lines)] // one upstream routine
@@ -672,7 +677,9 @@ pub fn compute_loop_orientation(
     }
 
     let mut total_area = 0.0;
-    let mut very_first_uv: Option<Point2> = None;
+    // `SmPoint2d sVeryFirstUV;` default-constructs to (SM_UNDEF_DOUBLE, SM_UNDEF_DOUBLE).
+    let mut very_first_uv = Point2::UNDEF;
+    let mut first_uv_set = false;
     let mut param_shift = Vec2::new(0.0, 0.0);
 
     let closed_u = surf_copy
@@ -703,8 +710,9 @@ pub fn compute_loop_orientation(
 
             // when there is a solution
             if drop.success {
-                if very_first_uv.is_none() && have_guess {
-                    very_first_uv = Some(uv1);
+                if !first_uv_set && have_guess {
+                    very_first_uv = uv1;
+                    first_uv_set = true;
                 }
                 face2::check_seam_crossing(
                     &mut uv1,
@@ -739,9 +747,6 @@ pub fn compute_loop_orientation(
 
     // Catch the final-point-to-first-point span. The final point will usually be the
     // same as the first point, but could span a pole.
-    let very_first_uv = very_first_uv.ok_or_else(|| {
-        null("ComputeLoopOrientation: first UV point never set (uninitialised upstream)")
-    })?;
     uv2 += param_shift;
     let this_tri_area = uv2.x * very_first_uv.y - uv2.y * very_first_uv.x;
     total_area += this_tri_area;
@@ -896,7 +901,7 @@ fn create_uv_trim_curves_body(
                             .max_dist_to_surf
                             .ok_or_else(|| null("CreateUVTrimCurves: distance not set"))?;
                         mean_cs_gap += d;
-                        max_cs_gap = max_cs_gap.max(d);
+                        max_cs_gap = smos_max(max_cs_gap, d);
                         continue;
                     }
                     found = Some(uv_curve);
@@ -918,8 +923,8 @@ fn create_uv_trim_curves_body(
             let (status, max_dist_to_surf) = get_or_create_uv_trim_curve(k, b, eu)?;
             status?;
 
-            mean_cs_gap += 0.0_f64.max(max_dist_to_surf); // This can come back -1.0.
-            max_cs_gap = max_cs_gap.max(max_dist_to_surf);
+            mean_cs_gap += smos_max(0.0, max_dist_to_surf); // This can come back -1.0.
+            max_cs_gap = smos_max(max_cs_gap, max_dist_to_surf);
         }
 
         for &eu in &edgeuses {
@@ -963,10 +968,11 @@ fn create_uv_trim_curves_body(
                         .ok_or_else(|| null("CreateUVTrimCurves: edge use without edge"))?;
                     let cw_edge = eu1::edge(b, cw)?
                         .ok_or_else(|| null("CreateUVTrimCurves: edge use without edge"))?;
-                    let tol_3d = brep_tolerance(b, f)?
-                        .max(b.vertex(v)?.tolerance)
-                        .max(b.edge(eu_edge)?.tolerance)
-                        .max(b.edge(cw_edge)?.tolerance);
+                    // smos_4Max(a, b, c, d) = smos_Max(smos_Max(a, b), smos_Max(c, d))
+                    let tol_3d = smos_max(
+                        smos_max(brep_tolerance(b, f)?, b.vertex(v)?.tolerance),
+                        smos_max(b.edge(eu_edge)?.tolerance, b.edge(cw_edge)?.tolerance),
+                    );
 
                     // status ignored upstream
                     let fixed = ignored(face2::fix_uv_trim_curves(
@@ -993,9 +999,9 @@ fn create_uv_trim_curves_body(
             let gap_3d = pnt_3d0.distance(b.vertex(v)?.point);
 
             mean_cc_gap += if gap_at_pole { 0.0 } else { uv_gap_size };
-            max_cc_gap = max_cc_gap.max(uv_gap_size);
+            max_cc_gap = smos_max(max_cc_gap, uv_gap_size);
             mean_3d_gap += gap_3d;
-            max_3d_gap = max_3d_gap.max(gap_3d);
+            max_3d_gap = smos_max(max_3d_gap, gap_3d);
 
             if adjust_tolerances && b.vertex(v)?.tolerance < 2.0 * gap_3d {
                 vertex::set_tolerance(b, v, 2.0 * gap_3d, true, true)?;
@@ -1357,7 +1363,9 @@ pub struct FaceIntersectOptions {
     pub want_this_classes: bool,
     /// `pOptOtherCrvClasses`.
     pub want_other_classes: bool,
-    /// `pOptCC3DCrvs`, `pOptThisCCUVCrvs`, `pOptOtherCCUVCrvs`.
+    /// `pOptCC3DCrvs`, `pOptThisCCUVCrvs`, `pOptOtherCCUVCrvs`. The curves are returned
+    /// also when either classification array is requested (the classifications index
+    /// them).
     pub want_cc_curves: bool,
     /// `pbOptCoincidenceFlag`: whether the surfaces are known to be coincident (`None`:
     /// run the coincidence check).
@@ -1455,7 +1463,7 @@ pub fn face_intersect(
     let ang_tol_rad = crv_ang_tol_deg * PI / 180.0;
     let other_zone_tol = face2::tolerance(b, other)?;
     let this_zone_tol = face2::tolerance(b, f)?;
-    let zone_tol = this_zone_tol.max(other_zone_tol);
+    let zone_tol = smos_max(this_zone_tol, other_zone_tol);
 
     let mut curves_3d: Vec<Curve> = Vec::new();
     let mut uv_curves1: Vec<Option<Curve>> = Vec::new();
@@ -1591,7 +1599,10 @@ pub fn face_intersect(
         }
     }
 
-    if options.want_cc_curves {
+    // The classifications refer to these curves by index, so they are returned whenever
+    // classifications are requested too (upstream keeps them alive through the
+    // classifications; `pOptCC3DCrvs` is then only the caller's cleanup list).
+    if options.want_cc_curves || options.want_this_classes || options.want_other_classes {
         out.cc_curves_3d = Some(curves_3d);
         out.cc_this_uv_curves = Some(uv_curves1);
         out.cc_other_uv_curves = Some(uv_curves2);
