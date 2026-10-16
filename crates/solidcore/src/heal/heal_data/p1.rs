@@ -727,8 +727,8 @@ impl<O: LoopObject> HealData<O> {
     /// # Errors
     ///
     /// [`SolidError::InvalidInput`] for a target props without a face (upstream
-    /// dereferences null); [`SolidError::Unported`] for `SmFace::CreateUVTrimCurves`
-    /// (`topology.face_p3`).
+    /// dereferences null); those of `SmFace::CreateUVTrimCurves`
+    /// (`topology::face::p3::create_uv_trim_curves`) except `SmStatus` failures, which are ignored.
     pub fn make_uv_trim_curves(
         &self,
         k: &Kernel,
@@ -974,14 +974,10 @@ mod tests {
         for (i, &id) in h.tgt_face_props.clone().iter().enumerate() {
             h.face_props.props_mut(id).unwrap().props.face = Some(FaceId::from_index(i as u32));
         }
-        // `CreateUVTrimCurves` is called for every target face (here dangling ids, so
-        // each call fails); its status is ignored, as a WARN upstream
+        // `CreateUVTrimCurves` is called for every target face; a dangling face id
+        // propagates (only the SmStatus failures are ignored)
         let r = h.make_uv_trim_curves(&k, &mut b, true, HealerOpType::MakeUvtrimcurves);
-        assert!(r.is_ok());
-        assert!(matches!(
-            face_create_uv_trim_curves(&k, &mut b, FaceId::from_index(0)),
-            Err(SolidError::NotFound { .. })
-        ));
+        assert!(matches!(r, Err(SolidError::NotFound { .. })), "{r:?}");
     }
 
     #[test]
