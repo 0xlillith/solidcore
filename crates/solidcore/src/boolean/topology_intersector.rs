@@ -5,12 +5,14 @@
 //! Upstream: `source/SMLib/src/SmTopologyIntersector.cpp`,
 //! `source/SMLib/inc/SmTopologyIntersector.h`. The file is split over several plan
 //! units (`boolean.topology_intersector_p1`, `_p2`, `_p3`); each lives in its own
-//! submodule and adds methods to the types of [`p1`].
+//! submodule and adds methods to the types of [`p1`]. The minimal bidirectional mate
+//! storage over typed ids ([`MateMap`], [`Relations`]) was co-ported by
+//! `boolean.merge_p1` and lives in [`p1`] too.
 
 pub mod p1;
 
 pub use p1::{
     EdgeFaceIntersect, ExistingSsi, FaceFaceCoincidence, FaceFaceIntersect, ImprintFace,
-    IntersectionResults, IntersectionTable, IntersectorBrep, Reason, SplitTwoEdges,
-    TopologyIntersector, VertexFaceIntersect,
+    IntersectionResults, IntersectionTable, IntersectorBrep, MateMap, Reason, Relations,
+    SplitTwoEdges, TopologyIntersector, VertexFaceIntersect,
 };
