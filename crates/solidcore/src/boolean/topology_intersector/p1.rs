@@ -88,11 +88,11 @@
 //!   `SmFace::FaceIntersect` / `SetTolerance` (`topology.face_p3`),
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
 //!   `SmFace::CalculateBoundingBox` / `Point3DClassify` (`query.face_p1`),
-//!   the `SmCurveClassification` constructor (`intersect.curve_class_p4`) and
-//!   `InsertTopologyIntersections` (`intersect.curve_class_p5`). The code after a
-//!   stub is ported in full. `SmSurface::GlobalCurveIntersect` / `CoincidenceCheck`
-//!   (`surface.surface_p8`) and `SmCurveClassification::Homogenize`
-//!   (`intersect.curve_class_p6`) are the ported calls.
+//!   and the `SmCurveClassification` constructor (`intersect.curve_class_p4`). The
+//!   code after a stub is ported in full. `SmSurface::GlobalCurveIntersect` /
+//!   `CoincidenceCheck` (`surface.surface_p8`), `SmCurveClassification::Homogenize`
+//!   (`intersect.curve_class_p6`) and `InsertTopologyIntersections`
+//!   (`intersect.curve_class_p5`) are the ported calls.
 //! - **Undefined behaviour upstream** (a null object dereferenced, a solution without
 //!   objects, the maps of an intersector made with the context-only constructor) is
 //!   [`SolidError::InvalidInput`].
@@ -556,16 +556,15 @@ fn new_curve_classification<O>(
     ))
 }
 
-/// `SmCurveClassification::InsertTopologyIntersections(solutions, 0)`.
-fn cc_insert_topology_intersections<O>(
-    _cc: &mut CurveClassification<O>,
-    _solutions: &SolutionArray<O>,
+/// `SmCurveClassification::InsertTopologyIntersections(solutions, 0)` (unit
+/// `intersect.curve_class_p5`).
+fn cc_insert_topology_intersections<O: ClassObject + SolutionObject>(
+    k: &Kernel,
+    geometry: &impl IntersectorBrep<O>,
+    cc: &mut CurveClassification<O>,
+    solutions: &SolutionArray<O>,
 ) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::InsertTopologyIntersections
-    Err(SolidError::unported(
-        "SmCurveClassification::InsertTopologyIntersections",
-        "intersect.curve_class_p5",
-    ))
+    cc.insert_topology_intersections(k, geometry, solutions.as_slice(), 0)
 }
 
 /// `SmCurveClassification::Homogenize(other)` (unit `intersect.curve_class_p6`).
@@ -3117,6 +3116,8 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
 
         // Add curve/Brep intersections to CrvClass2.
         if ignore_soft(cc_insert_topology_intersections(
+            k,
+            geometry,
             &mut crv_class2,
             &solutions,
         ))?

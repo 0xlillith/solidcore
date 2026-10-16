@@ -5583,9 +5583,12 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 
-Builds on #121 (`topology.proto_topology_p3`, merged as-is). 819 cases (4 upstream-derived
-fixtures, 15 edge cases built in code, 800 generated two-B-rep scripts): 679 pass bit for
-bit (`max_rel_err 0`), 0 fail, 140 deferred; `--perturb` SENSITIVE 679/679.
+Builds on #121 (`topology.proto_topology_p3`) and #150 (`intersect.curve_class_p5`), both
+merged as-is. After the maintainer review (follow-up below): 827 cases (8 upstream-derived
+fixtures, 19 edge cases built in code, 800 generated two-B-rep scripts): 642 pass bit for
+bit (`max_rel_err 0`), 0 fail, 185 deferred, 0 cases where both sides reject the script;
+`--perturb` SENSITIVE 642/642. (Before the review: 819 cases, 679 "passes" of which 211
+compared nothing, 140 deferred.)
 
 - **Scripts on two real B-reps.** The shim builds the primary and the other `SmBrep` with
   the `sc_topology_fixture.h` blocks (`.smb` files, a wire edge, a face from a surface, the
@@ -5677,8 +5680,9 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   (the record ends with `-4 index`), the fixtures and built-in cases put each mutating
   op last (one per case), and the generator only draws kinds that exist (no faces on
   wire / network B-reps, registered curves only after a `register_ssi`). `Relate`
-  outputs the two objects' tolerances. `cases_both_errored` is now RESULT_BOTH_ERRORED
-  (RESULT_SUMMARY).
+  outputs the two objects' tolerances. `cases_both_errored` is now 0 (was 211 of 679
+  passes); `PARTIAL boolean.topology_intersector_p1 cases=827 passed=642 failed=0 deferred=185 max_rel_err=0e0 blocked_by=query.face_p1(5),topology.brep_p1(79),topology.face_p2(89),topology.face_p4(12)`, `SENSITIVE boolean.topology_intersector_p1 perturbed=642 detected=642 unperturbed=0 deferred=185`. Ops with zero passing cases: `shell_verts`
+  and `wire_lamina` (every case reaches `SmBrep::GetEdges` / `GetVertices`, `topology.brep_p1`).
 - **Port fixes.** `update_classifications_after_split` classifies with
   `m_dThisApproxTol3d` (was `0.0`); `face_face_intersect` takes its face lists by
   reference and never writes them back; the statuses upstream ignores go through
@@ -5703,6 +5707,12 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `CoincidenceCheck` (`surface.surface_p8`, now partial) and
   `SmCurveClassification::Homogenize` (`intersect.curve_class_p6`, now partial) are
   real calls; the deferrals they caused now come from their own unported callees.
+- **`intersect.curve_class_p5` (#150, merged).** `InsertTopologyIntersections` is a
+  real call now. The `UNPORTED(boolean.topology_intersector_p1)` marker #150 left in
+  `SetPointClassParameters` is not a mate lookup this unit can supply: it guards part
+  5's own unported SSS block (`SmCurveClass.cpp:14826-15095`, knot snapping, surface
+  solves, through-point edits), whose mate lookups come last; it is relabelled as part
+  5's own deferral (`intersect.curve_class_p5`) so the counts stay truthful.
 - **Back-edge wired.** `proto_topology::p3::glue_coincident_brep_vertices` takes the
   intersector's `GetOtherMate` as a closure (`ti_get_other_mate` stub removed); the
   intersector passes its mate map, the proto-topology runner passes "no mates" (its

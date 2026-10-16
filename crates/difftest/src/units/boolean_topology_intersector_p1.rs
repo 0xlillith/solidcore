@@ -699,9 +699,27 @@ struct Objs<'a> {
     b: i8,
 }
 
+impl ClassGeometry<H> for Objs<'_> {
+    fn curve(&self, o: H) -> Option<&SmCurve> {
+        ClassGeometry::curve(self.two, o)
+    }
+    fn surface(&self, o: H) -> Option<&Surface> {
+        ClassGeometry::surface(self.two, o)
+    }
+    fn volume(&self, o: H) -> Option<&Volume> {
+        ClassGeometry::volume(self.two, o)
+    }
+    fn point(&self, o: H) -> Option<Point3> {
+        ClassGeometry::point(self.two, o)
+    }
+}
+
 impl CurveOnClassifyObjects<H> for Objs<'_> {
     fn face(&self, f: FaceId) -> H {
         hd(self.b, K_FACE, f.index())
+    }
+    fn vertex(&self, v: VertexId) -> H {
+        hd(self.b, K_VERTEX, v.index())
     }
     fn surface(&self, f: FaceId) -> Option<H> {
         self.two.face_surface_h(hd(self.b, K_FACE, f.index())).flatten()
