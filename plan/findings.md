@@ -5041,7 +5041,9 @@ backtrace was not obtained. No reader semantics, fixtures or tolerances were
 changed to hide these platform differences. Full certification of the project
 suite still requires the supported GNU C++/libstdc++ CI environment.
 
-The two harness units changed for Clang compatibility pass independently:
+Local validation used separate Clang compatibility patches; those patches are
+excluded from this unit PR after scope review and preserved at `d8d20ff1` on
+`support/apple-clang-harness`. The two affected harness units passed independently:
 `geom.geom_utility_p1` 4185/4185 and `curve.projected_curve` 2727/2727, both
 bit-identical. `surface.cone_p3` passes 1187 cases with 121 dependency deferrals;
 a 10108-case stress run has 9048 passes, 1060 dependency deferrals and zero
@@ -5075,8 +5077,9 @@ positive, negative and system-default tolerances (320 calls). Fourteen construct
 boundary probes exercise zero/negative radii and heights, tiny height, zero,
 reversed and oversized sweeps, zero axes and scaled axes. Malformed/nonfinite
 record checks remain FFI contract tests rather than artificial difftest passes.
-CI now explicitly runs all `solidcore-ffi` tests with `cpp`, serially; the default
-workspace tests do not enable this feature.
+All `solidcore-ffi` tests were run locally with `cpp`, serially; the default
+workspace tests do not enable this feature. The proposed CI step was removed
+after scope review: this port PR leaves repository workflows unchanged.
 
 The resource audit of `surface/cone/p3.rs` found no link-following walks, recursion,
 file readers, input-declared allocation sizes, or numeric convergence loops. Its
@@ -5099,3 +5102,26 @@ All 32 new tolerance fixtures compare actual returned geometry/classifications
 rather than synthetic errors (`cases_both_errored = 0` for the complete report).
 All 33 native FFI tests, formatting, and strict workspace Clippy with the C++
 feature pass after the review changes and merge of official main `04a2b106`.
+
+### PR #131 contribution scope
+
+The repository contribution guide requires one PR per port unit. Scope review
+removed the proposed CI workflow step and the three shared Apple Clang/runtime
+fixes from this PR; existing native safety tests remain in the unit's FFI module.
+The platform patches are preserved in commit `d8d20ff1` on the local
+`support/apple-clang-harness` branch for separate submission. This PR has no CI
+workflow or unrelated-unit shim/build-script delta against official main.
+
+The recorded Mac native runs used those platform patches as build prerequisites.
+They do not certify a clean upstream harness build on macOS. The supported
+Linux/GNU full gate still requires maintainer approval for the fork workflow.
+
+Independent read-only subagent review found no confirmed numerical or safety
+defect in the cone implementation. Its 384 extra horizontal-cut cases at
+radii/heights `1e-12..1e12`, with default/zero/negative/large tolerances, produced
+294 full curve comparisons and 90 matching constructor-status results, zero
+mismatches and zero deferrals. Those exploratory checks used existing compiled
+artifacts; they do not replace the committed report or certify the scoped head's
+clean native build. The review confirmed the documented deferred/uncovered paths
+and recommended the CI/platform scope separation above. Formatting and strict
+plain workspace Clippy pass after that separation.

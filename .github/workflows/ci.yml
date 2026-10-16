@@ -130,11 +130,6 @@ jobs:
         if: steps.green.outputs.any == 'true'
         run: cargo clippy --workspace --all-targets --features difftest/cpp -- -D warnings
 
-      # Default workspace tests omit cpp, so native guards need their own run.
-      - name: Native FFI safety tests
-        if: steps.green.outputs.any == 'true'
-        run: cargo test -p solidcore-ffi --features cpp -- --test-threads=1
-
       - name: Difftest green units
         if: steps.green.outputs.any == 'true'
         # Optimised profile (Cargo.toml [profile.difftest]): identical results, about 20x

@@ -172,8 +172,7 @@ fn main() {
     for l in cfg.syslibs.as_deref().unwrap_or(&[]) {
         println!("cargo:rustc-link-lib=dylib={l}");
     }
-    // cc::Build already selects and emits the compiler's C++ runtime (libc++
-    // on Apple targets, libstdc++ on GNU targets). Do not add a second runtime.
+    println!("cargo:rustc-link-lib=dylib=stdc++");
     println!("cargo:rustc-link-lib=dylib=m");
 }
 

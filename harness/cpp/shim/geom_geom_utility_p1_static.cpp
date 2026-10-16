@@ -2,115 +2,29 @@
 // difftest shim for unit `geom.geom_utility_p1`: the file-static helpers sm_AddPoint and
 // sm_AddClosestPoint of upstream source/SMLib/src/SmGeomUtility.cpp.
 //
-// File-static helpers cannot be linked against. Copy only the two helpers,
-// verbatim from pinned c9c5979 SmGeomUtility.cpp:151-248. Compiling the whole
-// source in a namespace makes its class forward declarations ill-formed in Clang.
+// Static functions cannot be linked against, so this translation unit compiles the
+// upstream source file itself inside the namespace sc_gu_p1_tu (same flags as the
+// kernel). Everything SmGeomUtility.cpp includes is included first, at global scope,
+// except SmGeomUtility.h, so the smgu_* declarations and definitions all land in the
+// namespace and do not clash with the library's global symbols. Only the two static
+// helpers are used from the copy; every other smgu_* entry point is called in the
+// library through geom_geom_utility_p1.cpp.
 #include "sc_shim.h"
+
 #include "StdAfx.h"
+#include <SmAxis2Placement.h>
+#include <SmContext.h>
+#include <SmExtent1d.h>
+#include <SmMatrix.h>
+#include <SmPolynomial.h>
+#include <SmTArray.h>
 #include <SmVector3d.h>
 
-namespace sc_gu_p1_tu {
-// SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
-static SmStatus sm_AddPoint
-  (      ULONG     & rlNum,      // i/o: number of points in array
-         SmPoint3d   aPoints[2], // i/o: array of distinct points
-         double      dTol,       // in : min distance between distinct points
-   const SmPoint3d & crPnt)      // in : target point to check
+namespace sc_gu_p1_tu
 {
-  // for every point
-  double dTol2 = dTol*dTol;
-  for (ULONG i=0; i<rlNum; i++)
-    {
-      // quit if a point within tolerance is already on the list
-      if( crPnt.DistanceBetweenSquared(aPoints[i]) < dTol2)
-          return SM_SUCCESS;
-    }
-
-  // error - trying to add more than 2 points to the list
-  if (rlNum > 1)
-    { SER(SM_ERR); }
-
-  // add the point
-  aPoints[rlNum] = crPnt;
-  rlNum++;
-
-  // all done
-  return SM_SUCCESS;
-
-} // end sm_AddPoint
-
-/*******************************************************************//**
-PURPOSE: Internal helper function for smgu_SegmentSegmentClosestPoint.
-
-NOTES: Add points to the closest point list.
-***********************************************************************/
-
-static SmStatus sm_AddClosestPoint
-  (double dDist,
-   double dParam1,
-   double dParam2,
-   double dTolerance,
-   ULONG & rlNumClosestPoints,
-   double adParamSeg1[2],
-   double adParamSeg2[2],
-   double adDistances[2])
-
-{
-    if (rlNumClosestPoints == 0) {
-        adParamSeg1[0] = dParam1;
-        adParamSeg2[0] = dParam2;
-        adDistances[0] = dDist;
-        rlNumClosestPoints = 1;
-        return SM_SUCCESS;
-    }
-    if (dDist > adDistances[rlNumClosestPoints-1]+dTolerance) {
-        return SM_SUCCESS;  // Too big of a distance skip it
-    }
-
-    if (dDist >= adDistances[rlNumClosestPoints-1]) {
-        // Just off the end either skip it or add to second slot.
-        if (rlNumClosestPoints == 1) {
-            adParamSeg1[1] = dParam1;
-            adParamSeg2[1] = dParam2;
-            adDistances[1] = dDist;
-            rlNumClosestPoints ++;
-        }
-        return SM_SUCCESS;
-    }
-
-    // Must be TRUE if (dDist < adDistances[rlNumClosestPoints-1])
-
-    if (dDist < adDistances[0]-dTolerance) {
-        // Totally new one
-        adParamSeg1[0] = dParam1;
-        adParamSeg2[0] = dParam2;
-        adDistances[0] = dDist;
-        rlNumClosestPoints = 1;
-        return SM_SUCCESS;
-    }
-
-    if (dDist > adDistances[0]) {
-        // Must fall between 0 and 1
-        adParamSeg1[1] = dParam1;
-        adParamSeg2[1] = dParam2;
-        adDistances[1] = dDist;
-        rlNumClosestPoints = 2;
-        return SM_SUCCESS;
-    }
-
-    // Final case is where we make 2 from 1
-    rlNumClosestPoints = 2;
-    adParamSeg1[1] = adParamSeg1[0];
-    adParamSeg2[1] = adParamSeg2[0];
-    adDistances[1] = adDistances[0];
-    adParamSeg1[0] = dParam1;
-    adParamSeg2[0] = dParam2;
-    adDistances[0] = dDist;
-
-    return SM_SUCCESS;
-
-} // end sm_AddClosestPoint
+// SmGeomUtility.h forward-declares `class SmMatrix;`; make that name the global class.
+using ::SmMatrix;
+#include "../../../upstream/source/SMLib/src/SmGeomUtility.cpp"
 } // namespace sc_gu_p1_tu
 
 // sm_AddPoint(rlNum, aPoints, dTol, crPnt). io = [n, p0(3), p1(3)] in and out
