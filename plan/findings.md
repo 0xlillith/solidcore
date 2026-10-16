@@ -5054,6 +5054,8 @@ Two unfinished callees are isolated in `surface/cone/p3.rs`:
 - `ellipse_trim_intervals`: wire to `surface.cone_p2`'s
   `sm_GetEllipseTrimIntervals` when PR #71 lands. This enables oblique elliptical
   plane sections and the trimmed ellipses of intersecting equal-radius cylinders.
+  PR #71 currently takes `&Ellipse`, while this stub retains raw center/axes/radii;
+  whichever PR lands second must adapt the signature and rerun cone part 3.
 - `boundary_intersections`: wire to `surface.surface_p11`'s
   `SmSurface::IntersectSurfaceBoundaries` for coincident cylinders. The owned
   caller already retains upstream's second-call status overwrite, duplicate
@@ -5183,3 +5185,38 @@ artifacts; they do not replace the committed report or certify the scoped head's
 clean native build. The review confirmed the documented deferred/uncovered paths
 and recommended the CI/platform scope separation above. Formatting and strict
 plain workspace Clippy pass after that separation.
+
+### PR #131 maintainer review follow-up
+
+[Review 5543522828](https://github.com/bherbruck/solidcore/pull/131#pullrequestreview-5543522828)
+reported 1308 cone cases (1187 bit-identical passes, 121 dependency deferrals),
+181 units with zero failures in the maintainer's full GNU run, and 212 extra
+adversarial cases (174 exact comparisons, 31 deferrals, seven guarded refusals,
+zero mismatches). These are the reviewer's results for the prior numerical
+revision, not certification of later edits or the latest CI run.
+
+1. Workflow and build-script changes were already removed at `20189dd0` and
+   remain absent. The maintainer explicitly reserves those changes for a separate
+   maintainer PR.
+2. The optional-tolerance null dereference is now UB-123 under Crash / undefined
+   behaviour, with standard How found / Confirmed fields. It remains source-found
+   and unconfirmed by execution of undefined behaviour.
+3. The SSI corpus builder's missing cone/cylinder variants now name
+   `surface.surface_p2`, matching the adjacent torus dispatch gap. A focused
+   regression checks both owners without counting them as numerical passes.
+4. Coincident-boundary deduplication checks both result bundles' UV, type and
+   deviation vector lengths against their 3D curves before removing anything.
+   The regression covers each vector being shorter/longer in either bundle
+   (16 malformed combinations), returning `SolidError::sm_err(OP)`.
+5. The general callback's result replaces the analytic result, matching
+   `SmSurfaceIntersector::DoIntersection` resetting all outputs. No currently
+   compared path returns analytic curves and also requests general intersection.
+6. The module Deviations now state that start-plane transform failures propagate
+   in Rust, while native STEPInversion initializes EXTERIOR before that transform
+   and its cone caller skips the failed point. This is the reviewer's permitted
+   documentation option, not a newly claimed parity fix.
+
+After merging official main `7962b462`, all 1192 kernel tests pass, including the
+new malformed-boundary regression. Formatting, strict plain workspace Clippy
+and the wasm32 check also pass. Native revalidation uses the separate disposable
+checkout and platform prerequisites described above; they are not submitted.
