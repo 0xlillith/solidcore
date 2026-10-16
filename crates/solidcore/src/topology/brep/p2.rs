@@ -1021,7 +1021,7 @@ pub fn local_curve_sector(
             let uv_guess = hit.uv_param();
             let (_dist, region) =
                 p1::find_sector_of_face(k, b, f, Some(uv_guess), test_pnt, test_dir)?;
-            Ok(Some(region))
+            Ok(region)
         }
         (PointClassType::Edge, Some(EntityRef::Edge(e))) => {
             // when intersecting a wire - the region is just the wire's region
@@ -1107,6 +1107,8 @@ pub fn local_curve_sector(
                             .ok_or(null_deref("face use without face"))?;
                         let (_dist, found) =
                             p1::find_sector_of_face(k, b, f, None, test_pnt, test_dir)?;
+                        // (upstream would vote for a NULL region: a shell without region)
+                        let found = found.ok_or(null_deref("sector shell without region"))?;
                         p1::vote_for_region(&mut regions, &mut votes, found);
                     } else {
                         return Err(SolidError::sm_err(OP));

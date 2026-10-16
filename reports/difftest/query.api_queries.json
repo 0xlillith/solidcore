@@ -840,7 +840,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op9",
@@ -852,7 +852,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op10",
@@ -872,7 +872,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op12",
@@ -894,14 +894,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind4_op14",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#107",
       "values_compared": 0
     },
@@ -1084,7 +1080,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op9",
@@ -1096,7 +1092,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op10",
@@ -1116,7 +1112,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op12",
@@ -1138,14 +1134,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind5_op14",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#130",
       "values_compared": 0
     },
@@ -1320,7 +1312,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op9",
@@ -1332,7 +1324,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op10",
@@ -1352,7 +1344,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op12",
@@ -1374,14 +1366,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind6_op14",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#152",
       "values_compared": 0
     },
@@ -1840,7 +1828,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "upstream_box10_op9",
@@ -1852,7 +1840,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "upstream_box10_op10",
@@ -1864,7 +1852,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "upstream_box10_op12",
@@ -3710,14 +3698,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0006",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337072",
       "values_compared": 0
     },
@@ -3770,14 +3754,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337078",
       "values_compared": 0
     },
@@ -3804,7 +3784,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0015",
@@ -3814,14 +3794,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0016",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337082",
       "values_compared": 0
     },
@@ -3840,7 +3816,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0018",
@@ -4020,7 +3996,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0036",
@@ -4042,14 +4018,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0038",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337104",
       "values_compared": 0
     },
@@ -4132,7 +4104,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0047",
@@ -4184,7 +4156,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0052",
@@ -4228,7 +4200,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0056",
@@ -4284,7 +4256,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -4308,7 +4280,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0064",
@@ -4332,7 +4304,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0066",
@@ -4424,7 +4396,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0075",
@@ -4480,7 +4452,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0081",
@@ -4528,7 +4500,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0086",
@@ -4640,7 +4612,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -4696,7 +4668,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0103",
@@ -4716,7 +4688,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0105",
@@ -4762,14 +4734,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0110",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337176",
       "values_compared": 0
     },
@@ -4822,14 +4790,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0116",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337182",
       "values_compared": 0
     },
@@ -4852,7 +4816,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0119",
@@ -4904,7 +4868,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0124",
@@ -4916,7 +4880,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0125",
@@ -4940,7 +4904,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0127",
@@ -4958,14 +4922,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0129",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337195",
       "values_compared": 0
     },
@@ -4986,14 +4946,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0132",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337198",
       "values_compared": 0
     },
@@ -5036,7 +4992,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0137",
@@ -5076,7 +5032,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0141",
@@ -5148,7 +5104,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0148",
@@ -5266,14 +5222,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0160",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337226",
       "values_compared": 0
     },
@@ -5360,7 +5312,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -5484,7 +5436,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -5550,14 +5502,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0189",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337255",
       "values_compared": 0
     },
@@ -5602,21 +5550,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0194",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337260",
       "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0195",
@@ -5800,7 +5744,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -5844,7 +5788,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0217",
@@ -5872,7 +5816,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0220",
@@ -5956,7 +5900,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0228",
@@ -5996,7 +5940,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0232",
@@ -6072,7 +6016,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0240",
@@ -6112,7 +6056,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0244",
@@ -6236,7 +6180,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0257",
@@ -6396,7 +6340,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0273",
@@ -6548,7 +6492,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0288",
@@ -6568,7 +6512,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -6680,7 +6624,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0300",
@@ -6716,7 +6660,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0303",
@@ -6760,7 +6704,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0307",
@@ -6796,7 +6740,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0310",
@@ -6976,7 +6920,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0327",
@@ -7072,7 +7016,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0336",
@@ -7082,14 +7026,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0337",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337403",
       "values_compared": 0
     },
@@ -7128,7 +7068,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -7256,7 +7196,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0353",
@@ -7312,7 +7252,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0359",
@@ -7366,14 +7306,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337431",
       "values_compared": 0
     },
@@ -7400,7 +7336,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0368",
@@ -7444,7 +7380,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0372",
@@ -7496,7 +7432,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0377",
@@ -7524,7 +7460,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0380",
@@ -7548,7 +7484,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0382",
@@ -7672,7 +7608,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0395",
@@ -7722,14 +7658,10 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0401",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337467",
       "values_compared": 0
     },
@@ -7748,7 +7680,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0403",
@@ -7768,7 +7700,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0405",
@@ -7808,7 +7740,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0409",
@@ -7820,7 +7752,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0410",
@@ -7840,7 +7772,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0412",
@@ -7864,7 +7796,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0414",
@@ -7940,7 +7872,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0421",
@@ -7952,7 +7884,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0422",
@@ -7964,7 +7896,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0423",
@@ -8050,21 +7982,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337498",
       "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0433",
@@ -8106,14 +8034,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0437",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337503",
       "values_compared": 0
     },
@@ -8144,7 +8068,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0440",
@@ -8168,7 +8092,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0442",
@@ -8232,7 +8156,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0448",
@@ -8392,7 +8316,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0464",
@@ -8456,7 +8380,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0471",
@@ -8532,7 +8456,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0478",
@@ -8640,7 +8564,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0488",
@@ -8664,7 +8588,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0490",
@@ -8712,7 +8636,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0495",
@@ -8762,26 +8686,18 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0500",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337566",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0501",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337567",
       "values_compared": 0
     },
@@ -8842,14 +8758,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337573",
       "values_compared": 0
     },
@@ -8928,7 +8840,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -8986,21 +8898,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0521",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337587",
       "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0522",
@@ -9242,14 +9150,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337612",
       "values_compared": 0
     },
@@ -9342,14 +9246,10 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0556",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337622",
       "values_compared": 0
     },
@@ -9386,14 +9286,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0560",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337626",
       "values_compared": 0
     },
@@ -9456,7 +9352,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0567",
@@ -9480,7 +9376,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0569",
@@ -9568,7 +9464,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0578",
@@ -9666,14 +9562,10 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0588",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337654",
       "values_compared": 0
     },
@@ -9820,7 +9712,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0603",
@@ -9832,7 +9724,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0604",
@@ -9888,7 +9780,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0610",
@@ -9898,14 +9790,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0611",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337677",
       "values_compared": 0
     },
@@ -9972,7 +9860,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0618",
@@ -10028,7 +9916,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0623",
@@ -10132,7 +10020,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0633",
@@ -10186,14 +10074,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0638",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337704",
       "values_compared": 0
     },
@@ -10208,7 +10092,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0640",
@@ -10342,14 +10226,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0652",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337718",
       "values_compared": 0
     },
@@ -10362,21 +10242,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0654",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337720",
       "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0655",
@@ -10398,14 +10274,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0657",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337723",
       "values_compared": 0
     },
@@ -10444,7 +10316,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0661",
@@ -10494,14 +10366,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0667",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337733",
       "values_compared": 0
     },
@@ -10564,7 +10432,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0673",
@@ -10582,14 +10450,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0675",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337741",
       "values_compared": 0
     },
@@ -10646,14 +10510,10 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0681",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337747",
       "values_compared": 0
     },
@@ -10800,7 +10660,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0696",
@@ -10848,7 +10708,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0701",
@@ -10894,14 +10754,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0706",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337772",
       "values_compared": 0
     },
@@ -10968,7 +10824,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0714",
@@ -10980,7 +10836,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0715",
@@ -11020,7 +10876,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0719",
@@ -11122,14 +10978,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0729",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337795",
       "values_compared": 0
     },
@@ -11154,26 +11006,18 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0732",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337798",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0733",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337799",
       "values_compared": 0
     },
@@ -11284,7 +11128,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0744",
@@ -11308,7 +11152,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0746",
@@ -11332,7 +11176,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0748",
@@ -11358,14 +11202,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0751",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337817",
       "values_compared": 0
     },
@@ -11380,7 +11220,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0753",
@@ -11406,14 +11246,10 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0756",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337822",
       "values_compared": 0
     },
@@ -11504,7 +11340,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -11556,7 +11392,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0771",
@@ -11628,7 +11464,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0778",
@@ -11640,7 +11476,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0779",
@@ -11692,7 +11528,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0784",
@@ -11704,7 +11540,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0785",
@@ -11802,21 +11638,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::IsManifoldSolid",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0795",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337861",
       "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmBrep::GetEdges",
-        "unit": "topology.brep_p1"
+        "unit": "geom.tools"
       },
       "max_rel_err": 0.0,
       "name": "gen0796",
@@ -11828,7 +11660,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "query.api_queries"
       },
       "max_rel_err": 0.0,
       "name": "gen0797",
@@ -11855,17 +11687,17 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 557,
+  "cases_deferred": 515,
   "cases_failed": 0,
-  "cases_passed": 646,
+  "cases_passed": 688,
   "cases_total": 1203,
   "deferred_by_unit": {
+    "geom.tools": 40,
+    "query.api_queries": 74,
     "query.brep": 335,
     "query.face_p1": 12,
     "query.face_p3": 45,
     "surface.surface_p8": 2,
-    "topology.brep_p1": 114,
-    "topology.brep_p2": 42,
     "topology.edgeuse_p3": 7
   },
   "max_rel_err": 0.0,
