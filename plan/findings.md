@@ -5178,6 +5178,38 @@ mutated scales and accepted/reduced step counts are compared.
   whose three unit-test fixes are needed for `cargo test -p solidcore`. Merge #122 first
   (or with this PR) so the CO-PORTED types are not duplicated.
 
+## heal.heal_data_p1 (`SmHealData` entry points and stage 2/3, sheet, trim curve, infinite region steps; `SmApiHealBrep`; PR #109, 2026-10-16; partial, no disagreements)
+
+- **Built on PR #128 (heal.heal_data_p2).** The branch merges #128 (which merges #122,
+  heal.face_props). The p1 steps run as codes `23..=31` of p2's heal scripts (shim
+  `p1_step` in `harness/cpp/shim/heal_heal_data_p2.cpp`, `check_heal`, the p2 runner's
+  `Step`), so the healer state compared after them is p2's full dump plus a stage 2/3
+  face props snapshot (step 31). `SmApiHealBrep` has its own shim
+  (`heal_heal_data_p1.cpp`). Merge #122 and #128 first.
+- **Coverage is limited by stubs in other units, not by this unit.** Most deferrals
+  (219 of 331 at merge time) are `SmFace::GetTolerance` (topology.face_p2): `Cache_FaceProps_Stage2`
+  on a plane face, or a B-spline face whose surface queries take the zone tolerance
+  of the surface's face (`surface::surface::p1::zone_tol_3d`, `surface::plane::p2`
+  `zone_tolerance`). face_p2 is `partial` and its `tolerance` is ported, but those
+  stubs only have the surface, not the B-rep, so they cannot be wired without a
+  surface-to-B-rep accessor; whoever adds one should rewire them. Closed surfaces
+  stop at `SmFace::HasSeamProblem` (topology.face_p4), stage 3 past its op gate at
+  `SmFace::ClassifyLoops` (query.face_p4). Compared for real: `ReSet`,
+  `MoveToNotYetProblems`, stage 2 on non-plane open faces (surf_extrude, surf_rev,
+  surf_sphere150 and generated faces), stage 2/3 below their op gates (the
+  `SM_ERR` paths, where stage 3 lists every face because its counts are still
+  `SM_UNDEF_ULONG`), `Fix_BadSheets` on sheet faces (lamina closure traversals),
+  `Make_UVTrimCurves(FALSE)`, `HealBrep(NULL)`, `SmApiHealBrep(NULL)`.
+- **Props without a face.** Stage 2/3 and `Make_UVTrimCurves(TRUE)` on props that
+  `Cache_FaceProps_Gaps` never set (no upstream caller does this) run `SetProps` on a
+  null face. Upstream either fails the stage (op before `Fix_TolSizes`, a defined path
+  through `SmTol::GetZoneTol3d(NULL)`) or dereferences it. The port returns
+  `InvalidInput` for both and the shim refuses both (`-2`): this one defined path is
+  refused too, deliberately, because the Rust `SmFaceProps::SetProps` takes a face id.
+- **Last-step-only steps.** `ReSet`, `Fix_InfiniteRegion` and `HealBrep` on a B-rep
+  free or rebuild the props the shim's registry tracks by address, so the FFI accepts
+  them only as the last step (as `FreeTargets`).
+
 ## topology.proto_topology_p2 (`SmProtoTopology.cpp` part 2, PR #114, 2026-10-15; partial, no disagreements)
 
 - **B-rep access without UNPORTED stubs into partial units.** The members these functions
@@ -5580,6 +5612,77 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## intersect.curve_class_p5: independent port
+
+Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
+through PR #138 and is inherited from main. Homogenize, FixEndPointClass,
+InsertCurveInterval and MergeInterval now call those real methods; no p6 stubs
+remain. Both proto-topology p3 extraction sites call mutable ExtractGeometry
+with geometry and default optional outputs, discarding temporary curves as native
+does. Their deeper p2/p7 dependencies remain explicit.
+
+Validation on numerical source 9e495b12 uses Ubuntu 24.04.5 x86_64, GCC 13.3.0,
+Rust 1.98.0 and clean pinned upstream c9c5979. All nine affected native runners
+complete with zero failures. P5 has 1,081 cases (281 fixed + 800 generated),
+275 bit-identical comparisons and 806 deferrals: p2 493, p7 312 and generic
+curve.crv_on_surf dispatch 1. Perturbation detects all 275 compared cases.
+Its regenerated report replaces the pre-p6 report. The other eight reports
+(p6, p1, p3, point classification, face query and proto-topology p1/p2/p3)
+regenerate byte-identical and are excluded from this PR's changes.
+
+Formatting, strict plain and native-enabled workspace Clippy, 1,215 kernel
+tests, WASM and the focused native FFI malformed-input regression pass. The
+adapter-only opt-level-0 override reduces build memory; the numerical kernel
+remains opt-level 1 and the C++ reference retains its standard flags. No absolute
+floors, workflow changes or build-script changes are submitted. Full CI evidence
+is tracked in PR #150 separately from these focused runs.
+
+The eight newly compared generated cases are gen0138, gen0288, gen0363, gen0393,
+gen0470, gen0583, gen0665 and gen0741. These passes certify only the exercised
+subset. All 24 zero_tangent fixtures still defer to p2 InsertAt, so they do not
+certify tangent-flag behavior. Fixup and merge comparisons include no-op/skip
+paths; nontrivial extraction, repair and insertion can still defer deeper into
+p2/p7. Both ignore-tangency calls request nonzero tangents as the base declaration
+does. B-spline one-derivative evaluation recursively uses its subclass default
+FALSE; the port preserves that native quirk.
+
+The edge-target insertion branch remains unported: vertex snapping,
+sm_RefineCCIToSurfaces and the 2D class object need p2 InsertAt and p7 point-index
+queries. The entire SSS block (SmCurveClass.cpp:14826-15095) remains unported
+before mutation. Its real missing callees are GetOtherMate/GetBrepMate in
+boolean.topology_intersector_p1; the preceding knot snapping, surface solves,
+through-point edits and edgeuse UV-trim clearing have ported callees but still
+need mutable ownership wiring here. This block does not call
+sm_RefineCCIToSurfaces. The reviewer explicitly accepted this minimum tag and
+description correction. Generic-Surface SmCrvOnSurf construction is a missing
+type/dispatch extension of the already-partial curve unit, recorded in its notes.
+
+Missing vertex-point and vertex/face-gap callback data returns InvalidInput.
+Big-gap lookup requires an explicit classification face or direct face owner of
+the surface. With no face, its cutoff retains the default SmXSectTol3d, twice
+the system zone tolerance. A unit regression checks that selection against the
+ordinary tolerance and changed system tolerance; the attempted geometric probe
+was filtered earlier by GlobalPointSolve. Nonempty large-gap projection remains
+uncertified: the native vertices have no vertexuse and the Rust runner supplies
+no vertex/face-gap callback. Rust continues on an ownerless surface, where native
+crashes (UB-126).
+
+Small shared interfaces are recorded as CO-PORTED in the owning units' notes:
+the three ClassGeometry callbacks and optional topology-tolerance dispatch,
+inline SetInterval and curve-resolver visibility on p1, and face-query vertex
+handle mapping. classification_vertex_point avoids the ProtoBrep method-name
+collision. The header records the object_index > 1 restriction, unresolved-curve
+error in p5_closed instead of native FALSE, and the runner's zero face tolerance
+that is not compared against native.
+
+The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
+UB-125/126 are source-found null dereferences whose crashes were not executed;
+UB-134 was reproduced during the original bundled validation. Its fixture and
+report now point to UB-134. The maintainer has assigned UB-134 to this PR and will
+renumber the parallel claim in #148. No bundled numerical results certify this
+independent tree. The maintainer confirmed all review items resolved before the
+independent p6 integration.
 
 ## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
 
