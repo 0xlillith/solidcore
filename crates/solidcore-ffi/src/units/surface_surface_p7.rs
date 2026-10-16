@@ -9,7 +9,8 @@
 //! boundary curves over a B-spline or plane basis block). A curve block is `dim n p m cpts(x y z w) knots` (an
 //! `SmBSplineCurve(gw_CURVE*, dim, FALSE)`). A domain is `u0 v0 u1 v1`; `ul vl` are the
 //! `bUFromLeft` / `bVFromLeft` flags; `vecs` is `n` then `n` vectors; `tgt` is `has value`
-//! (an optional target distance). Every output starts with the status (`0` =
+//! (an optional target distance). `Gcs` / `Gss` list their first 16 solutions (`nv` at
+//! most 4; `end` only for a range). Every output starts with the status (`0` =
 //! `SM_SUCCESS`, else the `SmStatus`); the rest:
 //!
 //! | [`Op`]         | upstream                                  | parameters after the surface        | outputs |
@@ -29,8 +30,8 @@
 //! | `Flat`         | `GetFlatCorners`                          | `angle want`                        | `flags [P*4]` |
 //! | `Brep`         | `GetBrep() != NULL`                       |                                     | `has` |
 //! | `Gps0`         | `GlobalPointSolve_0`                      | `dom sop P tol tgt req`             | `n` |
-//! | `Gcs`          | `GlobalCurveSolve`                        | `dom curve a b sop tol vecs tgt req`| `n` |
-//! | `Gss`          | `GlobalSurfaceSolve`                      | `dom surface dom2 sop tol vecs tgt req` | `n` |
+//! | `Gcs`          | `GlobalCurveSolve`                        | `dom curve a b sop tol vecs tgt req`| `n [type value nv start[nv] (end[nv])]*` |
+//! | `Gss`          | `GlobalSurfaceSolve`                      | `dom surface dom2 sop tol vecs tgt req` | `n [type value nv start[nv] (end[nv])]*` |
 //! | `Lcs`          | `LocalCurveSolve`                         | `dom curve a b sop tol vecs gu gv gt` | `found [value t u v]` |
 //! | `Proj`         | `CreateParallelProjectionCurves`          | `dom curve V[3] tgt`                | `n3d` |
 //! | `LoadGuesses`  | `sm_LoadGuesses` (verbatim copy)          | `dom P sop`                         | `u v` |
@@ -231,7 +232,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -257,7 +260,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -497,7 +503,13 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             domain_in(&mut rd, Some(d))?;
             let s = sop(
                 &mut rd,
-                &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE, SO_AT_DISTANCE],
+                &[
+                    SO_INTERSECT,
+                    SO_MINIMIZE,
+                    SO_MAXIMIZE,
+                    SO_NORMALIZE,
+                    SO_AT_DISTANCE,
+                ],
             )?;
             rd.vec3()?;
             rd.positive("tolerance")?;
@@ -515,7 +527,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             if x < a || y > b || x >= y {
                 return Err(bad("interval outside the curve's range"));
             }
-            let s = sop(&mut rd, &[SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE, SO_SIGNED_MIN])?;
+            let s = sop(
+                &mut rd,
+                &[SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE, SO_SIGNED_MIN],
+            )?;
             rd.positive("tolerance")?;
             if vectors(&mut rd)? == 0 && s == SO_SIGNED_MIN {
                 return Err(bad("signed directed solve needs a vector"));
@@ -536,11 +551,29 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 .filter(|_| b2)
                 .ok_or_else(|| bad("this op needs a B-spline surface"))?;
             domain_in(&mut rd, Some(d2))?;
-            sop(&mut rd, &[SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE])?;
+            let s = sop(
+                &mut rd,
+                &[
+                    SO_INTERSECT,
+                    SO_MINIMIZE,
+                    SO_MAXIMIZE,
+                    SO_NORMALIZE,
+                    SO_SIGNED_MIN,
+                ],
+            )?;
             rd.positive("tolerance")?;
-            vectors(&mut rd)?;
+            // (the signed directed leaf solves read m_cpOptVectors[0])
+            if vectors(&mut rd)? == 0 && s == SO_SIGNED_MIN {
+                return Err(bad("signed directed solve needs a vector"));
+            }
             target(&mut rd)?;
-            rd.index(1)?;
+            // intersect only for the node pairs (SM_SR_NODES, upstream's SM_ASSERT)
+            let req = rd.index(3)?;
+            if (s == SO_INTERSECT) != (req == 3) {
+                return Err(bad(
+                    "intersect needs SM_SR_NODES, and only intersect may ask for it",
+                ));
+            }
         }
         Op::Proj => {
             let d = bspline_only(dom)?;
@@ -554,7 +587,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         Op::LoadGuesses => {
             domain_in(&mut rd, dom)?;
             rd.vec3()?;
-            sop(&mut rd, &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE])?;
+            sop(
+                &mut rd,
+                &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE],
+            )?;
         }
         Op::PassSc => {
             uv(&mut rd, dom)?;

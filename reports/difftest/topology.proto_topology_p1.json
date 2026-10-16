@@ -3,6 +3,1766 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "review_final_vtx_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_final_vertex.json#0",
+      "values_compared": 920
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_final_vtx_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_final_vertex.json#1",
+      "values_compared": 920
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_final_vtx_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_final_vertex.json#2",
+      "values_compared": 920
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_final_vtx_far",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_final_vertex.json#3",
+      "values_compared": 920
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#0",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#1",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#2",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#3",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#4",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#5",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#6",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#7",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#8",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#9",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#10",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#11",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#12",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#13",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#14",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#15",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#16",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#17",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#18",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#19",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#20",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#21",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#22",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#23",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#24",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#25",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_p3_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#26",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#27",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#28",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#29",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#30",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#31",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#32",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#33",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#34",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#35",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#36",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#37",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#38",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#39",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#40",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#41",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#42",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#43",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#44",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#45",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#46",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#47",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#48",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#49",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#50",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#51",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#52",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_neg_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#53",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#54",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#55",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#56",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#57",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#58",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#59",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#60",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#61",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#62",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#63",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#64",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#65",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#66",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#67",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#68",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#69",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#70",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#71",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#72",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#73",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#74",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#75",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#76",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#77",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#78",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#79",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_zero_tol_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#80",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#81",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#82",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#83",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#84",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#85",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#86",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#87",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#88",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#89",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#90",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#91",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#92",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#93",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#94",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#95",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#96",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#97",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#98",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#99",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#100",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#101",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#102",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#103",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#104",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#105",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#106",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_big_tol_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#107",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#108",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#109",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#110",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#111",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#112",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#113",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#114",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#115",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#116",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#117",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#118",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#119",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#120",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#121",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#122",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#123",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#124",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#125",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#126",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#127",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#128",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#129",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#130",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#131",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#132",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#133",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_huge_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#134",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#135",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#136",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#137",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#138",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#139",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#140",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#141",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#142",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#143",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#144",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#145",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#146",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#147",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#148",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#149",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#150",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#151",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#152",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#153",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#154",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#155",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#156",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#157",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#158",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#159",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#160",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_tiny_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#161",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#162",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#163",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#164",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#165",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#166",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#167",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#168",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#169",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#170",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#171",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#172",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#173",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#174",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#175",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#176",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#177",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#178",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#179",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#180",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#181",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#182",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#183",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#184",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#185",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#186",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#187",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_four_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#188",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_translate_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#189",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_translate_pos",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#190",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_translate_tiny_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#191",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_translate_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#192",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_translate_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#193",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#194",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_near_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#195",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_near_id2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#196",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#197",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#198",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#199",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_tiny2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#200",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#201",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_scale_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#202",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_sbp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#203",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_sbp_nonuni",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#204",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot90",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#205",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#206",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot360",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#207",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#208",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#209",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_rot_huge_deg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#210",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_xf_id",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#211",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_xf_negorigin",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#212",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_xf_flip",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#213",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_xf_nonortho",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#214",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_poly_empty_xf_rot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.proto_topology_p1/review_poly_transform.json#215",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "api_transform_line_segment",
       "outcome": "pass",
       "pass": true,
@@ -110,16 +1870,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "api_translate_poly_brep",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.proto_topology_p1/upstream_api_transforms.json#13 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:638)",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -211,8 +1967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
+        "symbol": "SmFace::GetSurface",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -294,16 +2050,12 @@
       "values_compared": 547
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0021",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558531911",
-      "values_compared": 0
+      "values_compared": 664
     },
     {
       "max_rel_err": 0.0,
@@ -394,16 +2146,12 @@
       "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0033",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558531923",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -431,8 +2179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0037",
@@ -559,19 +2307,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558531941",
-      "values_compared": 1
+      "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0052",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558531942",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -770,16 +2514,12 @@
       "values_compared": 90
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0077",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558531967",
-      "values_compared": 0
+      "values_compared": 154
     },
     {
       "max_rel_err": 0.0,
@@ -1122,16 +2862,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0119",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532009",
-      "values_compared": 0
+      "values_compared": 195
     },
     {
       "max_rel_err": 0.0,
@@ -1362,16 +3098,12 @@
       "values_compared": 114
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0148",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532038",
-      "values_compared": 0
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -1439,8 +3171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetSurface",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0157",
@@ -1683,7 +3415,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532075",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -1727,8 +3459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0191",
@@ -1979,7 +3711,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532111",
-      "values_compared": 1
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -2170,16 +3902,12 @@
       "values_compared": 102
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0244",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532134",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -2434,16 +4162,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0275",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532165",
-      "values_compared": 0
+      "values_compared": 75
     },
     {
       "max_rel_err": 0.0,
@@ -2930,16 +4654,12 @@
       "values_compared": 183
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0335",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532225",
-      "values_compared": 0
+      "values_compared": 121
     },
     {
       "max_rel_err": 0.0,
@@ -3038,16 +4758,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0347",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532237",
-      "values_compared": 0
+      "values_compared": 76
     },
     {
       "max_rel_err": 0.0,
@@ -3342,16 +5058,12 @@
       "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0383",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532273",
-      "values_compared": 0
+      "values_compared": 103
     },
     {
       "max_rel_err": 0.0,
@@ -3487,7 +5199,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532290",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -3534,16 +5246,12 @@
       "values_compared": 81
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0406",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532296",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "deferred": {
@@ -3622,16 +5330,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532306",
-      "values_compared": 0
+      "values_compared": 653
     },
     {
       "max_rel_err": 0.0,
@@ -3650,16 +5354,12 @@
       "values_compared": 153
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0419",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532309",
-      "values_compared": 0
+      "values_compared": 113
     },
     {
       "max_rel_err": 0.0,
@@ -3730,16 +5430,12 @@
       "values_compared": 29
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0428",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532318",
-      "values_compared": 0
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,
@@ -3750,16 +5446,12 @@
       "values_compared": 128
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0430",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532320",
-      "values_compared": 0
+      "values_compared": 201
     },
     {
       "max_rel_err": 0.0,
@@ -3838,16 +5530,12 @@
       "values_compared": 193
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0440",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532330",
-      "values_compared": 0
+      "values_compared": 77
     },
     {
       "max_rel_err": 0.0,
@@ -3890,16 +5578,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0446",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532336",
-      "values_compared": 0
+      "values_compared": 115
     },
     {
       "max_rel_err": 0.0,
@@ -3982,16 +5666,12 @@
       "values_compared": 96
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0457",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532347",
-      "values_compared": 0
+      "values_compared": 149
     },
     {
       "max_rel_err": 0.0,
@@ -4002,16 +5682,12 @@
       "values_compared": 75
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0459",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532349",
-      "values_compared": 0
+      "values_compared": 132
     },
     {
       "max_rel_err": 0.0,
@@ -4186,16 +5862,12 @@
       "values_compared": 39
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0481",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532371",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -4374,16 +6046,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0504",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532394",
-      "values_compared": 0
+      "values_compared": 583
     },
     {
       "max_rel_err": 0.0,
@@ -4402,16 +6070,12 @@
       "values_compared": 100
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532397",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -4754,16 +6418,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0550",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532440",
-      "values_compared": 0
+      "values_compared": 594
     },
     {
       "max_rel_err": 0.0,
@@ -4906,16 +6566,12 @@
       "values_compared": 152
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0568",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532458",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "max_rel_err": 0.0,
@@ -4966,16 +6622,12 @@
       "values_compared": 142
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0575",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532465",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -5178,20 +6830,16 @@
       "values_compared": 27
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0600",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532490",
-      "values_compared": 0
+      "values_compared": 564
     },
     {
       "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
+        "symbol": "SmEdge::GetCurve",
         "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
@@ -5502,16 +7150,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0639",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532529",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -5551,7 +7195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532534",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -5562,16 +7206,12 @@
       "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0646",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532536",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5962,16 +7602,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0695",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532585",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -6046,28 +7682,20 @@
       "values_compared": 529
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0705",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532595",
-      "values_compared": 0
+      "values_compared": 541
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0706",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532596",
-      "values_compared": 0
+      "values_compared": 675
     },
     {
       "max_rel_err": 0.0,
@@ -6087,8 +7715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0709",
@@ -6138,28 +7766,20 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0715",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532605",
-      "values_compared": 0
+      "values_compared": 159
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0716",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532606",
-      "values_compared": 0
+      "values_compared": 501
     },
     {
       "max_rel_err": 0.0,
@@ -6370,16 +7990,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0743",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532633",
-      "values_compared": 0
+      "values_compared": 663
     },
     {
       "deferred": {
@@ -6418,16 +8034,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0748",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532638",
-      "values_compared": 0
+      "values_compared": 612
     },
     {
       "max_rel_err": 0.0,
@@ -6466,16 +8078,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0753",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532643",
-      "values_compared": 0
+      "values_compared": 480
     },
     {
       "max_rel_err": 0.0,
@@ -6643,8 +8251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0774",
@@ -7390,16 +8998,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0864",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532754",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -7434,16 +9038,12 @@
       "values_compared": 485
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::GetVertexuses",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "gen0869",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532759",
-      "values_compared": 0
+      "values_compared": 561
     },
     {
       "max_rel_err": 0.0,
@@ -7454,16 +9054,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0871",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532761",
-      "values_compared": 0
+      "values_compared": 309
     },
     {
       "deferred": {
@@ -7526,16 +9122,12 @@
       "values_compared": 58
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::GetPoint",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "gen0879",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532769",
-      "values_compared": 0
+      "values_compared": 506
     },
     {
       "max_rel_err": 0.0,
@@ -7654,16 +9246,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0894",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532784",
-      "values_compared": 0
+      "values_compared": 133
     },
     {
       "max_rel_err": 0.0,
@@ -7698,16 +9286,12 @@
       "values_compared": 542
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0899",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532789",
-      "values_compared": 0
+      "values_compared": 600
     },
     {
       "max_rel_err": 0.0,
@@ -7726,16 +9310,12 @@
       "values_compared": 162
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0902",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532792",
-      "values_compared": 0
+      "values_compared": 95
     },
     {
       "max_rel_err": 0.0,
@@ -7746,16 +9326,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0904",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532794",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "deferred": {
@@ -7922,16 +9498,12 @@
       "values_compared": 419
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0925",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532815",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -7942,16 +9514,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0927",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532817",
-      "values_compared": 0
+      "values_compared": 80
     },
     {
       "deferred": {
@@ -8271,8 +9839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0966",
@@ -8287,7 +9855,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532857",
-      "values_compared": 1
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -8562,16 +10130,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532891",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -8739,7 +10303,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532912",
-      "values_compared": 1
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -9142,16 +10706,12 @@
       "values_compared": 649
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1071",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532961",
-      "values_compared": 0
+      "values_compared": 106
     },
     {
       "max_rel_err": 0.0,
@@ -9298,16 +10858,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1090",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532980",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
@@ -9322,16 +10878,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1092",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532982",
-      "values_compared": 0
+      "values_compared": 96
     },
     {
       "max_rel_err": 0.0,
@@ -9606,16 +11158,12 @@
       "values_compared": 79
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen1127",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533017",
-      "values_compared": 0
+      "values_compared": 161
     },
     {
       "max_rel_err": 0.0,
@@ -10051,8 +11599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1180",
@@ -10686,16 +12234,12 @@
       "values_compared": 148
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1257",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533147",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -10946,16 +12490,12 @@
       "values_compared": 29
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1288",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533178",
-      "values_compared": 0
+      "values_compared": 523
     },
     {
       "max_rel_err": 0.0,
@@ -11014,16 +12554,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1296",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533186",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -11126,16 +12662,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1309",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533199",
-      "values_compared": 0
+      "values_compared": 202
     },
     {
       "max_rel_err": 0.0,
@@ -11179,8 +12711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmEdge::GetTolerance",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1315",
@@ -11338,16 +12870,12 @@
       "values_compared": 579
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1333",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533223",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -11518,16 +13046,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1354",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533244",
-      "values_compared": 0
+      "values_compared": 112
     },
     {
       "max_rel_err": 0.0,
@@ -11634,16 +13158,12 @@
       "values_compared": 149
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1368",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533258",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -11654,16 +13174,12 @@
       "values_compared": 189
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1370",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533260",
-      "values_compared": 0
+      "values_compared": 608
     },
     {
       "max_rel_err": 0.0,
@@ -12430,16 +13946,12 @@
       "values_compared": 24
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1463",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533353",
-      "values_compared": 0
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -12455,7 +13967,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558533355",
-      "values_compared": 1
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -12714,16 +14226,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1498",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533388",
-      "values_compared": 0
+      "values_compared": 481
     },
     {
       "max_rel_err": 0.0,
@@ -13287,6 +14795,294 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_transform_composite_transform",
       "outcome": "pass",
       "pass": true,
@@ -13431,16 +15227,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 155,
+  "cases_deferred": 92,
   "cases_failed": 0,
-  "cases_passed": 1446,
-  "cases_total": 1601,
+  "cases_passed": 1765,
+  "cases_total": 1857,
   "deferred_by_unit": {
-    "query.poly": 9,
-    "surface.surface_point_solve_p3": 56,
     "topology.brep_p5": 10,
-    "topology.edge": 29,
-    "topology.face_p2": 26,
+    "topology.edge": 28,
+    "topology.face_p2": 29,
     "topology.vertex": 25
   },
   "max_rel_err": 0.0,

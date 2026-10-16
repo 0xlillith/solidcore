@@ -14,7 +14,7 @@
 //! are the op's curve/surfaces). A curve record is `ivl_min ivl_max` and the points at 0, 1/4,
 //! 1/2, 3/4 and 1 of the natural interval. Every output starts with the status (`0` =
 //! `SM_SUCCESS`, else the `SmStatus`; `-3` = a surface or curve the shim could not build);
-//! the rest:
+//! `sm_SCLocalSolve` calls the real shared p5 reference body. Remaining outputs:
 //!
 //! | [`Op`]     | upstream                                   | parameters after the surface | outputs |
 //! |------------|--------------------------------------------|------------------------------|---------|
@@ -191,7 +191,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -217,7 +219,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }

@@ -5,8 +5,9 @@
 //! `source/SMLib/inc/SmSurfaceDropCurve.h` (`SmSurfaceDropCurve`, `sm_TestPoint`, `sm_AddBreak`,
 //! `sm_IsGrazingIntersection`), compiled into the shim.
 //!
-//! [`run`] builds a surface (a real `SmBSplineSurface` or `SmPlane`), a curve (a real `SmLine`
-//! segment or `SmBSplineCurve`), an `SmSurfaceDropCurve` over a domain and a curve interval,
+//! [`run`] builds a surface (a real `SmBSplineSurface`, or an `SmPlane` with its NURB made), a
+//! curve (a real `SmLine` segment or `SmBSplineCurve`), an `SmSurfaceDropCurve` over a domain and
+//! a curve interval,
 //! sets `SetCurveIsOnSurface`, the optional tolerances, working interval, working domain, knot
 //! vector and breaks, runs the [`Op`]s in order and returns the record:
 //!
@@ -547,7 +548,9 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
     let mut state = State {
         knots: prog.knots.as_ref().is_some_and(|k| !k.is_empty()),
         breaks: prog.breaks.is_some(),
-        wi_max: prog.working_interval.map(|[a, b]| if a > b { a } else { b }),
+        wi_max: prog
+            .working_interval
+            .map(|[a, b]| if a > b { a } else { b }),
     };
     for arr in [&prog.knots, &prog.breaks] {
         e.flag(arr.is_some());
