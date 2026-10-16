@@ -5410,3 +5410,81 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
+
+Builds on #121 (`topology.proto_topology_p3`, merged as-is). 819 cases (4 upstream-derived
+fixtures, 15 edge cases built in code, 800 generated two-B-rep scripts): 679 pass bit for
+bit (`max_rel_err 0`), 0 fail, 140 deferred; `--perturb` SENSITIVE 679/679.
+
+- **Scripts on two real B-reps.** The shim builds the primary and the other `SmBrep` with
+  the `sc_topology_fixture.h` blocks (`.smb` files, a wire edge, a face from a surface, the
+  `my_test_topology` network), makes an `SmTopologyIntersector` over them and runs a
+  script of the unit's functions; the Rust side imports both exports into two `Brep`s
+  behind one `IntersectorBrep` adapter. The file-static helpers (`sm_CanImprint`,
+  `sm_FindFirstLowestDimensionSol`, `sm_IntersectShellVertices`,
+  `sm_IntersectWireLaminaEdges`, `sm_SetEdgeClass`, `sm_CheckInteriorEdge`,
+  `sm_TestAndSplitTwoEdges`, `sm_TestAndImprintFace`) are verbatim copies in the shim.
+- **`Relate(pBrepTopo, NULL)` stores the null mate.** `m_pBToO->Insert(obj, NULL)` and
+  `m_pOToB->Insert(NULL, obj)` succeed for a face (vertices and edges fail `NER` first), so
+  `GetBrepMate(NULL)` afterwards returns the face and a second `Relate(face2, NULL)` is
+  `SM_ERR` (`pBrp != pBrepTopo`). The port's maps are `BTreeMap<O, Option<O>>` /
+  `BTreeMap<Option<O>, O>` for that reason (caught by the diff: 2 generated cases).
+- **Hash-order outputs** (plan hazard `ptr-hash`): `GetMappedBrepObjects` lists the
+  values of `m_pOToB` and `GetSubset` the keys of `m_pSubset` in `std::unordered_map`
+  order upstream; the port lists them in handle order and the shim sorts upstream's lists
+  by export handle before comparing (`plan/upstream-issues.md` ND-2). Their consumers
+  (`SmMerge`) are not ported yet.
+- **`CheckIfHaveExistingSSI` re-copies the accumulated lists.** For every matching table
+  entry the function appends that entry's arrays and then copies *every* curve of the
+  accumulated 3D/UV lists again (`for jj in 0..r3DCurves.GetSize()`), so with two matching
+  entries the first entry's copies are copied once more and the originals of those copies
+  leak. Ported as is (the port's copies go to the handle store; the earlier handles stay
+  unreferenced). A 3D curve that is not an `SmBSplineCurve` is `SM_ERR` after the arrays
+  were partly filled; the port returns the error alone.
+- **`UpdateObjectTolerance`** (`SmTol`, left unported by `geom.tol`) is co-ported as
+  `geom::tol::update_object_tolerance` on a concrete `Brep`; its face branch stubs
+  `SmFace::SetTolerance` (`topology.face_p3`) and `SmFace::GetEdges` (`topology.face_p4`).
+  The intersector reaches it through `IntersectorBrep::update_object_tolerance`. Its
+  "nothing to do" status `SM_ERR_INVALID_INPUT` is `SolidError::Upstream { code: 1007 }`
+  (added as `error::SM_ERR_INVALID_INPUT`); callers ignore it, as upstream.
+- **`SmCurveClassification::SetInterval`** (an inline header setter; the only way to set
+  `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`) is added to
+  `intersect::curve_class::p1`. The runner builds `SmCurveClassification(curve, ivl, NULL,
+  tol)` from the port's setters as `ReSet` does (curve, interval, source zone tolerance
+  `SM_UNINIT_TOL` when not positive, one interval over the range with the tolerance on its
+  three classifications).
+- **Deferred (140).** `SmFace::GetTolerance` (67, `topology.face_p2`): `SmSurface::DropPoint`
+  of a face-owned surface takes `SmTol::GetZoneTol3d(surface)`, stubbed in
+  `surface.surface_p5`; so every `sm_TestAndImprintFace` / `VertexFaceIntersect` /
+  `FaceFaceCoincidence` drop on a face defers (a `Surface` cannot reach its face's tolerance
+  without the B-rep). `SmBrep::GetVertices` / `GetEdges` / `GetTolerance` (51,
+  `topology.brep_p1`, open PR #145): the common edge/vertex lists, the shell-vertex and
+  wire/lamina intersections, and a manager made with a zero approximation tolerance.
+  `SmFace::GetVertices` / `GetEdges` (19, `topology.face_p4`, open PR #134):
+  `FaceFaceIntersect` and `FaceFaceCoincidence` with two faces on an edge.
+  `SmFace::CalculateBoundingBox` (2, `query.face_p1`): `EdgeFaceIntersect` with an
+  unconnected face. `SmBrep::MakeVertexSplitEdge` (1, `topology.brep_p9`): a
+  `sm_TestAndSplitTwoEdges` with an interior intersection.
+- **Compared green paths:** the mate maps (`Relate` with its tolerance maximisation and
+  error statuses, `GetOtherMate` / `GetThisMate` / `GetBrepMate` / `IsMatedPair`,
+  `GetMappedBrepObjects`), `SetSubset` / `GetSubset`, both `Fixup*PointClassMates`, the
+  getters/setters of both constructors, the intersection table (`RegisterExistingSSI` from
+  `_p2` on the C++ side, the port's table filled directly; `CheckIfHaveExistingSSI` with
+  copies, the opposing-null entry, `ClearExistingSSI`), `sm_CanImprint`,
+  `sm_FindFirstLowestDimensionSol`, `sm_SetEdgeClass` (trimmed and whole intervals,
+  opposite primary edge uses, drops onto the edge), `sm_CheckInteriorEdge` (parameter and 3D
+  tests, outside the interval), `sm_TestAndSplitTwoEdges` up to its split (no, far and
+  end-point intersections), `sm_TestAndImprintFace` on faces whose surface has no owner,
+  `VertexFaceIntersect` with null entries and empty lists, `EdgeFaceIntersect` for connected
+  faces and empty lists, `FaceFaceIntersect` / `FaceFaceCoincidence` with empty or
+  single-face lists, `ResolveIntersections` / `ImprintIntersections` on an empty manager
+  (including the editing / "doing Boolean" flag changes).
+- **Not in this unit:** `RegisterExistingSSI`, `IntersectInsertRelate`, the constructors
+  (`boolean.topology_intersector_p2`; the two constructors are CO-PORTED here as `new` /
+  `with_context`), `GetMappedOtherObjects`, `CoincidenceNotify`, `AreIntersectionLoopsClosed`,
+  `RemoveRelationship`, the `Draw` / `Dump` utilities.
+- **Back-edges.** `SmTopologyIntersector::GetOtherMate` in `topology::proto_topology::p3`
+  (`ti_get_other_mate`, PR #121) needs the intersector object the manager was made for; the
+  manager holds only its handle (`m_pTI`), so the stub stays until the manager can reach an
+  intersector (noted for `_p2`, whose `IntersectInsertRelate` owns both).

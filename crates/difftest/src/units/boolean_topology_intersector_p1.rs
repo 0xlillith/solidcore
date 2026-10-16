@@ -402,12 +402,45 @@ const K_EDGEUSE: u8 = 10;
 const K_LOOP: u8 = 11;
 
 /// An object handle: the B-rep (`2` for the curve stores, `-1` for the intersector),
-/// the kind and the index. Ordered as the shim sorts (`brep`, `kind`, `index`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+/// the kind and the index. Ordered as the shim sorts (`brep`, `kind`, `index`). A
+/// curve handle also carries its curve's natural interval (what `SmSolutionArray`
+/// reads through `SmCurve::GetNaturalInterval`); it takes no part in identity.
+#[derive(Debug, Clone, Copy)]
 struct H {
     b: i8,
     kind: u8,
     i: u32,
+    ivl: [f64; 2],
+}
+
+impl PartialEq for H {
+    fn eq(&self, o: &Self) -> bool {
+        (self.b, self.kind, self.i) == (o.b, o.kind, o.i)
+    }
+}
+
+impl Eq for H {}
+
+impl PartialOrd for H {
+    fn partial_cmp(&self, o: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(o))
+    }
+}
+
+impl Ord for H {
+    fn cmp(&self, o: &Self) -> std::cmp::Ordering {
+        (self.b, self.kind, self.i).cmp(&(o.b, o.kind, o.i))
+    }
+}
+
+const fn hd(b: i8, kind: u8, i: u32) -> H {
+    H { b, kind, i, ivl: [f64::NAN, f64::NAN] }
+}
+
+/// A curve handle carrying the curve's natural interval.
+fn curve_h(b: i8, kind: u8, i: u32, c: &SmCurve) -> H {
+    let ivl = c.natural_interval();
+    H { b, kind, i, ivl: [ivl.min(), ivl.max()] }
 }
 
 impl ClassObject for H {
@@ -436,12 +469,20 @@ impl SolutionObject for H {
             _ => ObjectKind::Other,
         }
     }
+    fn natural_interval(&self) -> Option<Extent1d> {
+        match self.kind {
+            K_EDGE_CURVE | K_CURVE | K_EXTRA if self.ivl[0].is_finite() => {
+                Some(Extent1d::from_min_max(self.ivl[0], self.ivl[1]))
+            }
+            _ => None,
+        }
+    }
 }
 
-const TI_HANDLE: H = H { b: -1, kind: K_TI, i: 0 };
+const TI_HANDLE: H = hd(-1, K_TI, 0);
 
-fn brep_h(b: i8) -> H {
-    H { b, kind: K_BREP, i: b as u32 }
+const fn brep_h(b: i8) -> H {
+    hd(b, K_BREP, b as u32)
 }
 
 fn put_h(o: &mut Vec<f64>, h: Option<H>) {
@@ -465,11 +506,7 @@ fn triple_to_h(t: Hin) -> Option<H> {
     if t[1] == K_NULL {
         return None;
     }
-    Some(H {
-        b: t[0] as i8,
-        kind: t[1] as u8,
-        i: t[2] as u32,
-    })
+    Some(hd(t[0] as i8, t[1] as u8, t[2] as u32))
 }
 
 // ---- the two B-reps behind the handles --------------------------------------------------
@@ -565,30 +602,22 @@ impl Two {
     fn edge_curve_h(&self, e: H) -> Option<Option<H>> {
         let b = self.brep(e)?;
         let edge = b.edge(eid(e)).ok()?;
-        Some(edge.curve.as_ref().map(|_| H {
-            b: e.b,
-            kind: K_EDGE_CURVE,
-            i: e.i,
-        }))
+        Some(edge.curve.as_ref().map(|c| curve_h(e.b, K_EDGE_CURVE, e.i, c)))
     }
 
     fn face_surface_h(&self, f: H) -> Option<Option<H>> {
         let b = self.brep(f)?;
         let face = b.face(fid(f)).ok()?;
-        Some(face.surface.as_ref().map(|_| H {
-            b: f.b,
-            kind: K_FACE_SURFACE,
-            i: f.i,
-        }))
+        Some(face.surface.as_ref().map(|_| hd(f.b, K_FACE_SURFACE, f.i)))
     }
 
     fn entity_h(&self, b: i8, e: EntityRef) -> Option<H> {
         match e {
-            EntityRef::Vertex(v) => Some(H { b, kind: K_VERTEX, i: v.index() }),
-            EntityRef::Edge(x) => Some(H { b, kind: K_EDGE, i: x.index() }),
-            EntityRef::Face(f) => Some(H { b, kind: K_FACE, i: f.index() }),
-            EntityRef::Loop(l) => Some(H { b, kind: K_LOOP, i: l.index() }),
-            EntityRef::Edgeuse(eu) => Some(H { b, kind: K_EDGEUSE, i: eu.index() }),
+            EntityRef::Vertex(v) => Some(hd(b, K_VERTEX, v.index())),
+            EntityRef::Edge(x) => Some(hd(b, K_EDGE, x.index())),
+            EntityRef::Face(f) => Some(hd(b, K_FACE, f.index())),
+            EntityRef::Loop(l) => Some(hd(b, K_LOOP, l.index())),
+            EntityRef::Edgeuse(eu) => Some(hd(b, K_EDGEUSE, eu.index())),
             _ => None,
         }
     }
@@ -663,12 +692,10 @@ struct Objs<'a> {
 
 impl CurveOnClassifyObjects<H> for Objs<'_> {
     fn face(&self, f: FaceId) -> H {
-        H { b: self.b, kind: K_FACE, i: f.index() }
+        hd(self.b, K_FACE, f.index())
     }
     fn surface(&self, f: FaceId) -> Option<H> {
-        self.two
-            .face_surface_h(H { b: self.b, kind: K_FACE, i: f.index() })
-            .flatten()
+        self.two.face_surface_h(hd(self.b, K_FACE, f.index())).flatten()
     }
     fn curve(&self, curve: H) -> Option<&SmCurve> {
         ClassGeometry::curve(self.two, curve)
@@ -706,11 +733,7 @@ impl ProtoBrep<H> for Two {
     fn edge_edgeuse_of_face(&self, edge: H, face: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(edge)?;
         let face = (face.b == edge.b && face.kind == K_FACE).then(|| fid(face));
-        Ok(ed::edgeuse_of_face(b, eid(edge), face)?.map(|eu| H {
-            b: edge.b,
-            kind: K_EDGEUSE,
-            i: eu.index(),
-        }))
+        Ok(ed::edgeuse_of_face(b, eid(edge), face)?.map(|eu| hd(edge.b, K_EDGEUSE, eu.index())))
     }
     fn edge_is_connected_to_face(&self, edge: H, face: H) -> solidcore::Result<bool> {
         let b = self.brep_r(edge)?;
@@ -718,12 +741,10 @@ impl ProtoBrep<H> for Two {
         ed::is_connected_to_face(b, eid(edge), face)
     }
     fn insert_curve(&mut self, curve: SmCurve) -> Option<H> {
+        let i = u32::try_from(self.extra.len()).ok()?;
+        let hh = curve_h(2, K_EXTRA, i, &curve);
         self.extra.push(curve);
-        Some(H {
-            b: 2,
-            kind: K_EXTRA,
-            i: u32::try_from(self.extra.len() - 1).ok()?,
-        })
+        Some(hh)
     }
     fn vertex_point(&self, vertex: H) -> Option<Point3> {
         vx::point(self.brep(vertex)?, vid(vertex)).ok()
@@ -732,7 +753,7 @@ impl ProtoBrep<H> for Two {
         let b = self.brep_r(edge)?;
         Ok(ed::faces(b, eid(edge), None)?
             .into_iter()
-            .map(|f| H { b: edge.b, kind: K_FACE, i: f.index() })
+            .map(|f| hd(edge.b, K_FACE, f.index()))
             .collect())
     }
     fn vertex_common_edges(&self, v1: H, v2: H) -> solidcore::Result<Vec<H>> {
@@ -740,17 +761,13 @@ impl ProtoBrep<H> for Two {
         let other = (v2.b == v1.b && v2.kind == K_VERTEX).then(|| vid(v2));
         Ok(vx::common_edges(b, vid(v1), other, None)?
             .into_iter()
-            .map(|e| H { b: v1.b, kind: K_EDGE, i: e.index() })
+            .map(|e| hd(v1.b, K_EDGE, e.index()))
             .collect())
     }
     fn edge_other_vertex(&self, edge: H, vertex: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(edge)?;
         let v = (vertex.b == edge.b && vertex.kind == K_VERTEX).then(|| vid(vertex));
-        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| H {
-            b: edge.b,
-            kind: K_VERTEX,
-            i: v.index(),
-        }))
+        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn face_curve_on_classify(
         &self,
@@ -835,18 +852,10 @@ impl IntersectorBrep<H> for Two {
         ed::is_lamina(self.brep_r(edge)?, eid(edge))
     }
     fn edge_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
-        Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| H {
-            b: edge.b,
-            kind: K_VERTEX,
-            i: v.index(),
-        }))
+        Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn edge_start_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
-        Ok(ed::start_vertex(self.brep_r(edge)?, eid(edge))?.map(|v| H {
-            b: edge.b,
-            kind: K_VERTEX,
-            i: v.index(),
-        }))
+        Ok(ed::start_vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn edge_primary_edgeuse_orientation(&self, edge: H) -> solidcore::Result<Option<OrientType>> {
         let b = self.brep_r(edge)?;
@@ -922,11 +931,7 @@ impl TopologyObjects<H> for Two {
         vx::tolerance(self.brep_r(vertex)?, vid(vertex))
     }
     fn curve_edge(&self, curve: H) -> solidcore::Result<Option<H>> {
-        Ok((curve.kind == K_EDGE_CURVE).then_some(H {
-            b: curve.b,
-            kind: K_EDGE,
-            i: curve.i,
-        }))
+        Ok((curve.kind == K_EDGE_CURVE).then_some(hd(curve.b, K_EDGE, curve.i)))
     }
     fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
         self.edge_curve_h(edge).ok_or_else(|| invalid("not an edge handle"))
@@ -935,11 +940,7 @@ impl TopologyObjects<H> for Two {
         ed::interval(self.brep_r(edge)?, eid(edge))
     }
     fn surface_face(&self, surface: H) -> solidcore::Result<Option<H>> {
-        Ok((surface.kind == K_FACE_SURFACE).then_some(H {
-            b: surface.b,
-            kind: K_FACE,
-            i: surface.i,
-        }))
+        Ok((surface.kind == K_FACE_SURFACE).then_some(hd(surface.b, K_FACE, surface.i)))
     }
     fn face_surface(&self, face: H) -> solidcore::Result<H> {
         self.face_surface_h(face)
@@ -1075,11 +1076,7 @@ impl Counts {
                 if curves == 0 {
                     return Err(());
                 }
-                Ok(Some(H {
-                    b: 2,
-                    kind,
-                    i: (sel % curves as u64) as u32,
-                }))
+                Ok(Some(hd(2, kind, (sel % curves as u64) as u32)))
             }
             K_VERTEX | K_EDGE | K_FACE | K_EDGE_CURVE | K_FACE_SURFACE => {
                 let slot = usize::try_from(b).map_err(|_| ())?;
@@ -1087,11 +1084,7 @@ impl Counts {
                 if n == 0 {
                     return Err(());
                 }
-                Ok(Some(H {
-                    b: b as i8,
-                    kind,
-                    i: (sel % n as u64) as u32,
-                }))
+                Ok(Some(hd(b as i8, kind, (sel % n as u64) as u32)))
             }
             _ => Err(()),
         }
@@ -1628,7 +1621,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
         t.set_this_ang_tol_rad(i.ang);
         t
     };
-    let mut o = Vec::new();
+    let mut o = vec![0.0]; // the shim's "both B-reps built"
     let mut registered = 0usize;
     for r in &ops {
         match &r.op {

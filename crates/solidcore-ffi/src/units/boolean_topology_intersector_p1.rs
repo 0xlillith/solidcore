@@ -666,7 +666,7 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 rd.index(100_000)?;
             }
             ScriptOp::CommonEdges | ScriptOp::CommonVertices | ScriptOp::Getters | ScriptOp::ClearSsi => {}
-            ScriptOp::SetSubset => c.list(rd, &any, true)?,
+            ScriptOp::SetSubset | ScriptOp::Lowest => c.list(rd, &any, true)?,
             ScriptOp::FixupEnd | ScriptOp::FixupMid => {
                 let dim = rd.index(3)?;
                 if dim < 2 {
@@ -711,7 +711,6 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
             ScriptOp::CanImprint => {
                 rd.int(100, 110)?;
             }
-            ScriptOp::Lowest => c.list(rd, &any, true)?,
             ScriptOp::SetEdgeClass => {
                 c.handle_of(rd, &[Edge], false)?;
                 let t0 = rd.finite()?;
