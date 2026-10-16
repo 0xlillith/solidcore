@@ -5475,7 +5475,7 @@ bit (`max_rel_err 0`), 0 fail, 140 deferred; `--perturb` SENSITIVE 679/679.
   `sm_FindFirstLowestDimensionSol`, `sm_SetEdgeClass` (trimmed and whole intervals,
   opposite primary edge uses, drops onto the edge), `sm_CheckInteriorEdge` (parameter and 3D
   tests, outside the interval), `sm_TestAndSplitTwoEdges` up to its split (no, far and
-  end-point intersections), `sm_TestAndImprintFace` on faces whose surface has no owner,
+  end-point intersections), `sm_TestAndImprintFace` on planar faces (the plane's fast drop; other surfaces defer on the face tolerance),
   `VertexFaceIntersect` with null entries and empty lists, `EdgeFaceIntersect` for connected
   faces and empty lists, `FaceFaceIntersect` / `FaceFaceCoincidence` with empty or
   single-face lists, `ResolveIntersections` / `ImprintIntersections` on an empty manager

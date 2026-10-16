@@ -346,8 +346,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurve::GetNaturalInterval",
-        "unit": "curve.curve_p2"
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "gen0035",
@@ -732,72 +732,10 @@
       "values_compared": 53
     },
     {
-      "inputs": {
-        "ang": 0.3490658503988659,
-        "approx": 0.00001,
-        "brep_a": {
-          "file": "sphere.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "brep_b": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "ctor": 0,
-        "ops": [
-          {
-            "a": [0, 2, 2427],
-            "b": [1, 0, 54424],
-            "op": "is_mated"
-          },
-          {
-            "list": [
-              [-1, 8, -1],
-              [1, 1, 27653],
-              [0, 3, 10185]
-            ],
-            "op": "lowest"
-          },
-          {
-            "dim": 2,
-            "op": "fixup_mid",
-            "pc_b": {
-              "cls": 104,
-              "h": [0, 0, 19]
-            },
-            "pc_o": {
-              "cls": 102,
-              "h": [0, 2, 64288]
-            },
-            "tol": 0.001
-          },
-          {
-            "a": [0, 1, 18377],
-            "b": [1, 0, 21525],
-            "op": "relate"
-          },
-          {
-            "a": [0, 2, 4319],
-            "b": [-1, 8, -1],
-            "op": "relate"
-          }
-        ]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[18]",
-          "rel_err": 1.0,
-          "rust": "-2e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "gen0079",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894394785303245132",
       "values_compared": 19
     },
@@ -2455,16 +2393,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::GetNaturalInterval",
-        "unit": "curve.curve_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0261",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894394785303245314",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "both_errored": true,
@@ -2679,16 +2613,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::GetNaturalInterval",
-        "unit": "curve.curve_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0286",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894394785303245339",
-      "values_compared": 0
+      "values_compared": 30
     },
     {
       "max_rel_err": 0.0,
@@ -3659,113 +3589,10 @@
       "values_compared": 0
     },
     {
-      "inputs": {
-        "ang": 0.1,
-        "approx": 0.0,
-        "brep_a": {
-          "dom": [0.0, 0.0, 1.0, 1.0],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "form": 0,
-              "net": [
-                [
-                  [0.0, 0.0, 0.00023956262490891167, -1.7976931348623157e+308],
-                  [0.0, 0.001, 0.0003524354398326036, -1.7976931348623157e+308],
-                  [0.0, 0.002, 0.00010331014328167775, -1.7976931348623157e+308],
-                  [0.0, 0.003, -0.00003703530967270907, -1.7976931348623157e+308],
-                  [0.0, 0.004, 0.00010959961862713142, -1.7976931348623157e+308]
-                ],
-                [
-                  [0.001, 0.0, -0.00020336545635990877, -1.7976931348623157e+308],
-                  [0.001, 0.001, -0.00009198202030726522, -1.7976931348623157e+308],
-                  [0.001, 0.002, -5.747317481544112e-6, -1.7976931348623157e+308],
-                  [0.001, 0.003, 0.00016180628853941048, -1.7976931348623157e+308],
-                  [0.001, 0.004, -0.000011088797442665332, -1.7976931348623157e+308]
-                ],
-                [
-                  [0.002, 0.0, -0.00011990579533252454, -1.7976931348623157e+308],
-                  [0.002, 0.001, -0.0001602397872052137, -1.7976931348623157e+308],
-                  [0.002, 0.002, 0.00031234885910572184, -1.7976931348623157e+308],
-                  [0.002, 0.003, 0.00010081994180082133, -1.7976931348623157e+308],
-                  [0.002, 0.004, -0.0003846710573880976, -1.7976931348623157e+308]
-                ],
-                [
-                  [0.003, 0.0, -0.0003584139014033531, -1.7976931348623157e+308],
-                  [0.003, 0.001, 0.00025611413810745385, -1.7976931348623157e+308],
-                  [0.003, 0.002, -0.00016073325666369787, -1.7976931348623157e+308],
-                  [0.003, 0.003, -0.00040500659477611537, -1.7976931348623157e+308],
-                  [0.003, 0.004, 0.00020611136387163766, -1.7976931348623157e+308]
-                ]
-              ],
-              "oob": false,
-              "p": 2,
-              "q": 3,
-              "u": [0.0, 0.0, 0.0, 0.5002697970670237, 1.0, 1.0, 1.0],
-              "v": [0.0, 0.0, 0.0, 0.0, 0.25315775843974186, 1.0, 1.0, 1.0, 1.0]
-            }
-          }
-        },
-        "brep_b": {
-          "file": "surf_rev.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "ctor": 0,
-        "ops": [
-          {
-            "a": [0, 2, 34111],
-            "b": [-1, 8, -1],
-            "op": "relate"
-          },
-          {
-            "dim": 3,
-            "op": "fixup_end",
-            "pc_b": {
-              "cls": 102,
-              "h": [0, 2, 14065]
-            },
-            "pc_o": {
-              "cls": 104,
-              "h": [1, 1, 3430]
-            },
-            "tol": 0.001
-          },
-          {
-            "dim": 2,
-            "op": "fixup_mid",
-            "pc_b": {
-              "cls": 102,
-              "h": [0, 2, 9707]
-            },
-            "pc_o": {
-              "cls": 102,
-              "h": [0, 2, 50753]
-            },
-            "tol": 0.1
-          },
-          {
-            "e": [1, 1, 36149],
-            "op": "check_interior",
-            "relative": true,
-            "t": 1.1604531916729055,
-            "tol": 0.00001
-          }
-        ]
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "-2e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "gen0396",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894394785303245449",
       "values_compared": 26
     },
@@ -5315,16 +5142,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurve::GetNaturalInterval",
-        "unit": "curve.curve_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0571",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894394785303245624",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -7503,21 +7326,21 @@
     }
   ],
   "cases_both_errored": 211,
-  "cases_deferred": 143,
-  "cases_failed": 2,
-  "cases_passed": 674,
+  "cases_deferred": 140,
+  "cases_failed": 0,
+  "cases_passed": 679,
   "cases_total": 819,
   "deferred_by_unit": {
-    "curve.curve_p2": 4,
     "query.face_p1": 2,
     "topology.brep_p1": 51,
+    "topology.brep_p9": 1,
     "topology.face_p2": 67,
     "topology.face_p4": 19
   },
-  "max_rel_err": 1.0,
-  "pass": false,
+  "max_rel_err": 0.0,
+  "pass": true,
   "rel_tol": 1e-9,
-  "seeds": 100,
-  "status": "fail",
+  "seeds": 16,
+  "status": "partial",
   "unit": "boolean.topology_intersector_p1"
 }

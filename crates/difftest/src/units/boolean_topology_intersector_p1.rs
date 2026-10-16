@@ -598,20 +598,23 @@ impl Two {
         self.brep_mut(h).ok_or_else(|| invalid("handle names an absent B-rep"))
     }
 
-    /// The edge's curve handle.
+    /// The edge's curve handle (`ProtoBrep::edge_curve`'s shape).
+    #[allow(clippy::option_option)]
     fn edge_curve_h(&self, e: H) -> Option<Option<H>> {
         let b = self.brep(e)?;
         let edge = b.edge(eid(e)).ok()?;
         Some(edge.curve.as_ref().map(|c| curve_h(e.b, K_EDGE_CURVE, e.i, c)))
     }
 
+    /// The face's surface handle (`ProtoBrep::face_surface`'s shape).
+    #[allow(clippy::option_option)]
     fn face_surface_h(&self, f: H) -> Option<Option<H>> {
         let b = self.brep(f)?;
         let face = b.face(fid(f)).ok()?;
         Some(face.surface.as_ref().map(|_| hd(f.b, K_FACE_SURFACE, f.i)))
     }
 
-    fn entity_h(&self, b: i8, e: EntityRef) -> Option<H> {
+    fn entity_h(b: i8, e: EntityRef) -> Option<H> {
         match e {
             EntityRef::Vertex(v) => Some(hd(b, K_VERTEX, v.index())),
             EntityRef::Edge(x) => Some(hd(b, K_EDGE, x.index())),
@@ -630,7 +633,7 @@ impl Two {
         let Some(b) = self.brep(e) else {
             return false;
         };
-        b.edge(eid(e)).map_or(false, |edge| edge.curve.is_some())
+        b.edge(eid(e)).is_ok_and(|edge| edge.curve.is_some())
             && ed::vertex(b, eid(e)).ok().flatten().is_some()
     }
 
@@ -640,7 +643,7 @@ impl Two {
         };
         self.brep(f)
             .and_then(|b| b.face(fid(f)).ok())
-            .map_or(false, |face| face.surface.is_some())
+            .is_some_and(|face| face.surface.is_some())
     }
 
     fn has_primary_edgeuse(&self, e: H) -> bool {
@@ -889,8 +892,8 @@ impl IntersectorBrep<H> for Two {
         let mut pe: PointClassification<EntityRef> = PointClassification::new(pc.tolerance());
         let r = point_classify(k, b, fid(face), uv, &mut pe, PointClassifyOptions::default());
         // copy the classification back whatever the status (upstream's out-param)
-        pc.set_class_object(pe.point_class(), pe.object().and_then(|e| self.entity_h(face.b, e)));
-        pc.set_face(pe.face().and_then(|e| self.entity_h(face.b, e)));
+        pc.set_class_object(pe.point_class(), pe.object().and_then(|e| Self::entity_h(face.b, e)));
+        pc.set_face(pe.face().and_then(|e| Self::entity_h(face.b, e)));
         pc.set_gap_3d(pe.deviation());
         pc.set_pre_snap_param(pe.pre_snap_param());
         if pe.are_parameters_set() {
@@ -1047,7 +1050,7 @@ struct Counts {
 }
 
 impl Counts {
-    fn of(c: &Option<[usize; 3]>, kind: u8) -> usize {
+    fn of(c: Option<[usize; 3]>, kind: u8) -> usize {
         match (c, kind) {
             (Some(c), K_VERTEX) => c[0],
             (Some(c), K_EDGE | K_EDGE_CURVE) => c[1],
@@ -1080,7 +1083,7 @@ impl Counts {
             }
             K_VERTEX | K_EDGE | K_FACE | K_EDGE_CURVE | K_FACE_SURFACE => {
                 let slot = usize::try_from(b).map_err(|_| ())?;
-                let n = Self::of(self.breps.get(slot).ok_or(())?, kind);
+                let n = Self::of(*self.breps.get(slot).ok_or(())?, kind);
                 if n == 0 {
                     return Err(());
                 }
@@ -1198,7 +1201,7 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 } else {
                     (*t0, *t1)
                 };
-                if !(t0 < t1) {
+                if t0.partial_cmp(&t1) != Some(std::cmp::Ordering::Less) {
                     return Err(fail("interval"));
                 }
                 OpIn::SetEdgeClass { e, t0, t1, tol: *tol, relative: false }
@@ -1262,13 +1265,7 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 ignore: *ignore,
                 nesting: *nesting,
             },
-            OpIn::Resolve | OpIn::Imprint => {
-                if !has_mgr {
-                    return Err(fail("no_manager"));
-                }
-                op.clone()
-            }
-            OpIn::ShellVerts { .. } | OpIn::WireLamina { .. } => {
+            OpIn::Resolve | OpIn::Imprint | OpIn::ShellVerts { .. } | OpIn::WireLamina { .. } => {
                 if !has_mgr {
                     return Err(fail("no_manager"));
                 }
@@ -1493,14 +1490,14 @@ struct Prepared {
 /// Exports and imports the B-reps and resolves the script; `Err(Ok(output))` is the
 /// output both sides report when the B-reps cannot be built or an op cannot be
 /// resolved.
-fn prepare(i: &Inputs) -> Result<Prepared, Result<Output, HarnessError>> {
-    let ex = export(i).map_err(Err)?;
+fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
+    let ex = export(i).map_err(|e| Box::new(Err(e)))?;
     let Some((a, b)) = ffi::split_exports(&ex) else {
-        return Err(Ok(build_failure(&ex)));
+        return Err(Box::new(Ok(build_failure(&ex))));
     };
-    let (brep_a, _) = import(&a).map_err(Err)?;
+    let (brep_a, _) = import(&a).map_err(|e| Box::new(Err(e)))?;
     let brep_b = match &b {
-        Some(b) => Some(import(b).map_err(Err)?.0),
+        Some(b) => Some(import(b).map_err(|e| Box::new(Err(e)))?.0),
         None => None,
     };
     let count3 = |b: &Brep| [b.vertices().len(), b.edges().len(), b.faces().len()];
@@ -1510,7 +1507,7 @@ fn prepare(i: &Inputs) -> Result<Prepared, Result<Output, HarnessError>> {
     let two = Two::new(brep_a, brep_b);
     let ops = match resolve(&i.ops, &counts, &two) {
         Ok(ops) => ops,
-        Err(name) => return Err(Ok(Output::err(name))),
+        Err(name) => return Err(Box::new(Ok(Output::err(name)))),
     };
     Ok(Prepared { two, ops })
 }
@@ -1518,7 +1515,7 @@ fn prepare(i: &Inputs) -> Result<Prepared, Result<Output, HarnessError>> {
 fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let p = match prepare(i) {
         Ok(p) => p,
-        Err(r) => return r,
+        Err(r) => return *r,
     };
     let input = encode(i, &p.ops)?;
     let pa = path_of(Some(&i.brep_a))?;
@@ -1817,7 +1814,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             OpIn::SetEdgeClass { e, t0, t1, tol, .. } => {
                 o.push(21.0);
                 let eh = triple_to_h(*e);
-                if !two.edge_ok(eh) || !eh.map_or(false, |e| two.has_primary_edgeuse(e)) {
+                if !two.edge_ok(eh) || !eh.is_some_and(|e| two.has_primary_edgeuse(e)) {
                     o.push(NULL_DEREF);
                     continue;
                 }
@@ -2019,7 +2016,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let p = match prepare(i) {
         Ok(p) => p,
-        Err(r) => return r,
+        Err(r) => return *r,
     };
     match run_rust_script(i, p) {
         Ok(o) => Ok(Output::new().values("state", o)),
@@ -2173,7 +2170,7 @@ fn gen_h(rng: &mut Rng, has_b: bool, kinds: &[u8], null: f64) -> Hin {
     if rng.chance(null) {
         return [-1, K_NULL, -1];
     }
-    let b = if has_b && rng.chance(0.5) { 1 } else { 0 };
+    let b = i64::from(has_b && rng.chance(0.5));
     let kind = *rng.choose(kinds).unwrap_or(&K_VERTEX);
     if kind == K_BREP {
         return [b, i64::from(K_BREP), b];
@@ -2209,7 +2206,7 @@ fn gen_op(rng: &mut Rng, has_b: bool, has_mgr: &mut bool, last: bool) -> OpIn {
     let any: [u8; 7] = [K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE, K_FACE_SURFACE, K_CURVE, K_BREP];
     let pick = rng.below(if last { 30 } else { 21 });
     match pick {
-        0 | 1 | 2 => OpIn::Relate {
+        0..=2 => OpIn::Relate {
             a: gen_h(rng, false, &topo, 0.03),
             b: gen_h(rng, has_b, &topo, 0.05),
         },
