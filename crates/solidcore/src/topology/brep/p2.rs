@@ -78,6 +78,7 @@ use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
 use crate::intersect::curve_class::p5::MergedTopology;
+use crate::intersect::curve_class::p7::CoincidentMaybe;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, PointClassType, PointClassification,
 };
@@ -1776,9 +1777,9 @@ pub struct MergedCurves {
 /// `SM_ERR` when editing is not enabled or a coincident-maybe test is `UNSURE`;
 /// errors of the classification; [`SolidError::InvalidInput`] for a curve handle that
 /// does not resolve or a missing UV curve; [`SolidError::Unported`] from the curve
-/// classification constructor,
-/// `AreCoincidentMaybe` and `ConnectIntervals` (`intersect.curve_class_p4`, `_p7`,
-/// `_p2`), and from the graph edits `MergeIntervals` defers.
+/// classification constructor and `ConnectIntervals` (`intersect.curve_class_p4`,
+/// `_p2`), from `AreCoincidentMaybe`'s edge branch, and from the graph edits
+/// `MergeIntervals` defers.
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
@@ -1865,12 +1866,12 @@ fn merge_curves_body<O: ClassObject + Copy>(
             let mut kk = 0;
             while kk < cc.size() {
                 // squeeze coincident maybe intervals
-                let (coin, pos) = are_coincident_maybe(&cc, kk)?;
-                if coin == face2::UNSURE {
+                let (coin, pos) = cc.are_coincident_maybe(k, objects, &cc, kk, false)?;
+                if coin == CoincidentMaybe::Unsure {
                     // This signals an unrecoverable error.
                     return Err(SolidError::sm_err(OP));
                 }
-                if coin == 1 {
+                if coin == CoincidentMaybe::Fixable {
                     connect_intervals(&mut cc, kk, pos)?;
                 }
                 kk += 1;
@@ -1926,20 +1927,6 @@ fn new_curve_classification<O: ClassObject + Copy>(
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
         "intersect.curve_class_p4",
-    ))
-}
-
-/// `AreCoincidentMaybe(*this, index, ePos, FALSE)` (unit `intersect.curve_class_p7`):
-/// the `SmBoolean` and the position of the coincident-maybe interval.
-fn are_coincident_maybe<O>(
-    cc: &CurveClassification<O>,
-    index: usize,
-) -> Result<(i32, IntervalPosition)> {
-    let _ = (cc, index);
-    // UNPORTED(intersect.curve_class_p7): SmCurveClassification::AreCoincidentMaybe
-    Err(SolidError::unported(
-        "SmCurveClassification::AreCoincidentMaybe",
-        "intersect.curve_class_p7",
     ))
 }
 
