@@ -8,8 +8,8 @@
 // AdjustSTEPUVDomain: cylinder, cone, sphere and torus kinds, open or closed) owned by the
 // face, with one vertex loop or edge loops of SmLine edges (the first loop outer, the others
 // holes). Layout and ops: crates/solidcore-ffi/src/units/heal_face_props.rs (which validates
-// the script, including UB-121: a script that makes SetProps_Stage2 / Stage3 dereference the
-// NULL m_pFace is rejected there). After every op the shim appends a snapshot of the face
+// the script, including UB-127: a script that makes SetProps_Stage2 / Stage3 dereference the
+// NULL m_pFace is rejected there; and UB-128: Stage 3 on a degenerate plane with edge loops). After every op the shim appends a snapshot of the face
 // props (SNAP_LEN values; for op 8 the SmLoopProps of the first loops).
 //
 // sc_heal_face_props_tree(in, n_in, out, cap, out_len): SmLooptreeItem building and FindItem on
@@ -41,7 +41,7 @@
 
 namespace
 {
-const int SNAP_LEN = 70;
+const int SNAP_LEN = 82;
 
 struct Rd
 {
@@ -121,6 +121,14 @@ void snapshot(std::vector<double>& o, SmFaceProps& p, SmFace* face)
     put(o, p.m_sNaturalUVDomain.GetUMax());
     put(o, p.m_sNaturalUVDomain.GetVMax());
     put(o, (double)p.m_sFlatCornerPoints.GetSize());
+    // the flat corner points (an unset corner stays SetUninitialized)
+    for (int i = 0; i < 4; i++)
+    {
+        bool ok = (ULONG)i < p.m_sFlatCornerPoints.GetSize();
+        put(o, ok ? p.m_sFlatCornerPoints[i].x : 0.0);
+        put(o, ok ? p.m_sFlatCornerPoints[i].y : 0.0);
+        put(o, ok ? p.m_sFlatCornerPoints[i].z : 0.0);
+    }
     while (o.size() < start + SNAP_LEN)
         o.push_back(0.0);
 }

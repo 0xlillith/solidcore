@@ -31,13 +31,13 @@
 //! `1e-3`, stage and heal op codes in range, field ids in range with values in the range
 //! of their field (an unsigned member takes no negative value: the cast is undefined),
 //! and scripts that would dereference the null face pointer of upstream's `SetProps_Stage2` /
-//! `SetProps_Stage3` ([`validate`] simulates the stage and face pointer; UB-121,
+//! `SetProps_Stage3` ([`validate`] simulates the stage and face pointer; UB-127,
 //! `plan/upstream-issues.md`).
 
 use crate::{call_with_buffer, FfiError};
 
 /// Values per snapshot.
-pub const SNAP_LEN: usize = 70;
+pub const SNAP_LEN: usize = 82;
 /// Largest number of ops.
 pub const MAX_OPS: usize = 64;
 /// Largest number of tree items.
@@ -286,7 +286,7 @@ fn sim_gaps(s: State) -> State {
     }
 }
 
-/// `SetProps_Stage2`; `None` when it would dereference a null `m_pFace` (UB-121).
+/// `SetProps_Stage2`; `None` when it would dereference a null `m_pFace` (UB-127).
 fn sim_stage2(s: State, heal: f64) -> Option<Outcomes> {
     if s.0 >= STAGE2_A {
         return Some(vec![(s, true)]);
@@ -305,7 +305,7 @@ fn sim_stage2(s: State, heal: f64) -> Option<Outcomes> {
     Some(vec![((STAGE2_A, true), false), ((STAGE2, true), true)])
 }
 
-/// `SetProps_Stage3`; `None` when it would dereference a null `m_pFace` (UB-121).
+/// `SetProps_Stage3`; `None` when it would dereference a null `m_pFace` (UB-127).
 fn sim_stage3(s: State, heal: f64) -> Option<Outcomes> {
     if s.0 >= STAGE3_A {
         return Some(vec![(s, true)]);
@@ -337,7 +337,7 @@ fn sim_stage3(s: State, heal: f64) -> Option<Outcomes> {
 }
 
 /// `SetProps(stage, face, index, heal)`: the calls it makes, in order, on every state it
-/// can be in; `None` when one of them would dereference a null `m_pFace` (UB-121).
+/// can be in; `None` when one of them would dereference a null `m_pFace` (UB-127).
 fn sim_set_props(s: State, stage: i64, heal: f64) -> Option<Vec<State>> {
     let mut cur: Vec<State> = vec![s];
     // SetProps_Gaps (HasProps_Stage1: stage >= GAPS)
@@ -376,7 +376,7 @@ fn sim_set_props(s: State, stage: i64, heal: f64) -> Option<Vec<State>> {
 }
 
 /// Rejects scripts in which `SetProps_Stage2` or `SetProps_Stage3` would dereference a null
-/// `m_pFace` (UB-121): `SetProps_Gaps` returns early from `GAPSa` on, so the re-run that
+/// `m_pFace` (UB-127): `SetProps_Gaps` returns early from `GAPSa` on, so the re-run that
 /// `m_pFace != cpFace` asks for never sets the face.
 fn simulate(ops: &[Op]) -> Result<(), FfiError> {
     let mut states: Vec<State> = vec![(0, false)];
@@ -419,7 +419,7 @@ fn simulate(ops: &[Op]) -> Result<(), FfiError> {
                 Some(v) => next.extend(v),
                 None => {
                     return bad(
-                        "script would dereference the null face of SetProps_Stage2/3 (UB-121)",
+                        "script would dereference the null face of SetProps_Stage2/3 (UB-127)",
                     )
                 }
             }
@@ -476,7 +476,34 @@ pub fn validate(face: &FaceSpec, ops: &[Op]) -> Result<(), FfiError> {
             return bad("op");
         }
     }
+    reject_degenerate_plane_stage3(face, ops)?;
     simulate(ops)
+}
+
+/// The smallest side of a plane domain (`SmPlane`, edge loops) the C++ survives `SetProps_Stage3`
+/// on (UB-128). The crash is not monotone in the size (it crashes at 1e-300, 1e-100, 1e-14,
+/// 1e-12 and 1e-10, survives at 1e-11 and 1e-9), so the bound is a safe one.
+pub const MIN_PLANE_SIDE_FOR_STAGE3: f64 = 1e-6;
+
+/// Rejects a script that can reach `SetProps_Stage3` (op `0` with stage `3a` or `3`, or op `6`
+/// with `which == 3`) on a plane with edge loops whose domain has a side below
+/// [`MIN_PLANE_SIDE_FOR_STAGE3`]: `SmFace::ClassifyLoops` ends in `SmCrvOnSurf::GetKnots` and a
+/// SIGSEGV in `SmCurveClassification::IntersectUVDiscontinuties` (UB-128). A vertex loop, or a
+/// script that stops at Stage 2, does not crash.
+fn reject_degenerate_plane_stage3(face: &FaceSpec, ops: &[Op]) -> Result<(), FfiError> {
+    let (Surf::Plane { domain, .. }, Loops::Edges(_)) = (&face.surf, &face.loops) else {
+        return Ok(());
+    };
+    // `!(x >= bound)` also rejects a NaN side (already refused as non-finite)
+    let small = !((domain[2] - domain[0]) >= MIN_PLANE_SIDE_FOR_STAGE3
+        && (domain[3] - domain[1]) >= MIN_PLANE_SIDE_FOR_STAGE3);
+    let reaches = ops.iter().any(|o| {
+        (o.op == 0 && o.p[0] as i64 >= STAGE3_A) || (o.op == 6 && o.p[0] as i64 == 3)
+    });
+    if small && reaches {
+        return bad("degenerate plane domain with edge loops reaches SetProps_Stage3 (UB-128)");
+    }
+    Ok(())
 }
 
 fn push_vec(input: &mut Vec<f64>, v: &[f64]) {
@@ -696,18 +723,40 @@ mod tests {
         Op { op, p }
     }
 
-    /// UB-121: `ReSet(2a)` then `SetProps(2)` dereferences the null face upstream.
+    /// UB-127: `ReSet(2a)` then `SetProps(2)` dereferences the null face upstream.
     #[test]
     fn rejects_reset_then_stage2() {
         let ops = [op(1, [3.0, 0.0, 0.0, 0.0]), op(0, [4.0, 26.0, 0.0, 0.0])];
         assert!(validate(&plane(), &ops).is_err());
     }
 
-    /// UB-121: a seeded stage `GAPS` then Stage2.
+    /// UB-127: a seeded stage `GAPS` then Stage2.
     #[test]
     fn rejects_seeded_gaps_then_stage2() {
         let ops = [op(5, [0.0, 0.0, 2.0, 0.0]), op(6, [2.0, 26.0, 0.0, 0.0])];
         assert!(validate(&plane(), &ops).is_err());
+    }
+
+    /// UB-128: a plane with a degenerate domain and edge loops segfaults in Stage 3.
+    #[test]
+    fn rejects_degenerate_plane_with_edge_loops_at_stage3() {
+        for t in [1e-300, 1e-100, 1e-14, 1e-12, 1e-10, 1e-9, 1e-7] {
+            let mut f = plane();
+            f.surf = Surf::Plane {
+                o: [0.0; 3],
+                x: [1.0, 0.0, 0.0],
+                y: [0.0, 1.0, 0.0],
+                domain: [0.0, 0.0, t, t],
+            };
+            f.loops = Loops::Edges(vec![vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]]);
+            for o in [op(0, [6.0, 26.0, 0.0, 0.0]), op(6, [3.0, 26.0, 0.0, 0.0])] {
+                assert!(validate(&f, &[o]).is_err(), "t = {t}");
+            }
+            // Stage 2 and a vertex loop do not crash
+            assert!(validate(&f, &[op(0, [4.0, 26.0, 0.0, 0.0])]).is_ok());
+            f.loops = Loops::Vertex([0.0; 3]);
+            assert!(validate(&f, &[op(0, [6.0, 26.0, 0.0, 0.0])]).is_ok());
+        }
     }
 
     #[test]

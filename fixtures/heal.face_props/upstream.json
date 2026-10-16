@@ -1589,6 +1589,195 @@
     ],
     "expect_rejected": true
    }
+  },
+  {
+   "name": "rejected_degenerate_plane_stage3_setprops",
+   "upstream_ref": "source/SMLib/src/SmFaceProps.cpp:SetProps_Stage3",
+   "inputs": {
+    "kind": "props",
+    "face": {
+     "tol": 1e-05,
+     "o": [
+      0,
+      0,
+      0
+     ],
+     "x": [
+      1,
+      0,
+      0
+     ],
+     "y": [
+      0,
+      1,
+      0
+     ],
+     "domain": [
+      0,
+      0,
+      1e-300,
+      1e-300
+     ],
+     "loops": {
+      "kind": "edges",
+      "loops": [
+       [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         0,
+         1,
+         0
+        ]
+       ]
+      ]
+     }
+    },
+    "ops": [
+     [
+      0,
+      6,
+      26,
+      0,
+      0
+     ]
+    ],
+    "expect_rejected": true
+   }
+  },
+  {
+   "name": "rejected_degenerate_plane_stage3_direct",
+   "upstream_ref": "source/SMLib/src/SmFaceProps.cpp:SetProps_Stage3",
+   "inputs": {
+    "kind": "props",
+    "face": {
+     "tol": 1e-05,
+     "o": [
+      0,
+      0,
+      0
+     ],
+     "x": [
+      1,
+      0,
+      0
+     ],
+     "y": [
+      0,
+      1,
+      0
+     ],
+     "domain": [
+      0,
+      0,
+      1e-12,
+      1e-12
+     ],
+     "loops": {
+      "kind": "edges",
+      "loops": [
+       [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         0,
+         1,
+         0
+        ]
+       ]
+      ]
+     }
+    },
+    "ops": [
+     [
+      6,
+      3,
+      26,
+      0,
+      0
+     ]
+    ],
+    "expect_rejected": true
+   }
+  },
+  {
+   "name": "rejected_degenerate_plane_stage3_1e-10",
+   "upstream_ref": "source/SMLib/src/SmFaceProps.cpp:SetProps_Stage3",
+   "inputs": {
+    "kind": "props",
+    "face": {
+     "tol": 1e-05,
+     "o": [
+      0,
+      0,
+      0
+     ],
+     "x": [
+      1,
+      0,
+      0
+     ],
+     "y": [
+      0,
+      1,
+      0
+     ],
+     "domain": [
+      0,
+      0,
+      1e-10,
+      1e-10
+     ],
+     "loops": {
+      "kind": "edges",
+      "loops": [
+       [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         0,
+         1,
+         0
+        ]
+       ]
+      ]
+     }
+    },
+    "ops": [
+     [
+      0,
+      6,
+      26,
+      0,
+      0
+     ]
+    ],
+    "expect_rejected": true
+   }
   }
  ]
 }
