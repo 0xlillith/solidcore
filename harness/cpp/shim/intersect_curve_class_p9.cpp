@@ -155,6 +155,7 @@ SC_EXPORT int32_t sc_intersect_curve_class_p9_run(const double* in,int64_t n,dou
     if(in[9]) for(ULONG j=0;j<loops.GetSize();j++) {
         SmTArray<SmVertexuse*> vs; SmTArray<SmEdgeuse*> es;
         loops[j]->GetVertexuses(vs); loops[j]->GetEdgeuses(es);
+        SmEdgeuse* first_edge=nullptr;
         for(ULONG k=0;k<vs.GetSize();k++) {
             vs[k]->GetVertex()->SetTolerance(zone,FALSE);
             SmPoint2d uv; vs[k]->ComputeUVPoint(uv);
@@ -168,7 +169,14 @@ SC_EXPORT int32_t sc_intersect_curve_class_p9_run(const double* in,int64_t n,dou
             if(st!=SM_SUCCESS) return SC_ERR_ARG;
             const int side=uv.y==0?0:uv.x==1?1:uv.y==1?2:3;
             edges[side]=es[k]->GetEdge();
+            if(side==0) first_edge=es[k];
         }
+        // CreateFaceFromSurface starts at (0,1). This fixture supplies the same
+        // explicit (0,0)->(1,0)->(1,1)->(0,1) traversal as the Rust arena view.
+        if(loops[j]->SetEdgeuse(first_edge)!=SM_SUCCESS) return SC_ERR_ARG;
+        SmTArray<SmVertexuse*> ordered; loops[j]->GetVertexuses(ordered);
+        if(ordered.GetSize()!=4) return SC_ERR_ARG;
+        for(ULONG k=0;k<4;k++) if(ordered[k]->GetVertex()!=vertices[k]) return SC_ERR_ARG;
     }
     // Loop vertex UVs are computed by native projection, including the 3D gap.
     for(int j=0;j<nv;j++) { const double* p=in+22+3*j;
