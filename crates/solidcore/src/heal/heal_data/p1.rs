@@ -974,13 +974,13 @@ mod tests {
         for (i, &id) in h.tgt_face_props.clone().iter().enumerate() {
             h.face_props.props_mut(id).unwrap().props.face = Some(FaceId::from_index(i as u32));
         }
+        // `CreateUVTrimCurves` is called for every target face (here dangling ids, so
+        // each call fails); its status is ignored, as a WARN upstream
         let r = h.make_uv_trim_curves(&k, &mut b, true, HealerOpType::MakeUvtrimcurves);
+        assert!(r.is_ok());
         assert!(matches!(
-            r,
-            Err(SolidError::Unported {
-                unit: "topology.face_p3",
-                ..
-            })
+            face_create_uv_trim_curves(&k, &mut b, FaceId::from_index(0)),
+            Err(SolidError::NotFound { .. })
         ));
     }
 

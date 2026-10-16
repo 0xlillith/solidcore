@@ -723,8 +723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_intersect_48",
@@ -755,8 +755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_intersect_51",
@@ -787,8 +787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_intersect_54",
@@ -1539,8 +1539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuilt_intersect_48",
@@ -1571,8 +1571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuilt_intersect_51",
@@ -1603,8 +1603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_rebuilt_intersect_54",
@@ -2355,8 +2355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_intersect_48",
@@ -2387,8 +2387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_intersect_51",
@@ -2419,8 +2419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_intersect_54",
@@ -3171,8 +3171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_rebuilt_intersect_48",
@@ -3203,8 +3203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_rebuilt_intersect_51",
@@ -3235,8 +3235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_rebuilt_intersect_54",
@@ -3987,8 +3987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_intersect_48",
@@ -4019,8 +4019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_intersect_51",
@@ -4051,8 +4051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_intersect_54",
@@ -4803,8 +4803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_rebuilt_intersect_48",
@@ -4835,8 +4835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_rebuilt_intersect_51",
@@ -4867,8 +4867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_rebuilt_intersect_54",
@@ -7307,8 +7307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_intersect_48",
@@ -7339,8 +7339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_intersect_51",
@@ -7371,8 +7371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_intersect_54",
@@ -8123,8 +8123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_rebuilt_intersect_48",
@@ -8155,8 +8155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_rebuilt_intersect_51",
@@ -8187,8 +8187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_rebuilt_intersect_54",
@@ -12315,8 +12315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_intersect_48",
@@ -12347,8 +12347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_intersect_51",
@@ -12379,8 +12379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_intersect_54",
@@ -13131,8 +13131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_tilted_intersect_48",
@@ -13163,8 +13163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_tilted_intersect_51",
@@ -13195,8 +13195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_face_tilted_intersect_54",
@@ -13947,8 +13947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_intersect_48",
@@ -13979,8 +13979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_intersect_51",
@@ -14011,8 +14011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_intersect_54",
@@ -14763,8 +14763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_subdomain_intersect_48",
@@ -14795,8 +14795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_subdomain_intersect_51",
@@ -14827,8 +14827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "bilinear_subdomain_intersect_54",
@@ -15579,8 +15579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "triangle_pole_intersect_48",
@@ -15611,8 +15611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "triangle_pole_intersect_51",
@@ -15643,8 +15643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "triangle_pole_intersect_54",
@@ -16395,8 +16395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "biquadratic_intersect_48",
@@ -16427,8 +16427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "biquadratic_intersect_51",
@@ -16459,8 +16459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "biquadratic_intersect_54",
@@ -18858,8 +18858,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::CoincidenceCheck",
-        "unit": "surface.surface_p8"
+        "symbol": "SmCurveClassification::SmCurveClassification",
+        "unit": "intersect.curve_class_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -18987,10 +18987,9 @@
   "cases_passed": 530,
   "cases_total": 1758,
   "deferred_by_unit": {
-    "intersect.curve_class_p4": 163,
+    "intersect.curve_class_p4": 206,
     "surface.cone_p1": 224,
     "surface.surf_of_extrusion_p2": 112,
-    "surface.surface_p8": 43,
     "topology.edgeuse_p3": 420,
     "topology.face_p2": 122,
     "topology.face_p4": 144
