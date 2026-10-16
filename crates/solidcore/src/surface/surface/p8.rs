@@ -918,7 +918,7 @@ impl Surface {
         ) {
             Ok(blend) => blend,
             // too few intersection parameters: upstream reads and writes past the end of
-            // its array here (UB-119), which the port does not reproduce
+            // its array here (UB-130), which the port does not reproduce
             Err(e @ SolidError::InvalidInput { .. }) => return Err(e),
             Err(e) if e.is_unported() => return Err(e),
             // a NULL blend surface

@@ -2177,6 +2177,7 @@ mod tests {
             uv_domain1: s1.natural_uv_domain(),
             uv_domain2: s2.natural_uv_domain(),
             kernel: &k,
+            caches: [None, None],
         };
         let mk = |a: f64| {
             let mut s: Solution<Obj> = Solution::new();

@@ -2,6 +2,438 @@
   "abs_floors": [],
   "cases": [
     {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#0",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_ivl_wide",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#1",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_ivl_narrow",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#2",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#3",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_tiny_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#4",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_tiny_dom_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#5",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_diag_dom",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#6",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_000_d1e-06_v1e+06_1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#7",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_001_d1e-06_v1e+06_1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#8",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_002_d1e-06_v1e+06_1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#9",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_003_d1e-06_v1e+06_0_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#10",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_004_d1e-06_v1e+06_0_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#11",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_005_d1e-06_v1e+06_0_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#12",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_006_d1e-06_v1e+06_-1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#13",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_007_d1e-06_v1e+06_-1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#14",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_008_d1e-06_v1e+06_-1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#15",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_015_d5e-07_v1e+06_1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#16",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_016_d5e-07_v1e+06_1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#17",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_017_d5e-07_v1e+06_1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#18",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_018_d5e-07_v1e+06_0_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#19",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_019_d5e-07_v1e+06_0_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#20",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_020_d5e-07_v1e+06_0_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#21",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_021_d5e-07_v1e+06_-1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#22",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_022_d5e-07_v1e+06_-1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#23",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_023_d5e-07_v1e+06_-1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#24",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_030_d2e-06_v1e+06_1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#25",
+      "values_compared": 41
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_031_d2e-06_v1e+06_1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#26",
+      "values_compared": 41
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_032_d2e-06_v1e+06_1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#27",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_033_d2e-06_v1e+06_0_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#28",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_034_d2e-06_v1e+06_0_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#29",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_035_d2e-06_v1e+06_0_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#30",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_036_d2e-06_v1e+06_-1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#31",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_037_d2e-06_v1e+06_-1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#32",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_038_d2e-06_v1e+06_-1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#33",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_045_d1e-08_v1e+06_1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#34",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_046_d1e-08_v1e+06_1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#35",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_047_d1e-08_v1e+06_1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#36",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_048_d1e-08_v1e+06_0_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#37",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_049_d1e-08_v1e+06_0_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#38",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_050_d1e-08_v1e+06_0_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#39",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_051_d1e-08_v1e+06_-1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#40",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_052_d1e-08_v1e+06_-1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#41",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_053_d1e-08_v1e+06_-1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#42",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_060_d1e-10_v1e+06_1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#43",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_061_d1e-10_v1e+06_1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#44",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_062_d1e-10_v1e+06_1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#45",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_063_d1e-10_v1e+06_0_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#46",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_064_d1e-10_v1e+06_0_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#47",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_065_d1e-10_v1e+06_0_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#48",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_066_d1e-10_v1e+06_-1e+06_none",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#49",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_067_d1e-10_v1e+06_-1e+06_ivl",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#50",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_068_d1e-10_v1e+06_-1e+06_none_ray",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#51",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_plane2_d1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#52",
+      "values_compared": 28
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_line_fallback_plane2_d1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.surface_p8/plane_line_fallback.json#53",
+      "values_compared": 28
+    },
+    {
       "deferred": {
         "symbol": "SmSurfaceDropCurve::DoTrace",
         "unit": "intersect.surface_drop_curve"
@@ -16025,8 +16457,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 5,
   "cases_failed": 0,
-  "cases_passed": 1995,
-  "cases_total": 2000,
+  "cases_passed": 2049,
+  "cases_total": 2054,
   "deferred_by_unit": {
     "intersect.surface_drop_curve": 5
   },

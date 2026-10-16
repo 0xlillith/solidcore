@@ -26,6 +26,9 @@
 //! | [`SurfaceEval::eval_normal`] (co-ported)          | `SmSurfaceEval::EvalNormal` (unit `surface.surface_p3`) |
 //!
 //! Deviations:
+//! - **Maximize without a handle.** `GlobalPointSolve(.., maximize)` names `this` in its
+//!   solutions; a caller without a handle (`Surface::drop_point`) gets the same solutions
+//!   with null objects.
 //! - **Equation sets.** Each `Sm*ENFO` class is a struct of unit `surface.surface_p1`
 //!   (`surface::surface::p1::*Enfo`, with its constructor); this unit implements
 //!   [`EvalNFunctions`] for them. `SmCSIntersectENFO` keeps its call count, last gap and
@@ -78,7 +81,9 @@ use crate::geom::geom_utility::p1::{
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::local_solve_nd::{compute_jacobian, EvalNFunctions};
 use crate::geom::matrix::Matrix;
-use crate::geom::solution_array::{ObjectKind, SolutionArray, SolutionEnd, SolutionObject};
+use crate::geom::solution_array::{
+    ObjectKind, Solution, SolutionArray, SolutionEnd, SolutionObject, MAX_TREES,
+};
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::{asin, sqrt as sm_sqrt};
 use crate::kernel::Kernel;
@@ -101,7 +106,6 @@ use super::p2::{
 };
 use super::{Surface, SurfaceKind};
 
-const OP_GPS: &str = "surface::surface::p4::Surface::global_point_solve";
 const OP_CS_INTERSECT: &str = "surface::surface::p4::CsIntersectEnfo::evaluate";
 const OP_CS_NORMALIZE: &str = "surface::surface::p4::CsNormalizeEnfo::evaluate";
 const OP_SSP_INTERSECT: &str = "surface::surface::p4::SspIntersectEnfo::evaluate";
@@ -1243,7 +1247,8 @@ impl Surface {
     /// UV parameter values (`GlobalPointSolve`): a fast drop for planes (intersect and
     /// minimize), else the global solvers. `surface` is this surface's handle, which the
     /// original solver (`GlobalPointSolve_0`, maximize) names in its solutions and
-    /// needs for its cache; `None` is for callers without one, which cannot maximize.
+    /// needs for its cache; `None` is for callers without one: maximize then solves
+    /// with a stand-in handle and the solutions' objects are null (upstream: `this`).
     ///
     /// # Errors
     ///
@@ -1375,13 +1380,7 @@ impl Surface {
                 requested,
                 None,
             )?
-        } else {
-            let Some(surface) = surface else {
-                return Err(SolidError::invalid_input(
-                    OP_GPS,
-                    "maximizing needs the surface's handle",
-                ));
-            };
+        } else if let Some(surface) = surface {
             self.global_point_solve_0(
                 k,
                 surface,
@@ -1392,6 +1391,32 @@ impl Surface {
                 opt_target_distance,
                 requested,
             )?
+        } else {
+            // no handle for the solutions' objects (upstream passes `this`): solve with
+            // a stand-in and leave the objects null
+            let found = self.global_point_solve_0(
+                k,
+                NoObject,
+                uv_domain,
+                op,
+                test_point,
+                src_zone_tol_3d,
+                opt_target_distance,
+                requested,
+            )?;
+            let mut out = SolutionArray::new();
+            for s in found.as_slice() {
+                out.add(&Solution {
+                    solution_type: s.solution_type,
+                    num_variables: s.num_variables,
+                    start: s.start,
+                    end: s.end,
+                    num_objects: s.num_objects,
+                    objects: [None; MAX_TREES],
+                    nodes: s.nodes,
+                });
+            }
+            out
         };
         Ok(())
     }
