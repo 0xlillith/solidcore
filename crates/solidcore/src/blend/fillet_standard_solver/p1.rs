@@ -3053,3 +3053,302 @@ impl BlendCurveCrossSectionFsg {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::nurbs::crv_basic::Curve as NurbCurve;
+    use crate::nurbs::math::{CPoint, NOW};
+
+    fn line(a: Point3, b: Point3) -> BSplineCurve {
+        let pw = vec![
+            CPoint::new(a.x, a.y, a.z, NOW),
+            CPoint::new(b.x, b.y, b.z, NOW),
+        ];
+        BSplineCurve::from_nurb(
+            NurbCurve::new(pw, 1, vec![0.0, 0.0, 1.0, 1.0]).expect("curve"),
+            3,
+            false,
+        )
+    }
+
+    fn p(x: f64, y: f64, z: f64) -> Point3 {
+        Point3::new(x, y, z)
+    }
+
+    fn plane_surface(z: f64) -> Surface {
+        Surface::from(
+            BSplineSurface::create_bilinear_surface(
+                p(0.0, 0.0, z),
+                p(1.0, 0.0, z),
+                p(0.0, 1.0, z),
+                p(1.0, 1.0, z),
+            )
+            .expect("bilinear"),
+        )
+    }
+
+    fn cr() -> ConstantRadiusFs {
+        ConstantRadiusFs::from_surfaces(
+            1e-6,
+            0.5,
+            0.03,
+            [1.0, 2.0],
+            [
+                (plane_surface(0.0), SurfaceId::Free(0)),
+                (plane_surface(1.0), SurfaceId::Free(1)),
+            ],
+            [true, false],
+        )
+    }
+
+    #[test]
+    fn constant_radius_from_surfaces_offsets_by_oriented_radius() {
+        let mut fs = cr();
+        assert_eq!(fs.orientations, [1.0, -1.0]);
+        assert_eq!(fs.surface(0).expect("s0").offset_distance, 1.0);
+        assert_eq!(fs.surface(1).expect("s1").offset_distance, -2.0);
+        assert!(fs.surface(1).expect("s1").allow_extension);
+        assert_eq!(fs.jacobian_size(), 4);
+        assert!(!fs.offset_radii_can_change());
+        fs.surfaces[0]
+            .as_mut()
+            .expect("s0")
+            .set_offset_distance(7.0);
+        let r = fs.setup_offset_values(&TsectPnt::new()).expect("setup");
+        assert_eq!(r, 1.0);
+        assert_eq!(fs.surface(0).expect("s0").offset_distance, 1.0);
+        assert!(constant_radius_is_kind_of(CONSTANT_RADIUS_FS_TYPE));
+        assert!(constant_radius_is_kind_of(FILLET_SOLVER_TYPE));
+        assert!(!constant_radius_is_kind_of(CONSTANT_DISTANCE_FS_TYPE));
+    }
+
+    #[test]
+    fn constant_radius_jacobian_needs_offset_surfaces() {
+        let mut fs = cr();
+        let (mut ne, mut np) = (0, 0);
+        let mut offs = [0, 0];
+        let mut f = vec![0.0; 3];
+        let r = fs.load_jacobian(
+            &mut ne,
+            &mut np,
+            0,
+            [None, None],
+            &mut offs,
+            &[0.5; 4],
+            &mut f,
+            None,
+        );
+        assert!(r.expect_err("unported").is_unported());
+        // the index logic ran up to the first evaluation
+        assert_eq!(np, 2);
+    }
+
+    fn cd() -> ConstantDistanceFs {
+        let mut solver = FilletSolverData::new(1e-6, 0.5, 0.03);
+        solver.surfaces = [
+            Some(OffsetSurface::new(
+                0.0,
+                plane_surface(0.0),
+                SurfaceId::Free(0),
+            )),
+            Some(OffsetSurface::new(
+                0.0,
+                plane_surface(1.0),
+                SurfaceId::Free(1),
+            )),
+        ];
+        solver.orientations = [1.0, -1.0];
+        ConstantDistanceFs {
+            solver,
+            distance: 2.0,
+        }
+    }
+
+    #[test]
+    fn constant_distance_setup_and_initial_values() {
+        let mut fs = cd();
+        let mut t = TsectPnt::new();
+        t.user_doubles[0] = 0.75;
+        assert_eq!(fs.setup_offset_values(&t).expect("setup"), 0.75);
+        assert_eq!(fs.solver.surface(1).expect("s1").offset_distance, -0.75);
+
+        let k = Kernel::default();
+        let s1 = fs.solver.surface(0).expect("s0").clone();
+        let mut ivls = ExtentNd::new(4);
+        let mut per = vec![true];
+        let mut guess = vec![0.1, 0.2];
+        let v = fs
+            .load_initial_values(
+                &k, None, false, 0, &s1, 0, 1, &mut ivls, &mut per, &mut guess,
+            )
+            .expect("init");
+        assert_eq!(v.surface2_rail, None);
+        assert_eq!(v.surface2_index, 1);
+        let ivl = ivls.get(3).expect("ivl");
+        assert_eq!((ivl.min(), ivl.max()), (0.0, 20.0));
+        assert_eq!(per, vec![true, false]);
+        let r = 2.0 * 2.0_f64.sqrt() / 2.0;
+        assert_eq!(guess, vec![0.1, 0.2, r]);
+        assert_eq!(fs.solver.surface(0).expect("s0").offset_distance, r);
+
+        // out of range interval index: upstream writes past rIntervals
+        let r = fs.load_initial_values(
+            &k, None, false, 0, &s1, 0, 3, &mut ivls, &mut per, &mut guess,
+        );
+        assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
+
+        // the second surface needs the offset surface evaluation
+        let r = fs.load_initial_values(
+            &k, None, true, 0, &s1, 0, 0, &mut ivls, &mut per, &mut guess,
+        );
+        assert!(r.expect_err("unported").is_unported());
+        assert!(fs.is_kind_of(CONSTANT_DISTANCE_FS_TYPE) && fs.is_kind_of(object::OBJECT_TYPE));
+        assert!(fs.can_make_analytic());
+        assert_eq!(fs.jacobian_size(), 5);
+    }
+
+    #[test]
+    fn base_curve_snaps_extends_and_keeps_the_extension() {
+        let mut fs = CurveBasedFs::new(1e-6, 0.5, 0.03);
+        assert!(matches!(
+            fs.evaluate_base_curve(0.5, 1),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        fs.set_original_curve(Some(Curve::from(line(p(0.0, 0.0, 0.0), p(2.0, 0.0, 0.0)))));
+        let v = fs.evaluate_base_curve(1.0 + 1e-12, 0).expect("snap");
+        assert_eq!(v.first().copied(), Some(p(2.0, 0.0, 0.0)));
+        assert!(fs.extended.is_none());
+        let v = fs.evaluate_base_curve(1.5, 1).expect("extend");
+        assert!((v[0].x - 3.0).abs() < 1e-12);
+        let ext = fs.extended.as_ref().expect("extended").natural_interval();
+        assert!(ext.max() >= 2.0 - 1e-12);
+        // a non B-spline curve cannot be extended
+        let mut h = CurveBasedFs::new(1e-6, 0.5, 0.03);
+        h.set_original_curve(Some(Curve::from(
+            crate::curve::hermite_curve::HermiteCurve::new(
+                p(0.0, 0.0, 0.0),
+                p(1.0, 0.0, 0.0),
+                p(1.0, 1.0, 0.0),
+                p(0.0, 1.0, 0.0),
+                3,
+            ),
+        )));
+        assert!(matches!(
+            h.evaluate_base_curve(2.0, 0),
+            Err(SolidError::Upstream { .. })
+        ));
+        assert_eq!(fs.type_string(), "SmCurveBasedFS_TYPE");
+    }
+
+    #[test]
+    fn surface_surface_extension_of_a_plane() {
+        let k = Kernel::default();
+        let fs = SurfaceSurfaceFs {
+            base: cr(),
+            uv_guesses: [Point2::new(0.5, 0.5); 2],
+            trim_type: BoundaryTrimmingType::Minimal,
+        };
+        let mut d = Extent2d::from_points(Point2::new(0.0, 0.0), Point2::new(1.0, 2.0));
+        fs.setup_offset_extension(&k, &plane_surface(0.0), &mut d)
+            .expect("extension");
+        assert_eq!(
+            (d.min().x, d.min().y, d.max().x, d.max().y),
+            (-0.5, -1.0, 1.5, 3.0)
+        );
+        let mut fs = fs;
+        fs.set_fillet_trim_type(BoundaryTrimmingType::Bevel);
+        assert_eq!(fs.trim_type, BoundaryTrimmingType::Bevel);
+    }
+
+    #[test]
+    fn variable_radius_queries() {
+        let mut cb = CurveBasedFs::new(1e-6, 0.5, 0.03);
+        cb.solver.fsg = Some(FilletSurfaceGeneratorType::Circular);
+        let mut fs = VariableRadiusFs {
+            curve_based: cb,
+            law: FilletLaw::new(FilletLawKind::Linear {
+                start_radius: 1.0,
+                end_radius: 1.0 + 1e-13,
+            }),
+            law_orientation: false,
+            law_interval: Extent1d::from_min_max(0.0, 1.0),
+        };
+        assert!(!fs.offset_radii_can_change().expect("can change"));
+        fs.law.kind = FilletLawKind::Linear {
+            start_radius: 1.0,
+            end_radius: 2.0,
+        };
+        assert!(fs.offset_radii_can_change().expect("can change"));
+        fs.curve_based.solver.fsg = None;
+        assert!(fs.offset_radii_can_change().is_err());
+        assert!(fs
+            .set_extension_flags()
+            .expect_err("unported")
+            .is_unported());
+        assert!(fs
+            .setup_offset_values(&TsectPnt::new())
+            .expect_err("unported")
+            .is_unported());
+        fs.set_fillet_law_interval(Extent1d::from_min_max(2.0, 3.0));
+        assert_eq!(fs.fillet_law_interval().max(), 3.0);
+        assert_eq!(fs.jacobian_size(), 5);
+    }
+
+    #[test]
+    fn linear_and_circular_sections_of_a_box_edge() {
+        let k = Kernel::default();
+        let r1 = line(p(0.0, 0.0, 1.0), p(5.0, 0.0, 1.0));
+        let r2 = line(p(0.0, 1.0, 0.0), p(5.0, 1.0, 0.0));
+        let ruled = LinearCrossSectionFsg
+            .create_surface(&r1, &r2)
+            .expect("ruled");
+        assert!(ruled.gw_nurb().is_some());
+
+        let mut c = line(p(0.0, 1.0, 1.0), p(5.0, 1.0, 1.0));
+        let (mut a, mut b) = (r1.copy(), r2.copy());
+        let s = CircularCrossSectionFsg::default()
+            .create_surface_from_curves(&k, &mut c, &mut a, &mut b, 1e-6, false)
+            .expect("circular");
+        // knots were added to reach four cross sections
+        assert_eq!(a.knots(None).expect("knots").0.len(), 4);
+        let corner = s.evaluate_point(Point2::new(0.0, 0.0)).expect("point");
+        assert!(corner.distance(p(0.0, 0.0, 1.0)) < 1e-6);
+
+        // a zero radius section
+        let mut c = line(p(0.0, 0.0, 1.0), p(5.0, 0.0, 1.0));
+        let (mut a, mut b) = (r1.copy(), r2.copy());
+        assert!(matches!(
+            CircularCrossSectionFsg::default()
+                .create_surface_from_curves(&k, &mut c, &mut a, &mut b, 1e-6, false),
+            Err(SolidError::Upstream { .. })
+        ));
+    }
+
+    #[test]
+    fn blend_needs_matching_knot_counts() {
+        let k = Kernel::default();
+        let mut c = line(p(0.0, 1.0, 1.0), p(5.0, 1.0, 1.0));
+        let mut a = line(p(0.0, 0.0, 1.0), p(5.0, 0.0, 1.0));
+        let mut b = line(p(0.0, 1.0, 0.0), p(5.0, 1.0, 0.0));
+        b.insert_one_knot(0.5, 1).expect("knot");
+        let none = RailSurface {
+            surface: None,
+            uv_curve: None,
+        };
+        let r = BlendCurveCrossSectionFsg::default()
+            .create_surface_from_curves(&k, &mut c, &mut a, &mut b, 1e-6, false, none, none);
+        assert!(matches!(r, Err(SolidError::Upstream { .. })));
+        let fsg = BlendCurveCrossSectionFsg::default();
+        assert_eq!((fsg.continuity(), fsg.blend_scale()), (1, 1.5));
+        assert_eq!(fsg.generator_type(), FilletSurfaceGeneratorType::BlendCurve);
+    }
+
+    #[test]
+    fn guess_sphere_solve_starts_from_the_sphere() {
+        let g = GuessSphereSolve::new(p(1.0, 2.0, 3.0), 0.5);
+        assert_eq!(g.plane_abc, p(1.0, 2.0, 3.0));
+        assert_eq!(g.plane_d, 0.5);
+        assert!(!g.plane_adjusts);
+    }
+}

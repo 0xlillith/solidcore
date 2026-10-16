@@ -708,11 +708,11 @@ fn dump_types(o: &mut Vec<f64>, code: i64, string: &str, is_kind_of: impl Fn(i64
 }
 
 /// A record or the deferral of an unported callee.
-type Rec = Result<Vec<f64>, Output>;
+type Rec = Result<Vec<f64>, Box<Output>>;
 
-fn fail(e: &SolidError) -> Result<f64, Output> {
+fn fail(e: &SolidError) -> Result<f64, Box<Output>> {
     match Output::unported(e) {
-        Some(out) => Err(out),
+        Some(out) => Err(Box::new(out)),
         None => Ok(status(e)),
     }
 }
@@ -968,7 +968,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
                 }
             }
             dump_curve(&mut o, fs.extended.as_ref());
-            o.push(fs.solver_type() as i32 as f64);
+            o.push(f64::from(fs.solver_type() as i32));
             dump_types(&mut o, fs.type_code(), fs.type_string(), |t| fs.is_kind_of(t), kinds);
         }
         Inputs::SsExt {
@@ -1007,7 +1007,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
                 },
             }
             o.extend([d.min().x, d.min().y, d.max().x, d.max().y]);
-            o.push(fs.solver_type() as i32 as f64);
+            o.push(f64::from(fs.solver_type() as i32));
             dump_types(&mut o, fs.type_code(), fs.type_string(), |_| false, &[]);
         }
         Inputs::Cr {
@@ -1043,7 +1043,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             o.extend([fs.conversion_tol, fs.surface_extension_factor]);
             o.push(fs.jacobian_size() as f64);
             o.push(flag(fs.offset_radii_can_change()));
-            o.push(fs.constant_radius_solver_type() as i32 as f64);
+            o.push(f64::from(fs.constant_radius_solver_type() as i32));
             dump_types(
                 &mut o,
                 CONSTANT_RADIUS_FS_TYPE,
@@ -1120,7 +1120,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             o.push(fs.distance());
             o.push(flag(fs.can_make_analytic()));
             o.push(fs.jacobian_size() as f64);
-            o.push(fs.solver_type() as i32 as f64);
+            o.push(f64::from(fs.solver_type() as i32));
             dump_types(&mut o, fs.type_code(), fs.type_string(), |t| fs.is_kind_of(t), kinds);
         }
         Inputs::CdJac { solver, jac } => {
@@ -1261,7 +1261,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             o.extend([ivl.min(), ivl.max()]);
             o.push(1.0); // GetFilletLaw is the law given
             o.push(fs.jacobian_size() as f64);
-            o.push(fs.solver_type() as i32 as f64);
+            o.push(f64::from(fs.solver_type() as i32));
             dump_types(&mut o, fs.type_code(), fs.type_string(), |_| false, &[]);
         }
         Inputs::VrSetup { solver, user } => {
@@ -1282,7 +1282,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
 fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     Ok(match rust_record(i)? {
         Ok(flat) => to_output(&flat),
-        Err(out) => out,
+        Err(out) => *out,
     })
 }
 
@@ -1738,7 +1738,8 @@ fn gen_base(rng: &mut Rng) -> Inputs {
     };
     let (a, b) = ivl;
     let len = b - a;
-    let snap = 1e-10 * (1.0 + a.abs() + b.abs());
+    // `SM_EFF_ZERO * (1 + |min| + |max|)`, the snapping distance
+    let snap = 1e-12 * (1.0 + a.abs() + b.abs());
     let n_calls = 1 + rng.below(6) as usize;
     let calls = (0..n_calls)
         .map(|_| {
@@ -1769,7 +1770,7 @@ fn gen_ss_ext(rng: &mut Rng) -> Inputs {
     let surface = gen_surface(rng);
     let natural = match &surface {
         SrfIn::Plane { domain, .. } => *domain,
-        _ => [0.0, 0.0, 1.0, 1.0],
+        SrfIn::Bspline { .. } => [0.0, 0.0, 1.0, 1.0],
     };
     let domain = match rng.below(4) {
         0 | 1 => natural,
@@ -1901,8 +1902,9 @@ fn gen_vr(rng: &mut Rng) -> VrIn {
         let r0 = rng.uniform(0.2, 2.0);
         let r1 = match rng.below(4) {
             0 => r0,
-            1 => r0 + 5e-11,
-            2 => r0 + 2e-10,
+            // around the SM_EFF_ZERO (1e-12) test of OffsetRadiiCanChange
+            1 => r0 + 5e-13,
+            2 => r0 + 2e-12,
             _ => rng.uniform(0.2, 2.0),
         };
         LawIn::Linear { r0, r1 }
