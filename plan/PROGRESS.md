@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**175 / 261 units ported** (97 green, 78 partial), **234,397 / 387,903 upstream lines (60.4%)**. 24 claimed, 0 blocked, 62 todo.
+**176 / 261 units ported** (97 green, 79 partial), **234,926 / 387,903 upstream lines (60.6%)**. 23 claimed, 0 blocked, 62 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -75,7 +75,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +1 more
 - [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +2 more
 - [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1`
-- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `heal.heal_data_p3` +6 more
+- [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `blend.hcr`, `heal.heal_data_p3` +5 more
 
 ## In progress
 
@@ -102,7 +102,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (ready for review)
 - [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (ready for review)
 - [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (draft)
-- [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
 
 ## By module
 
@@ -347,12 +346,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `mass.integrator` (1031 lines) — partial, 1528 cases
 
-### sweep (1/5)
+### sweep (2/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (ready for review)
 - [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (draft)
-- [ ] 🔨 `sweep.api_brep` (529 lines) — in progress: #110 @bherbruck (ready for review)
+- [ ] 🟡 `sweep.api_brep` (529 lines) — partial
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
 ### heal (1/7)
