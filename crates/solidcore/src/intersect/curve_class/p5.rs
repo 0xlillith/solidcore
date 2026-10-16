@@ -517,6 +517,7 @@ impl<O: ClassObject> CurveClassification<O> {
                     let domain = surface.natural_uv_domain();
                     let vertex_solutions = surface.global_point_solve::<NoObject>(
                         k,
+                        None,
                         &domain,
                         SolverOperation::Minimize,
                         point,
@@ -534,6 +535,7 @@ impl<O: ClassObject> CurveClassification<O> {
                     let curve_point = curve.evaluate_point(solution.start.param(0)?)?;
                     let curve_solutions = surface.global_point_solve::<NoObject>(
                         k,
+                        None,
                         &domain,
                         SolverOperation::Minimize,
                         curve_point,
