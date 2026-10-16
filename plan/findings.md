@@ -4837,6 +4837,64 @@ mutated scales and accepted/reduced step counts are compared.
   tree adapters continue to work. Exact end-to-end B-rep solves still await the
   dependencies above.
 
+## topology.trimming_tools (`SmTrimmingTools`, `SmCurveLoops`, 2026-10-15; partial, no disagreements)
+
+- **What is compared.** Geometry ops on real `SmBSplineCurve`, `SmLine`, `SmEllipse`
+  (full ellipses as one-curve loops) and quadratic circle arcs, and on `SmBSplineSurface`
+  (open, closed in u or v, pinched, C0 kinks, rational), `SmPlane` and
+  `SmCurveBoundedSurface` (no boundary curves): `OrderCurvesIntoLoops` followed by
+  `FindOuterLoops` (ordered indices, loop counts, orientations, plane point and normal,
+  box, outer loop counts; the upstream tests `TestSmOrderCurves`,
+  `TestSmCreatePlanarFaces`, `TestSmCreatePlanarCircle` re-expressed as data),
+  `FindOuterLoops` on given loops, `MirrorCurve` (the resulting NURB), both `IsIsoCurve`s,
+  `IsIsoCurveOnSeam`, `SurfaceContinuityCheck`, `sm_IsLoopUVGapWithinTolerance` (copied
+  verbatim into the shim), `Min`, the null-region error of
+  `TrimSurfaceWithModelSpaceCurves`, and scripts of `SmCurveLoops` /
+  `SmIsoXSectSegment` / `SmCurveIntersections` operations (new iso-curve copies compared
+  by their interval and five samples). All bit-identical (max_rel_err 0).
+- **Conic UV trim curves** (review of PR #124). `SmEllipse`, `SmHyperbola` and `SmParabola`
+  are `SmBSplineCurve`s: `MirrorCurve`, both `IsIsoCurve`s, `IsIsoCurveOnSeam` and the
+  `EditEndPoint` repairs run the inherited `SmBSplineCurve` methods on them. The port
+  first rejected them and the shim's guard hid `SmLine` / `SmEllipse` from the UV curve
+  ops; `rv_ellipse.json` (ellipses incl. inside-out arcs and 1e-6 radii, lines) now
+  passes bit-identical.
+- **B-rep ops** use the `topology.vertexuse` B-reps (the 15 `.smb` files of that runner
+  and generated faces) with the same geometry normalisation as `heal.gap` (analytic face
+  surfaces and edge curves replaced by plain B-spline copies before the op):
+  `AreUVCurvesPresent`, `GetEdgeUVExtremes`, `CheckLoop` (closure, status and the assert
+  reports), `CheckFace` up to its first loop orientation, `FixTrimLoopTinyParameterSpaceGaps`,
+  `EnsureLastEdgeuseUVCorrect`, `FixBackwardsOuterLoopOnSeam` (every edge use's UV trim
+  curve compared afterwards). An optional pre-step mirrors one UV trim curve of the loop
+  across the face surface's domain with `MirrorCurve` on both sides, so that loops get
+  seam jumps and large UV gaps: it makes `FixBackwardsOuterLoopOnSeam` repair loops and
+  `CheckLoop` fail with closure 2 or 1.
+- **Shim guards.** The shim skips (reports `-2`) what upstream would dereference null:
+  loops without loop use, edge uses with neither a UV trim curve nor vertex uses, faces
+  without surface, and in `FixTrimLoopTinyParameterSpaceGaps` a gap to close at an edge
+  use without UV trim curve (found by a dry run of the gap test; the edits of a pair
+  touch only that pair's curve ends). `FindOuterLoops` reads past its arrays when a loop
+  has zero area (UB-119): the shim detects the dropped curves and reports `-2`, the port
+  returns `InvalidInput`.
+- **`sm_IsLoopUVGapWithinTolerance` on a plane** extracts from `GetOrCreateGwNurbPointer`:
+  the port uses `Plane::base_with_nurb` (a plane made by `Plane::from_normal` has no NURB
+  until asked; with the raw base the certification was `false` where the C++ said
+  `true`).
+- **Deferred:** everything past `SmFace::ComputeLoopOrientation` (`topology.face_p3`):
+  `CheckFace` after its first `CheckLoop`, `FixTrimLoopOrientation`, `FixTrimLoopOrder`
+  (whose `SmEdge::GetUVTrimCurveOfSurface` also defers at
+  `SmEdgeuse::GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`); `SplitAtSeams`,
+  `ClearUVTrimCurves`, `CreateUVTrimCurves`; the trim of model-space curves
+  (`SmBrep::SetTolerance`, `topology.brep_p2`); vertex-use UV points of edge uses without UV
+  trim curve (`ComputeUVPoint`'s deferrals). Counts after merging main (PR #52,
+  `surface.surface_p3`): 3263 cases, 2842 pass, 421 deferred (`topology.edgeuse_p3` 193,
+  `topology.face_p3` 219, `topology.face_p4` 9); the 265 `CheckLoop` cases that deferred at
+  `GetSingularities` now pass bit-identical.
+- **Back-edges wired:** `SmSurface::CreatePlaneWith3DCurves` (`surface.surface_p2`) now
+  calls the ported `OrderCurvesIntoLoops` / `FindOuterLoops` (it takes the kernel); its
+  difftest's one `topology.trimming_tools` deferral passes.
+- **Upstream bugs** ported as is: WR-96 (`GetLoopStartEnd` start index), WR-97
+  (`IsIsoCurve` returns a failed `GetCanonical` as `TRUE`), WR-98 (`MirrorCurve` divides
+  rational points by their weights twice); UB-119, UB-120 (null curves) are rejected.
 ## Merging PR #106 (surface.surface_point_solve_p3) after PR #52 (2026-10-15)
 
 - **Newly compared cases exposed two port bugs.** With `GetSingularities`/`SmFindPSNormalENFO`
@@ -5005,3 +5063,62 @@ mutated scales and accepted/reduced step counts are compared.
   UB-117 (`UpdateEdges` dereferences its optional calling definition), UB-118 (null and
   deleted definitions in the two `Resolve`s), WR-95 (`CombineProtoEdge` moves every other
   definition; confirmed by `edge_pe_combine_every_other_*`).
+
+## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
+
+- **Known disagreement (not generated): boundaries of an `SmPlane`.** In
+  `IntersectSurfaceBoundaries` the other surface's boundary curves come from
+  `CreateIsoBoundaries`; for an `SmPlane` upstream they are `SmLine`s (the plane's
+  `CreateIsoParametricCurve` override), while the port's `Surface::create_iso_boundaries`
+  (unit `surface.surface_p9`) returns `BSplineCurve`s. Copy, trim and evaluation then run
+  as B-splines: plane/plane cases differ near zero coordinates (e.g. `cpp=0`,
+  `rust=2.78e-17`, relative error 1; four of the first 600 generated cases with a plane as
+  the other surface). The generator therefore uses patches for the other surface (this
+  surface may be a plane). Fix belongs to `surface.surface_p9`: return the typed iso curve
+  (`SmLine` / `SmCircle`) from `create_iso_boundaries`.
+- **Global solves wired.** `Surface::global_curve_solve` / `global_surface_solve` (unit
+  `surface.surface_p7`) now take the kernel and the solution handles, build the surface
+  (and curve) caches for the solve (no cache store: `CacheMakeOrValidate`, unit
+  `surface.surface_p1`) and run `SmCSGlobalSolver` / `SmSSGlobalSolver` with the leaf
+  solves of this unit; the solvers borrow the caches (`CsGlobalSolver::curve` /
+  `surface_cache`, `SsGlobalSolver::caches`), as `SmLSIGlobalSolver` does.
+  `SmSSGlobalSolver::BranchMayContainAnswers` uses the caches' polar boxes when it has
+  them. `global_surface_solve_with` also returns the solution nodes' boxes and patch
+  domains (`SM_SR_NODES`, read by `SmSurfaceIntersector::FindInteriorCurves`, now wired).
+- **Unported callees** (deferred): `sm_IntersectSrfBndryCrv` and `sm_ExtractIsoCurve`
+  (`surface.surface_p8`; `LiftCurve` defers at its first call) and `LocalPointSolve`
+  through `DropPoint` of a B-spline in `IntersectSurfaceBoundaries`
+  (`surface.surface_point_solve_p3`). `SmSurface::LocalSurfaceSolve` is wired to unit
+  `surface.surface_p3` (merged).
+- **Dispatch gap: `LiftCurve` on a surface that is not a B-spline.** `SmCrvOnSurf` holds
+  any `SmSurface` upstream; the ported `CrvOnSurf` (unit `curve.crv_on_surf`) holds an
+  `SmBSplineSurface`, so `LiftCurve` of a plane, surface of revolution, curve-bounded,
+  in-volume or STEP surface returns `Unported` naming `curve.crv_on_surf` past the iso
+  curve test (as the `SmIsoCurve` gaps of parts 5, 6 and 9). Unreachable in the difftest
+  until `sm_ExtractIsoCurve` (`surface.surface_p8`) lands.
+- **Unbounded surface cache subdivision (fixed).** A difftest run of this unit with
+  `surface.surface_p7` reached 3.5 GB RSS within 84 s and aborted ("memory allocation of
+  3523215360 bytes failed": the `BezierPatch` array of a `SurfaceCache` growing past 2^21
+  patches in `SubdivideToTolerances`). The `surface.surface_p7` generator ran the Rust
+  side of each candidate case (now a real global solve) before its scale filter, so
+  extreme-scale surfaces were subdivided to the default tolerances into millions of
+  patches (upstream does the same, for minutes). Fixes: the generator checks both
+  surfaces' scales before the Rust run, and `SubdivideToTolerances` (unit
+  `surface.surface_cache_p3`) refuses to split once the tree holds
+  `MAX_SUBDIVISION_NODES` (2^20) nodes, with `InvalidInput` (a generated
+  `surface.surface_p1` `GetDomainWithContinuity` case at `1e-4` scale needs more than
+  2^18; no fixture comes near 2^20). Peak RSS of the `surface.surface_p7` run is now
+  about 80 MB.
+- **Global solve comparison.** The `surface.surface_p7` runner's `GlobalCurveSolve` and
+  `GlobalSurfaceSolve` cases compare the first 16 solutions (type, value, variables, end
+  parameters of a range), not only their count. Its generator covers minimize, maximize,
+  normalize and signed directed minimize curve solves and generated surface/surface solves
+  (a bumpy patch lifted 0.05..2 above a B-spline surface's control hull, so minimizing
+  never meets a continuum of zero distances; intersect for the `SM_SR_NODES` node pairs on
+  crossing surfaces). `SM_SO_3D_SIGNED_DIRECTED_MAXIMIZE` is not generated: it is not one
+  of the operations `sm_SCLocalSolve` accepts (its `SM_ASSERT`; the Rust side returns
+  `InvalidInput`, the release C++ carries on), and a trial of the generator with it gave
+  13 of 3660 `surface.surface_p7` cases that disagreed for exactly that reason.
+- **Upstream issues:** UB-121 (`IntersectSurfaceBoundaries` dereferences a NULL curve
+  array), WR-99 (`LocalSurfaceIntersect` boundary retries: `!bFoundSolution` binds to
+  the minimum test only; reproduced).
