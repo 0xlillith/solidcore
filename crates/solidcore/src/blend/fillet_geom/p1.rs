@@ -128,7 +128,9 @@
 //!   geometry only: the plane and surface-of-revolution arms of [`evaluate_mate`]'s cast
 //!   and any analytic-kind path inside the surface callees are never compared.
 //! - **Unported callees.** `SmSurface::PointBasedSurfaceIntersect` defers in
-//!   `intersect.surface_intersector_p4`; `SmFace::CalculateUVDomainFromUVTrimCurves`
+//!   `intersect.surface_intersector_p4`; `SmSurface::GlobalCurveIntersect` (in
+//!   [`FilletBrep::calc_cliff_rail_int_edge`]) in `SmSurfaceDropCurve::DoTrace`
+//!   (`intersect.surface_drop_curve`); `SmFace::CalculateUVDomainFromUVTrimCurves`
 //!   (`topology.face_p1`) and `SmFace::Point3DClassify` (`query.face_p1`) in
 //!   `sm_ClassifyFacePoint`; `SmFilletSolver::FindIndexOfRailOnFace`
 //!   (`blend.fillet_solver_p1`) and `SmFilletSolver::RailRailIntersect`
@@ -1600,7 +1602,10 @@ impl FilletBrep {
         // get FilletSurface/OrigBrepCurve intersection marking this FilletVertex Position3d
         let solutions = fillet_surface.global_curve_intersect(
             k,
-            [CliffHandle::Curve(curve_3d), CliffHandle::Surface(fillet_surface)],
+            [
+                CliffHandle::Curve(curve_3d),
+                CliffHandle::Surface(fillet_surface),
+            ],
             &fillet_surface.natural_uv_domain(),
             curve_3d,
             &ivl,
@@ -3451,9 +3456,8 @@ mod tests {
         let mut c3 = Vec::new();
         let mut uv = Vec::new();
         let mut or = Vec::new();
-        // the cap lines are iso-parametric: their lift defers on sm_ExtractIsoCurve
-        // (surface.surface_p8) until that unit lands
-        match join_verts_by_capping(
+        // the cap lines are iso-parametric and lifted through sm_ExtractIsoCurve
+        join_verts_by_capping(
             &k,
             1e-6,
             &s,
@@ -3464,14 +3468,11 @@ mod tests {
             &mut c3,
             &mut uv,
             &mut or,
-        ) {
-            Ok(()) => {
-                assert_eq!(uv.len(), 3);
-                assert_eq!(c3.len(), 3);
-                assert_eq!(or, vec![OrientType::Same; 3]);
-            }
-            Err(e) => assert!(e.is_unported(), "{e}"),
-        }
+        )
+        .unwrap();
+        assert_eq!(uv.len(), 3);
+        assert_eq!(c3.len(), 3);
+        assert_eq!(or, vec![OrientType::Same; 3]);
     }
 
     #[test]
