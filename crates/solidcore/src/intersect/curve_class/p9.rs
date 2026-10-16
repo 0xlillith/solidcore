@@ -13,12 +13,15 @@
 //! clearing is represented by a private copy for a lifted 2D source. Missing generic
 //! curve-on-surface dispatch and mutable edge insertion retain their dependency
 //! deferrals; no synthetic classification is inserted. Ignored native evaluation
-//! and drop statuses preserve initialized outputs; unported errors propagate.
+//! and drop statuses preserve initialized outputs; unported errors propagate. The
+//! native checked-drop guess aliases its output and is reset to zero before solving;
+//! the Rust call explicitly uses that zero guess.
 
 use super::p1::{cull_or_refine_cci_in_3d, src_zone_tol_3d_of};
 use super::CurveClassification;
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p5::make_curve_cache;
+use crate::curve::curve::p6::DroppedPoint;
 use crate::curve::curve::p8::CurveIntersectOptions;
 use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
@@ -147,6 +150,27 @@ fn lifted(k: &Kernel, uv: &Curve, surface: &Surface) -> Result<Curve> {
         Some(surface.natural_uv_domain()),
         0,
     )?))
+}
+fn checked_vertex_drop(
+    k: &Kernel,
+    lift: &Curve,
+    interval: &Extent1d,
+    point: Point3,
+    tolerance: f64,
+) -> Result<DroppedPoint> {
+    // IntersectTSBound passes &dParam as the guess and dParam as the output.
+    // SmCrvOnSurf::DropPoint initializes its output to 0 before reading that
+    // aliased guess. Preserve the observed zero seed, not the earlier UV result.
+    Ok(ignored(lift.drop_point(
+        k,
+        interval,
+        point,
+        None,
+        tolerance,
+        Some(0.0),
+        SolverOperation::Intersect,
+    ))?
+    .unwrap_or_default())
 }
 fn named<O: Copy>(s: &Solution<Side>, source: O, target: O) -> Solution<O> {
     let mut out = Solution::new();
@@ -387,16 +411,7 @@ impl<O: ClassObject> CurveClassification<O> {
             let point = vertex.point;
             // Native ignores the status, but DropPoint initializes success to false.
             // A failed checked solve must not retain the earlier UV success.
-            found = ignored(lift.drop_point(
-                k,
-                &self.interval(),
-                point,
-                None,
-                tolerance,
-                Some(found.parameter),
-                SolverOperation::Intersect,
-            ))?
-            .unwrap_or_default();
+            found = checked_vertex_drop(k, &lift, &self.interval(), point, tolerance)?;
             let on_surface =
                 ignored(lift.evaluate_point(found.parameter))?.unwrap_or(Point3::UNDEF);
             distance_3d = point.distance(on_surface);
@@ -655,5 +670,48 @@ mod tests {
                 ..
             })
         ));
+    }
+    #[test]
+    fn checked_drop_preserves_the_native_aliased_zero_guess() {
+        use crate::nurbs::b_spline_surface::BSplineSurface;
+        use crate::nurbs::math::{CPoint, NOW};
+        use crate::nurbs::srf_basic::Surface as NlSurface;
+        let k = Kernel::default();
+        let net = (0..2)
+            .map(|u| {
+                (0..2)
+                    .map(|v| CPoint::new(1e6 * f64::from(u), 1e6 * f64::from(v), 0., NOW))
+                    .collect()
+            })
+            .collect();
+        let knots = vec![0., 0., 1., 1.];
+        let surface = Surface::from(BSplineSurface::from_nurb(
+            NlSurface::new(net, 1, 1, knots.clone(), knots).unwrap(),
+            false,
+        ));
+        let source = Curve::from(Line::from_points(
+            Vec3::new(0.2, 0.5, 0.),
+            Vec3::new(0.8, 0.5, 0.),
+            2,
+        ));
+        let lift = lifted(&k, &source, &surface).unwrap();
+        // Native aliased-call probes return these exact parameter/gap pairs.
+        // Keeping the UV guess instead returns gap 0 for both points.
+        for (u, parameter) in [
+            (0.6315271935871615, 0.7192119893119358),
+            (0.7485310025864422, 0.9142183376440705),
+        ] {
+            let found = checked_vertex_drop(
+                &k,
+                &lift,
+                &Extent1d::from_min_max(0., 1.),
+                Vec3::new(1e6 * u, 5e5, 0.),
+                0.19999999999999998,
+            )
+            .unwrap();
+            assert!(found.success);
+            assert_eq!(found.parameter, parameter);
+            assert_eq!(found.distance, 1.1641532182693481e-10);
+        }
     }
 }
