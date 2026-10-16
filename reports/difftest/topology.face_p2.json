@@ -8227,8 +8227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_0",
@@ -8239,8 +8239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_1",
@@ -8251,8 +8251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_2",
@@ -8263,8 +8263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_3",
@@ -8275,8 +8275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_4",
@@ -8287,8 +8287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_box_with_large_fillet.smb_5",
@@ -8353,8 +8353,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_disk.smb_0",
@@ -8365,8 +8365,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_disk.smb_1",
@@ -8393,8 +8393,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_disk.smb_4",
@@ -8405,8 +8405,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_disk.smb_5",
@@ -8417,8 +8417,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_0",
@@ -8429,8 +8429,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_1",
@@ -8441,8 +8441,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_2",
@@ -8453,8 +8453,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_3",
@@ -8465,8 +8465,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_4",
@@ -8477,8 +8477,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_ellips_ts2.smb_5",
@@ -8489,8 +8489,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_circ.smb_0",
@@ -8509,8 +8509,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_circ.smb_2",
@@ -8529,8 +8529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_circ.smb_4",
@@ -8549,8 +8549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_square.smb_0",
@@ -8561,8 +8561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_square.smb_1",
@@ -8573,8 +8573,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_square.smb_2",
@@ -8585,8 +8585,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "fix_file_plane_square.smb_3",
@@ -11054,8 +11054,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00051",
@@ -11066,8 +11066,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00052",
@@ -11103,8 +11103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00056",
@@ -11775,8 +11775,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00131",
@@ -11816,8 +11816,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00135",
@@ -11871,8 +11871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00141",
@@ -12156,8 +12156,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00173",
@@ -12348,8 +12348,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00193",
@@ -12837,8 +12837,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00248",
@@ -13000,8 +13000,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00266",
@@ -13222,8 +13222,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00290",
@@ -13656,8 +13656,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00337",
@@ -13795,8 +13795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00353",
@@ -15046,8 +15046,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00495",
@@ -15131,8 +15131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00505",
@@ -15216,8 +15216,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00514",
@@ -15569,8 +15569,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00555",
@@ -15741,8 +15741,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00574",
@@ -16442,8 +16442,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00652",
@@ -16494,8 +16494,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00658",
@@ -16514,8 +16514,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00660",
@@ -16713,8 +16713,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00682",
@@ -16821,8 +16821,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00694",
@@ -16845,8 +16845,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00696",
@@ -17594,8 +17594,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00780",
@@ -17867,8 +17867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00811",
@@ -18306,8 +18306,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra00863",
@@ -19874,8 +19874,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01044",
@@ -20622,8 +20622,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01129",
@@ -20710,8 +20710,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01139",
@@ -21035,8 +21035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01176",
@@ -22831,8 +22831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01382",
@@ -23003,8 +23003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01401",
@@ -23553,8 +23553,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "extra01464",
@@ -23875,9 +23875,8 @@
     "intersect.surface_drop_lib_p3": 39,
     "query.face_p3": 47,
     "surface.offset_surface": 112,
-    "surface.surface_point_solve_p3": 57,
     "topology.face_p1": 63,
-    "topology.face_p2": 36
+    "topology.face_p2": 93
   },
   "max_rel_err": 0.0,
   "pass": true,

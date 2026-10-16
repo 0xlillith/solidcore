@@ -2307,8 +2307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_radial",
@@ -2319,8 +2319,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_radial_self",
@@ -2331,8 +2331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_radial_curve",
@@ -2343,8 +2343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_radial_curve_rev",
@@ -2674,50 +2674,34 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_radial",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#106",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_radial_self",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#107",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_radial_curve",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#108",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "disk_radial_curve_rev",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#109",
       "values_compared": 0
     },
@@ -3219,8 +3203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_radial",
@@ -3231,8 +3215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_radial_self",
@@ -3243,8 +3227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_radial_curve",
@@ -3255,8 +3239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_radial_curve_rev",
@@ -6234,14 +6218,10 @@
       "values_compared": 29
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0002",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447540",
       "values_compared": 0
     },
@@ -6406,14 +6386,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0022",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447560",
       "values_compared": 0
     },
@@ -6443,8 +6419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0026",
@@ -6771,8 +6747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -6907,8 +6883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0081",
@@ -6995,8 +6971,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0091",
@@ -7571,8 +7547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0160",
@@ -8110,14 +8086,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0224",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447762",
       "values_compared": 0
     },
@@ -8130,14 +8102,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0226",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447764",
       "values_compared": 0
     },
@@ -8423,8 +8391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0261",
@@ -8586,14 +8554,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0280",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447818",
       "values_compared": 0
     },
@@ -8655,8 +8619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0288",
@@ -8707,8 +8671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0294",
@@ -8943,8 +8907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0322",
@@ -9091,8 +9055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0340",
@@ -9407,8 +9371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0378",
@@ -9511,8 +9475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0390",
@@ -9671,8 +9635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0408",
@@ -9835,8 +9799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gen0428",
@@ -9939,8 +9903,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0440",
@@ -10127,8 +10091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0462",
@@ -10435,8 +10399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LocalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0498",
@@ -10579,8 +10543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -10959,8 +10923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gen0560",
@@ -11003,8 +10967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmSurface::InvertPointNearSingularity",
+        "unit": "surface.surface_p8"
       },
       "max_rel_err": 0.0,
       "name": "gen0565",
@@ -11303,13 +11267,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 89,
+  "cases_deferred": 80,
   "cases_failed": 0,
-  "cases_passed": 1279,
+  "cases_passed": 1288,
   "cases_total": 1368,
   "deferred_by_unit": {
     "intersect.surface_drop_lib_p3": 52,
-    "surface.surface_point_solve_p3": 37
+    "surface.surface_p8": 4,
+    "topology.face_p3": 24
   },
   "max_rel_err": 0.0,
   "pass": true,
