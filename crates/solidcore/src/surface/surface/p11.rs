@@ -54,8 +54,8 @@
 //!   `do_boundary_testing`) and `sm_ExtractIsoCurve` (`LiftCurve`), both unit
 //!   `surface.surface_p8`.
 //! - **Upstream issues.** `IntersectSurfaceBoundaries` dereferences a `NULL` curve
-//!   array (UB-120; the port always returns the curves); `LocalSurfaceIntersect`'s
-//!   boundary retries bind `!bFoundSolution` to the minimum test only (WR-97;
+//!   array (UB-121; the port always returns the curves); `LocalSurfaceIntersect`'s
+//!   boundary retries bind `!bFoundSolution` to the minimum test only (WR-99;
 //!   reproduced).
 //! - Debug-only work (`SM_ASSERT`, `SM_DEBUG_CODE` drawing) is not ported.
 
