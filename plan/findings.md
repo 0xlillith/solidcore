@@ -4866,6 +4866,13 @@ mutated scales and accepted/reduced step counts are compared.
   `surface::plane::p1`). The shim now calls `GetOrCreateGwNurbPointer()` and the runner
   `Plane::make_nurb()` right after construction, so both sides start from the same state:
   527 pass, 20 deferred, 0 failed.
+- **`intersect.surface_drop_lib_p2` (#112) had the same plane NURB state issue.** Its four
+  stubs were wired here (`IsSingularity` both overloads and `LocalPointSolve` with `SER` as
+  `?` and the caller's kernel, which `sm_AddToCurve` now takes in place of its unused
+  `crContext`; `EvaluateGeometric` with its status ignored, curvatures `0.0` on failure).
+  Eight generated plane `GetNextPoint` cases then disagreed at ULP level in the same way
+  (`GetNextPoint`'s start evaluation makes the C++ plane's NURB). Its shim and runner now
+  make the NURB up front too: 1304 pass, 227 deferred (surface.offset_surface), 0 failed.
 
 ## query.face_p2 (`SmFace::PointClassify`, `CurveOnClassify`, `sm_ClassifyParamOnFaces`, `SmProtoVertex` containment, 2026-10-15; partial, no disagreements)
 
