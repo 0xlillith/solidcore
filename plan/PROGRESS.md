@@ -83,7 +83,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (draft)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
-- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (draft)
+- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (ready for review)
 - [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 
@@ -359,7 +359,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] ⏳ `boolean.topology_intersector_p2` (2195 lines) — waiting
 - [ ] ⏳ `boolean.topology_intersector_p3` (1849 lines) — waiting
-- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (draft)
+- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (ready for review)
 - [ ] ⏳ `boolean.merge_p2` (1967 lines) — waiting
 - [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (ready for review)
 - [ ] ⏳ `boolean.merge_p4` (2590 lines) — waiting
