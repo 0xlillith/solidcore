@@ -1197,7 +1197,7 @@ impl UnitDiff for Runner {
                 if !bytes.get(at).is_some_and(u8::is_ascii_digit) {
                     continue;
                 }
-                for byte in [b'9', b'0'] {
+                for byte in *b"90" {
                     let d = Damage::Overwrite { at, byte };
                     let b2 = read_bytes(file, Some(d))?;
                     if b2 == bytes || !guard_accepts(&b2, false)? {
