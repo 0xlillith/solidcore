@@ -15,9 +15,11 @@
 //! deferrals; no synthetic classification is inserted. Ignored native evaluation
 //! and drop statuses preserve initialized outputs; unported errors propagate. The
 //! native checked-drop guess aliases its output and is reset to zero before solving;
-//! the Rust call explicitly uses that zero guess.
+//! the Rust call explicitly uses that zero guess. A 3D trim-boundary source returns
+//! `InvalidInput` instead of upstream's debug-only assertion.
 
 use super::p1::{cull_or_refine_cci_in_3d, src_zone_tol_3d_of};
+use super::p5::insert_solutions;
 use super::CurveClassification;
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p5::make_curve_cache;
@@ -320,7 +322,7 @@ impl<O: ClassObject> CurveClassification<O> {
         let top = tree.top_node().ok_or(SolidError::null_pointer(OP))?;
         let mut domain = Extent2d::from_extent3d(&tree.node(top)?.bbox);
         domain.expand_absolute(EFF_ZERO_SQRT);
-        let nodes = base.find_uv_nodes_built(k, &domain, true)?;
+        let nodes = base.find_uv_nodes_built(k, &domain, false)?;
         let tree = base.tree().ok_or(SolidError::null_pointer(OP))?;
         let mut visited = Vec::new();
         for &id in &nodes {
@@ -506,22 +508,6 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 }
 
-/// Dependency insertion is owned by the separate, active part-5 claim.
-fn insert_solutions<O: ClassObject>(
-    _k: &Kernel,
-    _geometry: &impl ClassGeometry<O>,
-    _classification: &mut CurveClassification<O>,
-    _solutions: &mut Vec<Solution<O>>,
-    _object: O,
-    _tolerance: Option<f64>,
-) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p5): sm_InsertSolutions
-    Err(SolidError::unported(
-        "sm_InsertSolutions",
-        "intersect.curve_class_p5",
-    ))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -552,6 +538,9 @@ mod tests {
         target: Curve,
     }
     impl ClassGeometry<H> for Geometry {
+        fn topology_zone_tol_3d(&self, h: H) -> Option<f64> {
+            (h == H::Edge).then_some(1e-6)
+        }
         fn curve(&self, h: H) -> Option<&Curve> {
             match h {
                 H::Source => Some(&self.source),
@@ -618,7 +607,7 @@ mod tests {
         assert!(matches!(
             error,
             SolidError::Unported {
-                unit: "intersect.curve_class_p5",
+                unit: "intersect.curve_class_p2",
                 ..
             }
         ));

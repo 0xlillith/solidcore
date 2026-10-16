@@ -5,7 +5,8 @@
 //! It is followed by `nv` UV/gap triples and `ne` edge records:
 //! `start[3] end[3] lo hi same_source edge_zone`. Coordinates are scaled in 3D;
 //! source coordinates stay in UV for trim-boundary operations. Cache states are
-//! unbuilt, one leaf, modified, containment missing, two leaves, and under construction.
+//! unbuilt, one leaf, modified, containment missing, two u leaves, under construction,
+//! and two v leaves.
 //! Counts, domains, flags and native ownership preconditions are checked on both sides.
 
 use crate::{call_with_buffer, FfiError};
@@ -26,7 +27,7 @@ fn invalid() -> FfiError {
 /// Validates exact lengths and bounded native geometry/ownership before allocation.
 pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     let header = input.first_chunk::<22>().ok_or_else(invalid)?;
-    if input.iter().any(|x| !x.is_finite() || x.abs() > 1e12) {
+    if input.iter().any(|x| !x.is_finite()) {
         return Err(invalid());
     }
     let int = |x: f64, max: u32| -> Result<usize, FfiError> {
@@ -40,7 +41,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         int(
             v,
             if j == 2 {
-                5
+                6
             } else if j == 1 {
                 2
             } else {
@@ -52,11 +53,8 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     let ne = int(header[13], 8)?;
     if input.len() != 22 + 3 * nv + 10 * ne
         || header[10] <= 0.
-        || header[10] > 1e6
-        || !(0.0..=1.0).contains(&header[11])
-        || header[14] >= header[15]
-        || header[14] < 0.
-        || header[15] > 1.
+        || header[11] < 0.
+        || header[14] > header[15]
         || (header[0] == 1. && (header[8] != 0. || ne != 0))
         || (header[9] != 0. && nv != 0)
         || (header[0] == 0. && (nv != 0 || header[9] != 0.))
@@ -71,15 +69,18 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     {
         return Err(invalid());
     }
-    for p in input
-        .get(22..22 + 3 * nv)
-        .ok_or_else(invalid)?
-        .as_chunks::<3>()
-        .0
+    let scale = header[10];
+    let source_scale = if header[0] == 1. { 1. } else { scale };
+    if header[16..22]
+        .iter()
+        .any(|x| !(x * source_scale).is_finite())
+        || input
+            .get(22..22 + 3 * nv)
+            .ok_or_else(invalid)?
+            .iter()
+            .any(|x| !(x * scale).is_finite())
     {
-        if !(0.0..=1.0).contains(&p[0]) || !(0.0..=1.0).contains(&p[1]) || p[2].abs() > 1. {
-            return Err(invalid());
-        }
+        return Err(invalid());
     }
     let mut shared = 0;
     for e in input
@@ -89,7 +90,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         .0
     {
         int(e[8], 1)?;
-        if e[6] < 0. || e[7] > 1. || e[6] > e[7] || !(0.0..=1.0).contains(&e[9]) {
+        if e[6] > e[7] || e[9] < 0. || e[..6].iter().any(|x| !(x * scale).is_finite()) {
             return Err(invalid());
         }
         if e[8] == 1. {
@@ -144,5 +145,29 @@ mod tests {
         i[13] = 2.;
         i.extend([0., 0., 0., 1., 0., 0., 0., 1., 1., 1e-6]);
         assert!(validate(&i).is_err());
+    }
+    #[test]
+    fn accepts_defined_inputs_beyond_the_old_fixture_ranges() {
+        let base = vec![
+            1., 0., 0., 0., 0., 0., 1., 0., 0., 0., 1., 1e-6, 1., 0., 0., 1., 0.2, 0.5, 0., 0.8,
+            0.5, 0., 0.5, 0.5, 0.,
+        ];
+        for (index, value) in [
+            (10, 1e8),
+            (11, 5.),
+            (14, -0.5),
+            (15, 1.5),
+            (22, 1.2),
+            (23, -0.2),
+            (24, 2.),
+        ] {
+            let mut input = base.clone();
+            input[index] = value;
+            assert!(validate(&input).is_ok(), "index {index}, value {value}");
+        }
+        let mut point_interval = base;
+        point_interval[14] = 0.5;
+        point_interval[15] = 0.5;
+        assert!(validate(&point_interval).is_ok());
     }
 }

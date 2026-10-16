@@ -161,8 +161,24 @@ struct Pool {
     trims: Vec<Curve>,
     vertices: Vec<Vec3>,
     surface: Surface,
+    zone: f64,
+    edge_zones: Vec<f64>,
 }
 impl ClassGeometry<H> for Pool {
+    fn classification_vertex_point(&self, o: H) -> Option<Vec3> {
+        if let H::Vertex(j) = o {
+            self.vertices.get(j).copied()
+        } else {
+            None
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        match o {
+            H::Vertex(_) => Some(self.zone),
+            H::Edge(j) => self.edge_zones.get(j).copied(),
+            _ => None,
+        }
+    }
     fn curve(&self, o: H) -> Option<&Curve> {
         match o {
             H::Source => Some(&self.source),
@@ -180,7 +196,6 @@ impl ClassGeometry<H> for Pool {
     fn point(&self, _: H) -> Option<Vec3> {
         None
     }
-
 }
 fn v(a: [f64; 3]) -> Vec3 {
     Vec3::new(a[0], a[1], a[2])
@@ -249,25 +264,40 @@ fn put_pc(out: &mut Vec<f64>, p: &PointClassification<H>) {
 }
 fn cache(i: &Input, pool: &Pool, loops: &[BoundaryLoop<H>]) -> TrimSrfCache<H> {
     let mut cache = TrimSrfCache::new(pool.surface.clone(), SurfaceCacheOptions::default());
-    let count = if i.state == 4 { 3 } else { 1 };
+    let count = if i.state == 4 || i.state == 6 { 3 } else { 1 };
+    let split_v = i.state == 6;
     let mut tree = Tree::new(None);
     for j in 0..count {
         let mut node = TreeNode::new();
         node.aux_type = AuxDataType::SurfaceData;
         let lo = if j == 2 { 0.5 } else { 0. };
         let hi = if j == 1 { 0.5 } else { 1. };
+        let (u0, u1, v0, v1) = if split_v {
+            (0., 1., lo, hi)
+        } else {
+            (lo, hi, 0., 1.)
+        };
+        let domain = Extent2d::from_bounds(u0, v0, u1, v1);
         node.geom_type = NodeGeomType::Default;
         node.bbox = Extent3d::from_points(
-            Vec3::new(lo * i.scale, 0., 0.),
             Vec3::new(
-                hi * i.scale,
-                if i.kind == 2 { hi * i.scale } else { i.scale },
+                u0 * i.scale,
+                v0 * i.scale * if i.kind == 2 { u0 } else { 1. },
+                0.,
+            ),
+            Vec3::new(
+                u1 * i.scale,
+                v1 * i.scale * if i.kind == 2 { u1 } else { 1. },
                 0.,
             ),
         );
         node.data = NodeData::Surface(SurfaceAux {
             split_dir: if count == 3 && j == 0 {
-                SplitDir::U
+                if split_v {
+                    SplitDir::V
+                } else {
+                    SplitDir::U
+                }
             } else {
                 SplitDir::Unknown
             },
@@ -284,21 +314,22 @@ fn cache(i: &Input, pool: &Pool, loops: &[BoundaryLoop<H>]) -> TrimSrfCache<H> {
         }
         tree.add_node(node);
         cache.base_mut().auxs_mut().push(BezierAux2d {
-            uv_domain: Extent2d::from_bounds(
-                if j == 2 { 0.5 } else { 0. },
-                0.,
-                if j == 1 { 0.5 } else { 1. },
-                1.,
-            ),
+            uv_domain: domain,
             owning_tree_node: Some(NodeId(j)),
             vertex_list: loops
                 .iter()
                 .flat_map(|lp| &lp.vertices)
                 .map(|x| VertexListItem {
                     vertexuse: Some(x.vertexuse),
-                    uv_point: x.uv,
+                    // Choose the lower-leaf representative of this collapsed pole.
+                    uv_point: if split_v && i.kind == 2 && x.point == Vec3::ZERO {
+                        Vec2::ZERO
+                    } else {
+                        x.uv
+                    },
                     uv_tol: Vec2::ZERO,
                 })
+                .filter(|x| !split_v || domain.contains_point(x.uv_point, 0.))
                 .collect(),
             edgeuse_list: loops
                 .iter()
@@ -324,7 +355,9 @@ fn cache(i: &Input, pool: &Pool, loops: &[BoundaryLoop<H>]) -> TrimSrfCache<H> {
 // than assuming the input coordinates survive a surface solve bit for bit.
 fn loop_vertex_uv(k: &Kernel, surface: &Surface, point: Vec3, zone: f64) -> ScResult<Vec2> {
     use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
-    use solidcore::topology::{Brep, Face, Faceuse, Loopuse, LoopuseStart, Vertex, Vertexuse, VertexuseOwner};
+    use solidcore::topology::{
+        Brep, Face, Faceuse, Loopuse, LoopuseStart, Vertex, Vertexuse, VertexuseOwner,
+    };
     let mut b = Brep::new();
     let shell = b.add_shell()?;
     let f = b.add_face_record(Face {
@@ -334,15 +367,26 @@ fn loop_vertex_uv(k: &Kernel, surface: &Surface, point: Vec3, zone: f64) -> ScRe
         ..Face::new(shell)
     })?;
     let fu = b.add_faceuse_record(Faceuse {
-        shell: Some(shell), face: Some(f), orientation: OrientType::Same,
+        shell: Some(shell),
+        face: Some(f),
+        orientation: OrientType::Same,
         ..Faceuse::default()
     })?;
     b.face_mut(f)?.faceuse = Some(fu);
-    let lu = b.add_loopuse_record(Loopuse {faceuse: Some(fu), ..Loopuse::default()})?;
+    let lu = b.add_loopuse_record(Loopuse {
+        faceuse: Some(fu),
+        ..Loopuse::default()
+    })?;
     b.faceuse_mut(fu)?.loopuses.push(lu);
-    let vertex = b.add_vertex_record(Vertex {point, tolerance: zone, ..Vertex::default()})?;
+    let vertex = b.add_vertex_record(Vertex {
+        point,
+        tolerance: zone,
+        ..Vertex::default()
+    })?;
     let vu = b.add_vertexuse_record(Vertexuse {
-        vertex: Some(vertex), owner: VertexuseOwner::Loopuse(Some(lu)), ..Vertexuse::default()
+        vertex: Some(vertex),
+        owner: VertexuseOwner::Loopuse(Some(lu)),
+        ..Vertexuse::default()
     })?;
     b.loopuse_mut(lu)?.start = LoopuseStart::Vertexuse(Some(vu));
     solidcore::topology::vertexuse::compute_uv_point(k, &mut b, vu, true)
@@ -360,6 +404,8 @@ fn rust(i: &Input) -> ScResult<Output> {
         trims: Vec::new(),
         vertices: i.vertices.iter().map(|x| v(*x) * i.scale).collect(),
         surface: surface(i)?,
+        zone: i.zone,
+        edge_zones: Vec::new(),
     };
     let mut loops = Vec::new();
     for (j, p) in i.vertices.iter().enumerate() {
@@ -391,6 +437,7 @@ fn rust(i: &Input) -> ScResult<Output> {
             .enumerate()
         {
             pool.vertices.push(a * i.scale);
+            pool.edge_zones.push(0.);
             pool.edges
                 .push(Curve::from(BSplineCurve::create_line_segment(
                     3,
@@ -423,6 +470,7 @@ fn rust(i: &Input) -> ScResult<Output> {
     let mut edges = Vec::new();
     for (j, e) in i.edges.iter().enumerate() {
         pool.edges.push(line(v(e.a) * i.scale, v(e.b) * i.scale, 3));
+        pool.edge_zones.push(e.zone);
         edges.push(BoundaryEdge {
             edge: H::Edge(j),
             curve: if e.same { H::Source } else { H::EdgeCurve(j) },
@@ -503,8 +551,8 @@ impl UnitDiff for Runner {
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let op = rng.below(2);
-        let scale = rng.choose(&[1e-6, 1., 1e6]).copied()?;
-        let mut out = json!({"op":op,"kind":rng.below(2),"state":rng.below(6),"dim3":op==0,
+        let scale = rng.choose(&[1e-6, 1., 1e6, 1e8]).copied()?;
+        let mut out = json!({"op":op,"kind":rng.below(3),"state":rng.below(7),"dim3":op==0,
             "scale":scale,"zone":scale*1e-7,"cross":rng.below(2)==1,"check3d":rng.below(2)==1,
             "big":rng.below(2)==1,"defaults":rng.below(3)==0});
         let object = out.as_object_mut()?;
@@ -525,17 +573,64 @@ impl UnitDiff for Runner {
                 object.insert("edges".into(), json!([]));
             }
         }
+        if op == 1 && rng.below(5) == 0 {
+            let kind = object.get("kind")?.as_u64()?;
+            object.insert("source".into(), json!([[0.2, 0.5, 0.], [0.8, 0.5, 0.]]));
+            object.insert(
+                "vertices".into(),
+                json!([[0.2, if kind == 2 { 0.1 } else { 0.5 }, 0.]]),
+            );
+        }
+        if op == 1 && object.get("kind")?.as_u64()? == 2 && rng.below(4) == 0 {
+            object.insert("state".into(), json!(6));
+            object.insert("source".into(), json!([[0., 0.75, 0.], [0.2, 0.75, 0.]]));
+            object.insert("vertices".into(), json!([[0., 0., 0.]]));
+        }
         Some(out)
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Input = case.parse()?;
-        ffi::run(&i.flat())
-            .map(|v| Output::new().values("out", v))
-            .map_err(|e| HarnessError::new(e.to_string()))
+        let flat = i.flat();
+        ffi::validate(&flat).map_err(|e| HarnessError::new(e.to_string()))?;
+        match ffi::run(&flat) {
+            Ok(v) => Ok(Output::new().values("out", v)),
+            Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => Ok(
+                Output::rejected("native topology fixture construction failed"),
+            ),
+            Err(e) => Err(HarnessError::new(e.to_string())),
+        }
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Input = case.parse()?;
         ffi::validate(&i.flat()).map_err(|e| HarnessError::new(e.to_string()))?;
         rust(&i).map_err(|e| HarnessError::new(e.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cached_pole_in_a_disjoint_v_leaf_is_not_visited() {
+        let input: Input = serde_json::from_value(json!({
+            "op":1,"kind":2,"state":6,
+            "source":[[0.,0.75,0.],[0.2,0.75,0.]],"vertices":[[0.,0.,0.]]
+        }))
+        .unwrap();
+        let result = rust(&input).unwrap();
+        assert!(result.deferred.is_none());
+        assert!(result.error.is_none());
+        let out = &result.values["out"];
+        assert_eq!(&out[..4], &[0., 1., 0., 1.]);
+        assert_eq!(out[7], -1.); // No pole vertex classification at the source start.
+    }
+    #[test]
+    fn positive_start_vertex_changes_the_classification_record() {
+        let input: Input =
+            serde_json::from_value(json!({"op":1,"vertices":[[0.2,0.5,0.]]})).unwrap();
+        let result = rust(&input).unwrap();
+        assert!(result.deferred.is_none());
+        assert_eq!(result.values["out"][7], 100.);
     }
 }

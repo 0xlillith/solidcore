@@ -41,20 +41,23 @@ struct P9Trim : SmTrimSrfCache {
     explicit P9Trim(const SmSurface& s) : SmTrimSrfCache(s) {
         m_sAuxMgr.Initialize(ALIGN_SIZE(sizeof(SmBezierAux2d)),25);
     }
-    void recipe(const SmSurface& s, const SmTArray<SmLoopuse*>& loops, int state,
+    void recipe(const SmSurface& s, const SmTArray<SmLoopuse*>& loops, int state, bool collapsed,
                 std::vector<std::unique_ptr<SmVertexList>>& vertices,
                 std::vector<std::unique_ptr<SmEdgeuseList>>& edges) {
         auto* tree = new (s.GetContext()) P9Tree(this); m_pTree=tree;
-        int count=state==4?3:1;
+        int count=(state==4 || state==6)?3:1;
+        const bool split_v=state==6;
         SmTreeNode* nodes[3]={};
         for(int i=0;i<count;i++) {
             nodes[i]=tree->node(); auto* nd=nodes[i]; nd->m_pTree=tree;
             nd->m_eAuxDataType=SM_AD_SURFACE_DATA; nd->m_eGeomType=SM_NG_DEFAULT;
             nd->m_pData=(SmBezierAux2d*)m_sAuxMgr.GetNewElement();
             auto* aux=(SmBezierAux2d*)nd->m_pData;
-            aux->m_sUVDomain=SmExtent2d(SmPoint2d(i==2?.5:0,0),SmPoint2d(i==1?.5:1,1));
+            const double lower=i==2?.5:0, upper=i==1?.5:1;
+            aux->m_sUVDomain=split_v ? SmExtent2d(SmPoint2d(0,lower),SmPoint2d(1,upper)) :
+                SmExtent2d(SmPoint2d(lower,0),SmPoint2d(upper,1));
             aux->mBA_pSurface=&s; aux->m_pOwningTreeNode=nd;
-            aux->m_eSplitDir=count==3 && i==0 ? SM_SP_U : SM_SP_UNKNOWN;
+            aux->m_eSplitDir=count==3 && i==0 ? (split_v?SM_SP_V:SM_SP_U) : SM_SP_UNKNOWN;
             SmPoint3d low,high;
             s.EvaluatePoint(aux->m_sUVDomain.GetMin(),low);
             s.EvaluatePoint(aux->m_sUVDomain.GetMax(),high);
@@ -66,6 +69,12 @@ struct P9Trim : SmTrimSrfCache {
                 for(long j=(long)vs.GetSize()-1;j>=0;--j) {
                     auto item=std::make_unique<SmVertexList>(); item->m_pVU=vs[j];
                     vs[j]->ComputeUVPoint(item->m_vUVPoint); item->m_vUVTol.Set(0,0);
+                    // A pole has many UV representatives. This cache recipe
+                    // deliberately stores it in the lower v leaf, away from the query.
+                    if(split_v && collapsed && vs[j]->GetVertex()->GetPoint()==SmPoint3d(0,0,0))
+                        item->m_vUVPoint=SmPoint2d(0,0);
+                    const auto uv=item->m_vUVPoint;
+                    if(split_v && (uv.x<0 || uv.x>1 || uv.y<lower || uv.y>upper)) continue;
                     aux->m_vVertexList.Prepend(item.get()); vertices.push_back(std::move(item));
                 }
                 for(long j=(long)es.GetSize()-1;j>=0;--j) {
@@ -107,23 +116,23 @@ SmSurface* make_surface(const SmContext& ctx,int kind,double scale) {
 }
 SC_EXPORT int32_t sc_intersect_curve_class_p9_run(const double* in,int64_t n,double* out,int64_t cap,int64_t* len) {
     if(!in || n<22 || !len || cap<0 || (!out && cap)) return SC_ERR_ARG;
-    for(int64_t j=0;j<n;j++) if(!std::isfinite(in[j]) || std::abs(in[j])>1e12) return SC_ERR_ARG;
+    for(int64_t j=0;j<n;j++) if(!std::isfinite(in[j])) return SC_ERR_ARG;
     auto integer=[](double x,int max){ return x>=0 && x<=max && x==std::floor(x); };
-    for(int j=0;j<10;j++) if(!integer(in[j],j==2?5:j==1?2:1)) return SC_ERR_ARG;
+    for(int j=0;j<10;j++) if(!integer(in[j],j==2?6:j==1?2:1)) return SC_ERR_ARG;
     if(!integer(in[12],8)||!integer(in[13],8)||n!=22+3*(int)in[12]+10*(int)in[13]) return SC_ERR_ARG;
-    if(in[10]<=0 || in[10]>1e6 || in[11]<0 || in[11]>1 || in[14]>=in[15]) return SC_ERR_ARG;
-    if(in[14]<0 || in[15]>1 || (in[0]==1 && (in[8]!=0 || in[13]!=0)) ||
+    if(in[10]<=0 || in[11]<0 || in[14]>in[15]) return SC_ERR_ARG;
+    if((in[0]==1 && (in[8]!=0 || in[13]!=0)) ||
        (in[9]!=0 && in[12]!=0) || (in[0]==0 && (in[12]!=0 || in[9]!=0))) return SC_ERR_ARG;
     if((in[16]==in[19] && in[17]==in[20] && in[18]==in[21]) ||
        (in[8]==0 && (in[18]!=0 || in[21]!=0))) return SC_ERR_ARG;
+    const double source_scale_guard=in[0]==1?1:in[10];
+    for(int j=16;j<22;j++) if(!std::isfinite(in[j]*source_scale_guard)) return SC_ERR_ARG;
+    for(int j=22;j<22+3*(int)in[12];j++) if(!std::isfinite(in[j]*in[10])) return SC_ERR_ARG;
     int shared=0;
-    for(int j=0;j<(int)in[12];j++) {
-        const double* p=in+22+3*j;
-        if(p[0]<0 || p[0]>1 || p[1]<0 || p[1]>1 || std::abs(p[2])>1) return SC_ERR_ARG;
-    }
     for(int j=0;j<(int)in[13];j++) {
         const double* p=in+22+3*(int)in[12]+10*j;
-        if(!integer(p[8],1) || p[6]<0 || p[7]>1 || p[6]>p[7] || p[9]<0 || p[9]>1) return SC_ERR_ARG;
+        if(!integer(p[8],1) || p[6]>p[7] || p[9]<0) return SC_ERR_ARG;
+        for(int k=0;k<6;k++) if(!std::isfinite(p[k]*in[10])) return SC_ERR_ARG;
         if(p[8]) { ++shared; if(in[8]!=1) return SC_ERR_ARG; }
         else if(p[0]==p[3] && p[1]==p[4] && p[2]==p[5]) return SC_ERR_ARG;
     }
@@ -202,7 +211,7 @@ SC_EXPORT int32_t sc_intersect_curve_class_p9_run(const double* in,int64_t n,dou
     std::vector<std::unique_ptr<SmVertexList>> vl; std::vector<std::unique_ptr<SmEdgeuseList>> el;
     if(op) {
         std::unique_ptr<P9Trim> cache(new (&ctx) P9Trim(*s));
-        cache->recipe(*s,loops,state,vl,el);
+        cache->recipe(*s,loops,state,kind==2,vl,el);
         SmCacheMgr::DeleteObjectsCache(s); s->SetCacheObj(cache.release());
     }
     struct CacheGuard {
