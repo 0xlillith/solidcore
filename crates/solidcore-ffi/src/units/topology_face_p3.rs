@@ -171,10 +171,10 @@ fn check_args(op: Op, a: &[f64], c: [usize; 10]) -> Result<(), FfiError> {
         }
         Op::Intersect => {
             index(a1, n_f, "other face")?;
-            if !a2.is_finite() || !(a2 > 0.0 && a2 <= 1e3) {
+            if !(a2.is_finite() && a2 > 0.0 && a2 <= 1e3) {
                 return Err(bad("approximation tolerance outside (0, 1e3]"));
             }
-            if !a3.is_finite() || !(a3 > 0.0 && a3 <= 180.0) {
+            if !(a3.is_finite() && a3 > 0.0 && a3 <= 180.0) {
                 return Err(bad("angle tolerance outside (0, 180] degrees"));
             }
             if ![-1.0, 0.0, 1.0].contains(&a4) {
