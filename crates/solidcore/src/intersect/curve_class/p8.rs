@@ -106,7 +106,7 @@ fn iso_curve(k: &Kernel, surface: &Surface, line: Line) -> Result<Curve> {
             Ok(CrvOnSurf::new(k, line.into(), s.clone_exact(), None, 0)?.into())
         }
         _ => {
-            // UNPORTED(curve.crv_on_surf): SmCrvOnSurf on a generic SmSurface
+            // DISPATCH GAP (curve.crv_on_surf): CrvOnSurf stores only BSplineSurface.
             Err(SolidError::unported(
                 "SmCrvOnSurf on a generic SmSurface",
                 "curve.crv_on_surf",

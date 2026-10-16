@@ -5415,9 +5415,11 @@ Dependency boundaries and integration handoffs:
   gap; they are not replaced by a B-spline stand-in.
   Existing `CrvOnSurf` cache/break evaluation can also reach the earlier part-4
   constructor stub, so that transitive blocker is reported separately.
-- Incoming p8 markers in `curve.crv_on_surf` and `curve.crv_in_volume` are after
+- Incoming p8 sites in `curve.crv_on_surf` and `curve.crv_in_volume` are after
   their earlier `intersect.curve_class_p4` construction stubs (#137). Part 4 is
-  still independent. Those sites cannot yet reach p8; no unit is promoted here.
+  still independent. Stale p8 UNPORTED comments now name the available methods;
+  the actual errors still correctly name part 4. Those sites need part-4
+  construction/context plumbing before they can reach p8; no unit is promoted.
 
 The native oracle builds real segments, full circles and stationary quadratic
 B-splines; planes, flat/warped C0 grids with independent U/V counts; identity and
@@ -5431,8 +5433,9 @@ folders. Generated cases use the harness's recorded fixed seeds.
 Coverage limits: solution insertion, crossing-driven partition mutation and the
 following crossing-angle classifications are not certified. All discontinuous
 volume plane paths are deferred; UV-curve rejection and no-discontinuity volume
-returns compare status and unchanged state only. Surface fallback classifications
-without boundary intersections are the directly compared classification subset;
+returns compare status and unchanged state only. Natural-boundary midpoint classifications and UV-discontinuity fallback/
+propagation are the directly compared classification subset;
+3D surface-discontinuity construction/cache paths remain deferred throughout.
 partition parameters remain unchanged on these paths and are checked as state,
 not reported as newly solved intersection parameters.
 preclassified skip/propagation cases are not new topology construction. The
