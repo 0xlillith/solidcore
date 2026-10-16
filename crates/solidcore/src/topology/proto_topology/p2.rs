@@ -2253,10 +2253,13 @@ mod tests {
             .unwrap();
         assert!(created);
         assert_eq!(m.proto_vertices(), &[pv]);
-        // the containment test is not ported
-        assert!(m
-            .find_or_create_proto_vertex(Point3::new(1.0, 0.0, 0.0))
-            .is_err_and(|e| e.is_unported()));
+        // the same position finds the existing proto vertex
+        assert_eq!(
+            m.find_or_create_proto_vertex(Point3::new(1.0, 0.0, 0.0))
+                .unwrap(),
+            (pv, false)
+        );
+        assert_eq!(m.proto_vertices(), &[pv]);
 
         // curves cannot be imprinted
         let mut pc1 = PointClassification::new(1e-5);

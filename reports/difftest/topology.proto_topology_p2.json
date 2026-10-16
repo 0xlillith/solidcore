@@ -70,16 +70,12 @@
       "values_compared": 297
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0005",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903684",
-      "values_compared": 0
+      "values_compared": 131
     },
     {
       "deferred": {
@@ -138,16 +134,12 @@
       "values_compared": 96
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903691",
-      "values_compared": 0
+      "values_compared": 386
     },
     {
       "max_rel_err": 0.0,
@@ -434,16 +426,12 @@
       "values_compared": 295
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0044",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903723",
-      "values_compared": 0
+      "values_compared": 340
     },
     {
       "max_rel_err": 0.0,
@@ -882,16 +870,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0093",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903772",
-      "values_compared": 0
+      "values_compared": 362
     },
     {
       "max_rel_err": 0.0,
@@ -938,16 +922,12 @@
       "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0099",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903778",
-      "values_compared": 0
+      "values_compared": 464
     },
     {
       "deferred": {
@@ -1350,16 +1330,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0144",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903823",
-      "values_compared": 0
+      "values_compared": 330
     },
     {
       "max_rel_err": 0.0,
@@ -1810,16 +1786,12 @@
       "values_compared": 169
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903875",
-      "values_compared": 0
+      "values_compared": 113
     },
     {
       "max_rel_err": 0.0,
@@ -1862,16 +1834,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0201",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903880",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -2358,16 +2326,12 @@
       "values_compared": 494
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0257",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903936",
-      "values_compared": 0
+      "values_compared": 345
     },
     {
       "deferred": {
@@ -2414,16 +2378,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903941",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -2502,16 +2462,12 @@
       "values_compared": 410
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0272",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903951",
-      "values_compared": 0
+      "values_compared": 431
     },
     {
       "max_rel_err": 0.0,
@@ -2578,16 +2534,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0280",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903959",
-      "values_compared": 0
+      "values_compared": 124
     },
     {
       "max_rel_err": 0.0,
@@ -2774,16 +2726,12 @@
       "values_compared": 74
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0302",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903981",
-      "values_compared": 0
+      "values_compared": 402
     },
     {
       "max_rel_err": 0.0,
@@ -3502,16 +3450,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0386",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904065",
-      "values_compared": 0
+      "values_compared": 204
     },
     {
       "max_rel_err": 0.0,
@@ -3870,16 +3814,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0427",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904106",
-      "values_compared": 0
+      "values_compared": 93
     },
     {
       "max_rel_err": 0.0,
@@ -3906,16 +3846,12 @@
       "values_compared": 46
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0431",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904110",
-      "values_compared": 0
+      "values_compared": 436
     },
     {
       "max_rel_err": 0.0,
@@ -4534,16 +4470,12 @@
       "values_compared": 390
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0502",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904181",
-      "values_compared": 0
+      "values_compared": 312
     },
     {
       "max_rel_err": 0.0,
@@ -4574,16 +4506,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0506",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904185",
-      "values_compared": 0
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -4614,16 +4542,12 @@
       "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0510",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904189",
-      "values_compared": 0
+      "values_compared": 103
     },
     {
       "max_rel_err": 0.0,
@@ -4830,16 +4754,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0533",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904212",
-      "values_compared": 0
+      "values_compared": 145
     },
     {
       "max_rel_err": 0.0,
@@ -4866,16 +4786,12 @@
       "values_compared": 115
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0537",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904216",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
       "max_rel_err": 0.0,
@@ -5402,16 +5318,12 @@
       "values_compared": 424
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0596",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904275",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -5586,16 +5498,12 @@
       "values_compared": 105
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0616",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904295",
-      "values_compared": 0
+      "values_compared": 282
     },
     {
       "max_rel_err": 0.0,
@@ -6034,16 +5942,12 @@
       "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0666",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904345",
-      "values_compared": 0
+      "values_compared": 565
     },
     {
       "max_rel_err": 0.0,
@@ -6102,16 +6006,12 @@
       "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0674",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904353",
-      "values_compared": 0
+      "values_compared": 441
     },
     {
       "deferred": {
@@ -6558,16 +6458,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0724",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904403",
-      "values_compared": 0
+      "values_compared": 380
     },
     {
       "max_rel_err": 0.0,
@@ -6866,16 +6762,12 @@
       "values_compared": 318
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0759",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904438",
-      "values_compared": 0
+      "values_compared": 122
     },
     {
       "deferred": {
@@ -7206,16 +7098,12 @@
       "values_compared": 96
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0796",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904475",
-      "values_compared": 0
+      "values_compared": 479
     },
     {
       "max_rel_err": 0.0,
@@ -7362,16 +7250,12 @@
       "values_compared": 120
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0814",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904493",
-      "values_compared": 0
+      "values_compared": 396
     },
     {
       "max_rel_err": 0.0,
@@ -7770,16 +7654,12 @@
       "values_compared": 517
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0857",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904536",
-      "values_compared": 0
+      "values_compared": 122
     },
     {
       "max_rel_err": 0.0,
@@ -7858,16 +7738,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0867",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904546",
-      "values_compared": 0
+      "values_compared": 352
     },
     {
       "deferred": {
@@ -7955,8 +7831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetSurface",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0877",
@@ -8159,8 +8035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0900",
@@ -8210,16 +8086,12 @@
       "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0906",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904585",
-      "values_compared": 0
+      "values_compared": 153
     },
     {
       "max_rel_err": 0.0,
@@ -8546,16 +8418,12 @@
       "values_compared": 94
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0944",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904623",
-      "values_compared": 0
+      "values_compared": 359
     },
     {
       "max_rel_err": 0.0,
@@ -9170,16 +9038,12 @@
       "values_compared": 469
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1014",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904693",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -9294,16 +9158,12 @@
       "values_compared": 272
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1028",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904707",
-      "values_compared": 0
+      "values_compared": 284
     },
     {
       "max_rel_err": 0.0,
@@ -9358,16 +9218,12 @@
       "values_compared": 153
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1035",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904714",
-      "values_compared": 0
+      "values_compared": 379
     },
     {
       "max_rel_err": 0.0,
@@ -9478,16 +9334,12 @@
       "values_compared": 93
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1049",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904728",
-      "values_compared": 0
+      "values_compared": 489
     },
     {
       "max_rel_err": 0.0,
@@ -9530,16 +9382,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1054",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904733",
-      "values_compared": 0
+      "values_compared": 327
     },
     {
       "max_rel_err": 0.0,
@@ -10062,16 +9910,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1112",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904791",
-      "values_compared": 0
+      "values_compared": 152
     },
     {
       "max_rel_err": 0.0,
@@ -10170,16 +10014,12 @@
       "values_compared": 95
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1125",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904804",
-      "values_compared": 0
+      "values_compared": 311
     },
     {
       "max_rel_err": 0.0,
@@ -10466,16 +10306,12 @@
       "values_compared": 303
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1157",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904836",
-      "values_compared": 0
+      "values_compared": 128
     },
     {
       "max_rel_err": 0.0,
@@ -10534,16 +10370,12 @@
       "values_compared": 84
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1165",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904844",
-      "values_compared": 0
+      "values_compared": 113
     },
     {
       "max_rel_err": 0.0,
@@ -10746,16 +10578,12 @@
       "values_compared": 72
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1190",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904869",
-      "values_compared": 0
+      "values_compared": 357
     },
     {
       "max_rel_err": 0.0,
@@ -10915,8 +10743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen1209",
@@ -11078,16 +10906,12 @@
       "values_compared": 57
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1226",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904905",
-      "values_compared": 0
+      "values_compared": 345
     },
     {
       "max_rel_err": 0.0,
@@ -11170,16 +10994,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1236",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904915",
-      "values_compared": 0
+      "values_compared": 361
     },
     {
       "deferred": {
@@ -11578,16 +11398,12 @@
       "values_compared": 206
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1283",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904962",
-      "values_compared": 0
+      "values_compared": 383
     },
     {
       "deferred": {
@@ -11918,16 +11734,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1319",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904998",
-      "values_compared": 0
+      "values_compared": 116
     },
     {
       "max_rel_err": 0.0,
@@ -12154,16 +11966,12 @@
       "values_compared": 376
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1343",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905022",
-      "values_compared": 0
+      "values_compared": 264
     },
     {
       "deferred": {
@@ -12510,16 +12318,12 @@
       "values_compared": 479
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1381",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905060",
-      "values_compared": 0
+      "values_compared": 210
     },
     {
       "deferred": {
@@ -12554,16 +12358,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1385",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905064",
-      "values_compared": 0
+      "values_compared": 448
     },
     {
       "max_rel_err": 0.0,
@@ -12654,16 +12454,12 @@
       "values_compared": 81
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1396",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905075",
-      "values_compared": 0
+      "values_compared": 285
     },
     {
       "max_rel_err": 0.0,
@@ -12942,16 +12738,12 @@
       "values_compared": 457
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1429",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905108",
-      "values_compared": 0
+      "values_compared": 353
     },
     {
       "max_rel_err": 0.0,
@@ -13074,16 +12866,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1443",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905122",
-      "values_compared": 0
+      "values_compared": 473
     },
     {
       "max_rel_err": 0.0,
@@ -13222,16 +13010,12 @@
       "values_compared": 359
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1460",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905139",
-      "values_compared": 0
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -13266,16 +13050,12 @@
       "values_compared": 61
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1465",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905144",
-      "values_compared": 0
+      "values_compared": 488
     },
     {
       "max_rel_err": 0.0,
@@ -13330,16 +13110,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1471",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905150",
-      "values_compared": 0
+      "values_compared": 99
     },
     {
       "max_rel_err": 0.0,
@@ -13538,16 +13314,12 @@
       "values_compared": 409
     },
     {
-      "deferred": {
-        "symbol": "SmProtoVertex::ContainsPoint",
-        "unit": "query.face_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen1493",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905172",
-      "values_compared": 0
+      "values_compared": 470
     },
     {
       "max_rel_err": 0.0,
@@ -13847,17 +13619,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 395,
+  "cases_deferred": 338,
   "cases_failed": 0,
-  "cases_passed": 1138,
+  "cases_passed": 1195,
   "cases_total": 1533,
   "deferred_by_unit": {
-    "query.face_p2": 60,
     "surface.surface_point_solve_p3": 39,
     "topology.brep_p9": 18,
-    "topology.edge": 122,
-    "topology.face_p1": 39,
-    "topology.face_p2": 59,
+    "topology.edge": 123,
+    "topology.face_p1": 40,
+    "topology.face_p2": 60,
     "topology.vertex": 58
   },
   "max_rel_err": 0.0,
