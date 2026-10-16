@@ -5461,22 +5461,40 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 ## topology.face_p3 (`SmFace` part 3: `ComputeLoopOrientation`, `CreateUVTrimCurves`, `FaceIntersect`, `IsDegenerate`, `CreateComposites`, `SetTolerance`, `Notify`, lamina tests, PR #139, 2026-10-16; partial, no disagreements)
 
-- **Coverage.** Every case that runs on both sides agrees bit for bit. What compares
-  values: the three lamina queries (`HasConsecutiveLaminaEdges` defers on
-  `SmFace::GetEdges(.., TRUE)`, `topology.face_p4`), `SetTolerance` (every face, edge and
-  vertex tolerance), `Notify` `PRE_EDIT` / `ADD_TO_BREP` / `RM_FROM_BREP` (rectangular-trim
-  flag and every edge use / vertex use state), `IsDegenerate` with a zone tolerance above
-  every edge (all edges degenerate: the early `TRUE`), `CreateComposites` on faces whose
-  loops need no `NormalizedEvaluate`, and `FaceIntersect` of non-coincident face pairs
-  whose surfaces do not meet. The other paths defer on their unported callees:
-  `ComputeLoopOrientation` at `sm_AreConnected` / `GetOrCreateUVTrimCurve` /
-  `NormalizedEvaluate` (`topology.edgeuse_p3`; checked on a rebuilt `plane_square.smb`
-  that the C++ takes the UV path there too, so the deferral hides no disagreement),
-  `IsDegenerate` at the `SmCurveClassification` constructor (`intersect.curve_class_p4`),
-  `CreateUVTrimCurves` at `GetSingularities` of the face-owned surface (the
-  `SmFace::GetTolerance` stub of `surface.surface_p3`, tagged `topology.face_p2`) or
-  `GetUpwardLoopuses` (`topology.face_p4`), `FaceIntersect` at `CoincidenceCheck`
-  (`surface.surface_p8`) or the classification of its curves.
+- **Coverage.** Every case that runs on both sides agrees bit for bit (1758 cases, 530
+  pass, 1228 deferred). What compares values: the three lamina queries
+  (`HasConsecutiveLaminaEdges` defers on `SmFace::GetEdges(.., TRUE)`,
+  `topology.face_p4`), `SetTolerance` (every face, edge and vertex tolerance), `Notify`
+  `PRE_EDIT` / `ADD_TO_BREP` / `RM_FROM_BREP` (rectangular-trim flag and every edge use /
+  vertex use state), `ComputeLoopOrientation` of an inner vertex loop only (32 cases on
+  faces built with `SmBrep::MakeVertexLoop`: the early return of
+  `SmFace.cpp:1704`-`1708`, orientation and bounds), `IsDegenerate` with a zone tolerance
+  above every edge (all edges degenerate: the early `TRUE`; the 56 passes compare 2 values
+  each) and `FaceIntersect` of non-coincident face pairs whose surfaces do not meet (the 70
+  passes compare 4 values each: status, curve count, point count and the empty
+  arrays). **Nothing compares for `CreateComposites`** (all 68 cases defer at
+  `SmEdgeuse::NormalizedEvaluate`, `topology.edgeuse_p3`), for `ComputeLoopOrientation` of
+  an edge loop (all deferred there, `sm_AreConnected` / `GetOrCreateUVTrimCurve` /
+  `NormalizedEvaluate`; checked on a rebuilt `plane_square.smb` that the C++ takes the UV
+  path there too, so the deferral hides no disagreement), for `CreateUVTrimCurves` (it
+  defers at `GetSingularities` of the face-owned surface, the `SmFace::GetTolerance` stub
+  of `surface.surface_p3` tagged `topology.face_p2`, or at `GetUpwardLoopuses`,
+  `topology.face_p4`) or for the rest of `IsDegenerate` (the `SmCurveClassification`
+  constructor, `intersect.curve_class_p4`) and `FaceIntersect` (`CoincidenceCheck`,
+  `surface.surface_p8`, or the classification of its curves). The `CreateUVTrimCurves`
+  runs with the `own_curves` argument (the shim and the runner hand copies of the face's
+  UV trim curves with their edge use's orientation, after clearing them, so
+  `sm_FindBestUVCurve`, `CheckAndSetUVTrimCurve` and the `SmCrvOnSurf_TYPE` test of
+  `SmFace.cpp:8117`-`8160` are exercised) defer the same way, so those paths are not
+  compared yet; they start comparing when `topology.face_p4` lands.
+- **Import / dispatch gap (not a pending port).** The 224 `surface.cone_p1` and 112
+  `surface.surf_of_extrusion_p2` deferrals (and `surface.torus`, `surface.sphere` when
+  they appear) come from the runner's `inexact_geometry`: the graph import keeps the C++
+  type codes 15012 / 15013 (cone), 15015 (torus) and 15030 (extrusion) only as their
+  B-spline part, so a geometric op on such a B-rep defers to the unit that gives the kind
+  a `SurfaceKind` variant. No pending port clears them (the unit named is only the owner
+  of the missing import/dispatch, as the DISPATCH GAP convention in this file); they are
+  owned by the `SurfaceKind` variant work.
 - **Harness.** The B-rep blocks, graph export and import are those of the
   `topology.vertexuse` runner (planes as `SmPlane`, lines as `SmLine`). Its import keeps
   analytic `SmBSplineSurface` / `SmBSplineCurve` subclasses (cone, cylinder, sphere,
@@ -5484,9 +5502,12 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   ops (`LoopOrient` onwards) on such B-reps defer to the unit that gives the kind a Rust
   representation (the mapping of the `topology.edgeuse_p2` runner). The shim's own op 0
   exports each face's surface type and each edge's curve type for that test. The shim
-  outputs `-2` instead of calling a geometric op when the B-rep has a face without
-  surface or an edge without curve (upstream dereferences them); the Rust side does the
-  same. `SmallBox.smb` (and `Platform.smb`) do not build upstream and are not used.
+  outputs `-2` instead of calling a geometric op when the target face (or, for
+  `FaceIntersect`, either face) has no surface or one of its loops' edges has no curve
+  (upstream dereferences them; the ops touch nothing else); the Rust side does the same.
+  Block kind 4 (a kind-2 face plus an inner vertex loop at given fractions of its
+  domain, `SmBrep::MakeVertexLoop`) was added to the shared fixture for this unit.
+  `SmallBox.smb` (and `Platform.smb`) do not build upstream and are not used.
 - **`CreateUVTrimCurves` order.** Upstream reads `GetUVDomain`, `GetSingularities` and
   `GetNaturalUVDomain` before `SmRescueSurfaceOwner` clears the surface owner; the port
   does the same, so `GetSingularities` sees the face-owned surface (its approximation
