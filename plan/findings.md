@@ -5408,5 +5408,14 @@ CurveOnClassifyObjects::vertex; their other dependency stubs remain untouched.
 The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
 UB-125/126 are source-found native null dereferences; UB-127 was reproduced during
 the original bundled validation. The shim retains those narrow preconditions.
-Independent-port checks and reports are pending; earlier bundled pass counts do not
-certify this branch.
+Independent-port evidence on numerical source `abb5cc7a`, based on official main
+`f22eaae0`, uses the clean pinned upstream `c9c5979`, Ubuntu 26.04.1 x86_64,
+GCC 15.2.0 and Rust 1.98.0. The fixture count is 281 fixed plus 800 generated:
+267 compared exactly, zero failed, 814 deferred (p2 430, p6 348, p7 35,
+curve.crv_on_surf 1). Perturbation detects all 267 compared cases. Formatting,
+strict plain Clippy, 1,208 kernel tests and WASM pass. The adapter-only opt-level-0
+CLI override reduces build memory; the numerical kernel remains opt-level 1 and
+the reference flags remain unchanged. All five affected differential runners pass;
+the p1, p3, point-classification and face-query reports are byte-identical to main.
+Native Clippy and the FFI regression are still pending. Earlier bundled pass counts
+do not certify this branch.

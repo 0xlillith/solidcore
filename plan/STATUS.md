@@ -959,5 +959,6 @@ perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 c
 
 The p5 implementation and oracle are isolated from the open p2/p7/p6 PRs. Their
 code, fixtures, reports, status changes and integration promotions are excluded.
-Calls into those units explicitly defer until they land independently. Fresh
-validation of the reduced scope is pending; bundled results are not reused.
+Calls into those units explicitly defer until they land independently. The reduced scope compares 267/1,081 cases exactly, with zero failures and 814
+explicit deferrals. Perturbation detects all 267 compared cases. Bundled results
+are not reused.
