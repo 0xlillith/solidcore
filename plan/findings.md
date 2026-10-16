@@ -5691,9 +5691,12 @@ independent p6 integration.
   `SmBrepData::ReadFromFile`, `MakeShellVertex` / `MakeFaceTopology` / `GetInfiniteRegion`
   (`topology.brep_p9` / `_p6` / `_p1`) for every face made, `SmBrep::Notify`
   (`topology.brep_p2`) for every glue past its early returns, `SmBrep::SetTolerance`
-  (`topology.brep_p2`) for every copy. The passing cases are the read errors of damaged
-  files, the input errors of the face makers, `MakeFace`'s null-surface status, the glue
-  no-ops and `MergeSelfIntersectionCurves` without curves.
+  (`topology.brep_p2`) for every copy. The passing cases are 12 read errors of damaged
+  streams the brep_data guard accepts (pinned by a deterministic search: an overwritten
+  digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
+  status, the glue no-ops (compared as the B-rep's counts after the op) and
+  `MergeSelfIntersectionCurves` without curves. Before the pre-review of PR #155 no
+  `ReadFromFile` case compared anything.
 - **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
   on both sides (rejected streams are not generated). A damaged stream whose
   `SmBrepData` read still succeeds is not run in C++ (`MakeTopologyFromData` on
@@ -5711,3 +5714,6 @@ independent p6 integration.
   `port-gap:curve.crv_on_surf` (no unit will un-defer it until that port grows).
 - **Back-edge wired:** `trimming_tools::trim_surface_with_model_space_curves` calls
   `make_face_with_curves` (its new face owns the surface as `(SmFace_TYPE, 1 + index)`).
+- **UB-163.** `MakeFaceWithCurves` with `pbOptCrvOnSurf` TRUE, 3D curves and no UV curves
+  dereferences the null UV array once `MakeFace` succeeds; the shim returns `-2` for such
+  calls (the Rust side mirrors it; the port itself returns `InvalidInput`).
