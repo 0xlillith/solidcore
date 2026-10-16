@@ -5714,6 +5714,25 @@ independent p6 integration.
   today (the Rust side defers those calls at `GetUpwardLoopuses`, `topology.face_p4`), but
   **when face_p4 lands the guard must be replaced**, e.g. by running the C++ seam ops
   out-of-process or behind a fork-based crash trap, not by a looser predicate.
+- **`MergeIntervals` wired (maintainer, after `intersect.curve_class_p5` landed;
+  resolver by the porter).** `SplitAtSeam` calls the real
+  `CurveClassification::merge_intervals` (vertices then edges, upstream's default; its
+  status is ignored as upstream, `Unported` propagates). Its `MergeInterval` topology
+  edits still defer to `intersect.curve_class_p2`, so it makes no faces or edges yet.
+  The new faces, edges and vertices map to ids through the caller's `resolve`; a handle
+  that does not resolve (to an entity of the right kind) is a loud `InvalidInput`, never
+  an empty result, so a caller whose resolver is incomplete (`trimming_tools`'
+  `SeamObject` has only loops and vertices; the runner resolves nothing) fails visibly
+  once `MergeInterval` edits topology. No difftest case reaches it (the `face_p4` stubs
+  and the UB-137 guard come first). The UB-137 guard stays: once `MergeInterval` edits
+  topology, the C++ side still crashes there.
+- **`IsCrossedByEdge` / `HasNearMisses` wired** (`intersect.curve_class_p7`, PR #65).
+  `MoveSeam` without face properties calls them (`HasNearMisses` with upstream's default
+  `bInSurfaceGaps = FALSE`, so it takes classification geometry: `move_seam` gained a
+  `geometry: &impl ClassGeometry<O>` argument). Upstream returns plain booleans, so a
+  failure reads as `FALSE`, except `Unported` and an unresolvable handle
+  (`InvalidInput`). No difftest case reaches them: `GetUpwardLoopuses`
+  (`topology.face_p4`) comes first.
 - **Not compared.** The shim gives faces and edges plain B-spline copies of analytic
   geometry (what the Rust import rebuilds), so `MoveSeam`'s analytic branch
   (`CopyAndAddAnalytics` of the joined surface) and `SwapUV`'s conic UV trim curve

@@ -76,15 +76,24 @@
 //!   (UB-137).
 //! - **`bUseJGU`** (`static constexpr FALSE` in `SplitAtSeam`) branches are dead code
 //!   upstream and are not ported. The `SmTemporaryChangeValue`s of `SplitAtSeam`
-//!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) guard calls that are all unported.
+//!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) are not set: they guard
+//!   `HasSeamProblem` (unported) and `MergeIntervals`, whose port reads neither flag
+//!   (its topology edits defer to `intersect.curve_class_p2`).
+//! - **`MergeIntervals`** returns handles; the port maps its new faces, edges and
+//!   vertices to ids with the caller's `resolve` and returns
+//!   [`SolidError::InvalidInput`] for a handle that does not resolve to an entity of
+//!   the expected kind (upstream's lists hold the pointers directly). Its own status
+//!   is ignored, as upstream.
+//! - **`IsCrossedByEdge` / `HasNearMisses`** return a plain boolean upstream; a
+//!   failure of the port other than [`SolidError::Unported`] (or, for
+//!   `HasNearMisses`, [`SolidError::InvalidInput`] for a handle `geometry` cannot
+//!   resolve) reads as `FALSE`.
 //! - **Unported callees** return [`SolidError::Unported`]: `SmFace::Notify` and
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetUpwardLoopuses`,
 //!   `GetUpwardVertexuses`, `GetEdges`, `GetBrep` and `HasSeamProblem`
 //!   (`topology.face_p4`); `SmEdgeuse::NormalizedEvaluate` and
-//!   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`);
-//!   `SmCurveClassification::IsCrossedByEdge` and `HasNearMisses`
-//!   (`intersect.curve_class_p7`);
-//!   `SmBrep::ReplaceSurface` (`topology.brep_p2`).
+//!   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`); `SmBrep::ReplaceSurface`
+//!   (`topology.brep_p2`).
 //! - **Bounds.** `SplitAtSeam` recurses into the faces its U merge made, once per face
 //!   (upstream asserts the recursion only fixes V seams); the port carries a depth and
 //!   returns [`SolidError::InvalidInput`] past [`MAX_SPLIT_AT_SEAM_DEPTH`]. Every other
@@ -107,7 +116,7 @@ use crate::geom::tol::are_same_to_tol;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::heal::face_props::{FaceProps, LoopObject, Tri};
 use crate::intersect::curve_class::p1::CurveClassification;
-use crate::intersect::point_class::PointClassType;
+use crate::intersect::point_class::{ClassGeometry, PointClassType};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_PARAM};
 use crate::nurbs::b_spline_curve::p2::BoundingBoxRequest;
@@ -251,22 +260,25 @@ fn get_or_create_uv_trim_curve(_b: &mut Brep, _eu: EdgeuseId) -> Result<Curve> {
     ))
 }
 
-/// `rCrvClass.IsCrossedByEdge()`.
-fn is_crossed_by_edge<O: LoopObject>(_c: &CurveClassification<O>) -> Result<bool> {
-    // UNPORTED(intersect.curve_class_p7): SmCurveClassification::IsCrossedByEdge
-    Err(SolidError::unported(
-        "SmCurveClassification::IsCrossedByEdge",
-        "intersect.curve_class_p7",
-    ))
+/// `rCrvClass.IsCrossedByEdge()`: upstream returns a plain boolean, so a failure other
+/// than [`SolidError::Unported`] reads as `FALSE`.
+fn is_crossed_by_edge<O: LoopObject>(c: &CurveClassification<O>) -> Result<bool> {
+    Ok(ignored(c.is_crossed_by_edge())?.unwrap_or(false))
 }
 
-/// `rCrvClass.HasNearMisses()`.
-fn has_near_misses<O: LoopObject>(_c: &CurveClassification<O>) -> Result<bool> {
-    // UNPORTED(intersect.curve_class_p7): SmCurveClassification::HasNearMisses
-    Err(SolidError::unported(
-        "SmCurveClassification::HasNearMisses",
-        "intersect.curve_class_p7",
-    ))
+/// `rCrvClass.HasNearMisses()` (default `bInSurfaceGaps = FALSE`): upstream returns a
+/// plain boolean, so a failure reads as `FALSE`, except an unresolvable caller handle
+/// ([`SolidError::InvalidInput`]) and [`SolidError::Unported`], which propagate.
+fn has_near_misses<O: LoopObject>(
+    k: &Kernel,
+    c: &CurveClassification<O>,
+    geometry: &impl ClassGeometry<O>,
+) -> Result<bool> {
+    match c.has_near_misses(k, geometry, false) {
+        Ok(v) => Ok(v),
+        Err(e) if e.is_unported() || matches!(e, SolidError::InvalidInput { .. }) => Err(e),
+        Err(_) => Ok(false),
+    }
 }
 
 /// `pCrvClass->MergeIntervals(&faces, &edges, &vertices, this)` (unit
@@ -276,7 +288,11 @@ fn merge_intervals<O: LoopObject>(
     c: &mut CurveClassification<O>,
     resolve: &dyn Fn(O) -> Option<EntityRef>,
 ) -> Result<SeamSplit> {
-    let merged = c.merge_intervals(false)?;
+    // (the merge's status is ignored, as upstream; an output the caller cannot resolve
+    // is caller error and propagates)
+    let Some(merged) = ignored(c.merge_intervals(false))? else {
+        return Ok(SeamSplit::default());
+    };
     let mut out = SeamSplit::default();
     for o in merged.faces {
         match resolve(o) {
@@ -1258,6 +1274,7 @@ pub fn move_seam<O: LoopObject>(
     problem: SeamProblem,
     opts: MoveSeamOptions,
     props: Option<&FaceProps<O>>,
+    geometry: &impl ClassGeometry<O>,
     resolve: &dyn Fn(O) -> Option<EntityRef>,
 ) -> Result<MoveSeamResult> {
     use SurfParamType as Sp;
@@ -1321,11 +1338,11 @@ pub fn move_seam<O: LoopObject>(
     };
     let near_miss_u = match props {
         Some(p) => names(p.bad_near_miss_seam_dir, Sp::U),
-        None => has_near_misses(crv_class_u)?,
+        None => has_near_misses(k, crv_class_u, geometry)?,
     };
     let near_miss_v = match props {
         Some(p) => names(p.bad_near_miss_seam_dir, Sp::V),
-        None => has_near_misses(crv_class_v)?,
+        None => has_near_misses(k, crv_class_v, geometry)?,
     };
     let fix_seam_both = (crosses_u || near_miss_u) && (crosses_v || near_miss_v);
 
@@ -1809,9 +1826,7 @@ fn split_at_seam_depth<O: LoopObject>(
         // (upstream sets pBrep->m_bEditingEnabled and the context's DoingBoolean flag
         // around the merges with SmTemporaryChangeValue; neither is set here: the B-rep
         // flag is unit topology.brep_p1's and the context flag needs a mutable kernel)
-        if let Some(s) = ignored(merge_intervals(crv_class_u, resolve))? {
-            this_new = s;
-        }
+        this_new = merge_intervals(crv_class_u, resolve)?;
         if !merge_v {
             out.faces.extend_from_slice(&this_new.faces);
             out.edges.extend_from_slice(&this_new.edges);
@@ -1868,9 +1883,7 @@ fn split_at_seam_depth<O: LoopObject>(
             Some(EntityRef::Vertex(v)) => Some(v),
             _ => None,
         })?;
-        if let Some(s) = ignored(merge_intervals(crv_class_v, resolve))? {
-            this_new = s;
-        }
+        this_new = merge_intervals(crv_class_v, resolve)?;
         out.faces.extend_from_slice(&this_new.faces);
         out.edges.extend_from_slice(&this_new.edges);
         out.vertices.extend_from_slice(&this_new.vertices);
@@ -1884,6 +1897,7 @@ mod tests {
     use crate::geom::attribute::ObjectKey;
     use crate::intersect::point_class::{ClassObject, ClassObjectKind};
     use crate::surface::plane::Plane;
+    use crate::surface::volume::Volume;
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     struct H(LoopId);
@@ -1897,6 +1911,24 @@ mod tests {
     impl LoopObject for H {
         fn from_loop(l: LoopId) -> Self {
             Self(l)
+        }
+    }
+
+    /// Classification geometry for the null handles here: resolves nothing.
+    struct NoGeometry;
+
+    impl ClassGeometry<H> for NoGeometry {
+        fn curve(&self, _: H) -> Option<&Curve> {
+            None
+        }
+        fn surface(&self, _: H) -> Option<&Surface> {
+            None
+        }
+        fn volume(&self, _: H) -> Option<&Volume> {
+            None
+        }
+        fn point(&self, _: H) -> Option<Point3> {
+            None
         }
     }
 
@@ -2014,6 +2046,7 @@ mod tests {
             p,
             MoveSeamOptions::default(),
             None,
+            &NoGeometry,
             &|_| None,
         )
         .unwrap();
@@ -2040,6 +2073,7 @@ mod tests {
             p,
             MoveSeamOptions::default(),
             Some(&props),
+            &NoGeometry,
             &|_| None,
         );
         assert!(e.unwrap_err().is_unported());

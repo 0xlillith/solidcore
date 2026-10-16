@@ -53,10 +53,15 @@ use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::ObjectRef;
 use solidcore::heal::face_props::{FaceProps, LoopObject, Tri};
 use solidcore::intersect::curve_class::p1::CurveClassification;
-use solidcore::intersect::point_class::{ClassObject, ClassObjectKind, PointClassType};
+use solidcore::intersect::point_class::{
+    ClassGeometry, ClassObject, ClassObjectKind, PointClassType,
+};
 use solidcore::kernel::Kernel;
+use solidcore::math::Point3;
 use solidcore::nurbs::b_spline_surface::p1::SurfParamType;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use solidcore::surface::surface::Surface;
+use solidcore::surface::volume::Volume;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::face::p1 as fp1;
 use solidcore::topology::face::p2 as fp2;
@@ -391,6 +396,24 @@ impl LoopObject for H {
     }
 }
 
+/// Classification geometry for the null handles here: resolves nothing.
+struct NoGeometry;
+
+impl ClassGeometry<H> for NoGeometry {
+    fn curve(&self, _: H) -> Option<&Curve> {
+        None
+    }
+    fn surface(&self, _: H) -> Option<&Surface> {
+        None
+    }
+    fn volume(&self, _: H) -> Option<&Volume> {
+        None
+    }
+    fn point(&self, _: H) -> Option<Point3> {
+        None
+    }
+}
+
 fn put_domain(o: &mut Vec<f64>, d: &Extent2d) {
     o.extend([d.min().x, d.min().y, d.max().x, d.max().y]);
 }
@@ -532,7 +555,8 @@ fn probe(
 
 /// The shim's guard of the seam ops (upstream's `SplitAtSeam` recursion crashes in
 /// `MergeInterval`, see `plan/upstream-issues.md`): a seam problem in both directions on
-/// a face periodic in both. Such cases are deferred to `MergeIntervals`' unit.
+/// a face periodic in either direction, and `MoveSeam` with split past its early return.
+/// Such cases are deferred to `cpp-crash-guard:UB-137`.
 #[allow(clippy::too_many_arguments)]
 fn seam_guard(
     b: &Brep,
@@ -786,6 +810,7 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
                 problem,
                 opts,
                 fp.as_ref(),
+                &NoGeometry,
                 &|_| None,
             );
             o.push(status(&r)?);
