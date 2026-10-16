@@ -604,6 +604,28 @@ impl Brep {
         Self::default()
     }
 
+    /// `m_pInfiniteRegion` (`GetInfiniteRegion`).
+    #[must_use]
+    pub const fn infinite_region(&self) -> Option<RegionId> {
+        self.infinite_region
+    }
+
+    /// Sets `m_pInfiniteRegion` (a raw member write, no validation).
+    pub fn set_infinite_region_record(&mut self, region: Option<RegionId>) {
+        self.infinite_region = region;
+    }
+
+    /// `m_bEditingEnabled`.
+    #[must_use]
+    pub const fn editing_enabled(&self) -> bool {
+        self.editing_enabled
+    }
+
+    /// Sets `m_bEditingEnabled`.
+    pub fn set_editing_enabled(&mut self, enabled: bool) {
+        self.editing_enabled = enabled;
+    }
+
     /// All shells.
     #[must_use]
     pub fn shells(&self) -> &Arena<ShellId, Shell> {

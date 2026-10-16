@@ -376,10 +376,12 @@ fn point_in_solid(target: &Brep, point: Point3, tolerance: f64) -> Result<bool> 
 }
 
 fn brep_vertices(_brep: &Brep) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetVertices
+    // UNPORTED(query.api_queries): SmBrep::GetVertices (ported: topology::brep::p1::vertices; not wired here because this unit's difftest
+    // compares the B-rep's native list order, which its import does not carry; see
+    // plan/findings.md, topology.brep_p1)
     Err(SolidError::unported(
         "SmBrep::GetVertices",
-        "topology.brep_p1",
+        "query.api_queries",
     ))
 }
 
@@ -491,12 +493,16 @@ pub fn brep_distance<O: SolutionObject>(
 }
 
 fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+    // UNPORTED(query.api_queries): SmBrep::GetEdges (ported: topology::brep::p1::edges; not wired here because this unit's difftest
+    // compares the B-rep's native list order, which its import does not carry; see
+    // plan/findings.md, topology.brep_p1)
+    Err(SolidError::unported("SmBrep::GetEdges", "query.api_queries"))
 }
 fn brep_faces(_brep: &Brep) -> Result<Vec<FaceId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+    // UNPORTED(query.api_queries): SmBrep::GetFaces (ported: topology::brep::p1::faces; not wired here because this unit's difftest
+    // compares the B-rep's native list order, which its import does not carry; see
+    // plan/findings.md, topology.brep_p1)
+    Err(SolidError::unported("SmBrep::GetFaces", "query.api_queries"))
 }
 
 /// Exact B-rep edge list (`SmApiGetEdges`). Empty lists return `SM_ERR`.

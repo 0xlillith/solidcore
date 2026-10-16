@@ -4980,6 +4980,54 @@ mutated scales and accepted/reduced step counts are compared.
   face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
   reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.
 
+## heal.face_props (`SmFaceProps` / `SmLoopProps` / `SmLooptreeItem`, 2026-10-16; partial, no disagreements)
+
+- **UB-131 (`plan/upstream-issues.md`).** `SmFaceProps::SetProps_Gaps` returns at once from stage
+  `GAPSa` on (`SmFaceProps.cpp:768`), so the `m_pFace != cpFace` re-run in `SetProps_Stage2`
+  (`:875`) and `SetProps_Stage3` (`:1258`) never sets `m_pFace`; a stage past the gaps with no
+  face (`ReSet(2a)` then `SetProps(2)`, or a seeded stage `GAPS` then Stage 2) dereferences NULL
+  (`:898`) and the reference segfaults. No disagreement: the harness rejects those scripts
+  (`ffi::validate` simulates the stage and the face pointer) and the port returns `InvalidInput`.
+  Regression fixtures: `rejected_reset_then_stage2`, `rejected_seeded_gaps_then_stage2`.
+- **UB-128 (`plan/upstream-issues.md`).** `SetProps_Stage3` on a plane with a degenerate domain
+  (`[0, 0, t, t]`) and edge loops crashes in `SmFace::ClassifyLoops` (`SmCrvOnSurf::GetKnots`,
+  `SmCurveClassification::IntersectUVDiscontinuties`); the crash is not monotone in `t`
+  (crashes at 1e-300, 1e-100, 1e-14, 1e-12, 1e-10; survives at 1e-11, 1e-9). No disagreement:
+  `ffi::validate` rejects a script that can reach Stage 3 on such a face when a domain side is
+  below 1e-6. Regression fixtures: `rejected_degenerate_plane_stage3_*`.
+- **Why `UNPORTED(topology.face_p2)` stays in `surface_approx_tol_3d` (`surface/surface/p3.rs`).**
+  A `Surface` holds only an owner handle, not its B-rep, so `SmFace::GetTolerance` of the owner
+  cannot be called from a bare surface. The face props have the face and its tolerance, so they
+  pass it (`Surface::get_singularities_of_face`, `face_tolerance = Some(..)`); every other caller
+  still reaches the stub. Wiring it needs the surface to reach its B-rep (or every caller to pass
+  the tolerance), which is a data-model change for `topology.face_p2`'s owner, not for this unit.
+- **Coverage limits.** Stage 3 is compared through op 8 (`SmLoopProps::SetProps` of each loop);
+  every direct `SetProps_Stage3` case defers at `SmFace::ClassifyLoops` (`query.face_p4`), so
+  the Stage 3 loop counts and the containment are not compared until that unit lands.
+- **`m_lBadFlatCorners` is compared but never nonzero.** The snapshot holds the flag value and
+  the four flat corner points (an unset corner is the uninitialised point on both sides), so a
+  nonzero value would be compared value for value. No generated or fixture face reaches one: a
+  corner is flat only where `Su` and `Sv` are parallel and neither is degenerate, which the
+  plane (axes at least 1e-3 apart) and the canonical surfaces of revolution the harness builds
+  never give (a trial with a generator along the circle's tangent at its start still reported
+  none on either side, and was dropped). Only the seeded field (op 5, field 9) exercises the
+  value, so the computation in `FaceProps::set_props_stage2` (`GetFlatCorners`) is compared
+  as "none". `SmSurface::GetFlatCorners` uses `lRtn &= SM_FC_*` (not `|=`) when it fills the
+  points array (WR-55), which drops other corners' flags; the port follows
+  the upstream expression.
+- **Harness.** The shim and the runner build the same one-face B-rep: a plane or an
+  `SmSurfOfRevolution::CreateCanonical` surface (cylinder, cone with or without apex, sphere,
+  torus; `AdjustSTEPUVDomain` opens the 360 degree sweep) owned by the face, with a vertex loop
+  or edge loops (outer loop and holes of `SmLine` edges). The Rust B-rep is rebuilt record by
+  record (`rust_brep`) and the shim checks the realised edge use order. The face tolerance reaches
+  `GetSingularities` through `Surface::get_singularities_of_face` (a `Surface` holds only an owner
+  handle; the other `UNPORTED(topology.face_p2)` tolerance stubs on surfaces are unchanged).
+- **Deferred by design.** Closed faces (any full sweep): `SetProps_Stage2` reaches
+  `SmFace::HasSeamProblem` (`topology.face_p4`); every `SetProps_Stage3` reaches
+  `SmFace::ClassifyLoops` (`query.face_p4`). Op 8 compares `SmLoopProps::SetProps` of each loop
+  (the loop-props loop of Stage 3) without the classification. Wire loops cannot be built with
+  `SmBrepConstructor` (it closes every loop) and are not compared.
+
 ## topology.proto_topology_p3 (PR #121): wiring notes
 
 - `SmFace::CurveOnClassify(TRUE, cc)` (called from `ResolveOverlappingProtoEdges`) is wired
@@ -5444,3 +5492,71 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   `query.brep` lands.
 - **File statics.** `sm_GetPointFromSol` and `sm_CheckAndFixUVTrimCurves` cannot be called from a
   shim (static in `SmBrep.cpp`); they are covered by Rust unit tests only.
+
+## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
+
+Difftest (`fixtures/topology.brep_p1/`: 2070 cases on the 15 upstream `.smb` files read by
+`SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces,
+the `prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 2318 cases, 1710 pass, 0 fail, 608 deferred
+(topology.shell 148, topology.edgeuse_p3 106, topology.brep_p7 86, query.brep 70,
+surface.surf_of_extrusion_p2 46, surface.sphere 43, surface.cone_p1 29, topology.face_p3 19,
+heal.heal_data_p1 16, surface.surface_cache_p1 16, topology.face_p1 15, surface.surface_p8 10,
+curve.crv_on_surf 4); `--perturb` SENSITIVE 1710/1710.
+Every compared value is bit-identical; no absolute floors. Of the passes, 15 are `cases_both_errored`
+(both sides `no_entity`: face ops on the constructed wire B-reps); the other 1695 compare values.
+
+- **Upstream defect UB-136** (`plan/upstream-issues.md`): `SmCopyBrepMap::SetAt` with a null copy
+  and `GetAt` of a key never stored both dereference null through the release `SM_ASSERT`
+  (`if(a) {}` still evaluates `pOrigObj->GetType()`); `sm_SetObjectMap` documents a null copy as
+  allowed. Confirmed with gdb. The Rust copy maps are `BTreeMap`s (no entry for a null copy, `None`
+  on a miss); the shim only exercises the defined inputs.
+- **List order.** `GetFaces` / `GetEdges` / `GetVertices` return the B-rep's `m_p*ListHead` list
+  order, which differs from the traversal order the shared graph export numbers entities in
+  (Mouse.smb: the first listed face is traversal index 2). `Brep` now keeps the three lists
+  explicitly (`face_list`, `edge_list`, `vertex_list`; `add_*_record` appends, `set_*_list`
+  reorders) and the runner imports the native order from the shim's extras. Likewise the
+  region list head (`Brep::region_list_head`, moved by `ResetInfiniteRegion`).
+- **Wire networks.** The shared export walk (`sc_edgeuse_graph.h`) registers only the head of a
+  wire shell's list and never walks vertex -> other vertex uses, so the `prog_test` wire network
+  exported partially (2 of 6 edges). This unit's shim adds a fixpoint pass (`walk_more`) that
+  registers the remaining shell members and vertex uses before exporting; earlier indices are
+  unchanged, so the shared units are unaffected.
+- **Upward face use.** The shared import leaves `Face::faceuse` (`m_pFU`) unset; this runner sets
+  it to the face's `SAME`-oriented face use (needed by `GetLoops`, `sm_MarkLoopsToDelete`,
+  `sm_FindSectorOfFace`).
+- **Analytic geometry** (cone, sphere, torus, extrusion faces; ellipse edges) arrives as its
+  B-spline part only (as in `topology.edgeuse_p1`): the ops that evaluate it (`GetTopologicalEdges`,
+  `GetTopologicalVertices`, `sm_CheckUVTrimCurve`, `sm_FindSectorOfFace`, `UpdateVertexEdgeIntervals`,
+  `sm_MakeVertexSplitUVTrimCurve`, `CreateParallelProjectionCurves`) defer to the surface units /
+  `topology.brep_p7` instead of comparing a different surface. `CreateEdgeEdgeBlend` ruled surfaces
+  are compared on every file: upstream also uses only the `SmBSplineCurve` part of the rails.
+- **`sm_MakeVertexSplitUVTrimCurve` on a plane face.** Upstream lifts the UV trim curve through
+  `SmCrvOnSurf(uv, *pSurface)`, whose `EvaluatePoint` is the surface evaluation of the UV curve
+  point; the Rust `CrvOnSurf` exists only over a `BSplineSurface` (a `Plane`'s base has no NURB
+  data), so the port lifts through the face `Surface` itself and builds the `CrvOnSurf` only for the
+  tessellation branch's local solve (deferred to `curve.crv_on_surf` for a non-B-spline face).
+- **Status conventions of the runner.** `-2` marks inputs upstream would dereference null on
+  (shim guards, `InvalidInput` raised by this unit); an `InvalidInput` from a callee is reported
+  as that callee's `SM_ERR_INVALID_INPUT` (`BSplineCurve::trim`, "trim points too close", matches
+  upstream's 1007 on `ellips_ts2.smb`). `-3` is "the shim did not call upstream" and only appears
+  where the Rust side defers (seam branch of `sm_RedistributeSeamUVTrimCurves`, blends with two or
+  more edge uses or a non-ruled flag, `BrepIntersect` with faces, `HealBrep`).
+- **Back-edges wired:** `SmBrep::GetInfiniteRegion` in `topology.edge` (its 5 `topology.brep_p1`
+  deferrals now continue to `topology.brep_p2`), `GetVertices/GetEdges/GetFaces` in
+  `topology.brep_cache`, `GetTolerance` / `GetThisModelSizeEstimate` in `heal.heal_data_p2`
+  (`SetThisModelSizeEstimate` stays a stub there: it writes the kernel context and
+  `fix_tol_sizes` takes `&Kernel`). **Not wired** (the stubs keep their `UNPORTED` tag with a
+  note): `query.api_queries` compares face/edge/vertex indices in the B-rep's native list order
+  while its import holds only the traversal order (14 cases disagree once wired: a permutation,
+  e.g. `face_kind6_op9`); `geom.tools` `FindEdge` on `box_with_large_fillet.smb` (32 cases:
+  Rust `SM_ERR`, upstream finds the edge; the edge curves arrive as B-spline parts of analytic
+  curves) and `mass.integrator` face query 4 (1 case: Rust `SM_ERR`, upstream succeeds). Those
+  need the owning units' runners to import the list order / defer inexact geometry first.
+- **Deferred, by design until their units land:** `GetShells` / `ResetInfiniteRegion` void flags /
+  `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
+  `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`
+  (`topology.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
+  `LockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`),
+  `CreateBlendSurface` (`surface.surface_p8`). The error paths before each stub are compared
+  (`ResetInfiniteRegion(NULL)`, the "infinite region not first" check, `CreateCornerBlend` with
+  fewer than two edge uses, `CreateEdgeEdgeBlend` without edges or NURBS rails).

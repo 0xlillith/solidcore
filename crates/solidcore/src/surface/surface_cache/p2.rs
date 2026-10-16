@@ -467,10 +467,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         let chord_height_squared = chord_tol * chord_tol;
         let ang_tol_deg = opts.ang_tol_rad * 180.0 / PI;
         let zone_tol = if self.surface().owner().is_some() {
-            // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+            // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
             return Err(SolidError::unported(
                 "SmTol::GetZoneTol3d(const SmObject*)",
-                "topology.brep_p1",
+                "geom.tol",
             ));
         } else {
             zone_tol_3d(k, SmallTopoType::NormalSize)

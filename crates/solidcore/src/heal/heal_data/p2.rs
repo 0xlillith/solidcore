@@ -1967,29 +1967,23 @@ pub struct HealData<O: LoopObject> {
 
 /// `SmZoneTol3d sZoneTol3d = SmTol::GetZoneTol3d(pBrep)` and the other `SmBrep`
 /// overloads of `SmTol` (`SmBrep::GetTolerance`).
-fn brep_zone_tol_3d(_b: &Brep) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmBrep::GetTolerance",
-        unit: "topology.brep_p1",
-    })
+fn brep_zone_tol_3d(b: &Brep) -> f64 {
+    b.tolerance()
 }
 
 /// `SmTol::GetModelSizeEstimate(const SmBrep&)` (`SmBrep::GetThisModelSizeEstimate`).
-fn brep_model_size_estimate(_b: &Brep) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetThisModelSizeEstimate
-    Err(SolidError::Unported {
-        upstream: "SmBrep::GetThisModelSizeEstimate",
-        unit: "topology.brep_p1",
-    })
+fn brep_model_size_estimate(k: &Kernel, b: &Brep) -> f64 {
+    b.this_model_size_estimate(k, true)
 }
 
 /// `SmTol::SetModelSizeEstimate(SmBrep&, double)` (`SmBrep::SetThisModelSizeEstimate`).
 fn set_brep_model_size_estimate(_b: &mut Brep, _size: f64) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmBrep::SetThisModelSizeEstimate
+    // UNPORTED(heal.heal_data_p2): SmBrep::SetThisModelSizeEstimate is ported as
+    // `Brep::set_this_model_size_estimate`, but it writes the kernel context and
+    // `fix_tol_sizes` holds `&Kernel`; wire when the healer takes `&mut Kernel`
     Err(SolidError::Unported {
         upstream: "SmBrep::SetThisModelSizeEstimate",
-        unit: "topology.brep_p1",
+        unit: "heal.heal_data_p2",
     })
 }
 
@@ -3067,7 +3061,7 @@ impl<O: LoopObject> HealData<O> {
         } else {
             s
         };
-        let brep_model_size = brep_model_size_estimate(b)?;
+        let brep_model_size = brep_model_size_estimate(k, b);
         let context_model_size = context_model_size_estimate(k, &k.context);
 
         let this_est_zone_tol_3d = size_estimate_to_zone_tol_3d(this_model_size);
@@ -3097,7 +3091,7 @@ impl<O: LoopObject> HealData<O> {
             })?;
 
             // update the tolerance (SmTol::CalcFaceZoneTol3d(pBrep))
-            let zone_tol_3d = brep_zone_tol_3d(b)?;
+            let zone_tol_3d = brep_zone_tol_3d(b);
 
             if self.face_props.props(id)?.props.orig_zone_tol_3d == UNDEF_DOUBLE {
                 let t = face_p2::tolerance(b, face)?;
@@ -3138,7 +3132,7 @@ impl<O: LoopObject> HealData<O> {
             // update the tolerance
             let max_edge_edge_gap_3d_length = p.max_edge_edge_gap_length(b)?;
             let max_edge_face_gap_3d_length = p.max_edge_face_gap_length(b)?;
-            let def = brep_zone_tol_3d(b)?;
+            let def = brep_zone_tol_3d(b);
             let zone_tol_3d = calc_brep_gap_zone_tol(
                 k,
                 def,
@@ -3185,7 +3179,7 @@ impl<O: LoopObject> HealData<O> {
             // update the tolerance
             let max_vertex_edge_gap_3d_length = p.max_vtx_edge_gap_length(b)?;
             let max_vertex_face_gap_3d_length = p.max_vtx_face_gap_length(b)?;
-            let def = brep_zone_tol_3d(b)?;
+            let def = brep_zone_tol_3d(b);
             let zone_tol_3d = calc_brep_gap_zone_tol(
                 k,
                 def,

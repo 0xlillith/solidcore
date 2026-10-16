@@ -944,12 +944,12 @@ impl<O: SolutionObject> Solution<O> {
         // pass the call along
         match self.object(index, OP)? {
             Some(_) => {
-                // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+                // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
                 // (dispatches to the GetTolerance overrides of the topology kinds;
                 // see the UNPORTED notes in geom::tol)
                 Err(SolidError::Unported {
                     upstream: "SmTol::GetZoneTol3d(const SmObject*)",
-                    unit: "topology.brep_p1",
+                    unit: "geom.tol",
                 })
             }
             None => Ok(0.0),

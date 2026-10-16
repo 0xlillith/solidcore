@@ -1709,10 +1709,12 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         let _ = override_tol;
         let tol = ti_approx_tol_3d;
         if tol < EFF_ZERO {
-            // UNPORTED(topology.brep_p1): SmBrep::GetTolerance
+            // UNPORTED(topology.proto_topology_p1): the B-rep tolerances and smallest
+            // edge boxes (SmBrep::GetTolerance is ported as Brep::tolerance; the manager
+            // holds opaque B-rep handles, not Breps)
             return Err(SolidError::unported(
                 "SmBrep::GetTolerance",
-                "topology.brep_p1",
+                "topology.proto_topology_p1",
             ));
         }
         Ok(Self {
