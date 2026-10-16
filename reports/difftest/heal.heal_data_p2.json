@@ -5439,8 +5439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "heal.heal_data_p2"
+        "symbol": "SmBrep::SetTolerance",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0397",
@@ -5607,8 +5607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "heal.heal_data_p2"
+        "symbol": "SmBrep::SetTolerance",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0414",
@@ -5891,8 +5891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "heal.heal_data_p2"
+        "symbol": "SmBrep::SetTolerance",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0443",
@@ -7476,8 +7476,7 @@
   "cases_passed": 347,
   "cases_total": 738,
   "deferred_by_unit": {
-    "heal.heal_data_p2": 3,
-    "topology.brep_p2": 16,
+    "topology.brep_p2": 19,
     "topology.edgeuse_p3": 263,
     "topology.face_p2": 100,
     "topology.face_p3": 9

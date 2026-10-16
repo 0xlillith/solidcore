@@ -1482,129 +1482,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_box_with_large_fillet_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#179 (upstream source/SM_API/src/SmApiQueries.cpp:380 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_box_with_large_fillet_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#180 (upstream source/SM_API/src/SmApiQueries.cpp:406 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_box_with_large_fillet_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#181 (upstream source/SM_API/src/SmApiQueries.cpp:380 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_box_with_large_fillet_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#182 (upstream source/SM_API/src/SmApiQueries.cpp:406 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_box_with_large_fillet_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#183 (upstream source/SM_API/src/SmApiQueries.cpp:380 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_box_with_large_fillet_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#184 (upstream source/SM_API/src/SmApiQueries.cpp:406 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_box_with_large_fillet_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#185 (upstream source/SM_API/src/SmApiQueries.cpp:380 on box_with_large_fillet.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_box_with_large_fillet_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#186 (upstream source/SM_API/src/SmApiQueries.cpp:406 on box_with_large_fillet.smb)",
       "values_compared": 0
@@ -1674,129 +1642,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_circ_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#193 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_circ_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#194 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_circ_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#195 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_circ_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#196 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_circ_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#197 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_circ_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#198 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_circ_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#199 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_circ.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_circ.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_circ_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#200 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_circ.smb)",
       "values_compared": 0
@@ -1962,129 +1898,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_Mouse_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#215 (upstream source/SM_API/src/SmApiQueries.cpp:380 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_Mouse_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#216 (upstream source/SM_API/src/SmApiQueries.cpp:406 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_Mouse_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#217 (upstream source/SM_API/src/SmApiQueries.cpp:380 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_Mouse_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#218 (upstream source/SM_API/src/SmApiQueries.cpp:406 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_Mouse_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#219 (upstream source/SM_API/src/SmApiQueries.cpp:380 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_Mouse_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#220 (upstream source/SM_API/src/SmApiQueries.cpp:406 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_Mouse_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#221 (upstream source/SM_API/src/SmApiQueries.cpp:380 on Mouse.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/Mouse.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_Mouse_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#222 (upstream source/SM_API/src/SmApiQueries.cpp:406 on Mouse.smb)",
       "values_compared": 0
@@ -2202,129 +2106,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_cone_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#233 (upstream source/SM_API/src/SmApiQueries.cpp:380 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_cone_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#234 (upstream source/SM_API/src/SmApiQueries.cpp:406 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_cone_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#235 (upstream source/SM_API/src/SmApiQueries.cpp:380 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_cone_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#236 (upstream source/SM_API/src/SmApiQueries.cpp:406 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_cone_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#237 (upstream source/SM_API/src/SmApiQueries.cpp:380 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_cone_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#238 (upstream source/SM_API/src/SmApiQueries.cpp:406 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_cone_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#239 (upstream source/SM_API/src/SmApiQueries.cpp:380 on cone.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/cone.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_cone_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#240 (upstream source/SM_API/src/SmApiQueries.cpp:406 on cone.smb)",
       "values_compared": 0
@@ -2394,129 +2266,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_sphere_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#247 (upstream source/SM_API/src/SmApiQueries.cpp:380 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_sphere_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#248 (upstream source/SM_API/src/SmApiQueries.cpp:406 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_sphere_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#249 (upstream source/SM_API/src/SmApiQueries.cpp:380 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_sphere_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#250 (upstream source/SM_API/src/SmApiQueries.cpp:406 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_sphere_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#251 (upstream source/SM_API/src/SmApiQueries.cpp:380 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_sphere_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#252 (upstream source/SM_API/src/SmApiQueries.cpp:406 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_sphere_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#253 (upstream source/SM_API/src/SmApiQueries.cpp:380 on sphere.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/sphere.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_sphere_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#254 (upstream source/SM_API/src/SmApiQueries.cpp:406 on sphere.smb)",
       "values_compared": 0
@@ -2634,129 +2474,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_disk_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#265 (upstream source/SM_API/src/SmApiQueries.cpp:380 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_disk_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#266 (upstream source/SM_API/src/SmApiQueries.cpp:406 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_disk_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#267 (upstream source/SM_API/src/SmApiQueries.cpp:380 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_disk_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#268 (upstream source/SM_API/src/SmApiQueries.cpp:406 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_disk_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#269 (upstream source/SM_API/src/SmApiQueries.cpp:380 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_disk_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#270 (upstream source/SM_API/src/SmApiQueries.cpp:406 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_disk_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#271 (upstream source/SM_API/src/SmApiQueries.cpp:380 on disk.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/disk.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_disk_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#272 (upstream source/SM_API/src/SmApiQueries.cpp:406 on disk.smb)",
       "values_compared": 0
@@ -2922,129 +2730,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_square_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#287 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_square_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#288 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_square_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#289 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_square_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#290 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_square_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#291 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_square_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#292 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_plane_square_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#293 (upstream source/SM_API/src/SmApiQueries.cpp:380 on plane_square.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/plane_square.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_plane_square_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#294 (upstream source/SM_API/src/SmApiQueries.cpp:406 on plane_square.smb)",
       "values_compared": 0
@@ -3162,129 +2938,97 @@
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "edge",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_torus_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#305 (upstream source/SM_API/src/SmApiQueries.cpp:380 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "face",
-        "pnt": [0, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_torus_p0",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#306 (upstream source/SM_API/src/SmApiQueries.cpp:406 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "edge",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_torus_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#307 (upstream source/SM_API/src/SmApiQueries.cpp:380 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "face",
-        "pnt": [1, 1, 1]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_torus_p1",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#308 (upstream source/SM_API/src/SmApiQueries.cpp:406 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "edge",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_torus_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#309 (upstream source/SM_API/src/SmApiQueries.cpp:380 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "face",
-        "pnt": [10, -3, 2]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_torus_p2",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#310 (upstream source/SM_API/src/SmApiQueries.cpp:406 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "edge",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmCurve::DropPoint",
+        "unit": "curve.curve_p6"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "edge_torus_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#311 (upstream source/SM_API/src/SmApiQueries.cpp:380 on torus.smb)",
       "values_compared": 0
     },
     {
-      "harness_error": "rust: c++ export: invalid argument: input too short",
-      "inputs": {
-        "file": "/work/src/upstream/TestFiles/pt_TestFiles/torus.smb",
-        "op": "face",
-        "pnt": [0.5, 0, 0]
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "face_torus_p3",
-      "outcome": "fail",
+      "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/geom.tools/cases.json#312 (upstream source/SM_API/src/SmApiQueries.cpp:406 on torus.smb)",
       "values_compared": 0
@@ -8091,17 +7835,19 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 68,
-  "cases_failed": 64,
+  "cases_deferred": 132,
+  "cases_failed": 0,
   "cases_passed": 781,
   "cases_total": 913,
   "deferred_by_unit": {
-    "curve.curve_p2": 68
+    "curve.curve_p2": 68,
+    "curve.curve_p6": 32,
+    "query.brep": 32
   },
   "max_rel_err": 0.0,
-  "pass": false,
+  "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "fail",
+  "status": "partial",
   "unit": "geom.tools"
 }

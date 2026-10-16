@@ -1275,8 +1275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
+        "unit": "harness:mass.integrator-face-construction"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_2",
@@ -1287,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
+        "unit": "harness:mass.integrator-face-construction"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_3",
@@ -1299,8 +1299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetFaces",
-        "unit": "mass.integrator"
+        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
+        "unit": "harness:mass.integrator-face-construction"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_4",
@@ -1311,8 +1311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
+        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
+        "unit": "harness:mass.integrator-face-construction"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_5",
@@ -1323,8 +1323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetFaces",
-        "unit": "mass.integrator"
+        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
+        "unit": "harness:mass.integrator-face-construction"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_6",
@@ -12264,9 +12264,8 @@
   "cases_passed": 1520,
   "cases_total": 1528,
   "deferred_by_unit": {
-    "mass.integrator": 2,
-    "query.brep": 3,
-    "query.face_p1": 2,
+    "harness:mass.integrator-face-construction": 5,
+    "query.brep": 2,
     "surface.offset_surface": 1
   },
   "max_rel_err": 4.979280456316938e-14,
