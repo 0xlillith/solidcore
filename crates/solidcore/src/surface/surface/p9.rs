@@ -52,11 +52,12 @@ fn bss(surface: &Surface) -> Result<Cow<'_, BSplineSurface>> {
         SurfaceKind::BSpline(s) => Ok(Cow::Borrowed(s)),
         SurfaceKind::Plane(p) => Ok(p.base_for_query()),
         SurfaceKind::SurfOfRevolution(s) => Ok(Cow::Borrowed(s.base())),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+            // `SmIsoCurve` holds B-spline surfaces only (plan/findings.md, surface.surface_p5)
+            // UNPORTED(curve.iso_curve): SmIsoCurve over a non-B-spline surface
             Err(SolidError::unported(
-                "SmSurface::CreateIsoParametricCurve",
-                "surface.surface_p5",
+                "SmIsoCurve::SmIsoCurve(non-B-spline surface)",
+                "curve.iso_curve",
             ))
         }
     }
@@ -109,7 +110,9 @@ fn iso_curve(
     Ok(typed_iso_curve(k, surface, direction, value)?.0)
 }
 
-fn implicit_iso(
+/// `SmIsoCurve(surface, direction, value, left)` (clamped input) over the B-spline
+/// view of `surface`.
+pub(super) fn implicit_iso(
     surface: &Surface,
     direction: SurfParamType,
     value: f64,
@@ -447,60 +450,58 @@ fn tangent_drop(surface: &Surface, uv: Point2, point: Point3) -> Result<Point2> 
     .copied()
     .ok_or(SolidError::sm_err(OP))
 }
+/// `SmSurface::LocalCurveIntersect` (virtual; no kind overrides it).
 fn intersect_surface_curve(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
-    _uv: Point2,
-    _t: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
+    uv: Point2,
+    t: f64,
 ) -> Result<Option<CsiIntersection>> {
-    // UNPORTED(surface.surface_p6): SmSurface::LocalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalCurveIntersect",
-        "surface.surface_p6",
-    ))
+    Ok(surface
+        .local_curve_intersect(domain, curve, interval, tol, uv, t)?
+        .map(|x| CsiIntersection {
+            uv: x.uv,
+            parameter: x.t,
+            deviation: x.deviation,
+        }))
 }
-fn filter_solution<O>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _conts: [[ContinuityType; 2]; 3],
-    _solution: &Solution<O>,
+fn filter_solution<O: SolutionObject>(
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    conts: [[ContinuityType; 2]; 3],
+    solution: &Solution<O>,
 ) -> Result<bool> {
-    // UNPORTED(surface.surface_p5): sm_FilterSolution
-    Err(SolidError::unported(
-        "sm_FilterSolution",
-        "surface.surface_p5",
-    ))
+    // conts: the surface u and v continuities, then the curve's
+    let [u_conts, v_conts, t_conts] = conts;
+    super::p5::filter_solution(
+        surface, domain, curve, interval, u_conts, v_conts, t_conts, solution,
+    )
 }
 fn nearby_intersection(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _uv: Point2,
-    _t: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    uv: Point2,
+    t: f64,
 ) -> Result<Option<(Point2, f64)>> {
-    // UNPORTED(surface.surface_p4): sm_ClassifyCurveSurfaceXSectPoint
-    Err(SolidError::unported(
-        "sm_ClassifyCurveSurfaceXSectPoint",
-        "surface.surface_p4",
-    ))
+    let c = super::p4::classify_curve_surface_xsect_point(surface, domain, curve, interval, uv, t)?;
+    Ok(c.found_guess.then_some((c.new_uv_guess, c.new_t_guess)))
 }
 fn surface_point_solve<O: Copy>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let r = surface.local_point_solve::<O>(k, domain, SolverOperation::Minimize, point, guess)?;
+    Ok((r.found, r.solution))
 }
 
 impl<'a, O: SolutionObject + 'a> GlobalSolve<'a, O> for CsiGlobalSolver<'a, '_, O> {
@@ -515,14 +516,10 @@ impl<'a, O: SolutionObject + 'a> GlobalSolve<'a, O> for CsiGlobalSolver<'a, '_, 
     }
     fn identical_solutions(
         &self,
-        _first: &Solution<O>,
-        _second: &Solution<O>,
+        first: &Solution<O>,
+        second: &Solution<O>,
     ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
-        // UNPORTED(surface.surface_p5): SmCSIGlobalSolver::IdenticalSolutions
-        Err(SolidError::unported(
-            "SmCSIGlobalSolver::IdenticalSolutions",
-            "surface.surface_p5",
-        ))
+        super::p5::csi_identical_solutions(&self.base, self.surface, first, second)
     }
 }
 
@@ -924,6 +921,7 @@ impl<'a, O: SolutionObject + 'a> CsiGlobalSolver<'a, '_, O> {
                     .evaluate_point(t)?;
                 if pseudo_box.distance_to_point(point) < EFF_ZERO {
                     let (found, mut solution) = surface_point_solve::<O>(
+                        self.kernel.ok_or(SolidError::null_pointer(OP))?,
                         parent_surface,
                         &natural_domain,
                         point,

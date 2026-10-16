@@ -290,7 +290,7 @@ impl SurfOfRevolution {
 
             let (nurbs_parameter, location) =
                 self.base
-                    .step_inversion(&nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
+                    .step_inversion(k, &nurbs_domain, point_on_surf, tol_3d, uv_guess)?;
             let step = self.convert_uv_from_nurbs_to_step(k, nurbs_parameter)?;
             return Ok(StepInversionOutputs {
                 uv: step,
@@ -615,12 +615,16 @@ impl SurfOfRevolution {
                 out = found;
             }
             // (IntersectWithSphere / IntersectWithCone once those kinds exist)
-            SurfaceKind::BSpline(_) | SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {}
         }
 
         // If we're here, then analytic intersections were not found
         if need_nurb_intersection {
             let more = base_global_surface_intersect(
+                k,
                 this,
                 uv_domain,
                 other,
@@ -678,7 +682,8 @@ impl SurfOfRevolution {
             }
             SurfaceKind::SurfOfRevolution(_)
             | SurfaceKind::CurveBounded(_)
-            | SurfaceKind::Step(_) => return Ok(None),
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => return Ok(None),
         };
         Self::is_nurb_surface_surf_of_revolution_base(k, tgt, tolerance_scale)
     }

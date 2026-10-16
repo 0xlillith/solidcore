@@ -8,5 +8,7 @@
 //! `_p3`; each lives in its own submodule and adds methods to the classes of `p1`.
 
 pub mod p1;
+pub mod p2;
+pub mod p3;
 
 pub use p1::{SurfPtGlobalSolver, SurfPtSolveStepper, SurfacePointSolver};

@@ -58,9 +58,8 @@
 //!   previous point's first UV position, which the callee may read as the array
 //!   `m_vUVCurvePV` (`[uv0, duv0, uv1, duv1]`); that array is passed.
 //! - **Unported callees.** `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`),
-//!   `SmSurface::DropAndTrimCurve` (`intersect.surface_drop_lib_p1`) and
-//!   `SmSurface::IsSingularity` of a surface that is not a plane (`surface.surface_p5`)
-//!   return [`SolidError::Unported`], which always propagates (also where upstream
+//!   `SmSurface::DropAndTrimCurve`'s trace (`intersect.surface_drop_curve`, through
+//!   [`Surface::drop_and_trim_curve`]) return [`SolidError::Unported`], which always propagates (also where upstream
 //!   ignores the status).
 //! - **Not ported here.** The `SM_DEBUG_CODE` blocks (graphics, dumps), the
 //!   `SM_ASSERT`s (no-ops in release builds) and the user pointers
@@ -85,6 +84,7 @@ use crate::surface::surface::p2::surface_cache;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::surface_cache::SurfaceCache;
+use crate::topology::ObjectHandle;
 
 use super::p1::{
     compute_curve_type, is_point_on_tsect_curve, IntersectionPointType, SrfIndex,
@@ -411,15 +411,16 @@ impl SurfaceIntersector<'_> {
                         *at_mut(&mut uvs, this) = this_uv(par(&sol.start, 0));
 
                         // skip start points which are on surface singularities
-                        if surface_is_singularity(self.surface(this), *at(&uvs, this))?
-                            || surface_is_singularity(self.surface(other), *at(&uvs, other))?
+                        if surface_is_singularity(k, self.surface(this), *at(&uvs, this))?
+                            || surface_is_singularity(k, self.surface(other), *at(&uvs, other))?
                         {
                             continue;
                         }
 
                         // Compute xsect point values for the mated UVPoints (a start
                         // point: no previous point)
-                        if ignored(self.compute_point_values(uvs, &mut tsp, None, None))?.is_none()
+                        if ignored(self.compute_point_values(k, uvs, &mut tsp, None, None))?
+                            .is_none()
                         {
                             continue;
                         }
@@ -515,13 +516,17 @@ impl SurfaceIntersector<'_> {
                             *at_mut(&mut uvs, other) = uv;
 
                             // skip start points on surface singularities
-                            if surface_is_singularity(self.surface(SrfIndex::First), uvs[0])?
-                                || surface_is_singularity(self.surface(SrfIndex::Second), uvs[1])?
+                            if surface_is_singularity(k, self.surface(SrfIndex::First), uvs[0])?
+                                || surface_is_singularity(
+                                    k,
+                                    self.surface(SrfIndex::Second),
+                                    uvs[1],
+                                )?
                             {
                                 continue;
                             }
 
-                            if ignored(self.compute_point_values(uvs, &mut tsp, None, None))?
+                            if ignored(self.compute_point_values(k, uvs, &mut tsp, None, None))?
                                 .is_some()
                             {
                                 self.use_boundary_point(
@@ -603,7 +608,7 @@ impl SurfaceIntersector<'_> {
 
         // Set bIsDegenerate = TRUE: a degenerate point xsect curve (status ignored)
         let is_degenerate =
-            ignored(self.classify_boundary_start_point_intersection(&tsp))?.unwrap_or(false);
+            ignored(self.classify_boundary_start_point_intersection(k, &tsp))?.unwrap_or(false);
 
         // when a degenerate point not on an output curve yet: classify it at the end
         if is_degenerate && !self.is_point_on_curve(k, tsp.crv_pos(), &out.curves_3d, None)? {
@@ -788,6 +793,7 @@ impl SurfaceIntersector<'_> {
     /// [`SolidError::Unported`] from unported callees.
     pub fn compute_next_point(
         &mut self,
+        k: &Kernel,
         prev: TsectId,
         step_size: f64,
         next: TsectId,
@@ -908,7 +914,7 @@ impl SurfaceIntersector<'_> {
         // previous point)
         let mut next_tsp = self.point(next)?.clone();
         let r =
-            self.compute_point_values(next_uvs, &mut next_tsp, Some(&prev_tsp), Some(step_size));
+            self.compute_point_values(k, next_uvs, &mut next_tsp, Some(&prev_tsp), Some(step_size));
         *self.point_mut(next)? = next_tsp.clone();
         if ignored(r)?.is_none() {
             res.boundary_hit = true; // causes termination of current tracing
@@ -961,7 +967,13 @@ impl SurfaceIntersector<'_> {
     ///
     /// `InvalidInput` when `next` is `prev` or an id is unknown; those of
     /// [`SurfaceIntersector::compute_point_values`] (`next` keeps what was computed).
-    pub fn update_tsect_point(&mut self, prev: TsectId, next: TsectId, new: TsectId) -> Result<()> {
+    pub fn update_tsect_point(
+        &mut self,
+        k: &Kernel,
+        prev: TsectId,
+        next: TsectId,
+        new: TsectId,
+    ) -> Result<()> {
         if prev == next {
             return Err(SolidError::invalid_input(
                 OP_UPDATE,
@@ -988,7 +1000,7 @@ impl SurfaceIntersector<'_> {
         next_tsp.user_doubles = new_tsp.user_doubles;
 
         // ComputePointValues with pNewTSP UV values and store results in rNextTSP
-        let r = self.compute_point_values(uvs, &mut next_tsp, Some(&prev_tsp), None);
+        let r = self.compute_point_values(k, uvs, &mut next_tsp, Some(&prev_tsp), None);
         *self.point_mut(next)? = next_tsp.clone();
         r?;
 
@@ -1034,7 +1046,7 @@ impl SurfaceIntersector<'_> {
     /// dereferences null); those of the snapping; [`SolidError::Unported`] from
     /// unported callees.
     #[allow(clippy::too_many_lines)]
-    pub fn test_point(&mut self, next: TsectId) -> Result<Option<bool>> {
+    pub fn test_point(&mut self, k: &Kernel, next: TsectId) -> Result<Option<bool>> {
         self.point(next)?;
         let prev1 = self.curve_points.last().copied();
         if prev1 == Some(next) {
@@ -1059,7 +1071,7 @@ impl SurfaceIntersector<'_> {
                 tol,
             )? {
                 // modify the rNextTSP to correspond to the through point
-                self.update_tsect_point(p1, next, through)?;
+                self.update_tsect_point(k, p1, next, through)?;
 
                 // remove the through point from the list - we're done with it
                 unlink(&mut self.through_points, through);
@@ -1108,7 +1120,7 @@ impl SurfaceIntersector<'_> {
             if is_point_on_tsect_curve(self.point(start)?, self.point(p1)?, self.point(next)?, tol)?
             {
                 // Modify the rNextTSP to correspond to that start point
-                self.update_tsect_point(p1, next, start)?;
+                self.update_tsect_point(k, p1, next, start)?;
 
                 // Remove the start point we just crossed (not singular or tangent ones)
                 let next_type = self.point(next)?.point_type;
@@ -1172,7 +1184,7 @@ impl SurfaceIntersector<'_> {
                     )?
                 {
                     // Have found loop around
-                    self.update_tsect_point(p1, next, sp)?;
+                    self.update_tsect_point(k, p1, next, sp)?;
                     self.curve_is_closed = true;
                     return Ok(Some(true));
                 }
@@ -1195,7 +1207,7 @@ impl SurfaceIntersector<'_> {
                     }
                 }
                 if !on_seam {
-                    self.update_tsect_point(p1, next, ep)?;
+                    self.update_tsect_point(k, p1, next, ep)?;
                     return Ok(Some(true));
                 }
             }
@@ -1309,18 +1321,15 @@ impl SurfaceIntersector<'_> {
 
 /// `surface.IsSingularity(uv, eSingDir)` (default tolerance): the plane override
 /// (never singular); other kinds run `SmSurface::IsSingularity`.
-fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
+fn surface_is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
+            Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
         }
     }
 }
@@ -1352,18 +1361,19 @@ struct DropAndTrim {
 /// `surface.DropAndTrimCurve(ctx, domain, curve, interval, tol, dist, deviation,
 /// uv_curves, TRUE, TRUE)`.
 fn surface_drop_and_trim_curve(
-    _k: &Kernel,
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<DropAndTrim> {
-    // UNPORTED(intersect.surface_drop_lib_p1): SmSurface::DropAndTrimCurve
-    Err(SolidError::unported(
-        "SmSurface::DropAndTrimCurve",
-        "intersect.surface_drop_lib_p1",
-    ))
+    let r = surface
+        .drop_and_trim_curve::<ObjectHandle>(k, domain, curve, interval, tol, true, true, None)?;
+    Ok(DropAndTrim {
+        dist_to_surf: r.max_drop_to_surf,
+        uv_curves: r.uv_curves.into_iter().map(Curve::from).collect(),
+    })
 }
 
 #[cfg(test)]
@@ -1399,6 +1409,7 @@ mod tests {
     fn crossing(si: &SurfaceIntersector<'_>, x: f64, param: f64) -> TsectPnt {
         let mut p = TsectPnt::new();
         si.compute_point_values(
+            &Kernel::default(),
             [Point2::new(x, 0.5), Point2::new(x, 0.5)],
             &mut p,
             None,
@@ -1426,10 +1437,14 @@ mod tests {
         let p = si.alloc_point(prev);
         let n = si.alloc_point(TsectPnt::new());
         // an unknown type is not refined: no good point
-        let r = si.compute_next_point(p, 0.1, n).expect("next");
+        let r = si
+            .compute_next_point(&Kernel::default(), p, 0.1, n)
+            .expect("next");
         assert!(!r.found_good_point);
         assert!(!r.boundary_hit);
-        assert!(si.compute_next_point(p, 0.1, p).is_err());
+        assert!(si
+            .compute_next_point(&Kernel::default(), p, 0.1, p)
+            .is_err());
     }
 
     #[test]
@@ -1440,6 +1455,7 @@ mod tests {
         let mut si = intersector(&a, &b);
         let mut prev = TsectPnt::new();
         si.compute_point_values(
+            &Kernel::default(),
             [Point2::new(0.5, 0.0), Point2::new(0.5, 0.0)],
             &mut prev,
             None,
@@ -1453,7 +1469,9 @@ mod tests {
         let p = si.alloc_point(prev);
         let n = si.alloc_point(TsectPnt::new());
         // a tangent point is not refined: the next point is the corner
-        let r = si.compute_next_point(p, 0.1, n).expect("next");
+        let r = si
+            .compute_next_point(&Kernel::default(), p, 0.1, n)
+            .expect("next");
         assert!(r.found_good_point, "{r:?}");
         let next = si.point(n).expect("next");
         assert!(next.crv_pos().length() < 1e-12);
@@ -1468,7 +1486,9 @@ mod tests {
         prev.uv_curve_pv[0][0] = Point2::new(2.0, 0.5);
         let p = si.alloc_point(prev);
         let n = si.alloc_point(TsectPnt::new());
-        assert!(si.compute_next_point(p, 0.1, n).is_err());
+        assert!(si
+            .compute_next_point(&Kernel::default(), p, 0.1, n)
+            .is_err());
     }
 
     #[test]
@@ -1481,7 +1501,9 @@ mod tests {
         prev.uv_curve_pv[1][1] = Vec2::new(1.0, 0.0);
         let p = si.alloc_point(prev);
         let n = si.alloc_point(TsectPnt::new());
-        let r = si.compute_next_point(p, 0.1, n).expect("next");
+        let r = si
+            .compute_next_point(&Kernel::default(), p, 0.1, n)
+            .expect("next");
         assert!(r.boundary_hit);
         assert!(r.clipped);
     }
@@ -1495,7 +1517,7 @@ mod tests {
         let next = si.alloc_point(crossing(&si, 0.6, 0.4));
         si.add_point_to_curve(p0).expect("curve");
         si.end_point = Some(end);
-        let done = si.test_point(next).expect("test");
+        let done = si.test_point(&Kernel::default(), next).expect("test");
         assert_eq!(done, Some(true));
         let n = si.point(next).expect("next");
         assert!((n.crv_pos().x - 0.5).abs() < 1e-12);
@@ -1512,7 +1534,7 @@ mod tests {
         let next = si.alloc_point(crossing(&si, 0.6, 0.4));
         si.add_point_to_curve(p0).expect("curve");
         si.add_through_point(th).expect("through");
-        assert_eq!(si.test_point(next).expect("test"), None);
+        assert_eq!(si.test_point(&Kernel::default(), next).expect("test"), None);
         assert!(si.through_points().is_empty());
         assert!(si.clipped_by_through_point);
     }
@@ -1524,9 +1546,12 @@ mod tests {
         let next = si.alloc_point(crossing(&si, 0.6, 0.4));
         let end = si.alloc_point(crossing(&si, 0.5, 0.0));
         // nothing to test against: inside the domain, not done
-        assert_eq!(si.test_point(next).expect("test"), Some(false));
+        assert_eq!(
+            si.test_point(&Kernel::default(), next).expect("test"),
+            Some(false)
+        );
         si.end_point = Some(end);
-        assert!(si.test_point(next).is_err());
+        assert!(si.test_point(&Kernel::default(), next).is_err());
     }
 
     #[test]
@@ -1538,7 +1563,10 @@ mod tests {
         si.add_point_to_curve(p0).expect("curve");
         let next = si.alloc_point(crossing(&si, 1.0, 0.2));
         si.add_start_point(s).expect("start");
-        assert_eq!(si.test_point(next).expect("test"), Some(true));
+        assert_eq!(
+            si.test_point(&Kernel::default(), next).expect("test"),
+            Some(true)
+        );
         assert!(si.start_points().is_empty());
     }
 
@@ -1547,7 +1575,9 @@ mod tests {
         let (a, b) = two_planes();
         let mut si = intersector(&a, &b);
         let p0 = si.alloc_point(crossing(&si, 0.2, 0.0));
-        assert!(si.update_tsect_point(p0, p0, p0).is_err());
+        assert!(si
+            .update_tsect_point(&Kernel::default(), p0, p0, p0)
+            .is_err());
     }
 
     #[test]

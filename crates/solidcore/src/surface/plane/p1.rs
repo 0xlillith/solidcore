@@ -55,6 +55,16 @@
 //!   the NURBs; the difftest therefore runs those two only while both sides agree
 //!   (before such a method, or once the NURB is made in place), and the shim copies a
 //!   plane without NURB from its analytic data (`plan/findings.md`).
+//!   [`Plane::natural_uv_domain`] is one of those read-only queries: upstream
+//!   `SmBSplineSurface::GetNaturalUVDomain` makes and keeps the NURB, the port makes it
+//!   on a copy and caches nothing. That also changes `IntersectWithPlane`
+//!   (`SmPlane.cpp:2183`, `surface::plane::p2`): for parallel planes it returns "no
+//!   intersection, done" when either plane has no NURB, and only otherwise tests for
+//!   coincidence and hands coincident planes to the general intersector. So after
+//!   `GetNaturalUVDomain` upstream and `natural_uv_domain` here, the same coincident
+//!   planes take different branches (found by difftest `--ssi-corpus`,
+//!   `c6_planes_identical` / `c6_planes_overlap`; follow-up in `plan/modules.toml`:
+//!   model the cache).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments and the
 //!   arguments upstream marks `NotUsed` (`DropPointFast`'s pointing vector and
 //!   solution request, `Evaluate`'s sides and zero-tangent flags,
@@ -77,8 +87,9 @@
 //!   plane (the only surface it is called with). `Evaluate1stDerivatives` /
 //!   `Evaluate2ndDerivatives` of other surfaces go through `surface::surface::p7`.
 //! - **Unported callees.** `IsPlanar` of a curve-bounded surface (its base
-//!   `CalculateBoundingBox`, `surface.surface_p1`), `CreateNaturalUVTrimCurves`
-//!   (`surface.surface_p6`), `DropPoint` (`surface.surface_p5`), the general
+//!   `CalculateBoundingBox`, `surface.surface_p1`), `DropPoint` (`surface.surface_p5`),
+//!   the iso curves of `CreateNaturalUVTrimCurves` for kinds without a ported override
+//!   (`surface.surface_p5`), the general
 //!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) and the general
 //!   `SmSurface::GlobalLineIntersect` (`surface.surface_p8`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are propagated where
@@ -279,6 +290,16 @@ impl Plane {
         }
     }
 
+    /// A private solver copy without constructing or fixing the NURBS representation.
+    pub(crate) fn clone_exact(&self) -> Self {
+        Self {
+            base: self.base.clone_exact(),
+            position: self.position,
+            anal_uv_domain: self.anal_uv_domain,
+            uv_scale: self.uv_scale,
+        }
+    }
+
     /// A copy of every member as is (no NURB is made).
     fn member_copy(&self) -> Self {
         Self {
@@ -316,6 +337,18 @@ impl Plane {
     #[must_use]
     pub const fn base(&self) -> &BSplineSurface {
         &self.base
+    }
+
+    /// Whether out-of-bounds evaluation is enabled (`GetOutOfBoundsEnabled` of the
+    /// `SmBSplineSurface` part).
+    #[must_use]
+    pub fn is_out_of_bounds_enabled(&self) -> bool {
+        self.base.is_out_of_bounds_enabled()
+    }
+
+    /// Sets out-of-bounds evaluation (through `GetOutOfBoundsEnabled`'s reference).
+    pub fn set_out_of_bounds_enabled(&mut self, enabled: bool) {
+        *self.base.out_of_bounds_enabled_mut() = enabled;
     }
 
     /// The B-spline part with a NURB: the stored one, or one made on a copy when the
@@ -1785,8 +1818,8 @@ impl Plane {
         mut res: Coincidence,
     ) -> Result<Coincidence> {
         // Create two sets of boundary curves.
-        let bdrys_3d0 = create_natural_uv_trim_curves(&Surface::from(self.clone()), domain0)?;
-        let bdrys_3d1 = create_natural_uv_trim_curves(other, domain1)?;
+        let bdrys_3d0 = create_natural_uv_trim_curves(k, &Surface::from(self.clone()), domain0)?;
+        let bdrys_3d1 = create_natural_uv_trim_curves(k, other, domain1)?;
 
         // We'll be checking normals, and this plane's normal never changes.
         let norm0 = self.position.z_axis();
@@ -1900,7 +1933,8 @@ impl Plane {
         // Drop to this first because planes are easy.
         let uv1 = domain1.mid();
         let pt1 = other.evaluate_point(uv1)?;
-        let (success, _uv0, dist) = surface_drop_point(&Surface::from(self.clone()), pt1, domain0)?;
+        let (success, _uv0, dist) =
+            surface_drop_point(k, &Surface::from(self.clone()), pt1, domain0)?;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -1918,7 +1952,7 @@ impl Plane {
         // Repeat the other way around.
         let uv0 = domain0.mid();
         let pt0 = self.evaluate_point(uv0);
-        let (success, uv1, dist) = surface_drop_point(other, pt0, domain1)?;
+        let (success, uv1, dist) = surface_drop_point(k, other, pt0, domain1)?;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -2067,26 +2101,29 @@ fn surface_evaluate_normal(s: &Surface, uv: Point2) -> Result<Vec3> {
 
 /// `SmSurface::CreateNaturalUVTrimCurves(ctx, domain, SM_SP_V, FALSE, ..)`: the 3D
 /// boundary curves.
-fn create_natural_uv_trim_curves(_s: &Surface, _domain: &Extent2d) -> Result<Vec<Option<Curve>>> {
-    // UNPORTED(surface.surface_p6): SmSurface::CreateNaturalUVTrimCurves
-    Err(SolidError::unported(
-        "SmSurface::CreateNaturalUVTrimCurves",
-        "surface.surface_p6",
-    ))
+fn create_natural_uv_trim_curves(
+    k: &Kernel,
+    s: &Surface,
+    domain: &Extent2d,
+) -> Result<Vec<Option<Curve>>> {
+    let t = s.create_natural_uv_trim_curves(k, domain, SurfParamType::V, false)?;
+    Ok(t.curves_3d.into_iter().map(Some).collect())
 }
 
 /// `SmSurface::DropPoint(pt, domain, NULL, bSuccess, uv, dist, bIsMulti,
 /// SM_SO_NORMALIZE)`: success, uv and distance.
 fn surface_drop_point(
-    _s: &Surface,
-    _pt: Point3,
-    _domain: &Extent2d,
+    k: &Kernel,
+    s: &Surface,
+    pt: Point3,
+    domain: &Extent2d,
 ) -> Result<(bool, Point2, f64)> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        operation: SolverOperation::Normalize,
+        ..Default::default()
+    };
+    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(k, pt, domain, &opts)?;
+    Ok((r.success, r.result_uv, r.gap))
 }
 
 /// The general `SmSurface::DropCurve`.

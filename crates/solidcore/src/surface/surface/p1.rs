@@ -7,6 +7,8 @@
 //! few standalone helpers (`smsurf_EvaluateNormalSection`, `sm_CrossedSeamOrPole`, the
 //! tree node validity tests).
 //!
+//! Deviations: compound evaluation copies carry a depth counter capped at 64 by Surface.
+//!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`,
 //! `source/SMLib/src/SmSTEPSurface.cpp`, `source/SMLib/inc/SmSTEPSurface.h`.
 //!
@@ -37,6 +39,7 @@
 //! | [`crossed_seam_or_pole`]                          | `sm_CrossedSeamOrPole` (static)                  |
 //! | [`surface_to_evaluate`], [`is_point_valid`], [`is_node_valid`] | `sm_GetSurfaceToEvaluate`, `sm_IsPointValid`, `sm_IsNodeValid` (static) |
 //! | [`zone_tol_3d`], [`map_to_2d_dir`], [`map_to_2d`], [`scaled_zero_of_surface`] | `SmTol::GetZoneTol3d(const SmObject*)` for surfaces, `SmTol::MapTo2d` (surface overloads), `SmTol::GetScaledZero(const SmSurface&)` (co-ports) |
+//! | [`map_to_2d_on_curve`]                            | `SmTol::MapTo2d(const SmTol3d&, double, const SmCurve&, const SmSurface&)` (co-port, first ported privately by `intersect.curve_class_p1`) |
 //! | [`SurfaceEval::fails_eval`], [`SurfaceEval::pos`], ... | `SmSurfaceEval::FailsEval`, `Pos`, `Su`, `Sv`, `Suu`, `Suv`, `Svv` |
 //! | [`DropCurveFail::copy_of`]                        | `SmDropCurveFail` copy constructor               |
 //! | [`IsoCurveLengthIntegrand::evaluate`], [`AreaIntegrand`] | `SmIsoCurveLengthIFEO::Evaluate`, `SmAreaIFEO::Evaluate` |
@@ -51,7 +54,8 @@
 //!   constructor's null pointer, where upstream would crash the methods return
 //!   [`SolidError::InvalidInput`] (or an uninitialised domain). `GetMemoryUsed` and
 //!   `WriteToDB` have no counterpart. Nested STEP surfaces read from a database are
-//!   bounded by the reader's nesting limit.
+//!   bounded by the reader's nesting limit. Temporary evaluation copies retain
+//!   exact nested geometry and share `Surface`'s 64-level owned-geometry bound.
 //! - **Caches.** Upstream keeps a surface's cache on the surface and reuses it until it
 //!   changes. [`make_surface_cache`] and [`make_trim_srf_cache`] build a fresh cache for
 //!   the caller (the build is deterministic); [`validate_surface_cache`] is the rest of
@@ -71,12 +75,15 @@
 //!   inside a boolean function: a failing `Unitize` returns `TRUE`.
 //! - **Unported callees.** `CreateOffsetSurface` needs `SmOffsetSurface`
 //!   (`surface.offset_surface`), `CreateSilhouetteCurves` needs `SmSurfaceSilhouette`
-//!   (`intersect.surface_silhouette`), `SmAreaIFEO::Evaluate` needs `SmIntegrator`
-//!   (`mass.integrator`), `ApproximateSize` of kinds other than B-splines needs
+//!   (`intersect.surface_silhouette`), `ApproximateSize` of kinds other than B-splines needs
 //!   `SmIsoCurve` over any surface (the ported iso curve holds a B-spline), the zone
 //!   tolerance of a surface with a face needs `SmFace::GetTolerance`
 //!   (`topology.face_p2`): those calls return [`SolidError::Unported`]. Every tree build
-//!   needs `SmSurface::CalculateContinuities` (`surface.surface_p6`).
+//!   needs `SmSurface::CalculateContinuities` (`surface.surface_p6`), whose iso curves
+//!   exist for the B-spline, plane and revolution kinds.
+//!   [`map_to_2d_on_curve`] ports the UV-curve and the general 3D branch of
+//!   `SmTol::MapTo2d(.., SmCurve, SmSurface)`; the same-surface `SmCrvOnSurf` branch
+//!   (`SmTol.cpp:1118-1123`) is `Unported`.
 //! - **Solver and evaluator classes.** Their classes belong to the units of their
 //!   `Evaluate` / `LocalSolve` members; the structs and constructors live here. `m_pSurf`
 //!   (the owner object of a surface tree upstream) is passed in by the caller.
@@ -86,7 +93,7 @@
 use crate::curve::curve::Curve;
 use crate::curve::iso_curve::IsoCurve;
 use crate::curve::line::Line;
-use crate::error::{Result, SolidError};
+use crate::error::{ignored, Result, SolidError};
 use crate::geom::a_object::{CacheId, ObjectCacheType};
 use crate::geom::assert_array::labels::FACE_TYPE;
 use crate::geom::extent1d::Extent1d;
@@ -101,8 +108,8 @@ use crate::geom::polar_box::PolarBox;
 use crate::geom::pseudo_box::PseudoBox;
 use crate::geom::solution_array::SolutionObject;
 use crate::geom::tol::{
-    is_zero_to_tol, scaled_zero2, zone_tol_3d as kernel_zone_tol_3d, ScaledZero, SmallTopoType,
-    ANG_TOL_RAD,
+    is_zero_to_tol, scaled_zero2, tol3d, zone_tol_3d as kernel_zone_tol_3d, ScaledZero,
+    SmallTopoType, ANG_TOL_RAD,
 };
 use crate::geom::tree::{AuxDataType, NodeClass, NodeData, Tree, TreeNode, TreeOwner};
 use crate::geom::vector2d::{Point2, Vec2};
@@ -326,6 +333,19 @@ pub struct StepSurface {
 }
 
 impl StepSurface {
+    /// A bounded, exact evaluation copy; the nesting limit is checked by Surface.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        let surface = self
+            .surface
+            .as_deref()
+            .map(|s| s.clone_for_evaluation_depth(depth).map(Box::new))
+            .transpose()?;
+        Ok(Self {
+            surface,
+            owns_surface: self.owns_surface,
+        })
+    }
+
     /// `GetTypeString()`.
     pub const TYPE_STRING: &'static str = "SmSTEPSurface_TYPE";
     /// `GetClassString()`.
@@ -624,6 +644,76 @@ pub fn map_to_2d(tol_3d: f64, uv: Point2, surface: &Surface) -> Result<f64> {
     map_to_2d_dir(tol_3d, uv, uv_dir, surface)
 }
 
+/// `SmTol::MapTo2d(rTol3d, dParam, rTrimCurve, rSurface)` (the result as an
+/// `SmTol2d`): for a UV curve, `tol_3d` mapped to the parameter space of `surface` at
+/// the curve point `trim_curve(param)` in the curve direction, by [`map_to_2d_dir`]
+/// (the curve evaluation's status is ignored, as upstream; a failed evaluation leaves
+/// undefined vectors).
+///
+/// The UV-curve branch (`GetDim() == 2`) and the general 3D branch (the point and tangent
+/// dropped to the surface with `SmSurface::DropPoint` and `DropVectors`) are ported; the
+/// same-surface `SmCrvOnSurf` branch (`SmTol.cpp:1118-1123`, which evaluates the curve's UV
+/// curve) returns [`SolidError::Unported`].
+///
+/// # Errors
+///
+/// [`SolidError::Unported`] for a curve on surface, and from the evaluations and the drop.
+pub fn map_to_2d_on_curve(
+    k: &Kernel,
+    tol_3d: f64,
+    param: f64,
+    trim_curve: &Curve,
+    surface: &Surface,
+) -> Result<f64> {
+    // the same-surface SmCrvOnSurf branch evaluates the curve's own UV curve (an identity
+    // test on the base surface that the port cannot make)
+    if matches!(
+        trim_curve.kind(),
+        crate::curve::curve::CurveKind::CrvOnSurf(_)
+    ) {
+        // UNPORTED(surface.surface_p1): SmTol::MapTo2d (SmCrvOnSurf branch, SmTol.cpp:1118-1123)
+        return Err(SolidError::unported(
+            "SmTol::MapTo2d(SmCrvOnSurf)",
+            "surface.surface_p1",
+        ));
+    }
+
+    // evaluate SurfacePt = rSurface(rUVTrimCurve(dParam)) for UVTrimCurves
+    let mut pd = [Vec3::UNDEF; 2];
+    if let Some(d) = ignored(trim_curve.evaluate(param, 1, true, true))? {
+        for (slot, v) in pd.iter_mut().zip(d) {
+            *slot = v;
+        }
+    }
+    let [p0, p1] = pd;
+    let (uv, uv_dir) = if trim_curve.dim() == 2 {
+        (Point2::new(p0.x, p0.y), Vec2::new(p1.x, p1.y))
+    } else {
+        // general 3 dim Curve: drop its point and tangent to the surface's UV space
+        // (statuses ignored upstream: the UV stays undefined when the drop fails)
+        let drop = ignored(surface.drop_point::<crate::surface::surface::p4::NoObject>(
+            k,
+            p0,
+            &surface.natural_uv_domain(),
+            &crate::surface::surface::p5::DropPointOptions::default(),
+        ))?;
+        let uv = drop.map_or(Point2::UNDEF, |d| d.result_uv);
+        let uv_dir = ignored(crate::surface::surface::p7::drop_vectors_at(
+            surface,
+            uv,
+            Side::Left,
+            Side::Left,
+            &[p1],
+        ))?
+        .and_then(|v| v.first().copied())
+        .unwrap_or(Vec2::UNDEF);
+        (uv, uv_dir)
+    };
+
+    // pass the call along
+    Ok(tol3d(map_to_2d_dir(tol_3d, uv, uv_dir, surface)?))
+}
+
 /// `Evaluate1stDerivatives(uv, TRUE, TRUE, ..)` with its status ignored: zero
 /// vectors on failure, except [`SolidError::Unported`], which is returned.
 fn first_derivatives_or_zero(surface: &Surface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
@@ -859,6 +949,10 @@ impl Surface {
             (SurfaceKind::BSpline(a), SurfaceKind::BSpline(b)) => Ok(a.approx_eq(b)),
             // SmPlane::operator==: SmBSplineSurface::operator== first
             (SurfaceKind::Plane(a), SurfaceKind::Plane(b)) => Ok(a.approx_eq(b)),
+            (SurfaceKind::SurfOfRevolution(a), SurfaceKind::SurfOfRevolution(b)) => {
+                a.approx_eq(&Kernel::default(), b)
+            }
+            (SurfaceKind::SrfInVolume(a), SurfaceKind::SrfInVolume(b)) => a.approx_eq(b),
             _ => Ok(false),
         }
     }
@@ -958,7 +1052,10 @@ impl Surface {
                     .map(<[Vec3]>::to_vec)
                     .collect())
             }
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {
                 // pass the call along
                 self.evaluate(
                     uv,
@@ -983,9 +1080,10 @@ impl Surface {
         match self.kind() {
             SurfaceKind::CurveBounded(s) => s.basis().evaluate_step_point(uv),
             SurfaceKind::SurfOfRevolution(s) => s.evaluate_step_point_at(uv),
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::Step(_) => {
-                self.evaluate_point(uv)
-            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => self.evaluate_point(uv),
         }
     }
 
@@ -1028,6 +1126,14 @@ impl Surface {
                 s.basis()
                     .evaluate_simple(uv, highest_u_deriv, highest_v_deriv, flags)
             }
+            SurfaceKind::SrfInVolume(s) => s.evaluate_simple(
+                uv,
+                highest_u_deriv,
+                highest_v_deriv,
+                flags.u_side,
+                flags.v_side,
+                flags.only_upper_half,
+            ),
             SurfaceKind::Step(_) => {
                 // pass the call along
                 self.evaluate(
@@ -1310,7 +1416,7 @@ impl Surface {
                     polar_box: r.polar,
                 })
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 self.base_calculate_bounding_box(k, want, expand_pos_boxes_by_zone_tol_3d)
             }
         }
@@ -1567,7 +1673,7 @@ impl Surface {
             // inherited from SmBSplineSurface
             SurfaceKind::SurfOfRevolution(s) => s.base().is_degenerate_point(tol_3d, uv_domain),
             SurfaceKind::Plane(p) => p.base_for_query().is_degenerate_point(tol_3d, uv_domain),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 base_is_degenerate_point(self, tol_3d, uv_domain)
             }
         }
@@ -1597,7 +1703,7 @@ impl Surface {
                 p.base_for_query()
                     .is_degenerate_curve(angle_tol_deg, uv_domain, opt_3d_tol)
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 base_is_degenerate_curve(self, angle_tol_deg, uv_domain, opt_3d_tol)
             }
         }
@@ -2200,7 +2306,7 @@ pub fn crossed_seam_or_pole(
                 return false;
             }
         }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {}
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
     }
 
     // Just look for a big jump.
@@ -2412,15 +2518,17 @@ impl AreaIntegrand<'_> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmIntegrator::IntegrateIt` (`mass.integrator`).
+    /// Those of the surface evaluator; scalar numerical failures yield zero upstream.
     pub fn evaluate(&self, t: f64) -> Result<f64> {
         // set up the strip integral of [deltaX, IntervalY]
-        let _eval = IsoCurveLengthIntegrand::new(self.surface, t);
-        // UNPORTED(mass.integrator): SmIntegrator::IntegrateIt
-        Err(SolidError::unported(
-            "SmIntegrator::IntegrateIt",
-            "mass.integrator",
-        ))
+        let eval = IsoCurveLengthIntegrand::new(self.surface, t);
+        crate::mass::integrator::integrate(
+            self.uv_domain.min().y,
+            self.uv_domain.max().y,
+            crate::mass::integrator::IntegrationAlgorithm::Romberg,
+            self.iso_curve_accuracy,
+            |v| eval.evaluate(v),
+        )
     }
 }
 
@@ -2629,6 +2737,8 @@ impl<'t, 's, O: SolutionObject> LsiGlobalSolver<'t, 's, O> {
             line_interval,
             ray_fire,
             distance_tolerance,
+            surface_cache: None,
+            kernel: None,
         }
     }
 }
@@ -2660,6 +2770,7 @@ impl<'t, 's, O: SolutionObject> SsGlobalSolver<'t, 's, O> {
         surfaces: [Option<&'s Surface>; 2],
         uv_domain1: Extent2d,
         uv_domain2: Extent2d,
+        kernel: &'s Kernel,
     ) -> Self {
         Self {
             base: GlobalSolver::with_trees(surface_tree1, surface_tree2, 4),
@@ -2667,14 +2778,15 @@ impl<'t, 's, O: SolutionObject> SsGlobalSolver<'t, 's, O> {
             surface2: surfaces[1],
             uv_domain1,
             uv_domain2,
+            kernel,
         }
     }
 }
 
 // ---- evaluator constructors -------------------------------------------------------------
 
-/// Curve/surface intersection equations (`SmCSIntersectENFO`); `Evaluate` belongs to
-/// unit `surface.surface_p4`.
+/// Curve/surface intersection equations (`SmCSIntersectENFO`); `Evaluate` is in unit
+/// `surface.surface_p4` (`EvalNFunctions`).
 #[derive(Debug, Clone, Copy)]
 pub struct CsIntersectEnfo<'a> {
     /// `m_crCurve`.

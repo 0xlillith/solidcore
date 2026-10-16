@@ -57,8 +57,7 @@
 //!   `SmSurfaceEval` accessor reads the values it holds; [`SolidError::Unported`]
 //!   still propagates. A failing `CalculateBoundingBox` of the directed-maximise
 //!   constructor leaves the box in its initial (inside-out) state, as upstream.
-//! - **Unported callees.** `SmSurface::IsOnSeam` (`surface.surface_p4`) for every
-//!   kind but planes, `SmSurfaceEval::Normal` (`surface.surface_p4`) and the base
+//! - **Unported callees.** The base
 //!   `SmSurface::CreateIsoParametricCurve` (`surface.surface_p5`, the iso curve of a
 //!   curve-bounded or STEP surface) return [`SolidError::Unported`].
 //! - **`DropToIsoCurve`** passes its guess parameter by pointer and its output
@@ -82,7 +81,6 @@ use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT, UNDEF_DOUBLE};
-use crate::nurbs::b_spline_surface::p2::IsoCurveOptions;
 use crate::nurbs::b_spline_surface::BSplineSurface;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::math::CPoint;
@@ -150,14 +148,7 @@ impl<'s> SurfacePointSolver<'s> {
         _solution_requested: SolutionRequested,
     ) -> Result<Self> {
         // We need an SmBSplineSurface for some operations.
-        // (An SmOffsetSurface would work from its base surface: not ported.)
-        let b_spline = match surface.kind() {
-            SurfaceKind::BSpline(b) => Some(b),
-            SurfaceKind::Plane(p) => Some(p.base()),
-            SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => None,
-        }
-        .filter(|b| b.gw_nurb().is_some());
+        let b_spline = b_spline_part(surface);
 
         let mut solver = Self {
             surface,
@@ -255,6 +246,21 @@ impl<'s> SurfacePointSolver<'s> {
         self.b_spline
     }
 
+    /// The same problem over `surface` (the surface data re-read from it; every other
+    /// field copied), for a solve on a copy of the surface.
+    pub(super) fn with_surface<'t>(&self, surface: &'t Surface) -> SurfacePointSolver<'t> {
+        SurfacePointSolver {
+            surface,
+            domain: self.domain,
+            test_pt: self.test_pt,
+            dir_vec: self.dir_vec,
+            solver_op: self.solver_op,
+            b_spline: b_spline_part(surface),
+            tight_tol: self.tight_tol,
+            loose_tol: self.loose_tol,
+        }
+    }
+
     /// `crGap` reduced to its component along the direction for the directed
     /// operation (`dDot * m_sDirVec`), else unchanged.
     fn directed(&self, gap: Vec3) -> Vec3 {
@@ -267,11 +273,23 @@ impl<'s> SurfacePointSolver<'s> {
     }
 }
 
+/// `m_pBSplSrf`: the surface as an `SmBSplineSurface` with a NURB, if it is one (an
+/// `SmOffsetSurface` would work from its base surface: not ported).
+fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
+    match surface.kind() {
+        SurfaceKind::BSpline(b) => Some(b),
+        SurfaceKind::Plane(p) => Some(p.base()),
+        SurfaceKind::SurfOfRevolution(s) => Some(s.base()),
+        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
+    }
+    .filter(|b| b.gw_nurb().is_some())
+}
+
 // ---- control-net helpers ------------------------------------------------------------------
 
 /// The control point `(i, j)` of a net stored row by row with `num_v` points per row,
 /// divided by its weight when the net is rational.
-fn control_point(
+pub(super) fn control_point(
     pts: &[CPoint],
     num_v: usize,
     i: usize,
@@ -496,6 +514,22 @@ impl<'s> SurfPtGlobalSolver<'s> {
             closed_in_u: None,
             closed_in_v: None,
         })
+    }
+
+    /// The same solver over `surface` (see [`SurfacePointSolver::with_surface`]),
+    /// keeping the closure computed so far.
+    pub(super) fn with_surface<'t>(&self, surface: &'t Surface) -> SurfPtGlobalSolver<'t> {
+        SurfPtGlobalSolver {
+            base: self.base.with_surface(surface),
+            closed_in_u: self.closed_in_u,
+            closed_in_v: self.closed_in_v,
+        }
+    }
+
+    /// Takes over the closure `other` has computed (the same surface geometry).
+    pub(super) fn copy_closure_from(&mut self, other: &SurfPtGlobalSolver<'_>) {
+        self.closed_in_u = other.closed_in_u;
+        self.closed_in_v = other.closed_in_v;
     }
 
     /// Whether the surface is closed over the domain in `which_dir` (`SM_SP_U` or
@@ -897,11 +931,10 @@ impl<'s> SurfPtGlobalSolver<'s> {
     ///
     /// # Errors
     ///
-    /// Those of the seam and closure tests; [`SolidError::Unported`]:
-    /// `SmSurface::IsOnSeam` (`surface.surface_p4`) for every kind but planes.
-    pub fn check_guess_for_seams(&mut self, uv_guess: Point2) -> Result<Point2> {
+    /// Those of the seam and closure tests and of [`Surface::is_on_seam`].
+    pub fn check_guess_for_seams(&mut self, k: &Kernel, uv_guess: Point2) -> Result<Point2> {
         let mut uv = uv_guess;
-        if !is_on_seam(self.base.surface, uv)? {
+        if !is_on_seam(k, self.base.surface, uv)? {
             return Ok(uv);
         }
 
@@ -1240,21 +1273,16 @@ fn set_interval(d: &mut Extent2d, dir: SurfParamType, ivl: &Extent1d) {
     }
 }
 
-/// `pSurf->IsOnSeam(crUV)` (virtual, default arguments): a plane has no seam; the base
-/// body is unported.
-fn is_on_seam(surface: &Surface, _uv: Point2) -> Result<bool> {
+/// `pSurf->IsOnSeam(crUV)` (virtual, default arguments): a plane has no seam
+/// (`SmPlane::IsOnSeam` override); the other kinds run the base body.
+fn is_on_seam(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_on_seam().0),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
-            // UNPORTED(surface.surface_p4): SmSurface::IsOnSeam
-            Err(SolidError::unported(
-                "SmSurface::IsOnSeam",
-                "surface.surface_p4",
-            ))
-        }
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => Ok(surface.is_on_seam(k, uv, None)?.on_seam),
     }
 }
 
@@ -1585,13 +1613,20 @@ impl<'s> SurfPtSolveStepper<'s> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurfaceEval::Normal` (`surface.surface_p4`).
+    /// Missing dependencies from [`SurfaceEval::normal`]. Ordinary evaluation
+    /// statuses are ignored, retaining the cached value as the C++ accessor does.
     pub fn normal(&mut self) -> Result<Vec3> {
-        // UNPORTED(surface.surface_p4): SmSurfaceEval::Normal
-        Err(SolidError::unported(
-            "SmSurfaceEval::Normal",
-            "surface.surface_p4",
-        ))
+        match self.srf_eval.normal() {
+            Ok(normal) => Ok(normal),
+            Err(error) if error.is_unported() => Err(error),
+            Err(_) => Ok(self
+                .srf_eval
+                .values()
+                .get(2)
+                .and_then(|row| row.get(2))
+                .copied()
+                .unwrap_or(Vec3::UNDEF)),
+        }
     }
 
     /// The gap `S(u, v) - TestPt` (`Gap`).
@@ -1885,41 +1920,19 @@ impl<'s> SurfPtSolveStepper<'s> {
         _param_on_crease: f64,
     ) -> Result<bool> {
         let b = &self.base;
-        // The iso curve (no curve: FALSE).
-        let iso_curve: Curve = match b.surface.kind() {
-            SurfaceKind::BSpline(s) => {
-                match s.create_iso_parametric_curve(
-                    k,
-                    which_param,
-                    crease_param_val,
-                    IsoCurveOptions::default(),
-                ) {
-                    Ok(r) => Curve::from(r.curve),
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::Plane(p) => {
-                match p.create_iso_parametric_curve(which_param, crease_param_val, None, false) {
-                    Ok(r) => Curve::from(r.curve),
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::SurfOfRevolution(s) => {
-                match s.create_iso_parametric_curve(k, which_param, crease_param_val, None) {
-                    Ok(r) => r.curve,
-                    Err(e) if e.is_unported() => return Err(e),
-                    Err(_) => return Ok(false),
-                }
-            }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
-                // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
-                return Err(SolidError::unported(
-                    "SmSurface::CreateIsoParametricCurve",
-                    "surface.surface_p5",
-                ));
-            }
+        // The iso curve (no curve: FALSE): the surface's CreateIsoParametricCurve, with
+        // the loose tolerance as the approximation tolerance of the base body.
+        let iso_curve: Curve = match b.surface.create_iso_parametric_curve(
+            k,
+            which_param,
+            crease_param_val,
+            b.loose_tol,
+            None,
+            false,
+        ) {
+            Ok(r) => r.curve,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Ok(false),
         };
 
         let domain = if which_param == SurfParamType::U {
@@ -2293,7 +2306,7 @@ mod tests {
         assert_eq!(v.g_val, 0.0);
         assert_eq!(v.sum_check, 0.25);
         assert!((st.gap_length().unwrap() - (0.0625_f64 + 4.0).sqrt()).abs() < 1e-15);
-        assert!(st.normal().is_err());
+        assert!(st.normal().is_ok());
 
         // the copy is not evaluated, the assignment copies the evaluation
         let c = SurfPtSolveStepper::copy_of(&st);
@@ -2382,9 +2395,7 @@ mod tests {
             SolverOperation::Minimize,
         )
         .unwrap();
-        assert!(st
-            .drop_to_iso_curve(&k, SurfParamType::U, 0.2, 0.5)
-            .unwrap_err()
-            .is_unported());
+        // the curve-bounded iso curve (SmIsoCurve) is ported since surface.surface_p3 (#52)
+        assert!(st.drop_to_iso_curve(&k, SurfParamType::U, 0.2, 0.5).is_ok());
     }
 }

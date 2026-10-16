@@ -1,6 +1,7 @@
 //! Curve bounded (trimmed) surfaces: a basis surface with 3D and UV boundary curves,
 //! used for IGES I/O. Evaluation passes every call along to the basis surface.
 //!
+//!
 //! Upstream: `source/SMLib/src/SmCurveBoundedSurface.cpp`,
 //! `source/SMLib/inc/SmCurveBoundedSurface.h`.
 //!
@@ -26,6 +27,7 @@
 //! | [`CurveBoundedSurface::read_from_db`]                 | `ReadFromDB`                                   |
 //!
 //! Deviations:
+//! - Compound evaluation copies carry a depth counter capped at 64 by `Surface`.
 //! - **Ownership.** The surface owns its basis surface and boundary curves, as
 //!   upstream (whose destructor deletes them): they are moved into
 //!   [`CurveBoundedSurface::new`] (a missing upstream array is an empty `Vec`), and the
@@ -34,12 +36,11 @@
 //! - **Object model.** The surface is the [`SurfaceKind::CurveBounded`] kind of
 //!   [`Surface`]; the `SmSurface` virtuals it does not override run the base-class
 //!   defaults there. Its own overrides pass the call along to the basis surface.
-//! - **Unported callees.** The basis surface's `EvaluateSimple`, `EvaluateSTEP`, `EvaluateSTEPPoint`
-//!   (`surface.surface_p1`), `EvaluateNormalAtSingularity` (`surface.surface_p5`),
-//!   `EvaluateGeometric` and `EvaluateNormalSection` (`surface.surface_p3`) are not in
-//!   the [`Surface`] dispatch yet, nor is `SmSurface::operator==`
-//!   (`surface.surface_p1`), which `operator==` calls first: those calls return
-//!   [`SolidError::Unported`].
+//! - **Unported callees.** The basis surface's `EvaluateNormalAtSingularity`
+//!   (`surface.surface_p5`) is not in the [`Surface`] dispatch yet: that call returns
+//!   [`SolidError::Unported`]. The other basis-surface calls (`EvaluateSimple`,
+//!   `EvaluateSTEP`, `EvaluateSTEPPoint`, `operator==`, `EvaluateGeometric`,
+//!   `EvaluateNormalSection`) are wired.
 //! - **`operator==`** keeps upstream's loop bound: the UV boundaries are compared over
 //!   the number of 3D boundaries. Reading past the UV arrays (undefined upstream) ends
 //!   the comparison with the elements compared so far.
@@ -113,6 +114,16 @@ impl From<CurveBoundedSurface> for Surface {
 }
 
 impl CurveBoundedSurface {
+    /// An evaluation copy retaining exact basis data, with Surface's 64-level bound.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            basis: Box::new(self.basis.clone_for_evaluation_depth(depth)?),
+            boundaries_3d: self.boundaries_3d.clone(),
+            boundaries_uv: self.boundaries_uv.clone(),
+            implicit_outer: self.implicit_outer,
+        })
+    }
+
     /// A surface owning `basis` and the boundary curves (the constructor; the curves
     /// are assumed valid).
     #[must_use]
@@ -282,7 +293,7 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateSimple` (`surface.surface_p1`).
+    /// Those of the basis surface's evaluation.
     pub fn evaluate_simple(
         &self,
         uv: Point2,
@@ -310,14 +321,14 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateNormalAtSingularity`
-    /// (`surface.surface_p5`).
-    pub fn evaluate_normal_at_singularity(&self, _uv: Point2, _tol_3d: f64) -> Result<Vec3> {
-        // UNPORTED(surface.surface_p5): SmSurface::EvaluateNormalAtSingularity
-        Err(SolidError::unported(
-            "SmSurface::EvaluateNormalAtSingularity",
-            "surface.surface_p5",
-        ))
+    /// Those of [`Surface::evaluate_normal_at_singularity`] of the basis surface.
+    pub fn evaluate_normal_at_singularity(
+        &self,
+        k: &Kernel,
+        uv: Point2,
+        tol_3d: f64,
+    ) -> Result<Vec3> {
+        self.basis().evaluate_normal_at_singularity(k, uv, tol_3d)
     }
 
     /// The default `d3dTol` of [`Self::evaluate_normal_at_singularity`].
@@ -328,18 +339,14 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateGeometric` (`surface.surface_p3`).
+    /// Those of the basis surface's [`Surface::evaluate_geometric`].
     pub fn evaluate_geometric(
         &self,
-        _uv: Point2,
-        _u_side: Side,
-        _v_side: Side,
+        uv: Point2,
+        u_side: Side,
+        v_side: Side,
     ) -> Result<GeometricProperties> {
-        // UNPORTED(surface.surface_p3): SmSurface::EvaluateGeometric
-        Err(SolidError::unported(
-            "SmSurface::EvaluateGeometric",
-            "surface.surface_p3",
-        ))
+        self.basis.evaluate_geometric(uv, u_side, v_side)
     }
 
     /// The basis surface's normal section in `direction` at `uv`
@@ -347,20 +354,22 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateNormalSection`
-    /// (`surface.surface_p3`).
+    /// Those of the basis surface's [`Surface::evaluate_normal_section`].
     pub fn evaluate_normal_section(
         &self,
-        _uv: Point2,
-        _u_side: Side,
-        _v_side: Side,
-        _direction: Vec3,
+        uv: Point2,
+        u_side: Side,
+        v_side: Side,
+        direction: Vec3,
     ) -> Result<NormalSection> {
-        // UNPORTED(surface.surface_p3): SmSurface::EvaluateNormalSection
-        Err(SolidError::unported(
-            "SmSurface::EvaluateNormalSection",
-            "surface.surface_p3",
-        ))
+        let section = self
+            .basis
+            .evaluate_normal_section(uv, u_side, v_side, direction)?;
+        Ok(NormalSection {
+            tangent_plane_direction: section.tangent,
+            curvature: section.curvature,
+            normal: section.normal,
+        })
     }
 
     /// The basis surface's point at `uv` (`EvaluatePoint`).
@@ -377,7 +386,7 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateSTEP` (`surface.surface_p1`).
+    /// Those of the basis surface's evaluation.
     pub fn evaluate_step(
         &self,
         uv: Point2,
@@ -405,7 +414,7 @@ impl CurveBoundedSurface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::EvaluateSTEPPoint` (`surface.surface_p1`).
+    /// Those of the basis surface's evaluation.
     pub fn evaluate_step_point(&self, uv: Point2) -> Result<Point3> {
         self.basis.evaluate_step_point(uv)
     }

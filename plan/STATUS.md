@@ -1,6 +1,21 @@
 # solidcore status
 
-Last updated: 2026-10-13, PR workflow (`surface.trim_srf_cache` verified partial in PR #4). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml`.
+Last updated: 2026-10-15, `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
+
+
+## Integration update (2026-10-15, PR #119)
+
+The manifest now has 173 ported units: 97 green and 76 partial. `mass.integrator`
+has 1520 passing cases and eight explicit dependency deferrals out of 1528, with
+maximum relative error `4.979280456316938e-14` and no absolute floors. Review
+regressions cover circular holes, curved B-spline surfaces, rational edges and nested area strips; each Cash–Karp derivative array
+now retains its own values when a trim has zero U tangent. All three
+integration back-edges are wired. `curve.curve_p3` is green (3076/3076 bit-identical),
+and the 28 formerly deferred curved-length cases of `curve.curve_p5` now pass.
+Precise edge/face/B-rep properties and their API control flow use explicit calls
+for the remaining topology, bounding-box and offset dependencies. Detailed coverage
+and the scalar wrapper's failure-masking behavior are in `plan/findings.md`.
+
 
 ## Handoff (2026-10-13): from one local swarm to pull requests
 
@@ -31,12 +46,12 @@ Counts are from `plan/modules.toml`. Line counts are the upstream function-body 
 | | |
 |---|---|
 | Units planned | 261 (65 layers), 387,903 upstream lines |
-| Green | **83** (104,137 lines): `geom.extent3d`, `geom.vector2d`, `nlib.knots`, `nlib.math`, `topology.database_io`, `geom.tol`, `nlib.geom`, `geom.assert_array`, `geom.context`, `geom.extent1d`, `geom.matrix`, `geom.periodic_extent1d`, `geom.vector3d`, `nlib.basis_basic`, `nlib.srf_basic`, `geom.axis2_placement`, `geom.extent2d`, `geom.geom_utility_p2`, `geom.hash_table`, `geom.local_solve1d`, `geom.local_solve_nd`, `geom.polynomial`, `nlib.basis_adv`, `nlib.bezier`, `nlib.funcs_basic`, `geom.geom_utility_p1`, `geom.polar_box`, `nlib.crv_basic`, `geom.pseudo_box`, `nlib.crv_fit_p1`, `nlib.crv_tool_p1`, `nlib.iges`, `nlib.srf_tool_p1`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_fit_p2`, `nlib.crv_nurb`, `nlib.funcs_adv`, `nlib.srf_fit`, `nlib.crv_fit_p3`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nurbs.nurbs_crv`, `topology.topology`, `nlib.crv_adv_p1`, `nlib.crv_common`, `nlib.spiral`, `nlib.crv_adv_p2`, `nlib.srf_common`, `nlib.crv_approx`, `nlib.crv_offset`, `nlib.srf_nurb`, `nlib.srf_tool_p2`, `nurbs.b_spline_curve_n_lib`, `nurbs.nurbs_srf`, `nlib.srf_adv_p2`, `nlib.srf_adv_p3`, `nlib.srf_tool_p3`, `nlib.srf_tool_p4`, `curve.conic`, `curve.projected_curve`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1`, `nlib.srf_adv_p5`, `nlib.srf_adv_p6`, `nlib.srf_offset`, `curve.offset_curve`, `surface.b_spline_volume`, `nurbs.b_spline_curve_p1`, `curve.parabola`, `primitive.api_curves`, `nurbs.b_spline_curve_p2`, `curve.curve_p2`, `curve.curve_cache`, `curve.hyperbola`, `curve.line`, `curve.ellipse_p2`, `curve.curve_p6`, `curve.curve_p7`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `curve.composite_curve_p2` |
+| Green | **84** (105,920 lines): `geom.extent3d`, `geom.vector2d`, `nlib.knots`, `nlib.math`, `topology.database_io`, `geom.tol`, `nlib.geom`, `geom.assert_array`, `geom.context`, `geom.extent1d`, `geom.matrix`, `geom.periodic_extent1d`, `geom.vector3d`, `nlib.basis_basic`, `nlib.srf_basic`, `geom.axis2_placement`, `geom.extent2d`, `geom.geom_utility_p2`, `geom.hash_table`, `geom.local_solve1d`, `geom.local_solve_nd`, `geom.polynomial`, `nlib.basis_adv`, `nlib.bezier`, `nlib.funcs_basic`, `geom.geom_utility_p1`, `geom.polar_box`, `nlib.crv_basic`, `geom.pseudo_box`, `nlib.crv_fit_p1`, `nlib.crv_tool_p1`, `nlib.iges`, `nlib.srf_tool_p1`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_fit_p2`, `nlib.crv_nurb`, `nlib.funcs_adv`, `nlib.srf_fit`, `nlib.crv_fit_p3`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nurbs.nurbs_crv`, `topology.topology`, `nlib.crv_adv_p1`, `nlib.crv_common`, `nlib.spiral`, `nlib.crv_adv_p2`, `nlib.srf_common`, `nlib.crv_approx`, `nlib.crv_offset`, `nlib.srf_nurb`, `nlib.srf_tool_p2`, `nurbs.b_spline_curve_n_lib`, `nurbs.nurbs_srf`, `nlib.srf_adv_p2`, `nlib.srf_adv_p3`, `nlib.srf_tool_p3`, `nlib.srf_tool_p4`, `curve.conic`, `curve.projected_curve`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1`, `nlib.srf_adv_p5`, `nlib.srf_adv_p6`, `nlib.srf_offset`, `curve.offset_curve`, `surface.b_spline_volume`, `nurbs.b_spline_curve_p1`, `curve.parabola`, `primitive.api_curves`, `nurbs.b_spline_curve_p2`, `curve.curve_p2`, `curve.curve_cache`, `curve.hyperbola`, `curve.line`, `curve.ellipse_p2`, `curve.curve_p6`, `curve.curve_p7`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `curve.composite_curve_p2`, `curve.curve_p9` |
 | Partial | **31** (41,289 lines): `geom.attribute`, `geom.tree`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.global_solver`, `geom.tools`, `geom.transform`, `geom.a_object`, `nurbs.b_spline_surface_p1`, `nurbs.b_spline_curve_p3`, `curve.crv_in_volume`, `curve.tangent_field`, `nurbs.b_spline_surface_n_lib_p1`, `curve.iso_curve`, `nurbs.b_spline_surface_n_lib_p2`, `nurbs.b_spline_surface_p2`, `surface.volume_p1`, `curve.curve_p4`, `surface.twist_volume`, `curve.curve_p3`, `curve.curve_p1`, `curve.crv_on_surf`, `surface.surface_p2`, `surface.curve_bounded_surface`, `surface.surface_cache_p1`, `curve.curve_p5`, `surface.trim_srf_cache`, `surface.plane_p1`, `surface.unbend_volume`, `surface.bend_volume` |
-| Ported (green + partial) | 114 units, 145,426 upstream lines (37.5%); about 150,000 Rust lines in `crates/solidcore/src` |
+| Ported (green + partial) | 115 units, 147,209 upstream lines (38.0%); about 150,000 Rust lines in `crates/solidcore/src` |
 | Claimed | 0 (claims now use draft PRs) |
 | Blocked | 0 |
-| Todo | 147 (242,477 lines) |
+| Todo | 146 (240,694 lines) |
 
 ## What Wave 0 produced
 
@@ -889,3 +904,51 @@ license/source checks. Sensitivity detects 2,384/2,384 part-2 cases,
 3,248/3,248 part-1 cases 611/611 tree cases and 721/721 tools cases. Full differential validation:
 142 units, 89 green, 53 partial, zero failed. The four default reports match
 the full-validation reports byte for byte.
+
+## B-rep spatial caches (2026-10-15, PR #115)
+
+`topology.brep_cache` is partial: 663 cases, 662 bit-identical passes, zero
+failures and one explicit `query.brep` deferral, with no absolute floors.
+Polygon trees and exact vertex/line-edge resizing are compared against C++;
+exact tree construction and face resizing await the dependencies documented
+in `plan/findings.md`, including native B-rep list traversal. Cache factories
+and topology-solver back-edges are wired; face picking uses caller-supplied
+kernel, B-rep identity and owner mappings.
+The four affected units keep their existing pass/deferred counts; 131
+`geom.a_object` deferrals now correctly name `query.brep` instead of the cache.
+
+## Public geometry and topology queries (2026-10-16, PR #125)
+
+`query.api_queries` is partial: 1,203 cases (403 fixed and 800 fixed-seed
+generated), 587 compared bit-identical, zero failed and 616 explicit deferrals.
+The native oracle calls real `SmApi*` entrypoints on concrete analytic/NURBS
+geometry, including a line-generated surface of revolution, a C0 B-spline corner,
+vertex loops and holed faces. No absolute floors were added.
+
+Coverage includes left tangents at an internal knot and its adjacent floats,
+zero-edge loop counts, invalid inner-loop cleanup, subdomains, scales, poles and
+seams. All 21 analytic revolution cases compare bit-identically, including
+multiple UV representations. Relationship fixtures cover all five native classes,
+edge/corner contact and reversed operands, including the upstream distance probes;
+Rust relationship paths still defer to unfinished dependencies. Topology imports
+retain exact concrete types, face-use links, trim flags and geometry owners.
+
+The face UV query now calls `query.face_p2`. Face closest-point test adapters
+validate the face before building their caches. `solution_point` follows
+`SmSolution::GetPoint`'s parameter advances and ignored ordinary evaluation errors;
+two core tests cover both behaviors, and the generic solution API points to this
+adapter for future geometry wiring.
+
+FFI guards cover the missing-curve solver/picker, face-query and curved tight-box
+crashes found during review and isolated probes. After correction, all 396 probes
+finish without a crash or timeout (192 guarded, 204 native calls completed).
+Five FFI tests include the regressions and all 25 native null contracts; nulls
+are excluded from the differential count because typed Rust has no equivalent.
+Native defects are recorded in findings and upstream issues (UB-108).
+
+Local checks pass: formatting, plain/C++ Clippy, 1,168 workspace/doc tests,
+the five FFI tests, WASM, cargo-deny and locked publish dry-run. The full native
+suite passes 173 units
+(97 green, 76 partial), with zero failures; the final API rerun and touched-unit
+perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
+422,654 compared, 12,618 deferred, zero failed.

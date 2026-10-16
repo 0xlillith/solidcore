@@ -63,13 +63,13 @@
 //! - **Unported callees.** Part 2 now supplies the local traversal and its six
 //!   local classes. Curve/curve solves, surface solves, topology tolerances and
 //!   face classification still propagate their owning units' unported errors.
-//!   Face silhouettes use the ported surface cache factory; building its tree
-//!   needs `surface.surface_p6`. The face-silhouette loop names temporary curves
+//!   Face silhouettes use the ported surface cache factory. The face-silhouette loop names temporary curves
 //!   by their face owner through the adapter.
 
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p2::Curve;
 use crate::curve::curve::p8::CurveIntersectOptions;
+use crate::curve::curve::p9::CurveSolveOptions;
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
@@ -115,14 +115,24 @@ const fn null_deref(operation: &'static str, reason: &'static str) -> SolidError
 /// call (upstream reaches these through casts of `SmObject*` and the
 /// `SmVertex`/`SmEdge`/`SmFace`/`SmSurface` members).
 pub trait TopologyObjects<O> {
-    /// The B-rep cache trees, addressed by this adapter's object handles.
-    /// The default remains explicitly unavailable until the B-rep cache is ported.
-    fn brep_trees(&self, _brep: O) -> Result<super::p2::TopologyTrees<'_, O>> {
-        // UNPORTED(topology.brep_cache): SmBrepCache::GetVertexTree / GetCurveTree / GetSurfaceTree
-        Err(SolidError::unported(
-            "SmBrepCache::GetVertexTree",
-            "topology.brep_cache",
+    /// The cache associated with a B-rep handle. Adapters that expose B-reps
+    /// provide this, or override `brep_trees` with their own tree storage.
+    fn brep_cache(&self, _brep: O) -> Result<&crate::topology::brep_cache::BrepCache<O>> {
+        Err(SolidError::invalid_input(
+            "intersect::topology_solver::p1::TopologyObjects::brep_cache",
+            "adapter has no B-rep cache mapping",
         ))
+    }
+
+    /// The B-rep's three cache trees, addressed by this adapter's handles.
+    fn brep_trees(&self, brep: O) -> Result<super::p2::TopologyTrees<'_, O>> {
+        const OP: &str = "intersect::topology_solver::p1::TopologyObjects::brep_trees";
+        let cache = self.brep_cache(brep)?;
+        Ok(super::p2::TopologyTrees {
+            vertices: cache.vertex_tree().ok_or(SolidError::null_pointer(OP))?,
+            curves: cache.curve_tree().ok_or(SolidError::null_pointer(OP))?,
+            surfaces: cache.surface_tree().ok_or(SolidError::null_pointer(OP))?,
+        })
     }
 
     /// The object represented by a typed shape member, inverse of `shape_member`.
@@ -1462,7 +1472,8 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let uv_domain = objects.face_uv_domain(face)?;
             let face_tol = objects.face_tolerance(face)?;
             let solutions = surface_global_point_solve(
-                face_surface,
+                ts.kernel,
+                objects.surface(face_surface)?,
                 &uv_domain,
                 op,
                 self.point,
@@ -1625,6 +1636,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             )?
         } else {
             curve_global_curve_solve(
+                ts.kernel,
                 this,
                 this_interval,
                 other,
@@ -1793,19 +1805,24 @@ fn surface_global_line_intersect<O>(
 
 /// `pFace->GetSurface()->GlobalPointSolve(uv_domain, op, point, tol,
 /// pdBestAnswer, SM_SR_ALL, solutions)`.
-fn surface_global_point_solve<O>(
-    _surface: O,
-    _uv_domain: &Extent2d,
-    _op: SolverOperation,
-    _point: Point3,
-    _tol: f64,
-    _best_answer: Option<f64>,
+fn surface_global_point_solve<O: SolutionObject>(
+    kernel: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    op: SolverOperation,
+    point: Point3,
+    tol: f64,
+    best_answer: Option<f64>,
 ) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+    surface.global_point_solve::<O>(
+        kernel,
+        uv_domain,
+        op,
+        point,
+        tol,
+        best_answer,
+        SolutionRequested::All,
+    )
 }
 
 /// The arguments of `SmCurve::GlobalCurveSolve` after the two curves and their
@@ -1825,26 +1842,28 @@ struct CurveSolveArgs<'v> {
 
 /// `this->GlobalCurveSolve(this_interval, *other, other_interval, op, tol,
 /// pdBestAnswer, cpOptVectors, SM_SR_ALL, solutions)`.
-fn curve_global_curve_solve<O>(
-    _this: CurveRef<'_, O>,
-    _this_interval: &Extent1d,
-    _other: CurveRef<'_, O>,
-    _other_interval: &Extent1d,
+fn curve_global_curve_solve<O: SolutionObject>(
+    k: &Kernel,
+    this: CurveRef<'_, O>,
+    this_interval: &Extent1d,
+    other: CurveRef<'_, O>,
+    other_interval: &Extent1d,
     args: &CurveSolveArgs<'_>,
 ) -> Result<SolutionArray<O>> {
-    // (every argument is for the call that replaces this stub)
-    let _ = (
+    this.curve.global_curve_solve(
+        k,
+        this_interval,
+        other.curve,
+        other_interval,
         args.operation,
         args.tolerance_3d,
-        args.best_answer,
-        args.opt_vectors,
+        &CurveSolveOptions {
+            target_distance: args.best_answer,
+            opt_vectors: args.opt_vectors,
+            handles: [Some(this.handle), Some(other.handle)],
+        },
         args.requested,
-    );
-    // UNPORTED(curve.curve_p9): SmCurve::GlobalCurveSolve
-    Err(SolidError::unported(
-        "SmCurve::GlobalCurveSolve",
-        "curve.curve_p9",
-    ))
+    )
 }
 
 /// `SmTol::GetZoneTol3d(m_pPointVertex)`.

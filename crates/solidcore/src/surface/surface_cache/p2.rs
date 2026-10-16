@@ -328,6 +328,12 @@ pub struct ToleranceTest {
     pub direction: SurfParamType,
 }
 
+/// A `TestAgainstTolerances` for `SubdivideToTolerances` (upstream's virtual call:
+/// [`SurfaceCache::test_against_tolerances`] for the base class, a derived cache's
+/// override otherwise).
+pub type ToleranceTester<'a, O> =
+    dyn FnMut(&mut SurfaceCache<O>, &Kernel, NodeId) -> Result<ToleranceTest> + 'a;
+
 /// Turns an [`SolidError::Unported`] or any other error of an ignored status into
 /// "ignored": `Ok(None)` for ignored failures, the error for `Unported`.
 fn ignore<T>(r: Result<T>) -> Result<Option<T>> {
@@ -539,7 +545,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
             SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
                 None
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => Some(&cache_surface),
+            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+                Some(&cache_surface)
+            }
         };
 
         let mut subdivide = false;
@@ -915,7 +923,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                     SurfaceKind::BSpline(b) => b.copy_sub_patch(&node_uv),
                     SurfaceKind::Plane(p) => p.base().copy_sub_patch(&node_uv),
                     SurfaceKind::SurfOfRevolution(s) => s.base().copy_sub_patch(&node_uv),
-                    SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) => {
+                    SurfaceKind::CurveBounded(_)
+                    | SurfaceKind::Step(_)
+                    | SurfaceKind::SrfInVolume(_) => {
                         return Err(invalid(OP_BLOCK, "node surface is not a B-spline"))
                     }
                 };

@@ -335,17 +335,14 @@ fn approximate_length(curve: &BSplineCurve, interval: &Extent1d, samples: usize)
 /// `SmSurface::LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, found, sol)`:
 /// whether an answer was found, the solution value and the parameters of
 /// `sol.m_vStart`.
-fn surface_local_point_solve<S>(
-    _surface: &S,
-    _domain: &Extent2d,
-    _point: Point3,
-    _guess: Vec2,
+fn surface_local_point_solve<S: SurfaceEvaluate>(
+    k: &Kernel,
+    surface: &S,
+    domain: &Extent2d,
+    point: Point3,
+    guess: Vec2,
 ) -> Result<(bool, f64, Vec2)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::Unported {
-        upstream: "SmSurface::LocalPointSolve",
-        unit: "surface.surface_p5",
-    })
+    surface.local_point_solve_minimize(k, domain, point, guess)
 }
 
 /// `SmSurface::Evaluate(uv, 1, 1, TRUE, TRUE, TRUE, vals)`: `vals[i][j]` is the
@@ -912,6 +909,7 @@ impl BSplineCurve {
     /// deviations).
     pub fn set_intersection_curve_through_point<S: SurfaceEvaluate>(
         &mut self,
+        k: &Kernel,
         new_knot: &mut f64,
         through: Point3,
         tangent: Option<Vec3>,
@@ -1214,7 +1212,7 @@ impl BSplineCurve {
                     let guess = Vec2::new(guess_3d.x, guess_3d.y);
                     let domain = surface.natural_uv_domain();
                     let (_found, sol_value, sol_params) =
-                        surface_local_point_solve(surface, &domain, pos_jj, guess)?;
+                        surface_local_point_solve(k, surface, &domain, pos_jj, guess)?;
 
                     // check and store the Surface1 answer
                     if sol_value > 1e-8 {
@@ -2336,6 +2334,7 @@ mod tests {
         let mut knot = 0.5;
         let r = cubic()
             .set_intersection_curve_through_point::<crate::nurbs::b_spline_surface::BSplineSurface>(
+                &Kernel::default(),
                 &mut knot,
                 Vec3::new(4.0, 2.0, 0.0),
                 None,
