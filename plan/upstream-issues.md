@@ -1197,6 +1197,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::intersect_surface_boundaries` always returns the curves.
 
+#### UB-124. `SmFilletGeom(SmFilletSolver*, SmFilletGeomType)` leaves `m_dOrientations` and `m_bCapped` uninitialised
+- **Location:** `source/SMLib/src/SmFilletGeom.cpp:8971-9004` (`SmFilletGeom::SmFilletGeom`).
+- **What happens:** The constructor's initialiser list and loop set the type, solver, centre line, surface, split flag, status, offset surfaces, rails and deviations, but never `m_dOrientations[2]` or `m_bCapped[2]`; they hold whatever the allocation held until `CalcBlendingGeom` / the surface generator assign them. Readers before that (`m_dOrientations` in `SmFilletGeom::Copy`, `m_bCapped` in the end-curve code) see indeterminate values.
+- **Trigger:** Any `SmFilletGeom` read for its orientations or capping flags before its geometry is computed.
+- **How found:** read during porting (`blend.fillet_geom_p1`, PR #147).
+- **Confirmed:** no (source inspection; the difftest never exports these members before they are set).
+- **Severity:** UB (indeterminate reads).
+- **Rust port:** `FilletGeom::new` starts them as `0.0` and `false`.
+
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
