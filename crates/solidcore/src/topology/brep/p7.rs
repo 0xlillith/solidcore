@@ -628,8 +628,7 @@ pub fn make_face_with_curves(
         None => infinite_region(b)?,
     };
     // (the surface tests return flags upstream: a failed test is "no")
-    if ignored(surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D))?
-        .unwrap_or(false)
+    if ignored(surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D))?.unwrap_or(false)
     {
         return Err(SolidError::invalid_input(
             OP,

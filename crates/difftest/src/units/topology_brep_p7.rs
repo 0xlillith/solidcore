@@ -281,7 +281,7 @@ fn read_bytes(file: &str, damage: Option<Damage>) -> Result<Vec<u8>, HarnessErro
     Ok(bytes)
 }
 
-/// The brep_data stream guard of the bytes: `false` when it rejects them.
+/// The `topology.brep_data` stream guard of the bytes: `false` when it rejects them.
 fn guard_accepts(bytes: &[u8], upstream_file: bool) -> Result<bool, HarnessError> {
     let req = bd::Request {
         mode: bd::Mode::ReadFile,
@@ -339,9 +339,9 @@ fn export_of(brep: &BrepIn) -> Result<Rc<Vec<f64>>, HarnessError> {
 /// when the case ends early (the B-rep did not build, or has nothing to select).
 #[allow(clippy::type_complexity)]
 fn resolve(i: &Inputs) -> Result<Result<(Inputs, Option<Rc<Vec<f64>>>), Output>, HarnessError> {
-    let brep = match i {
-        Inputs::Glue { brep, .. } | Inputs::Copy { brep, .. } | Inputs::MergeSelf { brep, .. } => brep,
-        _ => return Ok(Ok((i.clone(), None))),
+    let (Inputs::Glue { brep, .. } | Inputs::Copy { brep, .. } | Inputs::MergeSelf { brep, .. }) = i
+    else {
+        return Ok(Ok((i.clone(), None)));
     };
     let ex = export_of(brep)?;
     let Some(c) = fixture::counts(&ex) else {
@@ -802,14 +802,15 @@ fn line(dim: u64, a: [f64; 3], b: [f64; 3]) -> CrvIn {
 /// A square loop of side `s` at `(x, y)` on `z = 0`, as 3D and UV lines, orientation
 /// `orient` for every curve, run counter-clockwise or clockwise.
 fn square(x: f64, y: f64, s: f64, ccw: bool) -> Vec<FaceCurveIn> {
-    let mut pts = vec![[x, y], [x + s, y], [x + s, y + s], [x, y + s]];
+    let mut pts = [[x, y], [x + s, y], [x + s, y + s], [x, y + s]];
     if !ccw {
         pts.reverse();
     }
+    let at = |i: usize| pts.get(i % 4).copied().unwrap_or([0.0, 0.0]);
     (0..4)
         .map(|i| {
-            let a = pts[i];
-            let b = pts[(i + 1) % 4];
+            let a = at(i);
+            let b = at(i + 1);
             FaceCurveIn {
                 c3: Some(line(3, [a[0], a[1], 0.0], [b[0], b[1], 0.0])),
                 uv: Some(line(2, [a[0], a[1], 0.0], [b[0], b[1], 0.0])),
