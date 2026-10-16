@@ -367,12 +367,8 @@ fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
     // UNPORTED(topology.shell): SmRegion::IsVoid
     Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
 }
-fn manifold_solid(_b: &Brep) -> Result<bool> {
-    // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
-    Err(SolidError::unported(
-        "SmBrep::IsManifoldSolid",
-        "topology.brep_p2",
-    ))
+fn manifold_solid(b: &Brep) -> Result<bool> {
+    crate::topology::brep::p2::is_manifold_solid(b)
 }
 fn add(total: &mut PreciseProperties, delta: &PreciseProperties, density: f64) {
     total.area += delta.area;

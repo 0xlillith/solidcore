@@ -26,11 +26,15 @@
 //! without radial edge use or face use) return [`SolidError::InvalidInput`]. A loop
 //! that keeps going after a failed status upstream (`RebuildUVTrimCurves`) stops at
 //! the first [`SolidError::Unported`]. The B-rep cache (`SmCacheMgr` slot
-//! `SM_OC_BREP`) is caller-held: [`notify`] edits the one in `env.brep_cache` (none:
-//! no cache). No recursion.
+//! `SM_OC_BREP`) is caller-held: [`notify`] edits the one in its `cache` slot (none:
+//! no cache). No recursion. Input-driven loops are bounded by their inputs:
+//! `MergeCurvesOnSurface`'s face queue only grows by the faces `MergeIntervals` creates
+//! (each split adds faces to the finite B-rep), `MateLaminaEdgeToSurface` samples 21
+//! points and scans the intersection curves once.
 
 use std::collections::BTreeMap;
 
+use crate::curve::curve::p2::is_curve_class;
 use crate::curve::curve::{p8::CurveIntersectOptions, Curve, CurveKind};
 use crate::error::{EntityRef, Result, SolidError, SM_ERR};
 use crate::geom::a_object::{self, BREP_TYPE};
@@ -58,7 +62,7 @@ use crate::query::face::p2::{curve_on_classify, CurveOnClassifyObjects};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::trim_srf_cache::TrimSrfCache;
 use crate::topology::brep::p1;
-use crate::topology::brep_cache::{self, BrepObjects, CacheObject, CacheSource};
+use crate::topology::brep_cache::{self, BrepCache, BrepObjects, CacheObject, CacheSource};
 use crate::topology::edge::{self, AttributeFilter, NotifyEnv, SetCurveOptions};
 use crate::topology::edgeuse::p1::{self as eu1, UvTrimCurveArg};
 use crate::topology::edgeuse::p2 as eu2;
@@ -411,10 +415,13 @@ pub fn swap_uv(k: &mut Kernel, b: &mut Brep, marks: &mut Marks) -> Result<()> {
     // for every face
     let mut res = Ok(());
     for f in faces {
-        // swap the face's orientation - watch for composites
+        // swap the face's orientation - watch for composites (sm_SwapFaceUV is void:
+        // only an unported callee stops the loop)
         if let Err(e) = p1::swap_face_uv(k, b, marks, f, mark) {
-            res = Err(e);
-            break;
+            if e.is_unported() {
+                res = Err(e);
+                break;
+            }
         }
     }
     lock.release(std::slice::from_mut(&mut k.context))?;
@@ -504,6 +511,15 @@ impl NotifyArg {
     }
 }
 
+/// The spatial cache of a B-rep (`SmCacheMgr::GetObjectCache(SM_OC_BREP, pBrep)`)
+/// that [`notify`] keeps up to date, with the kernel its boxes are computed in.
+pub struct BrepCacheSlot<'a> {
+    /// The kernel.
+    pub kernel: &'a Kernel,
+    /// The cache; `None` when the B-rep has none.
+    pub cache: &'a mut Option<BrepCache>,
+}
+
 /// The B-rep's identity (`this` of `SmBrep::Notify`).
 #[must_use]
 pub const fn brep_ref(b: &Brep) -> ObjectRef {
@@ -514,7 +530,7 @@ pub const fn brep_ref(b: &Brep) -> ObjectRef {
 }
 
 /// `Notify`: keeps the B-rep's spatial cache (`SmCacheMgr::GetObjectCache(SM_OC_BREP,
-/// this)`, `env.brep_cache`) in step with the change, then passes the notification to
+/// this)`, `cache`) in step with the change, then passes the notification to
 /// `SmSAGObject::Notify` with the B-rep as `this`:
 ///
 /// | operation                  | cache effect                                      |
@@ -536,31 +552,33 @@ pub const fn brep_ref(b: &Brep) -> ObjectRef {
 pub fn notify(
     b: &Brep,
     env: &mut NotifyEnv<'_>,
+    cache: Option<&mut BrepCacheSlot<'_>>,
     operation: NotifyOperation,
     data: [Option<NotifyArg>; 3],
 ) -> Result<()> {
     use NotifyOperation as N;
     let [d1, d2, d3] = data;
+    let mut slot = cache;
     match operation {
         N::PreEdit | N::Destruction => {
-            if let Some(slot) = env.brep_cache.as_mut() {
-                *slot.cache = None;
+            if let Some(s) = slot.as_deref_mut() {
+                *s.cache = None;
             }
         }
         // deleted pData2 should be removed from appropriate BrepCache obj SpatialTree
-        N::MergeInBrep => rm_from_spatial_tree(b, env, d2)?,
+        N::MergeInBrep => rm_from_spatial_tree(b, env, &mut slot, d2)?,
         // deleted pData1 should be removed from appropriate BrepCache obj SpatialTree
-        N::RmFromBrep => rm_from_spatial_tree(b, env, d1)?,
+        N::RmFromBrep => rm_from_spatial_tree(b, env, &mut slot, d1)?,
         // add new topology object pData2 to appropriate BrepCache obj SpatialTree
         N::SplitInBrep => {
             if d1 != d2 {
-                add_to_spatial_tree(b, env, d2)?;
+                add_to_spatial_tree(b, env, &mut slot, d2)?;
             }
             if d1 != d3 {
-                add_to_spatial_tree(b, env, d3)?;
+                add_to_spatial_tree(b, env, &mut slot, d3)?;
             }
         }
-        N::AddToBrep => add_to_spatial_tree(b, env, d1)?,
+        N::AddToBrep => add_to_spatial_tree(b, env, &mut slot, d1)?,
         _ => {}
     }
 
@@ -602,15 +620,16 @@ enum TreeKind {
 /// build fails softly).
 fn add_to_tree(
     b: &Brep,
-    env: &mut NotifyEnv<'_>,
+    env: &NotifyEnv<'_>,
+    slot: &mut Option<&mut BrepCacheSlot<'_>>,
     kind: TreeKind,
     bbox: &Extent3d,
     object: Option<CacheObject>,
 ) -> Result<()> {
-    let Some(slot) = env.brep_cache.as_mut() else {
+    let Some(s) = slot.as_deref_mut() else {
         return Ok(());
     };
-    let Some(cache) = slot.cache.as_mut() else {
+    let Some(cache) = s.cache.as_mut() else {
         return Ok(());
     };
     let tree = match kind {
@@ -624,8 +643,8 @@ fn add_to_tree(
         Err(e) if e.is_unported() => return Err(e),
         Err(_) => {}
     }
-    let kernel = slot.kernel;
-    *slot.cache = None;
+    let kernel = s.kernel;
+    *s.cache = None;
     let rebuilt = {
         let keys = |o: CacheObject| cache_keys(env, o);
         brep_cache::make_brep_cache(kernel, CacheSource::Brep(b), &keys)
@@ -635,23 +654,23 @@ fn add_to_tree(
         Err(e) if e.is_unported() => return Err(e),
         Err(_) => None,
     };
-    if let Some(slot) = env.brep_cache.as_mut() {
-        *slot.cache = cache;
+    if let Some(s) = slot.as_deref_mut() {
+        *s.cache = cache;
     }
     Ok(())
 }
 
 /// `pTree->RmFromSpatialTree(box, object)`; a miss only asserts upstream.
 fn rm_from_tree(
-    env: &mut NotifyEnv<'_>,
+    slot: &mut Option<&mut BrepCacheSlot<'_>>,
     kind: TreeKind,
     bbox: &Extent3d,
     object: CacheObject,
 ) -> Result<()> {
-    let Some(slot) = env.brep_cache.as_mut() else {
+    let Some(s) = slot.as_deref_mut() else {
         return Ok(());
     };
-    let Some(cache) = slot.cache.as_mut() else {
+    let Some(cache) = s.cache.as_mut() else {
         return Ok(());
     };
     let tree = match kind {
@@ -666,21 +685,25 @@ fn rm_from_tree(
 }
 
 /// The kernel of the B-rep's cache slot, when it has a cache.
-fn cache_kernel<'k>(env: &NotifyEnv<'k>) -> Option<&'k Kernel> {
-    env.brep_cache
-        .as_ref()
+fn cache_kernel<'k>(slot: &Option<&mut BrepCacheSlot<'k>>) -> Option<&'k Kernel> {
+    slot.as_ref()
         .and_then(|s| s.cache.is_some().then_some(s.kernel))
 }
 
 /// `sm_AddToSpatialTree`: adds a new edge's curve (box of the edge, grown by its
 /// tolerance), vertex (its point grown by its tolerance) or face's surface (box of the
 /// face, grown by its tolerance) to the B-rep cache's tree; nothing without cache.
-fn add_to_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, new: Option<NotifyArg>) -> Result<()> {
+fn add_to_spatial_tree(
+    b: &Brep,
+    env: &NotifyEnv<'_>,
+    slot: &mut Option<&mut BrepCacheSlot<'_>>,
+    new: Option<NotifyArg>,
+) -> Result<()> {
     let Some(NotifyArg::Entity(entity)) = new else {
         return Ok(());
     };
     // when brep has a cache
-    let Some(k) = cache_kernel(env) else {
+    let Some(k) = cache_kernel(slot) else {
         return Ok(());
     };
     match entity {
@@ -691,7 +714,7 @@ fn add_to_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, new: Option<NotifyArg>
             let mut bbox = edge_box(k, b, e)?;
             bbox.expand_absolute(data.tolerance);
             let curve = data.curve.as_ref().map(|_| CacheObject::Curve(e));
-            add_to_tree(b, env, TreeKind::Curve, &bbox, curve)
+            add_to_tree(b, env, slot, TreeKind::Curve, &bbox, curve)
         }
         // add new vertex->Point to BrepCache->VertexTree
         EntityRef::Vertex(v) => {
@@ -701,6 +724,7 @@ fn add_to_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, new: Option<NotifyArg>
             add_to_tree(
                 b,
                 env,
+                slot,
                 TreeKind::Vertex,
                 &bbox,
                 Some(CacheObject::Vertex(v)),
@@ -712,7 +736,7 @@ fn add_to_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, new: Option<NotifyArg>
             let mut bbox = face_box(k, b, f)?;
             bbox.expand_absolute(data.tolerance);
             let surface = data.surface.as_ref().map(|_| CacheObject::Surface(f));
-            add_to_tree(b, env, TreeKind::Surface, &bbox, surface)
+            add_to_tree(b, env, slot, TreeKind::Surface, &bbox, surface)
         }
         _ => Ok(()),
     }
@@ -722,12 +746,17 @@ fn add_to_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, new: Option<NotifyArg>
 /// interval, its natural interval for a wire; only when the edge owns the curve), a
 /// vertex (box of its point) or a face's surface (box of the face; only when the face
 /// owns the surface) from the B-rep cache's tree; nothing without cache.
-fn rm_from_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, old: Option<NotifyArg>) -> Result<()> {
+fn rm_from_spatial_tree(
+    b: &Brep,
+    env: &NotifyEnv<'_>,
+    slot: &mut Option<&mut BrepCacheSlot<'_>>,
+    old: Option<NotifyArg>,
+) -> Result<()> {
     let Some(NotifyArg::Entity(entity)) = old else {
         return Ok(());
     };
     // when brep has a cache
-    let Some(k) = cache_kernel(env) else {
+    let Some(k) = cache_kernel(slot) else {
         return Ok(());
     };
     match entity {
@@ -758,11 +787,11 @@ fn rm_from_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, old: Option<NotifyArg
                 Err(err) if err.is_unported() => return Err(err),
                 Err(_) => Extent3d::new(),
             };
-            rm_from_tree(env, TreeKind::Curve, &bbox, CacheObject::Curve(e))
+            rm_from_tree(slot, TreeKind::Curve, &bbox, CacheObject::Curve(e))
         }
         EntityRef::Vertex(v) => {
             let bbox = Extent3d::from_point(b.vertex(v)?.point);
-            rm_from_tree(env, TreeKind::Vertex, &bbox, CacheObject::Vertex(v))
+            rm_from_tree(slot, TreeKind::Vertex, &bbox, CacheObject::Vertex(v))
         }
         EntityRef::Face(f) => {
             let data = b.face(f)?;
@@ -776,7 +805,7 @@ fn rm_from_spatial_tree(b: &Brep, env: &mut NotifyEnv<'_>, old: Option<NotifyArg
                 return Ok(());
             }
             let bbox = face_box(k, b, f)?;
-            rm_from_tree(env, TreeKind::Surface, &bbox, CacheObject::Surface(f))
+            rm_from_tree(slot, TreeKind::Surface, &bbox, CacheObject::Surface(f))
         }
         _ => Ok(()),
     }
@@ -843,13 +872,15 @@ pub fn delete_stale_caches<O: Copy + PartialEq>(
 /// `sm_GetPointFromSol` (file static, used by `SmBrep::ProjectAndTrim`): the 3D point of
 /// object `index` of a topology-solver solution: a vertex's point, an edge's (or edge
 /// curve's) curve at its parameter, or a face's surface at its two parameters. Earlier
-/// objects skip one parameter per curve or edge and two per face. An object of any
-/// other kind gives the origin (upstream signals `SM_ERR` and returns `(0,0,0)`).
+/// objects skip one parameter per curve or edge and two per face (by kind, also for
+/// objects the B-rep does not hold). An object of any other kind gives the origin
+/// (upstream signals `SM_ERR` and returns `(0,0,0)`).
 ///
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream reads a null object, an edge without
-/// curve, a face without surface or a parameter past the solution's; the evaluation's
+/// curve, a face without surface or a parameter past the solution's, and for a curve,
+/// edge or face object the B-rep does not hold (the port cannot evaluate it); the evaluation's
 /// error (upstream ignores it and returns an uninitialised point).
 pub fn point_from_solution(
     b: &Brep,
@@ -895,6 +926,14 @@ pub fn point_from_solution(
                     let uv = Point2::new(param(start)?, param(start + 1)?);
                     return surface.evaluate_point(uv);
                 }
+                // a curve, edge or face the B-rep does not hold: upstream evaluates it
+                CacheObject::Other(r)
+                    if is_curve_class(r.type_code)
+                        || edge::TYPE == r.type_code
+                        || face2::TYPE == r.type_code =>
+                {
+                    return Err(null_deref("solution object outside the B-rep"));
+                }
                 _ => {}
             }
         } else {
@@ -903,6 +942,14 @@ pub fn point_from_solution(
             match object {
                 CacheObject::Curve(_) | CacheObject::Edge(_) => start += 1,
                 CacheObject::Face(_) => start += 2,
+                CacheObject::Other(r) => {
+                    if is_curve_class(r.type_code) || edge::TYPE == r.type_code {
+                        start += 1;
+                    }
+                    if face2::TYPE == r.type_code {
+                        start += 2;
+                    }
+                }
                 _ => {}
             }
         }
@@ -2492,7 +2539,6 @@ mod tests {
             attributes: &mut attrs,
             context: None,
             key_of: &key_of,
-            brep_cache: None,
         };
         for op in [
             NotifyOperation::AddToBrep,
@@ -2503,6 +2549,7 @@ mod tests {
             notify(
                 &b,
                 &mut env,
+                None,
                 op,
                 [Some(NotifyArg::Entity(EntityRef::Edge(e))), None, None],
             )

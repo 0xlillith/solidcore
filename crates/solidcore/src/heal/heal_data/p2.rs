@@ -77,8 +77,8 @@
 //!   `SmBrep::SetThisModelSizeEstimate` and `SmBrep::GetTolerance` (the `SmBrep`
 //!   overloads of `SmTol::GetModelSizeEstimate`, `SetModelSizeEstimate`,
 //!   `GetZoneTol3d`, `CalcFaceZoneTol3d`, `CalcEdgeZoneTol3d`, `CalcVertexZoneTol3d`;
-//!   `topology.brep_p1`), `SmBrep::SetTolerance` (`topology.brep_p2`),
-//!   `SmFace::SetTolerance` and `SmFace::IsDegenerate` (`topology.face_p3`).
+//!   `topology.brep_p1`) and, through `SmBrep::SetTolerance` (wired to
+//!   `topology.brep_p2`), `SmFace::SetTolerance` and `SmFace::IsDegenerate` (`topology.face_p3`).
 //!   `Fix_TolSizes` therefore always stops at its first `SmBrep` query, and
 //!   `Cache_DegenFaces` at its first face.
 //! - No recursion; no allocation from caller counts beyond the target lists given.
@@ -1993,13 +1993,9 @@ fn set_brep_model_size_estimate(_b: &mut Brep, _size: f64) -> Result<f64> {
     })
 }
 
-/// `SmBrep::SetTolerance` (`SM_OLDTOL_LINE`).
-fn set_brep_tolerance(_b: &mut Brep, _zone_tol_3d: f64) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmBrep::SetTolerance",
-        unit: "topology.brep_p2",
-    })
+/// `SmBrep::SetTolerance(sZoneTol3d)` (`SM_OLDTOL_LINE`, default arguments).
+fn set_brep_tolerance(k: &Kernel, b: &mut Brep, zone_tol_3d: f64) -> Result<()> {
+    crate::topology::brep::p2::set_tolerance(k, b, zone_tol_3d, true, true)
 }
 
 /// `SmFace::SetTolerance(sNewZoneTol3d, bUpdateOnlyIfLarger)`.
@@ -3025,7 +3021,7 @@ impl<O: LoopObject> HealData<O> {
     /// # Errors
     ///
     /// [`SolidError::Unported`] for the `SmBrep` tolerance queries
-    /// (`topology.brep_p1`, `topology.brep_p2`) and `SmFace::SetTolerance`
+    /// (`topology.brep_p1`) and `SmFace::SetTolerance`
     /// (`topology.face_p3`); [`SolidError::InvalidInput`] for a dangling props record
     /// or one without its topology.
     #[allow(clippy::too_many_lines)]
@@ -3086,7 +3082,7 @@ impl<O: LoopObject> HealData<O> {
                 set_brep_model_size_estimate(b, this_model_size)?;
             }
         }
-        set_brep_tolerance(b, this_est_zone_tol_3d)?;
+        set_brep_tolerance(k, b, this_est_zone_tol_3d)?;
 
         // for every problem Face - Calc and Store a new ZoneTol3d
         for &id in &bad_tol_face_props {

@@ -157,8 +157,8 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
                 return Err(bad("null region without infinite region"));
             }
             let v1 = opt_below(rd, n_v)?;
-            let _v2 = opt_below(rd, n_v)?;
-            if which == 2 && (v1.is_none() || _v2.is_none()) || which == 1 && v1.is_none() {
+            let v2 = opt_below(rd, n_v)?;
+            if which == 2 && (v1.is_none() || v2.is_none()) || which == 1 && v1.is_none() {
                 return Err(bad("missing vertex"));
             }
         }

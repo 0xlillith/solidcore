@@ -10,7 +10,10 @@
 // crates/solidcore-ffi/src/units/topology_brep_p2.rs, which validates every input.
 // Outputs start with `0` (built) or `-1 status` (the build failed). Entities are named
 // by their index in the B-rep's face/edge/vertex lists, then in the fixture's walk (with
-// the vertex lists) of the B-rep before the op.
+// the vertex lists) of the B-rep before the op. Ops that may change the topology (Make,
+// Merge, Mate, Replace, RayFire, Notify) output only statuses and counts after the call;
+// SetTol / Rebuild only read the entities they cannot delete (tolerances, UV curve
+// presence), so no pointer captured before a mutation is followed after it.
 #include "sc_topology_fixture.h"
 
 #include <SmPointClass.h>

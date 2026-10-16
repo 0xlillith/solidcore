@@ -67,8 +67,9 @@
 //! - **Notification.** [`notify`] runs the edge's part, the edge uses' and vertex uses'
 //!   `Notify` and `SmTopology::Notify` with a [`NotifyEnv`] (the caller's topology
 //!   records, attribute store, context and the identity of each entity).
-//!   `SmBrep::Notify` is [`crate::topology::brep::p2::notify`] on the
-//!   [`NotifyEnv::brep_cache`] slot; in `Notify(SM_NO_CHANGE_GEOMETRY)` the B-rep's
+//!   `SmBrep::Notify` is [`crate::topology::brep::p2::notify`] without B-rep
+//!   cache (the caller-held `SM_OC_BREP` cache is not threaded through
+//!   [`NotifyEnv`]; no Rust caller can build one yet); in `Notify(SM_NO_CHANGE_GEOMETRY)` the B-rep's
 //!   `data3` (`this->GetCurve()`) is the old curve's identity, as in `SetCurve`.
 //!   The constructor's and destructor's notifications and the destructor's context
 //!   `DoingBoolean` toggling are not modelled; the record owns its curve, which is
@@ -129,7 +130,6 @@ use crate::query::edge::{
 use crate::surface::surface::p2::PLANE_TYPE;
 use crate::surface::surface::Surface;
 use crate::topology::brep::p2::{self as brep_p2, NotifyArg as BrepNotifyArg};
-use crate::topology::brep_cache::BrepCache;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::edgeuse::p2 as eu2;
 use crate::topology::face::p2 as face2;
@@ -240,9 +240,12 @@ fn brep_notify(
     data3: Option<ObjectRef>,
 ) -> Result<()> {
     let brep = BrepNotifyArg::Object(brep_p2::brep_ref(b));
+    // the caller-held SM_OC_BREP cache is not threaded through `NotifyEnv` (no Rust
+    // caller can build one yet: `make_brep_cache` needs `query.brep`)
     brep_p2::notify(
         b,
         env,
+        None,
         operation,
         [data1, Some(brep), data3.map(BrepNotifyArg::Object)],
     )
@@ -2144,15 +2147,6 @@ pub fn orient_edge_sequence(k: &Kernel, b: &mut Brep, edges: &[EdgeId]) -> Resul
     Ok(())
 }
 
-/// The spatial cache of a B-rep (`SmCacheMgr::GetObjectCache(SM_OC_BREP, pBrep)`)
-/// that B-rep notifications keep up to date, with the kernel its boxes are computed in.
-pub struct BrepCacheSlot<'a> {
-    /// The kernel.
-    pub kernel: &'a Kernel,
-    /// The cache; `None` when the B-rep has none.
-    pub cache: &'a mut Option<BrepCache>,
-}
-
 /// The caller's state [`notify`] and [`set_curve`] pass notifications through.
 pub struct NotifyEnv<'a> {
     /// The topology records (`SmTopology` members) of the notified objects.
@@ -2163,8 +2157,6 @@ pub struct NotifyEnv<'a> {
     pub context: Option<&'a mut Context>,
     /// The identity each topology entity is notified under.
     pub key_of: &'a dyn Fn(EntityRef) -> ObjectRef,
-    /// The B-rep's spatial cache, `None` when it has none (`SmBrep::Notify`).
-    pub brep_cache: Option<BrepCacheSlot<'a>>,
 }
 
 impl core::fmt::Debug for NotifyEnv<'_> {

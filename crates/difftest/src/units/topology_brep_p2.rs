@@ -207,7 +207,7 @@ fn op_args(op: &OpIn, c: &[usize; 10]) -> Result<Option<(Op, Vec<f64>)>, Harness
             };
             let mut v = Vec::new();
             push_curve(&mut v, curve)?;
-            v.extend([*t0, *t1, f64::from(*orient), *class as f64, ty as f64, o as f64]);
+            v.extend([*t0, *t1, f64::from(*orient), *class as f64, f64::from(ty), o as f64]);
             v.extend([*t, uv[0], uv[1]]);
             (Op::Sector, v)
         }
@@ -276,15 +276,17 @@ fn op_args(op: &OpIn, c: &[usize; 10]) -> Result<Option<(Op, Vec<f64>)>, Harness
     }))
 }
 
-fn ffi_err(e: solidcore_ffi::FfiError) -> HarnessError {
+fn ffi_err(e: &solidcore_ffi::FfiError) -> HarnessError {
     harness(e.to_string())
 }
 
-/// `(path, head, counts)`, or the build failure's output.
-fn prepare(i: &Inputs) -> Result<Result<(String, Vec<f64>, [usize; 10]), Output>, HarnessError> {
+/// `(path, head, counts)` of a built B-rep, or the build failure's output.
+type Prepared = Result<(String, Vec<f64>, [usize; 10]), Output>;
+
+fn prepare(i: &Inputs) -> Result<Prepared, HarnessError> {
     let path = path_of(&i.brep)?;
     let h = head(i)?;
-    let export = ffi::eval(Op::Export, &path, &h).map_err(ffi_err)?;
+    let export = ffi::eval(Op::Export, &path, &h).map_err(|e| ffi_err(&e))?;
     match counts(&export) {
         Some(c) => Ok(Ok((path, h, c))),
         None => Ok(Err(Output::new().values("out", export))),
@@ -300,7 +302,7 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
         return Ok(Output::err("no target"));
     };
     input.extend(args);
-    let out = ffi::eval(op, &path, &input).map_err(ffi_err)?;
+    let out = ffi::eval(op, &path, &input).map_err(|e| ffi_err(&e))?;
     Ok(Output::new().values("out", out))
 }
 
@@ -320,7 +322,7 @@ fn key_of(e: EntityRef) -> ObjectRef {
         EntityRef::Edge(x) => (16016, x.index()),
         EntityRef::Vertexuse(x) => (16006, x.index()),
         EntityRef::Vertex(x) => (16021, x.index()),
-        _ => (16999, 0),
+        EntityRef::Brep(_) => (16999, 0),
     };
     ObjectRef {
         type_code,
@@ -347,12 +349,12 @@ fn entity(ty: f64, i: f64) -> Option<EntityRef> {
 
 /// The Rust B-rep of the case (with the shim's extras restored).
 fn rust_brep(path: &str, h: &[f64], c: &[usize; 10]) -> Result<Brep, HarnessError> {
-    let export = ffi::eval(Op::Export, path, h).map_err(ffi_err)?;
+    let export = ffi::eval(Op::Export, path, h).map_err(|e| ffi_err(&e))?;
     let (mut b, exact) = import(&export)?;
     if exact.iter().any(|e| !e) {
         return Err(harness("a face surface was not imported exactly"));
     }
-    let ex = ffi::eval(Op::Extras, path, h).map_err(ffi_err)?;
+    let ex = ffi::eval(Op::Extras, path, h).map_err(|e| ffi_err(&e))?;
     let mut at = 1usize;
     let mut next = || -> Result<f64, HarnessError> {
         let v = ex.get(at).copied().ok_or_else(|| harness("extras too short"))?;
@@ -416,7 +418,7 @@ fn rust_surface(s: &SrfIn) -> Result<Surface, HarnessError> {
 
 /// What a failed Rust op reports: the upstream status, or the deferral.
 enum Fail {
-    Deferred(Output),
+    Deferred(Box<Output>),
     Harness(HarnessError),
 }
 
@@ -431,7 +433,7 @@ fn status<T>(r: Result<T, SolidError>) -> Result<(f64, Option<T>), Fail> {
     match r {
         Ok(v) => Ok((0.0, Some(v))),
         Err(e) => match Output::unported(&e) {
-            Some(o) => Err(Fail::Deferred(o)),
+            Some(o) => Err(Fail::Deferred(Box::new(o))),
             None => match e {
                 SolidError::Upstream { code, .. } => Ok((f64::from(code), None)),
                 other => Err(Fail::Harness(harness(format!("rust: {other}")))),
@@ -554,7 +556,6 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 attributes: &mut attrs,
                 context: None,
                 key_of: &key_of,
-                brep_cache: None,
             };
             let kk: &Kernel = k;
             let (s, _) = status(bp2::mate_lamina_edge_to_surface(
@@ -587,9 +588,8 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 attributes: &mut attrs,
                 context: None,
                 key_of: &key_of,
-                brep_cache: None,
             };
-            must(bp2::notify(b, &mut env, operation, data))?;
+            must(bp2::notify(b, &mut env, None, operation, data))?;
             out.push(0.0);
         }
         Op::Stale => {
@@ -713,7 +713,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
     match run_rust_op(&mut k, &mut b, op, &args) {
         Ok(out) => Ok(Output::new().values("out", out)),
-        Err(Fail::Deferred(o)) => Ok(o),
+        Err(Fail::Deferred(o)) => Ok(*o),
         Err(Fail::Harness(e)) => Err(e),
     }
 }
@@ -946,7 +946,19 @@ impl UnitDiff for Runner {
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let brep = gen_brep(rng);
-        let (op, editing) = gen_op(rng);
+        // a wire edge or the wire network has no face: draw again rather than
+        // generate a case that compares nothing (`no target` on both sides)
+        let faceless = matches!(brep, BrepIn::Wire { .. } | BrepIn::Network);
+        let (op, editing) = loop {
+            let (op, editing) = gen_op(rng);
+            let needs_face = matches!(
+                op,
+                OpIn::Merge { .. } | OpIn::Replace { .. } | OpIn::Sector { class: 102, .. }
+            );
+            if !(faceless && needs_face) {
+                break (op, editing);
+            }
+        };
         serde_json::to_value(Inputs {
             brep,
             validate_only: rng.chance(0.2),
