@@ -20,7 +20,8 @@
 //! up to its first unrunnable op (a handle naming nothing, a handle-taking op after a
 //! mutating one, a manager op without a manager, an op that dereferences the
 //! intersector's B-reps while one is null): both sides run that prefix and end the
-//! record with `-4 index` naming the op left out. Parameters of generated
+//! record with `-4 index` naming the op left out; a script cut at its first op is an
+//! error on both sides (counted as both-errored, since it compares nothing). Parameters of generated
 //! classification intervals and points are relative to the edge's interval or
 //! evaluated on the face's surface at resolution. The generator only draws handle
 //! kinds that exist (no faces on wire or network B-reps, no registered curve before a
@@ -1579,6 +1580,13 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
     };
     let two = Two::new(brep_a, brep_b);
     let (ops, cut) = resolve_prefix(&i.ops, &counts, &two, i.ctor);
+    // a script cut at its first op compares nothing: both sides report the error (it is
+    // counted as both-errored, not as a pass)
+    if ops.is_empty() {
+        if let Some((_, name)) = cut {
+            return Err(Box::new(Ok(Output::err(name))));
+        }
+    }
     Ok(Prepared { two, ops, cut })
 }
 

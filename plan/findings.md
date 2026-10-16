@@ -5663,16 +5663,16 @@ compared nothing, 140 deferred.)
   `SmCurveClassification(curve, ivl, NULL, tol)` from the port's setters as `ReSet` does
   (curve, interval, source zone tolerance `SM_UNINIT_TOL` when not positive, one interval
   over the range with the tolerance on its three classifications).
-- **Deferred (185, after the review).** `SmFace::GetTolerance` (89, `topology.face_p2`):
+- **Deferred (174, after the reviews).** `SmFace::GetTolerance` (82, `topology.face_p2`):
   `SmSurface::DropPoint` of a face-owned surface takes `SmTol::GetZoneTol3d(surface)`,
   stubbed in `surface.surface_p5`; so every `sm_TestAndImprintFace` / `VertexFaceIntersect`
   / `FaceFaceCoincidence` drop on a face defers (a `Surface` cannot reach its face's
-  tolerance without the B-rep). `SmBrep::GetVertices` / `GetEdges` / `GetTolerance` (79,
+  tolerance without the B-rep). `SmBrep::GetVertices` / `GetEdges` / `GetTolerance` (74,
   `topology.brep_p1`, open PR #145): the common edge/vertex lists, the shell-vertex and
   wire/lamina intersections (no passing case for those two), and a manager made with a
-  zero approximation tolerance. `SmFace::GetVertices` / `GetEdges` (12,
+  zero approximation tolerance. `SmFace::GetVertices` / `GetEdges` (11,
   `topology.face_p4`, open PR #134): `FaceFaceIntersect` and `FaceFaceCoincidence` with two
-  faces on an edge. `SmFace::CalculateBoundingBox` (5, `query.face_p1`): `EdgeFaceIntersect`
+  faces on an edge. `SmFace::CalculateBoundingBox` (7, `query.face_p1`): `EdgeFaceIntersect`
   with an unconnected face.
 - **Compared green paths:** the mate maps (`Relate` with its tolerance maximisation and
   error statuses, `GetOtherMate` / `GetThisMate` / `GetBrepMate` / `IsMatedPair`,
@@ -5792,10 +5792,11 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   its plan notes); #144 (`topology.proto_topology_p1`) changes
   `ProtoBrep::edge_other_vertex` to take `Option<O>`, which also covers this unit's
   `edge_other_vertex_of`; whichever of #144 and #146 lands second adapts the signature.
-- Coverage: of the 642 passes, 4 run zero ops (a script cut at op 0, the record is the
-  `-4` marker alone) and 3 compare only a `-2` guard marker; `cases_both_errored` does
-  not count them. `SetBreps` is generated now (4% of ops), so the null-B-rep guard is
-  exercised by the difftest.
+- Coverage: a script cut at its first op compares nothing, so the runner reports it as
+  an error on both sides and `cases_both_errored` counts it (the real-pass count of the
+  PR body is passed minus both-errored); a few passes compare only a `-2` guard marker
+  (`Relate` of a null). `SetBreps` is generated now (4% of ops), so the null-B-rep guard
+  is exercised by the difftest. Final numbers: FINAL_NUMBERS.
 
 ## intersect.curve_class_p5: independent port
 

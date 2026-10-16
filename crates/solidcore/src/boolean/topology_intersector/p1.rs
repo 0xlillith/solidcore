@@ -696,8 +696,8 @@ pub struct ExistingSsi<O> {
 
 impl<O> Default for ExistingSsi<O> {
     fn default() -> Self {
-            status: None,
         Self {
+            status: None,
             have_existing_ssi: false,
             curves_3d: Vec::new(),
             uv_curves1: Vec::new(),
@@ -995,16 +995,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 for jj in 0..out.curves_3d.len() {
                     let copy =
                         Self::b_spline_copy(geometry, out.curves_3d.get(jj).copied().flatten())?;
-                    match copy {
-                        Some(h) => {
-                            if let Some(slot) = out.curves_3d.get_mut(jj) {
-                                *slot = Some(h);
-                            }
-                        }
-                        None => {
-                            out.status = Some(SolidError::sm_err(OP_CHECK_SSI));
-                            return Ok(out);
-                        }
+                    let Some(h) = copy else {
+                        out.status = Some(SolidError::sm_err(OP_CHECK_SSI));
+                        return Ok(out);
+                    };
+                    if let Some(slot) = out.curves_3d.get_mut(jj) {
+                        *slot = Some(h);
                     }
                     if let Some(h) =
                         Self::b_spline_copy(geometry, out.uv_curves1.get(jj).copied().flatten())?
@@ -1869,12 +1865,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     }
 
                     // Check interior to both Edge and Face.
-                    let mut interior = true;
-
                     let t = sol.start.param(0)?;
 
-                    // Check interior of Edge (the status is not checked upstream)
-                    let _ = interior;
+                    // Check interior of Edge (the status is not checked upstream; bInterior
+                    // is FALSE on trouble)
                     let mut interior =
                         ignore_soft(check_interior_edge(brep, edge, t, this_tol))?.unwrap_or(false);
 
@@ -2549,10 +2543,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             // (two null vertices from failed MakeVertexLoops are NER upstream, ignored; one
             // null vertex is dereferenced by GlueVertices)
             match (v1, v2) {
-                (Some(v1), Some(v2)) => ignore_soft(brep_glue_vertices(this_brep, v1, v2))?.map(|()| ()),
-                (None, None) => None,
+                (Some(v1), Some(v2)) => {
+                    ignore_soft(brep_glue_vertices(this_brep, v1, v2))?;
+                }
+                (None, None) => {}
                 _ => return Err(dangling("GlueVertices of one null vertex")),
-            };
+            }
 
             // Update classifications
             let mut uv1 = pc1.uv_param();
