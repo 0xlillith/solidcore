@@ -3711,9 +3711,10 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   results as traversal indices. UV trim curves are imported exactly: they are often
   `SmLine`s (upstream converts linear UV curves), whose evaluation differs from a plain
   B-spline's by an ulp (`Mouse.smb` gave `0` vs `2.2e-16` before lines were imported as
-  `Line`s, via `Line::from_parts`). Edge 3D curves of other kinds are imported as their
-  B-spline part; they are only evaluated before `SmSurface::DropPoint`, which is deferred.
-  Wire that import exactly when `surface.surface_p5` lands.
+  `Line`s, via `Line::from_parts`). Edge 3D curves of other kinds and analytic
+  `SmBSplineSurface` subclasses (cone, sphere, torus, revolution, extrusion) are imported
+  as their B-spline part, so any case that evaluates them is deferred (see the second
+  review below).
 - **Not wired**, still `UNPORTED(topology.edgeuse_p1)`: `surface::trim_srf_cache`
   (`SmEdgeuse::GetUVTrimCurve` of the cache's edge uses), `intersect::point_class`
   (`SmEdgeuse::GetBrep`, `GetEdge`) and the `SmTol` object dispatch in `geom::tol`. Those
@@ -3732,6 +3733,27 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   The Seam case generator copied curve 0's knots onto curve 1 of a different degree
   (invalid curve; `--seeds 6000` case `gen5286` was a harness error); it now requires
   equal degrees.
+- **Review fixes (2026-10-16, follow-up to PR #55).** Since `heal.gap` and
+  `surface.surface_p5` were wired, `CalcMaxEdgeFaceGap` / `CalcEdgeCCWEdgeGap` really
+  evaluate the edge curve and face surface, but the runner compared only statuses and
+  `IsInit` flags. Comparing the values (`gap_3d`, `edge_t`, `face_uv`; `edge_t0`,
+  `edge_t1`, only for gaps the op recomputes) gave 16 failures on the upstream `.smb`
+  fixtures (Mouse, cone, disk, surf_extrude, surf_rev, torus, toruswvy, vase_rev
+  `_gaps0`/`_gaps2`, e.g. `disk_gaps0` face_uv C++ `(-0.5,-1.7535)` vs Rust
+  `(-1.7535,0.5)`; `torus_gaps0` edge_t C++ 60 vs Rust 85). Two harness causes, no
+  library defect: (1) an `SmPlane` was exported as origin + normal and rebuilt with
+  `Plane::from_normal`, whose UV frame is rotated 90 degrees from the C++ one; the shared
+  `sc_edgeuse_graph.h` now exports origin, X/Y axes, UV scale and STEP domain and the
+  import builds the exact `Plane` (as `sc_topology_fixture.h` does); (2) cases evaluating
+  geometry imported as its B-spline part were not deferred; `inexact_geometry` now defers
+  them (gap ops on loop edge uses, the 3D-drop branch of `GetStartPointUVLoopGap`) to
+  `surface.cone_p1`, `surface.sphere`, `surface.surf_of_extrusion_p2` or
+  `topology.brep_p7`, with the mapping of `topology.edgeuse_p2`. With the exact import,
+  every computed gap agrees bit for bit. `fixtures/topology.edgeuse_p1/review_gap_values.json`
+  (1680 cases) keeps them compared. The units sharing the import (`topology.edgeuse_p2`,
+  `topology.loopuse`, `query.api_queries`, `query.edge`, `query.face_p2`) give unchanged
+  results. Open: `calc_max_edge_face_gap` uses `context_xsect_tol_3d(k, None)` (upstream
+  takes the edge use's, edge's or face's context); revisit once B-rep records carry one.
 
 ## surface.surf_of_extrusion_p2 (`SmSurfOfExtrusion`, part 2, 2026-10-14)
 
@@ -4998,6 +5020,35 @@ mutated scales and accepted/reduced step counts are compared.
 - **Null-pointer coverage.** Typed Rust APIs cannot receive native null pointers.
   The 25 native null contracts are FFI tests, not differential passes with a
   synthesized Rust status.
+
+## heal.heal_data_p2 (`SmHealData` p2 steps, `SmEdgeProps`, `SmVertexProps`, problem arrays; 2026-10-16 review, PR #128; partial, no disagreements)
+
+- **Review cases.** `fixtures/heal.heal_data_p2/review_adv.json` (25 cases): edge-length
+  histogram buckets 0, 1 (the x86-64 wrapping `(ULONG)floor(log10(a))` path; the C++
+  reference build is the oracle for that conversion, as for every existing sub-unit
+  edge length) and 10, tiny wires that give real coincident-vertex pairs followed by
+  `RemoveVertexProps` / `RemoveEdgeProps` on a live `SmPairProbArray`, incremental
+  coincident-vertex re-runs, duplicate targets, 1e4 and mixed-scale boxes, a 1-voxel
+  flat box, `ResetEdgeProps(FALSE)` / `ResetVertexProps` re-runs. 21 pass bit-identical,
+  4 deferred (`topology.edgeuse_p3`, box vertex/face gaps), 0 failed.
+- **Coverage gaps (not compared yet).** No case sets `m_bBadUncontainedEdge`, so the
+  `SetMin`/`SetMax` clamping of `Fix_UncontainedEdges` is never compared: the
+  `topology.vertexuse` wire builder rejects an edge interval outside the curve domain.
+  It needs an `.smb` fixture or a shim kind that builds such an edge. Vertex
+  `m_bBadSmallZoneTol3d`, vertex `m_bWarnLargeGap3d` and face Small/LargeZoneTol3d are
+  never true: they need vertex/face gaps, deferred on `topology.edgeuse_p3`; re-run when
+  it lands. Line-by-line reading finds the Rust matches upstream on these branches.
+- **Analytic geometry.** The shim (like `heal.gap` and the shared topology import)
+  copies circles, ellipses, spheres, etc. as B-splines, keeping only `SmLine` and
+  `SmPlane`. This unit does not branch on geometry kind itself, but its callees
+  (`ApproximateLength`, `IsDegenerate`, `GetNaturalInterval`, the gap computations) do,
+  so their analytic paths are not exercised through this unit.
+- **`Cache_CoinVertices` no-work path** leaves `*pbNewProbs` unwritten upstream; the
+  port returns `false` (documented in the file's Deviations; `HealTgts` initialises the
+  flag to `FALSE`, so no observable difference).
+- **Test-only merge.** The branch carries PR #122's (`heal.face_props`) head 845627d3,
+  whose three unit-test fixes are needed for `cargo test -p solidcore`. Merge #122 first
+  (or with this PR) so the CO-PORTED types are not duplicated.
 
 ## topology.proto_topology_p2 (`SmProtoTopology.cpp` part 2, PR #114, 2026-10-15; partial, no disagreements)
 
