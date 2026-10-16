@@ -586,7 +586,7 @@
       "name": "upstream_seams_heal_box_10_through_stage3",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#55",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#55 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep (HealTgts order))",
       "values_compared": 3425
     },
     {
@@ -594,7 +594,7 @@
       "name": "upstream_seams_heal_box_10_through_stage3_faces_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#56",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#56 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep (HealTgts order))",
       "values_compared": 3425
     },
     {
@@ -602,7 +602,7 @@
       "name": "upstream_seams_heal_box_10_healbrep_all",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#57",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#57 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep)",
       "values_compared": 3425
     },
     {
@@ -610,7 +610,7 @@
       "name": "upstream_seams_heal_box_10_healbrep_all_faces_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#58",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#58 (upstream tests/SM_API_test/src/TestSmHeal.cpp:22 TestSmHealBrep)",
       "values_compared": 3425
     },
     {
@@ -618,7 +618,7 @@
       "name": "upstream_seams_heal_box_10_fix_infinite_region",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#59",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#59 (upstream SmHealData::HealTgts last step)",
       "values_compared": 3425
     },
     {
@@ -626,7 +626,7 @@
       "name": "upstream_seams_heal_box_10_fix_infinite_region_faces_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#60",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#60 (upstream SmHealData::HealTgts last step)",
       "values_compared": 3425
     },
     {
@@ -634,7 +634,7 @@
       "name": "upstream_seams_heal_box_10_reset",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#61",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#61 (upstream SmHealData::HealBrep ReSet(TRUE))",
       "values_compared": 3425
     },
     {
@@ -642,7 +642,7 @@
       "name": "upstream_seams_heal_box_10_reset_faces_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#62",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#62 (upstream SmHealData::HealBrep ReSet(TRUE))",
       "values_compared": 3425
     },
     {
@@ -650,7 +650,7 @@
       "name": "upstream_seams_squeeze_edge_box_stage2",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#63",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#63 (upstream tests/prog_test/src/smTopoTest.cpp:222 my_test_squeeze_edge_tracks_removal)",
       "values_compared": 3425
     },
     {
@@ -658,7 +658,7 @@
       "name": "upstream_seams_squeeze_edge_box_stage2_faces_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#64",
+      "source": "fixture:fixtures/heal.heal_data_p3/boundaries.json#64 (upstream tests/prog_test/src/smTopoTest.cpp:222 my_test_squeeze_edge_tracks_removal)",
       "values_compared": 3425
     },
     {
