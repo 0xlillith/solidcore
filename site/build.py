@@ -279,6 +279,7 @@ def page(title, body, depth, nav, head_sha, head_date, description=""):
         f'<a href="{up}{href}"{" aria-current=\"page\"" if key == nav else ""}>{label}</a>'
         for href, label, key in links)
     short = head_sha[:8]
+    site_url = f"https://{REPO.split('/')[0]}.github.io/{REPO.split('/')[1]}/"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -286,6 +287,20 @@ def page(title, body, depth, nav, head_sha, head_date, description=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(description or title)}">
+<meta name="theme-color" content="#141413">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="solidcore">
+<meta property="og:url" content="{site_url}">
+<meta property="og:title" content="{esc(title)}">
+<meta property="og:description" content="{esc(description or title)}">
+<meta property="og:image" content="{site_url}assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{esc(title)}">
+<meta name="twitter:description" content="{esc(description or title)}">
+<meta name="twitter:image" content="{site_url}assets/og-image.png">
 <link rel="stylesheet" href="{up}assets/style.css">
 <link rel="icon" href="{up}assets/logo.svg" type="image/svg+xml">
 </head>
@@ -418,7 +433,7 @@ def build(out):
         shutil.rmtree(out)
     (out / "units").mkdir(parents=True)
     (out / "assets").mkdir()
-    for f in ("style.css", "app.js"):
+    for f in ("style.css", "app.js", "og-image.png"):
         shutil.copy(ROOT / "site/assets" / f, out / "assets" / f)
     shutil.copy(ROOT / "assets/logo.svg", out / "assets/logo.svg")
     P = lambda *a, **k: page(*a, head_sha=head_sha, head_date=head_date, **k)  # noqa: E731
