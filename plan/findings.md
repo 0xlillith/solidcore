@@ -5470,9 +5470,12 @@ not reported as newly solved intersection parameters.
 preclassified skip/propagation cases are not new topology construction. The
 native status is carried with integer labels and interval state, so the report's
 `cases_both_errored` field is not a count of non-success native status results.
-No absolute floors or tolerance changes are used. The fixture construction model
-bounds finite input magnitudes to `1e12` and UV spans to at least `1e-6`;
-smaller UV domains and larger coordinate magnitudes are uncertified.
+No absolute floors or tolerance changes are used. The original fixture subset
+used finite magnitudes up to `1e12` and UV spans of at least `1e-6`. These were
+coverage bounds, not native crash preconditions. Review fixtures now include
+`1e13`/`1e14` coordinates, `1e-8` UV spans, tiny and negative circle radii, and
+classification intervals outside the natural curve domain. Wider finite inputs
+are admitted by the FFI validator; unexercised values remain uncertified.
 
 Source review found UB-155 and WR-154..WR-156 (entries in upstream issues). These
 are source findings, not isolated native reproductions. V+V slot selection,
@@ -5528,3 +5531,47 @@ difftest: 187 unit(s), 99 passed, 88 partial, 0 failed
 ```
 
 The p8 report from this full run is byte-identical to its standalone default run.
+
+### PR #152 FFI guard review follow-up
+
+The FFI guard now rejects exactly zero circle radii (including negative zero),
+retaining valid tiny and negative radii. The finite-magnitude cap, minimum-positive
+UV-span cutoff and natural-curve-domain restriction were removed. Positive UV
+domains, positive surface scales, finite values, record/interval structure and
+the degenerate-line check remain validated. The module header distinguishes
+coverage limits from crash guards. `review_guards.json` adds 39 fixed native
+regressions across operations 0–2: five nonzero radii, two large-coordinate
+magnitudes, independent tiny U/V domains and line/circle/stationary-B-spline
+intervals outside their natural domain. Exact-zero radii are rejected without
+calling the native constructor.
+
+Follow-up source revision: `939daa17`, on the reviewed official base `535f53d0`.
+Formatting, strict plain workspace Clippy, all 1,209 kernel tests and WASM pass.
+Strict native-enabled workspace Clippy and both FFI regressions with the native
+feature also pass. Native validation uses a fresh Ubuntu 26.04.1 x86_64 checkout,
+GCC 15.2.0 / Rust 1.98.0, and a fresh reference build whose 492 allowed SMLib/SM_API
+source files match clean pinned `c9c5979` by checksum. The same validation-only
+CLI-adapter opt-level-0 override is used; kernel opt-level 1 and native flags
+remain unchanged. No submitted profile or harness changes are needed.
+
+The refreshed default report contains 1,115 cases (315 fixed + 800 generated),
+785 exact comparisons, zero failures and 330 deferrals. Every original case's
+report entry is unchanged; the 39 review cases add 19 comparisons and 20
+`intersect.curve_class_p5` deferrals. All 785 perturbations are detected.
+The compared subset is now 614 surface-operation states, 119 defined UV-volume
+rejections and 52 no-discontinuity volume early returns. The expanded finite
+inputs exercise safe native calls; the 20 new insertion paths remain uncertified.
+The preceding 187-unit full gate is previous-head evidence and was not repeated
+for this isolated wrapper/fixture correction.
+
+```text
+PARTIAL intersect.curve_class_p8 cases=1115 passed=785 failed=0 deferred=330 max_rel_err=0e0 blocked_by=curve.crv_on_surf(52),intersect.curve_class_p4(162),intersect.curve_class_p5(75),surface.surface_p8(41)
+SENSITIVE intersect.curve_class_p8 perturbed=785 detected=785 unperturbed=0 deferred=330
+```
+
+Latest official main was inspected at `b2ebc087`; it now includes parts 5/6/7
+and surface part 8 and conflicts with this branch. Its trial merge was backed
+out to keep this guard-only correction on the reviewed base. The part-5
+accessor/visibility conflict and numerical dependency integration remain a
+separate merge handoff. The ignored-status and volume-alias limitations above
+remain unchanged; this follow-up does not open those deferred paths.

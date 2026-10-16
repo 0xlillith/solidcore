@@ -2579,6 +2579,398 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "guard_op0_circle_radius_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#0 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_circle_radius_1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#1 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_circle_radius_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#2 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_circle_radius_2e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#3 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_circle_radius_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#4 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_magnitude_1e+13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#5 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_magnitude_1e+14",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#6 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op0_span_u_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#7 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op0_span_v_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#8 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op0_span_uv_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#9 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op0_kind0_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#10 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op0_kind1_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#11 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op0_kind2_outside_natural_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#12 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_circle_radius_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#13 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_circle_radius_1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#14 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_circle_radius_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#15 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_circle_radius_2e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#16 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_circle_radius_-0.1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#17 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_magnitude_1e+13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#18 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_magnitude_1e+14",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#19 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op1_span_u_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#20 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op1_span_v_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#21 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op1_span_uv_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#22 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op1_kind0_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#23 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op1_kind1_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#24 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op1_kind2_outside_natural_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#25 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_circle_radius_1e-300",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#26 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_circle_radius_1e-13",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#27 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_circle_radius_1e-12",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#28 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_circle_radius_2e-12",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#29 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_circle_radius_-0.1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#30 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op2_magnitude_1e+13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#31 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op2_magnitude_1e+14",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#32 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_span_u_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#33 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_span_v_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#34 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_span_uv_1e-8",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#35 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_kind0_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#36 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "sm_InsertSolutions",
+        "unit": "intersect.curve_class_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_op2_kind1_outside_natural_domain",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#37 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "guard_op2_kind2_outside_natural_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p8/review_guards.json#38 (upstream source/SMLib/src/SmCurveClass.cpp:8462-10420 (PR #152 FFI guard review regression))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -9851,14 +10243,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 310,
+  "cases_deferred": 330,
   "cases_failed": 0,
-  "cases_passed": 766,
-  "cases_total": 1076,
+  "cases_passed": 785,
+  "cases_total": 1115,
   "deferred_by_unit": {
     "curve.crv_on_surf": 52,
     "intersect.curve_class_p4": 162,
-    "intersect.curve_class_p5": 55,
+    "intersect.curve_class_p5": 75,
     "surface.surface_p8": 41
   },
   "max_rel_err": 0.0,
