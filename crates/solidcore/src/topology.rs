@@ -1,1016 +1,806 @@
-//! Arena-based B-rep topology with typed ids.
+//! The topology object base (`SmTopology`): list links, traversal marks, flags, user
+//! indices and the notification step that carries them from an object to its split,
+//! merged or copied counterparts; plus topology-change tracking through the
+//! context's system notify callback (`SmTrackTopologyChanges`).
 //!
-//! Upstream: `source/SMLib/inc/SmBrep.h`, `SmRegion.h`, `SmShell.h`, `SmFace.h`,
-//! `SmLoop.h`, `SmEdge.h`, `SmVertex.h`, the use records `SmFaceuse.h`, `SmLoopuse.h`,
-//! `SmEdgeuse.h`, `SmVertexuse.h`, and `SmTopology.h` / `SmOwningTopology.h`.
+//! Upstream: `source/SMLib/inc/SmTopology.h`, `source/SMLib/src/SmTopology.cpp`,
+//! `source/SMLib/inc/SmTrackTopologyChanges.h`,
+//! `source/SMLib/src/SmTrackTopologyChanges.cpp`.
 //!
-//! | Rust                        | Upstream                                              |
-//! |-----------------------------|-------------------------------------------------------|
-//! | [`Brep`]                    | `SmBrep` (face/edge/vertex lists `m_p*ListHead`, `m_bValidateOnly`) |
-//! | [`Region`] / [`RegionId`]   | `SmRegion` (minimal: its list owner)                  |
-//! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
-//! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
-//! | [`Face`] / [`FaceId`]       | `SmFace` (unit `topology.face_p2`)                    |
-//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (unit `topology.loopuse`)                 |
-//! | [`Loop`] / [`LoopId`]       | `SmLoop`                                              |
-//! | [`Edgeuse`] / [`EdgeuseId`] | `SmEdgeuse` (unit `topology.edgeuse_p1`)              |
-//! | [`Edge`] / [`EdgeId`]       | `SmEdge`                                              |
-//! | [`Vertexuse`] / [`VertexuseId`] | `SmVertexuse` (unit `topology.vertexuse`)         |
-//! | [`Vertex`] / [`VertexId`]   | `SmVertex` (unit `topology.vertex`)                   |
-//! | [`ObjectHandle`]            | an `SmObject*` a record keeps but never dereferences  |
-//! | [`Arena`]                   | upstream's intrusive `SmListNode` linked lists        |
+//! | Rust                                         | Upstream                                         |
+//! |----------------------------------------------|--------------------------------------------------|
+//! | [`TYPE`], [`TYPE_STRING`], [`CLASS_STRING`]  | `SmTopology::GetType`, `GetTypeString`, `GetClassString` |
+//! | [`is_kind_of`]                               | `SmTopology::IsKindOf`                           |
+//! | [`Topology`], [`Topology::new`]              | `SmTopology` (its data members), `SmTopology()`  |
+//! | [`Topology::owner`]                          | `SmTopology::GetOwner`                           |
+//! | [`Topology::next`], [`Topology::last`]       | `SmTopology::GetNext`, `GetLast`                 |
+//! | [`Topology::set_list_links`]                 | the friend writes of `SmOwningTopology` (`SetListOwner`, `m_pNext`, `m_pLast`) |
+//! | [`Topology::is_connected_to`]                | `SmTopology::IsConnectedTo(const SmTopology*)`   |
+//! | [`Topology::all_flags`], [`Topology::set_all_flags`] | `SmTopology::GetAllFlags`, `SetAllFlags` |
+//! | [`Topology::set_user_index1`], [`Topology::set_user_index2`], [`Topology::set_user_ptr1`] | `SmTopology::SetUserIndex1`, `SetUserIndex2`, `SetUserPtr1` |
+//! | [`Topology::user_index1`], [`Topology::user_index2`], [`Topology::user_ptr1`] | `SmTopology::GetUserIndex1`, `GetUserIndex2`, `GetUserPtr1` |
+//! | [`Topology::tolerance`]                      | `SmTopology::GetTolerance` (`SM_USE_OLDTOL`)     |
+//! | [`Topology::mark`]                           | `SmTopology::Mark`                               |
+//! | [`Topology::get_mark`]                       | `SmTopology::GetMark`                            |
+//! | [`Topology::is_marked`]                      | `SmTopology::IsMarked`                           |
+//! | [`destroy_topology`](crate::topology::proto_topology::p1::destroy_topology) | `SmTopology::~SmTopology` (unit `topology.proto_topology_p1`) |
+//! | [`TopologyRecords`]                          | the `SmTopology*` casts of `Notify`'s arguments  |
+//! | [`notify`]                                   | `SmTopology::Notify`                             |
+//! | [`NotifyEvent`]                              | `SmNotifyEvent` (data only)                      |
+//! | [`TopologyChangeLists`]                      | the arrays `SmTopologyChangeCallback` points at  |
+//! | [`TopologyChangeLists::reset_arrays`]        | `SmTopologyChangeCallback::ReSetArrays`, `~SmTopologyChangeCallback` |
+//! | [`TopologyChangeCallback`]                   | `SmTopologyChangeCallback` (constructor)         |
+//! | [`TrackTopologyChanges`]                     | `SmTrackTopologyChanges`                         |
+//! | [`TrackTopologyChanges::new`]                | `SmTrackTopologyChanges::SmTrackTopologyChanges` |
+//! | [`TrackTopologyChanges::start_tracking`]     | `SmTrackTopologyChanges::StartTracking`          |
+//! | [`TrackTopologyChanges::stop_tracking`]      | `SmTrackTopologyChanges::StopTracking`           |
+//! | [`TrackTopologyChanges::is_tracking`]        | `SmTrackTopologyChanges::IsTracking`             |
+//! | [`TrackTopologyChanges::rm_list`], [`TrackTopologyChanges::add_list`] | `SmTrackTopologyChanges::GetRmList`, `GetAddList` |
+//! | [`TrackTopologyChanges::reset_arrays`]       | `SmTrackTopologyChanges::ReSetArrays`            |
+//! | [`TrackTopologyChanges::finish`]             | `SmTrackTopologyChanges::~SmTrackTopologyChanges` |
 //!
-//! Upstream links entities with raw pointers in intrusive lists; the port stores each
-//! kind in a flat [`Arena`] owned by the [`Brep`] and links them with typed ids, so
-//! iteration order is insertion order (deterministic) and there is no shared
-//! ownership. This file is the **skeleton** shared by every unit: the record fields
-//! below are the minimum the scaffolding needs. The topology units in
-//! `plan/modules.toml` (regions, face/loop/edge/vertex uses, geometry binding,
-//! tolerances, attributes) extend these records; keep the id/arena/accessor shape.
-//!
-//! The use records and the fields marked "CO-PORTED" were added by unit
-//! `topology.edgeuse_p1` (the minimum its functions read). An owner's circular
-//! `m_pList` / `m_pNext` / `m_pLast` list is a `Vec` of ids in list order from the
-//! head (`m_pList`); an object's `m_pNext` / `m_pLast` are its neighbours in that
-//! `Vec` (cyclically). The low-level `add_*_record` and `*_mut` accessors are the
-//! friend writes of `SmBrepConstructor`: they link records without validation (a
-//! B-rep graph is cyclic, so a record may name ids added later).
+//! Deviations:
+//! - **Object model.** There is no class hierarchy: a topology object is a
+//!   [`Topology`] record that the derived kinds (faces, edges, vertices, ...) embed,
+//!   addressed by the [`ObjectKey`] it is notified under. Its list owner and
+//!   neighbours are keys (`None` for null). `Notify` reaches the records of its data
+//!   objects through a [`TopologyRecords`] store; a data object that has no record
+//!   (upstream would cast a non-topology object, undefined behaviour) is
+//!   [`SolidError::InvalidInput`]. The context the object reaches through
+//!   `GetContext` is passed explicitly.
+//! - `ULONG` marks and flags are `u64` (LP64). `SetUserPtr1` stores an opaque
+//!   `void*`; here it is an opaque `u64` (`0` for null).
+//! - `IsMarked` with a null context crashes upstream; [`Topology::is_marked`] takes
+//!   the context by reference. `Mark` with a null context does nothing, as upstream.
+//! - The reference build uses `SM_USE_OLDTOL`, so `GetTolerance` is the constant
+//!   `SM_ZONE_TOL_3D` (overridden by the derived kinds in their units).
+//! - `IsConnectedTo` is a "pure virtual" stub upstream (an `SE_MSG` compiled out of
+//!   the release build, then `FALSE`); the derived kinds override it.
+//! - The destructor unlinks the object from its owner's list
+//!   (`SmOwningTopology::Remove`); it needs the owner's list data and is
+//!   [`destroy_topology`](crate::topology::proto_topology::p1::destroy_topology).
+//! - **Change tracking.** Upstream the tracker owns the Rm/Add/Chg/event arrays and
+//!   installs a callback object holding pointers to them; `IsTracking` compares the
+//!   context's system callback with the address of that object. Here the tracker
+//!   owns a [`TopologyChangeLists`] and installs a boxed [`TopologyChangeCallback`]
+//!   tagged with a caller-chosen tracker key; `IsTracking` recognises it by that
+//!   key. "Was a callback already installed" (`m_pLastNotifyCallback` non-null) is
+//!   kept as a flag. The tracker's B-rep only supplies its context, so the tracker
+//!   keeps the [`BrepId`] and takes the context as an argument; the destructor is
+//!   the explicit [`TrackTopologyChanges::finish`].
+//! - `SmTopologyChangeCallback::Execute` (which fills the lists), `AddUnique`,
+//!   `Remove` and both `Dump`s are not part of this unit (upstream's call graph never
+//!   reaches them); the installed callback's [`NotifyCallback::execute`] returns
+//!   [`SolidError::Unsupported`], which `SmObject::Notify` ignores, so the lists stay
+//!   as last reset. The `SM_DEBUG_CODE` index arrays are compiled out of the
+//!   reference build and not ported.
+//! - `AssertValid`, `CheckPointerChain`, `Dump`, the obsolete `NewMark*` / `Mark2`
+//!   helpers, `UnMark`, `IsUnMarked`, `IsMarkLocked`, the flag bit helpers and the
+//!   placement `operator new` / `delete` are not part of this unit.
 
-pub mod brep_cache;
-pub mod brep_data;
-pub mod database_io;
-pub mod edge;
-pub mod edgeuse;
-pub mod face;
-pub mod loopuse;
-pub mod proto_topology;
-#[allow(clippy::module_inception)]
-pub mod topology;
-pub mod topology_traverser;
-pub mod trimming_tools;
-pub mod vertex;
-pub mod vertexuse;
+use std::collections::BTreeMap;
 
-use core::marker::PhantomData;
+use crate::error::{Result, SolidError};
+use crate::geom::a_object;
+use crate::geom::attribute::{AttributeStore, ObjectKey};
+use crate::geom::context::{Context, MarkType, NotifyCallback};
+use crate::geom::object::{NotifyOperation, ObjectRef};
+use crate::geom::tol;
+use crate::topology::BrepId;
 
-use crate::curve::curve::Curve;
-use crate::error::{EntityRef, Result, SolidError};
-use crate::geom::attribute::ObjectKey;
-use crate::geom::extent1d::Extent1d;
-use crate::geom::extent2d::Extent2d;
-use crate::geom::solution_array::{ObjectKind, SolutionObject};
-use crate::geom::tol::ZONE_TOL_3D;
-use crate::geom::vector2d::Point2;
-use crate::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexEdgeGap, VertexFaceGap};
-use crate::math::{Point3, BIG_DOUBLE};
-use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use crate::query::poly::PolyVertexId;
-use crate::surface::surface::p2::DropCurveFail;
-use crate::surface::surface::Surface;
+/// `SmTopology_TYPE` (`TOPO_BASE_TYPE + 1`).
+pub const TYPE: i64 = 16001;
 
-/// Implemented by every typed id: conversion to and from a dense arena index.
-pub trait ArenaId: Copy + Eq + core::fmt::Debug {
-    /// Builds an id from an arena index.
-    fn from_index(index: u32) -> Self;
-    /// The arena index of this id.
-    fn index(self) -> u32;
-    /// This id as an error-context [`EntityRef`].
-    fn entity(self) -> EntityRef;
-}
+/// `SmTopology::GetTypeString`.
+pub const TYPE_STRING: &str = "SmTopology_TYPE";
 
-macro_rules! typed_id {
-    ($(#[$doc:meta])* $name:ident => $variant:ident) => {
-        $(#[$doc])*
-        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-        pub struct $name(u32);
+/// `SmTopology::GetClassString`.
+pub const CLASS_STRING: &str = "SmTopology";
 
-        impl $name {
-            /// Builds an id from a raw index. Ids are only meaningful for the B-rep
-            /// (or collection) that issued them.
-            #[must_use]
-            pub const fn from_index(index: u32) -> Self {
-                Self(index)
-            }
-
-            /// The raw index of this id.
-            #[must_use]
-            pub const fn index(self) -> u32 {
-                self.0
-            }
-        }
-
-        impl ArenaId for $name {
-            fn from_index(index: u32) -> Self {
-                Self(index)
-            }
-            fn index(self) -> u32 {
-                self.0
-            }
-            fn entity(self) -> EntityRef {
-                EntityRef::$variant(self)
-            }
-        }
-    };
-}
-
-typed_id!(
-    /// Identifies a [`Brep`] within a caller-owned collection of B-reps.
-    BrepId => Brep
-);
-typed_id!(
-    /// Identifies a [`Shell`] within its [`Brep`].
-    ShellId => Shell
-);
-typed_id!(
-    /// Identifies a [`Face`] within its [`Brep`].
-    FaceId => Face
-);
-typed_id!(
-    /// Identifies a [`Loop`] within its [`Brep`].
-    LoopId => Loop
-);
-typed_id!(
-    /// Identifies an [`Edge`] within its [`Brep`].
-    EdgeId => Edge
-);
-typed_id!(
-    /// Identifies a [`Vertex`] within its [`Brep`].
-    VertexId => Vertex
-);
-typed_id!(
-    /// Identifies a [`Region`] within its [`Brep`].
-    RegionId => Region
-);
-typed_id!(
-    /// Identifies a [`Faceuse`] within its [`Brep`].
-    FaceuseId => Faceuse
-);
-typed_id!(
-    /// Identifies a [`Loopuse`] within its [`Brep`].
-    LoopuseId => Loopuse
-);
-typed_id!(
-    /// Identifies an [`Edgeuse`] within its [`Brep`].
-    EdgeuseId => Edgeuse
-);
-typed_id!(
-    /// Identifies a [`Vertexuse`] within its [`Brep`].
-    VertexuseId => Vertexuse
-);
-
-/// A dense, append-only store of `T` addressed by typed id `I`.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Arena<I, T> {
-    items: Vec<T>,
-    _id: PhantomData<fn() -> I>,
-}
-
-impl<I, T> Default for Arena<I, T> {
-    fn default() -> Self {
-        Self {
-            items: Vec::new(),
-            _id: PhantomData,
-        }
+/// `SmTopology::IsKindOf`: [`TYPE`], then the `SmAObject` chain.
+#[must_use]
+pub const fn is_kind_of(t: i64) -> bool {
+    if t == TYPE {
+        true
+    } else {
+        a_object::is_kind_of(t)
     }
 }
 
-impl<I: ArenaId, T> Arena<I, T> {
-    /// Appends an item and returns its id.
-    ///
-    /// Fails with [`SolidError::InvalidInput`] if the arena already holds `u32::MAX`
-    /// items.
-    pub fn insert(&mut self, item: T) -> Result<I> {
-        let index = u32::try_from(self.items.len()).map_err(|_| SolidError::InvalidInput {
-            operation: "topology::Arena::insert",
-            reason: "arena is full",
-        })?;
-        self.items.push(item);
-        Ok(I::from_index(index))
-    }
-
-    /// The item with id `id`, or `None` if the id is out of range.
-    #[must_use]
-    pub fn get(&self, id: I) -> Option<&T> {
-        self.items.get(id.index() as usize)
-    }
-
-    /// Mutable access to the item with id `id`.
-    #[must_use]
-    pub fn get_mut(&mut self, id: I) -> Option<&mut T> {
-        self.items.get_mut(id.index() as usize)
-    }
-
-    /// Number of items.
-    #[must_use]
-    pub fn len(&self) -> usize {
-        self.items.len()
-    }
-
-    /// True when the arena is empty.
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.items.is_empty()
-    }
-
-    /// Iterates `(id, item)` in insertion order.
-    pub fn iter(&self) -> impl ExactSizeIterator<Item = (I, &T)> + '_ {
-        // Arena length never exceeds u32::MAX (checked in `insert`), so the cast is
-        // lossless.
-        self.items
-            .iter()
-            .enumerate()
-            .map(|(i, t)| (I::from_index(i as u32), t))
-    }
-
-    /// Iterates ids in insertion order.
-    pub fn ids(&self) -> impl ExactSizeIterator<Item = I> + '_ {
-        (0..self.items.len()).map(|i| I::from_index(i as u32))
+/// Index of each mark type's value in [`Topology`]'s mark array (`m_lMark`,
+/// `m_lMark2`, `m_lMark3`, `m_lMarkIO`, `m_lMarkAssert`); unknown types use the IO
+/// mark, as the `default:` branches upstream.
+const fn mark_slot(mark_type: MarkType) -> usize {
+    match mark_type {
+        MarkType::Mark => 0,
+        MarkType::Mark2 => 1,
+        MarkType::Mark3 => 2,
+        MarkType::MarkAssert => 4,
+        MarkType::MarkIo | MarkType::NoMark | MarkType::AllMarks => 3,
     }
 }
 
-/// An `SmObject*` a topology record keeps but never dereferences (the surface,
-/// curve and B-rep pointers of an `SmDropCurveFail`): the object's kind and the
-/// identity it is attributed and notified under.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ObjectHandle {
-    /// What the object is.
-    pub kind: ObjectKind,
-    /// Its identity.
-    pub key: ObjectKey,
-}
-
-impl SolutionObject for ObjectHandle {
-    fn kind(&self) -> ObjectKind {
-        self.kind
-    }
-}
-
-/// A vertex (`SmVertex`): a point where edges meet (the methods are in unit
-/// `topology.vertex`, [`vertex`]).
-#[derive(Debug, Clone, PartialEq)]
-pub struct Vertex {
-    /// `m_vPoint`: position in model space.
-    pub point: Point3,
-    /// `m_sZoneTol3d` (`SM_USE_OLDTOL`): the vertex tolerance.
-    pub tolerance: f64,
-    /// `m_pList` / `m_lListSize`: the vertex's vertex uses in list order from the head
-    /// (the primary vertex use, `GetPrimaryVertexuse`, is first).
-    pub vertexuses: Vec<VertexuseId>,
-    /// `m_pPolyVertex3D`: the temporary back pointer to the 3D poly vertex made from the
-    /// vertex during tessellation.
-    pub poly_vertex: Option<PolyVertexId>,
-}
-
-impl Default for Vertex {
-    /// `SmVertex()`: at the origin, tolerance `0`, no vertex uses, no poly vertex.
-    fn default() -> Self {
-        Self {
-            point: Point3::new(0.0, 0.0, 0.0),
-            tolerance: 0.0,
-            vertexuses: Vec::new(),
-            poly_vertex: None,
-        }
-    }
-}
-
-/// An edge (`SmEdge`): a bounded curve between two vertices.
-#[derive(Debug, Clone)]
-pub struct Edge {
-    /// Start and end vertex (equal for a closed edge).
-    pub vertices: [VertexId; 2],
-    /// `m_pList` (CO-PORTED): the edge's edge uses in radial list order; the first is
-    /// the primary edge use (`GetPrimaryEdgeuse`).
-    pub edgeuses: Vec<EdgeuseId>,
-    /// `m_vInterval` (CO-PORTED): the used parameter interval of the curve.
-    pub interval: Extent1d,
-    /// `m_sZoneTol3d` (CO-PORTED, `SM_USE_OLDTOL`): the edge tolerance.
-    pub tolerance: f64,
-    /// `m_pCurve` (CO-PORTED): the edge's 3D curve.
-    pub curve: Option<Curve>,
-}
-
-/// One oriented use of an edge in a loop (upstream `SmEdgeuse`, simplified).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct LoopEdge {
-    /// The edge used.
-    pub edge: EdgeId,
-    /// True when the loop traverses the edge from `vertices[0]` to `vertices[1]`.
-    pub forward: bool,
-}
-
-/// A closed boundary loop of a face (`SmLoop`).
-#[derive(Debug, Clone, PartialEq)]
-pub struct Loop {
-    /// Face this loop bounds.
-    pub face: FaceId,
-    /// Edges in traversal order.
-    pub edges: Vec<LoopEdge>,
-    /// `m_pLU` (CO-PORTED): the primary loop use (`GetLoopuse`).
-    pub loopuse: Option<LoopuseId>,
-}
-
-/// A face (`SmFace`): a bounded region of a surface. The methods are in unit
-/// `topology.face_p2` ([`face::p2`]).
-#[derive(Debug, Clone)]
-pub struct Face {
-    /// Shell containing this face.
-    pub shell: ShellId,
-    /// Boundary loops; upstream keeps the outer loop first.
-    pub loops: Vec<LoopId>,
-    /// `m_pSurface`: the face's surface (`GetSurface`).
-    pub surface: Option<Surface>,
-    /// `m_pFU`: the primary (upward, [`OrientType::Same`]) face use
-    /// (`GetUpwardFaceuse`).
-    pub faceuse: Option<FaceuseId>,
-    /// `m_vUVDomain`: the domain of the surface the face uses (`GetUVDomain`).
-    pub uv_domain: Extent2d,
-    /// `m_bRectangularTrim` (an `SmBoolean`: `1` the face has one rectangular outer
-    /// loop of four iso trim curves spanning [`Face::uv_domain`], `0` it has not,
-    /// [`face::p2::UNSURE`] not yet known).
-    pub rectangular_trim: i32,
-    /// `m_sZoneTol3d` (`SM_USE_OLDTOL`): the face tolerance (`GetTolerance`).
-    pub tolerance: f64,
-}
-
-impl Face {
-    /// `SmFace()` in `shell`: no loops, surface or face use, the "inside out" UV
-    /// domain, rectangular trim [`face::p2::UNSURE`] and tolerance `0`.
-    #[must_use]
-    pub const fn new(shell: ShellId) -> Self {
-        Self {
-            shell,
-            loops: Vec::new(),
-            surface: None,
-            faceuse: None,
-            uv_domain: Extent2d::new(),
-            rectangular_trim: face::p2::UNSURE,
-            tolerance: 0.0,
-        }
-    }
-}
-
-/// A shell (`SmShell`): a connected set of faces.
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct Shell {
-    /// Faces of the shell, in insertion order.
-    pub faces: Vec<FaceId>,
-    /// `m_pListOwner` (CO-PORTED): the region owning the shell (`GetRegion`).
-    pub region: Option<RegionId>,
-}
-
-/// A region (`SmRegion`, CO-PORTED minimal record).
+/// The data every topology object carries (`SmTopology`'s members).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct Region {
-    /// `m_pListOwner != NULL`: the region is on the B-rep's region list, so
-    /// `GetBrep` reaches the B-rep.
-    pub in_brep: bool,
+pub struct Topology {
+    /// `m_pListOwner`.
+    list_owner: Option<ObjectKey>,
+    /// `m_pNext`.
+    next: Option<ObjectKey>,
+    /// `m_pLast`.
+    last: Option<ObjectKey>,
+    /// `m_lMark`, `m_lMark2`, `m_lMark3`, `m_lMarkIO`, `m_lMarkAssert`.
+    marks: [u64; 5],
+    /// `m_lFlags`.
+    flags: u64,
+    /// `m_lUserIndex1`.
+    user_index1: u64,
+    /// `m_lUserIndex2`.
+    user_index2: u64,
+    /// `m_pUserPtr1` (opaque; `0` is null).
+    user_ptr1: u64,
+    /// `m_bIsSmallTopology`.
+    small: bool,
 }
 
-/// One use of a face (`SmFaceuse`): the face seen from one side.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct Faceuse {
-    /// `m_pListOwner`: the shell owning the face use (`GetShell`).
-    pub shell: Option<ShellId>,
-    /// `m_pF`: the face used (`GetFace`).
-    pub face: Option<FaceId>,
-    /// `m_pFUMate`: the face's other face use (`GetMate`).
-    pub mate: Option<FaceuseId>,
-    /// `m_eOrientation`: [`OrientType::Same`] when the face use normal is the
-    /// surface normal.
-    pub orientation: OrientType,
-    /// `m_pList`: the loop uses, outer loop use first.
-    pub loopuses: Vec<LoopuseId>,
-}
-
-/// What a loop use starts from (`m_tLoopuseType` and `m_pEUorVU`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum LoopuseStart {
-    /// `SmUnknown_TYPE` (a loop use not yet built).
-    #[default]
-    Unknown,
-    /// `SmEdgeuse_TYPE`: the loop's start edge use.
-    Edgeuse(Option<EdgeuseId>),
-    /// `SmVertexuse_TYPE`: the single vertex use of a vertex loop.
-    Vertexuse(Option<VertexuseId>),
-}
-
-/// One use of a loop (`SmLoopuse`; `Default` is `SmLoopuse()`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct Loopuse {
-    /// `m_pListOwner` as an `SmFaceuse` (`GetFaceuse`).
-    pub faceuse: Option<FaceuseId>,
-    /// `m_pL`: the loop used (`GetLoop`).
-    pub loop_: Option<LoopId>,
-    /// `m_pLUMate`: the loop use on the face's other side (`GetOtherLoopuse`).
-    pub mate: Option<LoopuseId>,
-    /// `m_tLoopuseType` and `m_pEUorVU`.
-    pub start: LoopuseStart,
-    /// `m_eOrientation` (unit `topology.loopuse`): [`OrientType::Same`] for an outer
-    /// loop use, [`OrientType::Opposite`] for an inner one.
-    pub orientation: OrientType,
-}
-
-/// What an edge use connects to (`m_tEdgeuseType` and `m_pSorLU`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum EdgeuseOwner {
-    /// `SmUnknown_TYPE` (the constructor's value).
-    #[default]
-    Unknown,
-    /// `SmLoopuse_TYPE`: an edge in a face, connected through a loop use.
-    Loopuse(Option<LoopuseId>),
-    /// `SmShell_TYPE`: a wire edge, connected to a region through a shell.
-    Shell(Option<ShellId>),
-}
-
-/// One use of an edge (`SmEdgeuse`): the edge seen from one face side or one wire
-/// end.
-#[derive(Debug, Clone)]
-pub struct Edgeuse {
-    /// `m_pListOwner`: the edge used (`GetEdge`).
-    pub edge: Option<EdgeId>,
-    /// `m_tEdgeuseType` and `m_pSorLU`.
-    pub owner: EdgeuseOwner,
-    /// `m_pCCW`: the next edge use counter-clockwise in the loop.
-    pub ccw: Option<EdgeuseId>,
-    /// `m_pCW`: the next edge use clockwise in the loop.
-    pub cw: Option<EdgeuseId>,
-    /// `m_pVU`: the vertex use at the edge use's start.
-    pub vertexuse: Option<VertexuseId>,
-    /// `m_eOrientation`: [`OrientType::Same`] when the edge use runs with its edge's
-    /// curve.
-    pub orientation: OrientType,
-    /// `m_pUVTrimCurve`: the 2D trim curve, kept on the [`OrientType::Same`] member
-    /// of a mated pair (the edge use is its owner). Upstream's `SmBSplineCurve*`: a
-    /// B-spline curve or one of its derived kinds (`SmLine`, ...).
-    pub uv_trim_curve: Option<Curve>,
-    /// `m_sMaxEdgeFaceGap3d`: the cached largest edge/face gap.
-    pub max_edge_face_gap: EdgeFaceGap,
-    /// `m_sEdgeCCWEdgeGap3d`: the cached gap to the counter-clockwise edge use.
-    pub edge_ccw_edge_gap: EdgeEdgeGap,
-    /// `m_pDropCurveFail`: what the last `CreateUVTrimCurve` recorded.
-    pub drop_curve_fail: Option<Box<DropCurveFail<ObjectHandle>>>,
-}
-
-impl Default for Edgeuse {
-    /// `SmEdgeuse()`: unlinked, unknown type and orientation, gaps reset.
-    fn default() -> Self {
+impl Topology {
+    /// `SmTopology()`: unlinked, every mark, flag and user value zero.
+    #[must_use]
+    pub const fn new() -> Self {
         Self {
-            edge: None,
-            owner: EdgeuseOwner::Unknown,
-            ccw: None,
-            cw: None,
-            vertexuse: None,
-            orientation: OrientType::Unknown,
-            uv_trim_curve: None,
-            max_edge_face_gap: EdgeFaceGap::new(),
-            edge_ccw_edge_gap: EdgeEdgeGap::new(),
-            drop_curve_fail: None,
+            list_owner: None,
+            next: None,
+            last: None,
+            marks: [0; 5],
+            flags: 0,
+            user_index1: 0,
+            user_index2: 0,
+            user_ptr1: 0,
+            small: false,
         }
     }
-}
 
-/// What a vertex use connects to (`m_tVertexuseType` and `m_pSorLUorEU`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum VertexuseOwner {
-    /// `SmUnknown_TYPE`.
-    #[default]
-    Unknown,
-    /// `SmEdgeuse_TYPE`: the vertex at an edge use's start.
-    Edgeuse(Option<EdgeuseId>),
-    /// `SmLoopuse_TYPE`: the vertex of a vertex loop.
-    Loopuse(Option<LoopuseId>),
-    /// `SmShell_TYPE`: a vertex alone in a region.
-    Shell(Option<ShellId>),
-}
-
-/// One use of a vertex (`SmVertexuse`; the methods are in unit `topology.vertexuse`,
-/// [`vertexuse`]).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Vertexuse {
-    /// `m_pListOwner`: the vertex used (`GetVertex`).
-    pub vertex: Option<VertexId>,
-    /// `m_tVertexuseType` and `m_pSorLUorEU`.
-    pub owner: VertexuseOwner,
-    /// `m_sVertexEdgeGap3d`: the cached vertex/edge gap.
-    pub vertex_edge_gap: VertexEdgeGap,
-    /// `m_sVertexFaceGap3d`: the cached vertex/face gap.
-    pub vertex_face_gap: VertexFaceGap,
-    /// `m_sUVPoint` (`GetUVPoint` / `SetUVPoint`; `(SM_BIG_DOUBLE, SM_BIG_DOUBLE)`
-    /// until set).
-    pub uv_point: Point2,
-}
-
-impl Default for Vertexuse {
-    /// `SmVertexuse()`: unlinked, unknown type, gaps reset, UV point
-    /// `(SM_BIG_DOUBLE, SM_BIG_DOUBLE)`.
-    fn default() -> Self {
-        Self {
-            vertex: None,
-            owner: VertexuseOwner::Unknown,
-            vertex_edge_gap: VertexEdgeGap::new(),
-            vertex_face_gap: VertexFaceGap::new(),
-            uv_point: Point2::new(BIG_DOUBLE, BIG_DOUBLE),
-        }
-    }
-}
-
-/// A boundary representation (`SmBrep`): arenas of shells, faces, loops, edges and
-/// vertices linked by typed ids.
-#[derive(Debug, Clone)]
-pub struct Brep {
-    shells: Arena<ShellId, Shell>,
-    faces: Arena<FaceId, Face>,
-    loops: Arena<LoopId, Loop>,
-    edges: Arena<EdgeId, Edge>,
-    vertices: Arena<VertexId, Vertex>,
-    regions: Arena<RegionId, Region>,
-    faceuses: Arena<FaceuseId, Faceuse>,
-    loopuses: Arena<LoopuseId, Loopuse>,
-    edgeuses: Arena<EdgeuseId, Edgeuse>,
-    vertexuses: Arena<VertexuseId, Vertexuse>,
-    /// `m_bValidateOnly`.
-    validate_only: bool,
-    /// `m_sThisZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the B-rep's tolerance.
-    tolerance: f64,
-    /// The identity the B-rep is attributed and notified under (`SmBrep*`).
-    key: ObjectKey,
-}
-
-impl Default for Brep {
-    fn default() -> Self {
-        Self {
-            shells: Arena::default(),
-            faces: Arena::default(),
-            loops: Arena::default(),
-            edges: Arena::default(),
-            vertices: Arena::default(),
-            regions: Arena::default(),
-            faceuses: Arena::default(),
-            loopuses: Arena::default(),
-            edgeuses: Arena::default(),
-            vertexuses: Arena::default(),
-            validate_only: false,
-            tolerance: ZONE_TOL_3D,
-            key: ObjectKey(0),
-        }
-    }
-}
-
-fn not_found<I: ArenaId>(operation: &'static str, id: I) -> SolidError {
-    SolidError::NotFound {
-        operation,
-        entity: id.entity(),
-    }
-}
-
-impl Brep {
-    /// An empty B-rep.
+    /// The owner of the list this object is on (`GetOwner`).
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn owner(&self) -> Option<ObjectKey> {
+        self.list_owner
     }
 
-    /// All shells.
+    /// The next object on the owner's list (`GetNext`).
     #[must_use]
-    pub fn shells(&self) -> &Arena<ShellId, Shell> {
-        &self.shells
+    pub const fn next(&self) -> Option<ObjectKey> {
+        self.next
     }
 
-    /// All faces.
+    /// The previous object on the owner's list (`GetLast`).
     #[must_use]
-    pub fn faces(&self) -> &Arena<FaceId, Face> {
-        &self.faces
+    pub const fn last(&self) -> Option<ObjectKey> {
+        self.last
     }
 
-    /// All loops.
+    /// Sets the list owner and neighbours (what `SmOwningTopology`, a friend class,
+    /// writes when it links or unlinks the object).
+    pub fn set_list_links(
+        &mut self,
+        owner: Option<ObjectKey>,
+        next: Option<ObjectKey>,
+        last: Option<ObjectKey>,
+    ) {
+        self.list_owner = owner;
+        self.next = next;
+        self.last = last;
+    }
+
+    /// `IsConnectedTo(const SmTopology*)` of the base class: `false` (the derived
+    /// kinds override it).
     #[must_use]
-    pub fn loops(&self) -> &Arena<LoopId, Loop> {
-        &self.loops
+    pub const fn is_connected_to(&self, _target: Option<ObjectKey>) -> bool {
+        false
     }
 
-    /// All edges.
+    /// All flags as one bit array (`GetAllFlags`).
     #[must_use]
-    pub fn edges(&self) -> &Arena<EdgeId, Edge> {
-        &self.edges
+    pub const fn all_flags(&self) -> u64 {
+        self.flags
     }
 
-    /// All vertices.
+    /// Replaces all flags (`SetAllFlags`).
+    pub fn set_all_flags(&mut self, flags: u64) {
+        self.flags = flags;
+    }
+
+    /// The first user index (`GetUserIndex1`).
     #[must_use]
-    pub fn vertices(&self) -> &Arena<VertexId, Vertex> {
-        &self.vertices
+    pub const fn user_index1(&self) -> u64 {
+        self.user_index1
     }
 
-    /// The shell `id`.
-    pub fn shell(&self, id: ShellId) -> Result<&Shell> {
-        self.shells
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::shell", id))
-    }
-
-    /// The face `id`.
-    pub fn face(&self, id: FaceId) -> Result<&Face> {
-        self.faces
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::face", id))
-    }
-
-    /// The loop `id`.
-    pub fn loop_(&self, id: LoopId) -> Result<&Loop> {
-        self.loops
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::loop_", id))
-    }
-
-    /// The edge `id`.
-    pub fn edge(&self, id: EdgeId) -> Result<&Edge> {
-        self.edges
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::edge", id))
-    }
-
-    /// The vertex `id`.
-    pub fn vertex(&self, id: VertexId) -> Result<&Vertex> {
-        self.vertices
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::vertex", id))
-    }
-
-    /// All regions.
+    /// The second user index (`GetUserIndex2`).
     #[must_use]
-    pub fn regions(&self) -> &Arena<RegionId, Region> {
-        &self.regions
+    pub const fn user_index2(&self) -> u64 {
+        self.user_index2
     }
 
-    /// All face uses.
+    /// The user pointer (`GetUserPtr1`; `0` is null).
     #[must_use]
-    pub fn faceuses(&self) -> &Arena<FaceuseId, Faceuse> {
-        &self.faceuses
+    pub const fn user_ptr1(&self) -> u64 {
+        self.user_ptr1
     }
 
-    /// All loop uses.
+    /// Sets the first user index (`SetUserIndex1`).
+    pub fn set_user_index1(&mut self, index: u64) {
+        self.user_index1 = index;
+    }
+
+    /// Sets the second user index (`SetUserIndex2`).
+    pub fn set_user_index2(&mut self, index: u64) {
+        self.user_index2 = index;
+    }
+
+    /// Sets the user pointer (`SetUserPtr1`; `0` is null).
+    pub fn set_user_ptr1(&mut self, ptr: u64) {
+        self.user_ptr1 = ptr;
+    }
+
+    /// Whether the object is intended to be tiny (`m_bIsSmallTopology`).
     #[must_use]
-    pub fn loopuses(&self) -> &Arena<LoopuseId, Loopuse> {
-        &self.loopuses
+    pub const fn is_small_topology(&self) -> bool {
+        self.small
     }
 
-    /// All edge uses.
-    #[must_use]
-    pub fn edgeuses(&self) -> &Arena<EdgeuseId, Edgeuse> {
-        &self.edgeuses
-    }
-
-    /// All vertex uses.
-    #[must_use]
-    pub fn vertexuses(&self) -> &Arena<VertexuseId, Vertexuse> {
-        &self.vertexuses
-    }
-
-    /// The region `id`.
-    pub fn region(&self, id: RegionId) -> Result<&Region> {
-        self.regions
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::region", id))
-    }
-
-    /// The face use `id`.
-    pub fn faceuse(&self, id: FaceuseId) -> Result<&Faceuse> {
-        self.faceuses
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::faceuse", id))
-    }
-
-    /// The loop use `id`.
-    pub fn loopuse(&self, id: LoopuseId) -> Result<&Loopuse> {
-        self.loopuses
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::loopuse", id))
-    }
-
-    /// The edge use `id`.
-    pub fn edgeuse(&self, id: EdgeuseId) -> Result<&Edgeuse> {
-        self.edgeuses
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::edgeuse", id))
-    }
-
-    /// The vertex use `id`.
-    pub fn vertexuse(&self, id: VertexuseId) -> Result<&Vertexuse> {
-        self.vertexuses
-            .get(id)
-            .ok_or_else(|| not_found("topology::Brep::vertexuse", id))
-    }
-
-    /// Mutable access to the shell `id`.
-    pub fn shell_mut(&mut self, id: ShellId) -> Result<&mut Shell> {
-        self.shells
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::shell_mut", id))
-    }
-
-    /// Mutable access to the face `id`.
-    pub fn face_mut(&mut self, id: FaceId) -> Result<&mut Face> {
-        self.faces
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::face_mut", id))
-    }
-
-    /// Mutable access to the loop `id`.
-    pub fn loop_mut(&mut self, id: LoopId) -> Result<&mut Loop> {
-        self.loops
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::loop_mut", id))
-    }
-
-    /// Mutable access to the edge `id`.
-    pub fn edge_mut(&mut self, id: EdgeId) -> Result<&mut Edge> {
-        self.edges
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::edge_mut", id))
-    }
-
-    /// Mutable access to the vertex `id`.
-    pub fn vertex_mut(&mut self, id: VertexId) -> Result<&mut Vertex> {
-        self.vertices
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::vertex_mut", id))
-    }
-
-    /// Mutable access to the region `id`.
-    pub fn region_mut(&mut self, id: RegionId) -> Result<&mut Region> {
-        self.regions
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::region_mut", id))
-    }
-
-    /// Mutable access to the face use `id`.
-    pub fn faceuse_mut(&mut self, id: FaceuseId) -> Result<&mut Faceuse> {
-        self.faceuses
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::faceuse_mut", id))
-    }
-
-    /// Mutable access to the loop use `id`.
-    pub fn loopuse_mut(&mut self, id: LoopuseId) -> Result<&mut Loopuse> {
-        self.loopuses
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::loopuse_mut", id))
-    }
-
-    /// Mutable access to the edge use `id`.
-    pub fn edgeuse_mut(&mut self, id: EdgeuseId) -> Result<&mut Edgeuse> {
-        self.edgeuses
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::edgeuse_mut", id))
-    }
-
-    /// Mutable access to the vertex use `id`.
-    pub fn vertexuse_mut(&mut self, id: VertexuseId) -> Result<&mut Vertexuse> {
-        self.vertexuses
-            .get_mut(id)
-            .ok_or_else(|| not_found("topology::Brep::vertexuse_mut", id))
-    }
-
-    /// `m_bValidateOnly`: while set, tolerances must not change.
-    #[must_use]
-    pub const fn validate_only(&self) -> bool {
-        self.validate_only
-    }
-
-    /// Sets `m_bValidateOnly`.
-    pub fn set_validate_only(&mut self, validate_only: bool) {
-        self.validate_only = validate_only;
-    }
-
-    /// `SmBrep::GetTolerance` (`SM_USE_OLDTOL`, CO-PORTED by `topology.edgeuse_p2`):
-    /// `m_sThisZoneTol3d`, [`ZONE_TOL_3D`] for a new B-rep (`SmTol::GetZoneTol3d` of
-    /// the default context, as `SmBrep()`).
+    /// The object's zone tolerance (`GetTolerance` of the `SM_USE_OLDTOL` build):
+    /// [`tol::ZONE_TOL_3D`] for the base class.
     #[must_use]
     pub const fn tolerance(&self) -> f64 {
-        self.tolerance
+        tol::ZONE_TOL_3D
     }
 
-    /// Sets `m_sThisZoneTol3d` (the raw member write; `SmBrep::SetTolerance`, which
-    /// also updates the entities, is unit `topology.brep_*`).
-    pub fn set_tolerance(&mut self, tolerance: f64) {
-        self.tolerance = tolerance;
+    /// Marks the object with the context's current value of `mark_type` (`Mark`).
+    /// Nothing happens for [`MarkType::NoMark`] or a null context;
+    /// [`MarkType::AllMarks`] sets the IO mark.
+    pub fn mark(&mut self, context: Option<&Context>, mark_type: MarkType) {
+        if mark_type != MarkType::NoMark {
+            let Some(context) = context else {
+                // This should not happen
+                return;
+            };
+            let mark = context.current_mark(mark_type);
+            if let Some(m) = self.marks.get_mut(mark_slot(mark_type)) {
+                *m = mark;
+            }
+        }
     }
 
-    /// The identity the B-rep is attributed and notified under (an `SmBrep*`).
+    /// The object's value of `mark_type` (`GetMark`); [`MarkType::NoMark`] and
+    /// [`MarkType::AllMarks`] give the IO mark.
     #[must_use]
-    pub const fn key(&self) -> ObjectKey {
+    pub fn get_mark(&self, mark_type: MarkType) -> u64 {
+        self.marks.get(mark_slot(mark_type)).copied().unwrap_or(0)
+    }
+
+    /// Whether the object carries the context's current value of `mark_type`
+    /// (`IsMarked`).
+    #[must_use]
+    pub fn is_marked(&self, context: &Context, mark_type: MarkType) -> bool {
+        self.get_mark(mark_type) == context.current_mark(mark_type)
+    }
+}
+
+/// Where [`notify`] finds the [`Topology`] record of an object.
+pub trait TopologyRecords {
+    /// The record of `key`, if it is a topology object.
+    fn topology(&self, key: ObjectKey) -> Option<&Topology>;
+    /// Mutable access to the record of `key`.
+    fn topology_mut(&mut self, key: ObjectKey) -> Option<&mut Topology>;
+}
+
+impl TopologyRecords for BTreeMap<ObjectKey, Topology> {
+    fn topology(&self, key: ObjectKey) -> Option<&Topology> {
+        self.get(&key)
+    }
+
+    fn topology_mut(&mut self, key: ObjectKey) -> Option<&mut Topology> {
+        self.get_mut(&key)
+    }
+}
+
+/// The error of a notified object that has no [`Topology`] record.
+const NOT_TOPOLOGY: SolidError = SolidError::InvalidInput {
+    operation: "topology::topology::notify",
+    reason: "notified object is not a topology object",
+};
+
+fn record<R: TopologyRecords + ?Sized>(records: &R, key: ObjectKey) -> Result<Topology> {
+    records.topology(key).copied().ok_or(NOT_TOPOLOGY)
+}
+
+fn record_mut<R: TopologyRecords + ?Sized>(
+    records: &mut R,
+    key: ObjectKey,
+) -> Result<&mut Topology> {
+    records.topology_mut(key).ok_or(NOT_TOPOLOGY)
+}
+
+/// Carries the flags (unless `merge`), the three general marks (zeroed instead when
+/// `reset_marks`) and the user values of `src` to `dst`: one target of `Notify`.
+fn propagate(src: &Topology, dst: &mut Topology, merge: bool, reset_marks: bool) {
+    if !merge {
+        dst.set_all_flags(src.all_flags());
+    }
+    if reset_marks {
+        // init marks for next mark usage - don't copy marks
+        dst.marks[..3].fill(0);
+    } else {
+        dst.marks[..3].copy_from_slice(&src.marks[..3]);
+    }
+    dst.user_index1 = src.user_index1;
+    dst.user_index2 = src.user_index2;
+    dst.user_ptr1 = src.user_ptr1;
+}
+
+/// `SmTopology::Notify`: for splits, merges, copies and coincidences, carries the
+/// flags, the three general marks and the user values of the source object to the
+/// other objects of the operation, then passes the notification to
+/// [`a_object::notify`] (attribute handlers and context callbacks).
+///
+/// | operation      | source (`this`)  | targets            | kind  |
+/// |----------------|------------------|--------------------|-------|
+/// | `SplitInBrep`  | `data1`          | `data2`, `data3`   |       |
+/// | `MergeInBrep`  | `data2`          | `data1`, `data2`   | merge |
+/// | `Copy`         | `this`           | `data1`            | copy  |
+/// | `Split`        | `this`           | `data1`, `data2`   |       |
+/// | `Merge`        | `this`           | `data1`, `data2`   | merge |
+/// | `Coincident`   | `data2`          | `data1`            |       |
+/// | `Construction` | `this` if `data2`| `data2`            | copy  |
+///
+/// A merge first ORs the two targets' flags into both and does not otherwise copy
+/// flags; a copy resets the target's general marks to zero instead of copying them.
+/// A target equal to the source is skipped.
+///
+/// # Errors
+///
+/// [`SolidError::InvalidInput`] when an object the operation reads or writes has no
+/// record in `records` (upstream casts it to `SmTopology*` regardless); errors of
+/// [`a_object::notify`].
+pub fn notify<R: TopologyRecords + ?Sized>(
+    records: &mut R,
+    attributes: &mut AttributeStore,
+    context: Option<&mut Context>,
+    operation: NotifyOperation,
+    this: ObjectRef,
+    data1: Option<ObjectRef>,
+    data2: Option<ObjectRef>,
+    data3: Option<ObjectRef>,
+) -> Result<()> {
+    use NotifyOperation as N;
+    let key = |o: Option<ObjectRef>| o.map(|r| r.key);
+    let mut copy = false;
+    let mut merge = false;
+
+    let (p_this, other1, other2) = match operation {
+        N::SplitInBrep => (key(data1), key(data2), key(data3)),
+        N::MergeInBrep => {
+            merge = true;
+            (key(data2), key(data1), key(data2))
+        }
+        N::Copy => {
+            copy = true;
+            (Some(this.key), key(data1), None)
+        }
+        N::Split => (Some(this.key), key(data1), key(data2)),
+        N::Merge => {
+            merge = true;
+            (Some(this.key), key(data1), key(data2))
+        }
+        N::Coincident => (key(data2), key(data1), None),
+        N::Construction => {
+            if data2.is_some() {
+                copy = true;
+                (Some(this.key), key(data2), None)
+            } else {
+                (None, None, None)
+            }
+        }
+        // SM_NO_UNKNOWN: SE_MSG only (compiled out of the release build)
+        _ => (None, None, None),
+    };
+
+    // for merge
+    if let (Some(o1), Some(o2), true) = (other1, other2, merge) {
+        let f2 = record(records, o2)?.all_flags();
+        let r1 = record_mut(records, o1)?;
+        r1.set_all_flags(r1.all_flags() | f2);
+        let f1 = r1.all_flags();
+        let r2 = record_mut(records, o2)?;
+        r2.set_all_flags(f1 | r2.all_flags());
+    }
+
+    // propagate the values to pOther1 (a copy resets its marks), then to pOther2
+    for (other, reset_marks) in [(other1, copy), (other2, false)] {
+        if let (Some(t), Some(o)) = (p_this, other) {
+            if o != t {
+                let src = record(records, t)?;
+                propagate(&src, record_mut(records, o)?, merge, reset_marks);
+            }
+        }
+    }
+
+    // pass the call along to the base class
+    a_object::notify(attributes, context, operation, this, data1, data2, data3)
+}
+
+// ---- change tracking ---------------------------------------------------------------
+
+/// One recorded notification (`SmNotifyEvent`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NotifyEvent {
+    /// `m_eAction`.
+    pub operation: NotifyOperation,
+    /// `m_pCaller`.
+    pub caller: Option<ObjectRef>,
+    /// `m_pData1`.
+    pub data1: Option<ObjectRef>,
+    /// `m_pData2`.
+    pub data2: Option<ObjectRef>,
+    /// `m_pData3`.
+    pub data3: Option<ObjectRef>,
+}
+
+/// The lists a change tracker accumulates (`m_sRmList`, `m_sAddList`, `m_sChgList`,
+/// `m_sNotifyList` of `SmTrackTopologyChanges`).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct TopologyChangeLists {
+    /// Objects removed from the topology graph (stale handles).
+    pub rm_list: Vec<ObjectKey>,
+    /// Objects added and not removed since.
+    pub add_list: Vec<ObjectKey>,
+    /// Objects whose geometry changed.
+    pub chg_list: Vec<ObjectKey>,
+    /// The events that changed the lists.
+    pub notify_events: Vec<NotifyEvent>,
+}
+
+impl TopologyChangeLists {
+    /// Empties all four lists (`SmTopologyChangeCallback::ReSetArrays`, also what
+    /// `~SmTopologyChangeCallback` does).
+    pub fn reset_arrays(&mut self) {
+        self.rm_list.clear();
+        self.add_list.clear();
+        self.chg_list.clear();
+        self.notify_events.clear();
+    }
+}
+
+/// The system notify callback a [`TrackTopologyChanges`] installs
+/// (`SmTopologyChangeCallback`), tagged with its tracker's key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TopologyChangeCallback {
+    /// Key of the tracker that installed this callback.
+    tracker: u64,
+}
+
+impl TopologyChangeCallback {
+    /// The callback of tracker `tracker` (`SmTopologyChangeCallback(...)`).
+    #[must_use]
+    pub const fn new(tracker: u64) -> Self {
+        Self { tracker }
+    }
+
+    /// Key of the tracker that installed this callback.
+    #[must_use]
+    pub const fn tracker(&self) -> u64 {
+        self.tracker
+    }
+}
+
+impl NotifyCallback for TopologyChangeCallback {
+    /// `SmTopologyChangeCallback::Execute` is not part of any ported unit (see the
+    /// module docs); `SmObject::Notify` ignores the status.
+    fn execute(
+        &mut self,
+        _operation: NotifyOperation,
+        _caller: ObjectRef,
+        _data1: Option<ObjectRef>,
+        _data2: Option<ObjectRef>,
+        _data3: Option<ObjectRef>,
+    ) -> Result<()> {
+        Err(SolidError::Unsupported {
+            operation: "topology::topology::TopologyChangeCallback::execute",
+            reason: "SmTopologyChangeCallback::Execute is outside the ported call graph",
+        })
+    }
+
+    fn as_any(&self) -> Option<&dyn core::any::Any> {
+        Some(self)
+    }
+}
+
+/// Tracks changes to a B-rep's topology graph through its context's system notify
+/// callback (`SmTrackTopologyChanges`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrackTopologyChanges {
+    /// `m_pBrep`: the tracked B-rep (`None` for null).
+    brep: Option<BrepId>,
+    /// Identifies this tracker's callback in a context (upstream: its address).
+    key: u64,
+    /// The accumulated lists.
+    lists: TopologyChangeLists,
+    /// `m_pLastNotifyCallback != NULL`: a system callback was already installed when
+    /// tracking last started.
+    last_notify_callback: bool,
+}
+
+impl TrackTopologyChanges {
+    /// `SmTrackTopologyChanges(pBrep, bStartNow)`: a tracker of `brep` whose
+    /// callback is recognised by `key` (unique among live trackers of a context).
+    /// `context` is the B-rep's context. Starts tracking when `start_now`, else just
+    /// empties the lists.
+    pub fn new(
+        brep: Option<BrepId>,
+        key: u64,
+        start_now: bool,
+        context: Option<&mut Context>,
+    ) -> Self {
+        let mut t = Self {
+            brep,
+            key,
+            lists: TopologyChangeLists::default(),
+            last_notify_callback: false,
+        };
+        // when asked start tracking now - else just init the Rm and Add arrays.
+        if start_now {
+            t.start_tracking(context);
+        } else {
+            t.reset_arrays();
+        }
+        t
+    }
+
+    /// The tracked B-rep.
+    #[must_use]
+    pub const fn brep(&self) -> Option<BrepId> {
+        self.brep
+    }
+
+    /// Whether a system callback was already installed when tracking last started
+    /// (`m_pLastNotifyCallback != NULL`); [`TrackTopologyChanges::stop_tracking`]
+    /// then leaves the context alone.
+    #[must_use]
+    pub const fn last_notify_callback(&self) -> bool {
+        self.last_notify_callback
+    }
+
+    /// The key identifying this tracker's callback.
+    #[must_use]
+    pub const fn key(&self) -> u64 {
         self.key
     }
 
-    /// Sets the identity the B-rep is attributed and notified under.
-    pub fn set_key(&mut self, key: ObjectKey) {
-        self.key = key;
-    }
+    /// Empties the lists and, when the B-rep and its context exist and the context
+    /// has no system notify callback, installs this tracker's callback
+    /// (`StartTracking`). An already installed callback is left in place (upstream
+    /// asserts; nested tracking is not supported).
+    pub fn start_tracking(&mut self, context: Option<&mut Context>) {
+        // init internal arrays
+        self.reset_arrays();
 
-    /// Appends a region record as is (no validation).
-    pub fn add_region_record(&mut self, region: Region) -> Result<RegionId> {
-        self.regions.insert(region)
-    }
-
-    /// Appends a shell record as is (no validation).
-    pub fn add_shell_record(&mut self, shell: Shell) -> Result<ShellId> {
-        self.shells.insert(shell)
-    }
-
-    /// Appends a face record as is (no validation; the shell's face list is not
-    /// touched).
-    pub fn add_face_record(&mut self, face: Face) -> Result<FaceId> {
-        self.faces.insert(face)
-    }
-
-    /// Appends a loop record as is (no validation; the face's loop list is not
-    /// touched).
-    pub fn add_loop_record(&mut self, loop_: Loop) -> Result<LoopId> {
-        self.loops.insert(loop_)
-    }
-
-    /// Appends an edge record as is (no validation).
-    pub fn add_edge_record(&mut self, edge: Edge) -> Result<EdgeId> {
-        self.edges.insert(edge)
-    }
-
-    /// Appends a vertex record as is.
-    pub fn add_vertex_record(&mut self, vertex: Vertex) -> Result<VertexId> {
-        self.vertices.insert(vertex)
-    }
-
-    /// Appends a face use record as is (no validation).
-    pub fn add_faceuse_record(&mut self, faceuse: Faceuse) -> Result<FaceuseId> {
-        self.faceuses.insert(faceuse)
-    }
-
-    /// Appends a loop use record as is (no validation).
-    pub fn add_loopuse_record(&mut self, loopuse: Loopuse) -> Result<LoopuseId> {
-        self.loopuses.insert(loopuse)
-    }
-
-    /// Appends an edge use record as is (no validation).
-    pub fn add_edgeuse_record(&mut self, edgeuse: Edgeuse) -> Result<EdgeuseId> {
-        self.edgeuses.insert(edgeuse)
-    }
-
-    /// Appends a vertex use record as is (no validation).
-    pub fn add_vertexuse_record(&mut self, vertexuse: Vertexuse) -> Result<VertexuseId> {
-        self.vertexuses.insert(vertexuse)
-    }
-
-    /// Adds an empty shell.
-    pub fn add_shell(&mut self) -> Result<ShellId> {
-        self.shells.insert(Shell::default())
-    }
-
-    /// Adds a vertex at `point`.
-    pub fn add_vertex(&mut self, point: Point3) -> Result<VertexId> {
-        self.vertices.insert(Vertex {
-            point,
-            tolerance: ZONE_TOL_3D,
-            ..Vertex::default()
-        })
-    }
-
-    /// Adds an edge from `start` to `end`; both vertices must exist.
-    pub fn add_edge(&mut self, start: VertexId, end: VertexId) -> Result<EdgeId> {
-        const OP: &str = "topology::Brep::add_edge";
-        for v in [start, end] {
-            if self.vertices.get(v).is_none() {
-                return Err(not_found(OP, v));
+        // when m_pBrep and its Context exist
+        if let (Some(_), Some(context)) = (self.brep, context) {
+            // start TopoGraph Change Tracking
+            self.last_notify_callback = context.sys_notify_callback().is_some();
+            if !self.last_notify_callback {
+                context
+                    .set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(self.key))));
             }
         }
-        self.edges.insert(Edge {
-            vertices: [start, end],
-            edgeuses: Vec::new(),
-            interval: Extent1d::new(),
-            tolerance: ZONE_TOL_3D,
-            curve: None,
-        })
     }
 
-    /// Adds a face to `shell` with no loops yet.
-    pub fn add_face(&mut self, shell: ShellId) -> Result<FaceId> {
-        const OP: &str = "topology::Brep::add_face";
-        if self.shells.get(shell).is_none() {
-            return Err(not_found(OP, shell));
-        }
-        let face = self.faces.insert(Face::new(shell))?;
-        self.shells
-            .get_mut(shell)
-            .ok_or_else(|| not_found(OP, shell))?
-            .faces
-            .push(face);
-        Ok(face)
+    /// Whether the context's system notify callback is this tracker's
+    /// (`IsTracking`).
+    #[must_use]
+    pub fn is_tracking(&self, context: Option<&Context>) -> bool {
+        let Some(context) = context.filter(|_| self.brep.is_some()) else {
+            return false;
+        };
+        context
+            .sys_notify_callback()
+            .and_then(NotifyCallback::as_any)
+            .and_then(|a| a.downcast_ref::<TopologyChangeCallback>())
+            .is_some_and(|c| c.tracker == self.key)
     }
 
-    /// Adds a loop to `face` from edges in traversal order. Every edge must exist and
-    /// consecutive uses must share a vertex, closing back to the first.
-    pub fn add_loop(&mut self, face: FaceId, edges: Vec<LoopEdge>) -> Result<LoopId> {
-        const OP: &str = "topology::Brep::add_loop";
-        if self.faces.get(face).is_none() {
-            return Err(not_found(OP, face));
+    /// When the B-rep and its context exist and this tracker found no callback
+    /// installed when it started, clears the context's system notify callback
+    /// (`StopTracking`); otherwise does nothing (upstream asserts).
+    pub fn stop_tracking(&mut self, context: Option<&mut Context>) {
+        // when m_pBrep and its Context exist
+        if let (Some(_), Some(context)) = (self.brep, context) {
+            // when LastNotifyCallback was NULL (it was turned on by this object)
+            if !self.last_notify_callback {
+                // turn off SmObject::Notify() tracking
+                context.set_sys_notify_callback(None);
+            }
         }
-        let mut ends = Vec::with_capacity(edges.len());
-        for use_ in &edges {
-            let e = self
-                .edges
-                .get(use_.edge)
-                .ok_or_else(|| not_found(OP, use_.edge))?;
-            let [a, b] = e.vertices;
-            ends.push(if use_.forward { (a, b) } else { (b, a) });
+    }
+
+    /// Objects removed from the topology graph since the lists were last reset
+    /// (`GetRmList`).
+    #[must_use]
+    pub fn rm_list(&self) -> &[ObjectKey] {
+        &self.lists.rm_list
+    }
+
+    /// Objects added since the lists were last reset (`GetAddList`).
+    #[must_use]
+    pub fn add_list(&self) -> &[ObjectKey] {
+        &self.lists.add_list
+    }
+
+    /// All accumulated lists.
+    #[must_use]
+    pub const fn lists(&self) -> &TopologyChangeLists {
+        &self.lists
+    }
+
+    /// Empties the lists (`ReSetArrays`).
+    pub fn reset_arrays(&mut self) {
+        self.lists.reset_arrays();
+    }
+
+    /// The destructor `~SmTrackTopologyChanges`: stops tracking if this tracker's
+    /// callback is installed.
+    pub fn finish(mut self, mut context: Option<&mut Context>) {
+        if self.is_tracking(context.as_deref()) {
+            self.stop_tracking(context.take());
         }
-        let closes = ends
-            .iter()
-            .zip(ends.iter().cycle().skip(1))
-            .all(|(cur, next)| cur.1 == next.0);
-        if ends.is_empty() || !closes {
-            return Err(SolidError::InvalidInput {
-                operation: OP,
-                reason: "loop edges do not close",
-            });
-        }
-        let id = self.loops.insert(Loop {
-            face,
-            edges,
-            loopuse: None,
-        })?;
-        self.faces
-            .get_mut(face)
-            .ok_or_else(|| not_found(OP, face))?
-            .loops
-            .push(id);
-        Ok(id)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::math::Vec3;
 
-    #[test]
-    fn build_single_triangle_face() {
-        let mut b = Brep::new();
-        let s = b.add_shell().unwrap();
-        let v: Vec<VertexId> = [Vec3::ZERO, Vec3::X, Vec3::Y]
-            .into_iter()
-            .map(|p| b.add_vertex(p).unwrap())
-            .collect();
-        let e0 = b.add_edge(v[0], v[1]).unwrap();
-        let e1 = b.add_edge(v[1], v[2]).unwrap();
-        let e2 = b.add_edge(v[0], v[2]).unwrap();
-        let f = b.add_face(s).unwrap();
-        let uses = vec![
-            LoopEdge {
-                edge: e0,
-                forward: true,
-            },
-            LoopEdge {
-                edge: e1,
-                forward: true,
-            },
-            LoopEdge {
-                edge: e2,
-                forward: false,
-            },
-        ];
-        let l = b.add_loop(f, uses).unwrap();
+    fn r(k: u64) -> ObjectRef {
+        ObjectRef {
+            type_code: TYPE,
+            key: ObjectKey(k),
+        }
+    }
 
-        assert_eq!(b.vertices().len(), 3);
-        assert_eq!(b.edges().ids().collect::<Vec<_>>(), vec![e0, e1, e2]);
-        assert_eq!(b.face(f).unwrap().loops, vec![l]);
-        assert_eq!(b.shell(s).unwrap().faces, vec![f]);
-        assert_eq!(b.loop_(l).unwrap().face, f);
-        assert_eq!(b.vertex(v[1]).unwrap().point, Vec3::X);
-        assert_eq!(b.edge(e2).unwrap().vertices, [v[0], v[2]]);
-        let (first_id, first) = b.vertices().iter().next().unwrap();
-        assert_eq!((first_id, first.point), (v[0], Vec3::ZERO));
+    fn pool(n: u64) -> BTreeMap<ObjectKey, Topology> {
+        (0..n).map(|k| (ObjectKey(k), Topology::new())).collect()
     }
 
     #[test]
-    fn errors_name_operation_and_entity() {
-        let mut b = Brep::new();
-        let missing = VertexId::from_index(3);
-        let err = b.add_edge(missing, missing).unwrap_err();
-        assert_eq!(err.operation(), "topology::Brep::add_edge");
-        assert_eq!(err.entity(), Some(EntityRef::Vertex(missing)));
-        assert!(b.face(FaceId::from_index(0)).is_err());
+    fn types_and_defaults() {
+        assert!(is_kind_of(TYPE));
+        assert!(is_kind_of(a_object::TYPE));
+        assert!(!is_kind_of(a_object::SAG_TYPE));
+        let t = Topology::new();
+        assert_eq!(t, Topology::default());
+        assert_eq!(t.tolerance(), 1.0e-5);
+        assert!(!t.is_connected_to(None));
+        assert_eq!((t.owner(), t.next(), t.last()), (None, None, None));
+    }
 
-        let s = b.add_shell().unwrap();
-        let f = b.add_face(s).unwrap();
-        let v0 = b.add_vertex(Vec3::ZERO).unwrap();
-        let v1 = b.add_vertex(Vec3::X).unwrap();
-        let e = b.add_edge(v0, v1).unwrap();
-        let open = vec![LoopEdge {
-            edge: e,
-            forward: true,
-        }];
+    #[test]
+    fn marks_follow_context() {
+        let ctx = Context::default();
+        let mut t = Topology::new();
+        assert!(!t.is_marked(&ctx, MarkType::Mark));
+        t.mark(Some(&ctx), MarkType::Mark2);
+        assert!(t.is_marked(&ctx, MarkType::Mark2));
+        assert_eq!(
+            t.get_mark(MarkType::Mark2),
+            ctx.current_mark(MarkType::Mark2)
+        );
+        t.mark(Some(&ctx), MarkType::AllMarks);
+        assert_eq!(
+            t.get_mark(MarkType::MarkIo),
+            ctx.current_mark(MarkType::AllMarks)
+        );
+        let before = t;
+        t.mark(None, MarkType::Mark);
+        t.mark(Some(&ctx), MarkType::NoMark);
+        assert_eq!(t, before);
+    }
+
+    #[test]
+    fn notify_split_merge_copy() {
+        let mut recs = pool(3);
+        let mut attrs = AttributeStore::new();
+        let src = recs.get_mut(&ObjectKey(0)).unwrap();
+        src.set_all_flags(5);
+        src.set_user_index1(7);
+        src.marks = [1, 2, 3, 4, 5];
+        notify(
+            &mut recs,
+            &mut attrs,
+            None,
+            NotifyOperation::Split,
+            r(0),
+            Some(r(1)),
+            Some(r(2)),
+            None,
+        )
+        .unwrap();
+        for k in [1, 2] {
+            let t = recs[&ObjectKey(k)];
+            assert_eq!(t.all_flags(), 5);
+            assert_eq!(t.user_index1(), 7);
+            assert_eq!(t.marks, [1, 2, 3, 0, 0]);
+        }
+        recs.get_mut(&ObjectKey(2)).unwrap().set_all_flags(8);
+        notify(
+            &mut recs,
+            &mut attrs,
+            None,
+            NotifyOperation::Merge,
+            r(0),
+            Some(r(1)),
+            Some(r(2)),
+            None,
+        )
+        .unwrap();
+        assert_eq!(recs[&ObjectKey(1)].all_flags(), 13);
+        assert_eq!(recs[&ObjectKey(2)].all_flags(), 13);
+        notify(
+            &mut recs,
+            &mut attrs,
+            None,
+            NotifyOperation::Copy,
+            r(0),
+            Some(r(1)),
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(recs[&ObjectKey(1)].all_flags(), 5);
+        assert_eq!(recs[&ObjectKey(1)].marks, [0, 0, 0, 0, 0]);
+        let missing = notify(
+            &mut recs,
+            &mut attrs,
+            None,
+            NotifyOperation::Copy,
+            r(0),
+            Some(r(9)),
+            None,
+            None,
+        );
+        assert!(matches!(missing, Err(SolidError::InvalidInput { .. })));
+    }
+
+    #[test]
+    fn destroy_unlisted_and_linked() {
+        use crate::topology::proto_topology::p1::destroy_topology;
+        let mut recs: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
+        recs.insert(ObjectKey(0), Topology::new());
+        assert!(destroy_topology(&mut recs, ObjectKey(0)).is_ok());
+        // an owner without list data (never an SmOwningTopology here)
+        recs.insert(ObjectKey(1), Topology::new());
+        if let Some(r) = recs.get_mut(&ObjectKey(0)) {
+            r.set_list_links(Some(ObjectKey(1)), None, None);
+        }
         assert!(matches!(
-            b.add_loop(f, open),
+            destroy_topology(&mut recs, ObjectKey(0)),
             Err(SolidError::InvalidInput { .. })
         ));
-        assert!(b.add_loop(f, Vec::new()).is_err());
-        assert!(b.loops().is_empty());
+    }
+
+    #[test]
+    fn tracking_installs_and_removes_callback() {
+        let mut ctx = Context::default();
+        let t = TrackTopologyChanges::new(Some(BrepId::from_index(0)), 7, true, Some(&mut ctx));
+        assert!(t.is_tracking(Some(&ctx)));
+        let mut other = TrackTopologyChanges::new(Some(BrepId::from_index(0)), 8, false, None);
+        other.start_tracking(Some(&mut ctx));
+        assert!(!other.is_tracking(Some(&ctx)));
+        other.stop_tracking(Some(&mut ctx));
+        assert!(t.is_tracking(Some(&ctx)));
+        t.finish(Some(&mut ctx));
+        assert!(ctx.sys_notify_callback().is_none());
+        let none = TrackTopologyChanges::new(None, 1, true, Some(&mut ctx));
+        assert!(!none.is_tracking(Some(&ctx)));
+        assert!(none.rm_list().is_empty() && none.add_list().is_empty());
     }
 }

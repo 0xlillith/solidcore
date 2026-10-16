@@ -1932,6 +1932,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
                 attributes: &mut attrs,
                 context: None,
                 key_of: &key_of,
+                brep_cache: None,
             };
             match ed::notify(b, eid(*e), &mut env, notify_operation(*operation)?, [None; 3]) {
                 Ok(()) => {
@@ -1957,6 +1958,7 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
                 attributes: &mut attrs,
                 context: None,
                 key_of: &key_of,
+                brep_cache: None,
             };
             let opts = ed::SetCurveOptions {
                 delete_old_curve: *delete,
