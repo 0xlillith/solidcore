@@ -548,6 +548,35 @@ struct VxPeek : SmObjsInVoxels<SmVertexProps*>
     static SmExtent3d SmObjsInVoxels<SmVertexProps*>::*box() { return &VxPeek::m_sBBox; }
 };
 
+// Get*Props_ForTgts indexes props by the matching target's position.
+template<class T, class P>
+bool removal_lookup_is_ub(const SmTArray<T*>& targets, const SmTArray<P*>& props,
+                          const SmTArray<SmTopology*>& removed)
+{
+    for (ULONG i = 0; i < removed.GetSize(); ++i)
+        for (ULONG j = 0; j < targets.GetSize(); ++j)
+            if ((SmTopology*)targets[j] == removed[i])
+            {
+                if (j >= props.GetSize()) return true;
+                break;
+            }
+    return false;
+}
+
+// Remove*Props removes a target only when its props already names that target.
+template<class T, class P, class F>
+size_t target_count_after_removals(const SmTArray<T*>& targets, const SmTArray<P*>& removed, F object)
+{
+    std::vector<T*> remaining;
+    for (ULONG i = 0; i < targets.GetSize(); ++i) remaining.push_back(targets[i]);
+    for (ULONG i = 0; i < removed.GetSize(); ++i)
+    {
+        auto it = std::find(remaining.begin(), remaining.end(), object(removed[i]));
+        if (it != remaining.end()) remaining.erase(it);
+    }
+    return remaining.size();
+}
+
 // The edge use owning a gap member (traversal index), -3 when none does.
 int64_t eu_of_gap(Graph& g, const void* gap, bool ccw)
 {
@@ -1368,6 +1397,14 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
                 }
             }
             if (stop) continue;
+            if (removal_lookup_is_ub(h->m_sTgtFaces, h->m_sTgtFaceProps, removed) ||
+                removal_lookup_is_ub(h->m_sTgtEdges, h->m_sTgtEdgeProps, removed) ||
+                removal_lookup_is_ub(h->m_sTgtVertices, h->m_sTgtVertexProps, removed))
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
             SmTArray<SmFaceProps*> rf;
             SmTArray<SmEdgeProps*> re;
             SmTArray<SmVertexProps*> rv;
@@ -1390,25 +1427,28 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
                 stop = true;
                 continue;
             }
-            // Predict the old vertex count after removals without touching the
-            // healer. A forged done>=Cache_CoinVertices can otherwise enter the
-            // incremental voxel path before its first SetSize, which crashes.
-            std::vector<SmVertex*> remaining;
-            for (ULONG i = 0; i < h->m_sTgtVertices.GetSize(); ++i)
-                remaining.push_back(h->m_sTgtVertices[i]);
-            for (ULONG i = 0; i < rv.GetSize(); ++i)
+            // Native UpdateTargetLists sizes every props list to its TARGET
+            // count. Reject holes left by removing an uncached props record,
+            // including drift already introduced by a prior Remove*Props step.
+            size_t faces_after = target_count_after_removals(h->m_sTgtFaces, rf, [](SmFaceProps* p) { return p->m_pFace; });
+            size_t edges_after = target_count_after_removals(h->m_sTgtEdges, re, [](SmEdgeProps* p) { return (SmEdge*)p->m_pEdge; });
+            size_t vertices_after = target_count_after_removals(h->m_sTgtVertices, rv, [](SmVertexProps* p) { return (SmVertex*)p->m_pVertex; });
+            bool drift = faces_after != h->m_sTgtFaceProps.GetSize() - rf.GetSize() ||
+                         edges_after != h->m_sTgtEdgeProps.GetSize() - re.GetSize() ||
+                         vertices_after != h->m_sTgtVertexProps.GetSize() - rv.GetSize();
+            if (added.GetSize() != 0 && drift)
             {
-                auto it = std::find(remaining.begin(), remaining.end(), rv[i]->m_pVertex);
-                if (it != remaining.end()) remaining.erase(it);
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
             }
             ULONG new_vertices = 0;
             for (ULONG i = 0; i < added.GetSize(); ++i)
                 if (added[i] != NULL && brep->IsLiveTopologyMember(added[i]) && added[i]->IsKindOf(SmVertex_TYPE))
                     ++new_vertices;
             SmHealerOpType through = op < h->m_eDoneHealOp ? op : h->m_eDoneHealOp;
-            size_t vertex_props_after = h->m_sTgtVertexProps.GetSize() - rv.GetSize() + new_vertices;
             if (added.GetSize() != 0 && through >= SM_HO_CACHE_COIN_VERTICES &&
-                !remaining.empty() && vertex_props_after != remaining.size() &&
+                vertices_after > 0 && new_vertices > 0 &&
                 (h->m_pVerticesInVoxels->*VxPeek::box()).IsInit())
             {
                 o.push_back(ST_NULL_DEREF);

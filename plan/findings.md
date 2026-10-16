@@ -5687,14 +5687,14 @@ independent p6 integration.
 
 ## heal.heal_data_p3 (healer sequencing, target refresh and repair stages; PR #164, 2026-10-16; partial, no disagreements)
 
-- **Gate:** 450 cases, 245 passed, 205 deferred, zero failures, `max_rel_err=0`,
+- **Gate:** 474 cases, 267 passed, 207 deferred, zero failures, `max_rel_err=0`,
   no absolute floors. The shared real-B-rep scripts compare target/props lists,
   problem-list order, linked flags, statistics and counters. Terminal `HealTgts`
   cases compare status, stop/done step, recursion depth and target counts; repair
   attempts with populated queues are terminal because native mutations invalidate
   the original fixture graph. Empty repair queues retain the complete state dump.
 - **Missing dependencies:** 50 cases stop at B-rep tolerance/model-size operations
-  (`topology.brep_p1`), 72 at edge-use gaps (`topology.edgeuse_p3`), 61 at a
+  (`topology.brep_p1`), 74 at edge-use gaps (`topology.edgeuse_p3`), 61 at a
   face-owner tolerance lookup (`topology.face_p2`, existing context-free surface
   dispatch), 20 at face degeneracy (`topology.face_p3`), and two single-vertex
   sphere reconstruction cases at `SmFace::GetEdges` (`topology.face_p4`). No
@@ -5738,6 +5738,27 @@ independent p6 integration.
   refusals without the box's earlier unported edge-use gap calculations; native FFI tests run independently
   of Rust deferrals. Nonempty mutation paths remain uncertified at their missing
   dependencies.
+- **PR #164 round 2:** native `UpdateTargetLists` resizes props to TARGET counts,
+  not the previous props count. Uncached removal may leave its target behind;
+  an add (even NULL) would create NULL holes (UB-163). The shim and Rust runner
+  now predict target and props counts separately for all three kinds and refuse
+  any post-removal drift before a nonempty add. Target-to-props removal lookups
+  are bounded before calling native `Get*Props_ForTgts`. The unsized-voxel guard
+  uses remaining target vertices and the count of live vertices being added.
+  Independent safe-FFI tests cover all three reported crash sites plus 240
+  cache-mask/kind/add/removal-path combinations, preserving empty-add removals
+  and synchronized updates. Twenty-four additional differential fixtures cover
+  the same boundaries without counting earlier deferrals as mutation parity.
+- **Count versus status:** `FindEdgeObjects` returns a count, so `classified_edges`
+  must propagate resolver errors directly. Its nonempty unresolved-output refusal
+  is no longer swallowed by the soft-status helper. This path still defers at
+  `classification_has_dead_topology` until p2 lands; it is not certified here.
+- **Partial merge outputs:** p5 now provides a crate-private fallible adapter whose
+  error retains output from completed intervals. The healer ignores ordinary
+  status but consumes those lists, as native `SER` only skips the failing
+  interval's append. The public p5 Result contract is unchanged. An accumulator
+  regression checks failures in both passes and native visit order; actual
+  topology mutation remains deferred, not simulated by this test.
 - **Harness:** a generation-aware props registry prevents allocator address reuse
   from reviving retired records. Duplicate removals are refused only if they
   resolve to the same props twice (or trigger the existing native pair-removal UB);

@@ -330,7 +330,9 @@ fn targets(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 /// also outputs each current face props' crossed direction, flag and tried state.
 /// Selectors use the
 /// fixture graph's traversal order. Step 33 refuses catch-up into an uninitialized
-/// incremental vertex voxel model (`-2`); zero prior vertices or an initialized
+/// incremental vertex voxel model (`-2`). A nonempty add list also requires every
+/// post-removal target count to equal its props count, including for null adds.
+/// Remove lookups must fit the corresponding props list. Zero prior vertices or an initialized
 /// model remain valid. Catch-up through `Fix_CoinVertices` or later is terminal
 /// because it can delete original fixture topology.
 ///
@@ -533,6 +535,93 @@ mod tests {
         ] {
             let out = catch_up(all, cached, done, through, remove_all)?;
             assert!(out.contains(&-100.0), "valid catch-up was refused: {out:?}");
+        }
+        Ok(())
+    }
+    fn box_script(steps: &[f64], count: usize) -> Result<Vec<f64>, FfiError> {
+        let mut args = Vec::new();
+        for n in [8, 12, 6] {
+            args.push(f64::from(n));
+            args.extend((0..n).map(f64::from));
+        }
+        args.extend([12.0, 12.0, 12.0, count as f64]);
+        args.extend_from_slice(steps);
+        check_heal(&args)?;
+        heal("", &[4.0, 1.0, 2.0, 3.0, 0.0, 1.0], &args)
+    }
+
+    #[test]
+    fn second_review_crash_sequences_are_refused_before_native_update() -> Result<(), FfiError> {
+        let scripts: &[(&[f64], usize)] = &[
+            (
+                &[
+                    19.0, 9.0, 33.0, 6.0, 2.0, 9.0, 0.0, 9.0, 1.0, 2.0, 9.0, 0.0, 9.0, 0.0,
+                ],
+                2,
+            ),
+            (&[33.0, 0.0, 1.0, 3.0, 0.0, 1.0, 10.0, 0.0], 1),
+            (
+                &[
+                    0.0, 1.0, 19.0, 12.0, 33.0, 9.0, 1.0, 3.0, 0.0, 1.0, 3.0, 0.0,
+                ],
+                4,
+            ),
+            (&[12.0, 0.0, 33.0, 0.0, 0.0, 1.0, 9.0, 0.0], 2),
+            // Get*Props_ForTgts itself would index past props after an uncached removal.
+            (&[12.0, 0.0, 33.0, 0.0, 1.0, 9.0, 7.0, 0.0], 2),
+            (&[13.0, 0.0, 33.0, 0.0, 1.0, 7.0, 11.0, 0.0], 2),
+            (&[14.0, 0.0, 33.0, 0.0, 1.0, 3.0, 5.0, 0.0], 2),
+        ];
+        for &(steps, count) in scripts {
+            assert!(
+                box_script(steps, count)?.ends_with(&[33.0, -2.0]),
+                "{steps:?}"
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn target_props_guard_preserves_valid_cache_and_remove_add_combinations() -> Result<(), FfiError>
+    {
+        // 8 cache masks x 3 removed kinds x 5 add kinds x 2 removal paths.
+        for cache_mask in 0_u8..8 {
+            for (bit, kind, remove_step) in [(0, 7.0, 13.0), (1, 9.0, 12.0), (2, 3.0, 14.0)] {
+                for add_kind in [None, Some(10.0), Some(9.0), Some(7.0), Some(3.0)] {
+                    for prior_remove in [false, true] {
+                        let mut steps = Vec::new();
+                        let mut count = 1;
+                        for cache in 0_u8..3 {
+                            if cache_mask & (1 << cache) != 0 {
+                                steps.push(f64::from(cache));
+                                count += 1;
+                            }
+                        }
+                        if prior_remove {
+                            steps.extend([remove_step, 0.0]);
+                            count += 1;
+                        }
+                        steps.extend([33.0, 0.0]);
+                        if prior_remove {
+                            steps.push(0.0);
+                        } else {
+                            steps.extend([1.0, kind, 0.0]);
+                        }
+                        if let Some(add_kind) = add_kind {
+                            steps.extend([1.0, add_kind, 0.0]);
+                        } else {
+                            steps.push(0.0);
+                        }
+                        let out = box_script(&steps, count)?;
+                        let must_refuse = add_kind.is_some() && cache_mask & (1 << bit) == 0;
+                        if must_refuse {
+                            assert!(out.ends_with(&[33.0,-2.0]), "mask={cache_mask}, kind={kind}, add={add_kind:?}, prior={prior_remove}");
+                        } else {
+                            assert!(out.contains(&-100.0), "valid mask={cache_mask}, kind={kind}, add={add_kind:?}, prior={prior_remove}: {out:?}");
+                        }
+                    }
+                }
+            }
         }
         Ok(())
     }

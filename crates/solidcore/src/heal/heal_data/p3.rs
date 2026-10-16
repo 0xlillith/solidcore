@@ -31,6 +31,7 @@
 //! `Fix_BadLoops` stays disabled. Opaque nonempty classification outputs (including
 //! p7 `FindEdgeObjects`) require a typed resolver and are rejected if unresolved
 //! (currently unreachable behind missing callees).
+//! Partial lists from completed merge intervals survive ignored failures.
 //! `Fix_SplitFaceAtSeams` updates the split-*edge* tried list, as upstream.
 
 use crate::error::{ignored as ignore_soft, EntityRef, Result, SolidError, SM_ERR};
@@ -720,12 +721,10 @@ impl<O: LoopObject> HealData<O> {
                 }
             }
             if has_u(p.bad_crossed_seam_dir) {
-                this_split_edges =
-                    ignore_soft(classified_edges(p.crv_class_u.as_ref()))?.unwrap_or_default();
+                this_split_edges = classified_edges(p.crv_class_u.as_ref())?;
             }
             if has_v(p.bad_crossed_seam_dir) {
-                this_split_edges =
-                    ignore_soft(classified_edges(p.crv_class_v.as_ref()))?.unwrap_or_default();
+                this_split_edges = classified_edges(p.crv_class_v.as_ref())?;
             }
             let mut rebuild = false;
             for &e in &this_split_edges {
@@ -752,16 +751,19 @@ impl<O: LoopObject> HealData<O> {
                     p.crv_class_v.as_mut()
                 }
                 .ok_or_else(|| invalid("crossed seam without classification"))?;
-                let merged = ignore_soft(class.merge_intervals(true))?;
-                if let Some(status) = merge_ok.get_mut(usize::from(!u)) {
-                    *status = merged.is_some();
-                }
-                // These handles are generic. A successful mutation must resolve
-                // them through its topology adapter before updating the B-rep.
-                let edits = match merged {
-                    Some(merged) => merged_changes(b, &merged)?,
-                    None => Changes::default(),
+                let (merged, success) = match class.merge_intervals_with_partial(true) {
+                    Ok(merged) => (merged, true),
+                    Err(failure) => {
+                        ignore_soft::<()>(Err(failure.error))?;
+                        (*failure.merged, false)
+                    }
                 };
+                if let Some(status) = merge_ok.get_mut(usize::from(!u)) {
+                    *status = success;
+                }
+                // Native retains lists appended before an ignored merge failure.
+                // Opaque handles still require the topology adapter's resolver.
+                let edits = merged_changes(b, &merged)?;
                 self.new_edges_from_split_edges_at_seams.extend(
                     edits.added.iter().flatten().filter_map(|e| {
                         if let EntityRef::Edge(x) = e {

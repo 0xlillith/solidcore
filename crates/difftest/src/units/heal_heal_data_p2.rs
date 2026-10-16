@@ -792,6 +792,26 @@ fn pick<I: Copy>(alive: &[I], sel: u64) -> Option<I> {
     }
 }
 
+fn target_count_after_removals<T: Copy + PartialEq>(
+    targets: &[T],
+    removed: impl Iterator<Item = T>,
+) -> usize {
+    let mut remaining = targets.to_vec();
+    for t in removed {
+        if let Some(i) = remaining.iter().position(|&x| x == t) {
+            remaining.remove(i);
+        }
+    }
+    remaining.len()
+}
+
+fn removal_lookup_is_ub<T: PartialEq>(targets: &[T], props_count: usize, removed: &T) -> bool {
+    targets
+        .iter()
+        .position(|x| x == removed)
+        .is_some_and(|i| i >= props_count)
+}
+
 fn targets_of(t: &Targets, n: [usize; 3]) -> (Vec<VertexId>, Vec<EdgeId>, Vec<FaceId>) {
     let v = resolve(&t.v, n[0])
         .into_iter()
@@ -1456,32 +1476,57 @@ fn rust_heal(
                     .iter()
                     .map(|&[kind, sel]| entity(kind, sel, c))
                     .collect();
-                let removed_props = h.vertex_props_for_tgts(&rm, true);
-                let mut remaining = h.tgt_vertices.clone();
-                for id in &removed_props {
-                    if let Some(v) = h.vertex_props.get(*id).and_then(|p| p.vertex) {
-                        if let Some(i) = remaining.iter().position(|&x| x == v) {
-                            remaining.remove(i);
-                        }
+                if rm.iter().any(|e| match e {
+                    EntityRef::Face(f) => {
+                        removal_lookup_is_ub(&h.tgt_faces, h.tgt_face_props.len(), f)
                     }
+                    EntityRef::Edge(e) => {
+                        removal_lookup_is_ub(&h.tgt_edges, h.tgt_edge_props.len(), e)
+                    }
+                    EntityRef::Vertex(v) => {
+                        removal_lookup_is_ub(&h.tgt_vertices, h.tgt_vertex_props.len(), v)
+                    }
+                    _ => false,
+                }) {
+                    o.push(NULL_DEREF);
+                    stop = true;
+                    break;
                 }
+                let rf = h.face_props_for_tgts(&rm, true);
+                let re = h.edge_props_for_tgts(&rm, true);
+                let rv = h.vertex_props_for_tgts(&rm, true);
+                let faces_after = target_count_after_removals(
+                    &h.tgt_faces,
+                    rf.iter()
+                        .filter_map(|id| h.face_props.get(*id).and_then(|p| p.props.face)),
+                );
+                let edges_after = target_count_after_removals(
+                    &h.tgt_edges,
+                    re.iter()
+                        .filter_map(|id| h.edge_props.get(*id).and_then(|p| p.edge)),
+                );
+                let vertices_after = target_count_after_removals(
+                    &h.tgt_vertices,
+                    rv.iter()
+                        .filter_map(|id| h.vertex_props.get(*id).and_then(|p| p.vertex)),
+                );
+                let drift = faces_after != h.tgt_face_props.len().saturating_sub(rf.len())
+                    || edges_after != h.tgt_edge_props.len().saturating_sub(re.len())
+                    || vertices_after != h.tgt_vertex_props.len().saturating_sub(rv.len());
                 let new_vertices = add
                     .iter()
                     .flatten()
                     .filter(|e| matches!(e, EntityRef::Vertex(v) if b.vertex(*v).is_ok()))
                     .count();
-                let props_after =
-                    h.tgt_vertex_props.len().saturating_sub(removed_props.len()) + new_vertices;
-                if !add.is_empty()
-                    && i64::from(*op).min(h.done_heal_op.code())
-                        >= HealerOpType::CacheCoinVertices.code()
-                    && !remaining.is_empty()
-                    && props_after != remaining.len()
-                    && h.vertices_in_voxels.bbox().is_init()
-                {
+                let unsized_incremental = i64::from(*op).min(h.done_heal_op.code())
+                    >= HealerOpType::CacheCoinVertices.code()
+                    && vertices_after > 0
+                    && new_vertices > 0
+                    && h.vertices_in_voxels.bbox().is_init();
+                if !add.is_empty() && (drift || unsized_incremental) {
                     Err(SolidError::invalid_input(
                         "difftest::heal_heal_data_p2",
-                        "incremental catch-up before voxel initialization",
+                        "target/props drift or incremental catch-up before voxel initialization",
                     ))
                 } else {
                     h.update_target_lists(&mut k, &mut b, &rm, &add, op_of(i64::from(*op)))
