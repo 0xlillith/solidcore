@@ -5613,112 +5613,6 @@ independent Apple libc++ database abort was not rerun.
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
 
-## intersect.curve_class_p5: independent port
-
-Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
-through PR #138 and is inherited from main. Homogenize, FixEndPointClass,
-InsertCurveInterval and MergeInterval now call those real methods; no p6 stubs
-remain. Both proto-topology p3 extraction sites call mutable ExtractGeometry
-with geometry and default optional outputs, discarding temporary curves as native
-does. Their deeper p2/p7 dependencies remain explicit.
-
-Validation on numerical source 9e495b12 uses Ubuntu 24.04.5 x86_64, GCC 13.3.0,
-Rust 1.98.0 and clean pinned upstream c9c5979. All nine affected native runners
-complete with zero failures. P5 has 1,081 cases (281 fixed + 800 generated),
-275 bit-identical comparisons and 806 deferrals: p2 493, p7 312 and generic
-curve.crv_on_surf dispatch 1. Perturbation detects all 275 compared cases.
-Its regenerated report replaces the pre-p6 report. The other eight reports
-(p6, p1, p3, point classification, face query and proto-topology p1/p2/p3)
-regenerate byte-identical and are excluded from this PR's changes.
-
-Formatting, strict plain and native-enabled workspace Clippy, 1,215 kernel
-tests, WASM and the focused native FFI malformed-input regression pass. The
-adapter-only opt-level-0 override reduces build memory; the numerical kernel
-remains opt-level 1 and the C++ reference retains its standard flags. No absolute
-floors, workflow changes or build-script changes are submitted. Full CI evidence
-is tracked in PR #150 separately from these focused runs.
-
-The eight newly compared generated cases are gen0138, gen0288, gen0363, gen0393,
-gen0470, gen0583, gen0665 and gen0741. These passes certify only the exercised
-subset. All 24 zero_tangent fixtures still defer to p2 InsertAt, so they do not
-certify tangent-flag behavior. Fixup and merge comparisons include no-op/skip
-paths; nontrivial extraction, repair and insertion can still defer deeper into
-p2/p7. Both ignore-tangency calls request nonzero tangents as the base declaration
-does. B-spline one-derivative evaluation recursively uses its subclass default
-FALSE; the port preserves that native quirk.
-
-The edge-target insertion branch remains unported: vertex snapping,
-sm_RefineCCIToSurfaces and the 2D class object need p2 InsertAt and p7 point-index
-queries. The entire SSS block (SmCurveClass.cpp:14826-15095) remains unported
-before mutation. Its real missing callees are GetOtherMate/GetBrepMate in
-boolean.topology_intersector_p1; the preceding knot snapping, surface solves,
-through-point edits and edgeuse UV-trim clearing have ported callees but still
-need mutable ownership wiring here. This block does not call
-sm_RefineCCIToSurfaces. The reviewer explicitly accepted this minimum tag and
-description correction. Generic-Surface SmCrvOnSurf construction is a missing
-type/dispatch extension of the already-partial curve unit, recorded in its notes.
-
-Missing vertex-point and vertex/face-gap callback data returns InvalidInput.
-Big-gap lookup requires an explicit classification face or direct face owner of
-the surface. With no face, its cutoff retains the default SmXSectTol3d, twice
-the system zone tolerance. A unit regression checks that selection against the
-ordinary tolerance and changed system tolerance; the attempted geometric probe
-was filtered earlier by GlobalPointSolve. Nonempty large-gap projection remains
-uncertified: the native vertices have no vertexuse and the Rust runner supplies
-no vertex/face-gap callback. Rust continues on an ownerless surface, where native
-crashes (UB-126).
-
-Small shared interfaces are recorded as CO-PORTED in the owning units' notes:
-the three ClassGeometry callbacks and optional topology-tolerance dispatch,
-inline SetInterval and curve-resolver visibility on p1, and face-query vertex
-handle mapping. classification_vertex_point avoids the ProtoBrep method-name
-collision. The header records the object_index > 1 restriction, unresolved-curve
-error in p5_closed instead of native FALSE, and the runner's zero face tolerance
-that is not compared against native.
-
-The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
-UB-125/126 are source-found null dereferences whose crashes were not executed;
-UB-134 was reproduced during the original bundled validation. Its fixture and
-report now point to UB-134. The maintainer has assigned UB-134 to this PR and will
-renumber the parallel claim in #148. No bundled numerical results certify this
-independent tree. The maintainer confirmed all review items resolved before the
-independent p6 integration.
-
-## boolean.merge_p5
-
-- The wire/shell-vertex stage is tested directly through the real protected
-  `SmMerge::ProcessWiresAndShellVertices`, without running the surrounding boolean
-  engine. Raw fixture topology is exported before the stage; ids follow native
-  B-rep edge/vertex owning-list order. The intersector's `Relate` call is fixture
-  setup, including its tolerance propagation, on both sides.
-- `SmallBox.smb` is a part container, not a B-rep stream. Feeding it to the shared
-  `ReadFromFile` builder reconfirmed UB-1 (`SmTopologyData::ReadFromDB`, GDB).
-  The new FFI wrapper rejects that header before C++; the solid operands use
-  `box_with_large_fillet.smb`. This is a fixture-format exclusion, not a parity
-  pass or a deferred kernel operation.
-- Classification-dependent paths stop at `query.brep::SmBrep::Point3DClassify`.
-  Their downstream topology deletion and copy paths remain uncertified, with
-  explicit `topology.brep_p4` and `boolean.merge_p1` / `_p2` adapters. Arena B-reps
-  do not yet carry an attached B-rep cache; optional cache-resizing integration
-  remains for the merge engine's eventual cache binding.
-- **PR #161 review:** a marked other wire without a mate is valid for Unknown,
-  Difference, ExclusiveOr, Imprint, ImprintClassify, ExtractSeparate and Slice.
-  The release C++ assertion does not reject it, and those operations never use
-  the mate. Rust now looks up/validates mates only for Union, Intersection,
-  Merge and PartialMerge. The shim excludes null keep-list entries only for
-  those four operations because `Vec<EdgeId>` cannot represent them; appending
-  null is defined in this upstream stage, rather than an immediate C++ crash.
-  Seven differential regressions exercise the previously over-rejected inputs,
-  and eleven more check nonidentity network mate order for every operation.
-- Both runners validate one-to-one mate setup before tolerance propagation:
-  duplicate primary targets (e.g. `[0,0,1,2,3]`) conflict in upstream `Relate`
-  and are invalid fixture input. Generated cases now choose operands and mark
-  masks independently, permute targets and leave edges unrelated where valid.
-- The current borrowed relation maps and immutable other operand cannot express
-  `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
-  relation state must become mutable and preserve updates for later iterations;
-  this integration requirement is also recorded in the module's Deviations.
-
 ## intersect.curve_class_p8 (`SmCurveClassification` natural boundaries and discontinuities; PR #152)
 
 Ports all five owned members from `SmCurveClass.cpp:8462-10420`: natural 3D/UV
@@ -5883,3 +5777,124 @@ out to keep this guard-only correction on the reviewed base. The part-5
 accessor/visibility conflict and numerical dependency integration remain a
 separate merge handoff. The ignored-status and volume-alias limitations above
 remain unchanged; this follow-up does not open those deferred paths.
+
+### PR #152 main conflict resolution
+
+Integrated official main `f72938d4` in source revision `d691bb64`. The module
+list retains parts 5/6/7/8, and part 1 now reuses main's single `set_interval`
+implementation and `pub(super)` curve resolver. Both branches' findings are
+preserved; this p8 section is placed before the later main additions so future
+appends can merge independently. No numerical p8 implementation or FFI guard
+changes were needed for the conflicts, and the reviewed adapter deferral
+boundaries remain unchanged. The prior unmerged-main handoff is superseded.
+
+Formatting, strict plain workspace Clippy, all 1,254 kernel tests and WASM pass
+on the integrated source. Fresh native p8 and full-gate validation are pending;
+the preceding native counts remain earlier-head evidence until that run completes.
+
+## intersect.curve_class_p5: independent port
+
+Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
+through PR #138 and is inherited from main. Homogenize, FixEndPointClass,
+InsertCurveInterval and MergeInterval now call those real methods; no p6 stubs
+remain. Both proto-topology p3 extraction sites call mutable ExtractGeometry
+with geometry and default optional outputs, discarding temporary curves as native
+does. Their deeper p2/p7 dependencies remain explicit.
+
+Validation on numerical source 9e495b12 uses Ubuntu 24.04.5 x86_64, GCC 13.3.0,
+Rust 1.98.0 and clean pinned upstream c9c5979. All nine affected native runners
+complete with zero failures. P5 has 1,081 cases (281 fixed + 800 generated),
+275 bit-identical comparisons and 806 deferrals: p2 493, p7 312 and generic
+curve.crv_on_surf dispatch 1. Perturbation detects all 275 compared cases.
+Its regenerated report replaces the pre-p6 report. The other eight reports
+(p6, p1, p3, point classification, face query and proto-topology p1/p2/p3)
+regenerate byte-identical and are excluded from this PR's changes.
+
+Formatting, strict plain and native-enabled workspace Clippy, 1,215 kernel
+tests, WASM and the focused native FFI malformed-input regression pass. The
+adapter-only opt-level-0 override reduces build memory; the numerical kernel
+remains opt-level 1 and the C++ reference retains its standard flags. No absolute
+floors, workflow changes or build-script changes are submitted. Full CI evidence
+is tracked in PR #150 separately from these focused runs.
+
+The eight newly compared generated cases are gen0138, gen0288, gen0363, gen0393,
+gen0470, gen0583, gen0665 and gen0741. These passes certify only the exercised
+subset. All 24 zero_tangent fixtures still defer to p2 InsertAt, so they do not
+certify tangent-flag behavior. Fixup and merge comparisons include no-op/skip
+paths; nontrivial extraction, repair and insertion can still defer deeper into
+p2/p7. Both ignore-tangency calls request nonzero tangents as the base declaration
+does. B-spline one-derivative evaluation recursively uses its subclass default
+FALSE; the port preserves that native quirk.
+
+The edge-target insertion branch remains unported: vertex snapping,
+sm_RefineCCIToSurfaces and the 2D class object need p2 InsertAt and p7 point-index
+queries. The entire SSS block (SmCurveClass.cpp:14826-15095) remains unported
+before mutation. Its real missing callees are GetOtherMate/GetBrepMate in
+boolean.topology_intersector_p1; the preceding knot snapping, surface solves,
+through-point edits and edgeuse UV-trim clearing have ported callees but still
+need mutable ownership wiring here. This block does not call
+sm_RefineCCIToSurfaces. The reviewer explicitly accepted this minimum tag and
+description correction. Generic-Surface SmCrvOnSurf construction is a missing
+type/dispatch extension of the already-partial curve unit, recorded in its notes.
+
+Missing vertex-point and vertex/face-gap callback data returns InvalidInput.
+Big-gap lookup requires an explicit classification face or direct face owner of
+the surface. With no face, its cutoff retains the default SmXSectTol3d, twice
+the system zone tolerance. A unit regression checks that selection against the
+ordinary tolerance and changed system tolerance; the attempted geometric probe
+was filtered earlier by GlobalPointSolve. Nonempty large-gap projection remains
+uncertified: the native vertices have no vertexuse and the Rust runner supplies
+no vertex/face-gap callback. Rust continues on an ownerless surface, where native
+crashes (UB-126).
+
+Small shared interfaces are recorded as CO-PORTED in the owning units' notes:
+the three ClassGeometry callbacks and optional topology-tolerance dispatch,
+inline SetInterval and curve-resolver visibility on p1, and face-query vertex
+handle mapping. classification_vertex_point avoids the ProtoBrep method-name
+collision. The header records the object_index > 1 restriction, unresolved-curve
+error in p5_closed instead of native FALSE, and the runner's zero face tolerance
+that is not compared against native.
+
+The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
+UB-125/126 are source-found null dereferences whose crashes were not executed;
+UB-134 was reproduced during the original bundled validation. Its fixture and
+report now point to UB-134. The maintainer has assigned UB-134 to this PR and will
+renumber the parallel claim in #148. No bundled numerical results certify this
+independent tree. The maintainer confirmed all review items resolved before the
+independent p6 integration.
+
+## boolean.merge_p5
+
+- The wire/shell-vertex stage is tested directly through the real protected
+  `SmMerge::ProcessWiresAndShellVertices`, without running the surrounding boolean
+  engine. Raw fixture topology is exported before the stage; ids follow native
+  B-rep edge/vertex owning-list order. The intersector's `Relate` call is fixture
+  setup, including its tolerance propagation, on both sides.
+- `SmallBox.smb` is a part container, not a B-rep stream. Feeding it to the shared
+  `ReadFromFile` builder reconfirmed UB-1 (`SmTopologyData::ReadFromDB`, GDB).
+  The new FFI wrapper rejects that header before C++; the solid operands use
+  `box_with_large_fillet.smb`. This is a fixture-format exclusion, not a parity
+  pass or a deferred kernel operation.
+- Classification-dependent paths stop at `query.brep::SmBrep::Point3DClassify`.
+  Their downstream topology deletion and copy paths remain uncertified, with
+  explicit `topology.brep_p4` and `boolean.merge_p1` / `_p2` adapters. Arena B-reps
+  do not yet carry an attached B-rep cache; optional cache-resizing integration
+  remains for the merge engine's eventual cache binding.
+- **PR #161 review:** a marked other wire without a mate is valid for Unknown,
+  Difference, ExclusiveOr, Imprint, ImprintClassify, ExtractSeparate and Slice.
+  The release C++ assertion does not reject it, and those operations never use
+  the mate. Rust now looks up/validates mates only for Union, Intersection,
+  Merge and PartialMerge. The shim excludes null keep-list entries only for
+  those four operations because `Vec<EdgeId>` cannot represent them; appending
+  null is defined in this upstream stage, rather than an immediate C++ crash.
+  Seven differential regressions exercise the previously over-rejected inputs,
+  and eleven more check nonidentity network mate order for every operation.
+- Both runners validate one-to-one mate setup before tolerance propagation:
+  duplicate primary targets (e.g. `[0,0,1,2,3]`) conflict in upstream `Relate`
+  and are invalid fixture input. Generated cases now choose operands and mark
+  masks independently, permute targets and leave edges unrelated where valid.
+- The current borrowed relation maps and immutable other operand cannot express
+  `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
+  relation state must become mutable and preserve updates for later iterations;
+  this integration requirement is also recorded in the module's Deviations.
+
