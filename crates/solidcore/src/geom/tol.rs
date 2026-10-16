@@ -1238,7 +1238,7 @@ pub fn update_object_tolerance(
         TopologyToUpdate::Vertex(v) => {
             // (SmZoneTol3d(dTolToUse): SM_USE_DEFAULT becomes the system tolerance)
             crate::topology::vertex::set_tolerance(b, v, zone_tol3d(k, tol_to_use), true, true)?; // TRUE: update only if larger.
-                                                                                   // when asked - update tolerance from current gap sizes
+                                                                                                  // when asked - update tolerance from current gap sizes
             if check_gaps {
                 // Get gaps to connected edges and faces
                 let mut gaps = Vec::new();
@@ -1263,7 +1263,13 @@ pub fn update_object_tolerance(
                     // so have to double the gap (plus a little).
                     let new_tol = 2.001 * gap_length;
                     if let Some(e) = gap.edge(b, 0)? {
-                        crate::topology::edge::set_tolerance(b, e, zone_tol3d(k, new_tol), true, true)?;
+                        crate::topology::edge::set_tolerance(
+                            b,
+                            e,
+                            zone_tol3d(k, new_tol),
+                            true,
+                            true,
+                        )?;
                         // TRUE: update only if larger.
                     }
 
@@ -1314,7 +1320,13 @@ pub fn update_object_tolerance(
 
                     if let Some(f) = gap.face(b)? {
                         if crate::topology::face::p2::tolerance(b, f)? < gap_length - EFF_ZERO {
-                            face_set_tolerance(b, f, zone_tol3d(k, 2.001 * gap_length), true, true)?;
+                            face_set_tolerance(
+                                b,
+                                f,
+                                zone_tol3d(k, 2.001 * gap_length),
+                                true,
+                                true,
+                            )?;
                         }
                     }
                 }
