@@ -17,6 +17,7 @@
 #include <SmPlane.h>
 #include <SmTol.h>
 #include <SmTransform.h>
+#include <map>
 #include <memory>
 #include <nurbs.h>
 #include <vector>
@@ -162,6 +163,12 @@ SC_EXPORT int32_t sc_intersect_curve_class_p8_run(const double *in, int64_t n,
   std::vector<double> result;
   result.push_back(status == SM_SUCCESS ? 0 : status);
   result.push_back(cc.GetSize());
+  std::map<SmObject *, int64_t> object_ids;
+  object_ids.emplace(curve.get(), 0);
+  object_ids.emplace(surface.get(), 1);
+  if (volume)
+    object_ids.emplace(volume.get(), 2);
+  int64_t next_id = 3;
   for (ULONG i = 0; i < cc.GetSize(); ++i) {
     const SmCurveInterval &v = cc.GetAt(i);
     result.push_back(v.GetMin());
@@ -169,10 +176,14 @@ SC_EXPORT int32_t sc_intersect_curve_class_p8_run(const double *in, int64_t n,
     for (const SmPointClassification *p : {&v.m_vStart, &v.m_vMid, &v.m_vEnd}) {
       result.push_back(p->GetPointClass());
       SmObject *obj = p->GetObject();
-      result.push_back(!obj                   ? -1
-                       : obj == surface.get() ? 1
-                       : obj == volume.get()  ? 2
-                                              : -2);
+      if (!obj)
+        result.push_back(-1);
+      else {
+        auto found = object_ids.find(obj);
+        if (found == object_ids.end())
+          found = object_ids.emplace(obj, next_id++).first;
+        result.push_back((double)found->second);
+      }
       result.push_back(p->GetTParam());
       result.push_back(p->GetGap3d());
     }

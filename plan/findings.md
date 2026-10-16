@@ -5413,6 +5413,8 @@ Dependency boundaries and integration handoffs:
 - Real `SmCrvOnSurf` iso-curves are built over B-spline surfaces. Other concrete
   surface types stop at the existing `curve.crv_on_surf` generic-surface adapter
   gap; they are not replaced by a B-spline stand-in.
+  Existing `CrvOnSurf` cache/break evaluation can also reach the earlier part-4
+  constructor stub, so that transitive blocker is reported separately.
 - Incoming p8 markers in `curve.crv_on_surf` and `curve.crv_in_volume` are after
   their earlier `intersect.curve_class_p4` construction stubs (#137). Part 4 is
   still independent. Those sites cannot yet reach p8; no unit is promoted here.
@@ -5430,11 +5432,15 @@ Coverage limits: solution insertion, crossing-driven partition mutation and the
 following crossing-angle classifications are not certified. All discontinuous
 volume plane paths are deferred; UV-curve rejection and no-discontinuity volume
 returns compare status and unchanged state only. Surface fallback classifications
-without boundary intersections are the directly compared numerical subset;
+without boundary intersections are the directly compared classification subset;
+partition parameters remain unchanged on these paths and are checked as state,
+not reported as newly solved intersection parameters.
 preclassified skip/propagation cases are not new topology construction. The
 native status is carried with integer labels and interval state, so the report's
 `cases_both_errored` field is not a count of non-success native status results.
-No absolute floors or tolerance changes are used.
+No absolute floors or tolerance changes are used. The fixture construction model
+bounds finite input magnitudes to `1e12` and UV spans to at least `1e-6`;
+smaller UV domains and larger coordinate magnitudes are uncertified.
 
 Source review found UB-133 and WR-102..WR-104 (entries in upstream issues). These
 are source findings, not isolated native reproductions. V+V slot selection,

@@ -70,7 +70,7 @@ impl ClassGeometry<H> for Geometry {
         None
     }
 }
-fn geometry(k: &Kernel, r: &[f64]) -> solidcore::Result<Geometry> {
+fn geometry(k: &Kernel, r: &[f64; 23]) -> solidcore::Result<Geometry> {
     let a = Vec3::new(r[6], r[7], r[8]);
     let b = Vec3::new(r[9], r[16], r[17]);
     let curve = match r[2] as u8 {
@@ -188,10 +188,16 @@ fn geometry(k: &Kernel, r: &[f64]) -> solidcore::Result<Geometry> {
     })
 }
 fn rust(input: Input) -> Result<Output, HarnessError> {
-    let r = input.record;
-    ffi::validate(&r).map_err(|e| HarnessError::new(e.to_string()))?;
+    let record = input.record;
+    ffi::validate(&record).map_err(|e| HarnessError::new(e.to_string()))?;
+    let (header, ivls) = record
+        .split_at_checked(23)
+        .ok_or_else(|| HarnessError::new("missing p8 header"))?;
+    let r: &[f64; 23] = header
+        .try_into()
+        .map_err(|_| HarnessError::new("bad p8 header"))?;
     let k = Kernel::default();
-    let g = geometry(&k, &r).map_err(|e| HarnessError::new(e.to_string()))?;
+    let g = geometry(&k, r).map_err(|e| HarnessError::new(e.to_string()))?;
     let mut cc = CurveClassification::new(&k);
     cc.set_curve(Some(H::Curve), false);
     cc.set_interval(&Extent1d::from_min_max(r[18], r[19]))
@@ -199,10 +205,12 @@ fn rust(input: Input) -> Result<Output, HarnessError> {
     cc.set_src_zone_tol_3d(solidcore::geom::tol::zone_tol3d(&k, r[20]));
     cc.set_size(&k, r[22] as usize)
         .map_err(|e| HarnessError::new(e.to_string()))?;
-    for (i, v) in r[23..].chunks_exact(3).enumerate() {
-        let iv = cc.at_mut(i).unwrap();
-        iv.set_interval(&Extent1d::from_min_max(v[0], v[1]));
-        let c = PointClassType::from_code(v[2] as i32).unwrap();
+    for (i, v) in ivls.as_chunks::<3>().0.iter().enumerate() {
+        let &[a, b, class] = v;
+        let iv = cc.at_mut(i).map_err(|e| HarnessError::new(e.to_string()))?;
+        iv.set_interval(&Extent1d::from_min_max(a, b));
+        let c = PointClassType::from_code(class as i32)
+            .ok_or_else(|| HarnessError::new("bad p8 class"))?;
         iv.mid.set_class_object(
             c,
             match c {
@@ -229,17 +237,17 @@ fn rust(input: Input) -> Result<Output, HarnessError> {
         Err(SolidError::Upstream { code, .. }) => code,
         _ => 1001,
     };
-    let mut o = vec![status as f64, cc.size() as f64];
+    let mut o = vec![f64::from(status), cc.size() as f64];
     for iv in cc.intervals() {
         o.extend([iv.min(), iv.max()]);
         for p in [&iv.start, &iv.mid, &iv.end] {
             o.extend([
-                p.point_class().code() as f64,
+                f64::from(p.point_class().code()),
                 match p.object() {
                     None => -1.,
                     Some(H::Surface) => 1.,
                     Some(H::Volume) => 2.,
-                    _ => -2.,
+                    Some(H::Curve) => 0.,
                 },
                 p.t_param(),
                 p.deviation(),
@@ -250,29 +258,28 @@ fn rust(input: Input) -> Result<Output, HarnessError> {
 }
 fn output(state: &[f64]) -> Result<Output, HarnessError> {
     let bad = || HarnessError::new("malformed p8 interval-state bundle");
-    if state.len() < 2
-        || !state[1].is_finite()
-        || state[1] < 0.0
-        || state[1].fract() != 0.0
-        || state[1] > 1_000_000.0
-    {
+    let [status, count, payload @ ..] = state else {
+        return Err(bad());
+    };
+    if !count.is_finite() || *count < 0.0 || count.fract() != 0.0 || *count > 1_000_000.0 {
         return Err(bad());
     }
-    let expected = (state[1] as usize)
+    let expected = (*count as usize)
         .checked_mul(14)
         .and_then(|n| n.checked_add(2))
         .ok_or_else(bad)?;
     if state.len() != expected {
         return Err(bad());
     }
-
-    let mut labels = vec![state[0] as i64, state[1] as i64];
+    let mut labels = vec![*status as i64, *count as i64];
     let mut values = Vec::new();
-    for iv in state[2..].chunks_exact(14) {
-        values.extend_from_slice(&iv[..2]);
-        for p in iv[2..].chunks_exact(4) {
-            labels.extend([p[0] as i64, p[1] as i64]);
-            values.extend_from_slice(&p[2..]);
+    for iv in payload.as_chunks::<14>().0 {
+        let [lo, hi, points @ ..] = iv;
+        values.extend([*lo, *hi]);
+        for p in points.as_chunks::<4>().0 {
+            let [class, object, param, gap] = p;
+            labels.extend([*class as i64, *object as i64]);
+            values.extend([*param, *gap]);
         }
     }
     Ok(Output::new()
@@ -343,7 +350,7 @@ impl UnitDiff for Runner {
             } else {
                 t0 + (t1 - t0) * (i + 1) as f64 / n as f64
             };
-            r.extend([prev, end, mids[rng.below(3) as usize]]);
+            r.extend([prev, end, *rng.choose(&mids)?]);
             prev = end;
         }
         serde_json::to_value(Input { record: r }).ok()

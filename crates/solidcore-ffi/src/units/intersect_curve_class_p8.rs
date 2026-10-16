@@ -8,7 +8,9 @@
 //! are an identity transform (kinds 0/1) or a C0 trilinear B-spline (2/3).
 //! Output: native status (0 success), interval count, then `min max` and
 //! `class object t gap` for start/mid/end. Objects: -1 null, 1 surface, 2 volume,
-//! -2 temporary boundary. Native guards exclude malformed geometry and intervals.
+//! 3+ temporary objects in first-seen traversal order. Native guards exclude
+//! malformed geometry and intervals. The fixture model bounds finite magnitudes
+//! to 1e12 and UV spans to at least 1e-6; smaller UV domains are uncertified.
 
 use crate::{call_with_buffer, FfiError};
 mod sys {
@@ -29,8 +31,12 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     if input.len() < 23 || input.iter().any(|x| !x.is_finite() || x.abs() > 1e12) {
         return Err(bad());
     }
-    let code =
-        |at: usize, lo: f64, hi: f64| input[at].fract() == 0.0 && (lo..=hi).contains(&input[at]);
+    let (header, ivls) = input.split_at_checked(23).ok_or_else(bad)?;
+    let h: &[f64; 23] = header.try_into().map_err(|_| bad())?;
+    let code = |at: usize, lo: f64, hi: f64| {
+        h.get(at)
+            .is_some_and(|x| x.fract() == 0.0 && (lo..=hi).contains(x))
+    };
     if !code(0, 0.0, 4.0)
         || !code(1, 2.0, 3.0)
         || !code(2, 0.0, 2.0)
@@ -41,38 +47,41 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     {
         return Err(bad());
     }
-    if input.len() != 23 + 3 * input[22] as usize
-        || input[12] - input[10] < 1e-6
-        || input[13] - input[11] < 1e-6
-        || input[14] <= 0.0
-        || input[15] <= 0.0
-        || input[18] > input[19]
+    if input.len() != 23 + 3 * h[22] as usize
+        || h[12] - h[10] < 1e-6
+        || h[13] - h[11] < 1e-6
+        || h[14] <= 0.0
+        || h[15] <= 0.0
+        || h[18] > h[19]
     {
         return Err(bad());
     }
-    if input[2] == 0.0 && input[6] == input[9] && input[7] == input[16] && input[8] == input[17] {
+    if h[2] == 0.0 && h[6] == h[9] && h[7] == h[16] && h[8] == h[17] {
         return Err(bad());
     }
-    if input[2] == 1.0 && input[9] <= 1e-12 {
+    if h[2] == 1.0 && h[9] <= 1e-12 {
         return Err(bad());
     }
-    let max = if input[2] == 1.0 { 360.0 } else { 1.0 };
-    if input[18] < 0.0 || input[19] > max {
+    let max = if h[2] == 1.0 { 360.0 } else { 1.0 };
+    if h[18] < 0.0 || h[19] > max {
         return Err(bad());
     }
-    let ivls = &input[23..];
-    if ivls[0] != input[18] || ivls[ivls.len() - 2] != input[19] {
-        return Err(bad());
-    }
-    for (i, v) in ivls.chunks_exact(3).enumerate() {
-        if v[0] > v[1]
-            || (i > 0 && v[0] != ivls[i * 3 - 2])
-            || ![100.0, 107.0, 108.0, 110.0].contains(&v[2])
-            || (input[0] != 4.0 && v[2] == 108.0)
+    let mut expected = h[18];
+    for v in ivls.as_chunks::<3>().0 {
+        let &[a, b, class] = v;
+        if a > b
+            || a != expected
+            || ![100.0, 107.0, 108.0, 110.0].contains(&class)
+            || (h[0] != 4.0 && class == 108.0)
         {
             return Err(bad());
         }
+        expected = b;
     }
+    if expected != h[19] {
+        return Err(bad());
+    }
+
     Ok(())
 }
 
