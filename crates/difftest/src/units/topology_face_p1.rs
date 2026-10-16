@@ -27,6 +27,17 @@
 //! early returns (`GetUpwardLoopuses`, `HasSeamProblem`, `topology.face_p4`;
 //! `IsCrossedByEdge`, `intersect.curve_class_p7`; `MergeIntervals`,
 //! `intersect.curve_class_p5`).
+//!
+//! **C++ crash guard.** Upstream `SplitAtSeam`'s U-then-V branch recurses on the wrong
+//! face and crashes (`plan/upstream-issues.md` UB-134). The shim skips (`-3`) every seam
+//! call that can reach it: seam problems in both directions on a face that is periodic
+//! in both, by the face properties' closed flags or by the surface itself. The Rust side
+//! reports those cases as deferred to `cpp-crash-guard:UB-134`; they never become
+//! comparable.
+//!
+//! **Not compared.** The normalisation to plain B-splines means `MoveSeam`'s analytic
+//! branch (`CopyAndAddAnalytics` of the joined surface) and the conic UV trim curve and
+//! edge curve paths (`SwapUV`'s conic mirrors) are never compared with the C++.
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -539,12 +550,12 @@ fn seam_guard(
         .as_ref()
         .ok_or_else(|| Fail::Harness(harness("face without surface")))?;
     let nat = s.natural_uv_domain();
+    // (as the shim: the face properties' closed flag or the real surface)
+    let real_u = s.is_periodic(&nat, Sp::U).map_err(|e| fail(&e))?;
+    let real_v = s.is_periodic(&nat, Sp::V).map_err(|e| fail(&e))?;
     let (per_u, per_v) = match props {
-        Some(p) => (p.closed_u != 0, p.closed_v != 0),
-        None => (
-            s.is_periodic(&nat, Sp::U).map_err(|e| fail(&e))?,
-            s.is_periodic(&nat, Sp::V).map_err(|e| fail(&e))?,
-        ),
+        Some(p) => (p.closed_u != 0 || real_u, p.closed_v != 0 || real_v),
+        None => (real_u, real_v),
     };
     let quiet_dir = |c: u8| c == Sp::Neither as u8 || c == Sp::Unknown as u8;
     if split_op {
@@ -570,10 +581,12 @@ fn seam_guard(
     Ok(!quiet && per_u && per_v)
 }
 
+/// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-134): not a
+/// deferral to a unit, they never become comparable.
 fn merge_deferred() -> Fail {
     Fail::Deferred(Box::new(Output::deferred(
-        "intersect.curve_class_p5",
-        "SmCurveClassification::MergeIntervals",
+        "cpp-crash-guard:UB-134",
+        "SmFace::SplitAtSeam",
     )))
 }
 
@@ -585,10 +598,12 @@ fn ok_round_trip(b: &Brep, f: FaceId, l: LoopId) -> Result<bool, SolidError> {
     let Some(m) = b.loopuse(a)?.mate else {
         return Ok(false);
     };
-    let (Some(fa), Some(_)) = (b.loopuse(a)?.faceuse, b.loopuse(m)?.faceuse) else {
+    let (Some(_), Some(_)) = (b.loopuse(a)?.faceuse, b.loopuse(m)?.faceuse) else {
         return Ok(false);
     };
-    Ok(b.faceuse(fa)?.face == Some(f))
+    // (a loop of another face is valid input)
+    let _ = f;
+    Ok(true)
 }
 
 /// `GetBrep() != NULL` as the shim checks it: the upward face use's shell reaches a B-rep.
@@ -746,7 +761,7 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
                 o.push(NULL_DEREF);
                 return Ok(o);
             }
-            let Some((mut problem, mut cu, mut cv)) = probe(&k, i)? else {
+            let Some((problem, mut cu, mut cv)) = probe(&k, i)? else {
                 return Err(Fail::Harness(harness("probe refused a face with surface")));
             };
             if seam_guard(&b, f, *props, problem, &cu, &cv, false, *split)? {
@@ -764,7 +779,7 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
                 key_of(EntityRef::Face(f)),
                 &mut cu,
                 &mut cv,
-                &mut problem,
+                problem,
                 opts,
                 fp.as_ref(),
                 &|_| None,
@@ -876,7 +891,14 @@ fn ops_for(s: i64, v: usize) -> Vec<OpIn> {
 }
 
 fn gen_inputs(rng: &mut Rng) -> Inputs {
-    let brep = shared::gen_brep(rng);
+    // only B-reps with faces: a wire or the wire network would make a case both sides
+    // reject without comparing anything
+    let brep = loop {
+        let b = shared::gen_brep(rng);
+        if matches!(b, BrepIn::File { .. } | BrepIn::Face { .. }) {
+            break b;
+        }
+    };
     let s = rng.below(64) as i64;
     let ops = ops_for(s, rng.below(1 << 10) as usize);
     let op = rng
@@ -969,6 +991,52 @@ impl UnitDiff for Runner {
                             name: format!("seam_{file}_p{pi}_f{s}_{j}"),
                             source: crate::CaseSource::Fixture {
                                 path: "built-in: seam cases".to_string(),
+                                index: v.len(),
+                                upstream_ref: Some(
+                                    "tests/prog_test (the pt_TestFiles B-reps)".to_string(),
+                                ),
+                            },
+                            inputs: serde_json::to_value(inputs)
+                                .map_err(|e| harness(e.to_string()))?,
+                        });
+                    }
+                }
+            }
+        }
+        // the review's crash reproducers (vase_rev.smb face 0, face properties claiming a
+        // crossed seam in both directions and a missing seam, closed in one direction
+        // only, with split): the guard must keep them away from upstream's UB-134
+        for missing in [0u8, 1, 3] {
+            for (cu, cv) in [(1u8, 0u8), (0, 1)] {
+                for center in [false, true] {
+                    for rebuild in [false, true] {
+                        let inputs = Inputs {
+                            brep: BrepIn::File {
+                                file: "vase_rev.smb".to_string(),
+                                rebuild,
+                            },
+                            face: 0,
+                            op: OpIn::MoveSeam {
+                                props: Some(PropsIn {
+                                    crossed: 3,
+                                    missing,
+                                    near_miss: 4,
+                                    closed_u: cu,
+                                    closed_v: cv,
+                                }),
+                                center,
+                                split: true,
+                            },
+                        };
+                        v.push(Case {
+                            unit: self.id().to_string(),
+                            name: format!(
+                                "guard_vase_rev_m{missing}_c{cu}{cv}_{}{}",
+                                u8::from(center),
+                                u8::from(rebuild)
+                            ),
+                            source: crate::CaseSource::Fixture {
+                                path: "built-in: review crash reproducers".to_string(),
                                 index: v.len(),
                                 upstream_ref: Some(
                                     "tests/prog_test (the pt_TestFiles B-reps)".to_string(),

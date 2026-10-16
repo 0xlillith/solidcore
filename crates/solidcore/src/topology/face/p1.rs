@@ -282,8 +282,17 @@ fn merge_intervals<O: LoopObject>(
     ))
 }
 
-/// `pBrep->ReplaceSurface(this, pNewSurface, FALSE, NULL, FALSE)`.
-fn replace_surface(_b: &mut Brep, _f: FaceId, _new_surface: Surface) -> Result<()> {
+/// `pBrep->ReplaceSurface(this, pNewSurface, bAddToDeleteSurfaceList, rOptModifiedFaces,
+/// bOptCreateUVTrimCurves)`; `MoveSeam` passes `FALSE` (delete the old surface here),
+/// `NULL` (no modified-face list) and `FALSE` (no new UV trim curves).
+fn replace_surface(
+    _b: &mut Brep,
+    _f: FaceId,
+    _new_surface: Surface,
+    _add_to_delete_surface_list: bool,
+    _want_modified_faces: bool,
+    _create_uv_trim_curves: bool,
+) -> Result<()> {
     // UNPORTED(topology.brep_p2): SmBrep::ReplaceSurface
     Err(SolidError::unported(
         "SmBrep::ReplaceSurface",
@@ -938,6 +947,29 @@ pub fn swap_uv(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()> {
                 let mirrored = match uv.kind() {
                     CurveKind::BSpline(c) => c.create_mirror_curve(&mirror)?,
                     CurveKind::Line(c) => c.base_with_nurb()?.create_mirror_curve(&mirror)?,
+                    // the conics: MakeNurb (their override) when missing, then the
+                    // SmBSplineCurve mirror of that NURB (statuses ignored as upstream)
+                    CurveKind::Ellipse(c) => {
+                        let mut c = c.clone();
+                        if c.base().gw_nurb().is_none() {
+                            ignore_status(c.make_nurb(k))?;
+                        }
+                        c.base().create_mirror_curve(&mirror)?
+                    }
+                    CurveKind::Parabola(c) => {
+                        let mut c = c.clone();
+                        if c.base().gw_nurb().is_none() {
+                            ignore_status(c.make_nurb(None))?;
+                        }
+                        c.base().create_mirror_curve(&mirror)?
+                    }
+                    CurveKind::Hyperbola(c) => {
+                        let mut c = c.clone();
+                        if c.base().gw_nurb().is_none() {
+                            ignore_status(c.make_nurb(None))?;
+                        }
+                        c.base().create_mirror_curve(&mirror)?
+                    }
                     _ => return Err(null("UV trim curve is not a B-spline curve")),
                 };
                 to_set.push((eu_mate, Curve::from(mirrored)));
@@ -1185,12 +1217,14 @@ pub fn move_seam<O: LoopObject>(
     this: ObjectRef,
     crv_class_u: &mut CurveClassification<O>,
     crv_class_v: &mut CurveClassification<O>,
-    problem: &mut SeamProblem,
+    problem: SeamProblem,
     opts: MoveSeamOptions,
     props: Option<&FaceProps<O>>,
     vertex_of: &dyn Fn(O) -> Option<VertexId>,
 ) -> Result<MoveSeamResult> {
     use SurfParamType as Sp;
+    // (the seam problem is passed by value; HasSeamProblem updates this copy)
+    let mut problem = problem;
     let mut out = MoveSeamResult {
         u: FixSeamPlanType::NoChanges,
         v: FixSeamPlanType::NoChanges,
@@ -1211,9 +1245,8 @@ pub fn move_seam<O: LoopObject>(
 
     // locals
     let lsmp_cnt: usize = 6;
-    let Some(surface0) = fp2::surface(b, f)? else {
-        return Ok(out);
-    };
+    // (upstream reads the surface's domain before its null check)
+    let surface0 = surface_deref(b, f)?;
     let uv_domain = surface0.natural_uv_domain();
     let ivl_u = uv_domain.u_interval();
     let ivl_v = uv_domain.v_interval();
@@ -1427,12 +1460,12 @@ pub fn move_seam<O: LoopObject>(
             };
             let last_span0 = (at(0)? - at(cnt - 1)?) + ivl_length;
             let mut next_span = span_of(0, 1 % cnt)?;
-            let mut max_spacing = last_span0.min(next_span);
+            let mut max_spacing = smos_min(last_span0, next_span);
             let mut max_space_indx = 0usize;
             for jj in 1..cnt {
                 let last_span = next_span;
                 next_span = span_of(jj, (jj + 1) % cnt)?;
-                let this_spacing = last_span.min(next_span);
+                let this_spacing = smos_min(last_span, next_span);
                 if max_spacing < this_spacing {
                     max_spacing = this_spacing;
                     max_space_indx = jj;
@@ -1521,7 +1554,13 @@ pub fn move_seam<O: LoopObject>(
         {
             let (left, right) = surface
                 .split_at(new_param, surf_param)
-                .map_err(|_| SolidError::sm_err(OP))?;
+                .map_err(|e| {
+                    if e.is_unported() {
+                        e
+                    } else {
+                        SolidError::sm_err(OP)
+                    }
+                })?;
             let (SurfaceKind::BSpline(left), SurfaceKind::BSpline(right)) =
                 (left.into_kind(), right.into_kind())
             else {
@@ -1557,7 +1596,7 @@ pub fn move_seam<O: LoopObject>(
             // replace the face surface
             surface = joined.clone();
             if has_brep(b, f)? {
-                replace_surface(b, f, joined)?;
+                replace_surface(b, f, joined, false, false, false)?;
             } else {
                 set_surface(b, f, this, joined, true)?;
             }
@@ -1567,7 +1606,7 @@ pub fn move_seam<O: LoopObject>(
     // split the face at its seams when they are still a problem
     if opts.ok_to_split
         && (periodic_u.is_full_period() || periodic_v.is_full_period())
-        && has_seam_problem(k, b, f, crv_class_u, crv_class_v, problem, false)?
+        && has_seam_problem(k, b, f, crv_class_u, crv_class_v, &mut problem, false)?
     {
         // status ignored upstream
         if let Some(s) = ignored(split_at_seam_depth(
@@ -1576,7 +1615,7 @@ pub fn move_seam<O: LoopObject>(
             f,
             crv_class_u,
             crv_class_v,
-            *problem,
+            problem,
             props,
             vertex_of,
             0,
@@ -1585,6 +1624,16 @@ pub fn move_seam<O: LoopObject>(
         }
     }
     Ok(out)
+}
+
+/// `smos_Min(a, b)`: `a < b ? a : b` (unlike `f64::min`, a NaN `a` gives `b` and a
+/// NaN `b` gives `b`).
+fn smos_min(a: f64, b: f64) -> f64 {
+    if a < b {
+        a
+    } else {
+        b
+    }
 }
 
 /// Whether the periodic extent of direction `ii` covers the whole period.
@@ -1700,6 +1749,9 @@ fn split_at_seam_depth<O: LoopObject>(
     let mut this_new = SeamSplit::default();
     if merge_u {
         fp2::remove_suspect_split_at_seam_uv_trim_curves(b, crv_class_u, vertex_of)?;
+        // (upstream sets pBrep->m_bEditingEnabled and the context's DoingBoolean flag
+        // around the merges with SmTemporaryChangeValue; restore them here when
+        // MergeIntervals is wired)
         if let Some(s) = ignored(merge_intervals(b, crv_class_u, f))? {
             this_new = s;
         }
@@ -1899,7 +1951,7 @@ mod tests {
             me(f),
             &mut cu,
             &mut cv,
-            &mut p,
+            p,
             MoveSeamOptions::default(),
             None,
             &|_| None,
@@ -1925,7 +1977,7 @@ mod tests {
             me(f),
             &mut cu,
             &mut cv,
-            &mut p,
+            p,
             MoveSeamOptions::default(),
             Some(&props),
             &|_| None,

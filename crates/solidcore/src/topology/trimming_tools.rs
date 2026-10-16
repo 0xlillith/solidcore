@@ -302,19 +302,32 @@ fn face_edges(_b: &Brep, _f: FaceId) -> Result<Vec<EdgeId>> {
     Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
 }
 
-/// The classification object of the seam classifications `SplitAtSeams` passes on.
+/// The classification object of the seam classifications `SplitAtSeams` passes on: the
+/// loop or vertex a point classification names (other objects are not resolved here).
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct SeamObject(LoopId);
+enum SeamObject {
+    /// An `SmLoop`.
+    Loop(LoopId),
+    /// An `SmVertex` (what `sm_RemoveSuspectSplitAtSeamUVTrimCurves` resolves).
+    #[expect(
+        dead_code,
+        reason = "made by SmFace::HasSeamProblem once topology.face_p4 is wired"
+    )]
+    Vertex(crate::topology::VertexId),
+}
 
 impl crate::intersect::point_class::ClassObject for SeamObject {
     fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
-        crate::intersect::point_class::ClassObjectKind::Loop
+        match self {
+            Self::Loop(_) => crate::intersect::point_class::ClassObjectKind::Loop,
+            Self::Vertex(_) => crate::intersect::point_class::ClassObjectKind::Vertex,
+        }
     }
 }
 
 impl crate::heal::face_props::LoopObject for SeamObject {
     fn from_loop(l: LoopId) -> Self {
-        Self(l)
+        Self::Loop(l)
     }
 }
 
@@ -352,9 +365,9 @@ fn face_split_at_seam_problem(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec
         &mut cv,
         problem,
         None,
-        &|o: SeamObject| {
-            let _ = o;
-            None
+        &|o: SeamObject| match o {
+            SeamObject::Vertex(v) => Some(v),
+            SeamObject::Loop(_) => None,
         },
     )?;
     Ok(split.faces)

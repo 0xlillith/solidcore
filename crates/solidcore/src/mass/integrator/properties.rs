@@ -183,7 +183,8 @@ pub fn curve_properties(
 
 /// `SmFace::CreateOrientedTrimBoundary(ctx, TRUE, TRUE, ..)` (unit `topology.face_p1`) on
 /// a copy of the B-rep (the caller holds it shared; the UV trim curves the call makes are
-/// not kept). The copied curves' edge-use owners are not read here.
+/// not kept; the copy is a whole-B-rep clone per face). The copied curves' edge-use
+/// owners are not read here.
 fn boundary(k: &Kernel, b: &Brep, f: FaceId) -> Result<Vec<Curve>> {
     let mut copy = b.clone();
     let key_of = |e: EntityRef| crate::geom::object::ObjectRef {

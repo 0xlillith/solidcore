@@ -322,7 +322,7 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmLoopuse* b = a ? a->GetOtherLoopuse() : nullptr;
         SmFaceuse* fa = a ? a->GetFaceuse() : nullptr;
         SmFaceuse* fb = b ? b->GetFaceuse() : nullptr;
-        if (l == nullptr || a == nullptr || b == nullptr || fa == nullptr || fb == nullptr || fa->GetFace() != f)
+        if (l == nullptr || a == nullptr || b == nullptr || fa == nullptr || fb == nullptr)
         {
             o.push_back(FP1_NULL_DEREF);
             break;
@@ -419,8 +419,10 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         // (MergeIntervals is unported).
         SmSurface* srf = f->GetSurface();
         SmExtent2d nat = srf->GetNaturalUVDomain();
-        bool per_u = si.props ? si.closed_u != FALSE : srf->IsPeriodic(nat, SM_SP_U) != FALSE;
-        bool per_v = si.props ? si.closed_v != FALSE : srf->IsPeriodic(nat, SM_SP_V) != FALSE;
+        // (the face properties' closed flags decide SplitAtSeam's own periodicity test,
+        // but the recursion follows the real surface: either makes a direction count)
+        bool per_u = (si.props && si.closed_u != FALSE) || srf->IsPeriodic(nat, SM_SP_U) != FALSE;
+        bool per_v = (si.props && si.closed_v != FALSE) || srf->IsPeriodic(nat, SM_SP_V) != FALSE;
         if (op == OP_SPLIT_AT_SEAM)
         {
             auto has = [](SmSurfParamType p, SmSurfParamType d) { return p == d || p == SM_SP_BOTH; };

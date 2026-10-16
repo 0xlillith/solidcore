@@ -5429,7 +5429,17 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   face (`plan/upstream-issues.md` UB-134) and crashes in `MergeInterval`
   (`vase_rev.smb` face 5, MoveSeam with split). The shim skips (`-3`) every seam call
   that can reach that branch (problems in both directions on a face periodic in both);
-  the Rust side defers those cases to `intersect.curve_class_p5`.
+  the Rust side reports those cases as deferred to `cpp-crash-guard:UB-134` (they
+  never become comparable). The guard counts a direction as periodic when the face
+  properties say it is closed or the surface itself is periodic (the recursion follows
+  the real surface; PR #148 review).
+- **Not compared.** The shim gives faces and edges plain B-spline copies of analytic
+  geometry (what the Rust import rebuilds), so `MoveSeam`'s analytic branch
+  (`CopyAndAddAnalytics` of the joined surface) and `SwapUV`'s conic UV trim curve
+  mirrors are never compared with the C++.
+- **Copies of the B-rep.** `face::p2::points_in_face` and `mass::integrator` hold the
+  B-rep shared and run the port on a whole-B-rep clone per call (O(faces * B-rep size)
+  over a sweep); passing the B-rep mutably removes that once their callers can.
 - **Back-edges.** Wired: `trimming_tools` (`FlipFaceOrientation`; `SplitAtSeam` behind the
   `topology.face_p4` `HasSeamProblem` stub), `edge` (`CalculateUVDomainFromUVTrimCurves`).
   `face::p2::points_in_face` and `mass::integrator` hold the B-rep shared, so they run the
