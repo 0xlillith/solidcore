@@ -524,6 +524,9 @@ pub fn create_composites(k: &Kernel, b: &Brep, f: FaceId) -> Result<Vec<Composit
 
 // ---- loop orientation ---------------------------------------------------------------------
 
+/// `lNumSamples` of the 3D walk of [`compute_loop_orientation`]: 21 points per edge use.
+const NUM_SAMPLES: u32 = 20;
+
 /// `ComputeLoopOrientation`: the orientation of loop `l` on the face: `Same` (an outer,
 /// counter-clockwise loop in UV), `Opposite` (inner) or `Unknown`. A vertex loop is
 /// `Opposite`. When every edge use has a UV trim curve (with `do_3d_loop_computation`
@@ -620,15 +623,12 @@ pub fn compute_loop_orientation(
         // walk all UVTrimCurves to determine if this is a CCW or CW loop
         let normal = Vec3::new(0.0, 0.0, 1.0);
         match CompositeCurve::compute_projected_loop_orientation(
-            &uv_curves,
-            &senses,
-            normal,
-            uv_bounds.as_deref_mut(),
+            &uv_curves, &senses, normal, uv_bounds,
         ) {
             Ok(o) if o != OrientType::Unknown => return Ok(o),
-            Ok(_) => {}
             Err(e) if e.is_unported() => return Err(e),
-            Err(_) => {}
+            // a failure or an unknown orientation falls through to the 3D walk
+            _ => {}
         }
     }
 
@@ -682,7 +682,6 @@ pub fn compute_loop_orientation(
         .is_closed(&surf_domain, SurfParamType::V, None, false)?
         .0;
 
-    const NUM_SAMPLES: u32 = 20;
     for &eu in &edgeuses {
         // For 21 sample points along the curve - integrate signed area in uv space.
         for jj in 0..=NUM_SAMPLES {
