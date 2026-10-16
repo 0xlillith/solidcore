@@ -55,7 +55,7 @@
 //!   still propagates.
 //! - **Upstream defects.** The two-singular-end-points recovery builds the joined UV
 //!   curve into the temporary second-half array, which is destroyed unused, so it never
-//!   produces a curve (`plan/upstream-issues.md` WR-157); the port builds and discards
+//!   produces a curve (`plan/upstream-issues.md` WR-158); the port builds and discards
 //!   it as upstream does. `NormalizedEvaluate` returns `SM_SUCCESS` for a point it
 //!   dropped to the surface even where upstream's trim curve was missing.
 //! - **Unported callees.** `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`),
@@ -1056,7 +1056,7 @@ fn trim_other_uv_curves(
 /// The recovery for a curve whose both ends drop to singularities: drops the two halves
 /// separately and joins them. Upstream leaves the joined curve in the array of the
 /// second half, which is destroyed unused (module docs; `plan/upstream-issues.md`
-/// WR-157): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
+/// WR-158): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
 #[allow(clippy::too_many_arguments)]
 fn two_singular_end_points(
     k: &Kernel,
@@ -1174,7 +1174,7 @@ fn two_singular_end_points(
                     ))?;
 
                     // when stitching worked (the joined curve is dropped with the
-                    // second half's array: upstream defect WR-157, module docs)
+                    // second half's array: upstream defect WR-158, module docs)
                     if joined.is_some() {
                         l_result = true;
                         fail.create_path_type =

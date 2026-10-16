@@ -4990,7 +4990,7 @@ mutated scales and accepted/reduced step counts are compared.
 
 ## topology.edgeuse_p3 (`CreateUVTrimCurve`, `GetOrCreateUVTrimCurve`, `EvaluateBinormal`, `NormalizedEvaluate`; PR #117; partial)
 
-- **Upstream defect WR-157** (`plan/upstream-issues.md`): the two-singular-end-points recovery of
+- **Upstream defect WR-158** (`plan/upstream-issues.md`): the two-singular-end-points recovery of
   `CreateUVTrimCurve` adds its joined curve to the second half's temporary array, so it never yields
   a curve. The port reproduces it.
 - **`gen0007` (seed 15768384652651002757), fixed in the harness.** `GetOrCreateUVTrimCurve` of an
