@@ -5646,7 +5646,8 @@ sides reject the script (cut at op 0); `--perturb` SENSITIVE 653/653. (Before th
   entries the first entry's copies are copied once more and the originals of those copies
   leak. Ported as is (the port's copies go to the handle store; the earlier handles stay
   unreferenced). A 3D curve that is not an `SmBSplineCurve` is `SM_ERR` after the arrays
-  were partly filled; the port returns the error alone.
+  were partly filled; the port reports the `SM_ERR` in `ExistingSsi::status` with the
+  outputs filled so far, as upstream leaves them.
 - **`UpdateObjectTolerance`** (`SmTol`, left unported by `geom.tol`) is co-ported as
   `geom::tol::update_object_tolerance` on a concrete `Brep`; its face branch stubs
   `SmFace::SetTolerance` (`topology.face_p3`) and `SmFace::GetEdges` (`topology.face_p4`).
@@ -5654,12 +5655,12 @@ sides reject the script (cut at op 0); `--perturb` SENSITIVE 653/653. (Before th
   "nothing to do" status `SM_ERR_INVALID_INPUT` is `SolidError::Upstream { code: 1007 }`
   (added as `error::SM_ERR_INVALID_INPUT`); callers ignore it, as upstream.
 - **`SmCurveClassification::SetInterval`** (`SmCurveClass.h:593`, `m_vInterval.SetMinMax`;
-  the only way to set `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`) is
-  added to `intersect::curve_class::p1` as `CurveClassification::set_interval`
-  (`p1.rs:531`, the form of PRs #150/#152: `self.interval.set_min_max(..)`, status ignored
-  by the only caller, the runner). It is distinct from `CurveInterval::set_interval`
-  (`p1.rs:383`, #150's port of `SmCurveInterval::SetInterval`, `SmCurveClass.h:192`, which
-  is a plain assignment upstream too, so no discrepancy there). The runner builds
+  the only way to set `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`): this
+  unit uses #150's `CurveClassification::set_interval` (`intersect/curve_class/p1.rs:531`,
+  commit 91aff827, `self.interval.set_min_max(..)`; the runner ignores its status, as the
+  inline setter is void). It is distinct from `CurveInterval::set_interval` (`p1.rs:383`,
+  also #150's, a plain assignment like upstream `SmCurveInterval::SetInterval`,
+  `SmCurveClass.h:192`; no discrepancy either). The runner builds
   `SmCurveClassification(curve, ivl, NULL, tol)` from the port's setters as `ReSet` does
   (curve, interval, source zone tolerance `SM_UNINIT_TOL` when not positive, one interval
   over the range with the tolerance on its three classifications).
@@ -5730,7 +5731,7 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `InvalidInput` are `ignore_soft(..)?.unwrap_or(..)`; `VertexFaceIntersect`
   re-reads the vertex tolerance for every face; `sm_IntersectWireLaminaEdges` takes the
   intersector's `GetThisApproxTol3d()` for `FindOrCreateProtoEdge`;
-  `CurveClassification::set_interval` is the #150/#152 form
+  this unit uses #150's `CurveClassification::set_interval`
   (`m_vInterval.SetMinMax`, status ignored by the runner); the imprinted interval ends
   are written back before the split updates (no stale copy after them);
   `FaceFaceIntersect`'s working face lists are bounded (`MAX_FACE_LIST`, a documented

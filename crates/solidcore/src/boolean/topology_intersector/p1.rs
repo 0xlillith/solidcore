@@ -2280,9 +2280,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let _ = (&fi.curves_3d, &fi.cc_curves); // deleted by SmObjsDelete
 
                 // In this loop we imprint each intersection as an edge (upstream indexes
-                // sjjCC by the size of siiCC: lists of different sizes are undefined)
-                if fi.cc1.len() != fi.cc2.len() {
-                    return Err(dangling("classification lists differ"));
+                // sjjCC by the size of siiCC: a shorter sjjCC is read out of bounds)
+                if fi.cc2.len() < fi.cc1.len() {
+                    return Err(dangling("second classification list shorter than the first"));
                 }
                 let num_cc = fi.cc1.len();
                 for kk in 0..num_cc {
