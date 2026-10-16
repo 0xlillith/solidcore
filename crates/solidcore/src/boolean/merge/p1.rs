@@ -20,7 +20,10 @@
 //! Deviations: option accessors are public fields; the context-only constructor's
 //! already-created intersector is supplied by its owner (its type belongs to
 //! `boolean.topology_intersector_p1`). Mate maps and notification records are
-//! borrowed explicitly. Region attribute propagation takes region object refs and
+//! borrowed explicitly; edge/vertex mate storage is co-ported in
+//! `boolean::topology_intersector::p1` and shared mutably with merge_p5. B-rep
+//! edge/shell traversal waits for `topology.brep_p1`; arena allocation order does
+//! not substitute for native owning-list order. Region propagation takes refs and
 //! their `IsVoid` results and source-list callback handles, because arena regions
 //! do not yet carry shell state.
 //! Missing topology mutations, region `IsVoid` and point classification return
@@ -30,6 +33,7 @@
 
 use std::collections::BTreeMap;
 
+use crate::boolean::topology_intersector::p1::Relations;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, BooleanOperation};
 use crate::geom::attribute::{ids, AttributeStore, ObjectKey};
@@ -39,6 +43,7 @@ use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::topology::edgeuse::p1 as eu;
 use crate::topology::topology::{self as topo, Topology};
+use crate::topology::topology_traverser::face_edges;
 use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, FaceuseId, RegionId, ShellId, VertexId};
 
 const OP: &str = "boolean::merge::p1";
@@ -139,19 +144,6 @@ fn ignore_failure<T>(r: Result<T>) -> Result<Option<T>> {
     }
 }
 
-fn face_edges(b: &Brep, face: FaceId) -> Result<Vec<EdgeId>> {
-    let mut edges = Vec::new();
-    if let Some(fu) = b.face(face)?.faceuse {
-        for e in eu::faceuse_edgeuses(b, fu, false, None)? {
-            let e = eu::edge(b, e)?.ok_or_else(|| SolidError::null_pointer(OP))?;
-            if !edges.contains(&e) {
-                edges.push(e);
-            }
-        }
-    }
-    Ok(edges)
-}
-
 /// Return matched coincident face lists and whether topology was modified.
 /// The fast path tests existence of mates, as upstream; it deliberately does not
 /// require the mates to belong to the supplied opposite face's boundary.
@@ -174,9 +166,9 @@ pub fn fix_found_face_coincidence(
     {
         return Ok((vec![face], vec![other_face], false));
     }
-    let counts = (brep.edges().len(), other.edges().len());
+    let counts = (brep_edges(brep)?.len(), brep_edges(other)?.len());
     let (faces, other_faces) = merge_coincident_surfaces(brep, other, face, other_face)?;
-    let changed = brep.edges().len() != counts.0 || other.edges().len() != counts.1;
+    let changed = brep_edges(brep)?.len() != counts.0 || brep_edges(other)?.len() != counts.1;
     Ok((faces, other_faces, changed))
 }
 
@@ -286,24 +278,24 @@ pub struct VertexCopy<'a> {
     pub records: &'a mut BTreeMap<ObjectKey, Topology>,
     /// Attributes of both operands.
     pub attributes: &'a mut AttributeStore,
-    /// Source vertex object.
-    pub source: ObjectRef,
-    /// Destination vertex object (when a mate already exists).
-    pub destination: ObjectRef,
+    /// Notification identity of each other-operand vertex.
+    pub source_key: &'a dyn Fn(VertexId) -> ObjectRef,
+    /// Notification identity of each primary vertex, including freshly created ids.
+    pub destination_key: &'a dyn Fn(VertexId) -> ObjectRef,
 }
 
 /// Reuse a mated primary vertex or create a shell vertex, relate it and notify
 /// the source of its copy. Null source succeeds with no output, as upstream.
 /// `region = None` forwards the infinite-region default of `MakeShellVertex`.
 /// `SM_NO_GET_BREP` expands to null in the pinned source, so both B-rep
-/// notification arguments remain `None`. The old-tolerance-only assignment is
-/// absent in the reference configuration.
+/// notification arguments remain `None`. The reference enables `SM_USE_OLDTOL`:
+/// a larger source tolerance is copied before notification.
 pub fn merge_vertex(
     brep: &mut Brep,
     other: &Brep,
     source: Option<VertexId>,
     region: Option<RegionId>,
-    brep_mates: &BTreeMap<VertexId, VertexId>,
+    relations: &mut Relations,
     copy: &mut VertexCopy<'_>,
     context: Option<&mut Context>,
 ) -> Result<Option<VertexId>> {
@@ -311,25 +303,57 @@ pub fn merge_vertex(
         return Ok(None);
     };
     other.vertex(source)?;
-    let Some(&dest) = brep_mates.get(&source) else {
-        if let Some(region) = region {
-            brep.region(region)?;
-        }
-        // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
-        return unavailable("SmBrep::MakeShellVertex", "topology.brep_p9");
+    let dest = if let Some(dest) = relations.vertices.primary(source) {
+        dest
+    } else {
+        let dest = make_shell_vertex(brep, other, source, region)?;
+        relate_new_vertex(brep, other, dest, source, relations)?;
+        dest
     };
     brep.vertex(dest)?;
+    let tolerance = vertex::tolerance(other, source)?;
+    if tolerance > vertex::tolerance(brep, dest)? {
+        vertex::set_tolerance(brep, dest, tolerance, true, true)?;
+    }
     topo::notify(
         copy.records,
         copy.attributes,
         context,
         NotifyOperation::Copy,
-        copy.source,
-        Some(copy.destination),
+        (copy.source_key)(source),
+        Some((copy.destination_key)(dest)),
         None, // SM_NO_GET_BREP(pBrepVertex) is NULL in pinned SmTypes.h.
         None, // SM_NO_GET_BREP(pVertexInOther) is NULL as well.
     )?;
     Ok(Some(dest))
+}
+
+fn make_shell_vertex(
+    brep: &mut Brep,
+    other: &Brep,
+    source: VertexId,
+    region: Option<RegionId>,
+) -> Result<VertexId> {
+    if let Some(region) = region {
+        brep.region(region)?;
+    }
+    other.vertex(source)?;
+    // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
+    unavailable("SmBrep::MakeShellVertex", "topology.brep_p9")
+}
+
+fn relate_new_vertex(
+    _brep: &mut Brep,
+    _other: &Brep,
+    _dest: VertexId,
+    _source: VertexId,
+    _relations: &mut Relations,
+) -> Result<()> {
+    // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::Relate
+    unavailable(
+        "SmTopologyIntersector::Relate",
+        "boolean.topology_intersector_p1",
+    )
 }
 
 /// The intersection lists and live primary-to-other mate lookups used by cleanup.
@@ -339,10 +363,23 @@ pub struct CleanupRelations {
     pub edges: Vec<EdgeId>,
     /// `m_sIntersectionVertices`, in original order; may contain stale ids.
     pub vertices: Vec<VertexId>,
-    /// Live primary edge mates; a deleted edge must be removed here.
-    pub edge_mates: BTreeMap<EdgeId, EdgeId>,
-    /// Live primary vertex mates; a deleted vertex must be removed here.
-    pub vertex_mates: BTreeMap<VertexId, VertexId>,
+    /// Shared live mates; deleted entities must be removed by the intersector.
+    pub mates: Relations,
+}
+
+fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
+    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
+    unavailable("SmBrep::GetEdges", "topology.brep_p1")
+}
+
+fn brep_shells(_brep: &Brep) -> Result<Vec<ShellId>> {
+    // UNPORTED(topology.brep_p1): SmBrep::GetShells
+    unavailable("SmBrep::GetShells", "topology.brep_p1")
+}
+
+fn set_face_tolerance(_brep: &mut Brep, _face: FaceId, _tolerance: f64) -> Result<()> {
+    // UNPORTED(topology.face_p3): SmFace::SetTolerance
+    unavailable("SmFace::SetTolerance", "topology.face_p3")
 }
 
 /// Remove topological intersection edges and redundant vertices. `check_all_edges`
@@ -356,13 +393,13 @@ pub fn boolean_post_process(
     check_all_edges: bool,
 ) -> Result<()> {
     let edges: Vec<_> = if check_all_edges {
-        brep.edges().ids().collect()
+        brep_edges(brep)?
     } else {
         relations.edges.clone()
     };
     let mut endpoints = Vec::new();
     for e in edges {
-        if !check_all_edges && !relations.edge_mates.contains_key(&e) {
+        if !check_all_edges && relations.mates.edges.other(e).is_none() {
             continue;
         }
         let topological = edge::is_topological(k, brep, e, 10.0)?;
@@ -392,6 +429,10 @@ pub fn boolean_post_process(
                 .ok_or_else(|| SolidError::null_pointer(OP))?
                 .natural_uv_domain();
             crate::topology::face::p2::set_uv_domain(brep, keep, &domain)?;
+            let tolerance = crate::topology::face::p2::tolerance(brep, keep)?;
+            if topological.dist_between > tolerance / 10.0 {
+                set_face_tolerance(brep, keep, tolerance + topological.dist_between)?;
+            }
         }
         let a = edge::vertex(brep, e)?;
         let b = edge::other_vertex(brep, e, a)?;
@@ -402,9 +443,10 @@ pub fn boolean_post_process(
         }
         // UNPORTED(topology.brep_p4): SmBrep::DeleteEdge
         let (): () = unavailable("SmBrep::DeleteEdge", "topology.brep_p4")?;
-        if let Some(domain) = topological.merged_face_domain {
-            crate::topology::face::p2::set_uv_domain(brep, keep, &domain)?;
-        }
+        // The native output starts as a default SmExtent2d and is written back
+        // unconditionally, even if IsTopological left it untouched.
+        let domain = topological.merged_face_domain.unwrap_or_default();
+        crate::topology::face::p2::set_uv_domain(brep, keep, &domain)?;
     }
     let mut vertices = relations.vertices.clone();
     for v in endpoints {
@@ -413,7 +455,11 @@ pub fn boolean_post_process(
         }
     }
     for v in vertices {
-        if !check_all_edges && !relations.vertex_mates.contains_key(&v) {
+        if !check_all_edges && relations.mates.vertices.other(v).is_none() {
+            continue;
+        }
+        // Upstream's stale-pointer sanity check, before either vertex query.
+        if brep.vertex(v)?.vertexuses.len() > 99_999_999 {
             continue;
         }
         if vertex::is_loop_vertex(brep, v)? {
@@ -429,7 +475,7 @@ pub fn boolean_post_process(
             ))?;
         }
     }
-    if brep.shells().len() == 2 {
+    if brep_shells(brep)?.len() == 2 {
         // UNPORTED(topology.shell): SmShell::IsWireShell
         return unavailable("SmShell::IsWireShell", "topology.shell");
     }
@@ -524,7 +570,14 @@ mod tests {
             vertices: vec![VertexId::from_index(u32::MAX)],
             ..CleanupRelations::default()
         };
-        boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap();
+        let error = boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap_err();
+        assert!(matches!(
+            error,
+            SolidError::Unported {
+                upstream: "SmBrep::GetShells",
+                ..
+            }
+        ));
     }
 
     #[test]

@@ -74,11 +74,15 @@ void options(std::vector<double>& v, sc_mp1_Options& o) {
 }
 
 // op: 0 control, 1 cleanup, 2 face coincidence, 3 vertex copy, 4 region attrs,
-// 5 face-region lookup, 6 solid-border lookup, 7 scoped translation.
+// 5 face-region lookup, 6 solid-border lookup, 7 scoped translation,
+// 8 RadialSectorClassify, 9 FindRadialSector across independent operands.
 // a/b/c are operation selectors; fixture bytes are validated by the safe wrapper.
 SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int32_t c,
-    const char* path, const double* in, int64_t n, double* out, int64_t cap, int64_t* len) {
-    if (op < 0 || op > 7 || a < 0 || a > 31 || b < 0 || b > 31 || c < 0 || c > 31) return SC_ERR_ARG;
+    const char* path, const double* in, int64_t n,
+    const char* other_path, const double* other_in, int64_t other_n,
+    int32_t edit_tolerances, double primary_tolerance, double other_tolerance, double parameter,
+    double* out, int64_t cap, int64_t* len) {
+    if (op < 0 || op > 9 || a < 0 || a > 31 || b < 0 || b > 31 || c < 0 || c > 31) return SC_ERR_ARG;
     SC_TRY
     std::vector<double> record;
     Probe merge;
@@ -94,15 +98,15 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
         merge.flags(record);
         return sc_copy_out(record.data(),record.size(),out,cap,len);
     }
-    if (in == nullptr || n == 0) return SC_ERR_ARG;
-    Rd rd{in,0}, rd2{in,0};
+    if (in == nullptr || n == 0 || other_in == nullptr || other_n == 0) return SC_ERR_ARG;
+    Rd rd{in,0}, rd2{other_in,0};
     Built primary, other;
     SmStatus build_status;
     primary.brep = build(rd,path,build_status);
     if (!primary.brep) return SC_ERR_ARG;
-    other.brep = build(rd2,path,build_status);
+    other.brep = build(rd2,other_path,build_status);
     if (!other.brep) return SC_ERR_ARG;
-    if (rd.at != n || rd2.at != n) return SC_ERR_ARG;
+    if (rd.at != n || rd2.at != other_n) return SC_ERR_ARG;
     Graph g,h; walk(primary.brep,g); walk(other.brep,h);
     merge.operands(primary.brep,other.brep);
     SmStatus status = SM_SUCCESS;
@@ -130,6 +134,12 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
             src->SetAllFlags(16); dst->SetAllFlags(1);
             src->AddAttribute(new (the_context()) SmLongAttribute(555,29));
             if (b) merge.GetTopologyIntersector().Relate(dst,src);
+        }
+        // Relate itself normalises tolerances. Override AFTER it, so this tests
+        // MergeVertex's independent tolerance update instead of fixture setup.
+        if (edit_tolerances) {
+            dst->SetTolerance(primary_tolerance, FALSE);
+            if (src) src->SetTolerance(other_tolerance, FALSE);
         }
         Recorder recorder; recorder.identities={{src,1},{dst,2},{primary.brep,3},{other.brep,4}};
         CallbackGuard callback(recorder);
@@ -160,11 +170,37 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
         recorder.append(record);
     } else if (op == 5) {
         if (h.faceuses.empty()) return SC_ERR_ARG;
+        if (b) for (size_t i=0;i<g.edges.size() && i<h.edges.size();++i)
+            merge.GetTopologyIntersector().Relate(g.edges[i],h.edges[i]);
         SmRegion* result=sm_FindBrepRegionOfOtherFace(h.faceuses[a%h.faceuses.size()],merge.GetTopologyIntersector());
         record.push_back(g.find(0,result));
     } else if (op == 6) {
         if (g.edges.empty()) return SC_ERR_ARG;
         record.push_back(g.find(1,sm_EdgeBordersSolid(g.edges[a%g.edges.size()])));
+    } else if (op == 8 || op == 9) {
+        if (g.edgeuses.empty() || h.edgeuses.empty()) return SC_ERR_ARG;
+        SmEdgeuse* sec = g.edgeuses[a%g.edgeuses.size()];
+        SmEdgeuse* cls = h.edgeuses[b%h.edgeuses.size()];
+        SmEdge* edge = sec->GetEdge();
+        auto has_surface = [](SmEdgeuse* eu) {
+            return eu && eu->IsLoopEdgeuse() && eu->GetFace() && eu->GetFace()->GetSurface();
+        };
+        if (!edge || !edge->GetCurve() || !cls->GetEdge() || !cls->GetEdge()->GetCurve()) return SC_ERR_ARG;
+        if (op == 8) {
+            if (!has_surface(sec) || !has_surface(sec->GetRadial()) || !has_surface(cls)) return SC_ERR_ARG;
+            ULONG result = 99;
+            status = edge->RadialSectorClassify(parameter,sec,cls,result,NULL);
+            if (status == SM_SUCCESS) record.push_back(result);
+        } else {
+            if (!edge->IsWire()) {
+                SmTArray<SmEdgeuse*> uses; edge->GetEdgeuses(uses);
+                for (ULONG i=0;i<uses.GetSize();++i)
+                    if (!has_surface(uses[i]) || !has_surface(uses[i]->GetRadial()) || !has_surface(cls)) return SC_ERR_ARG;
+            }
+            SmEdgeuse* result=nullptr; SmFaceuse* face=nullptr;
+            status = edge->FindRadialSector(cls,NULL,SM_OT_SAME,result,face,NULL);
+            record.push_back(g.find(6,result)); record.push_back(g.find(2,face));
+        }
     } else {
         { sc_mp1_Transform shift(&merge.GetTopologyIntersector()); }
     }

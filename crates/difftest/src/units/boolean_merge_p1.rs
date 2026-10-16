@@ -8,6 +8,7 @@ use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::boolean::merge::p1 as port;
+use solidcore::boolean::topology_intersector::p1::Relations;
 use solidcore::geom::a_object::BooleanOperation;
 use solidcore::geom::attribute::{ids, Attribute, AttributeStore, Behavior, ObjectKey};
 use solidcore::geom::context::{Context, NotifyCallback};
@@ -31,6 +32,15 @@ struct Inputs {
     args: [u8; 3],
     #[serde(default)]
     brep: Option<BrepIn>,
+    #[serde(default)]
+    other: Option<BrepIn>,
+    #[serde(default)]
+    tolerances: Option<[f64; 2]>,
+    #[serde(default = "half")]
+    parameter: f64,
+}
+fn half() -> f64 {
+    0.5
 }
 fn harness(e: impl Into<String>) -> HarnessError {
     HarnessError::new(e)
@@ -78,6 +88,16 @@ fn block(i: &Inputs) -> Result<(String, Vec<f64>), HarnessError> {
         spec::path_of(i.brep.as_ref())?,
         spec::brep_block_of(i.brep.as_ref(), false, false)?,
     ))
+}
+fn other_block(i: &Inputs) -> Result<(String, Vec<f64>), HarnessError> {
+    if let Some(other) = &i.other {
+        Ok((
+            spec::path_of(Some(other))?,
+            spec::brep_block_of(Some(other), false, false)?,
+        ))
+    } else {
+        block(i)
+    }
 }
 fn obj(k: u64, t: i64) -> ObjectRef {
     ObjectRef {
@@ -244,6 +264,8 @@ fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()>
 }
 fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidError> {
     let [a, c, d] = i.args;
+    let mut other = other.clone();
+    let other = &mut other;
     let k = Kernel::default();
     let mut out = Vec::new();
     let mut context = Context::default();
@@ -256,8 +278,12 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 r.vertices = b.vertices().ids().collect();
             }
             if c == 1 {
-                r.edge_mates = b.edges().ids().zip(other.edges().ids()).collect();
-                r.vertex_mates = b.vertices().ids().zip(other.vertices().ids()).collect();
+                for (x, y) in b.edges().ids().zip(other.edges().ids()) {
+                    r.mates.edges.record(x, y)?;
+                }
+                for (x, y) in b.vertices().ids().zip(other.vertices().ids()) {
+                    r.mates.vertices.record(x, y)?;
+                }
             }
             if c == 2 && a == 0 {
                 r.edges.push(EdgeId::from_index(u32::MAX));
@@ -291,11 +317,30 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
             let source = (a != 0)
                 .then(|| VertexId::from_index(u32::from(d) % other.vertices().len() as u32));
             let dest = VertexId::from_index(u32::from(d) % b.vertices().len() as u32);
-            let mates = if c != 0 {
-                source.map(|s| (s, dest)).into_iter().collect()
-            } else {
-                BTreeMap::new()
-            };
+            let mut relations = Relations::default();
+            if c != 0 {
+                if let Some(s) = source {
+                    relations.vertices.record(dest, s)?;
+                }
+            }
+            if let Some([pt, ot]) = i.tolerances {
+                solidcore::topology::vertex::set_tolerance(
+                    b,
+                    dest,
+                    solidcore::geom::tol::zone_tol3d(&k, pt),
+                    false,
+                    true,
+                )?;
+                if let Some(src) = source {
+                    solidcore::topology::vertex::set_tolerance(
+                        other,
+                        src,
+                        solidcore::geom::tol::zone_tol3d(&k, ot),
+                        false,
+                        true,
+                    )?;
+                }
+            }
             let mut attrs = AttributeStore::new();
             let mut records = BTreeMap::new();
             let mut src = Topology::new();
@@ -311,12 +356,12 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 other,
                 source,
                 (a != 2).then_some(RegionId::from_index(0)),
-                &mates,
+                &mut relations,
                 &mut port::VertexCopy {
                     records: &mut records,
                     attributes: &mut attrs,
-                    source: obj(1, 16021),
-                    destination: obj(2, 16021),
+                    source_key: &|_| obj(1, 16021),
+                    destination_key: &|_| obj(2, 16021),
                 },
                 Some(&mut context),
             )?;
@@ -375,8 +420,22 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
         5 => {
             let f = FaceuseId::from_index(u32::from(a) % other.faceuses().len() as u32);
             out.push(
-                port::find_brep_region_of_other_face(&k, b, other, f, &BTreeMap::new())?
-                    .map_or(-1.0, |v| f64::from(v.index())),
+                port::find_brep_region_of_other_face(
+                    &k,
+                    b,
+                    other,
+                    f,
+                    &if c != 0 {
+                        b.edges()
+                            .ids()
+                            .zip(other.edges().ids())
+                            .map(|(a, b)| (b, a))
+                            .collect()
+                    } else {
+                        BTreeMap::new()
+                    },
+                )?
+                .map_or(-1.0, |v| f64::from(v.index())),
             );
         }
         6 => {
@@ -386,6 +445,44 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
         7 => {
             let mut other = other.clone();
             port::temporary_brep_transform(b, &mut other)?;
+        }
+        8 | 9 => {
+            let sec = solidcore::topology::EdgeuseId::from_index(
+                u32::from(a) % b.edgeuses().len() as u32,
+            );
+            let cls = solidcore::topology::EdgeuseId::from_index(
+                u32::from(c) % other.edgeuses().len() as u32,
+            );
+            let edge = b
+                .edgeuse(sec)?
+                .edge
+                .ok_or_else(|| SolidError::null_pointer("difftest::radial"))?;
+            if i.op == 8 {
+                out.push(f64::from(
+                    solidcore::query::edge::radial_sector_classify_between(
+                        &k,
+                        b,
+                        edge,
+                        i.parameter,
+                        sec,
+                        other,
+                        cls,
+                    )?
+                    .code(),
+                ));
+            } else {
+                let r = solidcore::topology::edge::find_radial_sector_between(
+                    &k,
+                    b,
+                    edge,
+                    other,
+                    cls,
+                    None,
+                    solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType::Same,
+                    None,
+                )?;
+                out.extend([id(r.radial_edgeuse) as f64, id(r.coincident_faceuse) as f64]);
+            }
         }
         _ => return Err(SolidError::invalid_input("difftest", "bad operation")),
     }
@@ -398,7 +495,22 @@ impl UnitDiff for Runner {
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
         let (path, block) = block(&i)?;
-        let v = ffi::eval(i.op, i.args, &path, &block).map_err(|e| harness(e.to_string()))?;
+        let (other_path, other_block) = other_block(&i)?;
+        let v = ffi::eval(ffi::Request {
+            op: i.op,
+            args: i.args,
+            primary: ffi::Operand {
+                path: &path,
+                block: &block,
+            },
+            other: ffi::Operand {
+                path: &other_path,
+                block: &other_block,
+            },
+            tolerances: i.tolerances,
+            parameter: i.parameter,
+        })
+        .map_err(|e| harness(e.to_string()))?;
         if i.op == 0 {
             return Ok(Output::new().values("record", v));
         }
@@ -425,7 +537,10 @@ impl UnitDiff for Runner {
         let raw = fixture::eval(fixture::Op::Export, &path, &block)
             .map_err(|e| harness(e.to_string()))?;
         let (mut b, _) = import(&raw)?;
-        let (other, _) = import(&raw)?;
+        let (other_path, other_block) = other_block(&i)?;
+        let other_raw = fixture::eval(fixture::Op::Export, &other_path, &other_block)
+            .map_err(|e| harness(e.to_string()))?;
+        let (other, _) = import(&other_raw)?;
         match run_rust(&i, &mut b, &other) {
             Ok(v) => Ok(graph(&b, v)),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| {
@@ -457,7 +572,10 @@ impl UnitDiff for Runner {
         } else {
             json!({"kind":"face","surface":{"plane":{"o":p,"n":[0,0,1]}},"dom":[-2,-1,3,4]})
         };
-        Some(json!({"op":op,"args":[rng.below(2),rng.below(3),rng.below(2)],"brep":brep}))
+        Some(
+            json!({"op":op,"args":[rng.below(2),rng.below(3),rng.below(2)],"brep":brep,
+          "tolerances":[*[1e-5,1e-3,1e-1].get(rng.below(3) as usize)?,*[1e-5,1e-3,1e-1].get(rng.below(3) as usize)?]}),
+        )
     }
     fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
         let ctx = CaseContext {
