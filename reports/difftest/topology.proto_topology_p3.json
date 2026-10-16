@@ -1619,7 +1619,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501318468535275660",
-      "values_compared": 85
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -5939,7 +5939,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501318468535276168",
-      "values_compared": 515
+      "values_compared": 116
     },
     {
       "max_rel_err": 0.0,
@@ -12247,7 +12247,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501318468535276917",
-      "values_compared": 72
+      "values_compared": 64
     },
     {
       "deferred": {
@@ -16594,16 +16594,12 @@
       "values_compared": 117
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetCurve",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen1959",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277427",
-      "values_compared": 0
+      "values_compared": 152
     },
     {
       "max_rel_err": 0.0,
@@ -21479,7 +21475,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501318468535277997",
-      "values_compared": 57
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -25555,6 +25551,22 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_proto_p3_rejected_duplicate_manager_entry_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_proto_p3_rejected_duplicate_manager_entry_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 51
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_proto_p3",
       "outcome": "pass",
       "pass": true,
@@ -25592,16 +25604,24 @@
       "pass": true,
       "source": "inline",
       "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_proto_p3_glue_apart_beyond_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 111
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 378,
+  "cases_deferred": 377,
   "cases_failed": 0,
-  "cases_passed": 2632,
-  "cases_total": 3010,
+  "cases_passed": 2636,
+  "cases_total": 3013,
   "deferred_by_unit": {
     "query.brep": 69,
-    "topology.edge": 97,
+    "topology.edge": 96,
     "topology.face_p2": 94,
     "topology.vertex": 118
   },
