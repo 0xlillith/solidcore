@@ -1204,13 +1204,13 @@ impl<O: ClassObject> CurveClassification<O> {
         while jj < done_cnt {
             let t0 = touch_at(&done, i0)?;
             let t1 = touch_at(&done, i1)?;
-            if t0.loop_dir != t1.loop_dir {
+            if t0.loop_dir == t1.loop_dir {
+                done_cnt -= 2;
+            } else {
                 set_touch(&mut done, jj, t0)?;
                 jj += 1;
                 set_touch(&mut done, jj, t1)?;
                 jj += 1;
-            } else {
-                done_cnt -= 2;
             }
             i0 += 2;
             i1 += 2;
