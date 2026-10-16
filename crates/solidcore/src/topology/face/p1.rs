@@ -69,22 +69,27 @@
 //!   an empty pairing (upstream's unsigned `GetSize() - 1`). `SplitAt` / `JoinSurface`
 //!   halves that are not plain B-spline surfaces (an assert upstream, then a C cast)
 //!   are [`SolidError::InvalidInput`]. A failed `JoinSurface` (unchecked upstream,
-//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-135)
+//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-138)
 //!   returns its error. The `ShellSort` of the vertex parameters is a sort by value
 //!   (equal doubles are indistinguishable). `SplitAtSeam`'s V pass after a U merge
 //!   recurses on this face with the classifications of each new face, as upstream
-//!   (UB-134).
+//!   (UB-137).
 //! - **`bUseJGU`** (`static constexpr FALSE` in `SplitAtSeam`) branches are dead code
 //!   upstream and are not ported. The `SmTemporaryChangeValue`s of `SplitAtSeam`
-//!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) guard calls that are all unported.
+//!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) are not set: they guard
+//!   `HasSeamProblem` (unported) and `MergeIntervals`, whose port reads neither flag
+//!   (its topology edits defer to `intersect.curve_class_p2`).
+//! - **`MergeIntervals`** returns handles; the port maps its new vertices to ids with
+//!   `vertex_of` and returns [`SolidError::InvalidInput`] for a handle that does not
+//!   resolve, or for any new face or edge (the port creates none until its topology
+//!   edits land; upstream's lists hold the pointers directly).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmFace::Notify` and
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetUpwardLoopuses`,
 //!   `GetUpwardVertexuses`, `GetEdges`, `GetBrep` and `HasSeamProblem`
 //!   (`topology.face_p4`); `SmEdgeuse::NormalizedEvaluate` and
 //!   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`);
 //!   `SmCurveClassification::IsCrossedByEdge` and `HasNearMisses`
-//!   (`intersect.curve_class_p7`), `MergeIntervals` (`intersect.curve_class_p5`);
-//!   `SmBrep::ReplaceSurface` (`topology.brep_p2`).
+//!   (`intersect.curve_class_p7`); `SmBrep::ReplaceSurface` (`topology.brep_p2`).
 //! - **Bounds.** `SplitAtSeam` recurses into the faces its U merge made, once per face
 //!   (upstream asserts the recursion only fixes V seams); the port carries a depth and
 //!   returns [`SolidError::InvalidInput`] past [`MAX_SPLIT_AT_SEAM_DEPTH`]. Every other
@@ -269,17 +274,46 @@ fn has_near_misses<O: LoopObject>(_c: &CurveClassification<O>) -> Result<bool> {
     ))
 }
 
-/// `pCrvClass->MergeIntervals(&faces, &edges, &vertices, this)`.
+/// `pCrvClass->MergeIntervals(&faces, &edges, &vertices, this)`: vertices first, then
+/// edges (`bVerticesOnly` defaults to `FALSE`); the original face is a debug-display
+/// argument upstream, which the port omits. A failing status is ignored upstream (the
+/// lists keep what was merged), so this is `None` then; [`SolidError::Unported`]
+/// propagates.
+///
+/// The merged handles become B-rep ids: vertices through `vertex_of`. The ported
+/// `MergeIntervals` creates no topology yet (every `MergeInterval` edit defers to
+/// `intersect.curve_class_p2`), so its face and edge lists are empty; a handle that
+/// does not resolve is [`SolidError::InvalidInput`].
 fn merge_intervals<O: LoopObject>(
-    _b: &mut Brep,
-    _c: &mut CurveClassification<O>,
-    _f: FaceId,
-) -> Result<SeamSplit> {
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::MergeIntervals
-    Err(SolidError::unported(
-        "SmCurveClassification::MergeIntervals",
-        "intersect.curve_class_p5",
-    ))
+    c: &mut CurveClassification<O>,
+    vertex_of: &dyn Fn(O) -> Option<VertexId>,
+) -> Result<Option<SeamSplit>> {
+    let Some(merged) = ignored(c.merge_intervals(false))? else {
+        return Ok(None);
+    };
+    if !merged.faces.is_empty() || !merged.edges.is_empty() {
+        return Err(SolidError::invalid_input(
+            OP,
+            "MergeIntervals face or edge handle does not resolve to a B-rep id",
+        ));
+    }
+    let vertices = merged
+        .vertices
+        .into_iter()
+        .map(|v| {
+            vertex_of(v).ok_or_else(|| {
+                SolidError::invalid_input(
+                    OP,
+                    "MergeIntervals vertex handle does not resolve to a vertex",
+                )
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+    Ok(Some(SeamSplit {
+        faces: Vec::new(),
+        edges: Vec::new(),
+        vertices,
+    }))
 }
 
 /// `pBrep->ReplaceSurface(this, pNewSurface, bAddToDeleteSurfaceList, rOptModifiedFaces,
@@ -1663,8 +1697,9 @@ fn order(a: f64, b: f64) -> (f64, f64) {
 ///
 /// [`SolidError::InvalidInput`] for a face without surface or a recursion deeper than
 /// [`MAX_SPLIT_AT_SEAM_DEPTH`]; those of [`Surface::is_periodic`] and
-/// [`fp2::remove_suspect_split_at_seam_uv_trim_curves`]; [`SolidError::Unported`]
-/// (`HasSeamProblem`, `MergeIntervals`).
+/// [`fp2::remove_suspect_split_at_seam_uv_trim_curves`]; [`SolidError::InvalidInput`]
+/// for `MergeIntervals` output that does not resolve to B-rep ids;
+/// [`SolidError::Unported`] (`HasSeamProblem`, and the callees of `MergeIntervals`).
 #[allow(clippy::too_many_arguments)] // one upstream routine
 pub fn split_at_seam<O: LoopObject>(
     k: &Kernel,
@@ -1748,9 +1783,10 @@ fn split_at_seam_depth<O: LoopObject>(
     if merge_u {
         fp2::remove_suspect_split_at_seam_uv_trim_curves(b, crv_class_u, vertex_of)?;
         // (upstream sets pBrep->m_bEditingEnabled and the context's DoingBoolean flag
-        // around the merges with SmTemporaryChangeValue; restore them here when
-        // MergeIntervals is wired)
-        if let Some(s) = ignored(merge_intervals(b, crv_class_u, f))? {
+        // around the merges with SmTemporaryChangeValue; the ported MergeIntervals reads
+        // neither, so set them here when its topology edits (intersect.curve_class_p2)
+        // are wired)
+        if let Some(s) = merge_intervals(crv_class_u, vertex_of)? {
             this_new = s;
         }
         if !merge_v {
@@ -1806,7 +1842,7 @@ fn split_at_seam_depth<O: LoopObject>(
         }
     } else if merge_v {
         fp2::remove_suspect_split_at_seam_uv_trim_curves(b, crv_class_v, vertex_of)?;
-        if let Some(s) = ignored(merge_intervals(b, crv_class_v, f))? {
+        if let Some(s) = merge_intervals(crv_class_v, vertex_of)? {
             this_new = s;
         }
         out.faces.extend_from_slice(&this_new.faces);

@@ -29,13 +29,12 @@
 //! `intersect.curve_class_p5`).
 //!
 //! **C++ crash guard.** Upstream `SplitAtSeam`'s U-then-V branch recurses on the wrong
-//! face and crashes (`plan/upstream-issues.md` UB-134). The shim skips (`-3`) every seam
+//! face and crashes (`plan/upstream-issues.md` UB-137). The shim skips (`-3`) every seam
 //! call that can reach it: a `SplitAtSeam` merging in both directions on a face periodic
 //! in either (by the face properties' closed flags or by the surface itself), and every
 //! `MoveSeam` with split past its early return (it recomputes the seam problem before
-//! splitting). The Rust side defers all of these before anything is compared. The Rust side
-//! reports those cases as deferred to `cpp-crash-guard:UB-134`; they never become
-//! comparable.
+//! splitting). The Rust side defers all of these to `cpp-crash-guard:UB-137` before
+//! anything is compared; they never become comparable.
 //!
 //! **Not compared.** The normalisation to plain B-splines means `MoveSeam`'s analytic
 //! branch (`CopyAndAddAnalytics` of the joined surface) and the conic UV trim curve and
@@ -532,7 +531,8 @@ fn probe(
 
 /// The shim's guard of the seam ops (upstream's `SplitAtSeam` recursion crashes in
 /// `MergeInterval`, see `plan/upstream-issues.md`): a seam problem in both directions on
-/// a face periodic in both. Such cases are deferred to `MergeIntervals`' unit.
+/// a face periodic in either direction, and `MoveSeam` with split past its early return.
+/// Such cases are deferred to `cpp-crash-guard:UB-137`.
 #[allow(clippy::too_many_arguments)]
 fn seam_guard(
     b: &Brep,
@@ -584,11 +584,11 @@ fn seam_guard(
     Ok(!quiet)
 }
 
-/// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-134): not a
+/// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-137): not a
 /// deferral to a unit, they never become comparable.
 fn merge_deferred() -> Fail {
     Fail::Deferred(Box::new(Output::deferred(
-        "cpp-crash-guard:UB-134",
+        "cpp-crash-guard:UB-137",
         "SmFace::SplitAtSeam",
     )))
 }
@@ -1008,7 +1008,7 @@ impl UnitDiff for Runner {
         }
         // the review's crash reproducers (vase_rev.smb face 0, face properties claiming a
         // crossed seam in both directions and a missing seam, closed in one direction
-        // only, with split): the guard must keep them away from upstream's UB-134
+        // only, with split): the guard must keep them away from upstream's UB-137
         for missing in [0u8, 1, 3] {
             for (cu, cv) in [(1u8, 0u8), (0, 1)] {
                 for center in [false, true] {
