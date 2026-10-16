@@ -5474,7 +5474,7 @@ No absolute floors or tolerance changes are used. The fixture construction model
 bounds finite input magnitudes to `1e12` and UV spans to at least `1e-6`;
 smaller UV domains and larger coordinate magnitudes are uncertified.
 
-Source review found UB-133 and WR-102..WR-104 (entries in upstream issues). These
+Source review found UB-155 and WR-154..WR-156 (entries in upstream issues). These
 are source findings, not isolated native reproductions. V+V slot selection,
 W-from-V coordinates and U-only unaligned checking are retained where defined;
 invalid indices/empty arrays return errors instead of undefined reads. The volume

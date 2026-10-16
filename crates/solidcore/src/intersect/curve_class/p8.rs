@@ -19,7 +19,7 @@
 //! errors instead of native undefined behaviour. The native V+V solution-slot formulas,
 //! W-plane coordinates taken from V, and U-only unaligned test are retained.
 //! Volume solution arrays use independent storage rather than the native aliased
-//! borrowed buffer (WR-103); the entire plane-intersection path remains deferred.
+//! borrowed buffer (WR-155); the entire plane-intersection path remains deferred.
 //! Solution insertion defers to part 5; general plane/curve intersection defers to
 //! `surface.surface_p8`; generic `CrvOnSurf` construction defers to `curve.crv_on_surf`.
 //! No input-driven recursion: dimension forwarding dispatches once through shared helpers.

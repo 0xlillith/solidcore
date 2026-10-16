@@ -1054,7 +1054,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (needs a bad argument from the calling code).
 - **Rust port:** `heal::gap` returns `InvalidInput`.
 
-#### UB-133. Volume discontinuity W planes index the V parameter array
+#### UB-155. Volume discontinuity W planes index the V parameter array
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:10071-10072`, `SmCurveClassification::Intersect3DDiscontinuities` (volume).
 - **What happens:** The W-plane loop takes its coordinates from `m_sParamsV[kk]` while iterating `m_sParamsW`. Different V/W values put the planes at the wrong W positions; more W than V parameters reads past V's array.
 - **Trigger:** unequal V/W discontinuity parameter arrays.
@@ -2235,7 +2235,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
 
-#### WR-102. Discontinuity classifiers select boundary solution slots with V+V offsets
+#### WR-154. Discontinuity classifiers select boundary solution slots with V+V offsets
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:9241`, `:9654`, `:10121-10129`.
 - **What happens:** The UV and 3D surface classifiers select the last boundary's solution array using `2 * V_count - 1`, while the later consumer selects its curve using `U_count + V_count - 1`. The volume classifier repeats V in the offsets for its last three boundary slots too. Unequal counts can associate an internal boundary's solutions with a different outer boundary, or omit an outer solution array.
 - **Trigger:** different U/V knot or discontinuity counts, with intersections on the affected boundaries.
@@ -2243,7 +2243,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no numerical reproduction isolated; native unequal-count fixtures are dependency-deferred in Rust before downstream classification.
 - **Rust port:** preserves these exact slot expressions; crossing classifications are uncertified until solution insertion is available.
 
-#### WR-103. Two volume boundary solution arrays share the same borrowed storage
+#### WR-155. Two volume boundary solution arrays share the same borrowed storage
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:10002`, `sSolutions4(20,aData4), sSolutions5(20,aData4)`.
 - **What happens:** Both arrays initially refer to `aData4`. Writing the sixth boundary's solutions can overwrite the fifth boundary's saved solutions before the later classification scan. `aData5` is not declared; the arrays do not use independent buffers.
 - **Trigger:** both affected boundary slots contain results that remain in their borrowed arrays.
@@ -2251,7 +2251,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no isolated native reproduction.
 - **Rust port:** independent owned vectors; this aliasing behavior is not certified or reproduced. All volume plane-intersection paths remain deferred to `surface.surface_p8`; revisit the output lifecycle when wiring that dependency.
 
-#### WR-104. The volume discontinuity unaligned check tests U three times
+#### WR-156. The volume discontinuity unaligned check tests U three times
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:10025-10027`.
 - **What happens:** The rejection predicate repeats `m_bUnalignedU` and never checks V or W, so a V/W-only unaligned discontinuity can proceed into the aligned-plane algorithm.
 - **Trigger:** a discontinuity report with U aligned and V or W unaligned.
