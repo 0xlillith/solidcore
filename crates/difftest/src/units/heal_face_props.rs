@@ -27,7 +27,8 @@ use solidcore::kernel::Kernel;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::{
-    Brep, Face, FaceId, Faceuse, LoopId, Region, Shell, ShellId,
+    Brep, Face, FaceId, Faceuse, FaceuseId, Loop, LoopId, Loopuse, LoopuseId, LoopuseStart,
+    Region, Shell, ShellId, Vertex, Vertexuse, VertexuseId, VertexuseOwner,
 };
 use solidcore_ffi::units::heal_face_props as ffi;
 
@@ -53,6 +54,14 @@ impl ClassObject for H {
 impl LoopObject for H {
     fn from_loop(l: LoopId) -> Self {
         Self(l)
+    }
+
+    fn as_loop(&self) -> Option<LoopId> {
+        Some(self.0)
+    }
+
+    fn as_vertex(&self) -> Option<solidcore::topology::VertexId> {
+        None
     }
 }
 
@@ -173,7 +182,7 @@ fn rust_brep(f: &FaceIn) -> Result<(Brep, FaceId), HarnessError> {
     let face = b
         .add_face_record(Face {
             surface: Some(plane),
-            faceuse: Some(solidcore::topology::FaceuseId::from_index(0)),
+            faceuse: Some(FaceuseId::from_index(0)),
             tolerance: f.tol,
             ..Face::new(shell)
         })
@@ -181,11 +190,48 @@ fn rust_brep(f: &FaceIn) -> Result<(Brep, FaceId), HarnessError> {
     let fu = |mate: u32| Faceuse {
         shell: Some(ShellId::from_index(0)),
         face: Some(face),
-        mate: Some(solidcore::topology::FaceuseId::from_index(mate)),
+        mate: Some(FaceuseId::from_index(mate)),
         ..Faceuse::default()
     };
     b.add_faceuse_record(fu(1)).map_err(e)?;
     b.add_faceuse_record(fu(0)).map_err(e)?;
+
+    // the shim's single vertex loop at the origin (`StartAndEndSingleVertexLoop`): one
+    // loop use per face use, mates, each starting at its own use of the vertex
+    let vertex = b
+        .add_vertex_record(Vertex {
+            point: Vec3::new(0.0, 0.0, 0.0),
+            vertexuses: vec![VertexuseId::from_index(0), VertexuseId::from_index(1)],
+            ..Vertex::default()
+        })
+        .map_err(e)?;
+    let lp = b
+        .add_loop_record(Loop {
+            face,
+            edges: Vec::new(),
+            loopuse: Some(LoopuseId::from_index(0)),
+        })
+        .map_err(e)?;
+    for i in 0..2u32 {
+        b.add_loopuse_record(Loopuse {
+            faceuse: Some(FaceuseId::from_index(i)),
+            loop_: Some(lp),
+            mate: Some(LoopuseId::from_index(1 - i)),
+            start: LoopuseStart::Vertexuse(Some(VertexuseId::from_index(i))),
+            ..Loopuse::default()
+        })
+        .map_err(e)?;
+        b.add_vertexuse_record(Vertexuse {
+            vertex: Some(vertex),
+            owner: VertexuseOwner::Loopuse(Some(LoopuseId::from_index(i))),
+            ..Vertexuse::default()
+        })
+        .map_err(e)?;
+        b.faceuse_mut(FaceuseId::from_index(i))
+            .map_err(e)?
+            .loopuses
+            .push(LoopuseId::from_index(i));
+    }
     Ok((b, face))
 }
 

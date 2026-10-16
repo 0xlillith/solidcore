@@ -19,8 +19,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "stage3",
@@ -839,8 +839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -1435,8 +1435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -1887,8 +1887,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0226",
@@ -2899,8 +2899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0352",
@@ -3415,8 +3415,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0416",
@@ -3595,8 +3595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -5183,8 +5183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0636",
@@ -6131,8 +6131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0754",
@@ -6335,8 +6335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0779",
@@ -10123,8 +10123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::ClassifyLoops",
-        "unit": "query.face_p4"
+        "symbol": "sms_FindAndClassifyLoopBisector",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen1252",
@@ -12116,7 +12116,7 @@
   "cases_passed": 1497,
   "cases_total": 1508,
   "deferred_by_unit": {
-    "query.face_p4": 11
+    "query.face_p3": 11
   },
   "max_rel_err": 0.0,
   "pass": true,
