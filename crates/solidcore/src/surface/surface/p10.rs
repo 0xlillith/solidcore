@@ -139,13 +139,14 @@ fn classify_curve_surface_xsect_point(
 
 /// `SmSurface::LocalPointSolve` (`rbFoundAnswer`, `rSolution`).
 fn surface_local_point_solve<O: Copy>(
+    k: &Kernel,
     surface: &Surface,
     domain: &Extent2d,
     operation: SolverOperation,
     point: Point3,
     uv_guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    let r = surface.local_point_solve::<O>(domain, operation, point, uv_guess)?;
+    let r = surface.local_point_solve::<O>(k, domain, operation, point, uv_guess)?;
     Ok((r.found, r.solution))
 }
 
@@ -157,6 +158,7 @@ struct DroppedPoint {
 
 /// `SmSurface::DropPoint` with a guess.
 fn surface_drop_point(
+    k: &Kernel,
     surface: &Surface,
     point: Point3,
     domain: &Extent2d,
@@ -166,7 +168,7 @@ fn surface_drop_point(
         guess_uv: Some(guess),
         ..Default::default()
     };
-    let d = surface.drop_point::<p4::NoObject>(point, domain, &opts)?;
+    let d = surface.drop_point::<p4::NoObject>(k, point, domain, &opts)?;
     Ok(DroppedPoint {
         success: d.success,
         gap: d.gap,
@@ -637,6 +639,7 @@ impl<'t, 's, O: SolutionObject + 't> LsiGlobalSolver<'t, 's, O> {
                     // Get the big surface from the tree and cache
                     let surface = cache.surface();
                     let (found, mut solution) = surface_local_point_solve::<O>(
+                        self.kernel.ok_or(SolidError::null_pointer(OP_LSI))?,
                         surface,
                         &natural,
                         SolverOperation::Minimize,
@@ -898,6 +901,7 @@ fn is_coincident_point<O>(
 /// to the surface: false when one does not drop or lands farther than `tol`.
 #[allow(clippy::too_many_arguments)] // the opening and its surface
 fn opening_drops(
+    k: &Kernel,
     surface: &Surface,
     uv_domain: &Extent2d,
     curve: &Curve,
@@ -911,7 +915,7 @@ fn opening_drops(
         let param = step * f64::from(jj + 1);
         let pt_on1 = curve.evaluate_point(ivl1.evaluate(param))?;
         let guess = Point2::new(ivl2.evaluate(param), ivl3.evaluate(param));
-        let dropped = surface_drop_point(surface, pt_on1, uv_domain, guess)?;
+        let dropped = surface_drop_point(k, surface, pt_on1, uv_domain, guess)?;
 
         // don't combine solutions when SolutionGap MidPoint does not drop or is too far
         if !dropped.success || dropped.gap > tol {
@@ -1121,6 +1125,7 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
 
                 // drop two opening points [.33 .66] to the surface
                 if !opening_drops(
+                    k,
                     surface,
                     uv_domain,
                     curve,
@@ -1142,6 +1147,7 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
 
                 // sample three more points [.25 .50 .75]
                 if !opening_drops(
+                    k,
                     surface,
                     uv_domain,
                     curve,
