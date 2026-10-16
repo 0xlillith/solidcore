@@ -5476,20 +5476,26 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   A focused kernel regression matches both native parameter/gap pairs exactly.
   These probes certify the pre-insertion drop measurements, not the deferred final
   insertion state. Re-run the complete seeds when insertion dependencies land.
-- **Validation.** Standalone code/fixture revision `3d957eea`, official main base
-  `3ae8f8f5`; 1,133 source/config/fixture files match the Linux VM snapshot SHA-256
-  `65d90049337303bd073f97fa010672a39f5ab0e7a47b8c5f8c38f48c1f9e87f7`.
-  Ubuntu 26.04.1 x86_64, Rust 1.98.0, GCC 15.2.0; pinned upstream `c9c5979`.
-  Default `difftest` profile (opt-level 1, overflow checks and debug assertions),
-  C++ reference `-O2 -ffp-contract=off -fno-fast-math`; one Cargo job under nice.
-  Formatting, strict plain/native Clippy, 1,210 kernel tests, wasm32 checking
-  and 34 native FFI tests pass.
-  The fixed relative gate uses no absolute floors:
-  `PARTIAL intersect.curve_class_p9 cases=411 passed=173 failed=0 deferred=238 max_rel_err=0e0 blocked_by=curve.crv_on_surf(27),intersect.curve_class_p4(14),intersect.curve_class_p5(114),topology.vertex(83)`.
-  Affected units: `query.face_p2` 1,344 cases / 1,271 pass / 73 deferred;
-  `intersect.curve_class_p1` 2,125 cases / 2,048 pass / 77 deferred; neither fails,
-  both max_rel_err 0. All three runs include the final native loop-start correction.
-  These results include the aliased-guess fix and two-point-constructor correction.
-  Full `--green` regression is pending.
-  VM ballooning/OOM interrupted the first full attempt; temporary pinned memory
-  and swap are retained through all remaining checks.
+- **Validation.** The unchanged part-9 implementation was compared at `3d957eea`
+  on official main `3ae8f8f5`: 411 cases, 173 successful non-insertion comparisons,
+  238 dependency deferrals, zero failures and max_rel_err 0; no absolute floors.
+  Blockers: part 5 (114), topology vertex integration (83), generic curve-on-surface
+  dispatch (27), part 4 (14). Affected units also pass: `query.face_p2` 1,344 cases /
+  1,271 pass / 73 deferred; `intersect.curve_class_p1` 2,125 cases / 2,048 pass /
+  77 deferred. Sensitivity detects all 173 perturbed comparisons.
+  Native pre-insertion probes and the alias regression above cover the corrected
+  checked-drop values; complete positive insertion remains deferred.
+  Latest official main `535f53d0` is merged at `bc5bfddc`, with no further part-9
+  source changes. Its 1,135 source/config/fixture files match the VM snapshot
+  SHA-256 `9efdfd34ef06c220f52beeff24009b0be72a9c9a2f00773a1c904996bb94166a`.
+  On that base, formatting, strict plain workspace Clippy, 1,210 kernel tests,
+  wasm32 checking and 34 native FFI tests pass. C++-feature Clippy passed at the
+  prior checkpoint with identical part-9 Rust files. The latest-base native
+  integration gate is pending on the shared VM and in CI: concurrent metadata
+  builds exhausted VM memory before comparisons, so its retry waits for idle
+  capacity. A duplicate native workspace lint rerun was canceled to reduce load.
+  Validation uses Ubuntu 26.04.1 x86_64 / Rust 1.98.0 / GCC 15.2.0 on the VM,
+  pinned upstream `c9c5979`, the default optimized `difftest` profile (opt-level 1,
+  overflow checks/debug assertions), C++ `-O2 -ffp-contract=off -fno-fast-math`,
+  and one Cargo job under nice. Temporary pinned memory/swap remain until checks
+  finish. No full latest-base regression pass is claimed yet.
