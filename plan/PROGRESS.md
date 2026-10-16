@@ -94,7 +94,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.trimming_tools` (2878 lines) — in progress: #124 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (draft)
-- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (ready for review)
 - [ ] 🔨 `heal.heal_data_p2` (2160 lines) — in progress: #128 @bherbruck (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.proto_topology_p2` (2091 lines) — in progress: #114 @bherbruck (ready for review)
@@ -357,7 +357,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### heal (1/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
-- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (draft)
+- [ ] 🔨 `heal.face_props` (1410 lines) — in progress: #122 @froglemonade2 (ready for review)
 - [ ] 🔨 `heal.heal_data_p2` (2160 lines) — in progress: #128 @bherbruck (ready for review)
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
