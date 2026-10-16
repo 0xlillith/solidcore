@@ -1565,7 +1565,9 @@ mod tests {
         assert!(flip_loop_orientation(&mut b, LoopId::from_index(0))
             .unwrap_err()
             .is_unported());
-        // without the face, the edge use lists swap loop uses
+        // without the face, the edge use lists swap loop uses (the failed flip above had
+        // already swapped them before its post-edit notification returned Unported)
+        let mut b = square(0.0);
         b.faceuse_mut(FaceuseId::from_index(0)).unwrap().face = None;
         flip_loop_orientation(&mut b, LoopId::from_index(0)).unwrap();
         assert_eq!(
