@@ -95,7 +95,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] 🔨 `topology.proto_topology_p3` (1577 lines) — in progress: #121 @froglemonade2 (ready for review)
 - [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (ready for review)
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
+- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (draft)
 
 ## By module
 
@@ -344,7 +344,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] 🔨 `sweep.rotational_sweep_geometry` (1542 lines) — in progress: #126 @bherbruck (ready for review)
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
+- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (draft)
 - [ ] 🟡 `sweep.api_brep` (529 lines) — partial
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
