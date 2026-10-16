@@ -10,7 +10,8 @@ use serde_json::{json, Value};
 use solidcore::boolean::merge::p1 as port;
 use solidcore::geom::a_object::BooleanOperation;
 use solidcore::geom::attribute::{ids, Attribute, AttributeStore, Behavior, ObjectKey};
-use solidcore::geom::object::ObjectRef;
+use solidcore::geom::context::{Context, NotifyCallback};
+use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
 use solidcore::topology::topology::Topology;
@@ -198,10 +199,55 @@ fn graph(b: &Brep, record: Vec<f64>) -> Output {
         .values("geometry", values)
         .ints("graph", ints)
 }
+#[derive(Debug, Default)]
+struct Recorder {
+    events: Vec<[i64; 5]>,
+}
+impl NotifyCallback for Recorder {
+    fn execute(
+        &mut self,
+        operation: NotifyOperation,
+        caller: ObjectRef,
+        a: Option<ObjectRef>,
+        b: Option<ObjectRef>,
+        c: Option<ObjectRef>,
+    ) -> solidcore::Result<()> {
+        if matches!(
+            operation,
+            NotifyOperation::Copy | NotifyOperation::RegPropagation
+        ) {
+            let key = |o: Option<ObjectRef>| o.map_or(-1, |o| o.key.0 as i64);
+            self.events.push([
+                i64::from(operation as i32),
+                caller.key.0 as i64,
+                key(a),
+                key(b),
+                key(c),
+            ]);
+            return Err(SolidError::sm_err("difftest::notify_callback"));
+        }
+        Ok(())
+    }
+    fn as_any(&self) -> Option<&dyn std::any::Any> {
+        Some(self)
+    }
+}
+fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()> {
+    let recorder = context
+        .user_notify_callback()
+        .and_then(NotifyCallback::as_any)
+        .and_then(|a| a.downcast_ref::<Recorder>())
+        .ok_or_else(|| SolidError::null_pointer("difftest::recorder"))?;
+    out.push(recorder.events.len() as f64);
+    out.extend(recorder.events.iter().flatten().map(|&v| v as f64));
+    Ok(())
+}
 fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidError> {
     let [a, c, d] = i.args;
     let k = Kernel::default();
     let mut out = Vec::new();
+    let mut context = Context::default();
+    context.set_user_notify_callback(Some(Box::new(Recorder::default())));
     match i.op {
         1 => {
             let mut r = port::CleanupRelations::default();
@@ -264,16 +310,15 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 b,
                 other,
                 source,
-                RegionId::from_index(0),
+                (a != 2).then_some(RegionId::from_index(0)),
                 &mates,
                 &mut port::VertexCopy {
                     records: &mut records,
                     attributes: &mut attrs,
                     source: obj(1, 16021),
                     destination: obj(2, 16021),
-                    breps: [None, None],
                 },
-                None,
+                Some(&mut context),
             )?;
             out.push(result.map_or(-1.0, |v| f64::from(v.index())));
             if result.is_some() {
@@ -291,6 +336,7 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                         .unwrap_or(-1) as f64,
                 );
             }
+            append_events(&context, &mut out)?;
         }
         4 => {
             let mut attrs = AttributeStore::new();
@@ -310,9 +356,13 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 attrs.add_attribute(r.key, h)?;
             }
             port::propagate_other_src_region_attribs(
-                &[(r, a != 0)],
+                &[port::RegionPropagation {
+                    region: r,
+                    is_void: a != 0,
+                    source_lists: [obj(5, 0), obj(6, 0)],
+                }],
                 &mut attrs,
-                None,
+                Some(&mut context),
                 BooleanOperation::Union,
             )?;
             for id in [555, ids::COLOR, ids::OTHER_REGION_ID] {
@@ -320,6 +370,7 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                     attrs.find_attribute(r.key, id).is_some(),
                 )));
             }
+            append_events(&context, &mut out)?;
         }
         5 => {
             let f = FaceuseId::from_index(u32::from(a) % other.faceuses().len() as u32);

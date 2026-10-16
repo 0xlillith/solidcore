@@ -21,7 +21,8 @@
 //! already-created intersector is supplied by its owner (its type belongs to
 //! `boolean.topology_intersector_p1`). Mate maps and notification records are
 //! borrowed explicitly. Region attribute propagation takes region object refs and
-//! their `IsVoid` results, because arena regions do not yet carry shell state.
+//! their `IsVoid` results and source-list callback handles, because arena regions
+//! do not yet carry shell state.
 //! Missing topology mutations, region `IsVoid` and point classification return
 //! Unported at the first call reached. The temporary transform waits on B-rep
 //! bounding boxes before any mutation; no translation is faked. Destruction is
@@ -289,18 +290,19 @@ pub struct VertexCopy<'a> {
     pub source: ObjectRef,
     /// Destination vertex object (when a mate already exists).
     pub destination: ObjectRef,
-    /// Destination and source B-rep notification objects.
-    pub breps: [Option<ObjectRef>; 2],
 }
 
 /// Reuse a mated primary vertex or create a shell vertex, relate it and notify
 /// the source of its copy. Null source succeeds with no output, as upstream.
-/// The old-tolerance-only assignment is absent in the reference configuration.
+/// `region = None` forwards the infinite-region default of `MakeShellVertex`.
+/// `SM_NO_GET_BREP` expands to null in the pinned source, so both B-rep
+/// notification arguments remain `None`. The old-tolerance-only assignment is
+/// absent in the reference configuration.
 pub fn merge_vertex(
     brep: &mut Brep,
     other: &Brep,
     source: Option<VertexId>,
-    region: RegionId,
+    region: Option<RegionId>,
     brep_mates: &BTreeMap<VertexId, VertexId>,
     copy: &mut VertexCopy<'_>,
     context: Option<&mut Context>,
@@ -310,7 +312,9 @@ pub fn merge_vertex(
     };
     other.vertex(source)?;
     let Some(&dest) = brep_mates.get(&source) else {
-        brep.region(region)?;
+        if let Some(region) = region {
+            brep.region(region)?;
+        }
         // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
         return unavailable("SmBrep::MakeShellVertex", "topology.brep_p9");
     };
@@ -322,8 +326,8 @@ pub fn merge_vertex(
         NotifyOperation::Copy,
         copy.source,
         Some(copy.destination),
-        copy.breps[0],
-        copy.breps[1],
+        None, // SM_NO_GET_BREP(pBrepVertex) is NULL in pinned SmTypes.h.
+        None, // SM_NO_GET_BREP(pVertexInOther) is NULL as well.
     )?;
     Ok(Some(dest))
 }
@@ -432,17 +436,36 @@ pub fn boolean_post_process(
     Ok(())
 }
 
+/// One result region and the identities used by its propagation notification.
+#[derive(Debug, Clone, Copy)]
+pub struct RegionPropagation {
+    /// The result region's notification object.
+    pub region: ObjectRef,
+    /// The region's `IsVoid` result.
+    pub is_void: bool,
+    /// Opaque callback handles for the merge attribute's this/other source-region
+    /// lists, in that order. Their contents remain in the attribute store; these
+    /// handles preserve the two non-null `Notify` data arguments without pointers.
+    pub source_lists: [ObjectRef; 2],
+}
+
 /// Propagate source-region attributes through a Boolean. `regions` is the
-/// result B-rep's `GetRegions` order paired with each region's `IsVoid` result.
+/// result B-rep's `GetRegions` order with each region's `IsVoid` result and
+/// source-list identities for the context callbacks.
 /// Void regions lose propagating attributes; solid regions with bookkeeping
 /// notify once, then every processed region loses its temporary merge attribute.
 pub fn propagate_other_src_region_attribs(
-    regions: &[(ObjectRef, bool)],
+    regions: &[RegionPropagation],
     attributes: &mut AttributeStore,
     mut context: Option<&mut Context>,
     operation: BooleanOperation,
 ) -> Result<()> {
-    for &(region, is_void) in regions {
+    for &RegionPropagation {
+        region,
+        is_void,
+        source_lists,
+    } in regions
+    {
         let attrs = attributes.attributes(region.key);
         let merge = attributes.find_attribute(region.key, ids::OTHER_REGION_ID);
         if is_void {
@@ -463,13 +486,14 @@ pub fn propagate_other_src_region_attribs(
                     SolidError::invalid_input(OP, "OTHER_REGION_ID is not a merge-region attribute")
                 })?;
             data.operation = operation as i32;
+            let [this_sources, other_sources] = source_lists;
             a_object::notify(
                 attributes,
                 context.as_deref_mut(),
                 NotifyOperation::RegPropagation,
                 region,
-                None,
-                None,
+                Some(this_sources),
+                Some(other_sources),
                 Some(region),
             )?;
         }
@@ -554,8 +578,17 @@ mod tests {
         for h in [long, color, merge] {
             attrs.add_attribute(r.key, h).unwrap();
         }
-        propagate_other_src_region_attribs(&[(r, true)], &mut attrs, None, BooleanOperation::Union)
-            .unwrap();
+        propagate_other_src_region_attribs(
+            &[RegionPropagation {
+                region: r,
+                is_void: true,
+                source_lists: [r, r],
+            }],
+            &mut attrs,
+            None,
+            BooleanOperation::Union,
+        )
+        .unwrap();
         assert_eq!(attrs.attributes(r.key), vec![long]);
         assert!(attrs.is_live(color));
         assert!(!attrs.is_live(merge));

@@ -707,7 +707,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#85 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -715,7 +715,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#86 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -723,7 +723,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#87 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -731,7 +731,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#88 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -739,7 +739,7 @@
         "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
-      "name": "copy_vertex_1_0_0",
+      "name": "copy_vertex_1_0_0_null_region",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#89 (upstream source/SMLib/src/SmMerge.cpp)",
@@ -759,11 +759,11 @@
     },
     {
       "max_rel_err": 0.0,
-      "name": "copy_vertex_1_1_0",
+      "name": "copy_vertex_1_1_0_null_region",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#91 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -771,7 +771,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#92 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -779,7 +779,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#93 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -787,7 +787,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#94 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -795,7 +795,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#95 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "deferred": {
@@ -815,7 +815,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#97 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -823,7 +823,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#98 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -831,7 +831,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#99 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -839,7 +839,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.merge_p1/helpers.json#100 (upstream source/SMLib/src/SmMerge.cpp)",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -971,7 +971,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314510",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -999,7 +999,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314513",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -1007,7 +1007,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314514",
-      "values_compared": 52
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -1023,7 +1023,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314516",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -1191,7 +1191,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314533",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "deferred": {
@@ -1251,7 +1251,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314539",
-      "values_compared": 18
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -1259,7 +1259,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314540",
-      "values_compared": 52
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -1375,7 +1375,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314552",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1507,7 +1507,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314566",
-      "values_compared": 52
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -1543,7 +1543,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314570",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1603,7 +1603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314577",
-      "values_compared": 14
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -1611,7 +1611,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314578",
-      "values_compared": 16
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -1639,7 +1639,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314581",
-      "values_compared": 18
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -1667,7 +1667,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=5645105664643314584",
-      "values_compared": 52
+      "values_compared": 58
     },
     {
       "deferred": {

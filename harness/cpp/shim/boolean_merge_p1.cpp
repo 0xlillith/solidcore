@@ -21,6 +21,34 @@
 #undef SmTemporaryBrepTransform
 
 namespace {
+struct Recorder : SmNotifyCallback {
+    std::vector<std::pair<const void*, int>> identities;
+    std::vector<double> events;
+    int identity(const void* p) const {
+        if (!p) return -1;
+        for (auto item : identities) if (item.first == p) return item.second;
+        return -99;
+    }
+    SmStatus Execute(SmNotifyOperation op, SmObject* caller, SmObject* a, SmObject* b, SmObject* c) override {
+        if (op == SM_NO_COPY || op == SM_NO_REG_PROPAGATION) {
+            events.insert(events.end(), {(double)op, (double)identity(caller), (double)identity(a), (double)identity(b), (double)identity(c)});
+            return SM_ERR; // The caller must ignore callback status.
+        }
+        return SM_SUCCESS;
+    }
+    void append(std::vector<double>& out) const {
+        out.push_back(events.size()/5);
+        out.insert(out.end(),events.begin(),events.end());
+    }
+};
+struct CallbackGuard {
+    SmContext& context;
+    SmNotifyCallback* previous;
+    CallbackGuard(Recorder& recorder) : context(const_cast<SmContext&>(the_context())), previous(context.GetUserNotifyCallback()) {
+        context.SetUserNotifyCallback(&recorder);
+    }
+    ~CallbackGuard() { context.SetUserNotifyCallback(previous); }
+};
 struct Probe : sc_mp1_Merge {
     Probe() : sc_mp1_Merge(the_context()) {}
     void operands(SmBrep* a, SmBrep* b) { m_vTI.SetPrimaryBrep(a); m_vTI.SetOtherBrep(b); }
@@ -103,8 +131,10 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
             src->AddAttribute(new (the_context()) SmLongAttribute(555,29));
             if (b) merge.GetTopologyIntersector().Relate(dst,src);
         }
+        Recorder recorder; recorder.identities={{src,1},{dst,2},{primary.brep,3},{other.brep,4}};
+        CallbackGuard callback(recorder);
         SmVertex* result = nullptr;
-        status = merge.MergeVertex(src,g.regions[0],result);
+        status = merge.MergeVertex(src,a == 2 ? nullptr : g.regions[0],result);
         Graph fresh; walk(primary.brep,fresh);
         record.push_back(fresh.find(9,result));
         if (result) {
@@ -112,16 +142,22 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
             SmLongAttribute* at = (SmLongAttribute*)result->FindAttribute(555);
             record.push_back(at ? at->GetValue() : -1);
         }
+        recorder.append(record);
     } else if (op == 4) {
         if (g.regions.empty() || h.regions.empty()) return SC_ERR_ARG;
         SmRegion* r=g.regions[0]; r->SetIsVoid(a ? TRUE : FALSE);
         r->AddAttribute(new (the_context()) SmLongAttribute(555,29));
         if (b) r->AddAttribute(new (the_context()) SmColorAttribute(SM_AI_COLOR,SmVector3d(0.2,0.4,0.6)));
         if (c) r->AddAttribute(new (the_context()) SmMergeRegionAttribute(r,0,h.regions[0],1));
+        Recorder recorder; recorder.identities={{r,1}};
+        SmMergeRegionAttribute* mr=(SmMergeRegionAttribute*)r->FindAttribute(SM_AI_OTHER_REGION_ID);
+        if (mr) { recorder.identities.push_back({&mr->GetThisRegions(),5}); recorder.identities.push_back({&mr->GetOtherRegions(),6}); }
+        CallbackGuard callback(recorder);
         status = merge.PropagateOtherSrcRegionAttribs(SM_BO_UNION);
         record.push_back(r->FindAttribute(555) ? 1 : 0);
         record.push_back(r->FindAttribute(SM_AI_COLOR) ? 1 : 0);
         record.push_back(r->FindAttribute(SM_AI_OTHER_REGION_ID) ? 1 : 0);
+        recorder.append(record);
     } else if (op == 5) {
         if (h.faceuses.empty()) return SC_ERR_ARG;
         SmRegion* result=sm_FindBrepRegionOfOtherFace(h.faceuses[a%h.faceuses.size()],merge.GetTopologyIntersector());
