@@ -28,6 +28,7 @@
 //! | [`Region::get_shells`], [`Region::is_void`], [`Region::set_is_void`] | `GetShells`, `IsVoid`, `SetIsVoid` |
 //! | [`Region::is_infinite_region`] | `IsInfiniteRegion` |
 //! | [`Shell::is_inner_shell`], [`order_region_shells`] | `IsInnerShell`, `OrderShells` |
+//! | [`region_remove_shell`] | `SmOwningTopology::Remove` of a shell from its region |
 //!
 //! Deviations: circular lists are typed vectors in head-first order, as in the
 //! shared Brep arena model. Temporary marks use a local set without changing
@@ -475,6 +476,27 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
 /// Replace with the owner's port when `topology.brep_p1` lands.
 pub(crate) fn brep_get_edges(brep: &Brep) -> Vec<EdgeId> {
     brep.edges().ids().collect()
+}
+
+/// `pRegion->Remove(pShell)` (`SmOwningTopology::Remove`, inline in
+/// `SmOwningTopology.h`): takes the shell off the region's list and clears its
+/// owner, leaving every other shell's relative order.
+///
+/// # Errors
+/// Native `SM_ERR` (as `InvalidInput`) when the shell is not in this region's list,
+/// and dangling ids.
+pub fn region_remove_shell(brep: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
+    if brep.shell(shell)?.region != Some(region) {
+        return Err(invalid_members());
+    }
+    let list = &mut brep.region_mut(region)?.shells;
+    let index = list
+        .iter()
+        .position(|id| *id == shell)
+        .ok_or(invalid_members())?;
+    list.remove(index);
+    brep.shell_mut(shell)?.region = None;
+    Ok(())
 }
 
 /// Move a shell's vertex, wire edges and face uses to another shell.
