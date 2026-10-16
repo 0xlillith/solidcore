@@ -86,6 +86,9 @@ fn partition(v: &[f64]) -> Result<(), FfiError> {
 
 /// Validates the complete native fixture before passing it to C++.
 /// Operations: 0 insert, 1 homogenize, 2 fix endpoint, 3 merge interval.
+/// For endpoint repair the incoming start record's xyz supplies the caller's point.
+/// Native preflight also rejects full merges whose UNKNOWN start cannot become
+/// a vertex. Degenerate returns and vertices-only calls remain available.
 ///
 /// # Errors
 /// Rejects malformed layouts, flags, partitions and invalid operation indices.
@@ -232,6 +235,33 @@ mod isolated_tests {
     #[test]
     #[ignore = "only run by the subprocess safety matrix"]
     fn native_probe_child() {
+        if let Ok(s) = std::env::var("SC_CC_P6_FULL") {
+            let v: Vec<f64> = s.split(',').map(|x| x.parse().unwrap()).collect();
+            let (na, nb) = (v[6] as usize, v[7] as usize);
+            let a = &v[8..8 + na * WIDTH];
+            let b = &v[8 + na * WIDTH..8 + (na + nb) * WIDTH];
+            let input = &v[8 + (na + nb) * WIDTH..];
+            let result = run(
+                v[0] as i32,
+                v[1] as i32,
+                v[2],
+                v[3],
+                v[4] as i32,
+                v[5] as usize,
+                a,
+                b,
+                input,
+            );
+            // Invalid native preconditions are fixture rejection, never a parity pass.
+            assert!(
+                matches!(
+                    result,
+                    Ok(_) | Err(FfiError::InvalidArgument(_) | FfiError::Status(crate::SC_ERR_ARG))
+                ),
+                "{s}: {result:?}"
+            );
+            return;
+        }
         let s = std::env::var("SC_CC_P6_PROBE").unwrap();
         let args: Vec<f64> = s.split(',').map(|x| x.parse().unwrap()).collect();
         let (op, kind, flags, scale) = (args[0] as i32, args[1] as i32, args[2] as i32, args[3]);
@@ -245,54 +275,181 @@ mod isolated_tests {
             return;
         }
         let result = run(op, kind, scale, 1e-6, flags, 0, &a, &a, &input);
-        assert!(result.is_ok(), "{s}: {result:?}");
+        assert!(
+            matches!(result, Ok(_) | Err(FfiError::Status(crate::SC_ERR_ARG))),
+            "{s}: {result:?}"
+        );
+    }
+    fn isolated_probe(exe: &std::path::Path, variable: &str, probe: &str) {
+        let mut child = Command::new(exe)
+            .args(["--ignored", "--exact", CHILD])
+            .env(variable, probe)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let start = Instant::now();
+        loop {
+            if let Some(status) = child.try_wait().unwrap() {
+                assert!(
+                    status.success(),
+                    "native crash/failure for {probe}: {status}"
+                );
+                break;
+            }
+            if start.elapsed() > Duration::from_secs(5) {
+                child.kill().unwrap();
+                child.wait().unwrap();
+                panic!("native timeout for {probe}");
+            }
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+    fn record(lo: f64, hi: f64, classes: [i32; 3], stored: bool) -> Vec<f64> {
+        let mut v = vec![lo, hi];
+        for (kind, t) in classes.into_iter().zip([lo, (lo + hi) * 0.5, hi]) {
+            v.extend([
+                f64::from(kind),
+                0.0,
+                t,
+                1e20,
+                f64::from(stored),
+                t,
+                2.0 * t,
+                -t,
+            ]);
+        }
+        v
+    }
+    #[test]
+    fn rejects_null_start_vertex_but_keeps_native_early_exits() {
+        let input = record(0.0, 1.0, [0, 0, 0], false);
+        for mid in [3, 4] {
+            for end in [0, 2, 3, 4, 5] {
+                let a = record(0.0, 1.0, [0, mid, end], false);
+                for flags in [0, 2] {
+                    assert!(matches!(
+                        run(3, 0, 1.0, 1e-6, flags, 0, &a, &a, &input),
+                        Err(FfiError::Status(crate::SC_ERR_ARG))
+                    ));
+                }
+                assert!(run(3, 4, 1.0, 1e-6, 0, 0, &a, &a, &input).is_ok());
+                // These call the real native API, rather than counting a guard as parity.
+                assert!(run(3, 0, 1.0, 1e-6, 1, 0, &a, &a, &input).is_ok());
+            }
+        }
+        let a = record(0.0, 1.0, [1, 0, 6], false);
+        assert!(run(3, 0, 1.0, 1e-6, 0, 0, &a, &a, &input).is_ok());
+    }
+    #[test]
+    fn failed_face_projection_is_a_fixture_rejection() {
+        let mut a = record(0.0, 1.0, [0, 2, 0], false);
+        a[6] = 1.0;
+        a[7..10].fill(10.0);
+        for kind in 0..5 {
+            for flags in [0, 2] {
+                assert_eq!(
+                    run(3, kind, 1.0, 1e-6, flags, 0, &a, &a, &a),
+                    Err(FfiError::Status(crate::SC_ERR_ARG))
+                );
+            }
+        }
+        // Projection succeeds at the box corner; UNKNOWN/FACE is not rejected wholesale.
+        a[7..10].fill(0.0);
+        assert!(run(3, 0, 1.0, 1e-6, 0, 0, &a, &a, &a).is_ok());
+    }
+    #[test]
+    fn endpoint_repair_uses_the_callers_point() {
+        let a = record(0.0, 1.0, [3, 0, 3], false);
+        let mut input = record(0.0, 1.0, [0, 0, 0], false);
+        // The edge comes from the box's native traversal; test all corners
+        // without assuming which edge is first. Exactly its two ends promote.
+        let mut promoted = 0;
+        for x in [0.0, 1.0] {
+            for y in [0.0, 1.0] {
+                for z in [0.0, 1.0] {
+                    input[7..10].copy_from_slice(&[x, y, z]);
+                    let near = run(2, 0, 1.0, 1e-6, 0, 0, &a, &a, &input).unwrap();
+                    assert_eq!(near[0], 0.0);
+                    promoted += usize::from(near[1] == 1.0);
+                }
+            }
+        }
+        assert_eq!(
+            promoted, 2,
+            "only the edge's endpoints promote EDGE to VERTEX"
+        );
+        input[7..10].fill(10.0);
+        let far = run(2, 0, 1.0, 1e-6, 0, 0, &a, &a, &input).unwrap();
+        assert_eq!(far[0], 0.0);
+        assert_eq!(far[1], 0.0, "a distant point leaves EDGE unchanged");
+    }
+    #[test]
+    fn native_partition_sss_and_boundary_regressions_in_subprocesses() {
+        let exe = std::env::current_exe().unwrap();
+        let listing = Command::new(&exe)
+            .args(["--ignored", "--list"])
+            .output()
+            .unwrap();
+        assert!(String::from_utf8(listing.stdout).unwrap().contains(CHILD));
+        for n in [1, 2, 3, MAX_INTERVALS] {
+            for stored in [false, true] {
+                let a: Vec<f64> = (0..n)
+                    .flat_map(|j| {
+                        record(
+                            j as f64 / n as f64,
+                            (j + 1) as f64 / n as f64,
+                            [3, 0, 3],
+                            stored,
+                        )
+                    })
+                    .collect();
+                let b = record(0.0, 1.0, [0, 0, 0], !stored);
+                let input = record(0.25, 0.75, [1, 1, 1], stored);
+                for op in 0..4 {
+                    for index in [0, n / 2, if op == 2 { n } else { n - 1 }] {
+                        let mut payload = vec![
+                            f64::from(op),
+                            0.0,
+                            1.0,
+                            1e-6,
+                            0.0,
+                            index as f64,
+                            n as f64,
+                            1.0,
+                        ];
+                        payload.extend(&a);
+                        payload.extend(&b);
+                        payload.extend(&input);
+                        let probe = payload
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        isolated_probe(&exe, "SC_CC_P6_FULL", &probe);
+                    }
+                }
+            }
+        }
     }
     #[test]
     fn native_operation_geometry_flag_matrix_in_subprocesses() {
         let exe = std::env::current_exe().unwrap();
-        let listing = Command::new(&exe).args(["--ignored", "--list"]).output().unwrap();
+        let listing = Command::new(&exe)
+            .args(["--ignored", "--list"])
+            .output()
+            .unwrap();
         assert!(String::from_utf8(listing.stdout).unwrap().contains(CHILD));
         for kind in 0..=4 {
             for flags in 0..=3 {
                 for op in 0..=3 {
-                    for classes in [
-                        [0, 0, 0],
-                        [1, 1, 1],
-                        [2, 2, 2],
-                        [3, 3, 3],
-                        [4, 3, 4],
-                        [5, 5, 5],
-                        [6, 6, 6],
-                        [0, 5, 0],
-                        [4, 2, 4],
-                    ] {
+                    for code in 0..343 {
+                        let classes = [code / 49, code / 7 % 7, code % 7];
                         let probe = format!(
                             "{op},{kind},{flags},1,{},{},{}",
                             classes[0], classes[1], classes[2]
                         );
-                        let mut child = Command::new(&exe)
-                            .args(["--ignored", "--exact", CHILD])
-                            .env("SC_CC_P6_PROBE", &probe)
-                            .stdout(Stdio::null())
-                            .stderr(Stdio::null())
-                            .spawn()
-                            .unwrap();
-                        let start = Instant::now();
-                        loop {
-                            if let Some(status) = child.try_wait().unwrap() {
-                                assert!(
-                                    status.success(),
-                                    "native crash/failure for {probe}: {status}"
-                                );
-                                break;
-                            }
-                            if start.elapsed() > Duration::from_secs(5) {
-                                child.kill().unwrap();
-                                child.wait().unwrap();
-                                panic!("native timeout for {probe}");
-                            }
-                            std::thread::sleep(Duration::from_millis(5));
-                        }
+                        isolated_probe(&exe, "SC_CC_P6_PROBE", &probe);
                     }
                 }
             }

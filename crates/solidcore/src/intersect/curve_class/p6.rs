@@ -271,6 +271,9 @@ impl<O: ClassObject> CurveClassification<O> {
         index: usize,
         point: Point3,
     ) -> Result<bool> {
+        if self.size() == 0 || index > self.size() {
+            return Err(SolidError::invalid_input(OP, "invalid boundary index"));
+        }
         let loc = point_class_loc_by_index(self, index)?;
         let pc = *self.pc_at(loc)?;
         if pc.point_class() != Pc::Edge {
@@ -552,6 +555,10 @@ mod tests {
         let input = CurveInterval::with_interval(&k, &Extent1d::from_min_max(0.25, 0.75), None);
         assert!(cc.insert_curve_interval(&k, &g, &input).is_err());
         assert!(cc.merge_interval(usize::MAX, false).is_err());
+        assert!(matches!(
+            cc.fix_end_point_class(&k, &g, usize::MAX, Vec3::ZERO),
+            Err(SolidError::InvalidInput { .. })
+        ));
     }
     #[test]
     fn unclassified_merge_and_empty_homogenization_use_real_api() {

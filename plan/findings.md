@@ -5044,8 +5044,8 @@ mutated scales and accepted/reduced step counts are compared.
 
 ## intersect.curve_class_p6 (partial; PR #138)
 
-- **Certified scope.** 787 default cases: 281 bit-identical comparisons, zero
-  failures and 506 explicit deferrals; no absolute floors. The compared paths are
+- **Certified scope.** 4432 default cases: 3927 bit-identical comparisons, zero
+  failures and 505 explicit deferrals; no absolute floors. The compared paths are
   non-splicing `InsertCurveInterval`, empty `Homogenize`, and the early
   `MergeInterval` exits. The native oracle calls the real four upstream members;
   geometry evaluations and interval/point-classification fields are compared along
@@ -5069,14 +5069,32 @@ mutated scales and accepted/reduced step counts are compared.
   traversal; objects are scoped and destroyed after the classifications.
 - **Safety and recursion.** FFI validates complete bounded records, partitions,
   enum values, flags and operation indices. Invalid geometry-as-topology merge
-  inputs are rejected; safe vertices-only paths remain accepted. A 720-process
-  regression matrix checks operations, true geometric kinds and flags with a
-  five-second per-child timeout, separately from differential pass counts. Tiny
+  inputs are rejected; safe vertices-only paths remain accepted. A 27440-process
+  regression matrix checks all seven classification kinds at each interval point,
+  operations, true geometric kinds and flags with a five-second per-child timeout, separately from differential pass counts. Tiny
   and large constructor paths and malformed records have dedicated native tests.
   The native FFI suite is run locally with the existing CI workflow unchanged.
-  Rust insertion replaces tail
-  recursion with the same restart order, bounded by the initial interval count
-  plus one; homogenization refuses a squeeze that makes no progress.
+  Rust insertion replaces tail recursion with the same restart order, bounded by
+  the initial interval count plus one; homogenization refuses a squeeze that makes
+  no progress.
+- **Port audit follow-up.** Exhaustive native merge probes exposed unresolved
+  UNKNOWN starts (EDGE/VERTEX interior or failed FACE projection), recorded as
+  UB-122 in `plan/upstream-issues.md`. The shim preflights the actual projection
+  sequence and rejects only unresolved-start full merges, retaining constant-curve
+  and vertices-only returns and successful FACE projections. Rejections are fixture
+  errors, never parity passes. Another 96 isolated probes cover partition sizes
+  1/2/3/32, saved SSS points and boundary indices. `FixEndPointClass` now receives the
+  caller's point on both sides; a native regression checks all eight box corners
+  (exactly two promote the chosen edge to a vertex) and a distant control. Invalid
+  Rust boundary indices return `InvalidInput` before dependency dispatch.
+- **Coverage and ownership.** Added 3645 receiver/incoming classification combinations
+  over UNKNOWN/CURVE/NOTHING, preserving gaps, parameters and saved points. Generated
+  cases now exercise all four operations. Existing p1 types and p3 helpers are reused;
+  p2/p4/p7 implementations remain owned by their open PRs, without duplicate co-ports.
+  The larger 4096-seed run has 8512 cases, 4808 passes, 3704 deferrals and no failures;
+  perturbation detects all 3927 p6 and 2064 p3 compared cases. No absolute floors or
+  tolerance changes were added. Nonempty endpoint repair remains uncertified in Rust
+  until p7 lands; its caller-point regression is a native contract test.
 
 ## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
 

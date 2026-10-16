@@ -16,6 +16,9 @@
 #include <SmNurbsCrv.h>
 #include <SmPointClass.h>
 #include <SmRegion.h>
+#include <SmSolutionArray.h>
+#include <SmSurface.h>
+#include <SmTrimSrfCache.h>
 #include <SmTol.h>
 #include <SmVertex.h>
 #include <nurbs.h>
@@ -57,6 +60,63 @@ struct Objects
 };
 
 double status_code(SmStatus s) { return s == SM_SUCCESS ? 0.0 : (double)s; }
+
+// MergeInterval assumes its UNKNOWN start can be recovered from its FACE
+// interior. If projection fails, it continues and dereferences a null vertex.
+// Check exactly the private sm_ComputeFacePointClass projection/classification
+// sequence (SmCurveClass.cpp:3937-4044), without changing the input classification
+// or topology. Successful native inputs remain available to the real operation.
+bool merge_start_can_merge(const SmCurveClassification& cc, ULONG index)
+{
+    const SmCurveInterval& ivl = cc[index];
+    if (ivl.m_vStart.GetPointClass() != SM_PC_UNKNOWN ||
+        ivl.m_vMid.GetPointClass() == SM_PC_UNKNOWN ||
+        ivl.m_vMid.GetPointClass() == SM_PC_REGION)
+        return true;
+    // The closed/degenerate branch returns before the unconditional vertex
+    // dereference. Do not reject these valid constant/short-curve inputs.
+    SmXSectTol3d closed_tol = SmTol::GetXSectTol3d(
+        cc.GetPointObjZoneTol3d(index), cc.GetPointObjZoneTol3d(index + 1));
+    const SmPoint3d point = cc.GetClassifyCrvLoc(index);
+    const SmPoint3d end = cc.GetClassifyCrvLoc(index + 1);
+    if (point.DistanceBetween(end) < closed_tol &&
+        SmTol::IsDegenerate(cc.GetCurve(), ivl.m_vInterval, &closed_tol))
+        return true;
+    if (ivl.m_vMid.GetPointClass() != SM_PC_FACE) return false;
+    SmFace* face = (SmFace*)ivl.m_vMid.GetObject();
+    SmSurface* surface = face->GetSurface();
+    if (!surface) return false;
+    SmSurfaceCache* cache = smsurf_GetSurfaceCache(surface);
+    if (!cache) return false;
+    SmCacheCheckOutIn hold(cache);
+    SmSolution data[16];
+    SmSolutionArray solutions(16, data);
+    SmZoneTol3d src = SmTol::GetSrcZoneTol3d(&cc);
+    SmXSectTol3d xsect = SmTol::GetXSectTol3d(src, SmTol::GetZoneTol3d(face));
+    {
+        SmTemporaryChangeValue<SmBoolean> disable(cache->m_bPointTestEnabled, FALSE);
+        for (double tol : {(double)src, 10 * (double)xsect, 100 * (double)xsect})
+        {
+            if (surface->GlobalPointSolve(face->GetUVDomain(), SM_SO_INTERSECT,
+                    point, SmZoneTol3d(tol), nullptr, SM_SR_ALL, solutions) != SM_SUCCESS)
+                return false;
+            if (solutions.GetSize() != 0) break;
+        }
+    }
+    if (solutions.GetSize() == 0) return false;
+    double best = SM_BIG_DOUBLE;
+    SmPoint2d uv;
+    for (ULONG i = 0; i < solutions.GetSize(); ++i)
+        if (solutions[i].m_vStart.m_dSolutionValue < best)
+        {
+            best = solutions[i].m_vStart.m_dSolutionValue;
+            uv.Set(solutions[i].m_vStart[0], solutions[i].m_vStart[1]);
+        }
+    if (best == SM_BIG_DOUBLE) return false;
+    SmPointClassification pc = ivl.m_vStart;
+    face->PointClassify(uv, src, TRUE, TRUE, pc);
+    return pc.GetObject() != nullptr;
+}
 
 SmPointClassType pc_type(int kind)
 {
@@ -177,6 +237,8 @@ SC_EXPORT int32_t sc_intersect_curve_class_p6_run(
     for (int64_t i = 0; i < na; ++i) read_ivl(cc[(ULONG)i], a + 26 * i, objs, tol);
     for (int64_t i = 0; i < nb; ++i) read_ivl(other[(ULONG)i], b + 26 * i, objs, tol);
     cc.SetFilletData((flags & 2) ? &other : nullptr, (flags & 2) ? TRUE : FALSE);
+    if (op == 3 && !(flags & 1) && !merge_start_can_merge(cc, (ULONG)index))
+        return SC_ERR_ARG;
     SmCurveInterval incoming(SmExtent1d(0, 1), ctx, &cc);
     read_ivl(incoming, input, objs, tol);
     SmBoolean changed = FALSE;
@@ -188,7 +250,7 @@ SC_EXPORT int32_t sc_intersect_curve_class_p6_run(
     else if (op == 1) status = cc.Homogenize(other);
     else if (op == 2)
     {
-        SmPoint3d p(0, 0, 0);
+        SmPoint3d p(input[7], input[8], input[9]);
         status = cc.FixEndPointClass((ULONG)index, p, changed);
     }
     else
