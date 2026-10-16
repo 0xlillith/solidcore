@@ -19,6 +19,8 @@ for the remaining topology, bounding-box and offset dependencies. Detailed cover
 and the scalar wrapper's failure-masking behavior are in `plan/findings.md`.
 
 
+Latest unit: `surface.cone_p3` ([PR #131](https://github.com/bherbruck/solidcore/pull/131)) adds analytic cone/cylinder plane sections and cone/cone intersections: 1308 differential cases, 1187 bit-identical passes, 121 dependency deferrals, zero failures. Ellipse trimming awaits `surface.cone_p2`; coincident boundaries now await the Cone/Cylinder `SurfaceKind` adapter in #76/#133, because #120 merged but its boundary API requires typed `Surface` operands. Shared cone/sphere enum dispatch remains coordinated in issue #76. Review follow-up narrows the native guard to exact cone dispatch, adds tolerance/constructor/flag regressions with native FFI safety tests validated locally.
+
 ## Handoff (2026-10-13): from one local swarm to pull requests
 
 The original local swarm (one machine, up to 10 agents) was stopped here so that others
@@ -954,3 +956,18 @@ suite passes 173 units
 (97 green, 76 partial), with zero failures; the final API rerun and touched-unit
 perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
 422,654 compared, 12,618 deferred, zero failed.
+
+## Curve-classification interval integration (2026-10-16, PR #138)
+
+`intersect.curve_class_p6` is partial: 4438 cases: 3927 bit-identical kernel comparisons,
+6 expected FFI rejection checks, zero failures and 505 explicit deferrals, without absolute floors. Insertion,
+homogenization and endpoint repair follow the upstream control flow, retaining
+explicit dependency boundaries. `MergeInterval` implements its early exits;
+its topology mutation remains deferred at the p2 boundary-tolerance lookup.
+Nonempty homogenization/repair and 2D classification are not certified.
+
+The oracle uses concrete native geometric types and real box topology, records
+point-classification state and created-entity outputs, and compares actual curve
+evaluations. Native FFI regressions include 27440 isolated combinations of
+operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
+probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.
