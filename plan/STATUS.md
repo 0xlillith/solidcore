@@ -957,13 +957,27 @@ perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 c
 
 ## Independent curve-classification part 5
 
-The p5 implementation and oracle are isolated from the open p2/p7/p6 PRs. Their
-code, fixtures, reports, status changes and integration promotions are excluded.
-Calls into those units explicitly defer until they land independently. The reduced scope compares 267/1,081 cases exactly, with zero failures and 814
-explicit deferrals. Perturbation detects all 267 compared cases. Bundled results
-are not reused. The edge-target insertion branch and SSS refinement block remain
-unported (p2/p7 integration, and an SSS block deferred before its mutations at the
-boolean mate dependency). All 24 zero-tangent
-fixtures defer, so they do not certify the tangent-flag branch. Small shared
-interfaces are recorded as CO-PORTED in their owning units' notes. The extraction
-back-edge from proto-topology p3 now calls p5; the lazy-UV issue is UB-134.
+The p5 implementation and oracle remain independent of the open p2/p7 PRs.
+Part 6 landed independently through PR #138 and is now inherited from main;
+p5 calls its Homogenize, FixEndPointClass, InsertCurveInterval and MergeInterval
+methods. The previously verified 267/1,081 comparisons and 814 deferrals describe
+the pre-p6 tree. Integration validation and report regeneration are in progress.
+The edge-target insertion and SSS blocks remain unported, and all 24 zero-tangent
+fixtures previously deferred on p2. Small shared interfaces are recorded as
+CO-PORTED in their owning units' notes. The proto-topology p3 extraction back-edge
+calls p5; the lazy-UV issue remains UB-134.
+
+## Curve-classification interval integration (2026-10-16, PR #138)
+
+`intersect.curve_class_p6` is partial: 4438 cases: 3927 bit-identical kernel comparisons,
+6 expected FFI rejection checks, zero failures and 505 explicit deferrals, without absolute floors. Insertion,
+homogenization and endpoint repair follow the upstream control flow, retaining
+explicit dependency boundaries. `MergeInterval` implements its early exits;
+its topology mutation remains deferred at the p2 boundary-tolerance lookup.
+Nonempty homogenization/repair and 2D classification are not certified.
+
+The oracle uses concrete native geometric types and real box topology, records
+point-classification state and created-entity outputs, and compares actual curve
+evaluations. Native FFI regressions include 27440 isolated combinations of
+operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
+probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.

@@ -21,7 +21,7 @@
 //! its preceding mutations are not implemented. Ordinary vertex projections are
 //! compared; large-gap projections remain uncertified because the oracle vertices
 //! have no vertexuse and its Rust adapter supplies no vertex/face gap.
-//! Parts 2/6/7 remain explicit dependency stubs until their independent PRs land. The fixup
+//! Parts 2/7 remain explicit dependency stubs; part 6 is wired from main. The fixup
 //! restart loop is bounded by three times the initial interval count plus one: fixes remove an interval or
 //! snap an edge classification to a vertex. Undefined
 //! native null dereferences and unequal paired classification lengths return errors.
@@ -188,48 +188,7 @@ impl<O: ClassObject> CurveClassification<O> {
         )
     }
 
-    // These adapters are dependency boundaries, not co-ports. Replace them with
-    // the owning units' methods after those PRs land independently.
-    fn p5_homogenize(
-        _classification: &mut Self,
-        _k: &Kernel,
-        _geometry: &impl ClassGeometry<O>,
-        _other: &mut Self,
-    ) -> Result<()> {
-        // UNPORTED(intersect.curve_class_p6): SmCurveClassification::Homogenize
-        Err(SolidError::unported(
-            "SmCurveClassification::Homogenize",
-            "intersect.curve_class_p6",
-        ))
-    }
-
-    fn p5_fix_end_point_class(
-        _classification: &mut Self,
-        _k: &Kernel,
-        _geometry: &impl ClassGeometry<O>,
-        _index: usize,
-        _point: Point3,
-    ) -> Result<bool> {
-        // UNPORTED(intersect.curve_class_p6): SmCurveClassification::FixEndPointClass
-        Err(SolidError::unported(
-            "SmCurveClassification::FixEndPointClass",
-            "intersect.curve_class_p6",
-        ))
-    }
-
-    fn p5_insert_curve_interval(
-        _classification: &mut Self,
-        _k: &Kernel,
-        _geometry: &impl ClassGeometry<O>,
-        _interval: &CurveInterval<O>,
-    ) -> Result<()> {
-        // UNPORTED(intersect.curve_class_p6): SmCurveClassification::InsertCurveInterval
-        Err(SolidError::unported(
-            "SmCurveClassification::InsertCurveInterval",
-            "intersect.curve_class_p6",
-        ))
-    }
-
+    // Remaining dependency boundaries belong to the independent p2/p7 ports.
     fn p5_point_class_by_index(
         _classification: &Self,
         _index: usize,
@@ -254,15 +213,16 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     fn p5_merge_interval(
-        _classification: &mut Self,
-        _index: usize,
-        _vertices_only: bool,
+        classification: &mut Self,
+        index: usize,
+        vertices_only: bool,
     ) -> Result<MergedTopology<O>> {
-        // UNPORTED(intersect.curve_class_p6): SmCurveClassification::MergeInterval
-        Err(SolidError::unported(
-            "SmCurveClassification::MergeInterval",
-            "intersect.curve_class_p6",
-        ))
+        let merged = classification.merge_interval(index, vertices_only)?;
+        Ok(MergedTopology {
+            faces: merged.new_faces,
+            edges: merged.new_edges,
+            vertices: merged.new_vertices,
+        })
     }
 
     /// Extracts common geometry after homogenizing and cleaning both classifications.
@@ -277,7 +237,7 @@ impl<O: ClassObject> CurveClassification<O> {
         options: ExtractOptions,
     ) -> Result<ExtractedGeometry> {
         let mut out = ExtractedGeometry::default();
-        Self::p5_homogenize(self, k, geometry, other)?;
+        self.homogenize(k, geometry, other)?;
         self.cleanup_and_validate(k, geometry, other)?;
         if self.size() != other.size() {
             return Err(SolidError::sm_err(OP));
@@ -357,8 +317,8 @@ impl<O: ClassObject> CurveClassification<O> {
                 let interval = self.at(i)?.interval;
                 let start = curve.evaluate_point(interval.min())?;
                 let end = curve.evaluate_point(interval.max())?;
-                if Self::p5_fix_end_point_class(self, k, geometry, i, start)?
-                    || Self::p5_fix_end_point_class(self, k, geometry, i + 1, end)?
+                if self.fix_end_point_class(k, geometry, i, start)?
+                    || self.fix_end_point_class(k, geometry, i + 1, end)?
                 {
                     restarts = restarts.checked_sub(1).ok_or(SolidError::sm_err(OP))?;
                     continue 'restart;
@@ -431,7 +391,7 @@ impl<O: ClassObject> CurveClassification<O> {
                         other_index,
                         end.param(object_index)?,
                     )?;
-                    Self::p5_insert_curve_interval(self, k, geometry, &ivl)?;
+                    self.insert_curve_interval(k, geometry, &ivl)?;
                 } else if (pass == 1 || pass == 2) && sol.solution_type == SolutionType::SingleValue
                 {
                     let object = object
@@ -830,7 +790,7 @@ pub fn insert_solutions<O: ClassObject>(
                     "native short-range tangency filtering requires an edge",
                 ));
             }
-            CurveClassification::p5_insert_curve_interval(classification, k, geometry, &ivl)?;
+            classification.insert_curve_interval(k, geometry, &ivl)?;
         }
     }
     Ok(())
