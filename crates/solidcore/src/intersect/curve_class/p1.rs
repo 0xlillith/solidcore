@@ -524,6 +524,14 @@ impl<O: ClassObject> CurveClassification<O> {
         &self.data
     }
 
+    /// Sets the complete classification domain (inline `SetInterval`).
+    ///
+    /// # Errors
+    /// Returns the interval validation error instead of ignoring an invalid domain.
+    pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
+        self.interval.set_min_max(interval.min(), interval.max())
+    }
+
     /// The face classified against (`GetFace`).
     #[must_use]
     pub const fn face(&self) -> Option<O> {
@@ -2022,6 +2030,7 @@ fn surface_global_point_solve(
     let solutions = ignored(
         surface.global_point_solve::<crate::surface::surface::p4::NoObject>(
             k,
+            Some(crate::surface::surface::p4::NoObject),
             &surface.natural_uv_domain(),
             SolverOperation::Minimize,
             point,
