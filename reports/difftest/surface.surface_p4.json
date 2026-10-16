@@ -875,8 +875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0106",
@@ -1615,8 +1615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0197",
@@ -2099,8 +2099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0254",
@@ -2159,8 +2159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0261",
@@ -2907,8 +2907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -2927,8 +2927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0353",
@@ -3435,8 +3435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -3987,8 +3987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0479",
@@ -4391,8 +4391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0525",
@@ -4871,8 +4871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0583",
@@ -4907,8 +4907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0587",
@@ -5211,8 +5211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0622",
@@ -7351,8 +7351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0880",
@@ -7531,8 +7531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen0902",
@@ -8363,8 +8363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1003",
@@ -8807,8 +8807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1055",
@@ -9399,8 +9399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1126",
@@ -10295,8 +10295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1234",
@@ -10339,8 +10339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1239",
@@ -10679,8 +10679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1279",
@@ -10943,8 +10943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1311",
@@ -11123,8 +11123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1332",
@@ -11143,8 +11143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1334",
@@ -11439,8 +11439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1369",
@@ -12083,8 +12083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1445",
@@ -12523,8 +12523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1497",
@@ -12787,8 +12787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1528",
@@ -13503,8 +13503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1614",
@@ -13879,8 +13879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1658",
@@ -14431,8 +14431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1724",
@@ -14647,8 +14647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1750",
@@ -15743,8 +15743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1882",
@@ -15763,8 +15763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen1884",
@@ -18519,8 +18519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2212",
@@ -18843,8 +18843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2249",
@@ -19255,8 +19255,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2298",
@@ -20403,8 +20403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2434",
@@ -20539,8 +20539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2449",
@@ -20755,8 +20755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2475",
@@ -21031,8 +21031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2508",
@@ -21323,8 +21323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2543",
@@ -22287,8 +22287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2658",
@@ -22719,8 +22719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2710",
@@ -24467,8 +24467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2917",
@@ -24503,8 +24503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2921",
@@ -24663,8 +24663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSPGlobalSolver::LocalSolve",
-        "unit": "surface.surface_p8"
+        "symbol": "sm_SpLocalSolve",
+        "unit": "surface.surface_p5"
       },
       "max_rel_err": 0.0,
       "name": "gen2940",
@@ -25164,7 +25164,7 @@
   "cases_passed": 2711,
   "cases_total": 3000,
   "deferred_by_unit": {
-    "surface.surface_p8": 46,
+    "surface.surface_p5": 46,
     "surface.surface_point_solve_p3": 243
   },
   "max_rel_err": 0.0,

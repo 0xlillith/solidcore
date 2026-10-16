@@ -887,9 +887,12 @@ pub fn is_degenerate_base<C: CurveEvaluate + ?Sized>(
 /// `SmCurve::HasPlaneCrossings`: whether the curve crosses one of `planes` (a point
 /// intersection off the curve ends, or a range that is not the whole curve).
 ///
+/// The status of `GlobalCurveIntersect` is ignored upstream (no `SER`): a failed
+/// intersection leaves no solutions, so the plane is not crossed.
+///
 /// # Errors
 ///
-/// Those of [`Surface::global_curve_intersect`].
+/// [`SolidError::Unported`] from [`Surface::global_curve_intersect`].
 pub fn has_plane_crossings(k: &Kernel, curve: &Curve, planes: &[Plane]) -> Result<bool> {
     // locals
     let ivl = curve.natural_interval();
@@ -897,7 +900,11 @@ pub fn has_plane_crossings(k: &Kernel, curve: &Curve, planes: &[Plane]) -> Resul
     // for every plane
     for plane in planes {
         // find all Curve/Plane intersections
-        let solutions = plane_global_curve_intersect(k, plane, curve, &ivl, EFF_ZERO)?;
+        // (status ignored: an error leaves the solution array empty)
+        let solutions = ignored(plane_global_curve_intersect(
+            k, plane, curve, &ivl, EFF_ZERO,
+        ))?
+        .unwrap_or_default();
 
         // for every solution - classify the intersection
         for (solution_type, start, end) in &solutions {

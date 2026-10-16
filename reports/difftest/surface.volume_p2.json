@@ -5050,13 +5050,50 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1.5, 1.0, 0.25],
+        "b": [1.6500000000000001, 0.5, -0.75],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_line_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#631",
       "values_compared": 0
@@ -5070,16 +5107,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "bend_std_then_unbend_inv_eval_g_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#633",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5154,13 +5187,50 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [3.0, 6.283185307179586, -1.0],
+        "b": [3.0, 3.141592653589793, -2.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_line_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#643",
       "values_compared": 0
@@ -5174,13 +5244,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.1, -6.283185307179586, 0],
+          [3.0, 6.283185307179586, 1]
+        ],
+        "guess": [3.0, 6.283185307179586, -1.0],
+        "op": "inv_eval",
+        "p": [2.5, 4.19822971502571, -0.7],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_std_then_unbend_inv_eval_g_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#645",
       "values_compared": 0
@@ -5354,13 +5465,50 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [0.01, 0.1, 0.0],
+        "b": [0.309, 0.05, -1.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_line_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#667",
       "values_compared": 0
@@ -5470,13 +5618,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [1, 0, 0],
+          [1, 0, 0]
+        ],
+        "guess": [0.005, 0.0, 0.0],
+        "op": "inv_eval",
+        "p": [0.005, -0.2, 0.3],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_std_then_unbend_inv_eval_g_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#681",
       "values_compared": 0
@@ -5762,13 +5951,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, -1.0, -1],
+          [2.0, 1.0, 1]
+        ],
+        "guess": [1e-7, 1e-7, 1e-7],
+        "op": "inv_eval",
+        "p": [1.5e-7, -0.19999993000000002, 0.3000001],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_std_then_unbend_inv_eval_g_7",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#717",
       "values_compared": 0
@@ -5918,13 +6148,52 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1.0, -1],
+          [2.0, 1.0, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_box_in_param_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#736",
       "values_compared": 0
@@ -5954,13 +6223,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2.0],
+            [-1.0, 1.0],
+            [-1, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_pbox_in_in_space_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#740",
       "values_compared": 0
@@ -5998,37 +6314,172 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.1, 3.0],
+            [-6.283185307179586, 6.283185307179586],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_pbox_in_in_space_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#745",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": false,
+        "op": "map_pbox",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.1, 3.0],
+            [-6.283185307179586, 6.283185307179586],
+            [0, 1]
+          ]
+        },
+        "trim": false,
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "21",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_map_pbox_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#746",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 4.0, 0],
+          [1.5, 9.0, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_box_in_param_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#747",
       "values_compared": 0
@@ -6058,13 +6509,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 1.5],
+            [4.0, 9.0],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_pbox_in_in_space_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#751",
       "values_compared": 0
@@ -6118,13 +6616,52 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, 0, 0],
+          [1, 0, 0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_box_in_param_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#758",
       "values_compared": 0
@@ -6154,13 +6691,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [1, 1],
+            [0, 0],
+            [0, 0]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_pbox_in_in_space_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#762",
       "values_compared": 0
@@ -6198,25 +6782,121 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2.0],
+            [-0.5, 0.5],
+            [-1234567.0, 1234567.0]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_pbox_in_in_space_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#767",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": false,
+        "op": "map_pbox",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2.0],
+            [-0.5, 0.5],
+            [-1234567.0, 1234567.0]
+          ]
+        },
+        "trim": false,
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "21",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_std_then_unbend_map_pbox_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#768",
       "values_compared": 0
@@ -16470,13 +17150,50 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1.5, 0.75, 0.25],
+        "b": [1.6500000000000001, 0.375, -0.75],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_tilted_then_unbend_line_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2011",
       "values_compared": 0
@@ -16490,13 +17207,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, -0.75, -1],
+          [2.0, 0.75, 1]
+        ],
+        "guess": [1.5, 0.75, 0.25],
+        "op": "inv_eval",
+        "p": [1.625, 0.3249999999999999, 0.55],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_tilted_then_unbend_inv_eval_g_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2013",
       "values_compared": 0
@@ -16590,13 +17348,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.1, -4.71238898038469, 0],
+          [3.0, 4.71238898038469, 1]
+        ],
+        "guess": [3.0, 4.71238898038469, -1.0],
+        "op": "inv_eval",
+        "p": [2.5, 3.0986722862692826, -0.7],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_tilted_then_unbend_inv_eval_g_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2025",
       "values_compared": 0
@@ -16882,13 +17681,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [1, 0, 0],
+          [1, 0, 0]
+        ],
+        "guess": [0.005, 0.0, 0.0],
+        "op": "inv_eval",
+        "p": [0.005, -0.2, 0.3],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_tilted_then_unbend_inv_eval_g_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2061",
       "values_compared": 0
@@ -17174,13 +18014,54 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, -0.75, -1],
+          [2.0, 0.75, 1]
+        ],
+        "guess": [1e-7, 1e-7, 1e-7],
+        "op": "inv_eval",
+        "p": [1.5e-7, -0.19999993000000002, 0.3000001],
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "7"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "bend_tilted_then_unbend_inv_eval_g_7",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2097",
       "values_compared": 0
@@ -17330,13 +18211,52 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -0.75, -1],
+          [2.0, 0.75, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_tilted_then_unbend_box_in_param_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2116",
       "values_compared": 0
@@ -17422,13 +18342,52 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 3.0, 0],
+          [1.5, 6.75, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_tilted_then_unbend_box_in_param_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2127",
       "values_compared": 0
@@ -17514,13 +18473,52 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, 0, 0],
+          [1, 0, 0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_tilted_then_unbend_box_in_param_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2138",
       "values_compared": 0
@@ -17550,13 +18548,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [1, 1],
+            [0, 0],
+            [0, 0]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 7,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.3, 0.4, 0.866],
+              "c": [1, -2, 0.5],
+              "d": 1.5,
+              "mid": [1, 0.2, -0.1],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "bend_tilted_then_unbend_pbox_in_in_space_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/bend.json#2142",
       "values_compared": 0
@@ -70906,13 +71951,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1.5, 0.5, 0.25],
+        "b": [3, -2, 1],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1846",
       "values_compared": 0
@@ -71006,13 +72087,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [3, -2, 1],
+        "b": [0.005, 0.0, 0.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1858",
       "values_compared": 0
@@ -71106,13 +72223,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [0.005, 0.0, 0.0],
+        "b": [-1, 0.2, 0.5],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1870",
       "values_compared": 0
@@ -71206,13 +72359,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-1, 0.2, 0.5],
+        "b": [-1, -0.2, 0.5],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1882",
       "values_compared": 0
@@ -71306,13 +72495,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-1, -0.2, 0.5],
+        "b": [0, 0, 0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1894",
       "values_compared": 0
@@ -71406,13 +72631,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [0, 0, 0],
+        "b": [1e-9, 1e-9, 1],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1906",
       "values_compared": 0
@@ -71506,13 +72767,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1e-9, 1e-9, 1],
+        "b": [2, 0, -7],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1918",
       "values_compared": 0
@@ -71606,13 +72903,49 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [2, 0, -7],
+        "b": [10000.0, 20000.0, -3000.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_7",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1930",
       "values_compared": 0
@@ -71706,181 +73039,840 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [10000.0, 20000.0, -3000.0],
+        "b": [1.5, 0.5, 0.25],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_line_8",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1942",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1943",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1944",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1945",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1946",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1947",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1948",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1949",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1950",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-1234567.0, -1234567.0, -1234567.0],
+          [1234567.0, 1234567.0, 1234567.0]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1951",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-1234567.0, -1234567.0, -1234567.0],
+          [1234567.0, 1234567.0, 1234567.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1952",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1953",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1954",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_eval_bbox_nc_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1955",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_box_in_param_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1956",
       "values_compared": 0
@@ -71894,13 +73886,59 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_pbox_in_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1958",
       "values_compared": 0
@@ -71914,13 +73952,59 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [0.6, 0.8, 0],
+            [-0.8, 0.6, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [1, 2],
+            [-0.5, 0.5],
+            [0, 3]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [0.5, -1, 2],
+              [2, 0, 0],
+              [0, 3, 0],
+              [0, 0, 0.5]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tf_std_pbox_in_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1960",
       "values_compared": 0
@@ -72046,13 +74130,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1.5, 0.5, 0.25],
+        "b": [3, -2, 1],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1976",
       "values_compared": 0
@@ -72146,13 +74267,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [3, -2, 1],
+        "b": [0.005, 0.0, 0.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#1988",
       "values_compared": 0
@@ -72246,13 +74404,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [0.005, 0.0, 0.0],
+        "b": [-1, 0.2, 0.5],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2000",
       "values_compared": 0
@@ -72346,13 +74541,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-1, 0.2, 0.5],
+        "b": [-1, -0.2, 0.5],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2012",
       "values_compared": 0
@@ -72446,13 +74678,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-1, -0.2, 0.5],
+        "b": [0, 0, 0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2024",
       "values_compared": 0
@@ -72546,13 +74815,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [0, 0, 0],
+        "b": [1e-9, 1e-9, 1],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2036",
       "values_compared": 0
@@ -72646,13 +74952,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1e-9, 1e-9, 1],
+        "b": [2, 0, -7],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2048",
       "values_compared": 0
@@ -72746,13 +75089,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [2, 0, -7],
+        "b": [10000.0, 20000.0, -3000.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_7",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2060",
       "values_compared": 0
@@ -72846,13 +75226,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [10000.0, 20000.0, -3000.0],
+        "b": [1.5, 0.5, 0.25],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_line_8",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2072",
       "values_compared": 0
@@ -72874,49 +75291,176 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2075",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2076",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2077",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "op": "global",
+        "p": [3, -2, 1],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "2"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_global_dom_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2078",
       "values_compared": 0
@@ -72938,52 +75482,135 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2081",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2082",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2083",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2084",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -73002,49 +75629,220 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2087",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2088",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "op": "inv_eval",
+        "p": [1.5, 0.5, 0.25],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "3"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_inv_eval_dom_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2089",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "op": "global",
+        "p": [3, -2, 1],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "2"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_global_dom_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2090",
       "values_compared": 0
@@ -73066,49 +75864,220 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2093",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2094",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "op": "inv_eval",
+        "p": [1.5, 0.5, 0.25],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "3"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_inv_eval_dom_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2095",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "op": "global",
+        "p": [3, -2, 1],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "2"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_global_dom_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2096",
       "values_compared": 0
@@ -73130,52 +76099,135 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-1234567.0, -1234567.0, -1234567.0],
+          [1234567.0, 1234567.0, 1234567.0]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2099",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-1234567.0, -1234567.0, -1234567.0],
+          [1234567.0, 1234567.0, 1234567.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2100",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2101",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2102",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -73194,52 +76246,135 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2105",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2106",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_inv_eval_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2107",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_tw_tilted_global_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2108",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -73258,49 +76393,220 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_eval_bbox_nc_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2111",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_box_in_param_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2112",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "op": "inv_eval",
+        "p": [1.5, 0.5, 0.25],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "3"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_inv_eval_dom_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2113",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "dom": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "op": "global",
+        "p": [3, -2, 1],
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "values.out.len",
+          "rust": "2"
+        },
+        {
+          "cpp": "1001",
+          "field": "ints.status[0]",
+          "rust": "0"
+        }
+      ],
       "name": "unbend_tw_tilted_global_dom_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2114",
       "values_compared": 0
@@ -73314,13 +76620,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_pbox_in_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2116",
       "values_compared": 0
@@ -73342,13 +76695,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [0.6, 0.8, 0],
+            [-0.8, 0.6, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [1, 2],
+            [-0.5, 0.5],
+            [0, 3]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0, 0, 1],
+              "mid": [1, 0, 0],
+              "min": 0.001,
+              "o": [0, 0, 0],
+              "period": 10.0
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1, 1, 0],
+              "c": [1, 2, 3],
+              "d": 5.0,
+              "mid": [0, 0, 1],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_tw_tilted_pbox_in_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2119",
       "values_compared": 0
@@ -73482,13 +76882,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [1.5, 0.5, 0.25],
+        "b": [3, -2, 1],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_line_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2136",
       "values_compared": 0
@@ -74158,13 +77595,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [2, 0, -7],
+        "b": [10000.0, 20000.0, -3000.0],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_line_7",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2220",
       "values_compared": 0
@@ -74258,13 +77732,50 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [10000.0, 20000.0, -3000.0],
+        "b": [1.5, 0.5, 0.25],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_line_8",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2232",
       "values_compared": 0
@@ -74286,50 +77797,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2235",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.1, 0],
+          [2, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2236",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2237",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2238",
       "values_compared": 0
     },
@@ -74350,50 +77944,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2241",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1, -1, -1],
+          [3, 1, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2242",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2243",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2244",
       "values_compared": 0
     },
@@ -74414,50 +78091,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2247",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2, -2, -2],
+          [-1, -1, -1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_2",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2248",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2249",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2250",
       "values_compared": 0
     },
@@ -74478,50 +78238,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2253",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, 0.5, 0.5],
+          [0.5000001, 0.6, 0.7]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_3",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2254",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2255",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2256",
       "values_compared": 0
     },
@@ -74542,52 +78385,79 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_eval_bbox_nc_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2259",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-1234567.0, -1234567.0, -1234567.0],
+          [1234567.0, 1234567.0, 1234567.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_4",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2260",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2261",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2262",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -74606,50 +78476,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2265",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.5, -1234567.0, 0],
+          [2, 1234567.0, 1]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_5",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2266",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2267",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2268",
       "values_compared": 0
     },
@@ -74670,50 +78623,133 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": false,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [true, true, false, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "36",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_eval_bbox_nc_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2271",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1000.0, 1000.0, 1000.0],
+          [2000.0, 3000.0, 4000.0]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_box_in_param_6",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2272",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_inv_eval_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2273",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "unbend_std_std_global_dom_6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2274",
       "values_compared": 0
     },
@@ -74726,13 +78762,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [0.5, 2],
+            [0.1, 1],
+            [0, 1]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_pbox_in_0",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2276",
       "values_compared": 0
@@ -74746,13 +78829,60 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [0.6, 0.8, 0],
+            [-0.8, 0.6, 0],
+            [0, 0, 1]
+          ],
+          "ivl": [
+            [1, 2],
+            [-0.5, 0.5],
+            [0, 3]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 0, 1],
+              "c": [0, 0, 0],
+              "d": 2.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0, 1, 0],
+              "c": [0.5, 0, 0],
+              "d": 4.0,
+              "mid": [1, 0, 0],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "unbend_std_std_pbox_in_1",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "fixture:fixtures/surface.volume_p2/unbend.json#2278",
       "values_compared": 0
@@ -75206,13 +79336,42 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-6.620735244405067, -6.909697241142576, -5.4502874984972465],
+        "b": [6.936853802974776, 4.864276146381913, -1.4162406125848293],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [1.7068521174872755, 0.07147007211650092, 4.19998714628926],
+              [-0.8252164788875418, -1.2462900591242687, 1.0142742952577017],
+              [2.0, 0.0, 1.0],
+              [-0.5851224593199134, 1.4347816131099123, 0.23054701628439833]
+            ]
+          },
+          {
+            "kind": 4
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0045",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784137348",
       "values_compared": 0
@@ -76914,13 +81073,74 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [1.5088715666601464, -0.18090811126143524, -0.8470740590746568],
+            [1.1825276782183112, 0.2325302350704601, -0.34542592209402523],
+            [0.017447283759480126, 0.10426220548100673, -1.458085349155684]
+          ],
+          "ivl": [
+            [0.5799829805027898, 0.5799830805027898],
+            [-0.2417571152552629, -0.24175701525526289],
+            [-2.0661984817915253, -2.0661983817915255]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [1.0, 5.0, 3.0],
+              [-0.8984558009096624, 0.999031117258419, 0.49984713388218394],
+              [-0.8984558009096624, 0.999031117258419, 0.49984713388218394],
+              [-0.28509276435466147, 0.8553975700125167, 1.3235804548710908]
+            ]
+          },
+          {
+            "kind": 1,
+            "orient": [
+              [4.065493162594814, 1.069175225023855, -4.279422625620549],
+              [0.9419441698828468, 0.2579213286044473, -1.7094087530746225],
+              [0.9419441698828468, 0.2579213286044473, -1.7094087530746225],
+              [-0.5183824518645523, 1.6540105330237362, -0.3741281471115232]
+            ],
+            "t": [
+              [-3.0, 3.0, -2.0],
+              [0.3479831392796909, 0.0, 0.0],
+              [0.0, 0.3479831392796909, 0.0],
+              [0.0, 0.0, 0.3479831392796909]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [-1.3110337142589654, 0.8484101410051395, 0.34924413236980767],
+              "c": [-2.448933354170056, -0.8148920785628349, -0.5045947709908996],
+              "d": 0.0,
+              "mid": [1.0726343008824366, -1.7886277096016272, 0.9095023028545746],
+              "tol": 0.01
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0257",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784137560",
       "values_compared": 0
@@ -78510,13 +82730,64 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-0.7818908673272773, -0.3712028365880018, -0.6109790627587497],
+          [2.108817110145072, 2.313503603790089, 0.10318379582271309]
+        ],
+        "comp": true,
+        "op": "eval_bbox",
+        "ppb": {
+          "basis": [
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0]
+          ],
+          "ivl": [
+            [-0.29996287675592903, 2.105141908848685],
+            [1.4828161422451567, -1.2198470158495418],
+            [-1234567.0, 1234567.0]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [-4.661104186750586, -3.8049838920304815, 3.4544054873809813],
+              [-1.906282306028492, 1.7200868875807562, 0.7347159024947074],
+              [0.9559893474437242, 1.3983033992339062, -0.3126320462245973],
+              [-0.15424447556516663, -0.5353070297648341, -0.8092660008707564]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [-1.6249304115195842, 0.8804017096500565, -0.9360246077146464],
+              "c": [2.656805633344792, -0.04630739654194116, 1.5536746632002263],
+              "d": 6.39261898419988,
+              "mid": [-3.2498608230391683, 1.760803419300113, -1.8720492154292927],
+              "tol": 0.01
+            }
+          }
+        ],
+        "want": [false, false, true, true]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "21",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0455",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784137758",
       "values_compared": 0
@@ -79410,13 +83681,58 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-2.897474186862034, -6.245923111586492, -1.661138550647431],
+        "b": [-5.261202713479589, -1.637005785272505, -7.750511239395609],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [-2.715458120614551, 1.5342137539971645, -3.758004566200037],
+              [0.2880031598356861, -0.9576294585718739, 0.0],
+              [0.9576294585718739, 0.2880031598356861, 0.0],
+              [0.0, 0.0, 1.0]
+            ]
+          },
+          {
+            "kind": 1,
+            "t": [
+              [2.0, 4.0, -4.0],
+              [-0.6052351706113339, 1.1808402350129654, -0.5650665366313903],
+              [-0.5238095936676332, -0.6740611488908725, 1.8973487325911242],
+              [0.8187754689279063, -1.7529213070680965, -1.3834879551185368]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [-1.738478045076656, 0.14001763166429626, 0.5316941615114681],
+              "c": [3.4253846911425487, -2.647877602451741, 4.123496941219598],
+              "d": 10000.0,
+              "mid": [-3.476956090153312, 0.2800352633285925, 1.0633883230229362],
+              "tol": 0.0
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0567",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784137870",
       "values_compared": 0
@@ -80154,13 +84470,72 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [1.958765790078031, 2.759280968850069, 1.1014511028568497],
+          [2.8960489076335936, 3.25875255855523, 1.9039311767004485]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "bs": {
+              "cpts": [
+                [5.0, 4.0, -2.0, 0.3579554767584515],
+                [2.97141305593491, -3.675287952562897, -3.040750540493786, 0.9065629625528133],
+                [-0.6839138069826021, -4.936286532120805, -6.893094114313284, 1.557381255976651],
+                [-1.6111786991584882, -1.631121549945437, 7.170598362416474, 1.9559062856482328],
+                [-6.0, -5.0, 6.0, 0.6151275473593836],
+                [7.689896126157452, -7.1766946618919185, 1.8605252841136828, 1.0084574898743313],
+                [-0.4911467962899039, 7.669779694203816, -0.046598791851852894, 0.3888038660685902],
+                [-2.83888846910431, -1.9802167808214968, -7.951888886316981, 1.0674998278686194],
+                [7.0, 0.0, -4.0, 1.9282662485502724],
+                [1.6211876376855763, -3.5858447379727068, 6.546636523548955, 0.5472375964848067],
+                [-3.5882959752299186, 1.482858171966475, 1.718546768336413, 1.9013314042604443],
+                [7.652510669928059, 4.198228027696143, 5.785109267981493, 1.9349356730133034],
+                [-5.739633241844762, 0.7299866753038255, -1.3293490095840301, 0.8633314457913432],
+                [1.4807226337640191, 6.914056071007575, -1.398214701294302, 0.5989556884158791],
+                [-4.474821319011937, -7.888895001946969, -5.406121021307678, 0.6470057216596238],
+                [-1.276073402589093, -7.0739623100105185, -2.703926675558739, 1.7857823367322216]
+              ],
+              "deg": [1, 1, 1],
+              "hi": [3, 1, 1],
+              "knots": [
+                [1.512977522046639, 1.9499253100450524, 2.386873098043466, 2.8238208860418794, 3.2607686740402926, 3.697716462038706],
+                [0.9602147632530023, 2.249093901523862, 3.5379730397947218, 4.8268521780655815],
+                [0.2660250693159446, 0.72693289089992, 2.6718018288427374, 3.795331311687673]
+              ]
+            },
+            "kind": 3
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 1.0],
+              "c": [-1.4900908819496586, 2.5714971126053046, 2.4818800732721105],
+              "d": 0.0005,
+              "mid": [0.0, 0.0, 0.0],
+              "tol": 0.001
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0659",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784137962",
       "values_compared": 0
@@ -80570,13 +84945,50 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-0.19022426397787484, 1.3869667816926148, 2.4835128169436356],
+          [-1.0291307758020973, -0.33349744020435956, -0.26278233297474785]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [2.0, 0.0, 3.0],
+              [0.0, -1.0, 1.0],
+              [-1.0, -2.0, 1.0],
+              [-1.693046331935462, -0.38084670640152796, 0.5427935434148261]
+            ]
+          },
+          {
+            "kind": 4,
+            "orient": [
+              [5.0, -2.0, -1.0],
+              [-1.0, -1.0, 1.0],
+              [-1.0, -1.0, 1.0],
+              [-0.4081213047741379, -0.036754123263066596, -0.17595471211203506]
+            ]
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0710",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138013",
       "values_compared": 0
@@ -81126,13 +85538,89 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [0.3609396964762644, 1.3367445588904787, 2.3210308287892865],
+          [0.5109655688967959, 1.9796397630365545, 2.515238635779192]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "bs": {
+              "cpts": [
+                [-2.275311298403805, 0.563198691866754, -7.316907613807926, 1.0],
+                [3.2554495482818933, 0.7165565761000217, 2.944589970750009, 1.0],
+                [-5.428715136985494, 3.879449653505695, -7.240163409973233, 1.0],
+                [-7.935307571289329, -2.1569214089193505, 0.09501362649538336, 1.0],
+                [-3.7914839173119557, -6.84208584029234, 6.0846781635780545, 1.0],
+                [3.853446636453672, 5.29815915245047, -7.695534714438121, 1.0],
+                [1.3966074410517777, -2.2853298628621346, 1.1305732060635485, 1.0],
+                [5.0, 5.0, 2.0, 1.0],
+                [-1.4585406470795679, 1.1625761329296314, 5.0312163412275, 1.0],
+                [-6.432487753645978, -6.75907986512359, -3.534163602428686, 1.0],
+                [2.5481025359082174, -3.876884647891112, -1.7143533789365186, 1.0],
+                [-6.064773426121002, 0.9060060678411173, 1.7500778170261828, 1.0]
+              ],
+              "deg": [1, 1, 1],
+              "hi": [1, 2, 1],
+              "knots": [
+                [-0.39418020381655694, 0.11616899597019026, 0.6265181957569375, 1.1368673955436845],
+                [0.1567482756656809, 0.6685122498836722, 1.6675224785345564, 2.096139838237404, 2.1445031553175005],
+                [2.1443979183905975, 2.1637610278579342, 2.580052301864756, 2.6190797654652553]
+              ]
+            },
+            "kind": 3,
+            "orient": [
+              [-0.3535786524688298, 0.4077233198923027, -0.6167671734495457],
+              [-0.9639901120897569, -0.04336893413841736, -0.8901036672555658],
+              [-0.9639901120897569, -0.04336893413841736, -0.8901036672555658],
+              [-1.7718804226068126, 1.0767728716136107, -1.5838837306428157]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 0.0],
+              "c": [2.8628584483264046, 3.0189603400378324, 0.009649960499203303],
+              "d": 5.743098539983779,
+              "mid": [-0.8278069615294403, -0.710063726612987, -0.3177011614038481],
+              "tol": 0.5
+            }
+          },
+          {
+            "kind": 1,
+            "orient": [
+              [-1.0, -2.0, -4.0],
+              [-0.0, 2.0, 0.0],
+              [-0.0, 2.0, 0.0],
+              [-1.4439375574942326, -1.636731597129601, -0.058260535506847955]
+            ],
+            "t": [
+              [-0.2992128154376408, -0.49939466964498, 3.5097461282844353],
+              [0.0, 1.0, 0.0],
+              [0.0, 0.0, 1.0],
+              [1.0, 0.0, 0.0]
+            ]
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0779",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138082",
       "values_compared": 0
@@ -82194,13 +86682,61 @@
       "values_compared": 15
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "bx": [
+          [-2.507765367222661, -1.1819864571859968, 0.6157774501901221],
+          [0.5144297377348659, -0.4798362731113679, 2.552635154007163]
+        ],
+        "comp": true,
+        "op": "box_in_param",
+        "vol": [
+          {
+            "kind": 1,
+            "t": [
+              [3.9274620582493593, 4.901740681354843, 4.6995164177980975],
+              [2.845665147981865, 0.0, 0.0],
+              [0.0, 2.845665147981865, 0.0],
+              [0.0, 0.0, 2.845665147981865]
+            ]
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [1.4224483986597836, 1.054783146937579, -1.797189763487654],
+              "c": [-2.1486579647117834, -2.0954008784457754, -1.1150144174261345],
+              "d": 0.0005,
+              "mid": [2.0, -1.0, 0.0],
+              "tol": 0.001
+            }
+          },
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [0.0, 0.0, 1.0],
+              "mid": [-1.0626186360843302, -1.91684657000004, -0.9414663578161551],
+              "min": 0.0,
+              "o": [-1.395597876328046, -1.435105013565611, 0.22322524054338988],
+              "period": 4.4913043768853775
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen0911",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138214",
       "values_compared": 0
@@ -86298,13 +90834,69 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [-0.9506064791386537, -1.8448347963301863, 1.6138761342645682],
+            [-1.0, 2.0, 1.0],
+            [0.8623728065804595, 1.9685369805874298, -1.637081468360443]
+          ],
+          "ivl": [
+            [2.58082166038034, 2.58082166038034],
+            [1.3612965340625518, 1.3612965340625518],
+            [-0.4855314876066159, -0.4855314876066159]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [-0.4648690683040013, -0.6309971839305293, 0.05959373217887176],
+              "mid": [-1.7125640805163918, 0.5967608706115715, -0.1348617209232601],
+              "min": 0.001,
+              "o": [2.2294748785238037, -2.0100197729038194, -4.370182057430546],
+              "period": 28.801517094957685
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [-0.5312004760860862, -1.5967467386443355, -1.8869336115220352],
+              "c": [3.0, -5.0, -4.0],
+              "d": 1e-6,
+              "mid": [-1.0624009521721725, -3.193493477288671, -3.7738672230440704],
+              "tol": 0.5
+            }
+          },
+          {
+            "kind": 1,
+            "t": [
+              [-0.9024355961223964, -4.564691924123831, -0.32544208289543075],
+              [-0.3379362586872233, 0.9411689992049685, 0.0],
+              [-0.9411689992049685, -0.3379362586872233, 0.0],
+              [0.0, 0.0, 1.0]
+            ]
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen1422",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138725",
       "values_compared": 0
@@ -86438,13 +91030,50 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-6.0, -0.0, -0.0],
+        "b": [1.1799182752086281, 0.5706315708651157, -3.141955034383235],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 1.0],
+              "c": [3.7080528476600865, 2.890682447276779, -4.06208450859884],
+              "d": 0.0,
+              "mid": [-1.0292270892642748, -0.9621413698444208, 1.6219582779221318],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 0.0],
+              "c": [2.0, 2.0, 3.0],
+              "d": 9.618006778594703,
+              "mid": [1.254140851704236, 1.6699368570823463, -0.8926961296933364],
+              "tol": 0.0
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen1439",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138742",
       "values_compared": 0
@@ -87274,13 +91903,73 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "a": [-2.0, -5.0, -7.0],
+        "b": [3.2582191232551683, 6.299892138723381, -2.1793671480286854],
+        "comp": true,
+        "op": "line_in_in_space",
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [1.8558344322129283, -0.38544689460941095, 0.44744879533527504],
+              "mid": [1.9375920336522765, 0.0751402344866503, 1.2049750003454789],
+              "min": 0.001,
+              "o": [0.10911017442883342, 4.58785483395847, 4.464965354003414],
+              "period": -9.352205541457103
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.4339045450439478, -0.6140010097240292, 0.6962927165062403],
+              "c": [2.850142798492471, -1.567603691499185, -3.7552831584478064],
+              "d": 0.0,
+              "mid": [1.5940031967466863, -1.1084187657845028, -1.0454511436951597],
+              "tol": 0.01
+            }
+          },
+          {
+            "bs": {
+              "cpts": [
+                [-0.10078392179809725, -6.732927574500707, 5.611817647917357, 1.0],
+                [-1.5327561583460483, 3.5633687414344717, 0.06843560817072003, 1.0],
+                [3.257519619403931, 7.7002037588032906, -0.5311592857613814, 1.0],
+                [0.9124993162267874, 3.9348540459246504, -5.743096906965738, 1.0],
+                [5.899577738448103, -1.445756065172457, 7.754951633363367, 1.0],
+                [1.5571739233222956, -5.12898203228011, -3.1350839569071063, 1.0],
+                [3.8955083737755096, 6.904294981184023, -2.560147487111971, 1.0],
+                [-0.255366460098589, 2.1246913251493265, 6.527723294598083, 1.0],
+                [1.0198655403651724, 3.6977322070572267, 1.1123602125584604, 1.0]
+              ],
+              "deg": [1, 1, 0],
+              "hi": [2, 2, 0],
+              "knots": [
+                [-1.7784950546896, -1.6917477633786324, -0.5348014505951415, -0.4395086136518862, -0.34104544183952124],
+                [0.0, 0.4283333597963404, 0.8566667195926808, 1.2850000793890213, 1.7133334391853616],
+                [1.1326014264814432, 3.4355072212466835]
+              ]
+            },
+            "kind": 3
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "7",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen1543",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784138846",
       "values_compared": 0
@@ -90322,13 +95011,70 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "pbox_in_in_space",
+        "pb": {
+          "basis": [
+            [-0.9789741640286191, -0.20398427920912524, 0.0],
+            [0.20398427920912524, -0.9789741640286191, 0.0],
+            [0.0, 0.0, 1.0]
+          ],
+          "ivl": [
+            [-2.480126277299598, -0.22949879830475517],
+            [2.922831622309724, -0.3820532806399992],
+            [-0.25353185882451257, 2.454446658324173]
+          ]
+        },
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [-2.0, 1.0, -0.0],
+              "mid": [1.6216567849776764, -0.3151831527424709, -0.25781595228805676],
+              "min": 0.001,
+              "o": [-3.455671970698939, 2.4084005096933145, 1.6941783274313815],
+              "period": 35.63469010707624
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 1.0],
+              "c": [-0.49656523570682864, -0.6166842108559898, -4.923202716072451],
+              "d": -2.675509058937975,
+              "mid": [1.0, 0.0, 0.0],
+              "tol": 0.01
+            }
+          },
+          {
+            "kind": 5,
+            "ub": {
+              "axis": [0.0, 0.0, 1.0],
+              "c": [0.0, 3.0, 3.0],
+              "d": 9.036273041355857,
+              "mid": [1.0, 0.0, 0.0],
+              "tol": 0.5
+            }
+          }
+        ]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 2,
+      "mismatches": [
+        {
+          "cpp": "1",
+          "field": "values.out.len",
+          "rust": "0"
+        },
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen1922",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784139225",
       "values_compared": 0
@@ -90422,13 +95168,59 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalCurveIntersect",
-        "unit": "surface.surface_p8"
+      "inputs": {
+        "comp": true,
+        "op": "map_pbox",
+        "pb": {
+          "basis": [
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, -1.0],
+            [1.0, 0.0, 0.0]
+          ],
+          "ivl": [
+            [2.1435626678044617, -0.17135913530298819],
+            [-1.548597904177757, 1.5624615007044707],
+            [2.1899653793633735, -1.759337335911789]
+          ]
+        },
+        "trim": false,
+        "vol": [
+          {
+            "kind": 2,
+            "tw": {
+              "axis": [-1.2739761361941198, -0.2838336754541606, -1.5672300686413858],
+              "mid": [-2.0, -2.0, 1.0],
+              "min": 0.001,
+              "o": [0.0, 3.0, 1.0],
+              "period": 19.192390221058407
+            }
+          },
+          {
+            "kind": 1,
+            "t": [
+              [0.14742658415230636, -1.361850621646179, 4.913597471153645],
+              [0.7350532385354658, -0.9931554291773668, -1.4886063254153767],
+              [0.7350532385354658, -0.9931554291773668, -1.4886063254153767],
+              [1.3513364770420182, -1.7158724344965104, -0.6218891443846775]
+            ]
+          },
+          {
+            "kind": 4
+          }
+        ],
+        "want": [false, false]
       },
       "max_rel_err": 0.0,
+      "mismatch_count": 1,
+      "mismatches": [
+        {
+          "cpp": "0",
+          "field": "ints.status[0]",
+          "rust": "1001"
+        }
+      ],
       "name": "gen1934",
-      "outcome": "deferred",
+      "outcome": "fail",
       "pass": false,
       "source": "generated:seed=525457818784139237",
       "values_compared": 0
@@ -90955,18 +95747,17 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 298,
-  "cases_failed": 0,
-  "cases_passed": 10922,
+  "cases_deferred": 162,
+  "cases_failed": 113,
+  "cases_passed": 10945,
   "cases_total": 11220,
   "deferred_by_unit": {
-    "intersect.curve_class_p4": 162,
-    "surface.surface_p8": 136
+    "intersect.curve_class_p4": 162
   },
   "max_rel_err": 0.0,
-  "pass": true,
+  "pass": false,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "fail",
   "unit": "surface.volume_p2"
 }
