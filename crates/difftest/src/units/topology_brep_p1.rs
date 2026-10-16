@@ -602,7 +602,18 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let path = path_of(i.brep.as_ref())?;
     let out = ffi::eval(code, &path, &input).map_err(|e| harness(format!("c++: {e}")))?;
     let body = out.get(1..).ok_or_else(|| harness("c++: empty output"))?;
-    Ok(Output::new().values("out", body.to_vec()))
+    Ok(guarded_output(body.to_vec()))
+}
+
+/// The output of an op: a `-2` status is the shim's guard on an input upstream would
+/// dereference null on (the C++ was not run), reported as an error on both sides so
+/// the case counts as `both_errored`, not as a value comparison.
+fn guarded_output(o: Vec<f64>) -> Output {
+    if o.first() == Some(&NULL_DEREF) {
+        Output::err("null_dereference_guard")
+    } else {
+        Output::new().values("out", o)
+    }
 }
 
 // ---- Rust side --------------------------------------------------------------------------
@@ -1030,17 +1041,14 @@ fn run_rust_op(
             o.push(b.deleted_surfaces().len() as f64);
         }
         OpIn::Vote { regions } => {
-            let mut rs: Vec<RegionId> = Vec::new();
+            let mut rs: Vec<Option<RegionId>> = Vec::new();
             let mut votes: Vec<u64> = Vec::new();
             for &r in regions {
-                // the shim votes with the region pointer (null for -1): a null vote is a
-                // region of its own there, here it is skipped by the caller
-                if r < 0 {
-                    return Ok(Err(Output::err("null_vote")));
-                }
-                bp1::vote_for_region(&mut rs, &mut votes, RegionId::from_index(r as u32));
+                // a null vote (-1: the shim votes with a null pointer) is a region of its own
+                bp1::vote_for_region(&mut rs, &mut votes, (r >= 0).then(|| RegionId::from_index(r as u32)));
             }
-            o.extend(ids(&rs));
+            o.push(rs.len() as f64);
+            o.extend(rs.iter().map(|r| r.map_or(-1.0, |r| f64::from(r.index()))));
             o.push(votes.len() as f64);
             o.extend(votes.iter().map(|&v| v as f64));
             o.push(bp1::find_highest_vote(&rs, &votes)?.map_or(-1.0, |r| f64::from(r.index())));
@@ -1429,7 +1437,7 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     };
     let mut k = Kernel::default();
     match run_rust_op(&mut k, &mut b, &types, &op) {
-        Ok(Ok(o)) => Ok(Output::new().values("out", o)),
+        Ok(Ok(o)) => Ok(guarded_output(o)),
         Ok(Err(o)) => Ok(o),
         Err(Fail::Solid(e)) => match Output::unported(&e) {
             Some(o) => Ok(o),
@@ -1496,7 +1504,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         7 => {
             let n = rng.below(10) as usize;
             OpIn::Vote {
-                regions: (0..n).map(|_| rng.range_i64(0, 4)).collect(),
+                regions: (0..n).map(|_| rng.range_i64(-1, 4)).collect(),
             }
         }
         8 => {

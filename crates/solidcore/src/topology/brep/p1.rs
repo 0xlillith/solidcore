@@ -96,7 +96,7 @@
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::SwapUV` (`topology.face_p1`), `SmFace::FaceIntersect`
 //!   (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
-//!   `UnLockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`).
+//!   `UnLockBoundingBox` (`query.brep`).
 
 use std::collections::BTreeMap;
 
@@ -113,7 +113,10 @@ use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol;
-use crate::heal::face_props::HealerOpType;
+use crate::heal::face_props::{HealerOpType, LoopObject};
+use crate::heal::heal_data::p1::HealBrepTargets;
+use crate::heal::heal_data::p2::HealData;
+use crate::intersect::point_class::{ClassObject, ClassObjectKind};
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_RAD, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -720,8 +723,13 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
 // ---- region votes (sm_VoteForRegion, sm_FindHighestVote) -------------------------------
 
 /// `sm_VoteForRegion`: adds a vote for `new_region` (appending it with one vote when
-/// it is not listed yet).
-pub fn vote_for_region(regions: &mut Vec<RegionId>, votes: &mut Vec<u64>, new_region: RegionId) {
+/// it is not listed yet). A null region (`None`, the result of a failed
+/// `sm_FindSectorOfFace`) is a region of its own, as upstream.
+pub fn vote_for_region(
+    regions: &mut Vec<Option<RegionId>>,
+    votes: &mut Vec<u64>,
+    new_region: Option<RegionId>,
+) {
     for (i, r) in regions.iter().enumerate() {
         if *r == new_region {
             if let Some(v) = votes.get_mut(i) {
@@ -734,14 +742,14 @@ pub fn vote_for_region(regions: &mut Vec<RegionId>, votes: &mut Vec<u64>, new_re
     votes.push(1);
 }
 
-/// `sm_FindHighestVote`: the first region with the most votes, `None` for no
-/// regions.
+/// `sm_FindHighestVote`: the first region with the most votes; `None` for no regions
+/// and when the null region wins (upstream returns `NULL` in both cases).
 ///
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] when `votes` is shorter than `regions` (upstream reads
 /// past the array).
-pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<RegionId>> {
+pub fn find_highest_vote(regions: &[Option<RegionId>], votes: &[u64]) -> Result<Option<RegionId>> {
     if votes.len() < regions.len() {
         return Err(null("sm_FindHighestVote: fewer votes than regions"));
     }
@@ -751,7 +759,7 @@ pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<R
             highest = i;
         }
     }
-    Ok(regions.get(highest).copied())
+    Ok(regions.get(highest).copied().flatten())
 }
 
 // ---- copy maps (sm_SetObjectMap, sm_GetObjectMap) ---------------------------------------
@@ -2596,13 +2604,32 @@ pub fn create_parallel_projection_curves(
 
 // ---- healing (SmBrep::HealBrep) ---------------------------------------------------------
 
-/// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`) up to and including
-/// `healer_op` on the given vertices, edges and faces (default: all), optionally making
-/// the UV trim curves. Upstream returns `SM_SUCCESS` whatever the healer reports.
+/// The loop handle of the healer `SmBrep::HealBrep` creates locally (`SmHealData
+/// sHealData`): a loop id, as the healer's classification objects are loops.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HealLoopHandle(pub LoopId);
+
+impl ClassObject for HealLoopHandle {
+    fn class_kind(&self) -> ClassObjectKind {
+        ClassObjectKind::Loop
+    }
+}
+
+impl LoopObject for HealLoopHandle {
+    fn from_loop(l: LoopId) -> Self {
+        Self(l)
+    }
+}
+
+/// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`, on a fresh
+/// [`HealData`]) up to and including `healer_op` on the given vertices, edges and
+/// faces (default: all), optionally making the UV trim curves. Upstream returns
+/// `SM_SUCCESS` whatever the healer reports: only [`SolidError::Unported`] (from the
+/// healer's own stubs, `heal.heal_data_p3` and later) propagates.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmHealData::HealBrep` is unit `heal.heal_data_p1`.
+/// [`SolidError::Unported`] from the healer.
 pub fn heal_brep(
     k: &mut Kernel,
     b: &mut Brep,
@@ -2612,21 +2639,20 @@ pub fn heal_brep(
     opt_faces: Option<&[FaceId]>,
     make_uv_trim_curves: bool,
 ) -> Result<()> {
-    let _ = (
+    let mut heal_data = HealData::<HealLoopHandle>::default();
+    // pass the call along (status ignored upstream)
+    ignored(heal_data.heal_brep(
         k,
-        &*b,
+        Some(b),
         healer_op,
-        opt_vertices,
-        opt_edges,
-        opt_faces,
+        HealBrepTargets {
+            vertices: opt_vertices,
+            edges: opt_edges,
+            faces: opt_faces,
+        },
         make_uv_trim_curves,
-    );
-    // pass the call along
-    // UNPORTED(heal.heal_data_p1): SmHealData::HealBrep
-    Err(SolidError::unported(
-        "SmHealData::HealBrep",
-        "heal.heal_data_p1",
-    ))
+    ))?;
+    Ok(())
 }
 
 #[cfg(test)]

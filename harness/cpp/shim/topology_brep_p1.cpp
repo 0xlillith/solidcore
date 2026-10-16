@@ -1288,7 +1288,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmLine stand_in(SmPoint3d(0, 0, 0), SmPoint3d(1, 0, 0), 2, &ctx);
         if (has_uv)
             uv = &stand_in; // the function only tests the trim curve for NULL
-        if (has_uv && seam != SM_SP_NEITHER && eus.GetSize() != 4)
+        if (has_uv && seam != SM_SP_NEITHER && eus.GetSize() < 4)
         {
             // GUARD (UB-162): the seam branch reads sNewEdgeuses[3] of a 16-slot stack
             // array without checking the count (SM_ASSERT is a release no-op)
@@ -1310,7 +1310,9 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmOrientType orient = (SmOrientType)rd.idx();
         bool for_tess = rd.flag();
         // GUARD: the edge is dereferenced (GetTolerance, SmBrep.cpp:21092) only in the
-        // "split param is far from UVTrimCurve->Ends" branch
+        // "split param is far from UVTrimCurve->Ends" branch (a NULL face or a failing
+        // EvaluatePoint would return NER/SER before it: unreachable with imported B-reps,
+        // where every edge use has an edge, so not distinguished here)
         if (eu_orig->GetUVTrimCurvePointer() != NULL && eu_orig->GetEdge() == NULL)
         {
             SmExtent1d ivl = eu_orig->GetUVTrimCurvePointer()->GetNaturalInterval();
@@ -1465,9 +1467,12 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     }
     case OP_HEAL:
     {
-        rd.idx();
-        rd.flag();
-        o.push_back(-3.0); // SmHealData::HealBrep: the Rust side defers (heal.heal_data_p1)
+        SmHealerOpType op_code = (SmHealerOpType)rd.idx();
+        bool make_uv = rd.flag();
+        // SmBrep::HealBrep ignores the healer's status and returns SM_SUCCESS; the Rust
+        // side runs the same healer and defers at its first unported step
+        SmStatus s = brep->HealBrep(op_code, NULL, NULL, NULL, make_uv ? TRUE : FALSE);
+        o.push_back(st(s));
         break;
     }
     default:

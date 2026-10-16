@@ -84,34 +84,37 @@ fn ignore_status(r: Result<()>) -> Result<()> {
 }
 
 /// `pBrep->GetVertices(sTgtVertices)`.
-fn brep_vertices(_b: &Brep) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetVertices
-    Err(SolidError::unported(
-        "SmBrep::GetVertices",
-        "topology.brep_p1",
-    ))
+fn brep_vertices(b: &Brep) -> Result<Vec<VertexId>> {
+    crate::topology::brep::p1::vertices(b, None)
 }
 
 /// `pBrep->GetEdges(sTgtEdges)`.
-fn brep_edges(_b: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+fn brep_edges(b: &Brep) -> Result<Vec<EdgeId>> {
+    crate::topology::brep::p1::edges(b, None)
 }
 
 /// `pBrep->GetFaces(sTgtFaces)`.
-fn brep_faces(_b: &Brep) -> Result<Vec<FaceId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
+    crate::topology::brep::p1::faces(b, None)
 }
 
 /// The B-rep's regions in list order from the infinite region
-/// (`pBrep->GetInfiniteRegion()`, then `GetNext()` until the list wraps around).
-fn brep_regions_from_infinite(_b: &Brep) -> Result<Vec<RegionId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+/// (`pBrep->GetInfiniteRegion()`, then `GetNext()` until the list wraps around):
+/// the region list rotated to start at the infinite region; empty without one
+/// (upstream dereferences the null pointer there).
+fn brep_regions_from_infinite(b: &Brep) -> Result<Vec<RegionId>> {
+    let Some(infinite) = b.infinite_region() else {
+        return Ok(Vec::new());
+    };
+    let mut regions = crate::topology::brep::p1::regions(b, None)?;
+    match regions.iter().position(|&r| r == infinite) {
+        Some(at) => {
+            regions.rotate_left(at);
+            Ok(regions)
+        }
+        // an infinite region that is not on the region list: nothing to walk
+        None => Ok(Vec::new()),
+    }
 }
 
 /// `pBrep->FindAndSetInfiniteRegion()`: ray casts for the infinite region and moves
@@ -163,10 +166,10 @@ fn face_create_uv_trim_curves(_k: &Kernel, _b: &mut Brep, _f: FaceId) -> Result<
     ))
 }
 
-/// `pBrep->HealBrep(SM_HO_ALL)`.
-fn brep_heal_brep(_k: &mut Kernel, _b: &mut Brep, _healer_op: HealerOpType) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::HealBrep
-    Err(SolidError::unported("SmBrep::HealBrep", "topology.brep_p1"))
+/// `pBrep->HealBrep(SM_HO_ALL)` (default targets: every vertex, edge and face; no UV
+/// trim curves).
+fn brep_heal_brep(k: &mut Kernel, b: &mut Brep, healer_op: HealerOpType) -> Result<()> {
+    crate::topology::brep::p1::heal_brep(k, b, healer_op, None, None, None, false)
 }
 
 /// `HealTgts(eHealerOp, bMakeUVTrimCurves)`: runs the heal sequence on the loaded

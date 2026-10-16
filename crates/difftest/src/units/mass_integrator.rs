@@ -375,13 +375,41 @@ fn geometry_rust(g: &Geometry) -> Output {
                 if *query != 0 && *query != 7 {
                     // The aggregate queries (face area / centroid, B-rep area / volume /
                     // mass properties) integrate a face the C++ side constructs from the
-                    // parameters; this runner builds no Rust face for them: a harness
-                    // limitation, not an unported unit (SmBrep::GetFaces / GetEdges /
-                    // GetVertices are ported in topology.brep_p1).
-                    return Err(SolidError::Unported {
-                        upstream: "mass.integrator runner: no Rust face for the aggregate queries",
-                        unit: "harness:mass.integrator-face-construction",
-                    });
+                    // parameters; this runner builds no Rust face for them. The Rust is
+                    // still run on an empty B-rep so that a genuine unit blocker keeps its
+                    // label; only an outcome that depends on the missing face is reported
+                    // as the harness limitation (SmBrep::GetFaces / GetEdges / GetVertices
+                    // themselves are ported in topology.brep_p1).
+                    let store = solidcore::geom::attribute::AttributeStore::default();
+                    let attrs = props::PropertyAttributes {
+                        store: &store,
+                        key_of: &|_| solidcore::geom::attribute::ObjectKey(0),
+                    };
+                    let brep = Brep::new();
+                    let f = solidcore::topology::FaceId::from_index(0);
+                    let r: solidcore::Result<()> = match *query {
+                        2 => props::face_area(&kernel, &brep, f, p[12]).map(|_| ()),
+                        3 => props::face_centroid(&kernel, &brep, f, p[12]).map(|_| ()),
+                        4 => props::brep_area(&kernel, &brep, p[12]).map(|_| ()),
+                        5 => props::brep_volume(&kernel, &brep, p[12], &attrs).map(|_| ()),
+                        6 => props::brep_mass_properties(
+                            &kernel,
+                            &brep,
+                            p[12],
+                            1.0,
+                            Vec3::new(p[9], p[10], p[11]),
+                            &attrs,
+                        )
+                        .map(|_| ()),
+                        _ => return Err(SolidError::sm_err("unknown query")),
+                    };
+                    return match r {
+                        Err(e) if e.is_unported() => Err(e),
+                        _ => Err(SolidError::Unported {
+                            upstream: "mass.integrator runner: no Rust face for the aggregate queries",
+                            unit: "harness:mass.integrator-face-construction",
+                        }),
+                    };
                 }
                 // Import only input geometry: C++ constructs and exports its actual
                 // oriented trims. Both sides then integrate those same boundaries.
