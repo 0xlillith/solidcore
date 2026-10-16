@@ -65,9 +65,7 @@
 //!   [`edge::NotifyEnv`]. `SE_MSG` for `SM_NO_UNKNOWN` is compiled out.
 //! - **Unported callees** return [`SolidError::Unported`]: `SmEdgeuse::NormalizedEvaluate`
 //!   and `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`), the curve constructor of
-//!   `SmCurveClassification` (`intersect.curve_class_p4`), its
-//!   `InsertTopologyIntersections` and `ExtractGeometry` (`intersect.curve_class_p5`),
-//!   `SmSurface::CoincidenceCheck` (`surface.surface_p8`), `SmFace::Point3DClassify`
+//!   `SmCurveClassification` (`intersect.curve_class_p4`), `SmFace::Point3DClassify`
 //!   (`query.face_p1`) and the `topology.face_p4` accessors above.
 //! - **Bounds.** No recursion; every loop is over B-rep arrays or a fixed sample count.
 
@@ -83,6 +81,7 @@ use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject, MAX_TREE
 use crate::geom::tol::xsect_tol_3d_from_zones;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::CurveClassification;
+use crate::intersect::curve_class::p5::ExtractOptions;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
@@ -107,7 +106,7 @@ use crate::topology::topology as topo;
 use crate::topology::topology_traverser::face_edges;
 use crate::topology::vertex;
 use crate::topology::vertexuse as vu1;
-use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, LoopuseId, VertexuseId};
+use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, LoopuseId, VertexId, VertexuseId};
 
 pub use crate::topology::topology_traverser::has_lamina_edge;
 
@@ -205,54 +204,16 @@ fn curve_classification<O: ClassObject>(
     ))
 }
 
-/// `pClassify->InsertTopologyIntersections(sSolutions, lSolutionObjectIndex)`.
-fn insert_topology_intersections<O: ClassObject>(
-    _cc: &mut CurveClassification<O>,
-    _solutions: &[Solution<O>],
-    _object_index: usize,
-) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::InsertTopologyIntersections
-    Err(SolidError::unported(
-        "SmCurveClassification::InsertTopologyIntersections",
-        "intersect.curve_class_p5",
-    ))
-}
-
-/// The outputs of `SmCurveClassification::ExtractGeometry`.
-struct Extracted {
-    curves_3d: Vec<Curve>,
-    this_uv: Vec<Option<Curve>>,
-    other_uv: Vec<Option<Curve>>,
-    points_3d: Vec<Point3>,
-}
-
-/// `pCrvClass1->ExtractGeometry(ctx, *pCrvClass2, s3DCurvesInBoth, &sUVThis, &sUVOther,
-/// &s3DPoints)`.
-fn extract_geometry<O: ClassObject>(
-    _k: &Kernel,
-    _cc1: &CurveClassification<O>,
-    _cc2: &CurveClassification<O>,
-) -> Result<Extracted> {
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::ExtractGeometry
-    Err(SolidError::unported(
-        "SmCurveClassification::ExtractGeometry",
-        "intersect.curve_class_p5",
-    ))
-}
-
 /// `GetSurface()->CoincidenceCheck(other, tol, rbAreCoincident, rdDist, FALSE, ..)`:
 /// whether the surfaces coincide and their largest distance.
 fn coincidence_check(
-    _k: &Kernel,
-    _surface: &Surface,
-    _other: &Surface,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    other: &Surface,
+    tol: f64,
 ) -> Result<(bool, f64)> {
-    // UNPORTED(surface.surface_p8): SmSurface::CoincidenceCheck
-    Err(SolidError::unported(
-        "SmSurface::CoincidenceCheck",
-        "surface.surface_p8",
-    ))
+    let c = surface.coincidence_check(k, other, tol, false)?;
+    Ok((c.are_coincident, c.max_distance))
 }
 
 /// `pFace->Point3DClassify(sPoint, tol, TRUE, sPC)`: classifies the point into `pc`.
@@ -655,6 +616,7 @@ pub fn compute_loop_orientation(
     let tol = face2::tolerance(b, f)?;
     let solutions = surf_copy.global_point_solve::<NoObject>(
         k,
+        None,
         &face_domain,
         SolverOperation::Minimize,
         point,
@@ -1279,8 +1241,8 @@ pub fn is_degenerate(
                     .and_then(Option::as_mut)
                     .ok_or_else(|| null("IsDegenerate: classification"))?;
                 // statuses ignored upstream
-                ignore_status(insert_topology_intersections(cc1, &solutions, 0))?;
-                ignore_status(insert_topology_intersections(cc2, &solutions, 1))?;
+                ignore_status(cc1.insert_topology_intersections(k, &geometry, &solutions, 0))?;
+                ignore_status(cc2.insert_topology_intersections(k, &geometry, &solutions, 1))?;
 
                 // done with this edge once it is completely coincident
                 if cc1.is_coincident(k, &geometry, &ivl1, zone_tol1)? {
@@ -1398,6 +1360,7 @@ pub struct FaceIntersection {
 
 /// The classification objects of [`face_intersect`].
 struct IntersectObjects<'a> {
+    b: &'a Brep,
     curves_3d: &'a [Curve],
     uv1: &'a [Option<Curve>],
     uv2: &'a [Option<Curve>],
@@ -1407,22 +1370,62 @@ impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjects<'_> {
     fn face(&self, f: FaceId) -> IntersectObject {
         IntersectObject::Topology(EntityRef::Face(f))
     }
+    fn vertex(&self, v: VertexId) -> IntersectObject {
+        IntersectObject::Topology(EntityRef::Vertex(v))
+    }
     fn surface(&self, f: FaceId) -> Option<IntersectObject> {
         Some(IntersectObject::Surface(f))
     }
     fn curve(&self, curve: IntersectObject) -> Option<&Curve> {
-        match curve {
-            IntersectObject::Curve(i) => self.curves_3d.get(i),
-            IntersectObject::UvCurve(i, false) => self.uv1.get(i)?.as_ref(),
-            IntersectObject::UvCurve(i, true) => self.uv2.get(i)?.as_ref(),
-            IntersectObject::Surface(_) | IntersectObject::Topology(_) => None,
-        }
+        ClassGeometry::curve(self, curve)
     }
     fn loop_id(&self, tgt_loop: IntersectObject) -> Option<LoopId> {
         match tgt_loop {
             IntersectObject::Topology(EntityRef::Loop(l)) => Some(l),
             _ => None,
         }
+    }
+}
+
+impl ClassGeometry<IntersectObject> for IntersectObjects<'_> {
+    fn classification_vertex_point(&self, o: IntersectObject) -> Option<Point3> {
+        match o {
+            IntersectObject::Topology(EntityRef::Vertex(v)) => {
+                self.b.vertex(v).ok().map(|v| v.point)
+            }
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: IntersectObject) -> Option<f64> {
+        match o {
+            IntersectObject::Topology(EntityRef::Vertex(v)) => {
+                self.b.vertex(v).ok().map(|v| v.tolerance)
+            }
+            IntersectObject::Topology(EntityRef::Face(f)) => {
+                self.b.face(f).ok().map(|f| f.tolerance)
+            }
+            _ => None,
+        }
+    }
+    fn curve(&self, o: IntersectObject) -> Option<&Curve> {
+        match o {
+            IntersectObject::Curve(i) => self.curves_3d.get(i),
+            IntersectObject::UvCurve(i, false) => self.uv1.get(i)?.as_ref(),
+            IntersectObject::UvCurve(i, true) => self.uv2.get(i)?.as_ref(),
+            IntersectObject::Surface(_) | IntersectObject::Topology(_) => None,
+        }
+    }
+    fn surface(&self, o: IntersectObject) -> Option<&Surface> {
+        match o {
+            IntersectObject::Surface(f) => self.b.face(f).ok()?.surface.as_ref(),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: IntersectObject) -> Option<&Volume> {
+        None
+    }
+    fn point(&self, _o: IntersectObject) -> Option<Point3> {
+        None
     }
 }
 
@@ -1438,8 +1441,8 @@ impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjects<'_> {
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for a face
 /// without surface; those of the intersection, copies and classifications;
-/// [`SolidError::Unported`] (`CoincidenceCheck`, `Point3DClassify`, the curve
-/// classification constructor, `ExtractGeometry`).
+/// [`SolidError::Unported`] (`Point3DClassify`, the curve classification
+/// constructor).
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn face_intersect(
     k: &Kernel,
@@ -1570,6 +1573,7 @@ pub fn face_intersect(
         let mut cc2 = curve_classification(k, IntersectObject::Curve(ii), &ivl, uv2, zone_tol)?;
 
         let objects = IntersectObjects {
+            b,
             curves_3d: &curves_3d,
             uv1: &uv_curves1,
             uv2: &uv_curves2,
@@ -1577,14 +1581,23 @@ pub fn face_intersect(
         qf2::curve_on_classify(k, b, f, &objects, true, &mut cc1, false, false, true)?;
         qf2::curve_on_classify(k, b, other, &objects, true, &mut cc2, false, false, true)?;
 
-        let ex = extract_geometry(k, &cc1, &cc2)?;
+        let ex = cc1.extract_geometry(
+            k,
+            &objects,
+            &mut cc2,
+            ExtractOptions {
+                uv_curves1: true,
+                uv_curves2: true,
+                points_3d: true,
+            },
+        )?;
         let found = !ex.curves_3d.is_empty();
         out.curves_3d.extend(ex.curves_3d);
         if let Some(v) = out.this_uv_curves.as_mut() {
-            v.extend(ex.this_uv);
+            v.extend(ex.uv_curves1.into_iter().map(Some));
         }
         if let Some(v) = out.other_uv_curves.as_mut() {
-            v.extend(ex.other_uv);
+            v.extend(ex.uv_curves2.into_iter().map(Some));
         }
         if let Some(v) = out.points_3d.as_mut() {
             v.extend(ex.points_3d);
