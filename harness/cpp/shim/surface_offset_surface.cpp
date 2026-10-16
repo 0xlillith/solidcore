@@ -48,6 +48,9 @@
 #include <string>
 #include <vector>
 
+// (see sc_offset_guard.h; set by the offset worker)
+extern "C" int sc_offset_extension_guards_enabled = 0;
+
 namespace
 {
 // Entry ops (keep in sync with crates/solidcore-ffi/src/units/surface_offset_surface.rs).
@@ -198,8 +201,6 @@ bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG
     (void)simple;
     return SM_CAST_PTR(SmPlane, base) != NULL;
 }
-
-extern "C" __attribute__((weak)) int sc_offset_extension_guards() { return 0; }
 
 // UB-116: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
 // derivatives at their full-layout indices, past a caller array sized (hu+1)(hv+1).

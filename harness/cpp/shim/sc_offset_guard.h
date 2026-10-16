@@ -5,9 +5,9 @@
 // offset shim and its worker-only link wrappers; unwinds into the shim boundary.
 struct ScOffsetUnsafeInput {};
 
-// Nonzero when the offset worker is linked with its NLib wrappers (GNU ld --wrap): the
-// guards for UB-107 and the HANG-6/HANG-15 extension searches. The shim's weak default
-// returns 0; the worker's strong definition overrides it where the wrappers exist.
-extern "C" int sc_offset_extension_guards();
-inline bool sc_offset_extensions_guarded() { return sc_offset_extension_guards() != 0; }
+// Set to 1 by the offset worker's main() when it is linked with its NLib wrappers (GNU
+// ld --wrap): the guards for UB-107 and the HANG-6/HANG-15 extension searches. Defined
+// as 0 in the shim (a plain variable, no weak symbols: the shim builds everywhere).
+extern "C" int sc_offset_extension_guards_enabled;
+inline bool sc_offset_extensions_guarded() { return sc_offset_extension_guards_enabled != 0; }
 #endif

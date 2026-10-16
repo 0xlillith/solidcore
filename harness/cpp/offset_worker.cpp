@@ -115,7 +115,6 @@ extern "C" NL_FLAG __wrap_N_SrfCopy(NL_SURFACE* source, NL_SURFACE* target,
     return __real_N_SrfCopy(source, target, stack);
 }
 
-extern "C" int sc_offset_extension_guards() { return 1; }
 #endif // SC_OFFSET_NO_LINK_WRAP
 
 template <class T> bool read(T& value)
@@ -129,6 +128,9 @@ template <class T> void write(const T& value)
 
 int main()
 {
+#ifndef SC_OFFSET_NO_LINK_WRAP
+    sc_offset_extension_guards_enabled = 1;
+#endif
     int32_t op;
     uint64_t count;
     if (!read(op) || !read(count) || count == 0 || count > 1048576) return 2;

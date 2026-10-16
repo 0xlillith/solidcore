@@ -1063,8 +1063,14 @@ mod tests {
             assert!(refused(&script(&off, &[Step::Extend { dist, cont }])), "{dist:e}");
             assert!(t.elapsed() < crate::offset_reference::DEADLINE);
         }
-        // a normal extension of the same surface is compared
-        assert!(script(&off, &[Step::Extend { dist: 0.1, cont: 5 }]).is_ok());
+        // a normal extension of the same surface is compared where the worker has its
+        // NLib link wrappers (GNU ld --wrap, Linux); elsewhere every extension is refused
+        let normal = script(&off, &[Step::Extend { dist: 0.1, cont: 5 }]);
+        if cfg!(target_os = "linux") {
+            assert!(normal.is_ok());
+        } else {
+            assert!(refused(&normal));
+        }
     }
 
     #[test]
