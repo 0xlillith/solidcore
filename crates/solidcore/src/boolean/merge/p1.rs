@@ -21,7 +21,7 @@
 //! already-created intersector is supplied by its owner (its type belongs to
 //! `boolean.topology_intersector_p1`). Mate maps and notification records are
 //! borrowed explicitly; edge/vertex mate storage is co-ported in
-//! `boolean::topology_intersector::p1` and shared mutably with merge_p5. B-rep
+//! `boolean::topology_intersector::p1` and shared mutably with `merge_p5`. B-rep
 //! edge/shell traversal waits for `topology.brep_p1`; arena allocation order does
 //! not substitute for native owning-list order. Region propagation takes refs and
 //! their `IsVoid` results and source-list callback handles, because arena regions
