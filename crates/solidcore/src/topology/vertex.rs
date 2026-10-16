@@ -295,12 +295,8 @@ pub fn brep(b: &Brep, v: VertexId) -> Result<Option<&Brep>> {
 // ---- co-ported accessors of other units --------------------------------------------------
 
 /// `SmFace::SetTolerance(tol)` (default arguments).
-fn face_set_tolerance(_b: &mut Brep, _f: FaceId, _tol: f64) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance
-    Err(SolidError::unported(
-        "SmFace::SetTolerance",
-        "topology.face_p3",
-    ))
+fn face_set_tolerance(b: &mut Brep, f: FaceId, tol: f64) -> Result<()> {
+    crate::topology::face::p3::set_tolerance(b, f, tol, true, true)
 }
 
 /// `SmEdge::SetTolerance(tol)` (default arguments).

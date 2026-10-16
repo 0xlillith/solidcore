@@ -11,8 +11,8 @@
 //! | [`remove_shell`], [`faceuse_shell_replacement`] | `RemoveShell`, `FaceuseShellReplacement` |
 //! | [`shell_traversal`], `shell_connectivity` (private) | `ShellTraversal`, `sm_ShellConnectivity` |
 //! | [`is_inner_shell`] | `IsInnerShell`, `IsOdd` |
-//! | `has_lamina_edge` (private) | `SmFace::HasLaminaEdge` (CO-PORTED, `topology.face_p3`) |
-//! | `face_edges` (private) | `SmFace::GetEdges` (CO-PORTED, `topology.face_p4`, default arguments) |
+//! | [`has_lamina_edge`] | `SmFace::HasLaminaEdge` (CO-PORTED, `topology.face_p3`; re-exported there) |
+//! | [`face_edges`] | `SmFace::GetEdges` (CO-PORTED, `topology.face_p4`, default arguments) |
 //!
 //! Deviations: stateless constructor/destructor become free functions. Marks are
 //! [`Marks`] records alongside one B-rep, using the kernel context's counters;
@@ -93,9 +93,15 @@ fn check_mark(mark: MarkType) -> Result<()> {
     Ok(())
 }
 
-// SmFace::GetEdges(defaults) appends each loop's unique edges, including repeats
-// between loops, exactly as upstream. Existing loop-use iteration is cycle-bounded.
-fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
+/// `SmFace::GetEdges` with default arguments (CO-PORTED from `topology.face_p4`): each
+/// loop's unique edges, in loop-use order, including repeats between loops, exactly as
+/// upstream. Existing loop-use iteration is cycle-bounded.
+///
+/// # Errors
+///
+/// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for a
+/// missing edge use link.
+pub fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
     let mut out = Vec::new();
     if let Some(fu) = b.face(f)?.faceuse {
         for &lu in &b.faceuse(fu)?.loopuses {
@@ -282,7 +288,13 @@ pub fn faceuse_traversal(
     Ok(closed)
 }
 
-fn has_lamina_edge(b: &Brep, f: FaceId) -> Result<bool> {
+/// `SmFace::HasLaminaEdge` (CO-PORTED from `topology.face_p3`): whether any edge of the
+/// face is lamina.
+///
+/// # Errors
+///
+/// Those of [`face_edges`] and the lamina test.
+pub fn has_lamina_edge(b: &Brep, f: FaceId) -> Result<bool> {
     for e in face_edges(b, f)? {
         if eu::edge_is_lamina(b, e)? {
             return Ok(true);

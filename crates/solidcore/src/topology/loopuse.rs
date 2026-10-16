@@ -874,7 +874,8 @@ pub fn loop_edgeuses(b: &Brep, l: LoopId) -> Result<Vec<EdgeuseId>> {
 
 /// `SmFace::Notify(SM_NO_PRE_EDIT / SM_NO_POST_EDIT)` (unit `topology.face_p3`).
 fn face_notify_edit(_b: &mut Brep, _f: FaceId) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::Notify
+    // UNPORTED(topology.face_p3): SmFace::Notify -- justified: plan/findings.md
+    // "topology.face_p3: SmFace::Notify callers without notification state"
     Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
 }
 
