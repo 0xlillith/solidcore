@@ -252,9 +252,8 @@ pub fn find_brep_region_of_other_face(
     Ok(None)
 }
 
-fn region_is_void(_b: &Brep, _r: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    unavailable("SmRegion::IsVoid", "topology.shell")
+fn region_is_void(b: &Brep, r: RegionId) -> Result<bool> {
+    Ok(b.region(r)?.is_void() != 0)
 }
 
 /// The first shell reached by this edge that belongs to a solid region.
@@ -475,9 +474,24 @@ pub fn boolean_post_process(
             ))?;
         }
     }
-    if brep_shells(brep)?.len() == 2 {
-        // UNPORTED(topology.shell): SmShell::IsWireShell
-        return unavailable("SmShell::IsWireShell", "topology.shell");
+    let shells = brep_shells(brep)?;
+    if let [first, second] = shells.as_slice() {
+        let first = brep.shell(*first)?;
+        let second = brep.shell(*second)?;
+        let pair = if first.is_wire_shell() {
+            second.is_faceuse_shell()
+        } else if second.is_wire_shell() {
+            first.is_faceuse_shell()
+        } else {
+            false
+        };
+        if pair {
+            // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetCommonVertices
+            return unavailable(
+                "SmTopologyIntersector::GetCommonVertices",
+                "boolean.topology_intersector_p1",
+            );
+        }
     }
     Ok(())
 }
@@ -584,7 +598,10 @@ mod tests {
     fn one_region_fast_path_does_not_inspect_other_faceuse() {
         let mut b = Brep::new();
         let r = b
-            .add_region_record(crate::topology::Region { in_brep: true })
+            .add_region_record(crate::topology::Region {
+                in_brep: true,
+                ..crate::topology::Region::default()
+            })
             .unwrap();
         assert_eq!(
             find_brep_region_of_other_face(
