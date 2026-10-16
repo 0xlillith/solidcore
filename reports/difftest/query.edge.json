@@ -9714,14 +9714,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0428",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447966",
       "values_compared": 0
     },
@@ -10446,14 +10442,10 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0515",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448053",
       "values_compared": 0
     },
@@ -10826,14 +10818,10 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0560",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448098",
       "values_compared": 0
     },
@@ -10870,14 +10858,10 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0565",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448103",
       "values_compared": 0
     },
@@ -11171,13 +11155,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 56,
+  "cases_deferred": 52,
   "cases_failed": 0,
-  "cases_passed": 1312,
+  "cases_passed": 1316,
   "cases_total": 1368,
   "deferred_by_unit": {
-    "intersect.surface_drop_lib_p3": 52,
-    "surface.surface_p8": 4
+    "intersect.surface_drop_lib_p3": 52
   },
   "max_rel_err": 0.0,
   "pass": true,

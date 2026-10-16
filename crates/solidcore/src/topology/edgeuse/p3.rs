@@ -1361,6 +1361,7 @@ fn brute_force(
         // find closest point on surface to sample point
         let solutions = surface.global_point_solve::<NoObject>(
             k,
+            Some(NoObject),
             face_domain,
             SolverOperation::Minimize,
             p0,
@@ -1912,6 +1913,7 @@ pub fn evaluate_binormal_uv(
         // Find Surface sUV point for EdgePoint
         let mut solutions = solve_surface.global_point_solve::<NoObject>(
             k,
+            Some(NoObject),
             &srf_domain,
             SolverOperation::Minimize,
             curve_pv[0],
@@ -1924,6 +1926,7 @@ pub fn evaluate_binormal_uv(
             tol *= 1000.0;
             solutions = solve_surface.global_point_solve::<NoObject>(
                 k,
+                Some(NoObject),
                 &srf_domain,
                 SolverOperation::Minimize,
                 curve_pv[0],

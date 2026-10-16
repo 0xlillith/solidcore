@@ -786,28 +786,20 @@
       "values_compared": 3420
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "file_cone",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p2/upstream.json#17 (upstream TestFiles/pt_TestFiles/cone.smb (SM_API_test TestSmHealBrep sequence))",
-      "values_compared": 0
+      "values_compared": 2909
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "file_cone_rebuild_reverse",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p2/upstream.json#18",
-      "values_compared": 0
+      "values_compared": 2909
     },
     {
       "max_rel_err": 0.0,
@@ -1026,16 +1018,12 @@
       "values_compared": 2919
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "file_surf_sphere150_rebuild_reverse",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p2/upstream.json#42",
-      "values_compared": 0
+      "values_compared": 2919
     },
     {
       "max_rel_err": 0.0,
@@ -1162,16 +1150,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "file_cone_cached_gaps",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p2/upstream.json#57",
-      "values_compared": 0
+      "values_compared": 2915
     },
     {
       "deferred": {
@@ -1338,16 +1322,12 @@
       "values_compared": 2908
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397200490",
-      "values_compared": 0
+      "values_compared": 3190
     },
     {
       "deferred": {
@@ -2127,8 +2107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
+        "symbol": "SmBrep::GetThisModelSizeEstimate",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0079",
@@ -3263,8 +3243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
+        "symbol": "SmBrep::GetThisModelSizeEstimate",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0197",
@@ -4126,16 +4106,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0288",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397200777",
-      "values_compared": 0
+      "values_compared": 2922
     },
     {
       "deferred": {
@@ -5302,16 +5278,12 @@
       "values_compared": 129
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0410",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397200899",
-      "values_compared": 0
+      "values_compared": 2889
     },
     {
       "max_rel_err": 0.0,
@@ -5502,16 +5474,12 @@
       "values_compared": 259
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0431",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397200920",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -6354,16 +6322,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0519",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397201008",
-      "values_compared": 0
+      "values_compared": 2921
     },
     {
       "deferred": {
@@ -6442,16 +6406,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::InvertPointNearSingularity",
-        "unit": "surface.surface_p8"
-      },
       "max_rel_err": 0.0,
       "name": "gen0528",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971101146397201017",
-      "values_compared": 0
+      "values_compared": 2812
     },
     {
       "deferred": {
@@ -7135,13 +7095,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 307,
+  "cases_deferred": 297,
   "cases_failed": 0,
-  "cases_passed": 431,
+  "cases_passed": 441,
   "cases_total": 738,
   "deferred_by_unit": {
-    "surface.surface_p8": 12,
-    "topology.brep_p1": 30,
+    "topology.brep_p1": 32,
     "topology.face_p2": 252,
     "topology.face_p3": 13
   },
