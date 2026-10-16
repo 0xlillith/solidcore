@@ -50,6 +50,9 @@
 //! | [`TopologyIntersector::subset`]                        | `GetSubset`                                          |
 //! | [`TopologyIntersector::this_ang_tol_rad`], [`TopologyIntersector::set_this_ang_tol_rad`] | `GetThisAngTolRad`, `SetThisAngTolRad` |
 //! | [`IntersectorBrep`]                                    | what the intersector reads from and writes to its two `SmBrep`s |
+//! | [`MateMap`], [`Relations`]                             | `m_pBToO`, `m_pOToB` (edge/vertex subset over [`Brep`] ids; CO-PORTED by `boolean.merge_p1`) |
+//! | [`MateMap::other`], [`MateMap::primary`]               | `GetOtherMate`, `GetBrepMate` over [`Brep`] ids       |
+//! | [`Relations::relate_vertices`]                         | `Relate` of two vertices over [`Brep`] ids            |
 //!
 //! Deviations:
 //! - **Object handles.** Every `SmObject*` (vertices, edges, faces, curves, surfaces,
@@ -109,6 +112,12 @@
 //!   (`m_pTI->GetThisApproxTol3d()` in `FindOrCreateProtoEdge`) as a parameter.
 //! - The `SM_DEBUG_CODE` / `CBI_CACHE` / `SM_VALIDATE_TOPOLOGY` blocks are compiled out
 //!   upstream and not ported; `SM_ASSERT` / `SM_ASSERT_TOL` only report.
+//! - **Merge-stage mates.** The merge stages (`boolean.merge_p1`, `_p5`) work on
+//!   concrete [`Brep`] arenas, not handles `O`, and share their edge and vertex mates
+//!   as [`Relations`] (co-ported by `boolean.merge_p1`, PR #163). Its
+//!   [`Relations::relate_vertices`] is `Relate`'s vertex branch on those ids;
+//!   [`MateMap::record`] stores an already-established pair after the same conflict
+//!   checks.
 //! - **Recursion.** None.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -139,6 +148,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::surface::surface::p5::{DropPoint, DropPointOptions};
 use crate::topology::proto_topology::{ProtoBrep, ProtoTopologyManager};
+use crate::topology::{vertex, Brep, EdgeId, VertexId};
 
 const OP: &str = "boolean::topology_intersector::p1";
 const OP_CHECK_SSI: &str = "boolean::topology_intersector::p1::check_if_have_existing_ssi";
@@ -3667,6 +3677,112 @@ pub fn test_and_imprint_face<O: ClassObject + SolutionObject + Ord>(
     Ok(out)
 }
 
+// ---- mate storage of the merge stages (co-ported by boolean.merge_p1, PR #163) -----------
+
+/// The same mate relationship viewed in both operand directions: the `m_pBToO` /
+/// `m_pOToB` pair over one kind of operand-local [`Brep`] arena id, as the merge
+/// stages hold it.
+#[derive(Debug, Clone)]
+pub struct MateMap<I> {
+    to_other: BTreeMap<I, I>,
+    to_primary: BTreeMap<I, I>,
+}
+
+impl<I> Default for MateMap<I> {
+    fn default() -> Self {
+        Self {
+            to_other: BTreeMap::new(),
+            to_primary: BTreeMap::new(),
+        }
+    }
+}
+
+impl<I: Ord + Copy> MateMap<I> {
+    /// `GetOtherMate`: the mate of a primary operand id.
+    pub fn other(&self, primary: I) -> Option<I> {
+        self.to_other.get(&primary).copied()
+    }
+
+    /// `GetBrepMate`: the mate of an other operand id.
+    pub fn primary(&self, other: I) -> Option<I> {
+        self.to_primary.get(&other).copied()
+    }
+
+    /// Record an established pair. Conflicting pairs fail before either map changes.
+    /// New geometry is related with [`Relations::relate_vertices`] (`Relate`, with its
+    /// tolerance updates) instead.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when either id already has a different mate.
+    pub fn record(&mut self, primary: I, other: I) -> Result<()> {
+        if self.other(primary).is_some_and(|v| v != other)
+            || self.primary(other).is_some_and(|v| v != primary)
+        {
+            return Err(SolidError::sm_err(
+                "boolean::topology_intersector::p1::record",
+            ));
+        }
+        self.to_other.insert(primary, other);
+        self.to_primary.insert(other, primary);
+        Ok(())
+    }
+}
+
+/// Edge and vertex mates shared by the merge stages; every id is operand-local.
+#[derive(Debug, Default, Clone)]
+pub struct Relations {
+    /// Edge mates in both directions.
+    pub edges: MateMap<EdgeId>,
+    /// Vertex mates in both directions.
+    pub vertices: MateMap<VertexId>,
+}
+
+impl Relations {
+    /// `Relate(pBrepTopo, pOtherTopo)` for two vertices of the concrete [`Brep`]
+    /// operands of the merge stages: [`TopologyIntersector::relate`]'s vertex branch
+    /// on arena ids. The conflict checks come first; then (`SM_USE_OLDTOL`) each vertex
+    /// gets the other's tolerance when that is larger (`SetTolerance` with its
+    /// defaults `bUpdateOnlyIfLarger = TRUE`, `bCascadeToBndries = TRUE`); then the
+    /// pair is stored in both directions.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when either vertex already has a different mate (nothing changes);
+    /// [`SolidError::NotFound`] for a dangling id (upstream's `NER` of a null vertex).
+    pub fn relate_vertices(
+        &mut self,
+        brep: &mut Brep,
+        brep_vertex: VertexId,
+        other: &mut Brep,
+        other_vertex: VertexId,
+    ) -> Result<()> {
+        // check for conflicting existing mate relationships
+        let oth = self.vertices.other(brep_vertex);
+        let brp = self.vertices.primary(other_vertex);
+        if oth.is_some_and(|v| v != other_vertex) {
+            return Err(SolidError::sm_err(OP_RELATE));
+        }
+        if brp.is_some_and(|v| v != brep_vertex) {
+            return Err(SolidError::sm_err(OP_RELATE));
+        }
+
+        // when objects are vertices - set object tolerances to max(object1 tol, object2 tol)
+        let tol1 = vertex::tolerance(brep, brep_vertex)?;
+        let tol2 = vertex::tolerance(other, other_vertex)?;
+        if tol1 < tol2 {
+            vertex::set_tolerance(brep, brep_vertex, tol2, true, true)?;
+        }
+        let tol1 = vertex::tolerance(brep, brep_vertex)?;
+        if tol2 < tol1 {
+            vertex::set_tolerance(other, other_vertex, tol1, true, true)?;
+        }
+
+        // add the pair to the Ptr to Ptr map
+        self.vertices.record(brep_vertex, other_vertex)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -3834,5 +3950,18 @@ mod tests {
         assert_eq!(deleted, vec![H(4, 0), H(4, 3), H(4, 1), H(4, 2)]);
         assert!(ti.intersection_table().is_none());
         assert!(ti.clear_existing_ssi().is_empty());
+    }
+
+    #[test]
+    fn conflicts_leave_both_directions_unchanged() {
+        let mut m = MateMap::default();
+        m.record(1, 8).unwrap();
+        m.record(1, 8).unwrap();
+        assert!(m.record(1, 9).is_err());
+        assert!(m.record(2, 8).is_err());
+        assert_eq!(m.other(1), Some(8));
+        assert_eq!(m.primary(8), Some(1));
+        assert_eq!(m.other(2), None);
+        assert_eq!(m.primary(9), None);
     }
 }

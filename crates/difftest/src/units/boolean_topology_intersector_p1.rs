@@ -1134,11 +1134,11 @@ struct ROp {
 /// Resolves the longest runnable prefix of a case's ops against the imported B-reps:
 /// the resolved ops and, when an op was left out, the index and name of the first
 /// unrunnable op.
-fn resolve_prefix(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> (Vec<ROp>, Option<(usize, String)>) {
+fn resolve_prefix(ops: &[OpIn], c: &Counts, two: &Two) -> (Vec<ROp>, Option<(usize, String)>) {
     let mut n = ops.len();
     let mut cut: Option<(usize, String)> = None;
     loop {
-        match resolve(ops.get(..n).unwrap_or(&[]), c, two, ctor) {
+        match resolve(ops.get(..n).unwrap_or(&[]), c, two) {
             Ok(r) => return (r, cut),
             Err(name) => {
                 if n == 0 {
@@ -1154,13 +1154,13 @@ fn resolve_prefix(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> (Vec<ROp>, O
 /// Resolves every op of `ops` against the imported B-reps; `Err(name)` names the
 /// first op that cannot be run.
 #[allow(clippy::too_many_lines)]
-fn resolve(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> Result<Vec<ROp>, String> {
+fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
     let mut out = Vec::new();
     let mut curves = 0usize;
     let mut has_mgr = false;
     let mut mutated = false;
     // the intersector's B-reps (the FFI's `have_breps`)
-    let mut have_breps = [ctor == 0, ctor == 0 && c.breps[1].is_some()];
+    let mut have_breps = [true, c.breps[1].is_some()];
     for (idx, op) in ops.iter().enumerate() {
         let fail = |what: &str| format!("unresolvable_op{idx}_{what}");
         let h = |x: Hin| -> Result<Hin, String> {
@@ -1195,11 +1195,13 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> Result<Vec<ROp>, St
         if mutated && takes_handles {
             return Err(fail("after_mutation"));
         }
+        // GetCommonEdges / GetCommonVertices read only m_pBrep
+        if matches!(op, OpIn::CommonEdges | OpIn::CommonVertices) && !have_breps[0] {
+            return Err(fail("null_brep"));
+        }
         if matches!(
             op,
-            OpIn::CommonEdges
-                | OpIn::CommonVertices
-                | OpIn::FaceFace { .. }
+            OpIn::FaceFace { .. }
                 | OpIn::FaceFaceCoin { .. }
                 | OpIn::Resolve
                 | OpIn::Imprint
@@ -1579,7 +1581,7 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
         breps: [Some(count3(&brep_a)), brep_b.as_ref().map(count3)],
     };
     let two = Two::new(brep_a, brep_b);
-    let (ops, cut) = resolve_prefix(&i.ops, &counts, &two, i.ctor);
+    let (ops, cut) = resolve_prefix(&i.ops, &counts, &two);
     // a script cut at its first op compares nothing: both sides report the error (it is
     // counted as both-errored, not as a pass)
     if ops.is_empty() {
