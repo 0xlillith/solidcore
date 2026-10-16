@@ -5381,3 +5381,59 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
+
+Difftest (`fixtures/topology.brep_p1/`: 2070 cases on the 15 upstream `.smb` files read by
+`SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces,
+the `prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 2318 cases, 1710 pass, 0 fail, 608 deferred
+(topology.shell 148, topology.edgeuse_p3 106, topology.brep_p7 86, query.brep 70,
+surface.surf_of_extrusion_p2 46, surface.sphere 43, surface.cone_p1 29, topology.face_p3 19,
+heal.heal_data_p1 16, surface.surface_cache_p1 16, topology.face_p1 15, surface.surface_p8 10,
+curve.crv_on_surf 4); `--perturb` SENSITIVE 1710/1710.
+Every compared value is bit-identical; no absolute floors.
+
+- **Upstream defect UB-136** (`plan/upstream-issues.md`): `SmCopyBrepMap::SetAt` with a null copy
+  and `GetAt` of a key never stored both dereference null through the release `SM_ASSERT`
+  (`if(a) {}` still evaluates `pOrigObj->GetType()`); `sm_SetObjectMap` documents a null copy as
+  allowed. Confirmed with gdb. The Rust copy maps are `BTreeMap`s (no entry for a null copy, `None`
+  on a miss); the shim only exercises the defined inputs.
+- **List order.** `GetFaces` / `GetEdges` / `GetVertices` return the B-rep's `m_p*ListHead` list
+  order, which differs from the traversal order the shared graph export numbers entities in
+  (Mouse.smb: the first listed face is traversal index 2). `Brep` now keeps the three lists
+  explicitly (`face_list`, `edge_list`, `vertex_list`; `add_*_record` appends, `set_*_list`
+  reorders) and the runner imports the native order from the shim's extras. Likewise the
+  region list head (`Brep::region_list_head`, moved by `ResetInfiniteRegion`).
+- **Wire networks.** The shared export walk (`sc_edgeuse_graph.h`) registers only the head of a
+  wire shell's list and never walks vertex -> other vertex uses, so the `prog_test` wire network
+  exported partially (2 of 6 edges). This unit's shim adds a fixpoint pass (`walk_more`) that
+  registers the remaining shell members and vertex uses before exporting; earlier indices are
+  unchanged, so the shared units are unaffected.
+- **Upward face use.** The shared import leaves `Face::faceuse` (`m_pFU`) unset; this runner sets
+  it to the face's `SAME`-oriented face use (needed by `GetLoops`, `sm_MarkLoopsToDelete`,
+  `sm_FindSectorOfFace`).
+- **Analytic geometry** (cone, sphere, torus, extrusion faces; ellipse edges) arrives as its
+  B-spline part only (as in `topology.edgeuse_p1`): the ops that evaluate it (`GetTopologicalEdges`,
+  `GetTopologicalVertices`, `sm_CheckUVTrimCurve`, `sm_FindSectorOfFace`, `UpdateVertexEdgeIntervals`,
+  `sm_MakeVertexSplitUVTrimCurve`, `CreateParallelProjectionCurves`) defer to the surface units /
+  `topology.brep_p7` instead of comparing a different surface. `CreateEdgeEdgeBlend` ruled surfaces
+  are compared on every file: upstream also uses only the `SmBSplineCurve` part of the rails.
+- **`sm_MakeVertexSplitUVTrimCurve` on a plane face.** Upstream lifts the UV trim curve through
+  `SmCrvOnSurf(uv, *pSurface)`, whose `EvaluatePoint` is the surface evaluation of the UV curve
+  point; the Rust `CrvOnSurf` exists only over a `BSplineSurface` (a `Plane`'s base has no NURB
+  data), so the port lifts through the face `Surface` itself and builds the `CrvOnSurf` only for the
+  tessellation branch's local solve (deferred to `curve.crv_on_surf` for a non-B-spline face).
+- **Status conventions of the runner.** `-2` marks inputs upstream would dereference null on
+  (shim guards, `InvalidInput` raised by this unit); an `InvalidInput` from a callee is reported
+  as that callee's `SM_ERR_INVALID_INPUT` (`BSplineCurve::trim`, "trim points too close", matches
+  upstream's 1007 on `ellips_ts2.smb`). `-3` is "the shim did not call upstream" and only appears
+  where the Rust side defers (seam branch of `sm_RedistributeSeamUVTrimCurves`, blends with two or
+  more edge uses or a non-ruled flag, `BrepIntersect` with faces, `HealBrep`).
+- **Deferred, by design until their units land:** `GetShells` / `ResetInfiniteRegion` void flags /
+  `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
+  `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`
+  (`topology.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
+  `LockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`),
+  `CreateBlendSurface` (`surface.surface_p8`). The error paths before each stub are compared
+  (`ResetInfiniteRegion(NULL)`, the "infinite region not first" check, `CreateCornerBlend` with
+  fewer than two edge uses, `CreateEdgeEdgeBlend` without edges or NURBS rails).

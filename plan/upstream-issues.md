@@ -1197,6 +1197,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::intersect_surface_boundaries` always returns the curves.
 
+#### UB-136. `SmCopyBrepMap::SetAt` / `GetAt` dereference null through their release asserts
+- **Location:** `source/SMLib/src/SmCopyBrepMap.cpp:21-29` `SmCopyBrepMap::SetAt` (`SM_ASSERT(pCopyObj->GetType() == pOrigObj->GetType())`) and `:48-68` `SmCopyBrepMap::GetAt` (the same assert after `m_sMap.At(pCopyObj)`).
+- **What happens:** the release `SM_ASSERT` (`if(a) {}`, `SmMessages.h:714`) still evaluates its argument. `SetAt` with a null copy (`sm_SetObjectMap`, `SmBrep.cpp:22802`, documents `pCopyObj` "can be NULL" and passes it straight to `SetAt`) and `GetAt` with a key that was never stored (`At` returns `nullptr`) both make a virtual `GetType` call through a null pointer (the compiler emits a load from address 0): SIGSEGV.
+- **Trigger:** `sm_SetObjectMap(orig, NULL, map, &copyMap, ..)`; `GetAt` with any topology pointer not stored in the map (e.g. an original-side pointer asked of the copy-to-original map).
+- **How found:** difftest of unit `topology.brep_p1` (`sm_SetObjectMap` / `sm_GetObjectMap` cases querying the optional `SmCopyBrepMap`s); backtrace under gdb.
+- **Confirmed:** yes (release build, gdb: faulting instruction `mov 0x0,%rax` right after the `GetType` call in `SmCopyBrepMap::GetAt`).
+- **Severity:** crash/UB.
+- **Rust port:** the copy maps are `BTreeMap`s (`topology::brep::p1::CopyBrepMap`); a null copy is not recorded in them and a missed lookup is `None`. The difftest shim passes the copy maps only for non-null copies and asks `GetAt` only for stored keys.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
