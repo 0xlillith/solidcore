@@ -525,11 +525,10 @@ impl<O: ClassObject> CurveClassification<O> {
         &self.data
     }
 
-    /// Set the classification domain (`SetInterval`, inline upstream).
+    /// Sets the complete classification domain (inline `SetInterval`).
     ///
     /// # Errors
-    ///
-    /// Those of [`Extent1d::set_min_max`].
+    /// Returns the interval validation error instead of ignoring an invalid domain.
     pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
         self.interval.set_min_max(interval.min(), interval.max())
     }
@@ -1041,7 +1040,7 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     /// The curve geometry, or an error for no curve.
-    pub(crate) fn curve_geometry<'g>(
+    pub(super) fn curve_geometry<'g>(
         &self,
         geometry: &'g impl ClassGeometry<O>,
     ) -> Result<&'g Curve> {
@@ -2032,6 +2031,7 @@ fn surface_global_point_solve(
     let solutions = ignored(
         surface.global_point_solve::<crate::surface::surface::p4::NoObject>(
             k,
+            Some(crate::surface::surface::p4::NoObject),
             &surface.natural_uv_domain(),
             SolverOperation::Minimize,
             point,
