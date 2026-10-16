@@ -5532,110 +5532,71 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 ## intersect.curve_class_p5: independent port
 
-Current integration: PR #138 has landed independently in main. Part 5 now calls
-part 6's real Homogenize, FixEndPointClass, InsertCurveInterval and MergeInterval
-methods; the old p6 stubs are removed. The implementation and reports of p6 are
-inherited from main, while p2 and p7 remain independent. The evidence below is
-revision-specific history from before this integration; fresh native results and
-reports are being regenerated for the merged tree.
+Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
+through PR #138 and is inherited from main. Homogenize, FixEndPointClass,
+InsertCurveInterval and MergeInterval now call those real methods; no p6 stubs
+remain. Both proto-topology p3 extraction sites call mutable ExtractGeometry
+with geometry and default optional outputs, discarding temporary curves as native
+does. Their deeper p2/p7 dependencies remain explicit.
 
-The seven part-5 entry points are implemented with the unported blocks below,
-without bundling the open p2/p7/p6 PRs
-(#85/#65/#138). The replacement branch starts directly at official main. Calls into
-those missing units return `SolidError::Unported` with their owning unit; no
-successful result is substituted. The former bundled branch and its numerical
-counts are historical evidence, not validation of this independent port.
+Validation on numerical source 9e495b12 uses Ubuntu 24.04.5 x86_64, GCC 13.3.0,
+Rust 1.98.0 and clean pinned upstream c9c5979. All nine affected native runners
+complete with zero failures. P5 has 1,081 cases (281 fixed + 800 generated),
+275 bit-identical comparisons and 806 deferrals: p2 493, p7 312 and generic
+curve.crv_on_surf dispatch 1. Perturbation detects all 275 compared cases.
+Its regenerated report replaces the pre-p6 report. The other eight reports
+(p6, p1, p3, point classification, face query and proto-topology p1/p2/p3)
+regenerate byte-identical and are excluded from this PR's changes.
 
-The oracle retains real line/circle and stationary B-spline geometry, full-circle
-parameter ranges, independent extraction partitions, mutable solution records,
-optional geometry outputs and upstream error statuses. Both ignore-tangency calls
-request nonzero tangents as the base-class declaration does. Native B-spline
-one-derivative evaluation recursively uses its subclass default FALSE; the port
-preserves that quirk. No tolerance floors or profile/build-script changes are added.
+Formatting, strict plain and native-enabled workspace Clippy, 1,215 kernel
+tests, WASM and the focused native FFI malformed-input regression pass. The
+adapter-only opt-level-0 override reduces build memory; the numerical kernel
+remains opt-level 1 and the C++ reference retains its standard flags. No absolute
+floors, workflow changes or build-script changes are submitted. Full CI evidence
+is tracked in PR #150 separately from these focused runs.
 
-Uncertified paths include extraction behind Homogenize (p6), endpoint repair behind
-FixEndPointClass (p6), interval insertion/merge (p6), point-index queries (p7),
-classification boundary locations (p2) and nonempty large-gap projection.
-The entire edge-target insertion branch (vertex snapping, surface refinement and
-the 2D class object) remains unported, blocked first by p2 InsertAt and also p7
-point-index queries. The entire SSS block remains unported before its mutations;
-its actual missing callees are GetOtherMate/GetBrepMate in
-boolean.topology_intersector_p1. The existing knot snapping, surface solves,
-through-point edits and edgeuse UV-trim methods still need mutable ownership
-wiring in this block. It does not call sm_RefineCCIToSurfaces.
-Fixup and merge comparisons certify only exercised no-op/skip
-paths. The inline SetInterval setter and curve resolver visibility are minimal
-support on the existing part-1 type. Face callers map vertices through
-CurveOnClassifyObjects::vertex; their other dependency stubs remain untouched.
+The eight newly compared generated cases are gen0138, gen0288, gen0363, gen0393,
+gen0470, gen0583, gen0665 and gen0741. These passes certify only the exercised
+subset. All 24 zero_tangent fixtures still defer to p2 InsertAt, so they do not
+certify tangent-flag behavior. Fixup and merge comparisons include no-op/skip
+paths; nontrivial extraction, repair and insertion can still defer deeper into
+p2/p7. Both ignore-tangency calls request nonzero tangents as the base declaration
+does. B-spline one-derivative evaluation recursively uses its subclass default
+FALSE; the port preserves that native quirk.
+
+The edge-target insertion branch remains unported: vertex snapping,
+sm_RefineCCIToSurfaces and the 2D class object need p2 InsertAt and p7 point-index
+queries. The entire SSS block (SmCurveClass.cpp:14826-15095) remains unported
+before mutation. Its real missing callees are GetOtherMate/GetBrepMate in
+boolean.topology_intersector_p1; the preceding knot snapping, surface solves,
+through-point edits and edgeuse UV-trim clearing have ported callees but still
+need mutable ownership wiring here. This block does not call
+sm_RefineCCIToSurfaces. The reviewer explicitly accepted this minimum tag and
+description correction. Generic-Surface SmCrvOnSurf construction is a missing
+type/dispatch extension of the already-partial curve unit, recorded in its notes.
+
+Missing vertex-point and vertex/face-gap callback data returns InvalidInput.
+Big-gap lookup requires an explicit classification face or direct face owner of
+the surface. With no face, its cutoff retains the default SmXSectTol3d, twice
+the system zone tolerance. A unit regression checks that selection against the
+ordinary tolerance and changed system tolerance; the attempted geometric probe
+was filtered earlier by GlobalPointSolve. Nonempty large-gap projection remains
+uncertified: the native vertices have no vertexuse and the Rust runner supplies
+no vertex/face-gap callback. Rust continues on an ownerless surface, where native
+crashes (UB-126).
+
+Small shared interfaces are recorded as CO-PORTED in the owning units' notes:
+the three ClassGeometry callbacks and optional topology-tolerance dispatch,
+inline SetInterval and curve-resolver visibility on p1, and face-query vertex
+handle mapping. classification_vertex_point avoids the ProtoBrep method-name
+collision. The header records the object_index > 1 restriction, unresolved-curve
+error in p5_closed instead of native FALSE, and the runner's zero face tolerance
+that is not compared against native.
 
 The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
-UB-125/126 are source-found native null dereferences; UB-134 was reproduced during
-the original bundled validation. The shim retains those narrow preconditions.
-Independent-port evidence on numerical source `abb5cc7a`, based on official main
-`f22eaae0`, uses the clean pinned upstream `c9c5979`, Ubuntu 26.04.1 x86_64,
-GCC 15.2.0 and Rust 1.98.0. The fixture count is 281 fixed plus 800 generated:
-267 compared exactly, zero failed, 814 deferred (p2 430, p6 348, p7 35,
-curve.crv_on_surf 1). Perturbation detects all 267 compared cases. Formatting,
-strict plain Clippy, 1,208 kernel tests and WASM pass. The adapter-only opt-level-0
-CLI override reduces build memory; the numerical kernel remains opt-level 1 and
-the reference flags remain unchanged. All five affected differential runners pass;
-the p1, p3, point-classification and face-query reports are byte-identical to main.
-Strict native-enabled workspace Clippy passes with the same profile override, and
-the focused FFI malformed-input regression passes (one test). Full `--green` CI on
-`12797d2` passes: 186 units, 99 green, 87 partial, zero failed. Earlier bundled pass
-counts do not certify this branch.
-
-Review follow-up (#150): UB-134 replaces this PR's conflicting UB-127; UB-125/126
-are unchanged. Both proto-topology p3 extraction sites now call the mutable p5
-method with geometry and default outputs, discarding the temporary curves as
-upstream does. When reached, these calls currently defer to p6 Homogenize.
-`ClassGeometry::classification_vertex_point` avoids the name collision with
-`ProtoBrep::vertex_point`; the prior collision-only changes in p3 and its runner
-are removed. The small shared adapters/setter/visibility changes are recorded as
-CO-PORTED in the owning units' notes. Generic-Surface CrvOnSurf construction is
-still an unported type/dispatch extension of the already-partial curve unit;
-its notes distinguish this from an unported existing topology algorithm.
-
-Missing vertex-point and vertex/face-gap callback data now returns InvalidInput,
-rather than Unported for already-ported SmVertex/SmVertexuse methods. Big-gap
-tolerance is queried only when the classification has a face or the surface has
-a direct face owner, matching upstream. The edge insertion and SSS stubs name
-their actual blockers. The module header records the object-index restriction,
-unresolved-curve error in p5_closed and runner-only face tolerance zero. All 24
-zero_tangent fixtures defer on p2 InsertAt; flipping the nonzero-tangent flag does
-not affect a compared result yet. No tangent fallback behavior is certified by
-those fixtures. On review-fix head `0776c9eb`, all eight affected native runners
-(p5/p1/p3, point classification, face query and proto-topology p1/p2/p3) have zero
-failures; p5 remains 267 compared and 814 deferred, with all 267 perturbations
-detected. All eight reports regenerate byte-identical. Formatting, strict plain
-Clippy, 1,208 kernel tests and WASM pass. Native Clippy and the focused FFI
-regression pass. Full CI on merged head 8adf14f0 passes 187 units (99 green,
-88 partial, zero failed). The subsequent merge of
-official main `57face81` retains the face-properties changes and both issue lists;
-p5's review-fix source is unchanged by that merge.
-
-Re-review at 8adf14f0: the reviewer permits retaining the SSS stub with the corrected
-boolean mate target and an explicit description of the whole unported block; this
-is the minimum accepted fix, not a port of the preceding mutations. UB-134 is
-retained per the maintainer's merge-time collision policy, and the fixture's
-upstream_ref now points to that entry. Large-gap projection remains uncertified:
-the runner has no vertex/face-gap callback and native vertices have no vertexuse.
-New regression tests cover ordinary errors for unresolved adapter data and the
-face/no-face condition for querying a gap. Formatting, strict plain Clippy,
-1,210 kernel tests and WASM pass on these changes. Native regeneration and CI
-results for the new revision are tracked in the PR description separately from
-the passing 8adf14f0 evidence above.
-
-Round-3 review fix: without a face, the native default-constructed SmXSectTol3d
-retains twice the system zone tolerance. The Rust large-gap path now uses
-xsect_tol3d(k, USE_DEFAULT), rather than the source-plus-vertex tolerance, in that
-branch. The cutoff regression uses ordinary tolerance 1e-5 and checks the default
-2e-5 cutoff and a changed system zone tolerance. This leaves distance 1.5e-5
-eligible for the later projection checks while excluding distance 2.5e-5; it
-tests cutoff selection directly because the attempted geometric regression was
-filtered by GlobalPointSolve before this branch. UB-126 records that Rust
-continues with no face on an ownerless
-surface, where upstream dereferences a null owner. This Rust regression does not
-certify a new native-oracle branch; the existing oracle still supplies a face.
-Formatting, strict plain workspace Clippy, 1,211 kernel tests and WASM pass after
-this fix. Refreshed native CI evidence is tracked in the PR description.
+UB-125/126 are source-found null dereferences whose crashes were not executed;
+UB-134 was reproduced during the original bundled validation. Its fixture and
+report now point to UB-134. The maintainer has assigned UB-134 to this PR and will
+renumber the parallel claim in #148. No bundled numerical results certify this
+independent tree. The maintainer confirmed all review items resolved before the
+independent p6 integration.

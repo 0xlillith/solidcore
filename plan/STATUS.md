@@ -958,14 +958,16 @@ perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 c
 ## Independent curve-classification part 5
 
 The p5 implementation and oracle remain independent of the open p2/p7 PRs.
-Part 6 landed independently through PR #138 and is now inherited from main;
-p5 calls its Homogenize, FixEndPointClass, InsertCurveInterval and MergeInterval
-methods. The previously verified 267/1,081 comparisons and 814 deferrals describe
-the pre-p6 tree. Integration validation and report regeneration are in progress.
-The edge-target insertion and SSS blocks remain unported, and all 24 zero-tangent
-fixtures previously deferred on p2. Small shared interfaces are recorded as
-CO-PORTED in their owning units' notes. The proto-topology p3 extraction back-edge
-calls p5; the lazy-UV issue remains UB-134.
+Part 6 landed independently through PR #138 and is inherited from main; all four
+p6 call sites are wired. Fresh validation on 9e495b12 compares 275/1,081 cases
+exactly, with zero failures and 806 explicit deferrals (p2 493, p7 312,
+curve.crv_on_surf 1). Perturbation detects all 275 compared cases. All nine affected
+native runners, plain/native Clippy, 1,215 kernel tests, WASM and the focused FFI
+regression pass. The eight other reports are unchanged.
+The edge-target insertion and SSS blocks remain unported; nonempty large-gap
+projection and tangent-flag behavior remain uncertified. Shared interfaces are
+recorded as CO-PORTED. The proto-topology p3 extraction back-edge is wired and the
+lazy-UV issue remains UB-134.
 
 ## Curve-classification interval integration (2026-10-16, PR #138)
 
