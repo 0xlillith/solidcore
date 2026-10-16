@@ -87,9 +87,9 @@
 //! - **`CreateCurvesByTrimming`** drops its unused `bForceUVClassify` argument; the
 //!   output arrays are asked for with `want_3d` / `want_uv`.
 //! - **Unported callees.** `sm_FaceClassifyUVLine` (`query.face_p3`),
-//!   `SmFace::CurveOnClassify` (`query.face_p2`), the `SmCurveClassification`
-//!   constructor of a curve (`intersect.curve_class_p4`),
-//!   `SmCurveInterval::GetIvlBound_EdgeuseObj` (`intersect.curve_class_p4`),
+//!   `SmFace::CurveOnClassify` (`query.face_p2`), `SmCurveClassification::ReSet` in the
+//!   constructor of a curve (`intersect.curve_class_p2`), the face member
+//!   `GetUpwardFaceuse` of an opaque handle in `SmCurveInterval::GetIvlBound_EdgeuseObj`,
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve`
 //!   (`topology.edgeuse_p3`), `SmSurface::IsSingularity` of a non-plane
@@ -107,7 +107,8 @@ use crate::geom::object::ObjectRef;
 use crate::geom::tol::are_same;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::{CurveClassification, CurveInterval};
-use crate::intersect::point_class::{ClassObject, ClassObjectKind, PointClassType};
+use crate::intersect::curve_class::p4::ClassificationInit;
+use crate::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind, PointClassType};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -375,23 +376,38 @@ fn face_classify_uv_line(
     ))
 }
 
-/// `SmCurveClassification(curve, interval, uv_curve, tol, ...)` followed by
+/// `SmCurveClassification(curve, curve->GetNaturalInterval(), uv_curve, tol, data_size,
+/// data, FALSE, TRUE, surface)` (the curve, UV curve and surface are this face's, behind
+/// [`StubHandle`]), then `SetDoingCrossHatch(TRUE)` when `cross_hatch`, followed by
 /// `SmFace::CurveOnClassify` of a face.
-fn classify_curve_on_face(_curve: &Curve, _tol: f64) -> Result<Vec<CurveInterval<StubHandle>>> {
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    // (then UNPORTED(query.face_p2): SmFace::CurveOnClassify)
+fn classify_curve_on_face(
+    k: &Kernel,
+    curve: &Curve,
+    with_uv_curve: bool,
+    tol: f64,
+    data_size: usize,
+    cross_hatch: bool,
+) -> Result<Vec<CurveInterval<StubHandle>>> {
+    let init = ClassificationInit {
+        curve: Some(StubHandle),
+        interval: curve.natural_interval(),
+        uv_curve: with_uv_curve.then_some(StubHandle),
+        src_zone_tol_3d: tol,
+        opt_data_size: data_size,
+        is_curve_owned: false,
+        is_curve_current: true,
+        surface1: Some(StubHandle),
+        surface2: None,
+        uv_curve2: None,
+        ti: None,
+    };
+    let _classification = CurveClassification::with_curve(k, &init)?;
+    // (SetDoingCrossHatch(TRUE) when cross_hatch: an inline setter, not ported yet)
+    let _ = cross_hatch;
+    // UNPORTED(query.face_p2): SmFace::CurveOnClassify
     Err(SolidError::unported(
-        "SmCurveClassification::SmCurveClassification",
-        "intersect.curve_class_p4",
-    ))
-}
-
-/// `SmCurveInterval::GetIvlBound_EdgeuseObj(bMinEnd, pOptFaceProps)`.
-fn ivl_bound_edgeuse_obj<O>(_interval: &CurveInterval<O>, _min_end: bool) -> Result<Option<O>> {
-    // UNPORTED(intersect.curve_class_p4): SmCurveInterval::GetIvlBound_EdgeuseObj
-    Err(SolidError::unported(
-        "SmCurveInterval::GetIvlBound_EdgeuseObj",
-        "intersect.curve_class_p4",
+        "SmFace::CurveOnClassify",
+        "query.face_p2",
     ))
 }
 
@@ -688,6 +704,7 @@ pub struct SeamCrvReview<O> {
 /// [`SolidError::InvalidInput`] for an empty classification; those of
 /// `SmCurveInterval::GetIvlBound_EdgeuseObj`.
 pub fn review_start_and_stop_on_seam_crv_classifies<O: ClassObject>(
+    geometry: &impl ClassGeometry<O>,
     classification: &mut CurveClassification<O>,
 ) -> Result<SeamCrvReview<O>> {
     // locals
@@ -697,8 +714,8 @@ pub fn review_start_and_stop_on_seam_crv_classifies<O: ClassObject>(
         .ok_or_else(|| null("ReviewStartAndStopOnSeamCrvClassifies: empty classification"))?;
 
     // init output
-    let edge_first_side = ivl_bound_edgeuse_obj(classification.at(0)?, true)?;
-    let edge_last_side = ivl_bound_edgeuse_obj(classification.at(last)?, false)?;
+    let edge_first_side = classification.ivl_bound_edgeuse_obj(geometry, 0, true)?;
+    let edge_last_side = classification.ivl_bound_edgeuse_obj(geometry, last, false)?;
     let mut out = SeamCrvReview {
         first_kept: true,
         last_kept: true,
@@ -938,7 +955,7 @@ pub fn points_in_face(
             // classify the isoParameter UVTrimCurve against the face
             let tol = face.tolerance;
             let crv = Curve::from(uv_curve.clone());
-            let intervals = classify_curve_on_face(&crv, tol)?;
+            let intervals = classify_curve_on_face(k, &crv, true, tol, 10, true)?;
             if intervals
                 .iter()
                 .any(|ivl| ivl.mid.point_class() == PointClassType::Face)
@@ -1543,7 +1560,7 @@ pub fn create_curves_by_trimming(
             }
 
             // classify the UVCurve against the face
-            let intervals = classify_curve_on_face(curve, tol_uv)?;
+            let intervals = classify_curve_on_face(k, curve, true, tol_uv, 20, false)?;
 
             // for every curve classification
             for ivl in &intervals {
@@ -1602,7 +1619,7 @@ pub fn create_curves_by_trimming(
             }
 
             // Classify the curve against the face
-            let intervals = classify_curve_on_face(curve, tol_3d)?;
+            let intervals = classify_curve_on_face(k, curve, false, tol_3d, 20, false)?;
 
             for ivl in &intervals {
                 if ivl.mid.point_class() == PointClassType::Face
@@ -2508,10 +2525,27 @@ mod tests {
         }
     }
 
+    struct NoGeometry;
+
+    impl ClassGeometry<H> for NoGeometry {
+        fn curve(&self, _o: H) -> Option<&Curve> {
+            None
+        }
+        fn surface(&self, _o: H) -> Option<&Surface> {
+            None
+        }
+        fn volume(&self, _o: H) -> Option<&crate::surface::volume::Volume> {
+            None
+        }
+        fn point(&self, _o: H) -> Option<Point3> {
+            None
+        }
+    }
+
     #[test]
     fn review_of_an_empty_classification_is_rejected() {
         let k = Kernel::default();
         let mut cc: CurveClassification<H> = CurveClassification::new(&k);
-        assert!(review_start_and_stop_on_seam_crv_classifies(&mut cc).is_err());
+        assert!(review_start_and_stop_on_seam_crv_classifies(&NoGeometry, &mut cc).is_err());
     }
 }

@@ -209,7 +209,7 @@ fn classify_against_surface(
     _tol: f64,
     _surface: &BSplineSurface,
 ) -> Result<Vec<Extent1d>> {
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
+    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification -- justified: findings.md "intersect.curve_class_p4" (no Kernel here)
     // UNPORTED(intersect.curve_class_p8): SmCurveClassification::IntersectUVDiscontinuties
     // (then the intervals: intersect::curve_class::CurveClassification::size / at)
     Err(SolidError::unported(

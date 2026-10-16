@@ -1653,6 +1653,7 @@ fn edge_cases() -> Vec<(String, Value)> {
 /// Scripts undefined upstream that the shim must reject: the squeeze of an empty
 /// classification, the bounding edge use without face, of an interval past the intervals and
 /// of an edge end without classification curve, the loop crossings over a loop.
+#[cfg(test)]
 fn rejected_cases() -> Vec<(String, Script)> {
     let objs = edge_objects(1.0);
     let bounds = [0.0, 0.5, 1.0];

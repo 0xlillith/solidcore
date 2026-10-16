@@ -4995,12 +4995,15 @@ mutated scales and accepted/reduced step counts are compared.
   (e.g. `CreateFaceFromSurface`) would let the C++ side run those calls, which Rust would still defer.
   `GetIvlBound_EdgeuseObj` of an interval whose back pointer is another classification is refused (the
   port addresses intervals in their classification and has no back pointer).
-- **Not wired yet** (`UNPORTED(intersect.curve_class_p4)` on main): the constructor sites in
-  `curve::crv_in_volume` (`compute_breaks`) and `curve::crv_on_surf` (`knots`) have no `Kernel` in scope
-  (the constructor needs one for its default tolerances, then calls `ReSet`, `intersect.curve_class_p2`);
-  `topology::face::p2` (`classify_curve_on_face`, `ivl_bound_edgeuse_obj`; the latter needs a
-  `ClassGeometry` passed to `review_start_and_stop_on_seam_crv_classifies`) and
-  `intersect::topology_solver::p2` (`classified_curve_intervals`) are still to do.
+- **Wiring.** `topology::face::p2` (`classify_curve_on_face` with each upstream site's constructor
+  arguments; `review_start_and_stop_on_seam_crv_classifies` now takes a `ClassGeometry` for
+  `ivl_bound_edgeuse_obj`) and `intersect::topology_solver::p2` (`classified_curve_intervals`) call the
+  port; their cases now defer on `ReSet` (`intersect.curve_class_p2`) or the face member of an opaque
+  handle instead. **Not wired** (`justified:`): the constructor sites in `curve::crv_in_volume`
+  (`compute_breaks`) and `curve::crv_on_surf` (`classify_against_surface`, under `Curve::knots`) have no
+  `Kernel` in scope, and `CurveClassification::new` needs one for its default tolerances; threading a
+  kernel through the `Curve::knots` virtual is out of this unit's scope. Both would defer on `ReSet`
+  (`intersect.curve_class_p2`) right after construction anyway.
 - **Upstream defect** UB-124 (`plan/upstream-issues.md`): the face, surface and curve are dereferenced
   before the functions' own `NULL` checks.
 
