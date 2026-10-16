@@ -560,6 +560,31 @@ fn this_face(f: FaceId) -> ObjectRef {
 /// The record of a run.
 type Record = Result<Vec<f64>, Fail>;
 
+/// The region, shell, face, loop, edge and vertex counts of a B-rep as the shim's walk
+/// counts them: regions in the B-rep, shells in a region, faces with a face use, loops
+/// with a loop use, edges with edge uses and vertices with vertex uses (arena orphans,
+/// e.g. a glued-away edge, are not counted).
+fn brep_counts(b: &Brep) -> [f64; 6] {
+    [
+        b.regions().iter().filter(|(_, r)| r.in_brep).count() as f64,
+        b.shells().iter().filter(|(_, s)| s.region.is_some()).count() as f64,
+        b.faces().iter().filter(|(_, f)| f.faceuse.is_some()).count() as f64,
+        b.loops().iter().filter(|(_, l)| l.loopuse.is_some()).count() as f64,
+        b.edges().iter().filter(|(_, e)| !e.edgeuses.is_empty()).count() as f64,
+        b.vertices().iter().filter(|(_, v)| !v.vertexuses.is_empty()).count() as f64,
+    ]
+}
+
+/// The record of a face maker: `status [face shell region counts]`.
+fn new_face_record(b: &Brep, r: &Result<p7::NewFace, SolidError>) -> Record {
+    let mut o = vec![status(r)?];
+    if let Ok(nf) = r {
+        o.extend([flag(nf.face.is_some()), flag(nf.shell.is_some()), flag(nf.region.is_some())]);
+        o.extend(brep_counts(b));
+    }
+    Ok(o)
+}
+
 #[allow(clippy::too_many_lines)] // one record per op
 fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
     match i {
@@ -582,7 +607,11 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             }
             let mut b = Brep::new();
             let r = p7::read_from_file(k, &mut b, bytes, FileType::Ascii, *rebuild);
-            Ok(vec![status(&r)?])
+            let mut o = vec![status(&r)?];
+            if r.is_ok() {
+                o.extend(brep_counts(&b));
+            }
+            Ok(o)
         }
         Inputs::MakeFaceWithCurves {
             surface,
@@ -596,6 +625,11 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             curves,
             points,
         } => {
+            // the shim's guard: upstream dereferences the null UV curve array once MakeFace
+            // succeeds (the port returns InvalidInput there)
+            if *crv_on_surf == 2 && !*has_uv && *has3d {
+                return Ok(vec![NULL_DEREF]);
+            }
             let mut b = Brep::new();
             let region = if *region_null {
                 None
@@ -642,7 +676,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 cos,
                 &this_face,
             );
-            Ok(vec![status(&r)?])
+            new_face_record(&b, &r)
         }
         Inputs::MakeFace {
             kind,
@@ -675,7 +709,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &p7::MakeFaceOptions::default(),
                 &this_face,
             );
-            Ok(vec![status(&r)?])
+            new_face_record(&b, &r)
         }
         Inputs::Glue {
             e1,
@@ -730,10 +764,10 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &mut env,
             );
             let s = status(&r)?;
+            let _ = c;
+            // the B-rep's counts after the op (the shim walks the C++ B-rep afterwards)
             let mut o = vec![0.0, s];
-            for slot in [0usize, 1, 3, 5, 7, 9] {
-                o.push(c.get(slot).copied().unwrap_or(0) as f64);
-            }
+            o.extend(brep_counts(&b));
             Ok(o)
         }
         Inputs::Copy { n, merge, .. } => {
@@ -743,7 +777,9 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let mut dest = Brep::new();
             let r = p7::copy_faces(k, &mut b, &faces, &mut dest, *merge, &this_face);
             let s = status(&r)?;
-            Ok(vec![0.0, s])
+            let mut o = vec![0.0, s, r.as_ref().map_or(0, |(f, _)| f.len()) as f64];
+            o.extend(brep_counts(&dest));
+            Ok(o)
         }
         Inputs::MergeSelf { face, tol, .. } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
@@ -1103,6 +1139,91 @@ impl UnitDiff for Runner {
         }
         for (j, i) in face_cases().iter().enumerate() {
             push(&mut v, format!("face_curves_{j}"), i)?;
+        }
+        // pre-review reproducers: crv_on_surf TRUE with 3D but no UV curves (upstream
+        // dereferences the null UV array, SmBrep.cpp:16600), a loop of no curves, and
+        // more curves than the loops use
+        let sq = square(1.0, 1.0, 8.0, true);
+        let plane = SrfIn::Plane {
+            o: [0.0, 0.0, 0.0],
+            n: [0.0, 0.0, 1.0],
+        };
+        for (j, (loops, curves)) in [(vec![4usize], sq.clone()), (vec![0], Vec::new()), (vec![3], sq.clone())]
+            .into_iter()
+            .enumerate()
+        {
+            for cos in [1u8, 2] {
+                push(
+                    &mut v,
+                    format!("face_curves_cos_no_uv_{j}_{cos}"),
+                    &Inputs::MakeFaceWithCurves {
+                        surface: plane.clone(),
+                        dom: [0.0, 0.0, 10.0, 10.0],
+                        orient: 1,
+                        region_null: false,
+                        crv_on_surf: cos,
+                        loops: loops.clone(),
+                        has3d: true,
+                        has_uv: false,
+                        curves: curves.clone(),
+                        points: Vec::new(),
+                    },
+                )?;
+            }
+        }
+        // a square too small for its lines (CreateLineSegment fails in the shim)
+        for side in [1.0e-300, 1.0e-12] {
+            push(
+                &mut v,
+                format!("make_face_tiny_{side:e}"),
+                &Inputs::MakeFace {
+                    kind: 1,
+                    side,
+                    orient: 1,
+                    region_null: false,
+                },
+            )?;
+        }
+        // damaged streams the B-rep data guard accepts and whose read fails: the compared
+        // read errors (a digit of an integer token overwritten; deterministic search)
+        let k = Kernel::default();
+        for file in ["disk.smb", "plane_square.smb", "cone.smb", "Mouse.smb"] {
+            let bytes = read_bytes(file, None)?;
+            let mut found = 0;
+            for at in (0..bytes.len().min(20_000)).step_by(3) {
+                if found >= 3 {
+                    break;
+                }
+                if !bytes.get(at).is_some_and(u8::is_ascii_digit) {
+                    continue;
+                }
+                for byte in [b'9', b'0'] {
+                    let d = Damage::Overwrite { at, byte };
+                    let b2 = read_bytes(file, Some(d))?;
+                    if b2 == bytes || !guard_accepts(&b2, false)? {
+                        continue;
+                    }
+                    let fails = solidcore::topology::brep_data::BrepData::read_from_file(
+                        &k,
+                        b2,
+                        FileType::Ascii,
+                    )
+                    .is_err();
+                    if fails {
+                        push(
+                            &mut v,
+                            format!("read_{file}_error{found}"),
+                            &Inputs::Read {
+                                file: file.to_string(),
+                                damage: Some(d),
+                                rebuild: false,
+                            },
+                        )?;
+                        found += 1;
+                        break;
+                    }
+                }
+            }
         }
         for kind in [0u8, 1] {
             for region_null in [false, true] {

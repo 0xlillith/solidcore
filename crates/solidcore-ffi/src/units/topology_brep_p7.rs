@@ -12,8 +12,8 @@
 //! | [`Op`]              | input | output |
 //! |---------------------|-------|--------|
 //! | `Read`              | `n byte*n file_type rebuild` | `status [counts]` (`SmBrep::ReadFromFile` of the bytes) |
-//! | `MakeFaceWithCurves`| `surface u0 v0 u1 v1 orient region_null crv_on_surf nloops count* has3d has_uv ncurves (curve3d? curveuv? orient)* npts pt[3]*` | `status [face shell region counts]` |
-//! | `MakeFace`          | `kind side orient region_null` (`kind` 0: null surface, 1: a square wire loop on `z = 0`) | `status [face shell region counts]` |
+//! | `MakeFaceWithCurves`| `surface u0 v0 u1 v1 orient region_null crv_on_surf nloops count* has3d has_uv ncurves (curve3d? curveuv? orient)* npts pt[3]*` | `-2 \| status [face shell region counts]` (`-2`: `crv_on_surf` TRUE with 3D but no UV curves, where upstream dereferences the null UV array) |
+//! | `MakeFace`          | `kind side orient region_null` (`kind` 0: null surface, 1: a square wire loop on `z = 0`) | `-3 \| status [face shell region counts]` (`-3`: the square's lines cannot be made) |
 //! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-3 \| status counts)` (`-1 status` when the B-rep build fails) |
 //! | `Copy`              | `n use_merge`, B-rep block | `0 status nfaces counts` |
 //! | `MergeSelf`         | `face tol`, B-rep block | `0 (-2 \| status nedges)` |
@@ -287,8 +287,9 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
             let hasuv = rd.flag()?;
             let nc = rd.index(MAX_CURVES)?;
             // (without curve arrays upstream fails before reading the counts)
-            if (has3d || hasuv) && total != nc {
-                return Err(bad("loop counts must add up to the curves"));
+            // (upstream reads only the first `total` curves: extra ones are unused)
+            if (has3d || hasuv) && total > nc {
+                return Err(bad("loop counts exceed the curves"));
             }
             for _ in 0..nc {
                 if has3d {

@@ -40,18 +40,21 @@
 //!   [`SolidError::InvalidInput`] (upstream reads past its arrays).
 //! - **Flags.** `IsDegenerate`, `IsDegenerateCurve` and `IsDegeneratePoint` return flags
 //!   upstream; a Rust error of those tests (other than [`SolidError::Unported`]) counts as
-//!   "not degenerate". A curve on surface of a surface that is not a B-spline kind is
-//!   [`SolidError::Unported`] (unit `curve.crv_on_surf`: the port's curve on surface holds
-//!   an `SmBSplineSurface`).
+//!   "not degenerate".
+//! - **Gaps in other units' ports** (`plan/findings.md`): the port of
+//!   `SmCurve::DeformToEndPointTargets` (unit `curve.curve_p6`) has no `pOptSurfCrvOnSurf`;
+//!   upstream edits a curve on surface's UV curve there, the port approximates the curve
+//!   (a known limit of that unit). A curve on surface of a surface that is not a B-spline
+//!   kind (the port's `CrvOnSurf` holds an `SmBSplineSurface`) returns
+//!   [`SolidError::Unported`] labelled `port-gap:curve.crv_on_surf`.
 //! - **Statuses ignored upstream** (`LiftCurve`, `DeformToEndPointTargets`, `ConvertTo2D`
 //!   of the UV curves, `GetEnds`, `CopyAndAddAnalytics`, `FindRadialSector`,
 //!   `SetUVTrimCurve`, `TestClosureSplitRegion`, `sm_CheckAndFixUVTrimCurves`,
 //!   `RebuildUVTrimCurves`, `MakeFaceuse`) are ignored; [`SolidError::Unported`] always
-//!   propagates. A failed `LiftCurve` leaves no 3D curve (a degenerate one), as upstream.
-//! - **`SmCurve::DeformToEndPointTargets` with `pOptSurfCrvOnSurf`** (the curve-on-surface
-//!   branch, which edits the UV curve) is not in the port of unit `curve.curve_p6`; the
-//!   `SmCrvOnSurf` curves `MakeFaceWithCurves` builds (`pbOptCrvOnSurf`) that need a gap
-//!   closed return [`SolidError::Unported`] for that unit.
+//!   propagates. A failed `LiftCurve` leaves no 3D curve (a degenerate one), as upstream;
+//!   a failed `GetEnds` keeps the previous end point. A failed `CopyAndAddAnalytics` is
+//!   [`SolidError::InvalidInput`] (upstream then dereferences the null copy), as is
+//!   `pbOptCrvOnSurf` without UV curves (upstream loops over a null array).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion`
 //!   (`topology.brep_p1`); `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
 //!   `RebuildUVTrimCurves` (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
@@ -68,6 +71,13 @@
 //!   made and the intervals classified to an edge; whoever ports `curve_class_p4/p5`
 //!   replaces it with the upstream interval loop (`GetSize() != 1` skips, `SM_ERR` after
 //!   the second merge, `SE(SM_ERR)` for a middle not on an edge).
+//! - **`MakeFace`** returns nothing when `MakeFaceTopology` fails; upstream still hands
+//!   back the region and shell it may have made (`MakeFaceWithCurves` warns about it).
+//! - **`GlueEdgesGeneral`**: the arena cannot share one curve between two edges, so
+//!   upstream's `pSurvCurve == pDelCurve` short cut (no `CurveMaxDistanceBetween`) is never
+//!   taken. The glued-away edge stays in the edge arena as an orphan without edge uses;
+//!   enumerations of the B-rep's edges must skip edges without edge uses (upstream removes
+//!   it from `m_pEdgeListHead`).
 //! - **Bounds.** No recursion; every loop is over input arrays or B-rep lists.
 
 use crate::curve::crv_on_surf::CrvOnSurf;
@@ -352,15 +362,6 @@ fn classify_and_merge(
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
         "intersect.curve_class_p4",
-    ))
-}
-
-/// `SmCurve::DeformToEndPointTargets(.., pOptSurfCrvOnSurf)` of a curve on surface.
-fn deform_crv_on_surf(_curve: &mut Curve) -> Result<Option<Curve>> {
-    // UNPORTED(curve.curve_p6): SmCurve::DeformToEndPointTargets (pOptSurfCrvOnSurf branch)
-    Err(SolidError::unported(
-        "SmCurve::DeformToEndPointTargets",
-        "curve.curve_p6",
     ))
 }
 
@@ -672,12 +673,13 @@ pub fn make_face_with_curves(
                             SurfaceKind::BSpline(s) => s.clone(),
                             SurfaceKind::Plane(p) => p.base_for_query().into_owned(),
                             SurfaceKind::SurfOfRevolution(s) => s.base().clone(),
-                            // UNPORTED(curve.crv_on_surf): SmCrvOnSurf of a surface that is
-                            // not an SmBSplineSurface (the port's curve on surface holds one)
+                            // the port's curve on surface holds an SmBSplineSurface only
+                            // (a limit of the port of unit curve.crv_on_surf, not an
+                            // unported unit: plan/findings.md)
                             _ => {
                                 return Err(SolidError::unported(
-                                    "SmCrvOnSurf::SmCrvOnSurf",
-                                    "curve.crv_on_surf",
+                                    "SmCrvOnSurf::SmCrvOnSurf (non-SmBSplineSurface)",
+                                    "port-gap:curve.crv_on_surf",
                                 ))
                             }
                         };
@@ -711,6 +713,10 @@ pub fn make_face_with_curves(
                 let tol2 = zone_tol * zone_tol;
                 let nc = to_check.len();
                 let mut new_points: Vec<Option<Point3>> = vec![None; nc];
+                // (sCurveStart / sCWCurveEnd keep the previous iteration's value when
+                // GetEnds fails)
+                let mut start = Point3::UNDEF;
+                let mut cw_end = Point3::UNDEF;
                 for jj in 0..nc {
                     let cw_jj = if jj == 0 { nc - 1 } else { jj - 1 };
                     let ci = *at(&to_check, jj)?;
@@ -730,8 +736,8 @@ pub fn make_face_with_curves(
                     let cw = at(&s3d, cwi)?
                         .as_ref()
                         .ok_or_else(|| null("missing curve"))?;
-                    let start = oriented_end(c, o, true, Point3::UNDEF)?;
-                    let cw_end = oriented_end(cw, cwo, false, Point3::UNDEF)?;
+                    start = oriented_end(c, o, true, start)?;
+                    cw_end = oriented_end(cw, cwo, false, cw_end)?;
                     if start.distance_squared(cw_end) > tol2 {
                         if let Some(slot) = new_points.get_mut(jj) {
                             *slot = Some((start + cw_end) / 2.0);
@@ -747,21 +753,21 @@ pub fn make_face_with_curves(
                     let Some(Some(curve)) = s3d.get_mut(ci) else {
                         return Err(null("missing curve"));
                     };
-                    let deformed = if crv_on_surf && (new_start.is_some() || new_end.is_some()) {
-                        deform_crv_on_surf(curve)?
-                    } else {
-                        ignored(curve.deform_to_end_point_targets(
-                            k,
-                            new_start,
-                            new_end,
-                            true,
-                            None,
-                            InValueType::Unconstrained,
-                            None,
-                            InValueType::Unconstrained,
-                        ))?
-                        .flatten()
-                    };
+                    // (upstream passes the surface as pOptSurfCrvOnSurf, so a curve on
+                    // surface edits its UV curve; the port of DeformToEndPointTargets, unit
+                    // curve.curve_p6, has no such parameter and approximates it instead:
+                    // plan/findings.md)
+                    let deformed = ignored(curve.deform_to_end_point_targets(
+                        k,
+                        new_start,
+                        new_end,
+                        true,
+                        None,
+                        InValueType::Unconstrained,
+                        None,
+                        InValueType::Unconstrained,
+                    ))?
+                    .flatten();
                     if let Some(d) = deformed {
                         if let Some(slot) = s3d.get_mut(ci) {
                             *slot = Some(d);
@@ -942,7 +948,9 @@ pub fn make_face_with_curves(
     // with curves on surface: make the UV trim curves from the given UV curves
     if crv_on_surf {
         let face = out.face.ok_or_else(|| null("no new face"))?;
-        let uv: Vec<Curve> = uv_curves.unwrap_or_default();
+        // (upstream loops over cpOptUVCurves->GetSize(): a null array is dereferenced)
+        let uv: Vec<Curve> = uv_curves
+            .ok_or_else(|| null("crv_on_surf without UV curves (upstream dereferences null)"))?;
         let r = face_create_uv_trim_curves(k, b, face, uv, &orientations);
         match r {
             Err(e) if e.is_unported() => return Err(e),
@@ -1008,6 +1016,8 @@ pub fn glue_edges_general(
         surv,
         env,
         NotifyOperation::PreEdit,
+        // (upstream passes (pSurvivingEdge, this, NULL); the B-rep has no identity here
+        // and PreEdit does not read it)
         [Some(surv_ref), None, None],
     )?;
     brep_notify(b, NotifyOperation::MergeInBrep)?;
@@ -1216,7 +1226,8 @@ pub fn glue_edges_general(
         // widen the surviving edge's tolerance to enclose the gap
         let del_tol = b.edge(del)?.tolerance;
         let surv_tol = b.edge(surv)?.tolerance;
-        let mut radius = edge_gap + del_tol.max(surv_tol);
+        // (smos_Max: a > b ? a : b)
+        let mut radius = edge_gap + if del_tol > surv_tol { del_tol } else { surv_tol };
         if radius < edge_gap * 2.0 {
             radius = edge_gap * 2.0;
         }
@@ -1240,6 +1251,8 @@ pub fn glue_edges_general(
     if do_region_nesting {
         let mut new_region = None;
         for fu in test_split {
+            // (whether upstream's rpNewRegion is reset by a call that splits nothing is
+            // up to TestClosureSplitRegion's port, unit topology.brep_p6)
             if let Some((_, r)) = ignored(test_closure_split_region_faceuse(b, fu))? {
                 new_region = r;
             }
@@ -1274,6 +1287,8 @@ pub fn copy_faces(
     brep_set_tolerance(dest, src.tolerance())?;
     let mut new_faces = Vec::new();
     let mut all_ok = true;
+    // (upstream reads the destination's infinite region before both branches)
+    let inf = infinite_region(dest)?;
 
     if use_merge {
         // (the merge object is made before the face loop; MakeFaceuse's status is
@@ -1284,7 +1299,6 @@ pub fn copy_faces(
         return Ok((new_faces, all_ok));
     }
 
-    let inf = infinite_region(dest)?;
     for &f in faces {
         if !face_in_brep(src, f)? {
             return Err(SolidError::sm_err(OP));
@@ -1302,7 +1316,9 @@ pub fn copy_faces(
             continue;
         };
         let s1 = fp2::surface(src, f)?.ok_or_else(|| null("face without surface"))?;
-        let s2 = s1.copy_and_add_analytics()?;
+        // (status ignored upstream, which then dereferences the null copy)
+        let s2 = ignored(s1.copy_and_add_analytics())?
+            .ok_or_else(|| null("CopyAndAddAnalytics failed (upstream dereferences null)"))?;
         let dom = s2.natural_uv_domain();
         let input = FaceCurvesInput {
             loops: curves

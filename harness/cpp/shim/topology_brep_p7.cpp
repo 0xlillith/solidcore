@@ -115,6 +115,14 @@ void p7_make_face_with_curves(Rd& rd, std::vector<double>& o)
     SmTArray<SmPoint3d> pts;
     for (int64_t i = 0; i < np; i++)
         pts.Add(rd.vec());
+    // pbOptCrvOnSurf TRUE without UV curves: once MakeFace succeeds upstream loops over the
+    // null UV curve array (SmBrep.cpp:16600) and crashes; with 3D curves given it gets
+    // that far (without any curves it fails first with SM_ERR_INVALID_INPUT)
+    if (cos == 2 && !hasuv && has3d)
+    {
+        o.push_back(P7_NULL_DEREF);
+        return;
+    }
     Built built;
     built.brep = new (ctx) SmBrep();
     SmRegion* region = region_null ? NULL : built.brep->GetInfiniteRegion();
@@ -171,14 +179,29 @@ void p7_make_face(Rd& rd, std::vector<double>& o)
     {
         SmLine* l = NULL;
         SmLine::CreateLineSegment(ctx, 3, p[i], p[i + 1], l);
+        if (l == NULL)
+            break; // (a side too small for a line: not a face this op can build)
         s = b->MakeWireEdgeVertex(b->GetInfiniteRegion(), vs[i], l, l->GetNaturalInterval(), SM_OT_SAME, p[i + 1],
                                   es[i], vs[i + 1]);
     }
-    if (s == SM_SUCCESS)
+    bool lines_ok = es[0] && es[1] && es[2];
+    if (s == SM_SUCCESS && lines_ok)
     {
         SmLine* l = NULL;
         SmLine::CreateLineSegment(ctx, 3, p[3], p[0], l);
+        if (l == NULL)
+        {
+            o.push_back(P7_NOT_RUN);
+            return;
+        }
         s = b->MakeWireEdge(b->GetInfiniteRegion(), vs[3], vs[0], l, l->GetNaturalInterval(), SM_OT_SAME, es[3]);
+    }
+    if (!lines_ok)
+    {
+        // CreateLineSegment failed (the side's square underflows): the shim cannot build
+        // the loop; the Rust side defers every square-loop case anyway
+        o.push_back(P7_NOT_RUN);
+        return;
     }
     if (s != SM_SUCCESS)
     {

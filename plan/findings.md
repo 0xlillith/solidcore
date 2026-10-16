@@ -5669,11 +5669,13 @@ independent p6 integration.
   `GlueEdgesGeneral` of two distinct non-wire edges sharing both vertices (or without
   curves) is not run in C++ (a real merge of arbitrary fixture edges); the Rust side
   defers it to `cpp-guard:glue-shared-vertices`. Neither label ever becomes comparable.
-- **Gaps in other units' ports** (stubbed, unreachable by the current cases):
-  `SmCurve::DeformToEndPointTargets`' `pOptSurfCrvOnSurf` branch (it edits the UV curve of
-  a curve on surface) is not in the port of `curve.curve_p6` (green), and
-  `curve::crv_on_surf::CrvOnSurf` holds only `SmBSplineSurface` kinds (`curve.crv_on_surf`,
-  partial). `MakeFaceWithCurves` with `pbOptCrvOnSurf` reaches them only for loops with
-  gaps larger than tolerance, or on other surface kinds.
+- **Gaps in other units' ports** (unreachable by the current cases): the port of
+  `SmCurve::DeformToEndPointTargets` (`curve.curve_p6`, green; its own "NOT PORTED" note)
+  has no `pOptSurfCrvOnSurf`. `MakeFaceWithCurves` with `pbOptCrvOnSurf` calls it for
+  loops with gaps larger than tolerance; upstream then edits the curve on surface's UV
+  curve, the port approximates the curve instead, so such faces would not compare. The
+  port's `CrvOnSurf` holds only `SmBSplineSurface` kinds (`curve.crv_on_surf`, partial):
+  a curve on surface of another surface kind is a deferral labelled
+  `port-gap:curve.crv_on_surf` (no unit will un-defer it until that port grows).
 - **Back-edge wired:** `trimming_tools::trim_surface_with_model_space_curves` calls
   `make_face_with_curves` (its new face owns the surface as `(SmFace_TYPE, 1 + index)`).
