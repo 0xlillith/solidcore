@@ -43,7 +43,7 @@
 //! | [`add_attributes`]                                | `sm_AddAttributes`                            |
 //! | [`PendingTopologyDelete`]                         | `SmPendingTopologyDelete` (`Clear`)           |
 //! | [`make_vertex_split_uv_trim_curve`]               | `sm_MakeVertexSplitUVTrimCurve`               |
-//! | [`ObjectMap`], [`set_object_map`], [`get_object_map`] | `sm_SetObjectMap`, `sm_GetObjectMap`      |
+//! | [`ObjectMap`], [`set_object_map`], [`get_object_map`] | `sm_SetObjectMap`, `sm_GetObjectMap` (the copy maps are `topology.proto_topology_p1`'s [`CopyBrepMap`]) |
 //! | [`reverse_reflection_edgeuses`]                   | `sm_ReverseReflectionEdgeuses`                |
 //! | [`swap_reflection_shells`]                        | `sm_SwapReflectionShells`                     |
 //! | [`find_side_of_curve`]                            | `sm_FindSideOfCurve`                          |
@@ -70,10 +70,10 @@
 //!   overflows its stack on a cyclic radial walk; real loop nestings are a handful).
 //! - `sm_RmAndDel_OldLoopVertices` deletes two vertex uses: the port unlinks them from
 //!   their vertex and resets their records (an arena record cannot be freed).
-//! - `sm_SetObjectMap` / `sm_GetObjectMap` keep [`EntityRef`] maps ([`ObjectMap`] and
-//!   the optional copy maps are `BTreeMap`s) instead of pointer hash maps (plan hazard
-//!   `ptr-hash`: upstream `SmMapPtrToPtr` iteration order is pointer order; only
-//!   lookups are used here).
+//! - `sm_SetObjectMap` / `sm_GetObjectMap` keep an [`EntityRef`] `BTreeMap`
+//!   ([`ObjectMap`]) instead of the pointer hash map (plan hazard `ptr-hash`: upstream
+//!   `SmMapPtrToPtr` iteration order is pointer order; only lookups are used here) and
+//!   the ported [`CopyBrepMap`] for the optional copy maps.
 //! - `SmPendingTopologyDelete`'s destructor work (detaching the pending object's
 //!   attributes and deleting it) runs in `MakeTopologyFromData` (unit
 //!   `topology.brep_p10`); this unit owns only `Clear`.
@@ -125,6 +125,7 @@ use crate::topology::edge::{self, AttributeFilter};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
+use crate::topology::proto_topology::p1::CopyBrepMap;
 use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::vertex;
 use crate::topology::vertexuse;
@@ -704,26 +705,24 @@ pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<R
 /// its copy (`None` is a null copy).
 pub type ObjectMap = BTreeMap<EntityRef, Option<EntityRef>>;
 
-/// An `SmCopyBrepMap` (copy to original, or original to copy).
-pub type CopyBrepMap = BTreeMap<EntityRef, EntityRef>;
-
-/// `sm_SetObjectMap`: records `orig -> copy`, and in the optional copy maps `copy ->
-/// orig` and `orig -> copy` (a null copy is recorded only in `map`, as upstream keys
-/// the copy map by the null pointer; the port skips that entry).
+/// `sm_SetObjectMap`: records `orig -> copy`, and in the optional `SmCopyBrepMap`s
+/// ([`CopyBrepMap`], unit `topology.proto_topology_p1`) `copy -> orig` and `orig ->
+/// copy`. A null copy is recorded only in `map`: upstream passes it to
+/// `SmCopyBrepMap::SetAt`, which dereferences it (UB-98).
 pub fn set_object_map(
     orig: EntityRef,
     copy: Option<EntityRef>,
     map: &mut ObjectMap,
-    copy_brep_map: Option<&mut CopyBrepMap>,
-    reverse_map: Option<&mut CopyBrepMap>,
+    copy_brep_map: Option<&mut CopyBrepMap<EntityRef>>,
+    reverse_map: Option<&mut CopyBrepMap<EntityRef>>,
 ) {
     // Use a map object track relationships.
     map.insert(orig, copy);
     if let (Some(m), Some(c)) = (copy_brep_map, copy) {
-        m.insert(c, orig);
+        m.set_at(c, orig);
     }
     if let (Some(m), Some(c)) = (reverse_map, copy) {
-        m.insert(orig, c);
+        m.set_at(orig, c);
     }
 }
 
@@ -2472,7 +2471,8 @@ mod tests {
         set_object_map(c, None, &mut map, Some(&mut copy), None);
         assert_eq!(get_object_map(a, &map), Some(c));
         assert_eq!(get_object_map(c, &map), None);
-        assert_eq!(copy.get(&c), Some(&a));
-        assert_eq!(rev.get(&a), Some(&c));
+        assert_eq!(copy.get_at(Some(c)).unwrap(), Some(a));
+        assert_eq!(rev.get_at(Some(a)).unwrap(), Some(c));
+        assert_eq!(copy.len(), 1);
     }
 }

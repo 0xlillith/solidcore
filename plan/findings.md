@@ -5585,19 +5585,16 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 Difftest (`fixtures/topology.brep_p1/`: 2070 cases on the 15 upstream `.smb` files read by
 `SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces,
-the `prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 2318 cases, 1708 pass, 0 fail, 610 deferred
-(topology.shell 148, topology.edgeuse_p3 105, topology.brep_p7 88, query.brep 71,
-surface.surf_of_extrusion_p2 47, surface.sphere 43, surface.cone_p1 29, topology.face_p3 18,
-topology.face_p1 16, surface.surface_cache_p1 16, heal.heal_data_p1 15, surface.surface_p8 10,
-curve.crv_on_surf 4); `--perturb` SENSITIVE 1708/1708; a 1000-seed sweep of the generated cases
+the `prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 2318 cases, 1710 pass, 0 fail, 608 deferred (after merging main at
+`origin/main` 2026-10-16 evening: topology.shell 148, topology.edgeuse_p3 105, topology.brep_p7 88, query.brep 71, surface.surf_of_extrusion_p2 47, surface.sphere 43, surface.cone_p1 29, topology.face_p3 18, surface.surface_cache_p1 16, topology.face_p1 16, heal.heal_data_p1 15, intersect.curve_class_p4 7, curve.crv_on_surf 4, intersect.surface_drop_curve 1); `--perturb` SENSITIVE 1710/1710; a 1000-seed sweep of the generated cases
 (3302 cases) passes 2389 with 0 failures.
 Every compared value is bit-identical; no absolute floors. Of the passes, 15 are `cases_both_errored`
-(both sides `no_entity`: face ops on the constructed wire B-reps); the other 1693 compare values.
+(both sides `no_entity`: face ops on the constructed wire B-reps); the other 1695 compare values.
 
-- **Upstream defect UB-136** (`plan/upstream-issues.md`): `SmCopyBrepMap::SetAt` with a null copy
-  and `GetAt` of a key never stored both dereference null through the release `SM_ASSERT`
-  (`if(a) {}` still evaluates `pOrigObj->GetType()`); `sm_SetObjectMap` documents a null copy as
-  allowed. Confirmed with gdb. The Rust copy maps are `BTreeMap`s (no entry for a null copy, `None`
+- **Upstream defect UB-98** (already in `plan/upstream-issues.md`, met again here): `SmCopyBrepMap::SetAt`
+  with a null copy and `GetAt` of a key never stored both dereference null through the release
+  `SM_ASSERT` (`if(a) {}` still evaluates `pOrigObj->GetType()`); `sm_SetObjectMap` documents a null
+  copy as allowed. Reproduced with gdb (SIGSEGV in `GetAt`, then in `SetAt`). The Rust copy maps are `BTreeMap`s (no entry for a null copy, `None`
   on a miss); the shim only exercises the defined inputs.
 - **List order.** `GetFaces` / `GetEdges` / `GetVertices` return the B-rep's `m_p*ListHead` list
   order, which differs from the traversal order the shared graph export numbers entities in

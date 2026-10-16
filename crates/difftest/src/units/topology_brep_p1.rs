@@ -21,9 +21,10 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use solidcore::curve::curve::Curve;
+use solidcore::topology::proto_topology::p1::CopyBrepMap;
 use solidcore::geom::attribute::{Attribute, AttributeStore, Behavior, ObjectKey};
 use solidcore::geom::context::MarkType;
 use solidcore::geom::extent2d::Extent2d;
@@ -981,20 +982,32 @@ fn run_rust_op(
             o.push(bp1::find_highest_vote(&rs, &votes)?.map_or(-1.0, |r| f64::from(r.index())));
         }
         OpIn::ObjMap { sets, gets } => {
+            // the copy maps are only asked for stored keys (UB-98, as the shim)
             let mut map = bp1::ObjectMap::new();
-            let mut copy_map = bp1::CopyBrepMap::new();
-            let mut rev_map = bp1::CopyBrepMap::new();
+            let mut copy_map = CopyBrepMap::<EntityRef>::new();
+            let mut rev_map = CopyBrepMap::<EntityRef>::new();
+            let mut copy_keys = BTreeSet::new();
+            let mut rev_keys = BTreeSet::new();
             for s in sets {
                 let Some(orig) = entity(s.orig) else {
                     continue;
                 };
+                let copy = entity(s.copy);
                 bp1::set_object_map(
                     orig,
-                    entity(s.copy),
+                    copy,
                     &mut map,
                     s.copy_map.then_some(&mut copy_map),
                     s.reverse.then_some(&mut rev_map),
                 );
+                if let Some(c) = copy {
+                    if s.copy_map {
+                        copy_keys.insert(c);
+                    }
+                    if s.reverse {
+                        rev_keys.insert(orig);
+                    }
+                }
             }
             let mut v: Vec<i64> = Vec::new();
             for g in gets {
@@ -1002,8 +1015,16 @@ fn run_rust_op(
                 let to = from.and_then(|f| bp1::get_object_map(f, &map));
                 v.push(to.map_or(-1, |t| key_of(t).type_code));
                 v.push(to.map_or(-1, index_of));
-                v.push(from.and_then(|f| copy_map.get(&f).copied()).map_or(-1, index_of));
-                v.push(from.and_then(|f| rev_map.get(&f).copied()).map_or(-1, index_of));
+                let c = match from {
+                    Some(f) if copy_keys.contains(&f) => copy_map.get_at(Some(f))?,
+                    _ => None,
+                };
+                v.push(c.map_or(-1, index_of));
+                let r = match from {
+                    Some(f) if rev_keys.contains(&f) => rev_map.get_at(Some(f))?,
+                    _ => None,
+                };
+                v.push(r.map_or(-1, index_of));
             }
             o.extend(list_of(&v));
         }
