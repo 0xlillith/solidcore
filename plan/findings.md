@@ -5405,7 +5405,7 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   Vertex/edge tolerances use `SetTolerance(value, FALSE)` to shrink defaults too.
   Face tolerance is explicitly 1e-5 on both sides. Pole fixtures use the actual
   collapsed-side point (0,0,0); a standalone native probe confirms vertex insertion
-  there (SM_SUCCESS), rather than inferring pole coverage from the surface type. Loop vertex UVs use the existing
+  there (SM_SUCCESS). Loop vertex UVs use the existing
   `ComputeUVPoint` projection, rather than assuming the input UV survives unchanged;
   native recomputes UV even when its stored value is present. The earlier stacked
   experiment had three small gap mismatches with the assumed UVs; that experiment
@@ -5418,8 +5418,10 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 - **Limits.** Positive edge/face-gap tolerance changes have a focused Rust regression;
   native wire edges do not own a face edgeuse. Mutable edge insertion, positive vertex
   insertion behind current dependencies, generic surface lifting, automatic lazy trim
-  construction and the default query handle adapter are not certified. No absolute
-  floors or widened tolerances are used.
+  construction and the default query handle adapter are not certified. Singular
+  lifted drops still reach the part-4 dependency on Rust. Oracle recipes require
+  nondegenerate two-point lines and nonempty source intervals; point-interval
+  classifications are not certified. No absolute floors or widened tolerances are used.
 - **Positive-insertion revalidation handoff.** The previous stacked experiment
   (`3184e613`, not a commit in this PR) assumed input UVs instead of projecting them.
   Three generated planar cases disagreed in gap fields, with source UV segment
@@ -5451,8 +5453,9 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   Ubuntu 26.04.1 x86_64, Rust 1.98.0, GCC 15.2.0; pinned upstream `c9c5979`.
   Default `difftest` profile (opt-level 1, overflow checks and debug assertions),
   C++ reference `-O2 -ffp-contract=off -fno-fast-math`; one Cargo job under nice.
-  Formatting, strict plain Clippy, 1,210 kernel tests and wasm32 checking pass.
-  Native Clippy and the 34 native FFI tests are pending on this revision. The fixed relative gate uses no absolute floors:
+  Formatting, strict plain/native Clippy, 1,210 kernel tests, wasm32 checking
+  and 34 native FFI tests pass.
+  The fixed relative gate uses no absolute floors:
   `PARTIAL intersect.curve_class_p9 cases=411 passed=173 failed=0 deferred=238 max_rel_err=0e0 blocked_by=curve.crv_on_surf(27),intersect.curve_class_p4(14),intersect.curve_class_p5(114),topology.vertex(83)`.
   Affected units: `query.face_p2` 1,344 cases / 1,271 pass / 73 deferred;
   `intersect.curve_class_p1` 2,125 cases / 2,048 pass / 77 deferred; neither fails,
