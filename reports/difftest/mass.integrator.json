@@ -1275,8 +1275,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_2",
@@ -1287,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_3",
@@ -1311,8 +1311,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_5",
@@ -1323,8 +1323,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_6",
@@ -12264,9 +12264,11 @@
   "cases_passed": 1520,
   "cases_total": 1528,
   "deferred_by_unit": {
-    "harness:mass.integrator-face-construction": 5,
-    "query.brep": 2,
-    "surface.offset_surface": 1
+    "harness:mass.integrator-face-construction": 1,
+    "query.brep": 3,
+    "query.face_p1": 2,
+    "surface.offset_surface": 1,
+    "topology.brep_p2": 1
   },
   "max_rel_err": 4.979280456316938e-14,
   "pass": true,

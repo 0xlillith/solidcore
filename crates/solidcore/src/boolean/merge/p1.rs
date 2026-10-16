@@ -22,8 +22,9 @@
 //! `boolean.topology_intersector_p1`). Mate maps and notification records are
 //! borrowed explicitly; edge/vertex mate storage is co-ported in
 //! `boolean::topology_intersector::p1` and shared mutably with `merge_p5`. B-rep
-//! edge/shell traversal waits for `topology.brep_p1`; arena allocation order does
-//! not substitute for native owning-list order. Region propagation takes refs and
+//! edge/shell traversal uses `topology::brep::p1` (`GetEdges`, `GetShells`; the
+//! latter still stops at `SmRegion::GetShells`, unit `topology.shell`).
+//! Region propagation takes refs and
 //! their `IsVoid` results and source-list callback handles, because arena regions
 //! do not yet carry shell state.
 //! Missing topology mutations, region `IsVoid` and point classification return
@@ -367,14 +368,14 @@ pub struct CleanupRelations {
     pub mates: Relations,
 }
 
-fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    unavailable("SmBrep::GetEdges", "topology.brep_p1")
+fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
+    crate::topology::brep::p1::edges(brep, None)
 }
 
-fn brep_shells(_brep: &Brep) -> Result<Vec<ShellId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetShells
-    unavailable("SmBrep::GetShells", "topology.brep_p1")
+/// `SmBrep::GetShells` (ported in `topology::brep::p1`; it defers on
+/// `SmRegion::GetShells`, unit `topology.shell`, until that lands).
+fn brep_shells(k: &Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
+    crate::topology::brep::p1::shells(k, brep, None)
 }
 
 fn set_face_tolerance(_brep: &mut Brep, _face: FaceId, _tolerance: f64) -> Result<()> {
@@ -475,7 +476,7 @@ pub fn boolean_post_process(
             ))?;
         }
     }
-    if brep_shells(brep)?.len() == 2 {
+    if brep_shells(k, brep)?.len() == 2 {
         // UNPORTED(topology.shell): SmShell::IsWireShell
         return unavailable("SmShell::IsWireShell", "topology.shell");
     }
@@ -571,10 +572,12 @@ mod tests {
             ..CleanupRelations::default()
         };
         let error = boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap_err();
+        // the stale ids are skipped; the final shell count stops at the region walk
         assert!(matches!(
             error,
             SolidError::Unported {
-                upstream: "SmBrep::GetShells",
+                upstream: "SmRegion::GetShells",
+                unit: "topology.shell",
                 ..
             }
         ));

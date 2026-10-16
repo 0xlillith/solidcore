@@ -5721,27 +5721,37 @@ independent p6 integration.
 
 ## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
 
-Difftest (`fixtures/topology.brep_p1/`: 2076 cases on the 15 upstream `.smb` files read by
+Difftest (`fixtures/topology.brep_p1/`: 2080 cases on the 15 upstream `.smb` files read by
 `SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces, the
-`prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 2324 cases, 1708 pass,
-0 fail, 616 deferred (`harness:analytic-geometry-export` 207, topology.shell 151,
-topology.edgeuse_p3 78, query.brep 71, topology.face_p2 44, topology.face_p3 18, topology.face_p1 16,
-heal.heal_data_p1 15, query.face_p2 9, curve.crv_on_surf 4, surface.surface_cache_p1 3);
-`--perturb` SENSITIVE 1708/1708; a 1000-seed sweep of the generated cases (3308 cases) passes 2395 with 0 failures; `sc-remote green` 194 units, 0 failed. Every compared value is bit-identical; no
-absolute floors. Of the passes, 15 are `cases_both_errored` (both sides `no_entity`: face ops on
-the constructed wire B-reps); the other 1693 compare values.
+`prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2328 cases,
+1712 pass, 0 failed, 616 deferred (`harness:analytic-geometry-export` 207, `topology.shell` 151,
+`topology.edgeuse_p3` 78, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
+`topology.face_p1` 16, `heal.heal_data_p3` 15, `query.face_p2` 9, `curve.crv_on_surf` 4,
+`surface.surface_cache_p1` 3); `--perturb` detects 1712/1712; a 1000-seed generated sweep (3312
+cases) passes 2399 with 0 failed and 913 deferred; `--green` runs 196 units with 0 failed.
+Every compared value is bit-identical; no absolute floors. 60 of the 1712 passes compare no value
+because both sides report the same error (`both_errored` in the report): 15 `no_entity` lookups
+on the three wire B-reps (`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`,
+`FindSectorOfFace` local and global, no face to find) and 45 `null_dereference_guard` cases where
+the shim stops before an upstream null dereference and the Rust returns the matching error (15
+`AddAttributes` on a null indexed target, 27 `sm_RedistributeSeamUVTrimCurves` with a trim curve
+on files with fewer than four seam edge uses, UB-162, and 3 `SetInfiniteRegion` swaps without an
+infinite region); the other 1652 compare values.
 
 - **Coverage, honestly.** `GetShells`, `SmLockBrepBox` and `HealBrep` have no passing case
-  (every case defers). The passes of `CreateCornerBlend` (36, fewer than two edge uses),
+  (every case defers; `HealBrep` now runs the C++ healer and the Rust `HealData`, which
+  defers at `heal.heal_data_p3`). The passes of `CreateCornerBlend` (36, fewer than two edge uses),
   `sm_SwapFaceUV` (66, an already marked face), `sm_RedistributeSeamUVTrimCurves` (57, no trim
   curve or not a seam) and `IsDegenerate` (39, the vertex quick check) are early returns; 28 of
   the 51 `sm_MakeVertexSplitUVTrimCurve` passes have no trim curve; `sm_MarkLoopsToDelete`
   never descends successfully on the fixtures (level 0 returns the loop, level 1 nothing).
   `GetSurfaces` / `GetCurves` compare the owners of the listed geometry, not the geometry. The
-  shim decides the deferral itself (`-3`, the C++ is not run) for `HealBrep`,
-  `CreateCornerBlend` with two or more edge uses, `CreateEdgeEdgeBlend` blends (flags 1-3),
-  `BrepIntersect` with faces and `sm_SwapFaceUV` on an unmarked face: those deferrals are
-  asserted from the stubbed Rust path, not observed from a C++ run. `GetFaces` / `GetEdges` /
+  shim decides the deferral itself (`-3`, the C++ is not run) for `CreateCornerBlend` with
+  two or more edge uses, `CreateEdgeEdgeBlend` blends (flags 1-3), `BrepIntersect` with faces
+  and `sm_SwapFaceUV` on an unmarked face: those deferrals are asserted from the stubbed Rust
+  path, not observed from a C++ run. A `-2` guard sentinel (the shim stopping before a known
+  null dereference) is reported as the error `null_dereference_guard` on both sides, so those
+  cases count as `both_errored`, not as value comparisons. `GetFaces` / `GetEdges` /
   `GetVertices` compare the native list order the runner *imports* (the extras of this unit's
   export), so they test that the Rust keeps the imported order; no case lists after a mutation
   or on a B-rep Rust code built itself.
@@ -5749,7 +5759,9 @@ the constructed wire B-reps); the other 1693 compare values.
   flattens to B-spline parts (cone, sphere, torus, extrusion and revolution faces; ellipse
   edges) are deferred as `harness:analytic-geometry-export` with the native type in the symbol:
   a harness limitation, not an unported unit (the earlier labels named green or partial surface
-  units and `topology.brep_p7`). The ops concerned: `GetTopologicalEdges`,
+  units and `topology.brep_p7`). `site/build.py` renders every `deferred_by_unit` key as a unit
+  link, so the `harness:` keys show as dead links with a `?` badge until it special-cases the
+  prefix (follow-up). The ops concerned: `GetTopologicalEdges`,
   `GetTopologicalVertices`, `sm_CheckUVTrimCurve`, `sm_FindSectorOfFace`,
   `sm_MakeVertexSplitUVTrimCurve`, `CreateParallelProjectionCurves`. `CreateEdgeEdgeBlend`
   ruled surfaces are compared on every file: upstream also uses only the `SmBSplineCurve` part
@@ -5762,15 +5774,15 @@ the constructed wire B-reps); the other 1693 compare values.
   miss); the shim only exercises the defined inputs.
 - **Upstream defect UB-162** (new): `sm_RedistributeSeamUVTrimCurves` reads `sNewEdgeuses[3]`
   of a 16-slot stack array after a release no-op `SM_ASSERT(GetSize() == 4)`. Not reproduced;
-  the shim refuses seam edges without exactly four edge uses (`-2`), as the Rust port does
-  (`InvalidInput`). With four edge uses the shim runs the C++ and the Rust defers at
+  the shim refuses seam edges with fewer than four edge uses (`-2`), as the Rust port does
+  (`InvalidInput`); with four or more it runs the C++ and the Rust defers at
   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`).
 - **`ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP)` with no old infinite region**
   dereferences null upstream (`SmBrep.cpp:8630`; found by the pre-review's fuzzing: SIGSEGV on
   every file with `SetInfiniteRegion(NULL)` first). The shim stops before the call and the
   Rust returns `InvalidInput` after setting the new region and list head (both `-2`); six
   fixture cases (`*_set_inf_swap_{null,keep}_guard`) cover it. It is not an FFI rejection, so
-  the input stays comparable.
+  the input stays comparable; the guard sentinel counts as `both_errored` (above).
 - **List order.** `GetFaces` / `GetEdges` / `GetVertices` return the B-rep's `m_p*ListHead`
   list order (appended on `PostInsert`, every insert in SMLib), which differs from the traversal
   order the shared graph export numbers entities in (Mouse.smb: the first listed face is
@@ -5787,7 +5799,9 @@ the constructed wire B-reps); the other 1693 compare values.
   reached for face-owned surfaces, so 44 cases of `GetTopologicalEdges` / `GetTopologicalVertices`,
   `CreateParallelProjectionCurves` and `sm_FindSectorOfFace` defer there; before, the Rust
   took the no-owner branch (system tolerance) and matched only because the files' face
-  tolerances equal it.
+  tolerances equal it. Those stubs are main's and labelled `topology.face_p2` there; the real
+  blocker is the surface's opaque owner handle (the same gap as the self-tagged
+  `GetZoneTol3d` sites), so they will not clear when `face_p2` goes green.
 - **Point test switch.** Without a UV guess `sm_FindSectorOfFace` turns the surface cache's
   `m_bPointTestEnabled` off around `GlobalPointSolve`; the Rust cache has no such switch, so a
   face-owned surface defers on `SmFace::PointClassify` (`query.face_p2`, 9 cases) where upstream
@@ -5818,18 +5832,35 @@ the constructed wire B-reps); the other 1693 compare values.
   not make because the Rust side defers (listed above). A null vote, a null `AddAttributes`
   target with no index and a vertex-split near the trim curve ends are valid upstream and are
   compared (not guarded).
+- **Null votes.** `sm_VoteForRegion` is called with `pRegionFound` straight from
+  `sm_FindSectorOfFace` (`SmBrep.cpp:11864`), which can be `NULL`; upstream counts the null
+  region as a region of its own and `sm_FindHighestVote` can return it. The port takes
+  `Option<RegionId>` votes (a null winner and no regions both read `None`, as upstream's
+  `NULL`); the pre-review's fuzzing found the earlier runner rejecting null votes (39 cases),
+  now fixtures (`*_vote_null_*`) and generated votes include them.
 - **Back-edges wired:** `SmBrep::GetInfiniteRegion` in `topology.edge` (5 cases continue to
   `topology.brep_p2`), `GetVertices/GetEdges/GetFaces` in `topology.brep_cache` (unreachable
   until `query.brep` lands: the tree build takes the bounding box first; its report is
   unchanged), `GetTolerance` / `GetThisModelSizeEstimate` / `SetThisModelSizeEstimate` in
   `heal.heal_data_p2` (`fix_tol_sizes` takes `&mut Kernel` now), `GetEdges` in `geom.tools`,
-  `GetFaces/GetEdges/GetVertices` in `mass.integrator` and `query.api_queries`. Wiring the last
-  three exposed runner limitations, fixed or labelled truthfully: the `geom.tools` runner ran
+  `GetFaces/GetEdges/GetVertices` in `mass.integrator` and `query.api_queries`, and (merged
+  from main meanwhile, #109) `GetVertices` / `GetEdges` / `GetFaces`, the region walk from the
+  infinite region and `SmBrep::HealBrep` in `heal.heal_data_p1` (its 12 deferred cases continue
+  to `heal.heal_data_p3` and `topology.shell`; the heal harness of #128/#109 never exported the
+  infinite region, so `Fix_InfiniteRegion` on the three boxes compared a B-rep without one
+  against one with it: the lists export now carries the infinite-region index), and (#163)
+  `GetEdges` / `GetShells` in `boolean.merge_p1` (`GetShells` still stops at
+  `SmRegion::GetShells`, `topology.shell`, so its 33 cases stay deferred under that unit);
+  in the other direction
+  `SmBrep::HealBrep` creates a `HealData` (on a loop handle, `HealLoopHandle`) and calls
+  `HealData::heal_brep`, ignoring every status but `Unported`, as upstream ignores the
+  healer's. Wiring the last three of the first group exposed runner limitations, fixed or labelled truthfully: the `geom.tools` runner ran
   `FindEdge` / `FindFace` on an empty `Brep` (now it imports the file's B-rep through this
   unit's export; the 64 cases defer on `SmCurve::DropPoint` and the B-rep cache bounding box),
   the `query.api_queries` runner lacked the native list order (its shim export and import now
   carry it; 14 cases that would have failed pass), and the `mass.integrator` runner builds no
-  Rust face for its aggregate queries 2-6 (5 cases deferred as
+  Rust face for its aggregate queries 2-6 (the Rust still runs on the empty B-rep so a genuine
+  unit blocker keeps its label; only a face-dependent outcome is deferred as
   `harness:mass.integrator-face-construction`). No `UNPORTED(topology.brep_p1)` remains.
 - **Stubs retagged** (they named `topology.brep_p1` but their missing callee is elsewhere):
   the eight `SmTol::GetZoneTol3d(const SmObject*)` sites (`curve_cache`, `ellipse/p1`,
@@ -5846,7 +5877,7 @@ the constructed wire B-reps); the other 1693 compare values.
   `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
   `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`
   (`topology.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
-  `LockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`). The error
+  `LockBoundingBox` (`query.brep`). The error
   paths before each stub are compared (`ResetInfiniteRegion(NULL)`, the "infinite region not
   first" check, `CreateCornerBlend` with fewer than two edge uses, `CreateEdgeEdgeBlend`
   without edges or NURBS rails). `SmSurface::CreateBlendSurface` (`surface.surface_p8`,

@@ -2609,12 +2609,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Mouse_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#65 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3310,8 +3311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_heal",
@@ -3897,12 +3898,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Endcap_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#203 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4257,28 +4259,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Endcap_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#246 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Endcap_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#247 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Endcap_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#248 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4526,8 +4531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_heal",
@@ -5105,12 +5110,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#341 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5762,8 +5768,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_heal",
@@ -6345,12 +6351,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "cone_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#479 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6753,12 +6760,13 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "cone_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#523 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -7038,8 +7046,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_heal",
@@ -7617,12 +7625,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "disk_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#617 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7985,28 +7994,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "disk_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#660 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "disk_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#661 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "disk_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#662 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -8266,8 +8278,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_heal",
@@ -8845,12 +8857,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "ellips_ts2_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#755 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -9205,28 +9218,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "ellips_ts2_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#798 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "ellips_ts2_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#799 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "ellips_ts2_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#800 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -9478,8 +9494,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_heal",
@@ -10065,12 +10081,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_circ_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#893 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -10433,28 +10450,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_circ_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#936 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_circ_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#937 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_circ_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#938 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -10706,8 +10726,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_heal",
@@ -11285,12 +11305,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_square_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1031 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11653,28 +11674,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_square_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1074 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_square_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1075 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "plane_square_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1076 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11930,8 +11954,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_heal",
@@ -12509,12 +12533,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "sphere_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1169 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13202,8 +13227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_heal",
@@ -13785,12 +13810,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_extrude_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1307 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14181,28 +14207,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_extrude_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1350 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_extrude_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1351 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_extrude_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1352 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14474,8 +14503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_heal",
@@ -15057,12 +15086,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_rev_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1445 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -15453,28 +15483,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_rev_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1488 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_rev_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1489 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_rev_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1490 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -15746,8 +15779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_heal",
@@ -16329,12 +16362,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_sphere150_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1583 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -16721,28 +16755,31 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_sphere150_redistribute_0_1_7",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1626 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_sphere150_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1627 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "surf_sphere150_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1628 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -17014,8 +17051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_heal",
@@ -17605,12 +17642,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "torus_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1721 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -18298,8 +18336,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_heal",
@@ -18889,12 +18927,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "toruswvy_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1859 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -19582,8 +19621,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_heal",
@@ -20165,12 +20204,13 @@
       "values_compared": 2
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "vase_rev_add_attrs_null",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1997 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -20569,20 +20609,22 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "vase_rev_redistribute_1_1_0",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2041 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "vase_rev_redistribute_2_1_1",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2042 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -20850,8 +20892,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealBrep",
-        "unit": "heal.heal_data_p1"
+        "symbol": "SmHealData::HealTgts",
+        "unit": "heal.heal_data_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_heal",
@@ -20861,12 +20903,13 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Endcap_set_inf_swap_null_guard",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2070 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -20881,12 +20924,13 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "Mouse_set_inf_swap_null_guard",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2072 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -20901,12 +20945,13 @@
       "values_compared": 0
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "vase_rev_set_inf_swap_null_guard",
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2074 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -20919,6 +20964,38 @@
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2075 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_vote_null_wins",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2076 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_vote_null_minority",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2077 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_vote_null_only",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2078 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_vote_null_tie",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2079 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -21006,7 +21083,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=16427431755999862651",
-      "values_compared": 5
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -21073,15 +21150,15 @@
       "values_compared": 0
     }
   ],
-  "cases_both_errored": 15,
+  "cases_both_errored": 60,
   "cases_deferred": 616,
   "cases_failed": 0,
-  "cases_passed": 1708,
-  "cases_total": 2324,
+  "cases_passed": 1712,
+  "cases_total": 2328,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 207,
-    "heal.heal_data_p1": 15,
+    "heal.heal_data_p3": 15,
     "query.brep": 71,
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,

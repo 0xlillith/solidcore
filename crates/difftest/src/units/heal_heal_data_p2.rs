@@ -43,7 +43,7 @@ use solidcore::kernel::Kernel;
 use solidcore::geom::vector2d::Point2;
 use solidcore::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexEdgeGap, VertexFaceGap};
 use solidcore::topology::topology_traverser::Marks;
-use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
+use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::heal_heal_data_p2 as ffi;
 use solidcore_ffi::units::topology_vertexuse::counts;
@@ -953,6 +953,12 @@ fn restore(b: &mut Brep, extra: &[f64], c: [usize; 10]) -> Result<(), HarnessErr
         let r = b.vertexuse_mut(VertexuseId::from_index(u as u32)).map_err(he)?;
         r.vertex_edge_gap = eg;
         r.vertex_face_gap = fg;
+    }
+    // the infinite region (`SmBrep::m_pInfiniteRegion`; `Fix_InfiniteRegion` walks the
+    // region list from it)
+    let inf = next()?;
+    if inf >= 0.0 {
+        b.set_infinite_region(Some(RegionId::from_index(inf as u32)));
     }
     if at != extra.len() {
         return Err(harness("extras: trailing data"));

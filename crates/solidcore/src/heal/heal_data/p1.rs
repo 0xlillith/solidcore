@@ -43,12 +43,11 @@
 //! - **`Make_UVTrimCurves`** does not accumulate the mean and maximum gap statistics
 //!   of `CreateUVTrimCurves`: upstream never reads them.
 //! - **Region list.** `Fix_InfiniteRegion` walks the B-rep's circular region list
-//!   from the infinite region (`GetInfiniteRegion`, `GetNext`); the
-//!   [`crate::topology::Brep`] record has no region list yet, so the list in that
-//!   order is one stub of `topology.brep_p1`.
-//! - **Unported callees** (`UNPORTED` stubs): `SmBrep::GetVertices`, `GetEdges`,
-//!   `GetFaces`, `GetInfiniteRegion` and `SmBrep::HealBrep` (`topology.brep_p1`),
-//!   `SmHealData::HealTgts` (`heal.heal_data_p3`), `SmBrep::TestClosureSplitRegion`
+//!   from the infinite region (`GetInfiniteRegion`, `GetNext`): the port takes
+//!   [`crate::topology::brep::p1::regions`] rotated to start at
+//!   [`crate::topology::Brep::infinite_region`] (empty without one).
+//! - **Unported callees** (`UNPORTED` stubs): `SmHealData::HealTgts`
+//!   (`heal.heal_data_p3`), `SmBrep::TestClosureSplitRegion`
 //!   (`topology.brep_p6`), `SmBrep::FindAndSetInfiniteRegion` (`topology.brep_p5`),
 //!   `SmRegion::IsVoid` / `SetIsVoid` (`topology.shell`) and
 //!   `SmFace::CreateUVTrimCurves` (`topology.face_p3`). So `HealBrep` on a B-rep,
@@ -205,7 +204,7 @@ pub struct HealBrepTargets<'a> {
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] (`SM_ERR_INVALID_INPUT`) without a B-rep;
-/// [`SolidError::Unported`] for `SmBrep::HealBrep` (`topology.brep_p1`).
+/// [`SolidError::Unported`] for `SmHealData::HealTgts` (`heal.heal_data_p3`).
 pub fn api_heal_brep(k: &mut Kernel, b: Option<&mut Brep>) -> Result<()> {
     let Some(b) = b else {
         return Err(SolidError::invalid_input(
@@ -318,9 +317,8 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for `SmBrep::GetVertices` / `GetEdges` / `GetFaces`
-    /// (`topology.brep_p1`) when a target list is not given, and for
-    /// `SmHealData::HealTgts` (`heal.heal_data_p3`); those of [`HealData::reset`].
+    /// [`SolidError::Unported`] for `SmHealData::HealTgts` (`heal.heal_data_p3`);
+    /// those of [`HealData::reset`].
     pub fn heal_brep(
         &mut self,
         k: &mut Kernel,
@@ -773,7 +771,7 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for `SmBrep::GetInfiniteRegion` (`topology.brep_p1`),
+    /// [`SolidError::Unported`] for
     /// `SmRegion::IsVoid` / `SetIsVoid` (`topology.shell`) and
     /// `SmBrep::FindAndSetInfiniteRegion` (`topology.brep_p5`);
     /// [`SolidError::InvalidInput`] for a B-rep without regions (upstream dereferences
@@ -1005,11 +1003,13 @@ mod tests {
             api_heal_brep(&mut k, None),
             Err(SolidError::InvalidInput { .. })
         ));
+        // on a B-rep the whole-B-rep target lists are gathered (empty here) and
+        // the heal sequence stops at the first unported step
         let mut b = Brep::default();
         assert!(matches!(
             api_heal_brep(&mut k, Some(&mut b)),
             Err(SolidError::Unported {
-                unit: "topology.brep_p1",
+                unit: "heal.heal_data_p3",
                 ..
             })
         ));
@@ -1023,10 +1023,11 @@ mod tests {
         assert!(matches!(
             r,
             Err(SolidError::Unported {
-                unit: "topology.brep_p1",
+                unit: "heal.heal_data_p3",
                 ..
             })
         ));
+        assert!(h.tgt_faces.is_empty());
         let (v, e, f) = ids();
         let t = HealBrepTargets {
             vertices: Some(&v),
@@ -1062,13 +1063,8 @@ mod tests {
         )
         .unwrap();
         lock.release(std::slice::from_mut(&mut k.context)).unwrap();
+        // a B-rep without regions: upstream dereferences the null infinite region
         let r = h.fix_infinite_region(&mut b, HealerOpType::FixInfiniteRegions);
-        assert!(matches!(
-            r,
-            Err(SolidError::Unported {
-                unit: "topology.brep_p1",
-                ..
-            })
-        ));
+        assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
     }
 }

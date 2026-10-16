@@ -448,7 +448,7 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`.
 pub fn shells(
-    k: &mut Kernel,
+    k: &Kernel,
     b: &Brep,
     attribute: Option<&AttributeFilter<'_>>,
 ) -> Result<Vec<ShellId>> {
@@ -2688,16 +2688,22 @@ mod tests {
     fn votes() {
         let mut rs = Vec::new();
         let mut vs = Vec::new();
-        let (a, c) = (RegionId::from_index(0), RegionId::from_index(1));
+        let (a, c) = (Some(RegionId::from_index(0)), Some(RegionId::from_index(1)));
         assert_eq!(find_highest_vote(&rs, &vs).unwrap(), None);
         vote_for_region(&mut rs, &mut vs, a);
         vote_for_region(&mut rs, &mut vs, c);
         vote_for_region(&mut rs, &mut vs, c);
         assert_eq!((rs.clone(), vs.clone()), (vec![a, c], vec![1, 2]));
-        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), Some(c));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), c);
         vote_for_region(&mut rs, &mut vs, a);
         // ties keep the first
-        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), Some(a));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), a);
+        // the null region is a region of its own; a null winner reads None, as upstream
+        vote_for_region(&mut rs, &mut vs, None);
+        vote_for_region(&mut rs, &mut vs, None);
+        vote_for_region(&mut rs, &mut vs, None);
+        assert_eq!((rs.clone(), vs.clone()), (vec![a, c, None], vec![2, 2, 3]));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), None);
         assert!(find_highest_vote(&rs, &[1]).is_err());
     }
 
