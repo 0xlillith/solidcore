@@ -4982,7 +4982,7 @@ mutated scales and accepted/reduced step counts are compared.
 
 ## heal.face_props (`SmFaceProps` / `SmLoopProps` / `SmLooptreeItem`, 2026-10-16; partial, no disagreements)
 
-- **UB-127 (`plan/upstream-issues.md`).** `SmFaceProps::SetProps_Gaps` returns at once from stage
+- **UB-131 (`plan/upstream-issues.md`).** `SmFaceProps::SetProps_Gaps` returns at once from stage
   `GAPSa` on (`SmFaceProps.cpp:768`), so the `m_pFace != cpFace` re-run in `SetProps_Stage2`
   (`:875`) and `SetProps_Stage3` (`:1258`) never sets `m_pFace`; a stage past the gaps with no
   face (`ReSet(2a)` then `SetProps(2)`, or a seeded stage `GAPS` then Stage 2) dereferences NULL
