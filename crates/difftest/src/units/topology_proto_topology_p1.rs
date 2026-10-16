@@ -3566,7 +3566,7 @@ fn run_proto(
                                 let ov = x.overlapping_pes();
                                 let mut group: Vec<ProtoEdgeId> = Vec::new();
                                 for (a, &o) in ov.iter().enumerate() {
-                                    if ov[a + 1..].contains(&o) {
+                                    if ov.iter().skip(a + 1).any(|&q| q == o) {
                                         skip = true;
                                     }
                                     match m.proto_edge(o) {
@@ -3576,7 +3576,7 @@ fn run_proto(
                                 }
                                 let mut g = 0;
                                 while g < group.len() && !skip {
-                                    match m.proto_edge(group[g]) {
+                                    match group.get(g).and_then(|&ge| m.proto_edge(ge)) {
                                         Some(og) => {
                                             for &c in og.overlapping_pes() {
                                                 if m.proto_edge(c).is_none() {
@@ -4178,7 +4178,7 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
             let q = g.point(rng);
             if let Some(slot) = objects.last_mut() {
                 *slot = ObjIn::VertexAt {
-                    p: [q[0] + 5.0 * (i as f64 + 1.0) * g.scale.max(1.0), q[1], q[2]],
+                    p: [q[0] + 5.0 * (f64::from(i) + 1.0) * g.scale.max(1.0), q[1], q[2]],
                     tol: gen_tol(rng, g.scale),
                 };
             }
