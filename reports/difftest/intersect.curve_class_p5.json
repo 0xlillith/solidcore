@@ -2878,7 +2878,7 @@
       "name": "regression_uv_line_bases_materialized",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/intersect.curve_class_p5/usage.json#242 (upstream source/SMLib/src/SmCurveClass.cpp:13524-13534; UB-127 native crash on a lazy SmLine B-spline base)",
+      "source": "fixture:fixtures/intersect.curve_class_p5/usage.json#242 (upstream source/SMLib/src/SmCurveClass.cpp:13524-13534; UB-134 native crash on a lazy SmLine B-spline base)",
       "values_compared": 0
     },
     {

@@ -5480,8 +5480,12 @@ FixEndPointClass (p6), interval insertion/merge (p6), point-index queries (p7),
 classification boundary locations (p2) and nonempty large-gap projection.
 The entire edge-target insertion branch (vertex snapping, surface refinement and
 the 2D class object) remains unported, blocked first by p2 InsertAt and also p7
-point-index queries. The SSS refinement block remains unported pending mutable
-geometry/topology ownership in p5. Fixup and merge comparisons certify only exercised no-op/skip
+point-index queries. The entire SSS block remains unported before its mutations;
+its actual missing callees are GetOtherMate/GetBrepMate in
+boolean.topology_intersector_p1. The existing knot snapping, surface solves,
+through-point edits and edgeuse UV-trim methods still need mutable ownership
+wiring in this block. It does not call sm_RefineCCIToSurfaces.
+Fixup and merge comparisons certify only exercised no-op/skip
 paths. The inline SetInterval setter and curve resolver visibility are minimal
 support on the existing part-1 type. Face callers map vertices through
 CurveOnClassifyObjects::vertex; their other dependency stubs remain untouched.
@@ -5514,8 +5518,10 @@ CO-PORTED in the owning units' notes. Generic-Surface CrvOnSurf construction is
 still an unported type/dispatch extension of the already-partial curve unit;
 its notes distinguish this from an unported existing topology algorithm.
 
-Missing vertex-point and vertex/face-gap callbacks are p5 ownership-adapter gaps,
-not missing SmVertex/SmVertexuse methods. The edge insertion and SSS stubs name
+Missing vertex-point and vertex/face-gap callback data now returns InvalidInput,
+rather than Unported for already-ported SmVertex/SmVertexuse methods. Big-gap
+tolerance is queried only when the classification has a face or the surface has
+a direct face owner, matching upstream. The edge insertion and SSS stubs name
 their actual blockers. The module header records the object-index restriction,
 unresolved-curve error in p5_closed and runner-only face tolerance zero. All 24
 zero_tangent fixtures defer on p2 InsertAt; flipping the nonzero-tangent flag does
@@ -5524,7 +5530,20 @@ those fixtures. On review-fix head `0776c9eb`, all eight affected native runners
 (p5/p1/p3, point classification, face query and proto-topology p1/p2/p3) have zero
 failures; p5 remains 267 compared and 814 deferred, with all 267 perturbations
 detected. All eight reports regenerate byte-identical. Formatting, strict plain
-Clippy, 1,208 kernel tests and WASM pass. Native Clippy, the focused FFI regression
-and refreshed CI remain pending for this revision. The subsequent merge of
+Clippy, 1,208 kernel tests and WASM pass. Native Clippy and the focused FFI
+regression pass. Full CI on merged head 8adf14f0 passes 187 units (99 green,
+88 partial, zero failed). The subsequent merge of
 official main `57face81` retains the face-properties changes and both issue lists;
 p5's review-fix source is unchanged by that merge.
+
+Re-review at 8adf14f0: the reviewer permits retaining the SSS stub with the corrected
+boolean mate target and an explicit description of the whole unported block; this
+is the minimum accepted fix, not a port of the preceding mutations. UB-134 is
+retained per the maintainer's merge-time collision policy, and the fixture's
+upstream_ref now points to that entry. Large-gap projection remains uncertified:
+the runner has no vertex/face-gap callback and native vertices have no vertexuse.
+New regression tests cover ordinary errors for unresolved adapter data and the
+face/no-face condition for querying a gap. Formatting, strict plain Clippy,
+1,210 kernel tests and WASM pass on these changes. Native regeneration and CI
+results for the new revision are tracked in the PR description separately from
+the passing 8adf14f0 evidence above.

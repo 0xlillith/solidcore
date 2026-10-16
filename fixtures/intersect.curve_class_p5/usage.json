@@ -5024,7 +5024,7 @@
     },
     {
       "name": "regression_uv_line_bases_materialized",
-      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:13524-13534; UB-127 native crash on a lazy SmLine B-spline base",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:13524-13534; UB-134 native crash on a lazy SmLine B-spline base",
       "inputs": {
         "op": 3,
         "shape": 1,

@@ -246,7 +246,7 @@ pub trait ClassGeometry<O> {
     /// The point of a [`ClassObjectKind::Point`] handle.
     fn point(&self, o: O) -> Option<Point3>;
     /// The point of a vertex handle resolved through its owning B-rep. `None`
-    /// leaves opaque-handle topology operations explicitly deferred.
+    /// reports unresolved caller data; part 5 returns an invalid-input error.
     fn classification_vertex_point(&self, vertex: O) -> Option<Point3> {
         let _ = vertex;
         None
@@ -259,7 +259,8 @@ pub trait ClassGeometry<O> {
     }
     /// Vertex-to-face gap length for the face of `surface`, preferring the explicit
     /// classification `face`. `Some(0.0)` denotes a known absent gap; `None` means
-    /// that the vertexuse/face relationship could not be resolved.
+    /// that the vertexuse/face relationship could not be resolved and part 5
+    /// returns an invalid-input error when a face requires this lookup.
     fn vertex_face_gap(&self, vertex: O, surface: &Surface, face: Option<O>) -> Option<f64> {
         let _ = (vertex, surface, face);
         None

@@ -15,9 +15,12 @@
 //! Deviations: output lists become owned results; handles and geometry use the part-1
 //! model. Optional [`ClassGeometry`] callbacks resolve vertex points, topology tolerances
 //! and vertex/face gaps. Opaque handles still defer. The SSS refinement block
-//! (upstream lines 14812–15082) needs mutable curve/topology ownership and defers
+//! (upstream lines 14826–15095) needs mutable curve/topology ownership and defers
 //! before editing geometry; this block and the edge branch of `insert_solutions`
-//! remain unported. Ordinary and large-gap vertex projections are ported.
+//! remain unported. The SSS block's missing callees are the boolean mate lookups;
+//! its preceding mutations are not implemented. Ordinary vertex projections are
+//! compared; large-gap projections remain uncertified because the oracle vertices
+//! have no vertexuse and its Rust adapter supplies no vertex/face gap.
 //! Parts 2/6/7 remain explicit dependency stubs until their independent PRs land. The fixup
 //! restart loop is bounded by three times the initial interval count plus one: fixes remove an interval or
 //! snap an edge classification to a vertex. Undefined
@@ -432,8 +435,8 @@ impl<O: ClassObject> CurveClassification<O> {
     /// Intersects the curve with vertices (defaults: no large gaps, UV space allowed).
     ///
     /// # Errors
-    /// Unresolved handles and generic 2D curve-on-surface dispatch defer. The SSS
-    /// refinement of intersection curves needs mutable geometry ownership and defers.
+    /// Missing vertex points or vertex/face gaps are invalid input. Generic 2D
+    /// curve-on-surface dispatch and the unported SSS block defer.
     pub fn intersect_vertices(
         &mut self,
         k: &Kernel,
@@ -471,21 +474,19 @@ impl<O: ClassObject> CurveClassification<O> {
             let point = geometry
                 .classification_vertex_point(vertex)
                 .ok_or_else(|| {
-                    // UNPORTED(intersect.curve_class_p5): classification vertex-point ownership adapter
-                    SolidError::unported(
-                        "classification vertex-point ownership adapter",
-                        "intersect.curve_class_p5",
-                    )
+                    SolidError::invalid_input(OP, "unresolved classification vertex point")
                 })?;
-            let big_tolerance = if has_big_gaps {
+            // Native uses the explicit classification face, otherwise only a
+            // direct face owner of the surface (not an owning surface's face).
+            let has_face = self.face().is_some()
+                || surface.owner().is_some_and(|owner| {
+                    owner.type_code == crate::geom::assert_array::labels::FACE_TYPE
+                });
+            let big_tolerance = if has_big_gaps && has_face {
                 let gap = geometry
                     .vertex_face_gap(vertex, surface, self.face())
                     .ok_or_else(|| {
-                        // UNPORTED(intersect.curve_class_p5): classification vertex/face-gap ownership adapter
-                        SolidError::unported(
-                            "classification vertex/face-gap ownership adapter",
-                            "intersect.curve_class_p5",
-                        )
+                        SolidError::invalid_input(OP, "unresolved classification vertex/face gap")
                     })?;
                 if gap > tolerance {
                     gap
@@ -518,13 +519,16 @@ impl<O: ClassObject> CurveClassification<O> {
                             s.start.solution_value > 1e-7 && s.start.solution_value < tolerance
                         })))
             {
-                // UNPORTED(intersect.curve_class_p5): sm_RefineCCIToSurfaces mutable geometry ownership
-                // The SSS refinement edits the classification curve and clears UV
-                // trims on all connected edges and boolean mates. ClassGeometry has
-                // no mutable topology/curve ownership interface for those updates.
+                // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetOtherMate / GetBrepMate
+                // The entire SSS block (14826–15095) remains unported, including
+                // knot snapping, surface solves, through-point edits and clearing
+                // edgeuse UV trims. Those prerequisites have ported callees but
+                // need mutable curve/topology ownership here. Defer before any
+                // mutation; the actual unported callees are the later mate lookups.
+                // This block does not call sm_RefineCCIToSurfaces.
                 return Err(SolidError::unported(
-                    "sm_RefineCCIToSurfaces mutable classification geometry ownership",
-                    "intersect.curve_class_p5",
+                    "SmTopologyIntersector::GetOtherMate / GetBrepMate (unported p5 SSS block)",
+                    "boolean.topology_intersector_p1",
                 ));
             }
             for solution in solutions.as_slice() {
@@ -907,6 +911,134 @@ mod tests {
             &Extent1d::from_min_max(0., 1.),
             &BoundedLineOptions::default(),
         )))
+    }
+
+    #[derive(Clone, Copy, PartialEq)]
+    enum VertexTestObject {
+        Curve,
+        Vertex,
+        Face,
+    }
+
+    impl ClassObject for VertexTestObject {
+        fn class_kind(&self) -> ClassObjectKind {
+            match self {
+                Self::Curve => ClassObjectKind::Curve,
+                Self::Vertex => ClassObjectKind::Vertex,
+                Self::Face => ClassObjectKind::Face,
+            }
+        }
+    }
+
+    struct VertexGeometry {
+        curve: Curve,
+        point: Option<Point3>,
+        gap_calls: core::cell::Cell<usize>,
+    }
+
+    impl ClassGeometry<VertexTestObject> for VertexGeometry {
+        fn curve(&self, object: VertexTestObject) -> Option<&Curve> {
+            (object == VertexTestObject::Curve).then_some(&self.curve)
+        }
+        fn surface(&self, _: VertexTestObject) -> Option<&Surface> {
+            None
+        }
+        fn volume(&self, _: VertexTestObject) -> Option<&Volume> {
+            None
+        }
+        fn point(&self, _: VertexTestObject) -> Option<Point3> {
+            None
+        }
+        fn classification_vertex_point(&self, _: VertexTestObject) -> Option<Point3> {
+            self.point
+        }
+        fn topology_zone_tol_3d(&self, _: VertexTestObject) -> Option<f64> {
+            Some(0.0)
+        }
+        fn vertex_face_gap(
+            &self,
+            _: VertexTestObject,
+            _: &Surface,
+            _: Option<VertexTestObject>,
+        ) -> Option<f64> {
+            self.gap_calls.set(self.gap_calls.get() + 1);
+            None
+        }
+    }
+
+    fn vertex_classification(k: &Kernel) -> CurveClassification<VertexTestObject> {
+        let mut cc = CurveClassification::new(k);
+        cc.set_curve(Some(VertexTestObject::Curve), false);
+        cc.set_interval(&Extent1d::from_min_max(0., 1.)).unwrap();
+        cc
+    }
+
+    #[test]
+    fn unresolved_vertex_point_is_invalid_input() {
+        let k = Kernel::default();
+        let g = VertexGeometry {
+            curve: geometry().0,
+            point: None,
+            gap_calls: core::cell::Cell::new(0),
+        };
+        let surface = Surface::from(crate::surface::plane::Plane::from_normal(
+            Vec3::ZERO,
+            Vec3::new(0., 0., 1.),
+        ));
+        let result = vertex_classification(&k).intersect_vertices(
+            &k,
+            &g,
+            &[VertexTestObject::Vertex],
+            &surface,
+            false,
+            true,
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(g.gap_calls.get(), 0);
+    }
+
+    #[test]
+    fn large_gap_adapter_is_only_required_when_a_face_exists() {
+        use crate::geom::assert_array::labels::FACE_TYPE;
+        use crate::geom::attribute::ObjectKey;
+        use crate::geom::object::{ObjectRef, OBJECT_TYPE};
+
+        let k = Kernel::default();
+        for face_mode in 0..4 {
+            let g = VertexGeometry {
+                curve: geometry().0,
+                // The vertex is far from the curve, so the ordinary limited solve
+                // produces no intersection after the adapter preconditions pass.
+                point: Some(Vec3::new(0., 10., 0.)),
+                gap_calls: core::cell::Cell::new(0),
+            };
+            let mut cc = vertex_classification(&k);
+            let mut surface = Surface::from(crate::surface::plane::Plane::from_normal(
+                Vec3::ZERO,
+                Vec3::new(0., 0., 1.),
+            ));
+            if face_mode == 1 {
+                cc.set_face(Some(VertexTestObject::Face));
+            } else if face_mode >= 2 {
+                surface.set_owner(Some(ObjectRef {
+                    type_code: if face_mode == 2 {
+                        FACE_TYPE
+                    } else {
+                        OBJECT_TYPE
+                    },
+                    key: ObjectKey(1),
+                }));
+            }
+            let result =
+                cc.intersect_vertices(&k, &g, &[VertexTestObject::Vertex], &surface, true, true);
+            if face_mode == 1 || face_mode == 2 {
+                assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+                assert_eq!(g.gap_calls.get(), 1);
+            } else {
+                assert!(result.is_ok());
+                assert_eq!(g.gap_calls.get(), 0);
+            }
+        }
     }
 
     #[test]
