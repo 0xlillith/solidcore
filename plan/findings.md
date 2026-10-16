@@ -5049,3 +5049,37 @@ mutated scales and accepted/reduced step counts are compared.
 - **FFI guard beyond UB.** A seam touch connected to an object that is not a loop is
   rejected although upstream only compares the pointer: the port's loop tree holds loop
   ids. `SmCurveClassification` touch lists only ever connect to loops.
+
+## query.face_p3 (`SmFace.cpp` part 3, PR #132, 2026-10-16; partial, no disagreements)
+
+- **Builds on PR #129** (`query.face_p4`, which merged #122 `heal.face_props` and #85
+  `intersect.curve_class_p2`): the bisector needs `SmFaceProps`, `SmClassifyLoopIO` and
+  `SmCurveClassification::ReSet`. Merge those first.
+- **What is compared.** `CalculateTightBoundingBox` of SmPlane faces (the box of the
+  vertices and the edges' tight boxes) and the early return of `SectorClassifyCurveOn` at
+  a singularity whose edge use's radial is the second edge use: 212 cases compare values.
+  Everything past those defers on units not ported yet: the global solves and
+  `DropPoint` of a face-owned surface need `SmFace::GetTolerance` (the port's surface
+  cannot reach its face; tagged `topology.face_p2`), the sector classification
+  `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`, PR #117), and
+  `SmFace::CurveOnClassify` the `ReSet` stub inside it (`intersect.curve_class_p2`).
+- **Face-owned surface boxes.** `IsPlanar` / `CalculateBoundingBox` of a face's B-spline,
+  plane or surface of revolution expand by the face tolerance; the port's `Surface`
+  methods defer on that (`UNPORTED(topology.face_p2)`). `calculate_tight_bounding_box`
+  computes the unexpanded boxes and expands them by the face's tolerance itself (the
+  expansion is the last step upstream). The general fix (letting a face-owned surface
+  reach its face tolerance) would undefer about 250 cases here and many elsewhere.
+- **Handles for new curves.** The UV line of `sm_FaceClassifyUVLine` and the curve on
+  surface and UV trim line of the bisector live in the caller's `ClassifyCurveObjects`.
+  `LoopObject` gained `from_face`, `from_face_surface` and `from_classify_curve` (default
+  `None`); `query::face::p4::classify_loops` now returns `InvalidInput`
+  (`NO_CURVE_HANDLES`) for a handle type that cannot name them (`EntityRef`) instead of
+  ignoring the bisector's failure as a status (an ignored failure would skip the
+  bisector unnoticed). The `query.face_p4` and `heal.face_props` runners now use handle
+  enums that can name them; the 11 `heal.face_props` cases that deferred on the bisector
+  (vertex loops, for which it returns at once, as upstream) now pass, so that unit is
+  green.
+- **Harness.** `sm_FaceClassifyUVLine` is file-static: its cases run
+  `CalculateAnInternalPoint`. `sms_FindAndClassifyLoopBisector` is not declared in a
+  header; the shim declares it. The shim `#include`s the `query.face_p4` shim (entry
+  point renamed) for the B-rep builders, so both units build identical B-reps.

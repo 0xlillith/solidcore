@@ -18,16 +18,12 @@
       "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "stage3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.face_props/upstream.json#2 (upstream source/SMLib/src/SmFaceProps.cpp:SetProps)",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -838,16 +834,12 @@
       "values_compared": 355
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0096",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923039",
-      "values_compared": 0
+      "values_compared": 213
     },
     {
       "max_rel_err": 0.0,
@@ -1434,16 +1426,12 @@
       "values_compared": 355
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0170",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923113",
-      "values_compared": 0
+      "values_compared": 213
     },
     {
       "max_rel_err": 0.0,
@@ -1886,16 +1874,12 @@
       "values_compared": 284
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0226",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923169",
-      "values_compared": 0
+      "values_compared": 284
     },
     {
       "max_rel_err": 0.0,
@@ -2898,16 +2882,12 @@
       "values_compared": 568
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0352",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923295",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -3414,16 +3394,12 @@
       "values_compared": 426
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0416",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923359",
-      "values_compared": 0
+      "values_compared": 284
     },
     {
       "max_rel_err": 0.0,
@@ -3594,16 +3570,12 @@
       "values_compared": 284
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0438",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923381",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -5182,16 +5154,12 @@
       "values_compared": 20
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0636",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923579",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "max_rel_err": 0.0,
@@ -6130,16 +6098,12 @@
       "values_compared": 497
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0754",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923697",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -6334,16 +6298,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0779",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779923722",
-      "values_compared": 0
+      "values_compared": 142
     },
     {
       "max_rel_err": 0.0,
@@ -10122,16 +10082,12 @@
       "values_compared": 568
     },
     {
-      "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1252",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16562362309779924195",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -12111,17 +12067,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 11,
+  "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 1497,
+  "cases_passed": 1508,
   "cases_total": 1508,
-  "deferred_by_unit": {
-    "query.face_p3": 11
-  },
+  "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "green",
   "unit": "heal.face_props"
 }

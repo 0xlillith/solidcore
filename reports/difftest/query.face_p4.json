@@ -3,8 +3,8 @@
   "cases": [
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "closed_sphere_properties_swap0_loops0",
@@ -15,8 +15,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "closed_sphere_properties_swap0_loops1",
@@ -36,8 +36,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "closed_sphere_properties_swap1_loops0",
@@ -48,8 +48,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "closed_sphere_properties_swap1_loops1",
@@ -69,8 +69,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "natural_torus",
@@ -81,8 +81,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "tsurf_cyl_creation_loops_on_cone",
@@ -357,8 +357,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cylinder_band_and_rect",
@@ -454,8 +454,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_sphere_staged",
@@ -466,8 +466,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_torus_staged",
@@ -478,8 +478,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "file_cone_staged",
@@ -490,8 +490,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "file_plane_square_staged",
@@ -502,8 +502,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "file_box_with_large_fillet_staged",
@@ -570,8 +570,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -582,8 +582,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -602,8 +602,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0007",
@@ -622,8 +622,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0009",
@@ -698,8 +698,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0018",
@@ -719,8 +719,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0020",
@@ -731,8 +731,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0021",
@@ -759,8 +759,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -824,8 +824,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0031",
@@ -844,8 +844,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0033",
@@ -872,8 +872,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0036",
@@ -901,8 +901,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -913,8 +913,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0040",
@@ -1014,8 +1014,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0052",
@@ -1074,8 +1074,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0059",
@@ -1086,8 +1086,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0060",
@@ -1106,8 +1106,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -1306,8 +1306,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0086",
@@ -1529,8 +1529,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0113",
@@ -1605,8 +1605,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0122",
@@ -1634,8 +1634,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0125",
@@ -1711,8 +1711,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0134",
@@ -1731,8 +1731,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0136",
@@ -1784,8 +1784,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0142",
@@ -1820,8 +1820,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0146",
@@ -1918,8 +1918,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0157",
@@ -1994,8 +1994,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0166",
@@ -2091,8 +2091,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0177",
@@ -2127,8 +2127,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0181",
@@ -2147,8 +2147,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -2203,8 +2203,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0189",
@@ -2239,8 +2239,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0193",
@@ -2283,8 +2283,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0198",
@@ -2363,8 +2363,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0207",
@@ -2375,8 +2375,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0208",
@@ -2481,8 +2481,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0220",
@@ -2493,8 +2493,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0221",
@@ -2505,8 +2505,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0222",
@@ -2533,8 +2533,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0225",
@@ -2545,8 +2545,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0226",
@@ -2565,8 +2565,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0228",
@@ -2609,8 +2609,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0233",
@@ -2645,8 +2645,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0237",
@@ -2665,8 +2665,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0239",
@@ -2802,8 +2802,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0255",
@@ -2882,8 +2882,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0264",
@@ -2918,8 +2918,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0268",
@@ -2978,8 +2978,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -3087,8 +3087,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0288",
@@ -3099,8 +3099,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0289",
@@ -3111,8 +3111,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3123,8 +3123,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0291",
@@ -3199,8 +3199,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0300",
@@ -3211,8 +3211,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0301",
@@ -3223,8 +3223,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0302",
@@ -3255,8 +3255,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0305",
@@ -3291,8 +3291,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -3347,8 +3347,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0315",
@@ -3375,8 +3375,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0318",
@@ -3395,8 +3395,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0320",
@@ -3407,8 +3407,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0321",
@@ -3435,8 +3435,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0324",
@@ -3455,8 +3455,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0326",
@@ -3516,8 +3516,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0333",
@@ -3569,8 +3569,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -3654,8 +3654,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0349",
@@ -3751,8 +3751,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -3763,8 +3763,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0361",
@@ -3889,8 +3889,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0376",
@@ -3934,8 +3934,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0381",
@@ -3962,8 +3962,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0384",
@@ -3990,8 +3990,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0387",
@@ -4058,8 +4058,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0395",
@@ -4070,8 +4070,8 @@
     },
     {
       "deferred": {
-        "symbol": "sms_FindAndClassifyLoopBisector",
-        "unit": "query.face_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0396",
@@ -4111,8 +4111,8 @@
   "cases_passed": 358,
   "cases_total": 459,
   "deferred_by_unit": {
-    "query.face_p3": 86,
-    "topology.face_p2": 15
+    "topology.edgeuse_p3": 49,
+    "topology.face_p2": 52
   },
   "max_rel_err": 0.0,
   "pass": true,
