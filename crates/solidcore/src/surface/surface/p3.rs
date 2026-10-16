@@ -111,8 +111,8 @@ fn surface_approx_tol_3d(
     }
     if surface.owner().is_some() {
         // UNPORTED(topology.face_p2): SmFace::GetTolerance of the owner, for the callers
-        // that cannot pass it (a surface does not reach its B-rep); the face props pass
-        // it through `get_singularities_of_face`
+        // that cannot pass it (a surface does not reach its B-rep; justified: plan/findings.md,
+        // heal.face_props, "Why UNPORTED(topology.face_p2) stays"); the face props pass it through `get_singularities_of_face`
         return Err(SolidError::unported(
             "SmFace::GetTolerance",
             "topology.face_p2",

@@ -4982,6 +4982,17 @@ mutated scales and accepted/reduced step counts are compared.
 - **Coverage limits.** Stage 3 is compared through op 8 (`SmLoopProps::SetProps` of each loop);
   every direct `SetProps_Stage3` case defers at `SmFace::ClassifyLoops` (`query.face_p4`), so
   the Stage 3 loop counts and the containment are not compared until that unit lands.
+- **`m_lBadFlatCorners` is compared but never nonzero.** The snapshot holds the flag value and
+  the four flat corner points (an unset corner is the uninitialised point on both sides), so a
+  nonzero value would be compared value for value. No generated or fixture face reaches one: a
+  corner is flat only where `Su` and `Sv` are parallel and neither is degenerate, which the
+  plane (axes at least 1e-3 apart) and the canonical surfaces of revolution the harness builds
+  never give (a trial with a generator along the circle's tangent at its start still reported
+  none on either side, and was dropped). Only the seeded field (op 5, field 9) exercises the
+  value, so the computation in `FaceProps::set_props_stage2` (`GetFlatCorners`) is compared
+  as "none". `SmSurface::GetFlatCorners` uses `lRtn &= SM_FC_*` (not `|=`) when it fills the
+  points array (WR-55), which drops other corners' flags; the port follows
+  the upstream expression.
 - **Harness.** The shim and the runner build the same one-face B-rep: a plane or an
   `SmSurfOfRevolution::CreateCanonical` surface (cylinder, cone with or without apex, sphere,
   torus; `AdjustSTEPUVDomain` opens the 360 degree sweep) owned by the face, with a vertex loop
