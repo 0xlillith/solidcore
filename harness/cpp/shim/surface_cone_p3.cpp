@@ -136,7 +136,7 @@ SC_EXPORT int32_t sc_surface_cone_p3_intersect(int32_t op,const double* cone,con
     SmStatus status;
     // Native IntersectWithCone's coincident branch dereferences pdOptApproxTol3d.
     // Supplying a tolerance is required only there; preserve all other default paths.
-    if((op==0 || op==3) && !same && !has_tolerance && a->IsCylinder() && ((SmCone*)target)->IsCylinder()) {
+    if((op==0 || (op==3 && target->GetType()==SmCone_TYPE)) && !same && !has_tolerance && a->IsCylinder() && ((SmCone*)target)->IsCylinder()) {
         const SmCone& c=*(SmCone*)target;
         SmExtent3d box1,box2;
         if(a->CalculateBoundingBox(da,&box1)==SM_SUCCESS && c.CalculateBoundingBox(db,&box2)==SM_SUCCESS) {

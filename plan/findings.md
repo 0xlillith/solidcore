@@ -5043,11 +5043,59 @@ suite still requires the supported GNU C++/libstdc++ CI environment.
 
 The two harness units changed for Clang compatibility pass independently:
 `geom.geom_utility_p1` 4185/4185 and `curve.projected_curve` 2727/2727, both
-bit-identical. `surface.cone_p3` passes 1155 cases with 121 dependency deferrals;
-a 10076-case stress run has 9016 passes, 1060 dependency deferrals and zero
+bit-identical. `surface.cone_p3` passes 1187 cases with 121 dependency deferrals;
+a 10108-case stress run has 9048 passes, 1060 dependency deferrals and zero
 failures, all compared values bit-identical. Perturbation detects every one of
-1155 comparable default cases.
+1187 comparable default cases.
 
 Crossing-axis coverage uses equal radii and an axis intersection inside both finite
 segments, including generated tiny/huge scales and subdomains; these cases reach
 `sm_AddEllipseIntervalsTrimmedToTwoCones` and explicitly defer on cone part 2.
+
+
+### PR #131 review follow-up against earlier ports
+
+Review examples: [#130 resource-exhaustion note](https://github.com/bherbruck/solidcore/pull/130#issuecomment-6206051059),
+[#125 native-guard and status review](https://github.com/bherbruck/solidcore/pull/125#pullrequestreview-5540211429),
+and [#123 branch/order/perturbation review](https://github.com/bherbruck/solidcore/pull/123#issuecomment-6205894305).
+
+Found and fixed an overbroad native guard: `GlobalSurfaceIntersect` switches on
+exact `SmCone_TYPE`; a `SmCylinder_TYPE` target goes to the general intersector.
+The missing-optional-tolerance guard now follows that dispatch before checking the
+coincident analytic-cylinder path. A native regression uses two coincident
+radius-1, height-3 surfaces with the second constructed as `SmCylinder` and no
+optional tolerance; the old guard returned `SC_ERR_ARG`, while the corrected
+adapter completes the actual native general call. The Rust callback dispatch has
+an existing matching regression. This native safety test is not counted as a
+Rust/C++ numerical comparison.
+
+The added native matrix covers direct/global plane and cone calls, both first
+operand classes, swap/inside-out flags, full/subdomains and omitted, zero,
+positive, negative and system-default tolerances (320 calls). Fourteen constructor
+boundary probes exercise zero/negative radii and heights, tiny height, zero,
+reversed and oversized sweeps, zero axes and scaled axes. Malformed/nonfinite
+record checks remain FFI contract tests rather than artificial difftest passes.
+CI now explicitly runs all `solidcore-ffi` tests with `cpp`, serially; the default
+workspace tests do not enable this feature.
+
+The resource audit of `surface/cone/p3.rs` found no link-following walks, recursion,
+file readers, input-declared allocation sizes, or numeric convergence loops. Its
+loops traverse fixed pairs, returned curve/interval collections, or the existing
+output prefix during deduplication. Periodic interval intersection in the ellipse
+helper is currently behind the `surface.cone_p2` deferral and must be rechecked
+when that dependency is wired. This audit does not certify unported dependencies.
+
+Coverage limits remain explicit: oblique ellipse trimming, intersecting-axis
+ellipse output and coincident-boundary deduplication are ported but cannot yet be
+compared beyond their dependency entry points. Revolution/extrusion global
+branches have Rust implementations but this unit's native runner constructs only
+plane/cone/cylinder targets; sphere/shared-enum dispatch remains a handoff gap.
+The review did not promote these paths to green or count them as compared.
+
+Review validation: 1308 default cases, 1187 bit-identical comparisons, 121
+explicit dependency deferrals, zero failures; all 1187 perturbations detected.
+The 10108-case stress run has 9048 comparisons, 1060 deferrals and zero failures.
+All 32 new tolerance fixtures compare actual returned geometry/classifications
+rather than synthetic errors (`cases_both_errored = 0` for the complete report).
+All 33 native FFI tests, formatting, and strict workspace Clippy with the C++
+feature pass after the review changes and merge of official main `04a2b106`.

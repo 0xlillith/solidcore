@@ -635,6 +635,262 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "review_circle_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#76 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#77 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#78 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_circle_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#79 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_global_circle_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#80 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_global_circle_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#81 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_global_circle_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#82 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_global_circle_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#83 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 82
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_two_lines_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#84 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_two_lines_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#85 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_two_lines_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#86 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_two_lines_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#87 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#88 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#89 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#90 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#91 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_crossing_cylinders_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#92 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_crossing_cylinders_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#93 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_crossing_cylinders_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#94 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_crossing_cylinders_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#95 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_cylinders_swap0_inside0_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#96 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_cylinders_swap0_inside0_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#97 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_cylinders_swap0_inside0_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#98 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_tangent_cylinders_swap0_inside0_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#99 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cylinder_ends_near_touch_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#100 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cylinder_ends_near_touch_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#101 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cylinder_ends_near_touch_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#102 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_cylinder_ends_near_touch_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#103 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_just_inside_omitted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#104 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_just_inside_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#105 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_just_inside_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#106 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_just_inside_system_default",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p3/analytic.json#107 (upstream source/SMLib/src/SmCone.cpp:2604,3219 (review: optional/default/negative tolerance branches))",
+      "values_compared": 79
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -10697,8 +10953,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 121,
   "cases_failed": 0,
-  "cases_passed": 1155,
-  "cases_total": 1276,
+  "cases_passed": 1187,
+  "cases_total": 1308,
   "deferred_by_unit": {
     "surface.cone_p2": 91,
     "surface.surface_p11": 30

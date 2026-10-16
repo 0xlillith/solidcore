@@ -17,7 +17,7 @@ for the remaining topology, bounding-box and offset dependencies. Detailed cover
 and the scalar wrapper's failure-masking behavior are in `plan/findings.md`.
 
 
-Latest unit: `surface.cone_p3` ([PR #131](https://github.com/bherbruck/solidcore/pull/131)) adds analytic cone/cylinder plane sections and cone/cone intersections: 1276 differential cases, 1155 bit-identical passes, 121 dependency deferrals, zero failures. Ellipse trimming awaits `surface.cone_p2`; coincident boundaries await `surface.surface_p11`. Shared cone/sphere enum dispatch remains coordinated in issue #76. The Mac harness now builds with Apple Clang and its selected C++ runtime.
+Latest unit: `surface.cone_p3` ([PR #131](https://github.com/bherbruck/solidcore/pull/131)) adds analytic cone/cylinder plane sections and cone/cone intersections: 1308 differential cases, 1187 bit-identical passes, 121 dependency deferrals, zero failures. Ellipse trimming awaits `surface.cone_p2`; coincident boundaries await `surface.surface_p11`. Shared cone/sphere enum dispatch remains coordinated in issue #76. The Mac harness now builds with Apple Clang and its selected C++ runtime. Review follow-up narrows the native guard to exact cone dispatch, adds tolerance/constructor/flag regressions and runs native FFI safety tests in CI.
 
 ## Handoff (2026-10-13): from one local swarm to pull requests
 

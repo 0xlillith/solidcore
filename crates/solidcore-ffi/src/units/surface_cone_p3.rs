@@ -131,4 +131,141 @@ mod tests {
         }
         assert!(intersect(0, &a, &nested, &DOMAINS, None, false).is_ok());
     }
+
+    fn plane() -> Vec<f64> {
+        vec![
+            0.0, 0.0, 1.5, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, -4.0, -4.0, 4.0, 4.0,
+        ]
+    }
+
+    #[test]
+    fn rejects_nonfinite_values_and_invalid_flags_in_every_field() {
+        for index in 0..17 {
+            for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+                let mut a = cone();
+                a[index] = value;
+                assert!(matches!(
+                    intersect(0, &a, &cone(), &DOMAINS, None, false),
+                    Err(FfiError::InvalidArgument(_))
+                ));
+                assert!(matches!(
+                    intersect(0, &cone(), &a, &DOMAINS, None, false),
+                    Err(FfiError::InvalidArgument(_))
+                ));
+            }
+        }
+        for index in 0..13 {
+            let mut p = plane();
+            p[index] = f64::NAN;
+            assert!(matches!(
+                intersect(1, &cone(), &p, &DOMAINS, None, false),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+        for index in 0..8 {
+            let mut domains = DOMAINS;
+            domains[index] = f64::INFINITY;
+            assert!(matches!(
+                intersect(1, &cone(), &plane(), &domains, None, false),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+        for index in 14..17 {
+            for value in [-1.0, 0.5, 2.0] {
+                let mut a = cone();
+                a[index] = value;
+                assert!(matches!(
+                    intersect(0, &a, &cone(), &DOMAINS, None, false),
+                    Err(FfiError::InvalidArgument(_))
+                ));
+            }
+        }
+        for op in [-1, 4] {
+            assert!(matches!(
+                intersect(op, &cone(), &plane(), &DOMAINS, None, false),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+        for op in [1, 2] {
+            assert!(matches!(
+                intersect(op, &cone(), &plane(), &DOMAINS, None, true),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+        assert!(matches!(
+            intersect(0, &cone(), &cone(), &DOMAINS, Some(f64::NAN), false),
+            Err(FfiError::InvalidArgument(_))
+        ));
+    }
+
+    #[test]
+    fn native_dispatch_flag_tolerance_and_domain_matrix() {
+        for op in 0..=3 {
+            for class in [0.0, 1.0] {
+                for swap in [0.0, 1.0] {
+                    for inside in [0.0, 1.0] {
+                        for tolerance in
+                            [None, Some(0.0), Some(1e-7), Some(-1e-7), Some(9876543.21)]
+                        {
+                            for subdomain in [false, true] {
+                                let mut a = cone();
+                                a[14] = swap;
+                                a[15] = inside;
+                                a[16] = class;
+                                let mut b = if op == 0 || op == 3 { cone() } else { plane() };
+                                if op == 0 || op == 3 {
+                                    b[0] = 1.0;
+                                }
+                                let mut domains = DOMAINS;
+                                if subdomain {
+                                    domains[0] = 0.125;
+                                    domains[2] = 0.875;
+                                    domains[5] = 0.125;
+                                    domains[7] = 0.875;
+                                }
+                                assert!(intersect(op, &a, &b, &domains, tolerance, false).is_ok(), "op={op} class={class} swap={swap} inside={inside} tol={tolerance:?} subdomain={subdomain}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn native_constructor_boundaries_return_without_dereferencing_failed_geometry() {
+        for (index, value) in [
+            (9, 0.0),
+            (10, 0.0),
+            (9, -1.0),
+            (10, -1.0),
+            (11, 0.0),
+            (11, 1e-15),
+            (11, -1.0),
+            (13, 0.0),
+            (13, -90.0),
+            (13, 720.0),
+            (12, -360.0),
+            (3, 0.0),
+            (7, 0.0),
+            (3, 2.0),
+        ] {
+            let mut a = cone();
+            a[index] = value;
+            assert!(
+                intersect(1, &a, &plane(), &DOMAINS, Some(1e-7), false).is_ok(),
+                "constructor boundary index={index} value={value}"
+            );
+        }
+    }
+
+    #[test]
+    fn global_cylinder_target_does_not_use_cone_analytic_guard() {
+        let a = cone();
+        let mut b = cone();
+        b[16] = 1.0;
+        // SmCylinder_TYPE falls through the native global switch into the
+        // general intersector; it never dereferences the analytic tolerance.
+        assert!(intersect(3, &a, &b, &DOMAINS, None, false).is_ok());
+    }
 }
