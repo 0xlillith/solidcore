@@ -5961,7 +5961,9 @@ Rust regressions check extreme loop counts without allocation from those counts,
 and release of the operation's mark lock after a dependency error while preserving
 the caller's lock and the already performed shell mutation. Native FFI tests
 exercise invalid selectors/flags and accept a valid 65-entry duplicate-edge copy
-list; a fixture-size policy must not reject an otherwise safe copy list.
+list, including compound candidate-mark masks 3, 7 and 31. The native mark-lock
+constructor accepts OR-ed bits, so the FFI guard accepts all masks 0..=31; zero
+requests no outer lock. A fixture policy must not reject these valid inputs.
 
 Integrating shell state with the newer `boolean.merge_p1` exposed five existing
 region-color fixtures that lacked a borrowed `RegionLookup`: C++ succeeded while
@@ -5986,3 +5988,5 @@ finishes as deferred on `intersect.curve_class_p4`; the full 4583-case unit exce
 a 60-second diagnostic timeout. No comparisons or fixtures were removed to hide
 this cost. Progress tracing for the full run is external GDB instrumentation,
 without changes to the test harness or its tolerance policy.
+The complete `topology.edgeuse_p2` run subsequently finished: 4583 cases,
+3218 passed, 1365 deferred, 0 failed, maximum relative error 0.

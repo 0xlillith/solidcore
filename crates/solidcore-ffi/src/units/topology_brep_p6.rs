@@ -18,7 +18,7 @@ pub struct Request {
     pub indices: Vec<i64>,
     /// Repeat with the same topology/context once or twice.
     pub repeat: i32,
-    /// Real mark to hold locked across the operation, or zero.
+    /// Mask of candidate marks for one held lock (1..=31), or zero for no lock.
     pub lock_mask: i32,
     /// Operation flag bits, 0..=31.
     pub flags: i32,
@@ -56,7 +56,7 @@ pub fn eval(path: &str, input: &[f64], request: &Request) -> Result<Vec<f64>, Ff
     let invalid = || FfiError::InvalidArgument("brep_p6 request".into());
     if !(0..=2).contains(&request.op)
         || !(1..=2).contains(&request.repeat)
-        || ![0, 1, 2, 4, 8, 16].contains(&request.lock_mask)
+        || !(0..=31).contains(&request.lock_mask)
         || !(0..=31).contains(&request.flags)
         || u32::try_from(request.indices.len()).is_err()
         || (request.op != 1 && !request.indices.is_empty())
@@ -148,7 +148,7 @@ mod tests {
                 ..base.clone()
             },
             Request {
-                lock_mask: 31,
+                lock_mask: 32,
                 ..base.clone()
             },
             Request { flags: 32, ..base },
@@ -165,20 +165,25 @@ mod tests {
 
     #[test]
     fn accepts_longer_valid_copy_lists_and_duplicate_edges() {
-        let request = Request {
-            op: 1,
-            seed: 0,
-            indices: vec![0; 65],
-            repeat: 1,
-            lock_mask: 0,
-            flags: 2,
-        };
-        let result = eval("", &[3.0, 0.0, 0.0], &request).unwrap();
-        assert_eq!(result.first(), Some(&0.0));
-        assert_eq!(result.get(1), Some(&65.0));
-        assert_eq!(
-            result.get(result.len() - 3..),
-            Some([1.0, 0.0, 1.0].as_slice())
-        );
+        // Native SmNewMarkAndLock accepts OR-ed candidate bits as well as a
+        // single mark. All these masks select the first free mark here.
+        for lock_mask in [0, 3, 7, 31] {
+            let request = Request {
+                op: 1,
+                seed: 0,
+                indices: vec![0; 65],
+                repeat: 1,
+                lock_mask,
+                flags: 2,
+            };
+            let result = eval("", &[3.0, 0.0, 0.0], &request).unwrap();
+            assert_eq!(result.first(), Some(&0.0));
+            assert_eq!(result.get(1), Some(&65.0));
+            assert_eq!(result.get(3), Some(&f64::from(lock_mask != 0)));
+            assert_eq!(
+                result.get(result.len() - 3..),
+                Some([1.0, 0.0, 1.0].as_slice())
+            );
+        }
     }
 }
