@@ -35,6 +35,10 @@
 //! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
+//! `SmOwningTopology::Remove` / `PostInsert` of a face use are CO-PORTED on the
+//! typed face-use list (`move_faceuse`; unit `topology.proto_topology_p1` works on
+//! object-key records). `SmBrep::GetEdges` without a filter (unit `topology.brep_p1`)
+//! is the B-rep's edge arena in insertion order (`m_pEdgeListHead`).
 //! There is no recursion. Missing external callees return explicit `Unported` errors.
 
 use crate::error::{Result, SolidError};
@@ -1201,5 +1205,45 @@ mod tests {
         assert!(shell.get_faceuses().unwrap().is_empty());
         shell.set_shell_type(16022);
         assert_eq!(shell.get_faceuses().unwrap(), members);
+    }
+
+    #[test]
+    fn move_faceuse_removes_then_post_inserts_and_relinks_siblings() {
+        let mut brep = Brep::new();
+        let from = brep.add_shell_record(Shell::default()).unwrap();
+        let to = brep.add_shell_record(Shell::default()).unwrap();
+        let mut ids = Vec::new();
+        for shell in [from, from, to] {
+            ids.push(
+                brep.add_faceuse_record(Faceuse {
+                    shell: Some(shell),
+                    ..Faceuse::default()
+                })
+                .unwrap(),
+            );
+        }
+        let (a, b, c) = (ids[0], ids[1], ids[2]);
+        for (shell, list) in [(from, vec![a, b]), (to, vec![c])] {
+            let s = brep.shell_mut(shell).unwrap();
+            s.shell_type = ShellType::Faceuse;
+            s.members = ShellMembers::Faceuses(list);
+        }
+        // the head moves: the source list keeps its order, the recipient gains a tail
+        move_faceuse(&mut brep, a, to).unwrap();
+        assert_eq!(brep.shell(from).unwrap().get_faceuses().unwrap(), vec![b]);
+        assert_eq!(brep.shell(to).unwrap().get_faceuses().unwrap(), vec![c, a]);
+        assert_eq!(brep.faceuse(a).unwrap().shell, Some(to));
+        assert_eq!(faceuse_sibling_links(&brep, a).unwrap(), (Some(c), Some(c)));
+        assert_eq!(faceuse_sibling_links(&brep, b).unwrap(), (Some(b), Some(b)));
+        // the last member leaves a NULL head
+        move_faceuse(&mut brep, b, to).unwrap();
+        assert_eq!(brep.shell(from).unwrap().members, ShellMembers::Empty);
+        assert_eq!(
+            brep.shell(to).unwrap().get_faceuses().unwrap(),
+            vec![c, a, b]
+        );
+        // a face use missing from its shell's list is an inconsistent B-rep
+        brep.faceuse_mut(c).unwrap().shell = Some(from);
+        assert!(move_faceuse(&mut brep, c, to).is_err());
     }
 }
