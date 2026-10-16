@@ -414,8 +414,9 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         // Upstream SplitAtSeam, after a U merge that made new faces, recurses on `this`
         // with the classifications of each new face (not on that face), and
         // SmCurveClassification::MergeInterval then crashes (plan/upstream-issues.md).
-        // Skip (FP1_NOT_RUN) every call that can reach that branch: a seam problem in
-        // both directions on a face periodic in both. The Rust side defers these cases
+        // Skip (FP1_NOT_RUN) every call that can reach that branch: a SplitAtSeam asked
+        // to merge in both directions on a face periodic in either, and every MoveSeam
+        // with split that gets past its early return. The Rust side defers these cases
         // (MergeIntervals is unported).
         SmSurface* srf = f->GetSurface();
         SmExtent2d nat = srf->GetNaturalUVDomain();
@@ -429,7 +430,8 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             bool merge_u = has(c, SM_SP_U) || has(m, SM_SP_U);
             bool merge_v = has(c, SM_SP_V) || has(m, SM_SP_V);
             bool no_missing = si.props && (si.missing == SM_SP_NEITHER || si.missing == SM_SP_UNKNOWN);
-            if (!no_missing && per_u && per_v && merge_u && merge_v)
+            // (the U-then-V branch needs both merges and either direction periodic)
+            if (!no_missing && (per_u || per_v) && merge_u && merge_v)
             {
                 o.push_back(FP1_NOT_RUN);
                 break;
@@ -450,7 +452,9 @@ void fp1_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 };
                 quiet = q(cu) && q(cv);
             }
-            if (!quiet && per_u && per_v)
+            // (MoveSeam recomputes the seam problem before splitting, so any split it
+            // makes can reach the U-then-V branch)
+            if (!quiet)
             {
                 o.push_back(FP1_NOT_RUN);
                 break;

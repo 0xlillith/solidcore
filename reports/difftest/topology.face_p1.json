@@ -55,8 +55,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -91,8 +91,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "gen0008",
@@ -114,22 +114,24 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0010",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9751865495562476133",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0011",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9751865495562476134",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -537,8 +539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Mouse.smb_0_f2_op9",
@@ -1157,8 +1159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Mouse.smb_1_f1_op9",
@@ -1285,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Mouse.smb_1_f2_op9",
@@ -1657,8 +1659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Mouse.smb_1_f5_op9",
@@ -2025,8 +2027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Endcap.smb_0_f2_op9",
@@ -2637,8 +2639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Endcap.smb_1_f1_op9",
@@ -2761,8 +2763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Endcap.smb_1_f2_op9",
@@ -3125,8 +3127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "Endcap.smb_1_f5_op9",
@@ -3497,8 +3499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet.smb_0_f2_op9",
@@ -4117,8 +4119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet.smb_1_f1_op9",
@@ -4241,8 +4243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet.smb_1_f2_op9",
@@ -4609,8 +4611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet.smb_1_f5_op9",
@@ -4989,8 +4991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "cone.smb_0_f2_op9",
@@ -5621,8 +5623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "cone.smb_1_f1_op9",
@@ -5749,8 +5751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "cone.smb_1_f2_op9",
@@ -6125,8 +6127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "cone.smb_1_f5_op9",
@@ -6505,8 +6507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "disk.smb_0_f2_op9",
@@ -7137,8 +7139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "disk.smb_1_f1_op9",
@@ -7265,8 +7267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "disk.smb_1_f2_op9",
@@ -7641,8 +7643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "disk.smb_1_f5_op9",
@@ -8009,8 +8011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2.smb_0_f2_op9",
@@ -8621,8 +8623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2.smb_1_f1_op9",
@@ -8745,8 +8747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2.smb_1_f2_op9",
@@ -9109,8 +9111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2.smb_1_f5_op9",
@@ -9477,8 +9479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ.smb_0_f2_op9",
@@ -10089,8 +10091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ.smb_1_f1_op9",
@@ -10213,8 +10215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ.smb_1_f2_op9",
@@ -10577,8 +10579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ.smb_1_f5_op9",
@@ -10957,8 +10959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_square.smb_0_f2_op9",
@@ -11589,8 +11591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_square.smb_1_f1_op9",
@@ -11717,8 +11719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_square.smb_1_f2_op9",
@@ -12093,8 +12095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "plane_square.smb_1_f5_op9",
@@ -12461,8 +12463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "sphere.smb_0_f2_op9",
@@ -13073,8 +13075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "sphere.smb_1_f1_op9",
@@ -13197,8 +13199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "sphere.smb_1_f2_op9",
@@ -13561,8 +13563,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "sphere.smb_1_f5_op9",
@@ -13941,8 +13943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude.smb_0_f2_op9",
@@ -14573,8 +14575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude.smb_1_f1_op9",
@@ -14701,8 +14703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude.smb_1_f2_op9",
@@ -15077,8 +15079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude.smb_1_f5_op9",
@@ -15457,8 +15459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev.smb_0_f2_op9",
@@ -16089,8 +16091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev.smb_1_f1_op9",
@@ -16217,8 +16219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev.smb_1_f2_op9",
@@ -16593,8 +16595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev.smb_1_f5_op9",
@@ -16973,8 +16975,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150.smb_0_f2_op9",
@@ -17605,8 +17607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150.smb_1_f1_op9",
@@ -17733,8 +17735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150.smb_1_f2_op9",
@@ -18109,8 +18111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150.smb_1_f5_op9",
@@ -18489,8 +18491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "torus.smb_0_f2_op9",
@@ -19121,8 +19123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "torus.smb_1_f1_op9",
@@ -19249,8 +19251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "torus.smb_1_f2_op9",
@@ -19625,8 +19627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "torus.smb_1_f5_op9",
@@ -20005,8 +20007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy.smb_0_f2_op9",
@@ -20637,8 +20639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy.smb_1_f1_op9",
@@ -20765,8 +20767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy.smb_1_f2_op9",
@@ -21141,8 +21143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy.smb_1_f5_op9",
@@ -21521,8 +21523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev.smb_0_f2_op9",
@@ -22153,8 +22155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev.smb_1_f1_op9",
@@ -22281,8 +22283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev.smb_1_f2_op9",
@@ -22657,8 +22659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::MergeIntervals",
-        "unit": "intersect.curve_class_p5"
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev.smb_1_f5_op9",
@@ -25234,18 +25236,306 @@
       "pass": true,
       "source": "fixture:built-in: seam cases#2275 (upstream tests/prog_test (the pt_TestFiles B-reps))",
       "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c10_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2276 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c10_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2277 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c10_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2278 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c10_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2279 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c01_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2280 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c01_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2281 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c01_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2282 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m0_c01_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2283 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c10_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2284 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c10_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2285 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c10_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2286 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c10_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2287 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c01_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2288 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c01_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2289 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c01_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2290 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m1_c01_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2291 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c10_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2292 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c10_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2293 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c10_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2294 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c10_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2295 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c01_00",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2296 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c01_01",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2297 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c01_10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2298 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::SplitAtSeam",
+        "unit": "cpp-crash-guard:UB-134"
+      },
+      "max_rel_err": 0.0,
+      "name": "guard_vase_rev_m3_c01_11",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:built-in: review crash reproducers#2299 (upstream tests/prog_test (the pt_TestFiles B-reps))",
+      "values_compared": 0
     }
   ],
-  "cases_both_errored": 2,
-  "cases_deferred": 1756,
+  "cases_both_errored": 0,
+  "cases_deferred": 1781,
   "cases_failed": 0,
-  "cases_passed": 520,
-  "cases_total": 2276,
+  "cases_passed": 519,
+  "cases_total": 2300,
   "deferred_by_unit": {
-    "intersect.curve_class_p5": 16,
+    "cpp-crash-guard:UB-134": 86,
     "topology.edgeuse_p3": 288,
-    "topology.face_p3": 1099,
-    "topology.face_p4": 353
+    "topology.face_p3": 1100,
+    "topology.face_p4": 307
   },
   "max_rel_err": 0.0,
   "pass": true,

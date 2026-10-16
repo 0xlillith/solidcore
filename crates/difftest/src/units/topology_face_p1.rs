@@ -30,8 +30,10 @@
 //!
 //! **C++ crash guard.** Upstream `SplitAtSeam`'s U-then-V branch recurses on the wrong
 //! face and crashes (`plan/upstream-issues.md` UB-134). The shim skips (`-3`) every seam
-//! call that can reach it: seam problems in both directions on a face that is periodic
-//! in both, by the face properties' closed flags or by the surface itself. The Rust side
+//! call that can reach it: a `SplitAtSeam` merging in both directions on a face periodic
+//! in either (by the face properties' closed flags or by the surface itself), and every
+//! `MoveSeam` with split past its early return (it recomputes the seam problem before
+//! splitting). The Rust side defers all of these before anything is compared. The Rust side
 //! reports those cases as deferred to `cpp-crash-guard:UB-134`; they never become
 //! comparable.
 //!
@@ -563,7 +565,7 @@ fn seam_guard(
         let merge_u = has(problem.crossed, Sp::U) || has(problem.missing, Sp::U);
         let merge_v = has(problem.crossed, Sp::V) || has(problem.missing, Sp::V);
         let no_missing = props.is_some_and(|p| quiet_dir(p.missing));
-        return Ok(!no_missing && per_u && per_v && merge_u && merge_v);
+        return Ok(!no_missing && (per_u || per_v) && merge_u && merge_v);
     }
     if !split {
         return Ok(false);
@@ -578,7 +580,8 @@ fn seam_guard(
         };
         q(cu) && q(cv)
     };
-    Ok(!quiet && per_u && per_v)
+    let _ = (per_u, per_v);
+    Ok(!quiet)
 }
 
 /// The cases the shim keeps away from upstream's `SplitAtSeam` crash (UB-134): not a

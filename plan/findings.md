@@ -5549,9 +5549,11 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   (`vase_rev.smb` face 5, MoveSeam with split). The shim skips (`-3`) every seam call
   that can reach that branch (problems in both directions on a face periodic in both);
   the Rust side reports those cases as deferred to `cpp-crash-guard:UB-134` (they
-  never become comparable). The guard counts a direction as periodic when the face
-  properties say it is closed or the surface itself is periodic (the recursion follows
-  the real surface; PR #148 review).
+  never become comparable). The guard skips a `SplitAtSeam` merging in both directions on
+  a face periodic in either direction (by the face properties' closed flags or by the
+  surface itself; the recursion follows the real surface, PR #148 review) and every
+  `MoveSeam` with split past its early return (it recomputes the problem before
+  splitting); the Rust side defers all of these before comparing anything.
 - **Not compared.** The shim gives faces and edges plain B-spline copies of analytic
   geometry (what the Rust import rebuilds), so `MoveSeam`'s analytic branch
   (`CopyAndAddAnalytics` of the joined surface) and `SwapUV`'s conic UV trim curve
