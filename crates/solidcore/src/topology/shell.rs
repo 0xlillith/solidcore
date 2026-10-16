@@ -1,9 +1,9 @@
 //! Shell and region topology, with typed arena links and native traversal order.
 //!
 //! Upstream: `source/SMLib/inc/SmShell.h`, `source/SMLib/src/SmShell.cpp`,
-//! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`,
-//! and the minimum default-argument branches of `source/SMLib/src/SmEdge.cpp`
-//! and `source/SMLib/src/SmVertex.cpp` used by wire-edge traversal;
+//! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`.
+//! The `SmEdge`/`SmVertex` callees of wire-edge traversal are called through their
+//! owners' ports (`topology::edge`, `topology::vertex`), not re-ported here;
 //! `source/SMLib/inc/SmTopology.h` supplies literal sibling links and
 //! `source/SMLib/inc/SmObject.h` defines the checked `SM_CAST_PTR` semantics.
 //!
@@ -38,7 +38,15 @@
 //! `SmOwningTopology::Remove` / `PostInsert` of a face use are CO-PORTED on the
 //! typed face-use list (`move_faceuse`; unit `topology.proto_topology_p1` works on
 //! object-key records). `SmBrep::GetEdges` without a filter (unit `topology.brep_p1`)
-//! is the B-rep's edge arena in insertion order (`m_pEdgeListHead`).
+//! is CO-PORTED as `brep_get_edges`: the B-rep's edge arena in insertion order
+//! (`m_pEdgeListHead`).
+//! `TransferChildrenTo` ignores the status of `Remove`/`PostInsert` (`SE(...)`) and goes on;
+//! here a face use whose owner is not the source (or a `Remove` that cannot find it)
+//! returns `InvalidInput` instead. That state needs an inconsistent graph (a face use
+//! listed in a shell that its back link does not name); native code would corrupt
+//! the lists. Face-use sibling links, once `Some` (`Faceuse::sibling_links`), win
+//! over `Shell::members`: code that edits `members` directly (e.g. a later unit that
+//! rebuilds face-use lists) must keep them in step or reset them to `None`.
 //! There is no recursion. Missing external callees return explicit `Unported` errors.
 
 use crate::error::{Result, SolidError};
@@ -446,10 +454,9 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
         }
         return Ok(output);
     }
-    // The shared arena model represents SmBrep's edge list in insertion order.
     // GetBrep is required even when the edge list happens to be empty.
     let owner = shell_brep(brep, id)?.ok_or(invalid_members())?;
-    for (edge, _) in owner.edges().iter() {
+    for edge in brep_get_edges(owner) {
         if crate::topology::edge::is_wire(owner, edge)? {
             let primary = crate::topology::edgeuse::p1::primary_edgeuse(owner, edge)?
                 .ok_or(invalid_members())?;
@@ -459,6 +466,15 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
         }
     }
     Ok(output)
+}
+
+/// CO-PORT of `SmBrep::GetEdges` without a filter (unit `topology.brep_p1`): the
+/// B-rep's edges in `m_pEdgeListHead` order. The shared arena model keeps edges in
+/// that insertion order, so this equals the edge arena, provided the importer
+/// registered `GetEdges` first (every C++ fixture walk feeding this unit does).
+/// Replace with the owner's port when `topology.brep_p1` lands.
+pub(crate) fn brep_get_edges(brep: &Brep) -> Vec<EdgeId> {
+    brep.edges().ids().collect()
 }
 
 /// Move a shell's vertex, wire edges and face uses to another shell.

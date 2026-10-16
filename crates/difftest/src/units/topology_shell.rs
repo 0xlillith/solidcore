@@ -1,4 +1,6 @@
-//! WIP native shell/region query comparisons. Other owned operations are pending.
+//! Native shell/region operations on shared native B-rep fixtures: queries, wire edges,
+//! `TransferChildrenTo` (incl. face-use and wire shells in one B-rep), shell type members,
+//! `RayFire` (empty-shape branch only), degeneracy, region ordering and filtering.
 //! Native fixtures and raw graph imports reuse the edge-use fixture protocol.
 //! Setup failures fail the harness; topology and native integer flags compare exactly.
 
@@ -10,7 +12,7 @@ use solidcore::topology::shell::{shell_brep, shell_region, wire_edges};
 use solidcore::topology::{FaceuseId, Region, Shell, ShellId};
 use solidcore_ffi::units::{topology_edgeuse_p1 as graph, topology_shell as ffi};
 
-/// The shell/region unit runner (coverage is still under development).
+/// The shell/region unit runner.
 pub struct Runner;
 
 #[derive(Serialize, Deserialize)]
@@ -363,9 +365,15 @@ struct TransferInputs {
     source: usize,
     recipient: usize,
     candidates: Option<Vec<i64>>,
+    /// Transfers without a candidate list that run before the compared one
+    /// (`[source, recipient]`, each modulo the shell count), e.g. to give a face-use
+    /// shell wire edges. Their statuses end the output.
+    #[serde(default)]
+    pre: Vec<[usize; 2]>,
 }
 
 struct ResolvedTransfer {
+    pre: Vec<(usize, usize)>,
     split_faceuse: bool,
     require_faceuse_pair: bool,
     extra_empty: usize,
@@ -396,9 +404,10 @@ fn resolve_transfer(
     let candidates = if let Some(list) = &input.candidates {
         let mut resolved = Vec::new();
         for &entry in list {
-            resolved.push(if entry == -1 {
+            // `-1`, and any selector into a B-rep without edges, is a NULL entry.
+            resolved.push(if entry == -1 || (entry >= 0 && edges == 0) {
                 None
-            } else if entry < 0 || edges == 0 {
+            } else if entry < 0 {
                 return Err(failure("invalid wire candidate selector"));
             } else {
                 Some(usize::try_from(entry).map_err(failure)? % edges)
@@ -408,7 +417,15 @@ fn resolve_transfer(
     } else {
         None
     };
+    if input.pre.len() > 8 {
+        return Err(failure("too many preliminary transfers"));
+    }
     Ok(ResolvedTransfer {
+        pre: input
+            .pre
+            .iter()
+            .map(|&[from, to]| (from % shells, to % shells))
+            .collect(),
         split_faceuse: input.split_faceuse,
         require_faceuse_pair: input.require_faceuse_pair,
         extra_empty: input.extra_empty,
@@ -499,6 +516,63 @@ fn rust_transfer_records(
             ));
         }
     }
+    // The native shim rejects exactly the inputs that crash C++ (null dereferences in
+    // `GetWireEdges` and in the candidate filter); mirror its predicates so a rejected
+    // input compares as `rejected_input` on both sides.
+    let rejected = || Output::err("rejected_input");
+    let crashes_wire_edges = |brep: &solidcore::topology::Brep, id: ShellId| -> Result<bool, HarnessError> {
+        let shell = brep.shell(id).map_err(failure)?;
+        Ok(shell.is_wire_shell() && shell.wire_edge(brep).map_err(failure)?.is_none())
+    };
+    let mut pre_status = Vec::new();
+    for &(from, to) in &options.pre {
+        for id in brep.shells().ids().collect::<Vec<_>>() {
+            if crashes_wire_edges(brep, id)? {
+                return Ok(rejected());
+            }
+        }
+        let from = ShellId::from_index(u32::try_from(from).map_err(failure)?);
+        let to = ShellId::from_index(u32::try_from(to).map_err(failure)?);
+        pre_status.push(match transfer_children(brep, from, to, None) {
+            Ok(()) => 0,
+            Err(SolidError::Upstream { code, .. }) => i64::from(code),
+            Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+        });
+    }
+    {
+        let size = |shell: &Shell| match &shell.members {
+            ShellMembers::Empty => 0,
+            ShellMembers::Faceuses(ids) => ids.len(),
+            ShellMembers::Vertexuse(_) | ShellMembers::Edgeuse(_) => 1,
+        };
+        let (from, to) = (
+            brep.shell(source).map_err(failure)?,
+            brep.shell(recipient).map_err(failure)?,
+        );
+        let reads_candidates = !(size(to) == 0 && from.is_vertex_shell())
+            && !(size(to) != 0 && (to.is_vertex_shell() || from.is_vertex_shell()));
+        if let Some(list) = &candidates {
+            for entry in list {
+                let unreadable = match entry {
+                    None => true,
+                    Some(edge) => solidcore::topology::edgeuse::p1::primary_edgeuse(brep, *edge)
+                        .map_err(failure)?
+                        .is_none(),
+                };
+                if reads_candidates && unreadable {
+                    return Ok(rejected());
+                }
+            }
+        }
+        for id in brep.shells().ids().collect::<Vec<_>>() {
+            if id != source && id != recipient && crashes_wire_edges(brep, id)? {
+                return Ok(rejected());
+            }
+        }
+        if candidates.is_none() && reads_candidates && crashes_wire_edges(brep, source)? {
+            return Ok(rejected());
+        }
+    }
     let status = match transfer_children(brep, source, recipient, candidates.as_deref()) {
         Ok(()) => 0,
         Err(SolidError::Upstream { code, .. }) => i64::from(code),
@@ -579,6 +653,8 @@ fn rust_transfer_records(
         out.push(0);
         list(&mut out, wires.into_iter().map(EdgeId::index));
     }
+    out.push(pre_status.len() as i64);
+    out.extend(pre_status);
     Ok(Output::new().ints("records", out))
 }
 
@@ -691,7 +767,7 @@ impl UnitDiff for Runner {
             let counts = graph::counts(&export)
                 .ok_or_else(|| failure("native transfer fixture build failed"))?;
             let options = resolve_transfer(&transfer, counts)?;
-            ffi::transfer(
+            match ffi::transfer(
                 &path,
                 &block,
                 options.extra_empty,
@@ -699,7 +775,14 @@ impl UnitDiff for Runner {
                 options.recipient,
                 options.candidates.as_deref(),
                 options.split_faceuse,
-            )
+                &options.pre,
+            ) {
+                // The shim's guard: the input would crash native code.
+                Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
+                    return Ok(Output::err("rejected_input"));
+                }
+                other => other,
+            }
         } else if inputs.wires {
             ffi::wire_edges(&path, &block)
         } else {
@@ -900,20 +983,165 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
+        let (brep, kind) = generate_brep(rng)?;
         let scale = [1e-3, 1.0, 1e3].get(rng.below(3) as usize).copied()?;
-        let origin = rng.point3(-2.0, 2.0).map(|v| v * scale);
-        let normal = [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), 1.0];
-        let wires = rng.chance(0.5);
-        let void_state = if wires {
-            None
-        } else {
-            Some(rng.below(3) as i32)
-        };
-        Some(
-            json!({"brep": {"kind":"face", "surface":{"plane":{"o":origin,"n":normal}},
-            "dom":[-scale,-scale,scale,scale]}, "void_state":void_state, "wires":wires}),
-        )
+        let mut case = serde_json::Map::new();
+        match rng.below(12) {
+            0 | 1 => {
+                // Query: native void states, or the wire-edge listing.
+                if rng.chance(0.5) {
+                    case.insert("wires".into(), json!(true));
+                } else {
+                    case.insert("void_state".into(), json!(rng.below(3)));
+                }
+            }
+            2..=6 => {
+                // TransferChildrenTo: any shell pair (self included), any candidate
+                // list (null entries, duplicates, empty), optional preceding transfers.
+                let extra_empty = rng.below(4) as usize;
+                let split = kind == BrepKind::File && extra_empty >= 1 && rng.chance(0.2);
+                let candidates = match rng.below(5) {
+                    0 | 1 => Value::Null,
+                    2 => json!([]),
+                    _ => Value::Array(
+                        (0..=rng.below(5))
+                            .map(|_| {
+                                if rng.chance(0.25) {
+                                    json!(-1)
+                                } else {
+                                    json!(rng.below(12))
+                                }
+                            })
+                            .collect(),
+                    ),
+                };
+                let pre: Vec<Value> = if rng.chance(0.35) {
+                    (0..=rng.below(2))
+                        .map(|_| json!([rng.below(8), rng.below(8)]))
+                        .collect()
+                } else {
+                    Vec::new()
+                };
+                case.insert(
+                    "transfer".into(),
+                    json!({"extra_empty": extra_empty, "source": rng.below(8),
+                        "recipient": rng.below(8), "candidates": candidates,
+                        "split_faceuse": split, "pre": pre}),
+                );
+            }
+            7 | 8 => {
+                // Arbitrary SM_TYPE codes (including values beyond 2^53).
+                let code = match rng.below(4) {
+                    0 => rng.next_u64() as i64,
+                    1 => 16000 + rng.below(1100) as i64,
+                    2 => [0_i64, -1, 1, i64::MAX, i64::MIN]
+                        .get(rng.below(5) as usize)
+                        .copied()?,
+                    _ => [16004_i64, 16005, 16006, 16013, 16022, 16999]
+                        .get(rng.below(6) as usize)
+                        .copied()?,
+                };
+                let shell = if rng.chance(0.4) { Value::Null } else { json!(rng.below(6)) };
+                case.insert("type_probe".into(), json!({"code": code, "shell": shell}));
+            }
+            9 => {
+                let direction = if rng.chance(0.1) {
+                    [0.0; 3]
+                } else {
+                    [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)]
+                };
+                let tolerance = [1e-9, 1e-7, 1e-3, 1.0].get(rng.below(4) as usize).copied()?;
+                let radius = if rng.chance(0.4) {
+                    Value::Null
+                } else {
+                    json!([1e-3, 1.0, 1e3, 1e6].get(rng.below(4) as usize).copied()?)
+                };
+                case.insert(
+                    "ray".into(),
+                    json!({"start": rng.point3(-2.0, 2.0).map(|v| v * scale),
+                        "direction": direction, "tolerance": tolerance, "radius": radius}),
+                );
+            }
+            10 => {
+                let tolerance = match rng.below(4) {
+                    0 => Value::Null,
+                    1 => json!(["nan", "inf", "-inf"].get(rng.below(3) as usize).copied()?),
+                    _ => json!([0.0, 1e-12, 1e-7, 1e-3, 1.0, 1e3, -1.0]
+                        .get(rng.below(7) as usize)
+                        .copied()?),
+                };
+                case.insert("degenerate".into(), json!({"tolerance": tolerance}));
+            }
+            _ => {
+                if rng.chance(0.5) {
+                    case.insert(
+                        "region_order".into(),
+                        json!({"prefix_empty": rng.below(9), "gather_faces": rng.chance(0.5)}),
+                    );
+                } else {
+                    case.insert(
+                        "region_filter".into(),
+                        json!({"attribute_id": rng.below(1 << 20), "enabled": rng.chance(0.5),
+                            "pattern": rng.below(3)}),
+                    );
+                }
+            }
+        }
+        case.insert("brep".into(), brep);
+        Some(Value::Object(case))
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum BrepKind {
+    File,
+    Other,
+}
+
+/// A random fixture: vertex shells, a plane face, the wire network, an upstream
+/// `.smb`, or a face and wire networks in one B-rep (face-use and wire shells together).
+fn generate_brep(rng: &mut Rng) -> Option<(Value, BrepKind)> {
+    let scale = [1e-3, 1.0, 1e3].get(rng.below(3) as usize).copied()?;
+    let plane = |rng: &mut Rng| {
+        let normal = [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), 1.0];
+        json!({"surface": {"plane": {"o": rng.point3(-2.0, 2.0).map(|v| v * scale), "n": normal}},
+            "dom": [-scale, -scale, scale, scale]})
+    };
+    Some(match rng.below(10) {
+        0 | 1 => {
+            let mut points: Vec<[f64; 3]> = (0..rng.below(5))
+                .map(|_| rng.point3(-2.0, 2.0).map(|v| v * scale))
+                .collect();
+            if let (true, Some(&first)) = (rng.chance(0.3), points.first()) {
+                // A near-coincident pair at the tolerance limit.
+                points.push(first.map(|v| v + 1e-7 * scale));
+            }
+            (json!({"kind": "vertices", "points": points}), BrepKind::Other)
+        }
+        2 | 3 => {
+            let mut face = plane(rng);
+            if let Some(map) = face.as_object_mut() {
+                map.insert("kind".into(), json!("face"));
+            }
+            (face, BrepKind::Other)
+        }
+        4 => (json!({"kind": "network"}), BrepKind::Other),
+        5 => {
+            let file = ["Mouse.smb", "Endcap.smb", "box_with_large_fillet.smb"]
+                .get(rng.below(3) as usize)
+                .copied()?;
+            (json!({"kind": "file", "file": file}), BrepKind::File)
+        }
+        _ => {
+            let face = rng.chance(0.7);
+            let networks = if face { rng.below(3) } else { 1 + rng.below(3) };
+            let mut brep = json!({"kind": "mixed", "networks": networks});
+            if let (true, Some(map)) = (face, brep.as_object_mut()) {
+                map.insert("face".into(), plane(rng));
+            }
+            (brep, BrepKind::Other)
+        }
+    })
 }
 
 fn text(output: &mut Vec<i64>, value: &str) {

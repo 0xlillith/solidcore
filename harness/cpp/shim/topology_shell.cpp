@@ -230,10 +230,12 @@ void snapshot(std::vector<double>& out, const sc_topology_fixture::View& view,
 SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* input,
     int64_t count, int32_t extra_empty, int64_t source, int64_t recipient,
     int32_t has_candidates, const int64_t* candidates, int64_t candidate_count,
-    int32_t split_faceuse, double* output, int64_t cap, int64_t* output_len) {
+    int32_t split_faceuse, const int64_t* pre, int64_t pre_count,
+    double* output, int64_t cap, int64_t* output_len) {
     if (!output_len || cap<0 || (cap && !output) || extra_empty<0 || extra_empty>64
         || source<0 || recipient<0 || (has_candidates!=0 && has_candidates!=1)
         || candidate_count<0 || candidate_count>64 || (candidate_count && !candidates)
+        || pre_count<0 || pre_count>8 || (pre_count && !pre)
         || (!has_candidates && candidate_count) || (split_faceuse!=0 && split_faceuse!=1)) return SC_ERR_ARG;
     SC_TRY
     return sc_topology_fixture::apply(path,input,count,
@@ -262,10 +264,36 @@ SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* inp
                 if (extra->PostInsert(head)!=SM_SUCCESS) return SC_ERR_ARG;
             }
             if (source>=(int64_t)shells.size() || recipient>=(int64_t)shells.size()) return SC_ERR_ARG;
+            // GetWireEdges (reached when no candidate list is given, and by the final
+            // per-shell snapshot) dereferences the first wire edge of a wire shell;
+            // SmShell::GetWireEdge() is NULL for a wire shell without list head.
+            const auto crashes_wire_edges=[](SmShell* shell) {
+                return shell->IsWireShell() && !shell->GetWireEdge();
+            };
+            // Candidate edges are dereferenced (GetPrimaryEdgeuse()->m_pSorLU) only on
+            // the branches that reach the ownership filter.
+            const auto reads_candidates_of=[](SmShell* from,SmShell* to) {
+                return !(to->GetSize()==0 && from->IsVertexShell())
+                    && !(to->GetSize()!=0 && (to->IsVertexShell() || from->IsVertexShell()));
+            };
+            // Steps run before the compared one (no candidate list): their statuses
+            // lead the snapshot. State is restored for deletion after the whole run.
+            transfer_detail::Restore restore(view,shells);
+            std::vector<double> pre_status;
+            for (int64_t i=0;i<pre_count;++i) {
+                if (pre[2*i]<0 || pre[2*i+1]<0 || pre[2*i]>=(int64_t)shells.size()
+                    || pre[2*i+1]>=(int64_t)shells.size()) return SC_ERR_ARG;
+                SmShell* a=shells[(size_t)pre[2*i]];
+                SmShell* b=shells[(size_t)pre[2*i+1]];
+                // Conservative: no native fixture reaches such a shell (see above).
+                for (SmShell* other : shells)
+                    if (crashes_wire_edges(other)) return SC_ERR_ARG;
+                const SmStatus st=a->TransferChildrenTo(b,nullptr);
+                pre_status.push_back(st==SM_SUCCESS ? 0.0 : (double)st);
+            }
             SmShell* from=shells[(size_t)source];
             SmShell* to=shells[(size_t)recipient];
-            const bool reads_candidates=!(to->GetSize()==0 && from->IsVertexShell())
-                && !(to->GetSize()!=0 && (to->IsVertexShell() || from->IsVertexShell()));
+            const bool reads_candidates=reads_candidates_of(from,to);
             SmTArray<SmEdge*> wires;
             for (int64_t i=0;i<candidate_count;++i) {
                 const auto index=candidates[i];
@@ -274,9 +302,13 @@ SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* inp
                 if (reads_candidates && (!edge || !edge->GetPrimaryEdgeuse())) return SC_ERR_ARG;
                 wires.Add(edge);
             }
+            // The post-transfer snapshot calls GetWireEdges on every shell: `from` ends
+            // Unknown; a shell other than from/to is unchanged.
+            for (SmShell* other : shells)
+                if (other!=from && other!=to && crashes_wire_edges(other)) return SC_ERR_ARG;
+            if (!has_candidates && reads_candidates && crashes_wire_edges(from)) return SC_ERR_ARG;
             // Snapshot the result before restoring canonical links for deletion.
             // Self-transfer is compared, including its detached face-use cycle.
-            transfer_detail::Restore restore(view,shells);
             const auto status=from->TransferChildrenTo(to,has_candidates ? &wires : nullptr);
             std::vector<double> out{status==SM_SUCCESS ? 0.0 : (double)status};
             transfer_detail::snapshot(out,view,shells);
@@ -288,6 +320,8 @@ SC_EXPORT int32_t sc_topology_shell_transfer(const char* path, const double* inp
                 out.push_back(query_status==SM_SUCCESS ? 0.0 : (double)query_status);
                 list(out,after,view.edges);
             }
+            out.push_back((double)pre_status.size());
+            out.insert(out.end(),pre_status.begin(),pre_status.end());
             return sc_copy_out(out.data(),(int64_t)out.size(),output,cap,output_len);
         });
     SC_CATCH

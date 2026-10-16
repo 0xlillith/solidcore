@@ -616,6 +616,10 @@ fn region_is_void(
     region: ObjectKey,
     regions: Option<&dyn topology::shell::RegionLookup>,
 ) -> Result<bool> {
+    // REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler reached
+    // without a caller-supplied context fails here instead of inferring region state;
+    // justified: plan/findings.md "borrowed region context for attribute backedges".
+    // The owner of issue #86 replaces this with the real lookup (grep REGION-LOOKUP).
     let lookup = regions.ok_or_else(|| {
         SolidError::invalid_input(
             "geom::a_object::region_lookup",

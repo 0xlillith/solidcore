@@ -429,6 +429,12 @@ void walk(SmBrep* brep, Graph& g)
     brep->GetRegions(regs);
     for (ULONG i = 0; i < regs.GetSize(); i++)
         g.region(regs[i]);
+    // SmBrep::GetEdges order is observable (SmShell::GetWireEdges, shell wire ownership), and a
+    // wire owned by a face shell may be unreachable from faces/vertex lists: register it first.
+    SmTArray<SmEdge*> all_edges;
+    brep->GetEdges(all_edges);
+    for (ULONG i = 0; i < all_edges.GetSize(); ++i)
+        g.edge(all_edges[i]);
     size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0, v = 0;
     bool more = true;
     while (more)

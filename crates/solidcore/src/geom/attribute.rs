@@ -1501,6 +1501,10 @@ fn resolve_region(
     region: ObjectKey,
     regions: Option<&dyn crate::topology::shell::RegionLookup>,
 ) -> Result<crate::topology::shell::RegionRef<'_>> {
+    // REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler reached
+    // without a caller-supplied context fails here instead of inferring region state;
+    // justified: plan/findings.md "borrowed region context for attribute backedges".
+    // The owner of issue #86 replaces this with the real lookup (grep REGION-LOOKUP).
     regions
         .ok_or_else(|| {
             SolidError::invalid_input(

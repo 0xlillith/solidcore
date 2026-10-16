@@ -668,6 +668,23 @@ SmBrep* build(Rd& rd, const char* path, SmStatus& status)
             }
         }
     }
+    else if (kind == 5)
+    {
+        // `5 has_face [surface u0 v0 u1 v1] networks`: an optional face and `networks`
+        // copies of the wire network, all in one B-rep (native constructors only), so
+        // that face-use shells and wire shells coexist for TransferChildrenTo.
+        const bool has_face = rd.flag();
+        if (has_face)
+        {
+            SmSurface* s = read_surface(rd, ctx);
+            SmPoint2d a = rd.uv(), b = rd.uv();
+            SmFace* pFace = nullptr;
+            status = brep->CreateFaceFromSurface(s, SmExtent2d(a, b), pFace);
+        }
+        const int64_t networks = rd.idx();
+        for (int64_t i = 0; i < networks && status == SM_SUCCESS; ++i)
+            status = build_wire_network(ctx, brep);
+    }
     else
     {
         status = build_wire_network(ctx, brep);
