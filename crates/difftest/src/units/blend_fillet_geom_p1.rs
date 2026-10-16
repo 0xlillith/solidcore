@@ -1717,7 +1717,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         }
         Inputs::SurfaceDropPoint { surface, pnt, tol } => {
             let s = surface_of(surface)?;
-            match try_status!(fg::surface_drop_point::<NoObject>(&k, &s, pt(*pnt), *tol)) {
+            match try_status!(fg::surface_drop_point::<NoObject>(&k, &s, Some(NoObject), pt(*pnt), *tol)) {
                 Ok(sols) => {
                     o.extend([0.0, sols.len() as f64]);
                     for n in 0..sols.len() {
@@ -2845,16 +2845,21 @@ mod tests {
                 let _ = tx.send(ffi::eval(op, &program).map(|_| ()));
             });
             match rx.recv_timeout(std::time::Duration::from_secs(30)) {
-                Ok(Ok(())) | Ok(Err(solidcore_ffi::FfiError::Status(_))) => accepted += 1,
+                Ok(Ok(()) | Err(solidcore_ffi::FfiError::Status(_))) => accepted += 1,
                 Ok(Err(_)) => rejected += 1,
-                Err(_) => panic!(
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => panic!(
                     "fuzz_guards: call {calls} (op {}) hung for 30 s; input = {}",
+                    op as i32,
+                    serde_json::to_string(&input).unwrap()
+                ),
+                Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => panic!(
+                    "fuzz_guards: call {calls} (op {}) died; input = {}",
                     op as i32,
                     serde_json::to_string(&input).unwrap()
                 ),
             }
             calls += 1;
-            if calls % 5000 == 0 {
+            if calls.is_multiple_of(5000) {
                 eprintln!("fuzz_guards: {calls} calls ({accepted} ran, {rejected} rejected)");
             }
         }

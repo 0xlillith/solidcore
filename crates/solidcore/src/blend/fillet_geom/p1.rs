@@ -128,8 +128,7 @@
 //!   geometry only: the plane and surface-of-revolution arms of [`evaluate_mate`]'s cast
 //!   and any analytic-kind path inside the surface callees are never compared.
 //! - **Unported callees.** `SmSurface::PointBasedSurfaceIntersect` defers in
-//!   `intersect.surface_intersector_p4`; `SmSurface::GlobalCurveIntersect`
-//!   (`surface.surface_p8`); `SmFace::CalculateUVDomainFromUVTrimCurves`
+//!   `intersect.surface_intersector_p4`; `SmFace::CalculateUVDomainFromUVTrimCurves`
 //!   (`topology.face_p1`) and `SmFace::Point3DClassify` (`query.face_p1`) in
 //!   `sm_ClassifyFacePoint`; `SmFilletSolver::FindIndexOfRailOnFace`
 //!   (`blend.fillet_solver_p1`) and `SmFilletSolver::RailRailIntersect`
@@ -1564,11 +1563,10 @@ impl FilletBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmSurface::GlobalCurveIntersect`
-    /// (`surface.surface_p8`); [`SolidError::InvalidInput`] when the classification
-    /// object is not an edge use (upstream casts blindly); [`SolidError::Upstream`]
-    /// (`SM_ERR_NULL_POINTER`) for an edge without a curve; `SM_ERR` when no
-    /// intersection is found.
+    /// [`SolidError::InvalidInput`] when the classification object is not an edge use
+    /// (upstream casts blindly); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) for
+    /// an edge without a curve; `SM_ERR` when no intersection is found; those of
+    /// [`Surface::global_curve_intersect`].
     pub fn calc_cliff_rail_int_edge(
         &mut self,
         k: &Kernel,
@@ -2098,20 +2096,24 @@ fn ignore_non_unported<T>(r: Result<T>) -> Result<()> {
     }
 }
 
-/// `SmSurface::GlobalCurveIntersect` (unit `surface.surface_p8`).
+/// `SmSurface::GlobalCurveIntersect` without solution handles (upstream's solutions
+/// point at the surface and the curve; only their parameters are read here).
 fn global_curve_intersect(
-    _k: &Kernel,
-    _surface: &Surface,
-    _uv_domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _approx_tol_3d: f64,
+    k: &Kernel,
+    surface: &Surface,
+    uv_domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    approx_tol_3d: f64,
 ) -> Result<SolutionArray<NoObject>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
+    surface.global_curve_intersect(
+        k,
+        [NoObject, NoObject],
+        uv_domain,
+        curve,
+        interval,
+        approx_tol_3d,
+    )
 }
 
 // ---- static helpers ---------------------------------------------------------------------
@@ -2161,9 +2163,12 @@ pub fn evaluate_mate(brep: &Brep, face: FaceId, uv: Point2) -> Result<Point3> {
 ///
 /// [`SolidError::Upstream`] (`SM_ERR`) when no tolerance finds a solution; those of the
 /// point solve.
+///
+/// `handle` names `surface` in the solutions (upstream's solutions point at it).
 pub fn surface_drop_point<O: SolutionObject>(
     k: &Kernel,
     surface: &Surface,
+    handle: Option<O>,
     pnt: Point3,
     approx_tol: f64,
 ) -> Result<SolutionArray<O>> {
@@ -2175,6 +2180,7 @@ pub fn surface_drop_point<O: SolutionObject>(
         // intersect the point with the surface
         let solutions = surface.global_point_solve::<O>(
             k,
+            handle,
             &domain,
             SolverOperation::Intersect,
             pnt,
@@ -2234,6 +2240,7 @@ pub fn two_pnts_intersection(
     let solutions = drop_or_bad(surface_drop_point::<NoObject>(
         k,
         surf1,
+        Some(NoObject),
         start_pnt,
         dropping_tol,
     ))?;
@@ -2255,6 +2262,7 @@ pub fn two_pnts_intersection(
     let solutions = drop_or_bad(surface_drop_point::<NoObject>(
         k,
         surf2,
+        Some(NoObject),
         start_pnt,
         dropping_tol,
     ))?;
@@ -2278,7 +2286,8 @@ pub fn two_pnts_intersection(
     // when given a stop point - drop it onto the surfaces
     if let Some(end_pnt) = opt_end_pnt {
         // Drop end point onto surf1 - watch for closed surfaces
-        let solutions = surface_drop_point::<NoObject>(k, surf1, end_pnt, dropping_tol)?;
+        let solutions =
+            surface_drop_point::<NoObject>(k, surf1, Some(NoObject), end_pnt, dropping_tol)?;
         let mut index12 = 0;
         if solutions.len() == 2 {
             // Closed surface
@@ -2294,7 +2303,8 @@ pub fn two_pnts_intersection(
         let uv12 = solution_uv(&solutions, index12);
 
         // Drop end point onto surf2 - watch for closed surfaces
-        let solutions = surface_drop_point::<NoObject>(k, surf2, end_pnt, dropping_tol)?;
+        let solutions =
+            surface_drop_point::<NoObject>(k, surf2, Some(NoObject), end_pnt, dropping_tol)?;
         let mut index22 = 0;
         if solutions.len() == 2 {
             // Closed surface
@@ -2313,7 +2323,15 @@ pub fn two_pnts_intersection(
         surface2_points.push(uv22);
     }
 
-    *direction = direction.unitize()?;
+    // SER(pDirection->Unitize()): a zero direction is stored as (0,0,1) before the
+    // error is returned
+    *direction = match direction.unitize() {
+        Ok(unit) => unit,
+        Err(e) => {
+            *direction = Vec3::Z;
+            return Err(e);
+        }
+    };
 
     surf1.point_based_surface_intersect(
         &domain1,
@@ -2383,6 +2401,7 @@ pub fn find_stepoff_uv(
         // Make the surface think that it is a standalone surface.
         let solutions = surface.global_point_solve::<NoObject>(
             k,
+            Some(NoObject),
             &face2::uv_domain(brep, face)?,
             SolverOperation::Minimize,
             step.point,

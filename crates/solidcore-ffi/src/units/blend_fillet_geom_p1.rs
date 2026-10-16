@@ -188,6 +188,18 @@ impl Reader<'_> {
         Ok(v)
     }
 
+    /// Exactly `marker` (`NL_NOZ` / `NL_NOW`), or a finite bounded value.
+    fn marker_or_finite(&mut self, marker: f64) -> Result<f64, FfiError> {
+        let v = self.num()?;
+        if v == marker {
+            return Ok(v);
+        }
+        if !v.is_finite() || v.abs() > MAX_MAGNITUDE {
+            return Err(bad("non-finite or oversized value"));
+        }
+        Ok(v)
+    }
+
     fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
         (0..k).map(|_| self.finite()).collect()
     }
@@ -279,7 +291,14 @@ fn check_points(pts: &[[f64; 4]], dim: usize, what: &str) -> Result<(), FfiError
 
 fn points(rd: &mut Reader<'_>, k: usize) -> Result<Vec<[f64; 4]>, FfiError> {
     (0..k)
-        .map(|_| Ok([rd.finite()?, rd.finite()?, rd.finite()?, rd.finite()?]))
+        .map(|_| {
+            Ok([
+                rd.finite()?,
+                rd.finite()?,
+                rd.marker_or_finite(NOZ)?,
+                rd.marker_or_finite(NOW)?,
+            ])
+        })
         .collect()
 }
 

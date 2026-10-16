@@ -1408,6 +1408,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Same loop (the Rust run of the same script did not finish either; the loop belongs to the curve point-solve units). The shim refuses a zero-length `Reparameterize` domain.
 
+#### HANG-16. `SmCurve::GlobalCoincidenceChecker` splits a face boundary forever when a surface control point is huge
+- **Location:** `SmCurve.cpp:19950` `SmCurve::GlobalCoincidenceChecker` (closed / half-closed split into thirds; the only recursion guard is the parameter length against `SM_ZONE_TOL_3D/10`), reached from `sm_ClassifyFacePoint` through `SmFace::CalculateUVDomainFromUVTrimCurves` -> `SmEdgeuse::CreateUVTrimCurve` -> `SmSurface::DropAndTrimCurve` -> `SmSurfaceDropCurve::FindBoundaryStartPoints` -> `SmCurve::GlobalCurveIntersect`.
+- **What happens:** With a control point of magnitude `1e154` or more, squared distances overflow to infinity, so the closedness / polar-box tests keep asking for a split and every third is split again; the parameter-length guard is never reached before the call takes effectively forever (an hour on one core without returning).
+- **Trigger:** `sm_ClassifyFacePoint` on a face built from a 3 x 4 cubic-by-quadratic B-spline surface whose sixth control point has `z = 1e300` (any coordinate `>= 1e154`; `1e153` returns in 90 ms).
+- **How found:** `fuzz_guards` sweep of the `blend.fillet_geom_p1` FFI guards (PR #147), located with gdb.
+- **Confirmed:** yes (gdb backtrace 25 frames deep in `GlobalCoincidenceChecker`; never returned).
+- **Severity:** hang.
+- **Rust port:** The FFI wrapper rejects any value above `1e150` (`MAX_MAGNITUDE`). The Rust `classify_face_point` still defers on `topology.face_p1`.
+
 #### HANG-15. Tiny surfaces build a surface cache of millions of nodes
 - **Location:** `SmSurfaceCache.cpp:4495` `SmSurfaceCache::SubdivideToTolerances` (stops only at `m_dMinimumSideLengthRatioUV`, `:3932`-`:3949`), through `smsurf_GetSurfaceCache` from `SmSurface::GlobalLineIntersect` / `GlobalCurveIntersect`.
 - **What happens:** The cache tolerances are absolute. A noisy cubic B-spline surface about `5e-4` across fails the angle test down to the minimum side ratio in both directions, so every patch splits to about `2^20` leaves.
