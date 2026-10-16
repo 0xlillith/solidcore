@@ -5458,3 +5458,61 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## offset.offset_geometry_creation (`SmOffsetGeometryCreation.cpp`, PR #156, 2026-10-16; partial, no disagreements)
+
+**Shape of the port.** `SmOffsetGeometryCreation` / `SmLocalOperationGeometryCreation`
+are generic over caller handles (`O: ClassObject + SolutionObject`), as the proto
+topology and the topology intersector: the two B-reps are reached through the
+`OffsetBrep<O>` trait (each method names the ported topology function it stands for)
+and the executive's stored data (`GetInset`, `GetExtendConvexEdges`,
+`GetTangencyTolDegrees`, `GetShellFaces`, `GetOffsetEdgeuse`) through
+`OffsetExecutive<O>`, a co-port of the accessor surface of `offset.offset_executive_p1`
+(no open PR owns that unit; logged in the swarm COORD file). `SmSSIData` (no owning
+unit) is `SsiData<O>`. The curves and surfaces the unit makes go to the owner's stores.
+
+**Difftest.** The shim builds the original and the "offset" B-rep from real `.smb`
+files (or a wire edge / single face / the `prog_test` network), makes a real
+`SmOffsetExecutive` whose `m_vEUToEU` relation is filled with the given edge-use pairs
+through pointer-to-member access (`MapEdgeuses` belongs to `offset.offset_executive_p1`),
+and runs scripts that first shape the fixture (store curves, `SmEdge::SetCurve` of an
+offset edge with a copy of a store curve, `SetUVTrimCurve`, marks) and then call the
+unit's functions. Crafted rails (three circles in one plane, parallel lines, rails
+closer than ten tolerances, mismatched intervals) reach the torus, self-intersecting
+torus, cylinder, "raise the tolerances" and "non-synchronised" branches of
+`EdgeuseOffset`; three rational arcs through an offset corner reach the sphere of
+`VertexOffset`.
+
+**Guards.** The topology-walking functions dereference edge, curve, vertex use, mate,
+CW/CCW neighbour, face use, face and surface pointers without checking, so the shim
+refuses them (`-2`) unless every edge use of both B-reps is a loop edge use with all of
+those (wire, single-face and network B-reps therefore only exercise the refusal; the
+runner mirrors the predicate on the imported B-reps). `ReplaceEdgeCurves` with a 3D
+curve and a null UV curve dereferences the UV curve only when the curves run opposite:
+the shim replicates the shape test (end-point matches, then the tangent dot product)
+and refuses only then. These refusals are C++ crash guards, not `UNPORTED` deferrals.
+
+**Deferred (Rust `Unported`, never compared).** `SmSurface::CreateOffsetSurface`
+(`surface.offset_surface`, PR #62: `FaceuseOffset` of the base class, the
+offset-surface rails of `EdgeuseOffset` without an offset edge use);
+`SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`, `UpdateFaceSurfaceDomain`);
+`SmOffsetExecutive::GetCreateExtendedSurface` (`offset.offset_executive_p1`:
+`ExtendTrimEdges`, `MateEdges` with non-null edge uses, the extended-surface candidates of
+`TrimExtendedEdge`); `SmEdgeuse::NormalizedEvaluate` and `CreateUVTrimCurve`
+(`topology.edgeuse_p3`, PR #117: `HaveTangentGaps`, the vertex moves after a new 3D curve
+in `ReplaceEdgeCurves`, the UV-curve candidates of a tangent neighbour without a UV trim
+curve); `SmBrep::MateLaminaEdgeToSurface` (`topology.brep_p2`, the inset-on-shell-face
+branch of `EdgeuseOffset`); `SmCircularCrossSectionFSG` (`blend.fillet_standard_solver_p1`,
+the general cap of `EdgeuseOffset`). `SmSurface::GlobalCurveIntersect`
+(`surface.surface_p8`) is only reached after the extended surface, so it never
+deferred a case on its own.
+
+**Not compared by construction.** The script's store curves are plain
+`SmBSplineCurve`s, so a line or conic registered as a 3D or UV curve is never
+compared (the port slices such a curve to its B-spline part exactly as the
+`new SmBSplineCurve(*p)` copies upstream do; the edge curves of the file B-reps, which
+include `SmLine`s, are compared). `SmOffsetSurface` never appears (no surface kind is an
+offset surface until `surface.offset_surface` lands), so the `SetAllowExtension(FALSE)`
+branch of both `FaceuseOffset`s is dead in the port.
+
+**Results.** TBD_RESULTS

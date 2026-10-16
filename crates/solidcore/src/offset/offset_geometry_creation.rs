@@ -455,8 +455,14 @@ fn b_spline_of<O: ClassObject>(
     let c = geometry
         .curve(h)
         .ok_or(dangling("curve handle cannot be resolved"))?;
+    // the cast succeeds for every SmBSplineCurve subclass; what the callers copy or use
+    // is the B-spline part (a line or conic is sliced to a plain B-spline curve)
     Ok(match c.kind() {
         CurveKind::BSpline(b) => Some(b.clone()),
+        CurveKind::Line(l) => Some(l.base.clone()),
+        CurveKind::Ellipse(e) => Some(e.base().clone()),
+        CurveKind::Hyperbola(h) => Some(h.base().clone()),
+        CurveKind::Parabola(p) => Some(p.base().clone()),
         _ => None,
     })
 }
@@ -1127,9 +1133,7 @@ impl OffsetGeometryCreation {
         let edge = brep
             .edgeuse_edge(edgeuse)?
             .ok_or(dangling("edge use without edge"))?;
-        let eu_curve = brep
-            .edge_curve(edge)?
-            .ok_or(dangling("edge without curve"))?;
+        let eu_curve = brep.edge_curve(edge)?; // dereferenced only with a 3D curve
 
         let mut out = ReplaceEdgeCurves {
             delete_3d_curve: false,
@@ -1139,6 +1143,7 @@ impl OffsetGeometryCreation {
         // when given a 3dCurve with a new shape - Update pEdge->Curve = rp3DCurve
         if let Some(c3) = curve_3d {
             // SM_ASSERT_MSG(rp3DCurve != pEUCurve) only reports
+            let eu_curve = eu_curve.ok_or(dangling("edge without curve"))?;
             let edge_ivl = brep.edge_interval(edge)?;
             let edge_tol = brep.edge_tolerance(edge)?;
 
