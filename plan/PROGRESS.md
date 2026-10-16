@@ -62,7 +62,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 ## In progress
 
-- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (draft)
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (ready for review)
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
 - [ ] 🔨 `surface.surface_p8` (2374 lines) — in progress: #118 @froglemonade2 (ready for review)
@@ -225,7 +225,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `surface.surface_cache_p2` (1245 lines) — partial, 905 cases
 - [x] ✅ `surface.torus` (1180 lines) — green, 563 cases
 - [ ] 🟡 `surface.unbend_volume` (920 lines) — partial, 1874 cases
-- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (draft)
+- [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (ready for review)
 - [ ] 🟡 `surface.surf_of_revolution_p2` (1369 lines) — partial, 1167 cases
 - [ ] 🟡 `surface.surface_cache_p3` (1703 lines) — partial, 600 cases
 - [ ] 🟡 `surface.volume_p2` (1490 lines) — partial, 11220 cases
@@ -346,7 +346,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### heal (3/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
-- [ ] 🟡 `heal.face_props` (1410 lines) — partial, 1508 cases
+- [ ] 🟡 `heal.face_props` (1410 lines) — partial, 1528 cases
 - [ ] 🟡 `heal.heal_data_p2` (2160 lines) — partial, 738 cases
 - [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
