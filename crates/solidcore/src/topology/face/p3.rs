@@ -39,7 +39,7 @@
 //!   natural domain before clearing the surface owner, as upstream.
 //! - **`ComputeLoopOrientation`** walks with a copy of the face surface; its last-to-first
 //!   span reads `sVeryFirstUV`, which upstream leaves uninitialised when no sample point
-//!   dropped with a guess (UB-130); the port returns
+//!   dropped with a guess (UB-158); the port returns
 //!   [`SolidError::InvalidInput`] there.
 //! - **`CreateUVTrimCurves`** takes the optional UV curves and their orientations as one
 //!   argument (upstream requires both or neither). The surface owner is cleared and
@@ -53,7 +53,7 @@
 //!   `IsDegenerate` name the curves by a handle carrying their natural interval; the
 //!   objects are then switched to the edges, as upstream. All returned curves are owned
 //!   (upstream hands out deleted ones through `pOptCC3DCrvs` without classification
-//!   arrays, UB-131).
+//!   arrays, UB-159).
 //! - **`Notify`** takes the face surface's trimmed surface cache (if any) for
 //!   `SM_NO_PRE_EDIT` (`SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, ..)` has no counterpart:
 //!   B-rep surfaces carry no object cache) and the notification state of
