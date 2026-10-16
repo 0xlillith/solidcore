@@ -5712,7 +5712,11 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `SetPointClassParameters` is not a mate lookup this unit can supply: it guards part
   5's own unported SSS block (`SmCurveClass.cpp:14826-15095`, knot snapping, surface
   solves, through-point edits), whose mate lookups come last; it is relabelled as part
-  5's own deferral (`intersect.curve_class_p5`) so the counts stay truthful.
+  5's own deferral (`intersect.curve_class_p5`, the unit that owns the missing code) so
+  the counts stay truthful. Porting that block needs mutable curve / B-rep access in
+  `set_point_class_parameters` (an API change to part 5) plus a mate-lookup closure;
+  this unit's `other_mate` / `brep_mate` can be passed as that closure whenever part 5's
+  owner ports the block.
 - **Back-edge wired.** `proto_topology::p3::glue_coincident_brep_vertices` takes the
   intersector's `GetOtherMate` as a closure (`ti_get_other_mate` stub removed); the
   intersector passes its mate map, the proto-topology runner passes "no mates" (its

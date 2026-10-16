@@ -497,15 +497,18 @@ impl<O: ClassObject> CurveClassification<O> {
                             s.start.solution_value > 1e-7 && s.start.solution_value < tolerance
                         })))
             {
-                // UNPORTED(intersect.curve_class_p5): SmCurveClassification::SetPointClassParameters (SSS block)
+                // UNPORTED(intersect.curve_class_p5): SmCurveClassification::SetPointClassParameters
+                // p5's own unported SSS block in SetPointClassParameters
+                // (SmCurveClass.cpp:14826-15095), not a mate lookup; needs mutable curve/B-rep
+                // access plus a mate-lookup closure from boolean.topology_intersector_p1.
                 // The entire SSS block (14826–15095) remains unported, including
                 // knot snapping, surface solves, through-point edits and clearing
                 // edgeuse UV trims. Those prerequisites have ported callees but
                 // need mutable curve/topology ownership here. Defer before any
                 // mutation; the actual unported callees are the later mate lookups.
                 // This block does not call sm_RefineCCIToSurfaces.
-                // (the mate lookups of boolean.topology_intersector_p1 are reached only
-                // through this block, which is this unit's own unported code)
+                // (the mate lookups of boolean.topology_intersector_p1, ported, are reached
+                // only through this block, which is this unit's own unported code)
                 return Err(SolidError::unported(
                     "SmCurveClassification::SetPointClassParameters (SSS block, 14826-15095)",
                     "intersect.curve_class_p5",
