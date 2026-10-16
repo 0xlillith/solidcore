@@ -171,7 +171,6 @@ pub fn create_skin_primitive(
     // copies, an approximation tolerance of 0.0, the degree and the cap flag.
     let _ = (curve_copies, cap_ends);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p2): SmPrimitiveCreation::CreateSkinPrimitive
     Err(SolidError::unported(
@@ -196,7 +195,6 @@ pub fn create_skin_from_faces(
     // approximation tolerance of 0.0 and the degree.
     let _ = (k, brep, faces, degree);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateSkinFromFaces
     Err(SolidError::unported(
@@ -270,10 +268,8 @@ pub fn create_surface_revolution(
     // and no capping.
     let _ = (curves_to_sweep, origin, axis_dir, angle_deg);
     // UNPORTED(topology.brep_p3): SmBrep::SmBrep
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
     // UNPORTED(primitive.primitive_creation_p1): SmPrimitiveCreation::SmPrimitiveCreation
     // UNPORTED(primitive.primitive_creation_p3): SmPrimitiveCreation::CreateRotationalSweep
-    // UNPORTED(topology.brep_p1): SmBrep::GetSurfaces
     Err(SolidError::unported(
         "SmPrimitiveCreation::CreateRotationalSweep",
         "primitive.primitive_creation_p3",

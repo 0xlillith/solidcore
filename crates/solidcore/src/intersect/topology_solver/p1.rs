@@ -1868,10 +1868,10 @@ fn curve_global_curve_solve<O: SolutionObject>(
 
 /// `SmTol::GetZoneTol3d(m_pPointVertex)`.
 pub(super) fn object_zone_tol_3d<O>(_vertex: Option<O>) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+    // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
     Err(SolidError::unported(
         "SmTol::GetZoneTol3d(const SmObject*)",
-        "topology.brep_p1",
+        "geom.tol",
     ))
 }
 

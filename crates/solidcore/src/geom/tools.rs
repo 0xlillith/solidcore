@@ -468,10 +468,12 @@ fn curve_max_distance_between<C: ?Sized>(
 
 /// `SmBrep::GetEdges`.
 fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
+    // UNPORTED(geom.tools): SmBrep::GetEdges (ported: topology::brep::p1::edges; not wired here: with the edges in
+    // reach this unit's difftest disagrees on analytic edge curves it imports as B-spline
+    // parts; see plan/findings.md, topology.brep_p1)
     Err(SolidError::Unported {
         upstream: "SmBrep::GetEdges",
-        unit: "topology.brep_p1",
+        unit: "geom.tools",
     })
 }
 

@@ -13,8 +13,8 @@
 //! | [`Brep::set_this_model_size_estimate`]            | `SmBrep::SetThisModelSizeEstimate`            |
 //! | [`Brep::this_large_small_size_ratio`]             | `SmBrep::GetThisLargeSmallSizeRatio`          |
 //! | [`Brep::set_this_large_small_size_ratio`]         | `SmBrep::SetThisLargeSmallSizeRatio`          |
-//! | [`Brep::infinite_region`], [`Brep::set_infinite_region`] | `SmBrep::GetInfiniteRegion`, `SetInfiniteRegion` |
-//! | [`Brep::editing_enabled`], [`Brep::set_editing_enabled`] | `SmBrep::m_bEditingEnabled`             |
+//! | [`Brep::infinite_region`] (in `topology.rs`), [`Brep::set_infinite_region`] | `SmBrep::GetInfiniteRegion`, `SetInfiniteRegion` |
+//! | [`Brep::editing_enabled`], [`Brep::set_editing_enabled`] (in `topology.rs`) | `SmBrep::m_bEditingEnabled` |
 //! | [`Brep::face_list`], [`Brep::edge_list`], [`Brep::vertex_list`] (+ `set_*_list`) | `m_pFaceListHead`, `m_pEdgeListHead`, `m_pVertexListHead` (list order) |
 //! | [`Brep::add_deleted_surface`], [`Brep::deleted_surfaces`] | `SmBrep::AddDeletedSurface`, `m_pDeletedSurfaces` |
 //! | [`num_faces`]                                     | `SmBrep::GetNumFaces`                         |
@@ -79,6 +79,13 @@
 //!   `topology.brep_p10`); this unit owns only `Clear`.
 //! - `SmLockBrepBox` is a guard over `SmBrep::LockBoundingBox` / `UnLockBoundingBox`
 //!   (unit `query.brep`).
+//! - Statuses upstream does not check (`GetEnds`, point evaluations, `SetUVTrimCurve`,
+//!   `Notify`, `ReverseParameterization`, `EditParameterization`) do not abort the port
+//!   either: only [`SolidError::Unported`] propagates from them; a failed point
+//!   evaluation leaves undefined coordinates (upstream leaves the `SmPoint3d` unset).
+//! - `sm_MakeVertexSplitUVTrimCurve` clones the face surface for the lift of the split
+//!   point (upstream borrows it); `sm_FindSectorOfFace` returns the region as `Option`
+//!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`): `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`,
 //!   `SmShell::GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
@@ -94,7 +101,7 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p3::PointSolveOptions;
 use crate::curve::curve::{Curve, CurveKind};
-use crate::error::{EntityRef, Result, SolidError};
+use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::sag_is_kind_of;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
 use crate::geom::context::MarkType;
@@ -223,16 +230,10 @@ impl Brep {
             .set_this_large_small_size_ratio(large_small_size_ratio);
     }
 
-    /// `GetInfiniteRegion`: the infinite (outer) region.
-    #[must_use]
-    pub const fn infinite_region(&self) -> Option<RegionId> {
-        self.infinite_region
-    }
-
     /// `SetInfiniteRegion`: makes `region` the infinite region (the raw member write;
     /// [`reset_infinite_region`] does the bookkeeping).
     pub fn set_infinite_region(&mut self, region: Option<RegionId>) {
-        self.infinite_region = region;
+        self.set_infinite_region_record(region);
     }
 
     /// `m_pFaceListHead`: the faces in list order.
@@ -299,19 +300,6 @@ impl Brep {
     /// Sets the head of the B-rep's region list (the friend write `m_pList = ..`).
     pub fn set_region_list_head(&mut self, region: Option<RegionId>) {
         self.region_list_head = region;
-    }
-
-    /// `m_bEditingEnabled`: the B-rep is in an edit mode (trimmed-surface caches only
-    /// build their subdivision tree).
-    #[must_use]
-    pub const fn editing_enabled(&self) -> bool {
-        self.editing_enabled
-    }
-
-    /// Sets `m_bEditingEnabled` (upstream writes the public member directly, often
-    /// through `SmTemporaryChangeValue`).
-    pub fn set_editing_enabled(&mut self, editing_enabled: bool) {
-        self.editing_enabled = editing_enabled;
     }
 
     /// `AddDeletedSurface`: keeps a surface removed from the B-rep until the operation
@@ -1052,9 +1040,11 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
     let reverse = eu1::orientation(b, eu)? == OrientType::Opposite;
     let mate = eu1::mate(b, eu)?;
 
-    // Trim curve should start and end right at Edge ends.
-    let ends = trim_crv.ends()?;
-    let (start_uv, end_uv) = (ends.start, ends.end);
+    // Trim curve should start and end right at Edge ends. (GetEnds and the point
+    // evaluations below are not status-checked upstream: a failure leaves the points
+    // unset; the port uses undefined coordinates there.)
+    let (start_uv, end_uv) = ignored(trim_crv.ends())?
+        .map_or((Point3::UNDEF, Point3::UNDEF), |e| (e.start, e.end));
 
     let e = eu1::edge(b, eu)?.ok_or_else(|| null("sm_CheckUVTrimCurve: edge use without edge"))?;
     let edge_ivl = edge::interval(b, e)?;
@@ -1063,7 +1053,8 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
         .curve
         .as_ref()
         .ok_or_else(|| null("sm_CheckUVTrimCurve: edge without curve"))?;
-    let edge_3d_start = curve.evaluate_point(edge_ivl.evaluate(0.0))?;
+    let edge_3d_start =
+        ignored(curve.evaluate_point(edge_ivl.evaluate(0.0)))?.unwrap_or(Point3::UNDEF);
 
     let mate_vertex = |b: &Brep| -> Result<VertexId> {
         start_vertex(
@@ -1082,7 +1073,8 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
         eu1::face(b, eu)?.ok_or_else(|| null("sm_CheckUVTrimCurve: edge use without face"))?;
     let surf = face2::surface(b, face)?
         .ok_or_else(|| null("sm_CheckUVTrimCurve: face without surface"))?;
-    let face_3d_start = surf.evaluate_point(Point2::new(start_uv.x, start_uv.y))?;
+    let face_3d_start = ignored(surf.evaluate_point(Point2::new(start_uv.x, start_uv.y)))?
+        .unwrap_or(Point3::UNDEF);
 
     let face_tol = face2::tolerance(b, face)?;
     let edge_tol = edge::tolerance(b, e)?;
@@ -1098,14 +1090,16 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
     }
 
     // Now the other end:
-    let edge_3d_end = curve.evaluate_point(edge_ivl.evaluate(1.0))?;
+    let edge_3d_end =
+        ignored(curve.evaluate_point(edge_ivl.evaluate(1.0)))?.unwrap_or(Point3::UNDEF);
     let end_vtx = if reverse {
         start_vertex(b, eu)?
     } else {
         mate_vertex(b)?
     };
     let vrtx_3d_end = vertex::point(b, end_vtx)?;
-    let face_3d_end = surf.evaluate_point(Point2::new(end_uv.x, end_uv.y))?;
+    let face_3d_end = ignored(surf.evaluate_point(Point2::new(end_uv.x, end_uv.y)))?
+        .unwrap_or(Point3::UNDEF);
     vrtx_tol = vertex::tolerance(b, end_vtx)?; // have to update this to End vtx.
 
     let dist_face_vrtx_end = face_3d_end.distance(vrtx_3d_end);
@@ -1291,7 +1285,8 @@ fn face_surface(b: &Brep, face: FaceId) -> Result<&Surface> {
 ///
 /// `SM_ERR` when the global drop finds nothing or the test point is on the surface;
 /// [`SolidError::InvalidInput`] where upstream dereferences null (no surface, face
-/// use, mate, shell or region); those of the surface evaluations and solves.
+/// use, mate or shell; a shell without region returns `None`, as upstream); those of
+/// the surface evaluations and solves.
 pub fn find_sector_of_face(
     k: &Kernel,
     b: &Brep,
@@ -1299,7 +1294,7 @@ pub fn find_sector_of_face(
     uv_guess: Option<Point2>,
     test_point: Point3,
     test_dir: Vec3,
-) -> Result<(f64, RegionId)> {
+) -> Result<(f64, Option<RegionId>)> {
     let surface = face_surface(b, face)?;
     let eval = |uv: Point2| -> Result<(Point3, Vec3)> {
         // found Surface Point, Found Surface Point Normal
@@ -1380,8 +1375,7 @@ pub fn find_sector_of_face(
     }
     let shell = eu1::faceuse_shell(b, fu)?
         .ok_or_else(|| null("sm_FindSectorOfFace: face use without shell"))?;
-    let region = eu1::shell_region(b, shell)?
-        .ok_or_else(|| null("sm_FindSectorOfFace: shell without region"))?;
+    let region = eu1::shell_region(b, shell)?;
     let _ = surf_pnt;
     Ok((distance, region))
 }
@@ -1451,13 +1445,13 @@ pub fn update_vertex_edge_intervals(
             if d.distance < orig_dist && d.parameter < interval.max() - EFF_ZERO {
                 // reset the curve interval
                 let edge_ref = (env.key_of)(EntityRef::Edge(e));
-                edge::notify(
+                ignored(edge::notify(
                     b,
                     e,
                     env,
                     NotifyOperation::PreEdit,
                     [Some(edge_ref), Some(brep_ref), None],
-                )?;
+                ))?; // (status not checked upstream)
                 edited_edge = true;
                 let ivl = Extent1d::from_min_max(d.parameter, interval.max());
                 edge::set_interval(b, e, &ivl)?;
@@ -1478,13 +1472,13 @@ pub fn update_vertex_edge_intervals(
             if d.distance < orig_dist && d.parameter > interval.min() + EFF_ZERO {
                 // retset the edge's interval
                 let edge_ref = (env.key_of)(EntityRef::Edge(e));
-                edge::notify(
+                ignored(edge::notify(
                     b,
                     e,
                     env,
                     NotifyOperation::PreEdit,
                     [Some(edge_ref), Some(brep_ref), None],
-                )?;
+                ))?; // (status not checked upstream)
                 edited_edge = true;
                 let ivl = Extent1d::from_min_max(interval.min(), d.parameter);
                 edge::set_interval(b, e, &ivl)?;
@@ -1499,8 +1493,16 @@ pub fn update_vertex_edge_intervals(
             for &eu in eus.iter().step_by(2) {
                 // for edges with UVTrimCurves - rebuild UVTrimCurve
                 if eu1::uv_trim_curve(b, eu)?.0.is_some() {
-                    eu1::set_uv_trim_curve(b, eu, eu1::UvTrimCurveArg::Null, 0.0, true, None)?; // TRUE = delete existing UVTrimCurve
-                    get_or_create_uv_trim_curve(k, b, eu)?;
+                    // TRUE = delete existing UVTrimCurve (statuses not checked upstream)
+                    ignored(eu1::set_uv_trim_curve(
+                        b,
+                        eu,
+                        eu1::UvTrimCurveArg::Null,
+                        0.0,
+                        true,
+                        None,
+                    ))?;
+                    ignored(get_or_create_uv_trim_curve(k, b, eu))?;
                 }
             }
         }
@@ -1583,6 +1585,7 @@ fn bspline_surface(surface: &Surface) -> Result<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(s) => Ok(s),
         SurfaceKind::Plane(p) => Ok(p.base()),
+        SurfaceKind::SurfOfRevolution(s) => Ok(s.base()),
         // DISPATCH GAP: an SmCrvOnSurf / corner blend over another SmSurface kind
         _ => Err(SolidError::unported(
             "SmSurface (non-B-spline) in SmCrvOnSurf",
@@ -1629,7 +1632,8 @@ pub fn make_vertex_split_uv_trim_curve(
     if edge_split_parameter < ivl1.min() + scaled_zero
         || edge_split_parameter > ivl1.max() - scaled_zero
     {
-        eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None)?;
+        // (SetUVTrimCurve statuses are not checked upstream)
+        ignored(eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None))?;
         return Ok(());
     }
     // split param is far from UVTrimCurve->Ends
@@ -1697,7 +1701,7 @@ pub fn make_vertex_split_uv_trim_curve(
         }
 
         if !reuse_trim_curve {
-            eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None)?;
+            ignored(eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None))?;
             return Ok(());
         }
     }
@@ -1731,14 +1735,14 @@ pub fn make_vertex_split_uv_trim_curve(
         }
     }
 
-    eu1::set_uv_trim_curve(
+    ignored(eu1::set_uv_trim_curve(
         b,
         eu_new,
         eu1::UvTrimCurveArg::New(Box::new(new_uv_curve)),
         0.0,
         false,
         None,
-    )?;
+    ))?;
     Ok(())
 }
 
@@ -2116,9 +2120,11 @@ pub fn create_edge_edge_blend(
             let mut rail1_pos = Vec::with_capacity(num_loc);
             let mut rail2_pos = Vec::with_capacity(num_loc);
             for ii in 0..num_loc {
+                // (evaluation statuses are not checked upstream: a failure leaves the
+                // sample unset; undefined coordinates here)
                 let t = ii as f64 / (num_loc - 1) as f64;
-                rail1_pos.push(rail1.evaluate_point(ivl1.evaluate(t))?);
-                rail2_pos.push(rail2.evaluate_point(ivl2.evaluate(t))?);
+                rail1_pos.push(ignored(rail1.evaluate_point(ivl1.evaluate(t)))?.unwrap_or(Point3::UNDEF));
+                rail2_pos.push(ignored(rail2.evaluate_point(ivl2.evaluate(t)))?.unwrap_or(Point3::UNDEF));
             }
 
             // Check under which orientation the distance between rail curves is less
@@ -2173,7 +2179,8 @@ pub fn create_edge_edge_blend(
 
     // make sure two curve intervals run in the same direction and share a common parameterization
     if !same_dir_curves {
-        ivl2 = rail2.reverse_parameterization(&ivl2)?;
+        // (status not checked upstream; the interval is left as is on failure)
+        ivl2 = ignored(rail2.reverse_parameterization(&ivl2))?.unwrap_or(ivl2);
         in_from_the_left = !in_from_the_left;
     }
 
@@ -2187,7 +2194,7 @@ pub fn create_edge_edge_blend(
             let nat = rail2.natural_interval();
             let mut new_ivl = nat;
             new_ivl.set_min_max(nat.min() * scale + offset, nat.max() * scale + offset)?;
-            rail2.edit_parameterization(&new_ivl)?;
+            ignored(rail2.edit_parameterization(&new_ivl))?; // (status not checked upstream)
             *ivl2 = ivl1;
         }
         Ok(())
@@ -2210,7 +2217,7 @@ pub fn create_edge_edge_blend(
     // make sure two curve intervals run in the same direction and share a common
     // parameterization (upstream repeats both steps here)
     if !same_dir_curves {
-        ivl2 = rail2.reverse_parameterization(&ivl2)?;
+        ivl2 = ignored(rail2.reverse_parameterization(&ivl2))?.unwrap_or(ivl2);
     }
     rescale(&mut rail2, &mut ivl2)?;
 

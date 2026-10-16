@@ -1085,10 +1085,10 @@ fn map_to_2d(tol_3d: f64, uv: Point2, dir: Vec2, surface: &Surface) -> Result<f6
 
 /// `SmTol::GetZoneTol3d(pFace)`.
 fn face_zone_tol_3d<O>(_face: O) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+    // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
     Err(SolidError::unported(
         "SmTol::GetZoneTol3d(const SmObject*)",
-        "topology.brep_p1",
+        "geom.tol",
     ))
 }
 
@@ -1119,11 +1119,9 @@ fn face_brep_editing_enabled<O>(_face: O) -> Result<bool> {
 
 /// The temporary `GetFace()->GetBrep()->m_bEditingEnabled` assignment.
 fn set_face_brep_editing_enabled<O>(_face: O, _editing: bool) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::m_bEditingEnabled
-    Err(SolidError::unported(
-        "SmBrep::m_bEditingEnabled",
-        "topology.brep_p1",
-    ))
+    // UNPORTED(topology.face_p4): SmFace::GetBrep (SmBrep::m_bEditingEnabled is
+    // Brep::set_editing_enabled once the face's B-rep is reachable)
+    Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
 }
 
 /// `SmFace::CreateUVTrimCurves(TRUE, NULL, NULL, ..)`.

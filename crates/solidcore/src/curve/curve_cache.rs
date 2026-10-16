@@ -1074,10 +1074,10 @@ fn curve_ref<O: Copy + PartialEq>(tree: &Tree<O>, id: NodeId) -> Result<CurveSpa
 /// without owner.
 fn curve_approx_tol_3d(k: &Kernel, curve: &Curve) -> Result<f64> {
     if curve.owner().is_some() {
-        // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+        // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) dispatch (its SmBrep arm, SmBrep::GetTolerance, is ported as Brep::tolerance)
         return Err(SolidError::Unported {
             upstream: "SmTol::GetZoneTol3d(const SmObject*)",
-            unit: "topology.brep_p1",
+            unit: "geom.tol",
         });
     }
     Ok(approx_tol_3d(k, SmallTopoType::NormalSize))

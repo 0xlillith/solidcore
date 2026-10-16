@@ -308,19 +308,13 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.below(n_eu)?;
             rd.vec3()?;
             rd.finite()?;
-            let sz = rd.finite()?;
-            if sz < 0.0 {
-                return Err(bad("negative scaled zero"));
-            }
+            rd.finite()?;
             rd.index(2)?;
             rd.flag()?;
         }
         Op::BrepIntersect => {
-            let tol = rd.finite()?;
-            let ang = rd.finite()?;
-            if tol <= 0.0 || ang <= 0.0 {
-                return Err(bad("tolerances must be positive"));
-            }
+            rd.finite()?;
+            rd.finite()?;
             rd.flag()?;
         }
         Op::CornerBlend => {
@@ -333,11 +327,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             for _ in 0..nt {
                 rd.flag()?;
             }
-            let tol = rd.finite()?;
-            let ang = rd.finite()?;
-            if tol <= 0.0 || ang < 0.0 {
-                return Err(bad("blend tolerances out of range"));
-            }
+            rd.finite()?;
+            rd.finite()?;
         }
         Op::EdgeEdgeBlend => {
             rd.index(3)?;
@@ -349,13 +340,15 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             curve(rd)?;
             rd.nonzero3()?;
             rd.flag()?;
-            let d = rd.finite()?;
-            rd.flag()?;
+            rd.finite()?;
+            // a used approximation or angle tolerance must be positive (the projector
+            // subdivides to it)
+            let has_tol = rd.flag()?;
             let tol = rd.finite()?;
-            rd.flag()?;
+            let has_ang = rd.flag()?;
             let ang = rd.finite()?;
-            if d <= 0.0 || tol <= 0.0 || ang <= 0.0 {
-                return Err(bad("projection parameters must be positive"));
+            if (has_tol && tol <= 0.0) || (has_ang && ang <= 0.0) {
+                return Err(bad("projection tolerances must be positive"));
             }
             rd.flag()?;
             rd.flag()?;

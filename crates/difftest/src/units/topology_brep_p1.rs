@@ -1155,7 +1155,9 @@ fn run_rust_op(
             }
             let guess = guess.map(|[u, v]| Point2::new(u, v));
             match bp1::find_sector_of_face(k, b, f, guess, Vec3::from_array(*p), Vec3::from_array(*dir)) {
-                Ok((dist, region)) => o.extend([0.0, dist, f64::from(region.index())]),
+                Ok((dist, region)) => {
+                    o.extend([0.0, dist, region.map_or(-1.0, |r| f64::from(r.index()))]);
+                }
                 Err(e) if e.is_unported() => return Err(e.into()),
                 Err(e) => o.push(status_of(&e)),
             }
@@ -1549,7 +1551,6 @@ impl UnitDiff for Runner {
     }
 
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
-        let op = gen_op(rng);
         let brep = if rng.chance(0.2) {
             BrepIn::File {
                 file: (*rng.choose(&FILES).unwrap_or(&"Mouse.smb")).to_string(),
@@ -1558,6 +1559,22 @@ impl UnitDiff for Runner {
         } else {
             gen_brep(rng)
         };
+        // an op needing faces or loops compares nothing on a wire B-rep: draw again
+        let has_faces = matches!(brep, BrepIn::File { .. } | BrepIn::Face { .. });
+        let mut op = gen_op(rng);
+        for _ in 0..8 {
+            let needs_faces = matches!(
+                op,
+                OpIn::ReflectShell { .. }
+                    | OpIn::MarkLoops { .. }
+                    | OpIn::SwapFaceUv { .. }
+                    | OpIn::FindSector { .. }
+            );
+            if has_faces || !needs_faces {
+                break;
+            }
+            op = gen_op(rng);
+        }
         let i = Inputs {
             brep: Some(brep),
             validate_only: rng.chance(0.15),

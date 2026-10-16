@@ -5468,7 +5468,8 @@ the `prog_test` wire network), 10 `sm_FindSideOfCurve` cases, 16 generated): 231
 surface.surf_of_extrusion_p2 46, surface.sphere 43, surface.cone_p1 29, topology.face_p3 19,
 heal.heal_data_p1 16, surface.surface_cache_p1 16, topology.face_p1 15, surface.surface_p8 10,
 curve.crv_on_surf 4); `--perturb` SENSITIVE 1710/1710.
-Every compared value is bit-identical; no absolute floors.
+Every compared value is bit-identical; no absolute floors. Of the passes, 15 are `cases_both_errored`
+(both sides `no_entity`: face ops on the constructed wire B-reps); the other 1695 compare values.
 
 - **Upstream defect UB-136** (`plan/upstream-issues.md`): `SmCopyBrepMap::SetAt` with a null copy
   and `GetAt` of a key never stored both dereference null through the release `SM_ASSERT`
@@ -5506,6 +5507,17 @@ Every compared value is bit-identical; no absolute floors.
   upstream's 1007 on `ellips_ts2.smb`). `-3` is "the shim did not call upstream" and only appears
   where the Rust side defers (seam branch of `sm_RedistributeSeamUVTrimCurves`, blends with two or
   more edge uses or a non-ruled flag, `BrepIntersect` with faces, `HealBrep`).
+- **Back-edges wired:** `SmBrep::GetInfiniteRegion` in `topology.edge` (its 5 `topology.brep_p1`
+  deferrals now continue to `topology.brep_p2`), `GetVertices/GetEdges/GetFaces` in
+  `topology.brep_cache`, `GetTolerance` / `GetThisModelSizeEstimate` in `heal.heal_data_p2`
+  (`SetThisModelSizeEstimate` stays a stub there: it writes the kernel context and
+  `fix_tol_sizes` takes `&Kernel`). **Not wired** (the stubs keep their `UNPORTED` tag with a
+  note): `query.api_queries` compares face/edge/vertex indices in the B-rep's native list order
+  while its import holds only the traversal order (14 cases disagree once wired: a permutation,
+  e.g. `face_kind6_op9`); `geom.tools` `FindEdge` on `box_with_large_fillet.smb` (32 cases:
+  Rust `SM_ERR`, upstream finds the edge; the edge curves arrive as B-spline parts of analytic
+  curves) and `mass.integrator` face query 4 (1 case: Rust `SM_ERR`, upstream succeeds). Those
+  need the owning units' runners to import the list order / defer inexact geometry first.
 - **Deferred, by design until their units land:** `GetShells` / `ResetInfiniteRegion` void flags /
   `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
   `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`

@@ -562,7 +562,6 @@ static SmStatus sm_FindSectorOfFace
       if (pFU == NULL || pFU->GetShell() == NULL) { return SM_ST_NULL_DEREF; } // GUARD
       rpRegionOfSector = pFU->GetShell()->GetRegion();
     }
-  if (rpRegionOfSector == NULL) { return SM_ST_NULL_DEREF; } // GUARD (the Rust port reports a missing region)
 
   // all done
   return SM_SUCCESS;
@@ -1344,7 +1343,18 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         double ang = rd.num();
         if (eus.GetSize() >= 2)
         {
-            o.push_back(-3.0); // SmEdgeuse::NormalizedEvaluate: the Rust side defers
+            // upstream dereferences the mate of an opposite edge use and each edge before
+            // the (unported) NormalizedEvaluate: -2 there, else the Rust side defers
+            bool null_deref = false;
+            for (ULONG i = 0; i < eus.GetSize(); i++)
+            {
+                SmEdgeuse* p = eus[i];
+                if (p->GetOrientation() == SM_OT_OPPOSITE)
+                    p = p->GetMate();
+                if (p == NULL || p->GetEdge() == NULL)
+                    null_deref = true;
+            }
+            o.push_back(null_deref ? ST_NULL_DEREF : -3.0);
             break;
         }
         SmTArray<SmSurface*> blends;
@@ -1364,7 +1374,22 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         int64_t dir = rd.idx();
         if (flag != 0 && e1 != nullptr && e2 != nullptr && e1->GetEdge() != NULL && e2->GetEdge() != NULL)
         {
-            o.push_back(-3.0); // the blend path reaches SmEdgeuse::EvaluateBinormal: the Rust side defers
+            // the blend path: after the rails (CreateTrimmedNURBSCurve, failing -> SM_ERR_INVALID_INPUT
+            // upstream and in the port) it dereferences both faces, then reaches the
+            // unported SmEdgeuse::EvaluateBinormal
+            SmBSplineCurve* r1 = e1->GetEdge()->CreateTrimmedNURBSCurve(ctx);
+            SmBSplineCurve* r2 = e2->GetEdge()->CreateTrimmedNURBSCurve(ctx);
+            bool rails_ok = r1 != NULL && r2 != NULL;
+            delete r1;
+            delete r2;
+            if (!rails_ok)
+                o.push_back((double)SM_ERR_INVALID_INPUT);
+            else if (e1->GetFace() == NULL || e2->GetFace() == NULL)
+                o.push_back(ST_NULL_DEREF);
+            else if (e1->GetFace()->GetSurface() == NULL || e2->GetFace()->GetSurface() == NULL)
+                o.push_back((double)SM_ERR_INVALID_INPUT);
+            else
+                o.push_back(-3.0); // the Rust side defers
             break;
         }
         SmSurface* out = nullptr;
