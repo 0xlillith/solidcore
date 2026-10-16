@@ -26,6 +26,7 @@
 // pointer-to-member access), never the functions under test. Ops whose upstream path
 // would dereference null output -2 instead of calling it.
 #include "sc_shim.h"
+#include "support/topology_fixture.h"
 
 
 #include "StdAfx.h"
@@ -357,7 +358,7 @@ std::vector<SmTopology*> list_of(SmTopology* head)
 }
 
 // Walks everything reachable from the B-rep's regions, registering in first-seen order.
-void walk(SmBrep* brep, Graph& g, bool include_vertex_lists = false)
+void walk(SmBrep* brep, Graph& g, bool include_vertex_lists = true)
 {
     SmTArray<SmRegion*> regs;
     brep->GetRegions(regs);
@@ -667,6 +668,12 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
     }
+    // Version 3 shell/region state (infinite region, void flags, wire/vertex shell heads, vertex-use
+    // lists, face-use links), read from the native records by the shared exporter.
+    sc_topology_fixture::append_shell_state(
+        {*brep, g.regions, g.shells, g.faceuses, g.faces, g.loopuses, g.loops, g.edgeuses, g.edges,
+         g.vertexuses, g.vertices},
+        o);
 }
 
 // Builds the B-rep of a B-rep block; nullptr (status in `st`) when construction fails.

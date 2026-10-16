@@ -1109,7 +1109,7 @@ fn generate_brep(rng: &mut Rng) -> Option<(Value, BrepKind)> {
     };
     Some(match rng.below(10) {
         0 | 1 => {
-            let mut points: Vec<[f64; 3]> = (0..rng.below(5))
+            let mut points: Vec<[f64; 3]> = (0..=rng.below(4))
                 .map(|_| rng.point3(-2.0, 2.0).map(|v| v * scale))
                 .collect();
             if let (true, Some(&first)) = (rng.chance(0.3), points.first()) {

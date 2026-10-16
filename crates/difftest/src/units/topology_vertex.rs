@@ -655,6 +655,14 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
             poly_vertex: None,
         });
     }
+    let infinite_region = super::topology_vertexuse::read_shell_state(
+        ex,
+        &mut rd.at,
+        &mut regions,
+        &mut shells,
+        &mut vertices,
+        &mut faceuses,
+    )?;
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
     }
@@ -662,6 +670,7 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     // assemble (skeleton fields filled minimally)
     let mut b = Brep::new();
     b.set_validate_only(validate_only);
+    b.set_infinite_region_record(infinite_region);
     for r in regions {
         b.add_region_record(r).map_err(|e| harness(e.to_string()))?;
     }
@@ -739,7 +748,6 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     for vu in vertexuses {
         b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
     }
-    super::topology_vertexuse::set_shell_heads(&mut b)?;
     Ok(b)
 }
 

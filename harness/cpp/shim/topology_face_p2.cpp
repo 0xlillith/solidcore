@@ -24,6 +24,7 @@
 //   `3 validate_only init_gaps`                 the wire network of prog_test my_test_topology
 // Ops whose upstream path would dereference null output -2 instead of calling it.
 #include "sc_shim.h"
+#include "support/topology_fixture.h"
 
 
 #include "StdAfx.h"
@@ -379,7 +380,7 @@ void walk(SmBrep* brep, Graph& g)
     brep->GetEdges(all_edges);
     for (ULONG i = 0; i < all_edges.GetSize(); ++i)
         g.edge(all_edges[i]);
-    size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0;
+    size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0, v = 0;
     bool more = true;
     while (more)
     {
@@ -447,6 +448,10 @@ void walk(SmBrep* brep, Graph& g)
         }
         for (; l < g.loops.size(); l++, more = true)
             g.loopuse(g.loops[l]->GetLoopuse());
+        // the vertex use lists (a list may hold uses no owner chain reaches)
+        for (; v < g.vertices.size(); v++, more = true)
+            for (SmTopology* t : list_of(g.vertices[v]->GetList()))
+                g.vertexuse((SmVertexuse*)t);
         for (; f < g.faces.size(); f++)
             ;
     }
@@ -677,6 +682,12 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         put_vec(o, p->GetPoint());
         o.push_back((double)p->GetTolerance());
     }
+    // Version 3 shell/region state (infinite region, void flags, wire/vertex shell heads, vertex-use
+    // lists, face-use links), read from the native records by the shared exporter.
+    sc_topology_fixture::append_shell_state(
+        {*brep, g.regions, g.shells, g.faceuses, g.faces, g.loopuses, g.loops, g.edgeuses, g.edges,
+         g.vertexuses, g.vertices},
+        o);
 }
 
 // Builds the B-rep of a B-rep block; nullptr (status in `st`) when construction fails.
