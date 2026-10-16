@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**190 / 261 units ported** (108 green, 82 partial), **261,264 / 387,903 upstream lines (67.4%)**. 30 claimed, 0 blocked, 41 todo.
+**195 / 261 units ported** (108 green, 87 partial), **266,719 / 387,903 upstream lines (68.8%)**. 29 claimed, 0 blocked, 37 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,7 +14,6 @@ _None right now; see the next section._
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edgeuse_p3`, `topology.face_p3`, `topology.shell`
 - [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.shell`
 - [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.face_p3`, `topology.shell`
 - [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.face_p4`, `topology.shell`
@@ -25,20 +24,17 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`
 - [ ] `blend.fillet_intersector` (1708 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
-- [ ] `blend.fillet_standard_solver_p1` (2336 lines) — missing: `blend.fillet_solver_p1`, `surface.offset_surface`
-- [ ] `heal.heal_data_p3` (1967 lines) — missing: `heal.heal_data_p1`, `topology.brep_p5`
 - [ ] `heal.stitch_p2` (1906 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.face_p3`
 - [ ] `blend.fillet_solver_p4` (1404 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_intersector`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `boolean.topology_intersector_p2` (2195 lines) — missing: `boolean.topology_intersector_p1`, `topology.face_p4`
 - [ ] `sweep.topology_sweep` (2456 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.brep_p3`, `topology.brep_p5` +2 more
 - [ ] `boolean.topology_intersector_p3` (1849 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`
-- [ ] `boolean.merge_p1` (993 lines) — missing: `boolean.topology_intersector_p1`, `topology.brep_p1`, `topology.shell`
 - [ ] `primitive.primitive_creation_p3` (1842 lines) — missing: `primitive.primitive_creation_p1`, `sweep.topology_sweep`, `topology.brep_p1`, `topology.brep_p5` +1 more
-- [ ] `blend.fillet_executive_p3` (1608 lines) — missing: `blend.fillet_solver_p1`, `boolean.merge_p1`, `boolean.topology_intersector_p1`, `heal.stitch_p1` +2 more
-- [ ] `boolean.merge_p2` (1967 lines) — missing: `boolean.merge_p1`, `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `heal.stitch_p1` +3 more
-- [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p1`, `boolean.merge_p2`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +4 more
-- [ ] `boolean.merge_p3` (1152 lines) — missing: `boolean.merge_p2`, `boolean.merge_p4`, `boolean.merge_p5`, `boolean.topology_intersector_p1` +2 more
-- [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +6 more
+- [ ] `blend.fillet_executive_p3` (1608 lines) — missing: `blend.fillet_solver_p1`, `boolean.topology_intersector_p1`, `heal.stitch_p1`, `topology.brep_p1` +1 more
+- [ ] `boolean.merge_p2` (1967 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `heal.stitch_p1`, `topology.brep_p1` +2 more
+- [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p2`, `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`, `topology.brep_p1` +2 more
+- [ ] `boolean.merge_p3` (1152 lines) — missing: `boolean.merge_p2`, `boolean.merge_p4`, `boolean.topology_intersector_p1`, `topology.brep_p1` +1 more
+- [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +5 more
 - [ ] `primitive.primitive_creation_p2` (2258 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p3`, `topology.brep_p1`, `topology.brep_p4` +2 more
 - [ ] `blend.fillet_corner_p1` (1971 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1`
 - [ ] `blend.fillet_solver_p2` (1939 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
@@ -50,7 +46,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_standard_solver_p2` (1989 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_solver_p3` +2 more
 - [ ] `offset.offset_executive_p2` (1846 lines) — missing: `offset.offset_executive_p1`, `offset.offset_geometry_creation`, `topology.brep_p1`, `topology.brep_p2` +3 more
 - [ ] `blend.fillet_corner_p3` (1697 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`
-- [ ] `blend.fillet_executive_p2` (1152 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +3 more
+- [ ] `blend.fillet_executive_p2` (1152 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +2 more
 - [ ] `blend.fillet_geom_p2` (2077 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p6`, `blend.fillet_solver_p1` +1 more
 - [ ] `blend.fillet_geom_p5` (1952 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_geom_p4` +2 more
 - [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1`
@@ -61,13 +57,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (ready for review)
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
-- [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_lib_p3` (2062 lines) — in progress: #136 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p4` (2022 lines) — in progress: #137 @froglemonade2 (draft)
 - [ ] 🔨 `topology.shell` (750 lines) — in progress: #154 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p8` (1900 lines) — in progress: #152 @Karl-VonRichter (ready for review)
-- [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (ready for review)
+- [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (draft)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.edgeuse_p3` (2273 lines) — in progress: #117 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #134 @bherbruck (draft)
@@ -79,15 +74,15 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (draft)
+- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (draft)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
-- [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
+- [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (draft)
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
+- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
-- [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (draft)
-- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (draft)
+- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 
 ## By module
 
@@ -269,7 +264,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (draft)
 - [ ] 🔨 `topology.face_p1` (2171 lines) — in progress: #148 @bluecmd (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (draft)
-- [ ] ⏳ `topology.brep_p6` (1479 lines) — waiting
+- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (draft)
 - [ ] 🟡 `topology.brep_cache` (389 lines) — partial
 - [ ] ⏳ `topology.brep_p4` (2113 lines) — waiting
 - [ ] ⏳ `topology.brep_p9` (2443 lines) — waiting
@@ -279,14 +274,14 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.proto_topology_p2` (2091 lines) — partial, 1533 cases
 - [ ] 🟡 `topology.proto_topology_p3` (1577 lines) — partial, 3013 cases
 
-### intersect (19/25)
+### intersect (20/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] 🟡 `intersect.curve_class_p1` (2087 lines) — partial, 2125 cases
 - [ ] 🟡 `intersect.surface_drop_lib_p1` (1478 lines) — partial, 1862 cases
 - [x] ✅ `intersect.surface_silhouette` (979 lines) — green, 709 cases
-- [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.curve_class_p7` (2248 lines) — partial, 1516 cases
 - [ ] 🟡 `intersect.ray_tracer` (1246 lines) — partial, 421 cases
 - [ ] 🟡 `intersect.surface_drop_curve` (2014 lines) — partial, 547 cases
 - [ ] 🟡 `intersect.surface_drop_lib_p2` (1080 lines) — partial, 1531 cases
@@ -305,7 +300,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `intersect.curve_class_p5` (2017 lines) — partial, 1081 cases
 - [ ] 🟡 `intersect.surface_intersector_p5` (622 lines) — partial, 1725 cases
 - [ ] 🔨 `intersect.curve_class_p8` (1900 lines) — in progress: #152 @Karl-VonRichter (ready for review)
-- [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (ready for review)
+- [ ] 🔨 `intersect.curve_class_p9` (1220 lines) — in progress: #151 @Karl-VonRichter (draft)
 
 ### primitive (1/5)
 
@@ -313,7 +308,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `primitive.primitive_creation_p1` (2322 lines) — waiting
 - [ ] ⏳ `primitive.primitive_creation_p3` (1842 lines) — waiting
 - [ ] ⏳ `primitive.primitive_creation_p2` (2258 lines) — waiting
-- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (draft)
+- [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 
 ### query (6/10)
 
@@ -332,22 +327,22 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `mass.integrator` (1031 lines) — partial, 1528 cases
 
-### sweep (3/5)
+### sweep (4/5)
 
 - [ ] ⏳ `sweep.topology_sweep` (2456 lines) — waiting
 - [ ] 🟡 `sweep.rotational_sweep_geometry` (1542 lines) — partial, 761 cases
-- [ ] 🔨 `sweep.trans_sweep_geometry` (817 lines) — in progress: #127 @damgru (ready for review)
+- [ ] 🟡 `sweep.trans_sweep_geometry` (817 lines) — partial, 788 cases
 - [ ] 🟡 `sweep.api_brep` (529 lines) — partial
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial
 
-### heal (3/7)
+### heal (4/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
 - [ ] 🟡 `heal.face_props` (1410 lines) — partial, 1528 cases
 - [ ] 🟡 `heal.heal_data_p2` (2160 lines) — partial, 738 cases
-- [ ] 🔨 `heal.heal_data_p1` (922 lines) — in progress: #109 @bherbruck (ready for review)
+- [ ] 🟡 `heal.heal_data_p1` (922 lines) — partial, 493 cases
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
-- [ ] ⏳ `heal.heal_data_p3` (1967 lines) — waiting
+- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (ready for review)
 - [ ] ⏳ `heal.stitch_p2` (1906 lines) — waiting
 
 ### offset (0/3)
@@ -356,14 +351,14 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `offset.offset_executive_p1` (2107 lines) — waiting
 - [ ] ⏳ `offset.offset_executive_p2` (1846 lines) — waiting
 
-### boolean (1/9)
+### boolean (3/9)
 
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] ⏳ `boolean.topology_intersector_p2` (2195 lines) — waiting
 - [ ] ⏳ `boolean.topology_intersector_p3` (1849 lines) — waiting
-- [ ] ⏳ `boolean.merge_p1` (993 lines) — waiting
+- [ ] 🟡 `boolean.merge_p1` (993 lines) — partial, 248 cases
 - [ ] ⏳ `boolean.merge_p2` (1967 lines) — waiting
-- [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (draft)
+- [ ] 🟡 `boolean.merge_p5` (475 lines) — partial, 140 cases
 - [ ] ⏳ `boolean.merge_p4` (2590 lines) — waiting
 - [ ] ⏳ `boolean.merge_p3` (1152 lines) — waiting
 - [ ] 🟡 `boolean.api_brep` (410 lines) — partial
@@ -376,7 +371,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `blend.hcr` (1875 lines) — waiting
 - [ ] ⏳ `blend.fillet_intersector` (1708 lines) — waiting
 - [ ] ⏳ `blend.fillet_solver_p5` (848 lines) — waiting
-- [ ] ⏳ `blend.fillet_standard_solver_p1` (2336 lines) — waiting
+- [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (draft)
 - [ ] ⏳ `blend.fillet_solver_p4` (1404 lines) — waiting
 - [ ] ⏳ `blend.fillet_executive_p3` (1608 lines) — waiting
 - [ ] ⏳ `blend.fillet_executive_p1` (2063 lines) — waiting
