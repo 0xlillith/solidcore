@@ -5078,10 +5078,11 @@ mutated scales and accepted/reduced step counts are compared.
   Rust stepped off four times (count > 2 and `dMinDist > dTolerance`) and returned inside. Every step-off
   call, its distances and its outputs agreed bit for bit (checked by calling
   `EvaluateBinormalStepOff` from the shim at the same distances). Fix: the shim exports an `SmPlane`
-  as `1 O Z` (item 5 of the AGENTS.md checklist: the shim builds every geometry kind the code branches
+  as a whole plane, `1 O X Y su sv umin vmin umax vmax` like `sc_edgeuse_graph.h` (item 5 of the AGENTS.md checklist: the shim builds every geometry kind the code branches
   on). Those faces are now real planes in Rust, so 28 cases that passed on a B-spline stand-in defer on
   the global point solve instead (`surface.surface_point_solve_p3`): query.edge 1368 cases, 1279 pass, 0
-  fail, 89 deferred. A zero-length `Unitize`/`AngleBetween` in the classifications is an `SM_ERR`
+  fail, 89 deferred at the time (after merging main: 1316 pass, 0 failed, 52 deferred, all
+  `intersect.surface_drop_lib_p3`). A zero-length `Unitize`/`AngleBetween` in the classifications is an `SM_ERR`
   status, as `SER` returns it, not a null dereference; the step-off locals start at
   `SM_UNDEF_DOUBLE` like upstream's default-constructed vectors. Other shim copies of `put_surface`
   without the plane branch (`topology.vertex`, `topology.brep_data`, `topology.proto_topology_p1`,
@@ -5094,6 +5095,28 @@ mutated scales and accepted/reduced step counts are compared.
 - `IsTangentSector` and `SmEdge::GetBlendEdgeuse` ignore a failing `EvaluateBinormal` (`SE`) and read
   the default-constructed `SM_UNDEF_DOUBLE` locals; the port does the same (the partial writes of a
   failure midway are not modelled).
+
+## sweep.rotational_sweep_geometry (`SmRotationalSweepGeometry`, 2026-10-15; partial, no disagreements)
+
+- **Harness.** Edges are wire edges of a real `SmBrep` (`MakeShellVertex` + `MakeWireEdgeVertex`,
+  or `MakeWireEdge` to the same vertex for a closed edge) on real `SmBSplineCurve`s, B-spline and
+  analytic `SmLine` segments, `SmCircle`s, `SmEllipse`s and `SmHermiteCurve`s, with set edge,
+  vertex and B-rep tolerances; the Rust side builds the same records (the shim reports the start
+  / primary vertex, closed flag, points and tolerances, which are compared too). Results are
+  compared as type codes, natural intervals / domains and evaluations at fixed fractions, so
+  B-spline and analytic results are both covered. Edge intervals are in the curve's natural
+  (NURB) interval: `[0, 1]` for circles and ellipses, not degrees.
+- **Out-of-range read** in `sm_CheckEdgeOnAxis` (`sSolutions[1]` with one solution): the port
+  reads a zero-filled slot; upstream-issues UB-130. The C++ agrees on every case reaching it.
+- **`SM_SWEEP_CHECKS` is not defined**, so `CheckCurveSweep` only detects rotation about an
+  interior point of the curve, and only through `IntersectWithLine` (no solutions for a general
+  B-spline, which upstream then sweeps even when it crosses the axis); the port does the same.
+- **`SmLine` generators**: `CreateSurfOfRevolution` reparametrises the sweep circle with arc
+  length for a line parallel to the axis (`GetType() == SmLine_TYPE`); the port passes the line
+  vector (`create_surf_of_revolution_with_line_vector`). Without it the cylinder cases disagreed
+  in the circular parameter range only.
+- **Deferred**: `CopyAndAddAnalytics` of a non-planar swept B-spline surface or face surface
+  reaches `SmCone::IsNurbSurfaceCone` (unit `surface.cone_p2`).
 
 ## heal.face_props (`SmFaceProps` / `SmLoopProps` / `SmLooptreeItem`, 2026-10-16; partial, no disagreements)
 
@@ -5644,3 +5667,74 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## intersect.curve_class_p5: independent port
+
+Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently
+through PR #138 and is inherited from main. Homogenize, FixEndPointClass,
+InsertCurveInterval and MergeInterval now call those real methods; no p6 stubs
+remain. Both proto-topology p3 extraction sites call mutable ExtractGeometry
+with geometry and default optional outputs, discarding temporary curves as native
+does. Their deeper p2/p7 dependencies remain explicit.
+
+Validation on numerical source 9e495b12 uses Ubuntu 24.04.5 x86_64, GCC 13.3.0,
+Rust 1.98.0 and clean pinned upstream c9c5979. All nine affected native runners
+complete with zero failures. P5 has 1,081 cases (281 fixed + 800 generated),
+275 bit-identical comparisons and 806 deferrals: p2 493, p7 312 and generic
+curve.crv_on_surf dispatch 1. Perturbation detects all 275 compared cases.
+Its regenerated report replaces the pre-p6 report. The other eight reports
+(p6, p1, p3, point classification, face query and proto-topology p1/p2/p3)
+regenerate byte-identical and are excluded from this PR's changes.
+
+Formatting, strict plain and native-enabled workspace Clippy, 1,215 kernel
+tests, WASM and the focused native FFI malformed-input regression pass. The
+adapter-only opt-level-0 override reduces build memory; the numerical kernel
+remains opt-level 1 and the C++ reference retains its standard flags. No absolute
+floors, workflow changes or build-script changes are submitted. Full CI evidence
+is tracked in PR #150 separately from these focused runs.
+
+The eight newly compared generated cases are gen0138, gen0288, gen0363, gen0393,
+gen0470, gen0583, gen0665 and gen0741. These passes certify only the exercised
+subset. All 24 zero_tangent fixtures still defer to p2 InsertAt, so they do not
+certify tangent-flag behavior. Fixup and merge comparisons include no-op/skip
+paths; nontrivial extraction, repair and insertion can still defer deeper into
+p2/p7. Both ignore-tangency calls request nonzero tangents as the base declaration
+does. B-spline one-derivative evaluation recursively uses its subclass default
+FALSE; the port preserves that native quirk.
+
+The edge-target insertion branch remains unported: vertex snapping,
+sm_RefineCCIToSurfaces and the 2D class object need p2 InsertAt and p7 point-index
+queries. The entire SSS block (SmCurveClass.cpp:14826-15095) remains unported
+before mutation. Its real missing callees are GetOtherMate/GetBrepMate in
+boolean.topology_intersector_p1; the preceding knot snapping, surface solves,
+through-point edits and edgeuse UV-trim clearing have ported callees but still
+need mutable ownership wiring here. This block does not call
+sm_RefineCCIToSurfaces. The reviewer explicitly accepted this minimum tag and
+description correction. Generic-Surface SmCrvOnSurf construction is a missing
+type/dispatch extension of the already-partial curve unit, recorded in its notes.
+
+Missing vertex-point and vertex/face-gap callback data returns InvalidInput.
+Big-gap lookup requires an explicit classification face or direct face owner of
+the surface. With no face, its cutoff retains the default SmXSectTol3d, twice
+the system zone tolerance. A unit regression checks that selection against the
+ordinary tolerance and changed system tolerance; the attempted geometric probe
+was filtered earlier by GlobalPointSolve. Nonempty large-gap projection remains
+uncertified: the native vertices have no vertexuse and the Rust runner supplies
+no vertex/face-gap callback. Rust continues on an ownerless surface, where native
+crashes (UB-126).
+
+Small shared interfaces are recorded as CO-PORTED in the owning units' notes:
+the three ClassGeometry callbacks and optional topology-tolerance dispatch,
+inline SetInterval and curve-resolver visibility on p1, and face-query vertex
+handle mapping. classification_vertex_point avoids the ProtoBrep method-name
+collision. The header records the object_index > 1 restriction, unresolved-curve
+error in p5_closed instead of native FALSE, and the runner's zero face tolerance
+that is not compared against native.
+
+The copied native sm_InsertSolutions helper remains verbatim pinned upstream.
+UB-125/126 are source-found null dereferences whose crashes were not executed;
+UB-134 was reproduced during the original bundled validation. Its fixture and
+report now point to UB-134. The maintainer has assigned UB-134 to this PR and will
+renumber the parallel claim in #148. No bundled numerical results certify this
+independent tree. The maintainer confirmed all review items resolved before the
+independent p6 integration.
