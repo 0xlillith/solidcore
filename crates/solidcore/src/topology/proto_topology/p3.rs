@@ -1583,8 +1583,8 @@ fn dimension<O: ClassObject>(topo: Option<O>) -> Result<u64> {
 
 /// `pV1->GetPoint().DistanceBetween(pV2->GetPoint())`.
 fn vertex_distance<O: Copy>(brep: &impl ProtoBrep<O>, v1: O, v2: O) -> Result<f64> {
-    let p1 = brep.vertex_point(v1).ok_or(dangling("vertex is unknown"))?;
-    let p2 = brep.vertex_point(v2).ok_or(dangling("vertex is unknown"))?;
+    let p1 = ProtoBrep::vertex_point(brep, v1).ok_or(dangling("vertex is unknown"))?;
+    let p2 = ProtoBrep::vertex_point(brep, v2).ok_or(dangling("vertex is unknown"))?;
     Ok(p1.distance(p2))
 }
 
