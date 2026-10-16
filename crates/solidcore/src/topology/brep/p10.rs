@@ -52,6 +52,11 @@
 //! - **Topology records.** Each new topology object gets its `SmTopology` record in
 //!   [`TopologyEnv::records`] under its identity; `SetAllFlags`, `SetUserIndex1/2`
 //!   and `SetUserPtr1` write it (B-rep data has no user pointer, so it is null).
+//! - **Skeleton fields.** [`crate::topology::Face::shell`] is the shell the face's
+//!   first placed face use joins (shell id 0 until then), the shell's `faces` list
+//!   gains each face once, [`crate::topology::Edge::vertices`] are the edge record's
+//!   vertices (vertex id 0 for an index past the array, which upstream never reads
+//!   for an edge without uses) and `Loop::edges` stays empty.
 //! - `SmPendingTopologyDelete`: an error leaves the objects built so far in the
 //!   B-rep (upstream deletes the one being built).
 //! - **Bounds.** Every loop is bounded by its record counts; the edge use walks of
@@ -2474,6 +2479,117 @@ mod tests {
         assert_eq!(b.shells().len(), 2);
         assert_eq!(b.region(RegionId::from_index(0)).unwrap().is_void, 1);
         assert_eq!(b.region(RegionId::from_index(1)).unwrap().is_void, 0);
+    }
+
+    /// Triangles over shared edges (sheets: both face uses in one shell).
+    fn triangles(pts: &[Point3], tris: &[[usize; 3]]) -> BrepData {
+        let mut d = BrepData::new(1, crate::topology::brep_data::DataSourceType::Unknown);
+        d.healer_version = HEALER_VERSION;
+        d.regions.push(RegionData {
+            start_shell: 0,
+            num_shells: 1,
+            is_void: 1,
+            ..RegionData::zeroed()
+        });
+        d.regions.push(RegionData::zeroed());
+        d.shells.push(ShellData {
+            shell_type: 0,
+            faceuse_start: 0,
+            num_faceuses: 2 * tris.len() as u64,
+            ..ShellData::zeroed()
+        });
+        for &q in pts {
+            d.vertices.push(VertexData {
+                point: q,
+                ..VertexData::zeroed()
+            });
+        }
+        let mut edges: Vec<(usize, usize)> = Vec::new();
+        for (f, t) in tris.iter().enumerate() {
+            for side in [1, 0] {
+                d.faceuses.push(FaceuseData {
+                    face: f as u64,
+                    orientation: side,
+                    ..FaceuseData::zeroed()
+                });
+            }
+            d.surfaces.push(Keyed {
+                key: ObjectKey(500 + f as u64),
+                object: plane_surface(),
+            });
+            d.faces.push(FaceData {
+                surface: f as u64,
+                start_loop: f as u64,
+                num_loops: 1,
+                uv_domain: Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+                ..FaceData::zeroed()
+            });
+            d.loops.push(LoopData {
+                start_eu: d.edgeuses.len() as u64,
+                num_eu: 3,
+                ..LoopData::zeroed()
+            });
+            for k in 0..3 {
+                let (a, b) = (t[k], t[(k + 1) % 3]);
+                let key = (a.min(b), a.max(b));
+                let e = edges.iter().position(|&x| x == key).unwrap_or_else(|| {
+                    edges.push(key);
+                    d.curves_3d.push(Keyed {
+                        key: ObjectKey(900 + edges.len() as u64),
+                        object: line(pts[key.0], pts[key.1]),
+                    });
+                    d.edges.push(EdgeData {
+                        curve: edges.len() as u64 - 1,
+                        start_vertex: key.0 as u64,
+                        end_vertex: key.1 as u64,
+                        prim_eu: d.edgeuses.len() as i64,
+                        interval: crate::geom::extent1d::Extent1d::from_raw(0.0, 1.0),
+                        ..EdgeData::zeroed()
+                    });
+                    edges.len() - 1
+                });
+                d.edgeuses.push(EuData {
+                    eu_type: 0,
+                    edge: e as u64,
+                    loop_: f as u64,
+                    orientation: i32::from(a < b),
+                    uv_curve: NO_UV_CURVE,
+                    ..EuData::zeroed()
+                });
+            }
+        }
+        d
+    }
+
+    #[test]
+    fn closure_walks_spine_edges() {
+        let pts = [
+            Point3::new(0.0, 0.0, 0.0),
+            Point3::new(1.0, 0.0, 0.0),
+            Point3::new(0.5, 1.0, 0.0),
+            Point3::new(0.5, 0.0, 1.0),
+            Point3::new(0.5, -1.0, 0.0),
+        ];
+        let opts = MakeTopologyOptions {
+            add_analytics: false,
+            ..MakeTopologyOptions::default()
+        };
+        // three triangles around edge 0-1: a spine edge with six edge uses whose
+        // loops do not pair up
+        let mut d = triangles(&pts, &[[0, 1, 2], [0, 1, 3], [0, 1, 4]]);
+        let mut b = build(&mut d, opts).unwrap();
+        let mut k = Kernel::default();
+        assert_eq!(b.edge(EdgeId::from_index(0)).unwrap().edgeuses.len(), 6);
+        for e in b.edges().ids().collect::<Vec<_>>() {
+            let r = test_closure_split_region(&mut k, &mut b, true, e).unwrap();
+            assert_eq!(r, ClosureSplit::default());
+        }
+        // a doubled triangle: its loops traverse the same edges, so the face use
+        // version (unported) is reached
+        let mut d = triangles(&pts, &[[0, 1, 2], [0, 1, 2], [0, 1, 3]]);
+        let mut b = build(&mut d, opts).unwrap();
+        let r = test_closure_split_region(&mut k, &mut b, false, EdgeId::from_index(0));
+        assert!(r.unwrap_err().is_unported());
     }
 
     #[test]
