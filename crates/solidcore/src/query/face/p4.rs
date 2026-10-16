@@ -532,7 +532,8 @@ pub fn classify_loops<O: LoopObject>(
             // crossing)
             if no_area_loop_cnt > 0 {
                 for touch in done.iter().step_by(2) {
-                    let target = touch_loop(touch)?;
+                    // (SmLoop*) cast: a handle that is no loop is not found either
+                    let target = touch.connected_to.and_then(|o| o.as_loop());
                     // rLoops.FindElement: the index stays 0 when not found
                     let loop_indx = target
                         .and_then(|t| loops.iter().position(|&l| l == t))
