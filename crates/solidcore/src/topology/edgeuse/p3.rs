@@ -176,11 +176,13 @@ struct DropPointOut {
 /// `pSurface->DropPoint(point, domain, NULL, bOk, uv, gap, bIsMulti)`
 /// (`SM_SO_MINIMIZE`, no guess).
 fn surface_drop_point(
+    k: &Kernel,
     surface: &Surface,
     point: Point3,
     domain: &crate::geom::extent2d::Extent2d,
 ) -> Result<DropPointOut> {
     let r = surface.drop_point::<NoObject>(
+        k,
         point,
         domain,
         &crate::surface::surface::p5::DropPointOptions::default(),
@@ -205,13 +207,14 @@ fn surface_is_singularity(
 /// `pSurface->LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, bFound, sSol)`:
 /// whether an answer was found, its UV point and its solution value.
 fn surface_local_point_solve(
+    k: &Kernel,
     surface: &Surface,
     domain: &crate::geom::extent2d::Extent2d,
     point: Point3,
     guess: Point2,
 ) -> Result<(bool, Point2, f64)> {
     let r =
-        surface.local_point_solve::<NoObject>(domain, SolverOperation::Minimize, point, guess)?;
+        surface.local_point_solve::<NoObject>(k, domain, SolverOperation::Minimize, point, guess)?;
     Ok((
         r.found,
         Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
@@ -1051,11 +1054,11 @@ fn two_singular_end_points(
     let end_point = ignored(curve.evaluate_point(edge_domain.max()))?.unwrap_or(Vec3::UNDEF);
 
     // drop curve endpoints onto surface
-    let start_drop = ignored(surface_drop_point(surface, start_point, &surface_uv_domain))?;
+    let start_drop = ignored(surface_drop_point(k, surface, start_point, &surface_uv_domain))?;
     if let Some(d) = start_drop.filter(|d| d.found) {
         start_singularity = surface_is_singularity(k, surface, d.uv)?.0;
         if start_singularity {
-            let end_drop = ignored(surface_drop_point(surface, end_point, &surface_uv_domain))?;
+            let end_drop = ignored(surface_drop_point(k, surface, end_point, &surface_uv_domain))?;
             if let Some(d) = end_drop.filter(|d| d.found) {
                 end_singularity = surface_is_singularity(k, surface, d.uv)?.0;
             }
@@ -1829,7 +1832,7 @@ pub fn evaluate_binormal_uv(
             // using sUV as a guess. (Much cheaper than GlobalPointSolve, next.)
             if !got_uv {
                 let (found, sol_uv, sol_value) =
-                    surface_local_point_solve(&surface, &domain, curve_pv[0], uv)?;
+                    surface_local_point_solve(k, &surface, &domain, curve_pv[0], uv)?;
                 got_uv = found;
                 if got_uv && sol_value > tol {
                     got_uv = false;
@@ -2148,7 +2151,7 @@ pub fn normalized_evaluate(
                     .as_ref()
                     .ok_or_else(|| SolidError::null_pointer(OP))?; // NER(pSurf)
                 let domain = surf.natural_uv_domain();
-                let drop = surface_drop_point(surf, three_d.point, &domain)?;
+                let drop = surface_drop_point(k, surf, three_d.point, &domain)?;
                 if !drop.found {
                     return Err(SolidError::sm_err(OP));
                 }
