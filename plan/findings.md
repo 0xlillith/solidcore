@@ -5683,3 +5683,45 @@ report now point to UB-134. The maintainer has assigned UB-134 to this PR and wi
 renumber the parallel claim in #148. No bundled numerical results certify this
 independent tree. The maintainer confirmed all review items resolved before the
 independent p6 integration.
+
+
+## heal.heal_data_p3 (healer sequencing, target refresh and repair stages; PR #164, 2026-10-16; partial, no disagreements)
+
+- **Gate:** 430 cases, 235 passed, 195 deferred, zero failures, `max_rel_err=0`,
+  no absolute floors. The shared real-B-rep scripts compare target/props lists,
+  problem-list order, linked flags, statistics and counters. Terminal `HealTgts`
+  cases compare status, stop/done step, recursion depth and target counts; repair
+  attempts with populated queues are terminal because native mutations invalidate
+  the original fixture graph. Empty repair queues retain the complete state dump.
+- **Missing dependencies:** 50 cases stop at B-rep tolerance/model-size operations
+  (`topology.brep_p1`), 62 at edge-use gaps (`topology.edgeuse_p3`), 61 at a
+  face-owner tolerance lookup (`topology.face_p2`, existing context-free surface
+  dispatch), 20 at face degeneracy (`topology.face_p3`), and two single-vertex
+  sphere reconstruction cases at `SmFace::GetEdges` (`topology.face_p4`). No
+  successful mutation is simulated. The remaining repair adapters return the
+  owning unit's `Unported` error and carry every caller-supplied parameter.
+- **Faithful sequencing:** `HealTgts` resets stop/done state and tests
+  `done < requested`, so requesting disabled `Fix_BackPointers` runs the edge
+  cache instead. `Fix_BadLoops` remains disabled, as in the pinned source (its
+  missing-poles regression is not an owned function of this unit).
+  `Fix_SplitFaceAtSeams` deliberately writes the split-*edge* tried list and
+  catches new targets up through `Fix_SplitEdgesAtSeam`, matching upstream.
+  The native last-direction edge-marking loop is preserved.
+- **Bounded catch-up:** nested `UpdateTargetLists -> HealTgts` calls are capped at
+  32 passes. Old-target counts, stop/done state and recursion counters are restored
+  on success and error. Native operational errors from nested healing are ignored;
+  unported callees and errors representing invalid memory access propagate.
+- **Representation:** repairs receive a mutable B-rep rather than toggling
+  upstream's B-rep editing flag. Mutation adapters return remove/add identities
+  instead of installing a context callback during each mutation; accumulated lists preserve native uniqueness
+  and removal/re-add order. `update_tracked_targets` accepts an explicit resolver
+  for the existing tracker's opaque keys. Nonempty generic classification outputs
+  must gain a typed topology resolver when their missing callees are wired; the
+  current implementation rejects unresolved handles, never invents arena ids.
+- **Harness:** a generation-aware props registry prevents allocator address reuse
+  from reviving retired records. Duplicate removals are refused only if they
+  resolve to the same props twice (or trigger the existing native pair-removal UB);
+  repeated unrelated topology entries remain valid. The single-vertex sphere
+  fixture is constructed with `SmBrepConstructor`, including swapped UV, from
+  `my_test_heal_single_vertex_sphere`; API box and closed-sphere fixtures follow
+  the upstream healer regressions. `heal.heal_data_p1` now calls the real sequence.

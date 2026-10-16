@@ -143,9 +143,12 @@ fn raw(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
 }
 
 /// Checks a B-rep block (all of `block`).
-fn check_block(path: &str, block: &[f64]) -> Result<(), FfiError> {
+pub(crate) fn check_block(path: &str, block: &[f64]) -> Result<(), FfiError> {
     let kind = block.first().copied().ok_or_else(|| bad("empty block"))?;
-    let mut rd = Reader { input: block, at: 1 };
+    let mut rd = Reader {
+        input: block,
+        at: 1,
+    };
     if kind == 4.0 {
         for _ in 0..3 {
             let d = rd.num()?;
@@ -157,7 +160,7 @@ fn check_block(path: &str, block: &[f64]) -> Result<(), FfiError> {
         rd.flag()?;
         return rd.done();
     }
-    if kind == 5.0 {
+    if kind == 5.0 || kind == 6.0 {
         let r = rd.num()?;
         if !(1e-3..=1e3).contains(&r) {
             return Err(bad("sphere radius out of range"));
@@ -316,6 +319,13 @@ fn targets(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 /// values; layout in the difftest runner of `heal.heal_data_p1`). Steps `25..=28`
 /// output `-2` and end the case when a props record they would use has no face (see
 /// `solidcore::heal::heal_data::p1`).
+/// Steps for `heal.heal_data_p3`: `32 op make` runs `HealTgts`; `33 op nrm
+/// [kind selector]* nadd [kind selector]*` runs `UpdateTargetLists` (kind 10 = null);
+/// `34..=39` run `Fix_CoinVertices`, `Fix_DegenFaces`, `Fix_DegenEdges`, `Fix_MoveSeam`,
+/// `Fix_SplitEdgesAtSeam`, `Fix_SplitFaceAtSeams`; `40 active op` runs the tracker
+/// overload with empty lists. `41` seeds the native degenerate-face queue from
+/// loaded face targets for the single-vertex-sphere regression. Selectors use the
+/// fixture graph's traversal order.
 ///
 /// # Errors
 ///
@@ -331,7 +341,7 @@ pub fn check_heal(args: &[f64]) -> Result<(), FfiError> {
     }
     let nsteps = rd.index(MAX_STEPS)?;
     for s in 0..nsteps {
-        let code = rd.index(31)?;
+        let code = rd.index(41)?;
         let last = s + 1 == nsteps;
         match code {
             12..=14 | 21 | 24 => {
@@ -374,6 +384,27 @@ pub fn check_heal(args: &[f64]) -> Result<(), FfiError> {
             }
             28 => {
                 rd.flag()?;
+            }
+            32 => {
+                rd.index(26)?;
+                rd.flag()?;
+                if !last {
+                    return Err(bad("HealTgts must be last"));
+                }
+            }
+            33 => {
+                rd.index(26)?;
+                for _ in 0..2 {
+                    let count = rd.index(MAX_TGTS)?;
+                    for _ in 0..count {
+                        rd.index(10)?;
+                        rd.index(MAX_SEL)?;
+                    }
+                }
+            }
+            40 => {
+                rd.flag()?;
+                rd.index(26)?;
             }
             30 => {
                 let mode = rd.index(2)?;
