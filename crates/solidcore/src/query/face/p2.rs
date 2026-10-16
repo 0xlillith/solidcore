@@ -48,6 +48,8 @@
 //!   of the on-boundary edge curve: on failure the point stays `SmPoint3d()`
 //!   ([`Vec3::UNDEF`]); [`SolidError::Unported`] still propagates. The `PointClassify`
 //!   statuses `sm_ClassifyParamOnFaces` ignores are ignored the same way.
+//!   Part-9 boundary views also ignore ordinary `ComputeUVPoint` failures and keep
+//!   the initialized [`Point2::UNDEF`]; unported errors still propagate.
 //! - **Null dereferences** upstream (a face, loop, edge use or vertex use without the
 //!   object it points to) are [`SolidError::InvalidInput`]; a face without surface is
 //!   `NER` ([`SolidError::null_pointer`]).
@@ -759,7 +761,13 @@ fn boundary_loops<O: ClassObject>(
                 uv: if cached {
                     Point2::UNDEF
                 } else {
-                    crate::topology::vertexuse::compute_uv_point(k, &mut snapshot, vu, true)?
+                    ignored(crate::topology::vertexuse::compute_uv_point(
+                        k,
+                        &mut snapshot,
+                        vu,
+                        true,
+                    ))?
+                    .unwrap_or(Point2::UNDEF)
                 },
                 point: record.point,
                 zone_tol_3d: record.tolerance,
