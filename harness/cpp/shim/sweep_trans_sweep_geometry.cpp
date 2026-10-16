@@ -9,6 +9,7 @@
 #include <SmBrep.h>
 #include <SmCircle.h>
 #include <SmEdge.h>
+#include <SmEllipse.h>
 #include <SmFace.h>
 #include <SmHermiteCurve.h>
 #include <SmPlane.h>
@@ -76,6 +77,15 @@ SmCurve *build(const SmContext &ctx, const double *in) {
   if (kind == 2) {
     SmCircle *c = nullptr;
     if (SmApiCreateCircle(v3(p), p[3], c) != SM_SUCCESS)
+      return nullptr;
+    return c;
+  }
+  if (kind == 5) {
+    SmEllipse *c = nullptr;
+    SmAxis2Placement frame;
+    frame.SetCanonical(v3(p), SmVector3d(1, 0, 0), SmVector3d(0, 1, 0));
+    if (SmEllipse::CreateCanonical(ctx, frame, p[3], p[4 * (n - 1) + 3], c) !=
+        SM_SUCCESS)
       return nullptr;
     return c;
   }

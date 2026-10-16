@@ -18,8 +18,8 @@
 //!
 //! Deviations: arena ids replace pointers; owned return values replace output
 //! pointers (failed calls expose no partially constructed geometry). `Clone` is
-//! `Copy`, including the analytics flag. The two base-class configuration members
-//! live in this concrete type. Only code compiled without `SM_SWEEP_CHECKS` is
+//! the upstream `Copy` method, including the shared base configuration. Only code
+//! compiled without `SM_SWEEP_CHECKS` is
 //! ported, matching the reference build; the disabled self-intersection experiment
 //! and debug drawing are omitted. Ignored statuses still propagate `Unported`.
 //! There is no input-driven recursion or allocation from file counts here.
@@ -31,7 +31,6 @@ use crate::error::{ignore_status, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::solution_array::SolutionArray;
-use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::kernel::Kernel;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
@@ -40,28 +39,18 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::surface::surf_of_revolution::p1::{gen_base, gen_base_mut};
 use crate::surface::surface::Surface;
+use crate::sweep::topology_sweep::{SweepCheckType, SweepGeometryCreation};
 use crate::topology::{edge, face, vertex, Brep, EdgeId, FaceId, ObjectHandle, VertexId};
 
 const OP: &str = "sweep::trans_sweep_geometry";
-
-/// Whether translation of a curve can produce a regular swept surface.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SweepCheck {
-    /// `SM_SC_OKAY`: no tangent parallel to the sweep was found.
-    Okay,
-    /// `SM_SC_SWEEP_ALONG_LENGTH`: the sweep is tangent to the curve.
-    AlongLength,
-}
 
 /// Geometry creation for a sweep by one translation vector.
 #[derive(Debug, Clone)]
 pub struct TranslationalSweepGeometry {
     /// `m_sSweepVector`: both direction and length.
     pub sweep_vector: Vec3,
-    /// `m_dEps`: distance tolerance used by the curve validity check.
-    pub tolerance: f64,
-    /// `m_bMakeAnalytics`: recognise analytic swept surfaces (default `true`).
-    pub make_analytics: bool,
+    /// Shared tolerance and analytic-recognition configuration.
+    pub base: SweepGeometryCreation,
 }
 
 /// A swept edge's surface and its four boundaries, in upstream traversal order.
@@ -92,8 +81,7 @@ impl TranslationalSweepGeometry {
     pub fn new(sweep_vector: Vec3) -> Self {
         Self {
             sweep_vector,
-            tolerance: ZONE_TOL_3D,
-            make_analytics: true,
+            base: SweepGeometryCreation::default(),
         }
     }
 
@@ -206,7 +194,7 @@ impl TranslationalSweepGeometry {
         interval: &Extent1d,
         dist_tol: f64,
         sweep_vector: Vec3,
-    ) -> Result<SweepCheck> {
+    ) -> Result<SweepCheckType> {
         let vectors = [sweep_vector];
         let options = PropertyAnalysisOptions::<ObjectHandle> {
             opt_vectors: &vectors,
@@ -226,9 +214,9 @@ impl TranslationalSweepGeometry {
             &mut analysis,
         ))?;
         Ok(if analysis.solutions.is_empty() {
-            SweepCheck::Okay
+            SweepCheckType::Okay
         } else {
-            SweepCheck::AlongLength
+            SweepCheckType::SweepAlongLength
         })
     }
 
@@ -244,8 +232,8 @@ impl TranslationalSweepGeometry {
         let direction = self.sweep_vector / length;
         gen_base(original).map_err(|_| SolidError::null_pointer(OP))?;
         let brep_tol = b.tolerance();
-        if self.check_curve_sweep(k, original, &interval, self.tolerance, direction)?
-            != SweepCheck::Okay
+        if self.check_curve_sweep(k, original, &interval, self.base.eps, direction)?
+            != SweepCheckType::Okay
         {
             return Err(SolidError::sm_err(OP));
         }
@@ -266,7 +254,7 @@ impl TranslationalSweepGeometry {
         }
         let base = gen_base_mut(&mut start).ok_or(SolidError::null_pointer(OP))?;
         let surface = BSplineSurface::create_linear_sweep(base, self.sweep_vector)?;
-        let output_surface = if self.make_analytics {
+        let output_surface = if self.base.make_analytics {
             surface.copy_and_add_analytics()?
         } else {
             Surface::from(surface)
@@ -396,11 +384,11 @@ mod tests {
     #[test]
     fn copy_retains_configuration_and_frames_translate() {
         let mut sweep = TranslationalSweepGeometry::new(Vec3::new(-1.0, 2.0, -3.0));
-        sweep.make_analytics = false;
-        sweep.tolerance = 2e-7;
+        sweep.base.make_analytics = false;
+        sweep.base.eps = 2e-7;
         let copied = sweep.clone();
-        assert!(!copied.make_analytics);
-        assert_eq!(copied.tolerance, 2e-7);
+        assert!(!copied.base.make_analytics);
+        assert_eq!(copied.base.eps, 2e-7);
         let origin = Vec3::new(3.0, 4.0, 5.0);
         let a = copied.start_coord_system(origin).unwrap();
         let z = copied.end_coord_system(origin).unwrap();

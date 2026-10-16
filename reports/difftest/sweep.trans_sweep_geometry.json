@@ -787,6 +787,519 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "ellipse_5_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#0",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_5_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#1",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_5_1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#2",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_5_1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#3",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_6_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#4",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_6_0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#5",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_6_1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#6",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_6_1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#7",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_7_0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#8",
+      "values_compared": 755
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "ellipse_7_0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#9",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellipse_7_1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#10",
+      "values_compared": 755
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "ellipse_7_1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#11",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 0,
+        "op": 5,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_0_5",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#12",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 0,
+        "op": 6,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_0_6",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#13",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 0,
+        "op": 7,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_0_7",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#14",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 1,
+        "kind": 0,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_0_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#15",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 2,
+        "op": 5,
+        "points": [
+          [0, 0, 0, 1e-15],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_2_5",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#16",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 2,
+        "op": 6,
+        "points": [
+          [0, 0, 0, 1e-15],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_2_6",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#17",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 0,
+        "kind": 2,
+        "op": 7,
+        "points": [
+          [0, 0, 0, 1e-15],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_2_7",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#18",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "face_kind": 1,
+        "kind": 2,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1e-15],
+          [1e-15, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1]
+      },
+      "max_rel_err": 0.0,
+      "name": "rejected_constructor_2_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#19",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_0_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#20",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_0_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#21",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_0_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#22",
+      "values_compared": 755
+    },
+    {
+      "inputs": {
+        "epsilon": 1e-14,
+        "face_kind": 1,
+        "kind": 0,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-9, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_0_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#23",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_1_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#24",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_1_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#25",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_1_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#26",
+      "values_compared": 755
+    },
+    {
+      "inputs": {
+        "epsilon": 1e-14,
+        "face_kind": 1,
+        "kind": 1,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-9, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_1_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#27",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_2_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#28",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_2_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#29",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_2_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#30",
+      "values_compared": 755
+    },
+    {
+      "inputs": {
+        "epsilon": 1e-14,
+        "face_kind": 1,
+        "kind": 2,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1e-9],
+          [1e-9, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_2_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#31",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_3_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#32",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_3_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#33",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_3_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#34",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_3_8",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#35",
+      "values_compared": 207
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_4_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#36",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_4_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#37",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_4_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#38",
+      "values_compared": 755
+    },
+    {
+      "inputs": {
+        "epsilon": 1e-14,
+        "face_kind": 1,
+        "kind": 4,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1],
+          [1e-9, 0, 0, 1]
+        ],
+        "sweep": [0, 0, 1e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_4_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#39",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_5_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#40",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_5_6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#41",
+      "values_compared": 68
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_5_7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#42",
+      "values_compared": 755
+    },
+    {
+      "inputs": {
+        "epsilon": 1e-14,
+        "face_kind": 1,
+        "kind": 5,
+        "op": 8,
+        "points": [
+          [0, 0, 0, 1e-9],
+          [1e-9, 0, 0, 5e-10]
+        ],
+        "sweep": [0, 0, 1e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "nanoscale_fixture_5_8",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
+      "source": "fixture:fixtures/sweep.trans_sweep_geometry/review.json#43",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "upstream_translate_0",
       "outcome": "pass",
       "pass": true,
@@ -2006,16 +2519,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0013",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667770",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -2023,7 +2532,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667771",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2066,16 +2575,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0020",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667777",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2099,7 +2604,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667780",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -2283,7 +2788,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667802",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -2294,16 +2799,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0047",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667804",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -2319,7 +2820,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667806",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -2702,16 +3203,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0096",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667853",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2759,7 +3256,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667859",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -2814,12 +3311,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0109",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730667866",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2891,7 +3392,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667875",
-      "values_compared": 755
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2990,16 +3491,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0131",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667888",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -3034,16 +3531,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0136",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667893",
-      "values_compared": 0
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -3086,12 +3579,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0142",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730667899",
-      "values_compared": 755
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3107,7 +3604,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667901",
-      "values_compared": 755
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3126,14 +3623,28 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
+      "inputs": {
+        "analytics": true,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.0, 1.0],
+        "kind": 0,
+        "op": 8,
+        "point": [-8.72796506765915e-10, 6.302361631418542e-10, 4.1400053997564506e-10],
+        "points": [
+          [0.0, -8.109820042440883e-10, -7.57483351680406e-10, 1.6348492575158358],
+          [5.012082186165608e-10, 1.115810224138126e-10, 6.814763355888275e-11, 0.5012082186165607],
+          [3.291234616917177e-9, -4.348386664373151e-10, -7.844201303874141e-10, 1.6456173084585886]
+        ],
+        "swap": true,
+        "sweep": [1.189627962045305e-9, 1.8041657899101447e-9, 1.0983876439920617e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
       },
       "max_rel_err": 0.0,
       "name": "gen0147",
-      "outcome": "deferred",
+      "outcome": "rejected",
       "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730667904",
       "values_compared": 0
     },
@@ -3242,16 +3753,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0161",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667918",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -3298,24 +3805,24 @@
       "values_compared": 2
     },
     {
+      "max_rel_err": 0.0,
+      "name": "gen0167",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=12482191920730667924",
+      "values_compared": 207
+    },
+    {
       "deferred": {
         "symbol": "SmCone::IsNurbSurfaceCone",
         "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
-      "name": "gen0167",
+      "name": "gen0168",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=12482191920730667924",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0168",
-      "outcome": "pass",
-      "pass": true,
       "source": "generated:seed=12482191920730667925",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3398,16 +3905,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0179",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730667936",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -3442,12 +3945,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0184",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730667941",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3567,7 +4074,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667956",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3671,7 +4178,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667969",
-      "values_compared": 755
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3679,7 +4186,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667970",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -3714,12 +4221,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0218",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730667975",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3810,12 +4321,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0230",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730667987",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3823,7 +4338,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667988",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -3855,7 +4370,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730667992",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -3931,7 +4446,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668001",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -3987,7 +4502,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668008",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4011,7 +4526,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668011",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4022,12 +4537,31 @@
       "values_compared": 5
     },
     {
+      "inputs": {
+        "analytics": false,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.0, 1.0],
+        "kind": 0,
+        "op": 8,
+        "point": [7.507646027405886e-11, 9.047115965342486e-10, -6.300763607401334e-10],
+        "points": [
+          [0.0, 7.894621776681513e-10, -7.164602206101312e-11, 1.0],
+          [1e-9, 8.282640858107371e-10, 4.3459438163813837e-10, 1.0],
+          [2e-9, -7.009728386498063e-10, -4.577511449017746e-10, 1.0],
+          [3.0000000000000004e-9, 7.044518885081368e-10, -2.642627579357642e-10, 1.0]
+        ],
+        "swap": false,
+        "sweep": [4.964153744080725e-10, -1.0055622249361411e-9, 2.4710770106172747e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
       "max_rel_err": 0.0,
       "name": "gen0256",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730668013",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4070,12 +4604,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668019",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4262,16 +4800,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0286",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668043",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4330,16 +4864,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0294",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668051",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -4371,7 +4901,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668055",
-      "values_compared": 755
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4382,12 +4912,16 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0300",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668057",
-      "values_compared": 755
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4583,19 +5117,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668080",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0324",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668081",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -4622,16 +5152,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0328",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668085",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -4667,7 +5193,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668089",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -4702,12 +5228,29 @@
       "values_compared": 13
     },
     {
+      "inputs": {
+        "analytics": false,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.2, 0.8],
+        "kind": 0,
+        "op": 8,
+        "point": [2.4842438442706767e-10, -4.823665969696633e-10, -5.603316777780298e-11],
+        "points": [
+          [0.0, -8.812036072563774e-10, -5.425617179534759e-10, 1.0],
+          [1e-9, -8.455698801208609e-10, -5.2404310320173454e-11, 1.0]
+        ],
+        "swap": false,
+        "sweep": [-1.5830490129859066e-10, -5.851359605344886e-11, 1.696174557147205e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
       "max_rel_err": 0.0,
       "name": "gen0337",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730668094",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4747,7 +5290,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668099",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4755,7 +5298,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668100",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "deferred": {
@@ -4859,7 +5402,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668112",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -4923,7 +5466,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668120",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5002,16 +5545,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0373",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668130",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -5051,7 +5590,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668135",
-      "values_compared": 68
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5102,22 +5641,41 @@
       "values_compared": 68
     },
     {
-      "max_rel_err": 0.0,
-      "name": "gen0385",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=12482191920730668142",
-      "values_compared": 207
-    },
-    {
       "deferred": {
         "symbol": "SmCone::IsNurbSurfaceCone",
         "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
-      "name": "gen0386",
+      "name": "gen0385",
       "outcome": "deferred",
       "pass": false,
+      "source": "generated:seed=12482191920730668142",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "analytics": true,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.2, 0.8],
+        "kind": 0,
+        "op": 8,
+        "point": [2.4910491425812464e-10, -5.040787504490263e-10, 5.67525072488116e-10],
+        "points": [
+          [0.0, -7.863564272269543e-10, -7.601608415807329e-10, 1.0],
+          [1e-9, 5.962623963545055e-11, -1.8685548489322002e-10, 1.0],
+          [2e-9, -3.993957334436567e-10, 6.150169735960331e-10, 1.0],
+          [3.0000000000000004e-9, 1.1900864606402119e-10, 9.62929124911043e-10, 1.0]
+        ],
+        "swap": true,
+        "sweep": [-3.3092137466176875e-10, -2.4147694029977185e-10, 2.1200792102315688e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0386",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730668143",
       "values_compared": 0
     },
@@ -5135,7 +5693,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668145",
-      "values_compared": 1
+      "values_compared": 755
     },
     {
       "max_rel_err": 0.0,
@@ -5146,12 +5704,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0390",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668147",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -5278,14 +5840,27 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
+      "inputs": {
+        "analytics": false,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.0, 1.0],
+        "kind": 4,
+        "op": 8,
+        "point": [4.515650460434597e-10, 9.158261432014782e-10, -9.276275837096455e-10],
+        "points": [
+          [0.0, 9.747328335154149e-11, -5.849632171299413e-10, 1.0],
+          [1e-9, -5.934907621401602e-10, -4.4672088478566566e-10, 1.0]
+        ],
+        "swap": true,
+        "sweep": [-1.7096994047895998e-10, -1.596843749724113e-10, 1.8539861149960007e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
       },
       "max_rel_err": 0.0,
       "name": "gen0405",
-      "outcome": "deferred",
+      "outcome": "rejected",
       "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730668162",
       "values_compared": 0
     },
@@ -5334,12 +5909,16 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0411",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668168",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5383,7 +5962,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=12482191920730668173",
-      "values_compared": 1
+      "values_compared": 68
     },
     {
       "max_rel_err": 0.0,
@@ -5418,16 +5997,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0421",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668178",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -5538,16 +6113,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0435",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668192",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5630,16 +6201,12 @@
       "values_compared": 207
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0446",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12482191920730668203",
-      "values_compared": 0
+      "values_compared": 207
     },
     {
       "max_rel_err": 0.0,
@@ -5838,14 +6405,30 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
+      "inputs": {
+        "analytics": true,
+        "epsilon": 1.0000000000000002e-14,
+        "face_kind": 1,
+        "interval": [0.0, 1.0],
+        "kind": 5,
+        "op": 8,
+        "point": [-7.22472120351679e-10, 5.089777793316373e-10, -5.978580795086311e-12],
+        "points": [
+          [0.0, 9.311234016015267e-10, -8.395465832652217e-10, 6.797137610906548e-10],
+          [1e-9, 7.040890564092353e-10, 3.2768653853515906e-10, 1.0],
+          [2e-9, 8.189709987517226e-10, 7.322641195075533e-10, 1.0],
+          [3.0000000000000004e-9, -9.246114037899078e-11, -3.7137018160155914e-10, 1.0],
+          [4e-9, -2.0772608235433367e-11, 8.262012686201333e-10, 3.398568805453274e-10]
+        ],
+        "swap": false,
+        "sweep": [-3.888798031869616e-10, -7.879960177576e-10, 1.0895499602282603e-9],
+        "tolerances": [1e-15, 1e-15, 1e-15, 1e-15]
       },
       "max_rel_err": 0.0,
       "name": "gen0471",
-      "outcome": "deferred",
+      "outcome": "rejected",
       "pass": false,
+      "rejected": "native fixture constructor rejected the geometry before the sweep",
       "source": "generated:seed=12482191920730668228",
       "values_compared": 0
     },
@@ -5866,12 +6449,16 @@
       "values_compared": 68
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0474",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668231",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6006,12 +6593,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0491",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=12482191920730668248",
-      "values_compared": 755
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6179,12 +6770,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 56,
+  "cases_deferred": 50,
   "cases_failed": 0,
-  "cases_passed": 688,
-  "cases_total": 744,
+  "cases_passed": 719,
+  "cases_rejected": 19,
+  "cases_total": 788,
   "deferred_by_unit": {
-    "surface.cone_p2": 56
+    "surface.cone_p2": 50
   },
   "max_rel_err": 0.0,
   "pass": true,

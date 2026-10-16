@@ -3,9 +3,9 @@
 //! Input: op (0 start frame, 1 end frame, 2 transform, 3 vertex same,
 //! 4 vertex higher, 5 check, 6 edge same, 7 edge higher, 8 face same),
 //! sweep xyz, point xyz, start/end/edge/face tolerances, epsilon, analytics flag,
-//! curve kind (0 real line, 1 rational Bezier, 2 real circle, 3 Hermite, 4 2D Bezier), point count,
+//! curve kind (0 real line, 1 rational Bezier, 2 real circle, 3 Hermite, 4 2D Bezier, 5 ellipse), point count,
 //! interval min/max, swap flag, face kind (0 real plane, 1 extruded B-spline),
-//! then xyzw control points (circle: center xyz and radius in its first entry).
+//! then xyzw control points (circle/ellipse: center xyz; radii in the first/last w entries).
 //! Output begins with the upstream status; successful geometry includes native
 //! kinds, parameter domains, ordered boundaries, endpoint roles, tolerances,
 //! normals, and nine curve / 25 surface position and derivative samples.
@@ -42,7 +42,7 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
         || input.len() != 19 + 4 * n
         || !(0.0..=8.0).contains(&input[0])
         || input[0].fract() != 0.0
-        || ![0.0, 1.0, 2.0, 3.0, 4.0].contains(&input[13])
+        || ![0.0, 1.0, 2.0, 3.0, 4.0, 5.0].contains(&input[13])
         || [12, 17, 18]
             .iter()
             .any(|&i| ![0.0, 1.0].contains(&input[i]))
@@ -54,7 +54,10 @@ pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     {
         return Err(bad());
     }
-    if input[13] == 2.0 && input[22] <= 0.0 {
+    if [2.0, 5.0].contains(&input[13]) && input[22] <= 0.0 {
+        return Err(bad());
+    }
+    if input[13] == 5.0 && input[22 + 4 * (n - 1)] <= 0.0 {
         return Err(bad());
     }
     if input[13] == 0.0 && input[19..22] == input[19 + 4 * (n - 1)..22 + 4 * (n - 1)] {
@@ -121,7 +124,7 @@ mod tests {
 
     #[test]
     fn native_operations_cover_every_curve_kind_and_flag_combination() {
-        for kind in 0..=4 {
+        for kind in 0..=5 {
             for op in 0..=8 {
                 for analytics in [0.0, 1.0] {
                     for swap in [0.0, 1.0] {

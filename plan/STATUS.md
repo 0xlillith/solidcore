@@ -1,6 +1,6 @@
 # solidcore status
 
-Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 688 bit-identical passes, 56 deferred on `surface.cone_p2`). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
+Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 719 bit-identical passes, 50 deferred on `surface.cone_p2`, 19 rejected native fixtures). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
 
 Latest main integration: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green).
 

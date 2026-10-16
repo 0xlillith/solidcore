@@ -7,7 +7,9 @@ use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solidcore::curve::curve::{Curve, CurveKind};
+use solidcore::curve::ellipse::Ellipse;
 use solidcore::curve::hermite_curve::HermiteCurve;
+use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::tol::zone_tol3d;
@@ -21,7 +23,8 @@ use solidcore::nurbs::math::CPoint;
 use solidcore::primitive::api_curves;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
-use solidcore::sweep::trans_sweep_geometry::{SweepCheck, TranslationalSweepGeometry};
+use solidcore::sweep::topology_sweep::SweepGeometryCreation;
+use solidcore::sweep::trans_sweep_geometry::TranslationalSweepGeometry;
 use solidcore::topology::{Brep, Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
 use solidcore::{Result, SolidError};
 use solidcore_ffi::units::sweep_trans_sweep_geometry as ffi;
@@ -119,6 +122,17 @@ fn build(k: &Kernel, i: &Input) -> Result<Curve> {
         )
         .map(Curve::from);
     }
+    if i.kind == 5 {
+        return Ellipse::create_canonical(
+            k,
+            &Axis2Placement::new(Vec3::new(first[0], first[1], first[2]), Vec3::X, Vec3::Y),
+            first[3],
+            last[3],
+            None,
+            None,
+        )
+        .map(Curve::from);
+    }
     if i.kind == 3 {
         return Ok(Curve::from(HermiteCurve::new(
             Vec3::new(first[0], first[1], first[2]),
@@ -195,8 +209,10 @@ fn rust(i: &Input) -> Result<Vec<f64>> {
     let k = Kernel::default();
     let sweep = TranslationalSweepGeometry {
         sweep_vector: v(i.sweep),
-        tolerance: i.epsilon,
-        make_analytics: i.analytics,
+        base: SweepGeometryCreation {
+            eps: i.epsilon,
+            make_analytics: i.analytics,
+        },
     };
     let mut o = vec![0.];
     let mut b = Brep::new();
@@ -233,7 +249,7 @@ fn rust(i: &Input) -> Result<Vec<f64>> {
                 i.epsilon,
                 v(i.sweep),
             )?;
-            o.push(if result == SweepCheck::Okay { 0. } else { 2. });
+            o.push(f64::from(result.code()));
         }
         6 | 7 => {
             let c = build(&k, i)?;
@@ -350,9 +366,15 @@ impl UnitDiff for Runner {
     }
     fn run_cpp(&self, c: &Case) -> std::result::Result<Output, HarnessError> {
         let i: Input = c.parse()?;
-        ffi::eval(&flat(&i))
-            .map(|v| Output::new().values("geometry", v))
-            .map_err(|e| HarnessError::new(e.to_string()))
+        match ffi::eval(&flat(&i)) {
+            Ok(v) => Ok(Output::new().values("geometry", v)),
+            Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
+                Ok(Output::rejected(
+                    "native fixture constructor rejected the geometry before the sweep",
+                ))
+            }
+            Err(e) => Err(HarnessError::new(e.to_string())),
+        }
     }
     fn run_rust(&self, c: &Case) -> std::result::Result<Output, HarnessError> {
         let i: Input = c.parse()?;
@@ -369,7 +391,7 @@ impl UnitDiff for Runner {
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let op = rng.below(9) as u8;
-        let scale = [1e-6, 1., 1e6][rng.below(3) as usize];
+        let scale = [1e-9, 1e-6, 1., 1e6][rng.below(4) as usize];
         let n = 2 + rng.below(4) as usize;
         let mut p: Vec<[f64; 4]> = (0..n)
             .map(|j| {
@@ -390,10 +412,13 @@ impl UnitDiff for Runner {
                 q[3] = w;
             }
         }
-        let kind = rng.below(5) as u8;
-        if kind == 2 {
+        let kind = rng.below(6) as u8;
+        if kind == 2 || kind == 5 {
             // Circle entries encode a center and a radius, not homogeneous points.
             p[0][3] = rng.uniform(0.5, 2.) * scale;
+            if kind == 5 {
+                p[n - 1][3] = p[0][3] * 0.5;
+            }
         }
         let i = Input {
             op,
