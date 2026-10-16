@@ -35,7 +35,7 @@
 //!   `m_apObjects[1]`).
 //! - **Indices** are `usize` with upstream's `ULONG` wrap-around arithmetic.
 //!   `GetLoopStartEnd` sets the start of a later loop to the previous loop's last index,
-//!   as upstream does (`plan/upstream-issues.md` WR-94). An index past the curve list, which
+//!   as upstream does (`plan/upstream-issues.md` WR-96). An index past the curve list, which
 //!   upstream reads out of bounds, is [`SolidError::InvalidInput`].
 //! - **Ignored statuses.** `SampleNearbyPoints` ignores `FindAdjacentLoopCurve`'s status
 //!   (index `0` when the curve is not in the loops) and `FindAdjacentLoopCurve` ignores

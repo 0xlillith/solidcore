@@ -1,6 +1,21 @@
 # solidcore status
 
-Last updated: 2026-10-15, PR #115 (`topology.brep_cache` partial). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
+Last updated: 2026-10-15, `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
+
+
+## Integration update (2026-10-15, PR #119)
+
+The manifest now has 173 ported units: 97 green and 76 partial. `mass.integrator`
+has 1520 passing cases and eight explicit dependency deferrals out of 1528, with
+maximum relative error `4.979280456316938e-14` and no absolute floors. Review
+regressions cover circular holes, curved B-spline surfaces, rational edges and nested area strips; each Cash–Karp derivative array
+now retains its own values when a trim has zero U tangent. All three
+integration back-edges are wired. `curve.curve_p3` is green (3076/3076 bit-identical),
+and the 28 formerly deferred curved-length cases of `curve.curve_p5` now pass.
+Precise edge/face/B-rep properties and their API control flow use explicit calls
+for the remaining topology, bounding-box and offset dependencies. Detailed coverage
+and the scalar wrapper's failure-masking behavior are in `plan/findings.md`.
+
 
 ## Handoff (2026-10-13): from one local swarm to pull requests
 
@@ -901,3 +916,39 @@ and topology-solver back-edges are wired; face picking uses caller-supplied
 kernel, B-rep identity and owner mappings.
 The four affected units keep their existing pass/deferred counts; 131
 `geom.a_object` deferrals now correctly name `query.brep` instead of the cache.
+
+## Public geometry and topology queries (2026-10-16, PR #125)
+
+`query.api_queries` is partial: 1,203 cases (403 fixed and 800 fixed-seed
+generated), 587 compared bit-identical, zero failed and 616 explicit deferrals.
+The native oracle calls real `SmApi*` entrypoints on concrete analytic/NURBS
+geometry, including a line-generated surface of revolution, a C0 B-spline corner,
+vertex loops and holed faces. No absolute floors were added.
+
+Coverage includes left tangents at an internal knot and its adjacent floats,
+zero-edge loop counts, invalid inner-loop cleanup, subdomains, scales, poles and
+seams. All 21 analytic revolution cases compare bit-identically, including
+multiple UV representations. Relationship fixtures cover all five native classes,
+edge/corner contact and reversed operands, including the upstream distance probes;
+Rust relationship paths still defer to unfinished dependencies. Topology imports
+retain exact concrete types, face-use links, trim flags and geometry owners.
+
+The face UV query now calls `query.face_p2`. Face closest-point test adapters
+validate the face before building their caches. `solution_point` follows
+`SmSolution::GetPoint`'s parameter advances and ignored ordinary evaluation errors;
+two core tests cover both behaviors, and the generic solution API points to this
+adapter for future geometry wiring.
+
+FFI guards cover the missing-curve solver/picker, face-query and curved tight-box
+crashes found during review and isolated probes. After correction, all 396 probes
+finish without a crash or timeout (192 guarded, 204 native calls completed).
+Five FFI tests include the regressions and all 25 native null contracts; nulls
+are excluded from the differential count because typed Rust has no equivalent.
+Native defects are recorded in findings and upstream issues (UB-108).
+
+Local checks pass: formatting, plain/C++ Clippy, 1,168 workspace/doc tests,
+the five FFI tests, WASM, cargo-deny and locked publish dry-run. The full native
+suite passes 173 units
+(97 green, 76 partial), with zero failures; the final API rerun and touched-unit
+perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
+422,654 compared, 12,618 deferred, zero failed.

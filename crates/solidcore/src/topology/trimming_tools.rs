@@ -67,11 +67,11 @@
 //!   `Tessellate`, whose status upstream ignores, is returned.
 //! - **`IsIsoCurve(curve, side, low, tol)`** returns `SER(GetCanonical)`'s nonzero
 //!   status as an `SmBoolean`: a curve without NURB counts as an iso curve, as upstream
-//!   (`plan/upstream-issues.md` WR-95). `MirrorCurve` divides rational control points by
-//!   their weights twice, as upstream (WR-96).
+//!   (`plan/upstream-issues.md` WR-97). `MirrorCurve` divides rational control points by
+//!   their weights twice, as upstream (WR-98).
 //! - **`FindOuterLoops`** with a loop of zero area reads past its arrays upstream
-//!   (UB-108): [`SolidError::InvalidInput`]. A null curve of `OrderCurvesIntoLoops`
-//!   (UB-109) cannot be passed.
+//!   (UB-119): [`SolidError::InvalidInput`]. A null curve of `OrderCurvesIntoLoops`
+//!   (UB-120) cannot be passed.
 //! - **`CheckLoop`** takes the surface separately, as upstream; `CheckFace` passes a
 //!   copy of the face's surface (the edge use UV extremes need the B-rep mutably).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::SetTolerance`
