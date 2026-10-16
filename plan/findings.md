@@ -4974,6 +4974,36 @@ mutated scales and accepted/reduced step counts are compared.
 - **`sm_FixProblemsBySqueezing`** ends with a tail call; the port restarts a loop at the same
   point (visit order unchanged), bounded by interval count + 1.
 
+## intersect.curve_class_p4 (`SmCurveClassification` part 4: the full constructor, `GetLoopCrossings`, `SmCurveInterval::GetIvlBound_EdgeuseObj`, `sm_SqueezeOutSmallestInterval`, 2026-10-16; WIP, no disagreements)
+
+- **Why the topology stubs remain** (`SmLoop::GetFace` (`topology.loopuse`), `SmFace::GetUpwardFaceuse` /
+  `GetSurface` (`topology.face_p2`), `SmEdge::GetEdgeuses` / `GetCurve` / `GetInterval` (`topology.edge`),
+  `SmEdgeuse::GetEdge` / `GetOrientation` (`topology.edgeuse_p1`), `SmEdgeuse::EvaluateBinormal`
+  (`topology.edgeuse_p3`), `SmVertex::GetVertexusesOfFace` (`topology.vertex`),
+  `SmVertexuse::GetVertexuseType` / `ComputeUVSector` (`topology.vertexuse`)): as in parts 1 and 3 the
+  classification refers to objects through the opaque handle `O: ClassObject`, and a loop, face, edge,
+  edge use, vertex or vertex use handle carries no `Brep`. The stubs wait on handle-to-B-rep resolution,
+  not on the units' ports. `GetIvlBound_EdgeuseObj` calls `GetUpwardFaceuse` first and `GetLoopCrossings`
+  calls `SmLoop::GetFace` first, so every call that is defined upstream defers in Rust; only
+  `GetLoopCrossings` over an empty loop list is compared.
+- **Other stubs** are the maintainer's open PRs and an unported unit: `intersect.curve_class_p2` (PR #85:
+  `ReSet`, so the whole constructor; `ConnectIntervals`, so every squeeze; `GetMinUV` / `GetMaxUV`),
+  `intersect.curve_class_p7` (PR #65: `GetPointClassifiesConnectedTo`) and `heal.face_props`
+  (`SetProps_Stage2`; the members `GetLoopCrossings` reads are co-ported as `LoopCrossingFaceProps`).
+- **Harness limits.** The pool's loops are stand-ins (not `SmLoop`), so the shim refuses
+  `GetLoopCrossings` over any loop (upstream reads a non-loop in `SmLoop::GetFace`); a real-B-rep pool
+  (e.g. `CreateFaceFromSurface`) would let the C++ side run those calls, which Rust would still defer.
+  `GetIvlBound_EdgeuseObj` of an interval whose back pointer is another classification is refused (the
+  port addresses intervals in their classification and has no back pointer).
+- **Not wired yet** (`UNPORTED(intersect.curve_class_p4)` on main): the constructor sites in
+  `curve::crv_in_volume` (`compute_breaks`) and `curve::crv_on_surf` (`knots`) have no `Kernel` in scope
+  (the constructor needs one for its default tolerances, then calls `ReSet`, `intersect.curve_class_p2`);
+  `topology::face::p2` (`classify_curve_on_face`, `ivl_bound_edgeuse_obj`; the latter needs a
+  `ClassGeometry` passed to `review_start_and_stop_on_seam_crv_classifies`) and
+  `intersect::topology_solver::p2` (`classified_curve_intervals`) are still to do.
+- **Upstream defect** UB-124 (`plan/upstream-issues.md`): the face, surface and curve are dereferenced
+  before the functions' own `NULL` checks.
+
 ## query.api_queries
 
 - **Native missing-curve crashes (2026-10-16, PR #125).** Clearing an edge's

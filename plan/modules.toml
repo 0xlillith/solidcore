@@ -2296,7 +2296,7 @@ tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_poin
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "4 fns; largest: SmCurveClassification::GetLoopCrossings, SmCurveInterval::GetIvlBound_EdgeuseObj, SmCurveClassification::SmCurveClassification, sm_SqueezeOutSmallestInterval; cycle back-edges (call into later units; stub or co-port): topology.edge(4), topology.face_p2(4), topology.edgeuse_p1(3), heal.face_props(2), topology.vertexuse(2), topology.edgeuse_p3(1), topology.loopuse(1), topology.vertex(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "WIP (PR #137, draft): all 4 fns ported in intersect::curve_class::p4 with shim/ffi/runner; status stays todo until the UNPORTED(intersect.curve_class_p4) stubs on main are wired (crv_in_volume, crv_on_surf, topology::face::p2 x2, intersect::topology_solver::p2; see plan/findings.md) and the gate (probe, full) has run. Every defined call except GetLoopCrossings over an empty loop list defers: ReSet/ConnectIntervals/GetMinUV (intersect.curve_class_p2, PR #85), GetPointClassifiesConnectedTo (intersect.curve_class_p7, PR #65), SetProps_Stage2 (heal.face_props), and the loop/face/edge/vertex members of opaque handles (no Brep). LoopCrossingFaceProps co-ports the SmFaceProps members GetLoopCrossings reads (CO-PORTED from heal.face_props). Upstream defect UB-124. 4 fns; largest: SmCurveClassification::GetLoopCrossings, SmCurveInterval::GetIvlBound_EdgeuseObj, SmCurveClassification::SmCurveClassification, sm_SqueezeOutSmallestInterval; cycle back-edges (call into later units; stub or co-port): topology.edge(4), topology.face_p2(4), topology.edgeuse_p1(3), heal.face_props(2), topology.vertexuse(2), topology.edgeuse_p3(1), topology.loopuse(1), topology.vertex(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
 
 [[unit]]
 id = "intersect.surface_intersector_p3"
@@ -2828,7 +2828,7 @@ tests = ["prog_test:my_test_trimming_tools", "SM_API_test:TestSmTrimSurfaceWith3
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "25 fns; largest: SmFaceProps::SetProps_Stage3, SmFaceProps::SetProps_Stage2, SmLoopProps::SetProps, SmFaceProps::ReSet; unit-SCC #22 (220 units); 100 upstream test entry points reach this unit"
+notes = "CO-PORTED (intersect.curve_class_p4, PR #137): the SmFaceProps members GetLoopCrossings reads, as intersect::curve_class::LoopCrossingFaceProps (replace with the real type when this unit is ported). 25 fns; largest: SmFaceProps::SetProps_Stage3, SmFaceProps::SetProps_Stage2, SmLoopProps::SetProps, SmFaceProps::ReSet; unit-SCC #22 (220 units); 100 upstream test entry points reach this unit"
 
 [[unit]]
 id = "topology.brep_cache"

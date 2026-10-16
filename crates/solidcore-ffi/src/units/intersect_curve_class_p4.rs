@@ -416,7 +416,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         rd.index(1)?;
         let obj = |rd: &mut Reader<'_>| rd.object(n_obj).map(|_| ());
         match code {
-            op::SET_SIZE | op::REMOVE_AT | op::IVL_RESET | op::MERGE => {
+            op::SET_SIZE | op::REMOVE_AT | op::IVL_RESET => {
                 rd.index(MAX_SIZE)?;
             }
             op::IVL_SET => {
