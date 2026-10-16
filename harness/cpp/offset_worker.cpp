@@ -22,6 +22,9 @@ extern "C" NL_FLAG __real_N_CrvExtendByDist(NL_CURVE*, NL_REAL, NL_FLAG, NL_FLAG
                                             NL_FLAG, NL_CURVE*, NL_STACKS*, NL_STACKS*);
 extern "C" NL_FLAG __real_N_CrvArcLength(NL_CURVE*, NL_PARAMETER, NL_PARAMETER,
                                         NL_REAL, NL_FLAG, NL_REAL*);
+extern "C" NL_FLAG __real_N_SrfExtendByDist(NL_SURFACE*, NL_REAL, NL_FLAG, NL_FLAG,
+                                            NL_FLAG, NL_SURFACE*, NL_STACKS*, NL_STACKS*);
+extern "C" NL_FLAG __real_N_SrfCopy(NL_SURFACE*, NL_SURFACE*, NL_STACKS*);
 namespace {
 struct Extension {
     NL_CURVE* curve;
@@ -71,6 +74,35 @@ extern "C" NL_FLAG __wrap_N_CrvArcLength(NL_CURVE* curve, NL_PARAMETER lo,
         }
     }
     return status;
+}
+
+// UB-107 (plan/upstream-issues.md): a failed in-place N_SrfExtendByDist leaves the
+// surface on freshly allocated, partly written arrays, and CreateExtendedSurface's
+// halving loop retries on them (its outcome then depends on earlier memory). Mark the
+// surface after such a failure and reject only a later read of it; the give-up paths
+// (NL_SER, the dDist/100 floor) never read it, and N_SrfCopy into it (the start of the
+// next CreateExtendedSurface) makes it whole again.
+namespace {
+const NL_SURFACE* half_written_surface = nullptr;
+}
+extern "C" NL_FLAG __wrap_N_SrfExtendByDist(NL_SURFACE* surface, NL_REAL distance,
+    NL_FLAG direction, NL_FLAG end, NL_FLAG continuity, NL_SURFACE* result,
+    NL_STACKS* input_stack, NL_STACKS* output_stack)
+{
+    if (surface == half_written_surface) throw ScOffsetUnsafeInput{};
+    const auto status = __real_N_SrfExtendByDist(surface, distance, direction, end,
+                                                 continuity, result, input_stack,
+                                                 output_stack);
+    if (status != NL_NO && result == surface) half_written_surface = surface;
+    else if (result == half_written_surface) half_written_surface = nullptr;
+    return status;
+}
+extern "C" NL_FLAG __wrap_N_SrfCopy(NL_SURFACE* source, NL_SURFACE* target,
+    NL_STACKS* stack)
+{
+    if (source == half_written_surface) throw ScOffsetUnsafeInput{};
+    if (target == half_written_surface) half_written_surface = nullptr;
+    return __real_N_SrfCopy(source, target, stack);
 }
 
 template <class T> bool read(T& value)

@@ -187,7 +187,7 @@ fn main() {
     command
         .arg(&worker_source)
         .arg(out_dir.join("libsolidcore_shims.a"))
-        .arg("-Wl,--wrap=N_CrvExtendByDist,--wrap=N_CrvArcLength");
+        .arg("-Wl,--wrap=N_CrvExtendByDist,--wrap=N_CrvArcLength,--wrap=N_SrfExtendByDist,--wrap=N_SrfCopy");
     for d in [
         root.join("upstream/source/SMLib/inc"),
         root.join("upstream/source/SM_API/inc"),

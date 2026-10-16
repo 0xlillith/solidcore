@@ -75,7 +75,8 @@
 //!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
 //!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
 //!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
-//!   `SmOffsetSurface::SetOffsetDistance` (`surface.offset_surface`) return
+//!   `SmOffsetSurface::SetOffsetDistance` through the intersector's shared surfaces
+//!   (a dispatch gap left to `blend.fillet_executive_p1`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are ignored, except
 //!   `Unported`, which always propagates.
 //! - **Not ported here.** `SmTsectPnt::Dump` / `Draw` (debug output) and the

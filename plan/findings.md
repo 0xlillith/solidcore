@@ -4311,11 +4311,29 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
 
 ## surface.offset_surface (`SmOffsetSurface`, PR #62, 2026-10-14)
 
-- **Review repair:** merged main, resolved both surface dispatcher/runner conflicts,
-  wired new intersector and point-solver matches, retained the author's storing
-  `step_inversion_extending` path, and fixed C++-feature Clippy errors. Default
-  difftest: 3060 cases, 1582 passed, 0 failed, 1478 deferred. The 6000-seed run:
-  6060 cases, 3046 passed, 0 failed, 3014 deferred; compared values bit-identical.
+- **Status (2026-10-15, after merging main `51eb95fb`):** default difftest 3062 cases,
+  2849 passed, 0 failed, 213 deferred (all `surface.surface_point_solve_p3`); 6000-seed
+  run 6062 cases, 5611 passed, 0 failed, 451 deferred; compared values bit-identical.
+  (Before `surface.surface_p3`..`p5` landed: 3060 cases, 1582 passed, 1478 deferred.)
+- **Maintainer review fixes:** `Surface::create_offset_surface` dispatches as the virtual
+  (plane: moved copy; surface of revolution: offset generator with the caller's
+  `approx_tol_3d`, now a parameter; offset: compound distance; others: the base body).
+  A face-owned offset's expanded box returns `Unported(topology.face_p2)`
+  (`SmFace::GetTolerance`) for a B-spline-family base instead of the default zone
+  tolerance: upstream's base finds the face through `GetFace()`'s owner chain, which the
+  boxed base here lacks, so the offset passes the face down. `SmSurface::IsPeriodic`
+  ignores its `Evaluate` statuses as upstream (`Surface::evaluate_ignoring_status`): a
+  B-spline keeps the derivatives it wrote when its zero-tangent repair fails, so a
+  bicubic collapsed to one point is periodic both ways and its offset constructs
+  (fixtures `collapsed_bspline_d1`, `..._unknown_sing`; was `values.out.len` 72 vs 1).
+- **Generated-case exclusions from main's upstream issues** (inputs only, no tolerance
+  change): the worker wraps `N_SrfExtendByDist` / `N_SrfCopy` and rejects a read of a
+  surface a failed in-place extension left half-written (UB-107, `CreateExtendedSurface`'s
+  halving retry), discarding the candidate at generation; and, as `nlib.srf_adv_p1` does,
+  reflection extensions (`G1`, `G1G2`) of a base whose extended NURB has a degree-1
+  direction are generated as C-max (UB-32: `ST_surxsdr`'s reflection-plane fallback reads
+  `Rw[ii][kby + 2]` past its row; the port returns `InvalidInput`). Without them, two
+  generated cases each disagreed (C++ succeeding on undefined data).
 - **Exact replay:** `serde_json/float_roundtrip` preserves the eight doubles that
   previously changed by one ULP on fixture reload. A regression checks input bits.
 - **Reference safety:** `gen5909` is HANG-15, a successful NaN arc length entering
@@ -4374,13 +4392,14 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   it can still track; the shim, in the worker, re-checks every box against the actual base
   domain after the preceding steps (UB-118, HANG-14) and zero-distance delegation to a
   plane's evaluator (UB-117).
-- **Deferred:** most cases wait on `SmSurface::GetSingularities` (`surface.surface_p3`, PR
-  #52): every constructor call with `SM_SS_UNKNOWN`, so `Copy`, `SplitAt`,
-  `CreateOffsetSurface`, `CreateExtendedSurface` and `ReadFromDB` too. Every offset box
-  waits on `SmSurface::IsSingularity` (`surface.surface_p5`, the base's polar box).
-- **Dispatch gaps:** `surface_cache::p1::calculate_bounding_box` of an offset (needs the
-  kernel and the basis guesses; unreachable before `surface.surface_p6`), tagged
-  with the actual prerequisite `UNPORTED(surface.surface_p6)`; `SetOffsetDistance` through the surface
+- **Deferred:** only `SmSurface::LocalPointSolve_1` (`surface.surface_point_solve_p3`),
+  reached through the `SmSurface` solver bodies run on an offset. `GetSingularities` runs
+  the `SmSurface` body for every base, an offset base too: the constructor calls it
+  through `SmSurface&`, and `SmOffsetSurface::GetSingularities()` hides, not overrides,
+  the virtual.
+- **Dispatch gaps:** `surface_cache::p1::calculate_bounding_box` of an offset (the cache
+  callback has no kernel and does not forward the basis guesses to the base as upstream;
+  no difftest reaches it; error names `surface.surface_cache_p1`); `SetOffsetDistance` through the surface
   intersector's shared `&Surface` (`intersect.surface_intersector_p1`, reached only after
   `SmFilletLaw::Evaluate`, `blend.fillet_executive_p1`).
 - **Back-edges wired:** `blend.fillet_custom_solver` (PR #78) had co-ported the offset's data
@@ -4389,11 +4408,16 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `&mut` because upstream's `const` evaluation stores the extension in it. Upstream builds
   the rail offsets with the default `SM_SS_UNKNOWN`, which waits on `surface.surface_p3`; the
   fillet harness now passes `lSingularities` (`sing`, default `16`), and its generated
-  `SM_SS_NONE` cases compare `LoadJacobian` through the real evaluations: 448 cases, 360
-  pass, 0 failed, 88 deferred (`surface_p3` 60, `surface_p4` 28); 4000 seeds: 4048 cases,
-  0 failed; `--perturb` SENSITIVE.
-- **Merges with main (PRs #67, #78, #81, #82, #84):** main added UB-98, HANG-12 and
-  WR-73..80, so this unit's entries are UB-116..102, HANG-14/14 and WR-97..87.
+  `SM_SS_NONE` cases compare `LoadJacobian` through the real evaluations. With
+  `GetSingularities` landed, `SM_SS_UNKNOWN` rails construct, and `rpSurface2->LocalPointSolve`
+  runs `SmSurface::LocalPointSolve` on a copy of the other rail's offset (the solver is
+  borrowed shared, so an extension it makes is dropped): 448 cases, 401 pass, 0 failed,
+  47 deferred (`surface.surface_point_solve_p3`). `topology.face_p2` (#91): a thick
+  face's iso-curve integrand builds its temporary `SmOffsetSurface(+-t/2)` over a copy of
+  the face surface and calls `EvaluateSimple`; its 112 offset-deferred cases now pass
+  (2692 cases, 2322 pass, 370 deferred) and `mass.integrator`'s one (1521 pass, 7 deferred).
+- **Issue numbers:** renumbered past main and every open PR (2026-10-15): UB-116..119
+  (were UB-99..102), WR-97..103 (were WR-81..87), HANG-14 and HANG-15 (were HANG-13/14).
 
 ## topology.vertexuse (`SmVertexuse`, 2026-10-14; partial, no disagreements)
 

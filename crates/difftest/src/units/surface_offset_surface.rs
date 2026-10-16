@@ -1513,7 +1513,10 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
             bytes: Some(bytes),
         });
     }
-    let steps = gen_steps(rng, &off, d, scale, size);
+    let mut steps = gen_steps(rng, &off, d, scale, size);
+    if extends_degree_1(&k, &off) {
+        avoid_reflection_extensions(&mut steps);
+    }
     let fsteps = ffi_steps(&steps).ok()?;
     ffi::check(&foff, &fsteps).ok()?;
     // Domain/zero-offset guards depend on the actual C++ state after preceding
@@ -1538,6 +1541,45 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         return None;
     }
     Some(Inputs::Script { off, steps })
+}
+
+/// Whether the B-spline NLib extends for this offset (its base, looking through nested
+/// offsets, curve-bounded and STEP wrappers) has a degree-1 direction.
+fn extends_degree_1(k: &Kernel, off: &OffIn) -> bool {
+    let Ok(Ok(base)) = rust_srf(k, &off.base) else {
+        return false;
+    };
+    let mut s = &base;
+    for _ in 0..=solidcore::surface::offset_surface::MAX_SURFACE_NESTING {
+        s = match s.kind() {
+            SurfaceKind::OffsetSurface(o) => o.base_surface(),
+            SurfaceKind::CurveBounded(c) => c.basis(),
+            SurfaceKind::Step(st) => match st.surface() {
+                Some(b) => b,
+                None => return false,
+            },
+            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
+                return s.degree(SurfParamType::U) == 1 || s.degree(SurfParamType::V) == 1;
+            }
+            SurfaceKind::SrfInVolume(_) => return false,
+        };
+    }
+    false
+}
+
+/// UB-32 (`plan/upstream-issues.md`): a reflection extension (`G1`, `G1G2`) in a
+/// degree-1 direction can make `ST_surxsdr`'s reflection-plane fallback read past its
+/// scratch row; the port reports `InvalidInput` there. As in `nlib.srf_adv_p1`, keep
+/// such extensions to C-max. (Applied after generation, so the random stream and the
+/// other cases are unchanged; the evaluation-triggered extension is ruled and safe.)
+fn avoid_reflection_extensions(steps: &mut [StepIn]) {
+    for step in steps {
+        if let StepIn::Extend { cont, .. } | StepIn::ExtendDir { cont, .. } = step {
+            if matches!(*cont, 3 | 5) {
+                *cont = 13;
+            }
+        }
+    }
 }
 
 /// Fills a fixture's placeholders from the base built on the Rust side: a `dom` of
