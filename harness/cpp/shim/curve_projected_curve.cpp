@@ -69,16 +69,12 @@ struct PcOwns
     typedef SmBoolean SmProjectedCurve::*type;
     friend type get(PcOwns);
 };
-} // namespace
 template struct Rob<PcCurve, &SmProjectedCurve::m_cpCurve>;
 template struct Rob<PcPoint, &SmProjectedCurve::m_sProjPoint>;
 template struct Rob<PcVec, &SmProjectedCurve::m_sProjVec>;
 template struct Rob<PcAux, &SmProjectedCurve::m_sAuxData>;
 template struct Rob<PcType, &SmProjectedCurve::m_eProjType>;
 template struct Rob<PcOwns, &SmProjectedCurve::m_bOwnsCurve>;
-
-namespace
-{
 // Ops (keep in sync with crates/solidcore-ffi/src/units/curve_projected_curve.rs).
 enum : int32_t
 {
