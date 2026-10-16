@@ -5399,6 +5399,8 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 - **Review and coverage.** Native topology uses real lines, planes, bilinear and
   collapsed-side patches, wire edges, isolated vertex loops and rectangular faces.
   Explicit one-node/two-leaf cache recipes certify traversal, not cache construction.
+  Rectangular fixtures explicitly set the native loop's starting edgeuse with
+  `SetEdgeuse` and verify its vertex order against the canonical Rust arena view.
   Comparisons include full interval/point records, object identity, gaps and zones.
   Vertex/edge tolerances use `SetTolerance(value, FALSE)` to shrink defaults too.
   Face tolerance is explicitly 1e-5 on both sides. Pole fixtures use the actual
@@ -5418,5 +5420,36 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   insertion behind current dependencies, generic surface lifting, automatic lazy trim
   construction and the default query handle adapter are not certified. No absolute
   floors or widened tolerances are used.
-- **Validation.** Pending checks on the standalone revision; earlier stacked results
-  are not submission evidence.
+- **Positive-insertion revalidation handoff.** The previous stacked experiment
+  (`3184e613`, not a commit in this PR) assumed input UVs instead of projecting them.
+  Three generated planar cases disagreed in gap fields, with source UV segment
+  `(0.2,0.5)..(0.8,0.5)`, interval `[0,1]`, one zero-gap loop vertex `(u,0.5,0)`:
+  seed `12816342691050780751` (`u=0.6315271935871615`, scale 1e6, zone
+  0.09999999999999999, check3d true, modified cache) and seed
+  `12816342691050780864` (`u=0.7485310025864422`, same scale/zone/check3d,
+  unbuilt cache) returned C++ 1.1641532182693481e-10 versus Rust 0;
+  seed `12816342691050781069` (`u=0.7111652965919807`, scale 1e-6, zone
+  9.999999999999999e-14, check3d false, under-construction cache) returned
+  C++ 0 versus Rust 1.1102230246251565e-16. All used cross-hatch true.
+  Native `ComputeUVPoint` ignores its stored UV and projects the world vertex;
+  the Rust fixture now calls that existing topology operation too. A separate
+  diagnostic confirms bit-identical computed UVs for these three inputs with the
+  current explicit face tolerance; the earlier gap cause is not proven. This
+  validates the current UV construction, not positive insertion: the standalone
+  base still defers those calls. Re-run these seeds when insertion dependencies
+  land, rather than adding a floor or assuming gap agreement.
+- **Validation.** Standalone code/fixture revision `2a3054f0`, official main base
+  `3ae8f8f5`; 1,133 source/config/fixture files match the Linux VM snapshot SHA-256
+  `7dd777246f1df874dd51468667493feffd4f90d07dc57c91144e08e3494d461b`.
+  Ubuntu 26.04.1 x86_64, Rust 1.98.0, GCC 15.2.0; pinned upstream `c9c5979`.
+  Default `difftest` profile (opt-level 1, overflow checks and debug assertions),
+  C++ reference `-O2 -ffp-contract=off -fno-fast-math`; one Cargo job under nice.
+  Formatting, strict plain/native Clippy, 1,209 kernel tests, wasm32 checking and
+  34 native FFI tests pass. The fixed relative gate uses no absolute floors:
+  `PARTIAL intersect.curve_class_p9 cases=411 passed=173 failed=0 deferred=238 max_rel_err=0e0 blocked_by=curve.crv_on_surf(27),intersect.curve_class_p4(10),intersect.curve_class_p5(114),topology.vertex(87)`.
+  Affected units: `query.face_p2` 1,344 cases / 1,271 pass / 73 deferred;
+  `intersect.curve_class_p1` 2,125 cases / 2,048 pass / 77 deferred; neither fails,
+  both max_rel_err 0. All three runs include the final native loop-start correction.
+  Rust sources are unchanged from the successful formatting/lint/kernel/wasm/FFI
+  checks. Full `--green` regression is pending: VM ballooning/OOM interrupted its
+  first attempt; temporary pinned memory and swap are retained through the rerun.
