@@ -725,13 +725,13 @@ fn trim_defined(
     y: Vec3,
     origin: Vec3,
     dom: &Extent2d,
-) -> solidcore::Result<bool> {
+) -> bool {
     let z = x.cross(y);
     let (Ok(a), Ok(b)) = (
         s.convert_uv_from_nurbs_to_step(k, dom.min()),
         s.convert_uv_from_nurbs_to_step(k, dom.max()),
     ) else {
-        return Ok(false);
+        return false;
     };
     let mut anal = Extent2d::new();
     if anal
@@ -751,8 +751,8 @@ fn trim_defined(
         corner(1.0, 1.0),
     ];
     let [c0, c1, c2, c3] = c;
-    Ok(line_plane_intersect(c0, c1 - c0, origin, z).is_ok()
-        && line_plane_intersect(c2, c3 - c2, origin, z).is_ok())
+    line_plane_intersect(c0, c1 - c0, origin, z).is_ok()
+        && line_plane_intersect(c2, c3 - c2, origin, z).is_ok()
 }
 
 /// Runs the op on the Rust side; `Err` only for a Rust error inside the record.
@@ -814,7 +814,7 @@ fn rust_op(k: &Kernel, s: &mut Cone, op: &OpIn, o: &mut Vec<f64>) -> solidcore::
         } => {
             let dom = trim_domain(s, *dom);
             let (origin, x, y) = (v3(*origin), v3(*x), v3(*y));
-            if !height_defined(s) || !trim_defined(k, s, x, y, origin, &dom)? {
+            if !height_defined(s) || !trim_defined(k, s, x, y, origin, &dom) {
                 o.push(SC_ERR_ARG);
                 return Ok(());
             }
@@ -987,7 +987,11 @@ fn gen_cone(rng: &mut Rng, bounded_only: bool) -> (ConeIn, f64) {
         }
     };
     let pick = if bounded_only {
-        [1, 4, 5][rng.below(3) as usize % 3]
+        match rng.below(3) {
+            0 => 1,
+            1 => 4,
+            _ => 5,
+        }
     } else {
         rng.below(7)
     };
@@ -1347,7 +1351,7 @@ mod tests {
                 (OpIn::Offset { .. }, Some(SUCCESS)) => {
                     if rest.first() == Some(&0.0) {
                         "offset:none".to_string()
-                    } else if i.cone.mode_is_apex_truncation(&rest) {
+                    } else if ConeIn::mode_is_apex_truncation(&rest) {
                         "offset:truncated".to_string()
                     } else {
                         "offset:moved".to_string()
@@ -1397,7 +1401,7 @@ mod tests {
     impl ConeIn {
         /// An offset state (after `has`) whose bottom or top radius is exactly `0` while
         /// the input's were not: the apex truncation.
-        fn mode_is_apex_truncation(&self, rest: &[f64]) -> bool {
+        fn mode_is_apex_truncation(rest: &[f64]) -> bool {
             // state: has type is_cyl is_cone is_cylinder base semi inside swap planar
             // make_nurb_gen bounded O[3] X[3] Y[3] D[4] bot_r top_r ..
             let bot = rest.get(1 + 11 + 9 + 4).copied();

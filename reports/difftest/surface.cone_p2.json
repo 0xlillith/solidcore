@@ -3,6 +3,2470 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "adv_off_can_s0i0_id_0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#0 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_can_s0i0_skew_tw",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#1 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_can_s0i1_skew_-1.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#2 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_can_s1i0_id_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#3 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_can_s1i1_id_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#4 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_canrev_s0i0_id_-0.99_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#5 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_canrev_s0i0_skew_tilt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#6 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_canrev_s0i1_skew_1e-13_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#7 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_canrev_s1i0_skew_0.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#8 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_canrev_s1i1_id_tw2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#9 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_apexb_s0i0_id_-1.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#10 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_apexb_s0i0_skew_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#11 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_apexb_s0i1_skew_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#12 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_apexb_s1i0_skew_-1.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#13 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_apexb_s1i1_id_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#14 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_apext_s0i0_id_3.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#15 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_apext_s0i1_id_-0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#16 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_apext_s0i1_skew_shift",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#17 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_apext_s1i0_skew_-2.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#18 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_apext_s1i1_id_flat",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#19 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arc_s0i0_id_tw",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#20 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arc_s0i1_id_-1.0_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#21 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 160
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arc_s0i1_skew_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#22 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arc_s1i0_skew_3.0_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#23 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arc_s1i1_skew_-0.99_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#24 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 160
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_arcneg_s0i0_id_shear",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#25 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 131
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcneg_s0i1_id_1e-13_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#26 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcneg_s1i0_id_0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#27 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcneg_s1i0_skew_tw2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#28 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcneg_s1i1_skew_-1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#29 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcsmall_s0i0_id_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#30 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcsmall_s0i1_id_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#31 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcsmall_s1i0_id_-0.99_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#32 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_arcsmall_s1i0_skew_tilt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#33 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 131
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcsmall_s1i1_skew_1e-13_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#34 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcapex_s0i0_skew_-0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#35 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcapex_s0i1_id_shift",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#36 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_arcapex_s1i0_id_-2.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#37 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 188
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcapex_s1i0_skew_flat",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#38 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_arcapex_s1i1_skew_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#39 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cyl_s0i0_skew_-1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#40 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_cyl_s0i1_id_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#41 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cyl_s1i0_id_3.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#42 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cyl_s1i1_id_-0.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#43 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_cyl_s1i1_skew_shear",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#44 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cylarc_s0i0_skew_-2.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#45 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cylarc_s0i1_skew_0.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#46 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 132
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_cylarc_s1i0_id_tw",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#47 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 131
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cylarc_s1i1_id_-1.5_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#48 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_cylarc_s1i1_skew_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#49 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 131
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_semi89_s0i0_skew_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#50 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_semi89_s0i1_skew_-0.99_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#51 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_semi89_s1i0_id_tilt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#52 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_semi89_s1i1_id_1e-13_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#53 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_semim60_s0i0_id_0.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#54 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_semim60_s0i0_skew_tw2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#55 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_semim60_s0i1_skew_-1.5_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#56 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_semim60_s1i0_id_big",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#57 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_semim60_s1i1_id_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#58 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_unb_s0i0_id_-1.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#59 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_unb_s0i0_skew_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#60 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_unb_s0i1_skew_3.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#61 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_unb_s1i0_skew_-0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#62 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_unb_s1i1_id_shift",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#63 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cylunb_s0i0_id_-2.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#64 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_cylunb_s0i0_skew_flat",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#65 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_cylunb_s0i1_skew_tw",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#66 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_cylunb_s1i0_skew_-1.0_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#67 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_cylunb_s1i1_id_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#68 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_scale1e-06_False_-3e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#69 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_scale1e-06_True_4e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#70 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_rec_scale1e-06_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#71 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_scale1000000.0_False_-1200000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#72 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_reb_scale1000000.0_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#73 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 215
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_off_scale1000000.0_True_-3000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#74 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 216
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_0.0_0.0_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#75 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_1.0_0.0_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#76 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_0.5_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#77 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_-0.1_0.0_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#78 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_1e-09_0.0_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#79 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i0_0.999999999_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#80 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_can_s0i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#81 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_can_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#82 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_0.0_0.0_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#83 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_1.0_0.2_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#84 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_0.5_0.2_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#85 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_-0.1_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#86 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_1e-09_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#87 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s0i1_0.999999999_0.2_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#88 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_can_s0i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#89 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_can_s0i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#90 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_0.0_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#91 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_1.0_0.2_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#92 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_0.5_0.2_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#93 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_-0.1_-0.4_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#94 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_1e-09_-0.4_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#95 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i0_0.999999999_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#96 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_can_s1i0_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#97 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_0.0_-0.4_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#98 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_1.0_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#99 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_0.5_-0.4_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#100 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_-0.1_-0.4_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#101 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_1e-09_0.6_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#102 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_can_s1i1_0.999999999_0.6_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#103 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_can_s1i1_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#104 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_can_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#105 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_0.0_0.6_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#106 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_1.0_0.6_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#107 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_0.5_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#108 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_-0.1_0.6_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#109 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_1e-09_0.6_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#110 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i0_0.999999999_0.6_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#111 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apexb_s0i0_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#112 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_apexb_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#113 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i1_0.0_0.6_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#114 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i1_1.0_0.6_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#115 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i1_-0.1_0.0_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#116 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i1_1e-09_0.0_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#117 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s0i1_0.999999999_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#118 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apexb_s0i1_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#119 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_0.0_0.0_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#120 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_1.0_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#121 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_0.5_0.0_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#122 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_-0.1_0.0_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#123 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_1e-09_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#124 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i0_0.999999999_0.2_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#125 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apexb_s1i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#126 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_apexb_s1i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#127 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_0.0_0.2_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#128 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_1.0_0.2_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#129 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_0.5_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#130 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_-0.1_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#131 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_1e-09_0.2_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#132 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apexb_s1i1_0.999999999_0.2_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#133 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apexb_s1i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#134 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_apexb_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#135 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_0.0_0.2_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#136 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_1.0_0.2_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#137 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_0.5_-0.4_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#138 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_-0.1_-0.4_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#139 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_1e-09_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#140 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i0_0.999999999_-0.4_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#141 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apext_s0i0_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#142 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_0.0_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#143 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_1.0_-0.4_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#144 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_0.5_-0.4_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#145 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_-0.1_0.6_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#146 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_1e-09_0.6_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#147 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s0i1_0.999999999_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#148 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apext_s0i1_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#149 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_apext_s0i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#150 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i0_0.0_0.6_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#151 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i0_1.0_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#152 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i0_0.5_0.6_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#153 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i0_-0.1_0.6_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#154 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i0_1e-09_0.6_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#155 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apext_s1i0_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#156 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_apext_s1i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#157 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i1_0.0_0.6_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#158 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i1_0.5_0.0_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#159 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i1_-0.1_0.0_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#160 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i1_1e-09_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#161 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_apext_s1i1_0.999999999_0.0_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#162 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_apext_s1i1_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#163 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_0.0_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#164 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_1.0_0.0_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#165 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_0.5_0.0_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#166 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_-0.1_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#167 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_1e-09_0.2_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#168 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i0_0.999999999_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#169 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arc_s0i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#170 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_arc_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#171 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_0.0_0.2_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#172 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_1.0_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#173 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_0.5_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#174 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_-0.1_0.2_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#175 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_1e-09_0.2_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#176 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s0i1_0.999999999_-0.4_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#177 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arc_s0i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#178 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_arc_s0i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#179 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_0.0_0.2_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#180 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_1.0_-0.4_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#181 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_0.5_-0.4_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#182 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_-0.1_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#183 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_1e-09_-0.4_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#184 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i0_0.999999999_-0.4_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#185 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arc_s1i0_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#186 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_0.0_-0.4_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#187 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_1.0_-0.4_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#188 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_0.5_0.6_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#189 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_-0.1_0.6_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#190 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_1e-09_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#191 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arc_s1i1_0.999999999_0.6_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#192 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arc_s1i1_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#193 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_arc_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#194 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i0_0.0_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#195 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i0_1.0_0.6_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#196 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i0_0.5_0.6_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#197 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i0_-0.1_0.6_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#198 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i0_0.999999999_0.0_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#199 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcneg_s0i0_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#200 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_arcneg_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#201 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i1_1.0_0.0_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#202 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i1_0.5_0.0_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#203 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i1_-0.1_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#204 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i1_1e-09_0.0_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#205 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s0i1_0.999999999_0.0_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#206 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcneg_s0i1_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#207 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_0.0_0.0_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#208 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_1.0_0.0_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#209 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_0.5_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#210 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_-0.1_0.2_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#211 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_1e-09_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#212 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i0_0.999999999_0.2_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#213 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcneg_s1i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#214 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_arcneg_s1i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#215 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_0.0_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#216 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_1.0_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#217 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_0.5_0.2_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#218 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_-0.1_0.2_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#219 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_1e-09_-0.4_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#220 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcneg_s1i1_0.999999999_-0.4_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#221 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcneg_s1i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#222 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_arcneg_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#223 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_0.0_-0.4_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#224 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_1.0_-0.4_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#225 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_0.5_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#226 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_-0.1_-0.4_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#227 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_1e-09_-0.4_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#228 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i0_0.999999999_-0.4_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#229 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cyl_s0i0_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#230 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_0.0_-0.4_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#231 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_1.0_0.6_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#232 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_0.5_0.6_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#233 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_-0.1_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#234 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_1e-09_0.6_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#235 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s0i1_0.999999999_0.6_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#236 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cyl_s0i1_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#237 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_cyl_s0i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#238 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i0_0.0_0.6_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#239 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i0_1.0_0.6_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#240 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i0_0.5_0.6_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#241 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i0_1e-09_0.0_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#242 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i0_0.999999999_0.0_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#243 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cyl_s1i0_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#244 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_cyl_s1i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#245 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_0.0_0.0_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#246 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_1.0_0.0_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#247 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_0.5_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#248 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_-0.1_0.0_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#249 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_1e-09_0.0_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#250 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cyl_s1i1_0.999999999_0.0_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#251 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cyl_s1i1_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#252 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_0.0_0.0_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#253 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_1.0_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#254 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_0.5_0.2_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#255 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_-0.1_0.2_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#256 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_1e-09_0.2_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#257 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i0_0.999999999_0.2_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#258 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cylarc_s0i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#259 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_cylarc_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#260 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_0.0_0.2_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#261 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_1.0_0.2_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#262 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_0.5_0.2_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#263 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_-0.1_-0.4_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#264 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_1e-09_-0.4_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#265 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s0i1_0.999999999_-0.4_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#266 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cylarc_s0i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#267 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_cylarc_s0i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#268 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_0.0_-0.4_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#269 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_1.0_-0.4_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#270 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_0.5_-0.4_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#271 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_-0.1_-0.4_[0.5, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#272 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_1e-09_-0.4_[0.5, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#273 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i0_0.999999999_0.6_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#274 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cylarc_s1i0_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#275 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_0.0_0.6_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#276 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_1.0_0.6_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#277 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_0.5_0.6_[0.1, 0.2, 0.7, 0.9]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#278 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_-0.1_0.6_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#279 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_1e-09_0.6_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#280 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_cylarc_s1i1_0.999999999_0.6_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#281 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_cylarc_s1i1_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#282 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_cylarc_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#283 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i0_1.0_0.0_[0.5, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#284 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i0_0.5_0.2_[0.5, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#285 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 9
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i0_1e-09_0.0_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#286 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i0_0.999999999_0.2_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#287 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcapex_s0i0_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#288 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_arcapex_s0i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#289 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i1_0.0_-0.4_[0, 0, 1, 1]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#290 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i1_0.5_0.0_[0, 0, 1, 1]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#291 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i1_-0.1_0.2_[0.1, 0.2, 0.7, 0.9]_-90.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#292 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s0i1_1e-09_-0.4_[0.1, 0.2, 0.7, 0.9]_100.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#293 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcapex_s0i1_-1.5_-1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#294 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i0_0.0_0.0_[0.1, 0.2, 0.7, 0.9]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#295 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i0_1.0_0.2_[0.5, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#296 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i0_0.5_-0.4_[0.5, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#297 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i0_1e-09_0.2_[0, 0, 1, 1]_0.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#298 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i0_0.999999999_-0.4_[0, 0, 1, 1]_-90.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#299 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcapex_s1i0_0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#300 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimskew_arcapex_s1i0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#301 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i1_1.0_0.0_[0, 0, 1, 1]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#302 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i1_0.5_0.2_[0, 0, 1, 1]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#303 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i1_-0.1_-0.4_[0.1, 0.2, 0.7, 0.9]_0.0_0.01",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#304 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trim_arcapex_s1i1_0.999999999_0.0_[0.1, 0.2, 0.7, 0.9]_100.0_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#305 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimdeg_arcapex_s1i1_1.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#306 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_trimrev_arcapex_s1i1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/surface.cone_p2/adversarial.json#307 (upstream review: adversarial (offset/recognise/rebuild edits, scales, degenerate trims))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "tess_cone_offset_0.5",
       "outcome": "pass",
       "pass": true,
@@ -9941,8 +12405,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 1242,
-  "cases_total": 1242,
+  "cases_passed": 1550,
+  "cases_total": 1550,
   "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,
