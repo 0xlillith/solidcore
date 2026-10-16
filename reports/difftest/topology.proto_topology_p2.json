@@ -266,16 +266,12 @@
       "values_compared": 87
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0027",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903706",
-      "values_compared": 0
+      "values_compared": 334
     },
     {
       "max_rel_err": 0.0,
@@ -334,16 +330,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0034",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903713",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
       "deferred": {
@@ -542,16 +534,12 @@
       "values_compared": 87
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0058",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903737",
-      "values_compared": 0
+      "values_compared": 471
     },
     {
       "max_rel_err": 0.0,
@@ -759,8 +747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmBrep::MakeShellVertex",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "gen0082",
@@ -886,16 +874,12 @@
       "values_compared": 70
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0095",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903774",
-      "values_compared": 0
+      "values_compared": 348
     },
     {
       "max_rel_err": 0.0,
@@ -950,16 +934,12 @@
       "values_compared": 85
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0102",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903781",
-      "values_compared": 0
+      "values_compared": 74
     },
     {
       "max_rel_err": 0.0,
@@ -1287,8 +1267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmBrep::MakeShellVertex",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "gen0140",
@@ -1298,16 +1278,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903820",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -1674,16 +1650,12 @@
       "values_compared": 381
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0184",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046903863",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -2914,16 +2886,12 @@
       "values_compared": 80
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0325",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904004",
-      "values_compared": 0
+      "values_compared": 392
     },
     {
       "max_rel_err": 0.0,
@@ -3802,16 +3770,12 @@
       "values_compared": 48
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0426",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904105",
-      "values_compared": 0
+      "values_compared": 334
     },
     {
       "max_rel_err": 0.0,
@@ -4159,8 +4123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmVertex::GetVertexuses",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0467",
@@ -4302,16 +4266,12 @@
       "values_compared": 73
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0483",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904162",
-      "values_compared": 0
+      "values_compared": 323
     },
     {
       "max_rel_err": 0.0,
@@ -4558,16 +4518,12 @@
       "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0512",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904191",
-      "values_compared": 0
+      "values_compared": 168
     },
     {
       "deferred": {
@@ -4690,16 +4646,12 @@
       "values_compared": 91
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0527",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904206",
-      "values_compared": 0
+      "values_compared": 91
     },
     {
       "max_rel_err": 0.0,
@@ -4731,8 +4683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0531",
@@ -5251,8 +5203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0589",
@@ -5278,16 +5230,12 @@
       "values_compared": 44
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0592",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904271",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "deferred": {
@@ -5458,16 +5406,12 @@
       "values_compared": 61
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0612",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904291",
-      "values_compared": 0
+      "values_compared": 94
     },
     {
       "deferred": {
@@ -5866,16 +5810,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0657",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904336",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -6014,16 +5954,12 @@
       "values_compared": 441
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0675",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904354",
-      "values_compared": 0
+      "values_compared": 397
     },
     {
       "max_rel_err": 0.0,
@@ -6782,28 +6718,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0761",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904440",
-      "values_compared": 0
+      "values_compared": 441
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0762",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904441",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -7406,16 +7334,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0831",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904510",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "max_rel_err": 0.0,
@@ -8314,16 +8238,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0932",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904611",
-      "values_compared": 0
+      "values_compared": 383
     },
     {
       "max_rel_err": 0.0,
@@ -8606,16 +8526,12 @@
       "values_compared": 51
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0965",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904644",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -9370,16 +9286,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1053",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904732",
-      "values_compared": 0
+      "values_compared": 452
     },
     {
       "max_rel_err": 0.0,
@@ -9642,16 +9554,12 @@
       "values_compared": 70
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1083",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904762",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -10242,16 +10150,12 @@
       "values_compared": 718
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904829",
-      "values_compared": 0
+      "values_compared": 372
     },
     {
       "max_rel_err": 0.0,
@@ -10630,16 +10534,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904875",
-      "values_compared": 0
+      "values_compared": 378
     },
     {
       "max_rel_err": 0.0,
@@ -11002,16 +10902,12 @@
       "values_compared": 361
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1237",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904916",
-      "values_compared": 0
+      "values_compared": 74
     },
     {
       "max_rel_err": 0.0,
@@ -11122,16 +11018,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1250",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904929",
-      "values_compared": 0
+      "values_compared": 415
     },
     {
       "max_rel_err": 0.0,
@@ -11214,16 +11106,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1261",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046904940",
-      "values_compared": 0
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -11407,8 +11295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
+        "symbol": "SmVertex::GetPoint",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1284",
@@ -12226,16 +12114,12 @@
       "values_compared": 326
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1372",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905051",
-      "values_compared": 0
+      "values_compared": 480
     },
     {
       "deferred": {
@@ -12506,16 +12390,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1402",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905081",
-      "values_compared": 0
+      "values_compared": 128
     },
     {
       "max_rel_err": 0.0,
@@ -12594,16 +12474,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1412",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905091",
-      "values_compared": 0
+      "values_compared": 447
     },
     {
       "deferred": {
@@ -12826,16 +12702,12 @@
       "values_compared": 81
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1439",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905118",
-      "values_compared": 0
+      "values_compared": 509
     },
     {
       "max_rel_err": 0.0,
@@ -13246,16 +13118,12 @@
       "values_compared": 112
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::GlobalPointSolve_1",
-        "unit": "surface.surface_point_solve_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen1486",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501319568046905165",
-      "values_compared": 0
+      "values_compared": 514
     },
     {
       "max_rel_err": 0.0,
@@ -13619,17 +13487,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 338,
+  "cases_deferred": 305,
   "cases_failed": 0,
-  "cases_passed": 1195,
+  "cases_passed": 1228,
   "cases_total": 1533,
   "deferred_by_unit": {
-    "surface.surface_point_solve_p3": 39,
-    "topology.brep_p9": 18,
+    "topology.brep_p9": 20,
     "topology.edge": 123,
-    "topology.face_p1": 40,
+    "topology.face_p1": 41,
     "topology.face_p2": 60,
-    "topology.vertex": 58
+    "topology.vertex": 61
   },
   "max_rel_err": 0.0,
   "pass": true,
