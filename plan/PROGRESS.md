@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**195 / 261 units ported** (108 green, 87 partial), **266,719 / 387,903 upstream lines (68.8%)**. 28 claimed, 0 blocked, 38 todo.
+**195 / 261 units ported** (108 green, 87 partial), **266,719 / 387,903 upstream lines (68.8%)**. 29 claimed, 0 blocked, 37 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,7 +14,6 @@ _None right now; see the next section._
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `topology.brep_p6` (1479 lines) — missing: `topology.edgeuse_p3`, `topology.face_p3`, `topology.shell`
 - [ ] `topology.brep_p4` (2113 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.shell`
 - [ ] `topology.brep_p9` (2443 lines) — missing: `topology.brep_p1`, `topology.face_p1`, `topology.face_p3`, `topology.shell`
 - [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.face_p4`, `topology.shell`
@@ -75,6 +74,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (draft)
+- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (draft)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
@@ -264,7 +264,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (draft)
 - [ ] 🔨 `topology.face_p1` (2171 lines) — in progress: #148 @bluecmd (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (draft)
-- [ ] ⏳ `topology.brep_p6` (1479 lines) — waiting
+- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (draft)
 - [ ] 🟡 `topology.brep_cache` (389 lines) — partial
 - [ ] ⏳ `topology.brep_p4` (2113 lines) — waiting
 - [ ] ⏳ `topology.brep_p9` (2443 lines) — waiting
