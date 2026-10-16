@@ -18,13 +18,14 @@
 //! - **B-rep access.** Topology objects are the caller's handles `O`, as in
 //!   [`p1`](super::p1). What these functions read from vertices and edges, and the
 //!   store new curves go to, is [`ProtoBrep`] (of `topology.proto_topology_p2`, which
-//!   gained `vertex_point`, `edge_faces`, `vertex_common_edges` and `edge_other_vertex`
-//!   for these functions), which the owner of the B-reps implements. `SmTol::GetZoneTol3d` of a vertex is
+//!   gained `vertex_point`, `edge_faces`, `vertex_common_edges`, `edge_other_vertex` and
+//!   `face_curve_on_classify` (`SmFace::CurveOnClassify(TRUE, cc)`, implemented by the
+//!   B-rep owner with `query::face::p2::curve_on_classify`) for these functions), which the owner of the B-reps implements. `SmTol::GetZoneTol3d` of a vertex is
 //!   [`ProtoBrep::topology_tolerance`]; `SmTol::GetXSectTol3d(v1, v2)` is the
 //!   sum of the two.
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::Point3DClassify` (`query.brep`),
-//!   `SmFace::CurveOnClassify` (`query.face_p2`), `SmBrep::GlueVertices` /
+//!   `SmBrep::GlueVertices` /
 //!   `SqueezeEdge` / `DeleteEdge` (`topology.brep_p5` / `_p3` / `_p4`),
 //!   `SmTopologyIntersector::GetOtherMate` / `RemoveRelationship`
 //!   (`boolean.topology_intersector_p1` / `_p2`) and the `SmCurveClassification`
@@ -41,6 +42,9 @@
 //!   passed as a value (`ti_approx_tol_3d`).
 //! - A failing `eRet` of `GlueCoincidentBrepVertices` is returned as the error (the
 //!   curves deleted before it are not reported).
+//! - When `CreateProtoEdge` fails at `NER(pBrep1Topo)`, upstream returns the already
+//!   allocated `rpNewPE` through the out-parameter; the port returns `None` there (the
+//!   failing paths are not reachable from the callers ported so far).
 //! - The `SM_DEBUG_CODE` blocks are not ported.
 //! - **Recursion.** None.
 
@@ -142,15 +146,6 @@ fn brep_point3d_classify<O>(
     Err(SolidError::unported(
         "SmBrep::Point3DClassify",
         "query.brep",
-    ))
-}
-
-/// `SmFace::CurveOnClassify(TRUE, classification)`.
-fn face_curve_on_classify<O>(_face: O, _cc: &mut CurveClassification<O>) -> Result<()> {
-    // UNPORTED(query.face_p2): SmFace::CurveOnClassify
-    Err(SolidError::unported(
-        "SmFace::CurveOnClassify",
-        "query.face_p2",
     ))
 }
 
@@ -649,7 +644,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
         // set Split child ProtoEdge intervals (the upper one is set from this
         // edge's interval after it was changed, as upstream; the upper child gets [dT, dT],
-        // plan/upstream-issues.md WR-99)
+        // plan/upstream-issues.md WR-101)
         let mut lower = self
             .proto_edge(pe)
             .ok_or(dangling("proto edge is deleted"))?
@@ -1481,8 +1476,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                         // Classify the coincident curves against their faces
                         let face1 = f1.ok_or(dangling("face is null"))?;
                         let face2 = f2.ok_or(dangling("face is null"))?;
-                        ignore_soft(face_curve_on_classify(face1, &mut cc1))?;
-                        ignore_soft(face_curve_on_classify(face2, &mut cc2))?;
+                        ignore_soft(geometry.face_curve_on_classify(k, face1, true, &mut cc1))?;
+                        ignore_soft(geometry.face_curve_on_classify(k, face2, true, &mut cc2))?;
 
                         // a curve for every common interval classified in both
                         extract_geometry(&cc1, &cc2)?;
@@ -1518,12 +1513,16 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                 }
 
                 // Classify Edge->Curve against both SrcFaces
-                ignore_soft(face_curve_on_classify(
+                ignore_soft(geometry.face_curve_on_classify(
+                    k,
                     f1.ok_or(dangling("face is null"))?,
+                    true,
                     &mut cc1,
                 ))?;
-                ignore_soft(face_curve_on_classify(
+                ignore_soft(geometry.face_curve_on_classify(
+                    k,
                     f2.ok_or(dangling("face is null"))?,
+                    true,
                     &mut cc2,
                 ))?;
 

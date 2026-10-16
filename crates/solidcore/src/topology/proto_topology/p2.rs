@@ -156,6 +156,21 @@ pub trait ProtoBrep<O>: ProtoGeometry<O> {
     ///
     /// Those of the implementation's topology walk.
     fn edge_other_vertex(&self, edge: O, vertex: O) -> Result<Option<O>>;
+    /// `SmFace::CurveOnClassify(bDoPointClassify, cc)` with upstream's other arguments at
+    /// their defaults (`FALSE`), read by `topology.proto_topology_p3`: the B-rep owner
+    /// implements it with `query::face::p2::curve_on_classify`. Returns
+    /// `pbOptModifiedCurve`.
+    ///
+    /// # Errors
+    ///
+    /// Those of `curve_on_classify`.
+    fn face_curve_on_classify(
+        &self,
+        k: &Kernel,
+        face: O,
+        do_point_classify: bool,
+        cc: &mut CurveClassification<O>,
+    ) -> Result<bool>;
 }
 
 /// The handle the curve point solves name (only the solution count and values are
@@ -2135,6 +2150,15 @@ mod tests {
         }
         fn edge_other_vertex(&self, _edge: H, _vertex: H) -> Result<Option<H>> {
             Ok(None)
+        }
+        fn face_curve_on_classify(
+            &self,
+            _k: &Kernel,
+            _face: H,
+            _do_point_classify: bool,
+            _cc: &mut CurveClassification<H>,
+        ) -> Result<bool> {
+            Ok(false)
         }
     }
 

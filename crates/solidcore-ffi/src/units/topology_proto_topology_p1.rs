@@ -237,7 +237,7 @@ pub mod pool {
 /// | 125 | | `GlueCoincidentBrepVertices` (refused when it would glue) | `n c*n` |
 /// | 126 | | `ResolveOverlappingProtoEdges` (refused for edge sources) | `n c*n` |
 ///
-/// Objects the p3 ops create are not numbered: the ops after one are refused.
+/// Objects the p3 ops create are registered (numbered) after the op, as the p2 ops do.
 ///
 /// Ops 91 to 108 belong to unit `topology.proto_topology_p2` ([`proto_op_p2`]).
 ///

@@ -4632,7 +4632,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
             if (skip)
                 break;
             // only the paths that do not glue run: a pair of final vertices must be one vertex or
-            // two vertices with points that are far apart (bare stand-ins have no usable point,
+            // two vertices with points farther apart than their combined zone tolerance (bare stand-ins have no usable point,
             // and a glue needs a B-rep)
             for (ULONG i = 0; i < mgr->GetProtoVertices().GetSize() && !skip; i++)
             {
@@ -4653,7 +4653,7 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
                         ScVertex* y = static_cast<ScVertex*>(pairs[s][1]);
                         if (!x->pointed || !y->pointed)
                             skip = true;
-                        else if (x != y && x->GetPoint().DistanceBetween(y->GetPoint()) < 1.0e-3)
+                        else if (x != y && !(x->GetPoint().DistanceBetween(y->GetPoint()) > SmTol::GetXSectTol3d(x, y)))
                             skip = true;
                     }
                 }
@@ -4669,6 +4669,14 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
         }
         case P_RESOLVE:
         {
+            if (skip)
+                break;
+            // a proto edge listed twice in the manager crashes upstream (AddProtoEdge does not
+            // de-duplicate, RemoveProtoEdge removes the first copy only: UB-127)
+            for (ULONG a = 0; a < r.mgr->GetProtoEdges().GetSize() && !skip; a++)
+                for (ULONG b = a + 1; b < r.mgr->GetProtoEdges().GetSize(); b++)
+                    if (r.mgr->GetProtoEdges()[a] == r.mgr->GetProtoEdges()[b])
+                        skip = true;
             if (skip)
                 break;
             // only face / face groups run (an edge needs a real B-rep); every proto edge of a

@@ -1256,6 +1256,21 @@ impl ProtoBrep<H> for Pool {
             "stand-in edges have no vertices",
         ))
     }
+    // The stand-ins have no B-rep faces to run `query::face::p2::curve_on_classify` on,
+    // so a group with definitions is deferred (the C++ shim cannot build bare faces
+    // either; see the p3 resolve guard).
+    fn face_curve_on_classify(
+        &self,
+        _k: &Kernel,
+        _face: H,
+        _do_point_classify: bool,
+        _cc: &mut CurveClassification<H>,
+    ) -> solidcore::Result<bool> {
+        Err(SolidError::unported(
+            "SmFace::CurveOnClassify",
+            "query.face_p2",
+        ))
+    }
 }
 
 fn class_kind_of(k: i64) -> ClassObjectKind {
@@ -3628,7 +3643,15 @@ fn run_proto(
                                     for (x, y) in [(a1, b1), (a2, b2)] {
                                         match (r.pool.vertex_point(x), r.pool.vertex_point(y)) {
                                             (Some(px), Some(py)) => {
-                                                if x != y && px.distance(py) < 1.0e-3 {
+                                                // `dist > xs` is the no-glue test of the port
+                                                let xs = match (
+                                                    r.pool.topology_tolerance(x),
+                                                    r.pool.topology_tolerance(y),
+                                                ) {
+                                                    (Some(tx), Some(ty)) => tx + ty,
+                                                    _ => f64::INFINITY,
+                                                };
+                                                if x != y && px.distance(py) <= xs {
                                                     skip = true;
                                                 }
                                             }
@@ -3655,6 +3678,15 @@ fn run_proto(
                 }
             }
             p::RESOLVE => {
+                // a proto edge listed twice in the manager crashes the C++ (UB-127)
+                if r.mgr
+                    .proto_edges()
+                    .iter()
+                    .enumerate()
+                    .any(|(i, e)| r.mgr.proto_edges().iter().skip(i + 1).any(|f| f == e))
+                {
+                    skip = true;
+                }
                 if !skip {
                     let m = &r.mgr;
                     let mut grp: Vec<ProtoEdgeId> = Vec::new();
@@ -5380,9 +5412,13 @@ pub fn edge_cases_p3() -> Vec<(String, Value)> {
         }
         // rejected inputs (the C++ crashes on them: a one-way overlap leaves an edge outside its
         // own group, a repeated overlap processes a deleted edge): both sides must skip RESOLVE
-        for (name, overlaps) in [
-            ("one_way_overlap", vec![(0.0, 1.0)]),
-            ("repeated_overlap", vec![(0.0, 1.0), (0.0, 1.0), (1.0, 0.0)]),
+        // (and a proto edge listed twice in the manager: `AddProtoEdge` does not de-duplicate and
+        // `RemoveProtoEdge` removes the first copy only, UB-127)
+        for (name, overlaps, dup) in [
+            ("one_way_overlap", vec![(0.0, 1.0)], None),
+            ("repeated_overlap", vec![(0.0, 1.0), (0.0, 1.0), (1.0, 0.0)], None),
+            ("duplicate_manager_entry_0", vec![(0.0, 1.0), (1.0, 0.0)], Some(0.0)),
+            ("duplicate_manager_entry_1", vec![(0.0, 1.0), (1.0, 0.0)], Some(1.0)),
         ] {
             let mut ops = vec![
                 opv(p::PV_NEW, &[0.0, 0.0, 0.0, t]),
@@ -5398,6 +5434,9 @@ pub fn edge_cases_p3() -> Vec<(String, Value)> {
                 opv(p::PV_ADD_PE, &[0.0, 1.0]),
                 opv(p::PV_ADD_PE, &[1.0, 1.0]),
             ];
+            if let Some(d) = dup {
+                ops.push(opv(p::MGR_ADD_PE, &[d]));
+            }
             for (x, y) in overlaps {
                 ops.push(opv(p::PE_ADD_OVERLAP, &[x, y]));
             }
@@ -5426,12 +5465,15 @@ pub fn edge_cases_p3() -> Vec<(String, Value)> {
         ));
     }
     // GlueCoincidentBrepVertices on final vertices with points: the same vertex, vertices far
-    // apart (nothing is glued, the near distinct case is refused by the guard)
+    // apart (nothing is glued; vertices within their combined zone tolerance would glue and are
+    // refused by the guard)
     for (name, finals) in [
         ("same_vertex", [0.0, 0.0, 0.0, 0.0]),
         ("far_vertices", [0.0, 0.0, 1.0, 1.0]),
         ("one_side_far", [0.0, 0.0, 0.0, 1.0]),
         ("near_vertices", [1.0, 1.0, 2.0, 2.0]),
+        // 5e-4 apart with tolerance 1e-5: farther than the combined tolerance, nothing is glued
+        ("apart_beyond_tol", [1.0, 1.0, 3.0, 3.0]),
     ] {
         let t = 1e-5;
         let objects = vec![
@@ -5445,6 +5487,10 @@ pub fn edge_cases_p3() -> Vec<(String, Value)> {
             },
             ObjIn::VertexAt {
                 p: [5.0, 0.0, 1e-6],
+                tol: t,
+            },
+            ObjIn::VertexAt {
+                p: [5.0005, 0.0, 0.0],
                 tol: t,
             },
         ];
