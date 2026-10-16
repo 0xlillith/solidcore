@@ -71,7 +71,8 @@ struct P9Trim : SmTrimSrfCache {
                     vs[j]->ComputeUVPoint(item->m_vUVPoint); item->m_vUVTol.Set(0,0);
                     // A pole has many UV representatives. This cache recipe
                     // deliberately stores it in the lower v leaf, away from the query.
-                    if(split_v && collapsed && vs[j]->GetVertex()->GetPoint()==SmPoint3d(0,0,0))
+                    const auto pole=vs[j]->GetVertex()->GetPoint();
+                    if(split_v && collapsed && pole.x==0 && pole.y==0 && pole.z==0)
                         item->m_vUVPoint=SmPoint2d(0,0);
                     const auto uv=item->m_vUVPoint;
                     if(split_v && (uv.x<0 || uv.x>1 || uv.y<lower || uv.y>upper)) continue;

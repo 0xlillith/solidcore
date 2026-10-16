@@ -5615,44 +5615,57 @@ with the runner-only profile override. No platform prerequisites enter this PR.
 
 ## intersect.curve_class_p9 (PR #151; standalone replacement for #143)
 
-- **Scope.** Ports `IntersectEdges` and `IntersectTSBound` only, with borrowed
-  arena boundary views, a native shim, full-record differential runner and fixtures.
-  No part-5 port implementation or dependency-stack commits are included.
-  Part-1 gains a single-interval constructor and its inline cross-hatch setter;
-  these initialize the boundary API without co-porting part 2's `ReSet`.
-- **Dependency boundaries.** Edge hits defer on `intersect.curve_class_p5` at
-  `InsertSolutions`. Vertex insertion retains the current part-3 topology/part-2/
-  part-7 deferrals. Non-B-spline surface lifting remains `curve.crv_on_surf`;
-  absent lazy cached trims remain `topology.edgeuse_p3`. Both part-9 query back-edges
-  are wired; the caller supplies boundary/cache adapters, whose default defers on
-  `query.face_p2` for nonempty lists. The query's earlier `ReSet` dependency still
-  prevents end-to-end curve classification on this base.
-- **Review and coverage.** Native topology uses real lines, planes, bilinear and
-  collapsed-side patches, wire edges, isolated vertex loops and rectangular faces.
-  Explicit one-node/two-leaf cache recipes certify traversal, not cache construction.
-  Rectangular fixtures explicitly set the native loop's starting edgeuse with
-  `SetEdgeuse` and verify its vertex order against the canonical Rust arena view.
-  Comparisons include full interval/point records, object identity, gaps and zones.
-  Vertex/edge tolerances use `SetTolerance(value, FALSE)` to shrink defaults too.
-  Face tolerance is explicitly 1e-5 on both sides. Pole fixtures use the actual
-  collapsed-side point (0,0,0); a standalone native probe confirms vertex insertion
-  there (SM_SUCCESS). Loop vertex UVs use the existing
-  `ComputeUVPoint` projection, rather than assuming the input UV survives unchanged;
-  native recomputes UV even when its stored value is present. The earlier stacked
-  experiment had three small gap mismatches with the assumed UVs; that experiment
-  does not certify this standalone revision.
-  Native `has_big_gaps` is required; only `bUVSpaceOkay` defaults true. Rust's options
-  convenience defaults the former false. The pointer-equality overlap shortcut,
-  strict gap-bump threshold, ignored-failure output initialization, cache visit order,
-  and cleanup order are preserved. Missing fallback trim is a null-pointer error.
-  Counts, lengths, finite values and single shared-curve ownership are checked at FFI.
-- **Limits.** Positive edge/face-gap tolerance changes have a focused Rust regression;
-  native wire edges do not own a face edgeuse. Mutable edge insertion, positive vertex
-  insertion behind current dependencies, generic surface lifting, automatic lazy trim
-  construction and the default query handle adapter are not certified. Singular
-  lifted drops still reach the part-4 dependency on Rust. Oracle recipes require
-  nondegenerate two-point lines and nonempty source intervals; point-interval
-  classifications are not certified. No absolute floors or widened tolerances are used.
+- **Scope.** Ports `IntersectEdges` and `IntersectTSBound`, their native shim,
+  full-record runner and fixtures. Part 1 gains only a single-interval constructor
+  and its inline cross-hatch setter. No open dependency PR is bundled. Official
+  main `b2ebc087` includes the separately landed parts 5, 6 and 7; part 9 now calls
+  part 5's real `insert_solutions` rather than retaining its old stub.
+- **Pole search review fix.** `IntersectTSBound` calls `find_uv_nodes_built` with
+  `false`, matching the default `FALSE` in `SmSurfaceCache.h:723` at upstream's
+  two-argument call (`SmCurveClass.cpp:16225`). The v-split cache recipe stores a
+  collapsed pole's valid UV representative in the lower leaf while a curve touches
+  the pole in the upper leaf. The lower leaf must not be visited. Generated cases
+  now include collapsed surfaces, both split directions and this disjoint-pole path.
+- **Query integration review fix.** `CurveOnClassifyObjects` extends `ClassGeometry`
+  and requires vertex, edge, vertexuse, edgeuse, edge-curve, trim-curve and face-surface
+  handle mappings. This extends the landed part-5 interface; duplicate curve/surface
+  resolvers and the self-deferred `query.face_p2` defaults are removed. Concrete
+  adapters walk upward loopuses in order, resolve stored curves/tolerances, use the
+  existing vertexuse UV computation and edgeuse gap calculation, and call both part-9
+  methods. Ordinary `ComputeUVPoint` failures preserve its initialized undefined
+  UV as native's ignored status does; unported errors still propagate.
+  One private B-rep snapshot retains lazy cache updates only during view
+  construction; numerical results are preserved, cache-only updates are discarded.
+  Valid cached traversal uses cached UVs without invoking unrelated UV projections.
+  Tests exercise both methods with nonempty topology and resolve real edge/trim handles.
+  The query's earlier `ReSet` still defers on part 2. Uncached edge-loop UV evaluation
+  reaches the genuine `topology.edgeuse_p3` `NormalizedEvaluate` dependency;
+  `GetEdges` remains the existing `topology.face_p4` dependency. End-to-end query
+  classification is not certified.
+- **Oracle guards review fix.** Removed numeric caps on zone tolerance, scale,
+  source/edge parameter domains, UV position and vertex gap. Source point intervals
+  are accepted. Counts/lengths, finite inputs and constructed coordinates, flag and
+  dimension validity, nondegenerate line recipes, ordered intervals and single-owner
+  shared-curve rules remain checked on both sides. Fixed fixtures cover zone 5,
+  scale 1e8, extended and point intervals, an outside-square vertex and gap 2.
+  Native constructor/recipe `SC_ERR_ARG` after those guards is recorded as a rejected
+  fixture, not a parity failure or pass; exceptions and operation statuses are not
+  reclassified. Collapsed rectangles and tiny zero-zone rectangles are included to
+  exercise this distinction. They do not certify those unsupported topology recipes.
+- **Faithfulness and coverage.** Real native lines, planes, bilinear/collapsed
+  patches, wire edges, isolated vertex loops and rectangles are used. Explicit cache
+  recipes certify traversal rather than cache construction. Vertex-before-edge
+  order, pointer identity, strict edge-gap times 1.1 bump, cross-hatch tolerances,
+  native default arguments, ignored-status output lifecycle and checked-drop aliasing
+  are preserved. A 3D trim-boundary source returns `InvalidInput` in Rust instead of
+  upstream's debug-only assertion; the module Deviations line records this.
+  Source-endpoint vertex fixtures and generation exercise changed classification
+  records. Interior partition insertion still reaches part 2, and more complex
+  topology/curve-on-surface dependencies remain explicit. Nonzero edge/face gap
+  integration has a focused Rust threshold regression; the native wire edges have
+  no owning face edgeuse. General surface lifting, automatic lazy trims, complete
+  positive insertion and automatic cache construction remain uncertified. No
+  absolute floors or widened tolerances are used.
 - **Positive-insertion revalidation handoff.** The previous stacked experiment
   (`3184e613`, not a commit in this PR) assumed input UVs instead of projecting them.
   Three generated planar cases disagreed in gap fields, with source UV segment
@@ -5678,36 +5691,34 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   A focused kernel regression matches both native parameter/gap pairs exactly.
   These probes certify the pre-insertion drop measurements, not the deferred final
   insertion state. Re-run the complete seeds when insertion dependencies land.
-- **Validation.** The unchanged part-9 implementation was compared at `3d957eea`
-  on official main `3ae8f8f5`: 411 cases, 173 successful non-insertion comparisons,
-  238 dependency deferrals, zero failures and max_rel_err 0; no absolute floors.
-  Blockers: part 5 (114), topology vertex integration (83), generic curve-on-surface
-  dispatch (27), part 4 (14). Affected units also pass: `query.face_p2` 1,344 cases /
-  1,271 pass / 73 deferred; `intersect.curve_class_p1` 2,125 cases / 2,048 pass /
-  77 deferred. Sensitivity detects all 173 perturbed comparisons.
-  Native pre-insertion probes and the alias regression above cover the corrected
-  checked-drop values; complete positive insertion remains deferred.
-  Latest official main `535f53d0` is merged at `bc5bfddc`, with no further part-9
-  source changes. Its 1,135 source/config/fixture files match the VM snapshot
-  SHA-256 `9efdfd34ef06c220f52beeff24009b0be72a9c9a2f00773a1c904996bb94166a`.
-  On that base, formatting, strict plain workspace Clippy, 1,210 kernel tests,
-  wasm32 checking and 34 native FFI tests pass. All eight CI checks passed on
-  `4f8e8a80`, including C++-feature Clippy and the full native regression:
-  `difftest: 187 unit(s), 99 passed, 88 partial, 0 failed`. The three affected
-  unit summaries above are unchanged in that run. Native CI ran on hosted
-  Ubuntu 24.04.5 with the repository's unmodified profile and pinned upstream;
-  see https://github.com/bherbruck/solidcore/actions/runs/38902802833.
-  Concurrent VM builds had exhausted memory before its latest-base native
-  comparisons; the queued duplicate was canceled after CI supplied that gate.
-  Validation uses Ubuntu 26.04.1 x86_64 / Rust 1.98.0 / GCC 15.2.0 on the VM,
-  pinned upstream `c9c5979`, the default optimized `difftest` profile (opt-level 1,
-  overflow checks/debug assertions), C++ `-O2 -ffp-contract=off -fno-fast-math`,
-  and one Cargo job under nice. Temporary swap was removed and the original VM
-  balloon minimum restored after checking that no shared builds were running.
-  Official main subsequently advanced to `346fef3d` (the separately landed
-  `heal.face_props` PR); it is merged without changing part-9 code or fixtures.
-  The PR checks record validation of that final integration; the completed
-  `4f8e8a80` run above certifies the earlier base only.
+- **Validation.** Numerical source checkpoint `df4756ac` passes strict workspace
+  C++-feature Clippy and all three affected native runners on Linux:
+  part 9 424 cases / 225 pass / 197 deferred / 2 rejected / 0 failures;
+  `intersect.curve_class_p1` 2,125 / 2,048 / 77 / 0;
+  `query.face_p2` 1,344 / 1,271 / 73 / 0. All compared values are bit-identical,
+  and both affected reports are unchanged. Part-9 deferrals are part 2 (163),
+  generic curve-on-surface dispatch (24), and part 4 (10). All 225 perturbations
+  are detected, with zero unperturbed cases. The pole-disjoint fixture, source
+  endpoint fixtures and point-interval fixture compare successfully; wide zone,
+  large scale and extended interval fixtures reach genuine dependency deferrals.
+  Source `0b283f27` subsequently preserves ignored ordinary UV errors in the query
+  adapter; formatting, strict plain workspace Clippy, all 1,250 kernel tests and
+  wasm checking pass on macOS aarch64 / Rust 1.98.0.
+  The 1,183 source/config/fixture files match the VM snapshot SHA-256
+  `3af634c1a194b44661358cf525fd4407300dc577ba82af89eb76e5a89024115e`,
+  with no extra source or fixture files at that checkpoint. The final native
+  fixture predicate uses exact zero coordinates for pole identity, matching Rust
+  rather than C++'s tolerance-based point equality; its syntax check with the native
+  compiler flags passes. Both focused native regressions
+  (pole pruning and a changed positive endpoint record) pass, as do the two native
+  FFI guard tests. The PR checks record the final complete native integration gate.
+  Native work uses Proxmox VM 100 (restarted with explicit user approval), Ubuntu
+  26.04.1 x86_64 / Rust 1.98.0 / GCC 15.2.0, pinned upstream `c9c5979`, default
+  optimized `difftest` profile, C++ `-O2 -ffp-contract=off -fno-fast-math` and one
+  Cargo job under nice, with incremental caching disabled to limit disk use. The
+  temporary swap is removed and the original 1 GiB balloon minimum restored.
+  Earlier `7c60fc1d` CI passed all eight checks and the then 187-unit native gate,
+  but does not certify these review changes.
 
 ## intersect.curve_class_p5: independent port
 
