@@ -5381,3 +5381,58 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## topology.face_p3 (`SmFace` part 3: `ComputeLoopOrientation`, `CreateUVTrimCurves`, `FaceIntersect`, `IsDegenerate`, `CreateComposites`, `SetTolerance`, `Notify`, lamina tests, PR #139, 2026-10-16; partial, no disagreements)
+
+- **Coverage.** Every case that runs on both sides agrees bit for bit. What compares
+  values: the three lamina queries (`HasConsecutiveLaminaEdges` defers on
+  `SmFace::GetEdges(.., TRUE)`, `topology.face_p4`), `SetTolerance` (every face, edge and
+  vertex tolerance), `Notify` `PRE_EDIT` / `ADD_TO_BREP` / `RM_FROM_BREP` (rectangular-trim
+  flag and every edge use / vertex use state), `IsDegenerate` with a zone tolerance above
+  every edge (all edges degenerate: the early `TRUE`), `CreateComposites` on faces whose
+  loops need no `NormalizedEvaluate`, and `FaceIntersect` of non-coincident face pairs
+  whose surfaces do not meet. The other paths defer on their unported callees:
+  `ComputeLoopOrientation` at `sm_AreConnected` / `GetOrCreateUVTrimCurve` /
+  `NormalizedEvaluate` (`topology.edgeuse_p3`; checked on a rebuilt `plane_square.smb`
+  that the C++ takes the UV path there too, so the deferral hides no disagreement),
+  `IsDegenerate` at the `SmCurveClassification` constructor (`intersect.curve_class_p4`),
+  `CreateUVTrimCurves` at `GetSingularities` of the face-owned surface (the
+  `SmFace::GetTolerance` stub of `surface.surface_p3`, tagged `topology.face_p2`) or
+  `GetUpwardLoopuses` (`topology.face_p4`), `FaceIntersect` at `CoincidenceCheck`
+  (`surface.surface_p8`) or the classification of its curves.
+- **Harness.** The B-rep blocks, graph export and import are those of the
+  `topology.vertexuse` runner (planes as `SmPlane`, lines as `SmLine`). Its import keeps
+  analytic `SmBSplineSurface` / `SmBSplineCurve` subclasses (cone, cylinder, sphere,
+  torus, revolution, extrusion, ellipse) only as their B-spline parts, so the geometric
+  ops (`LoopOrient` onwards) on such B-reps defer to the unit that gives the kind a Rust
+  representation (the mapping of the `topology.edgeuse_p2` runner). The shim's own op 0
+  exports each face's surface type and each edge's curve type for that test. The shim
+  outputs `-2` instead of calling a geometric op when the B-rep has a face without
+  surface or an edge without curve (upstream dereferences them); the Rust side does the
+  same. `SmallBox.smb` (and `Platform.smb`) do not build upstream and are not used.
+- **`CreateUVTrimCurves` order.** Upstream reads `GetUVDomain`, `GetSingularities` and
+  `GetNaturalUVDomain` before `SmRescueSurfaceOwner` clears the surface owner; the port
+  does the same, so `GetSingularities` sees the face-owned surface (its approximation
+  tolerance is the face's).
+- **Stubs left for this unit** (`prepush.sh stubs` CHECK, `justified:`):
+  `query.poly` `PolyBrep::face_set_original_face` (`SmPolyFace::SetOriginalFace`
+  notifies the original `SmFace` with `SM_NO_COPY`; the poly B-rep holds the original face
+  as an opaque `ObjectKey`, with no B-rep and no topology record for
+  `SmTopology::Notify` to copy from) and `surface.trim_srf_cache`
+  `face_create_uv_trim_curves` (the trimmed surface cache holds its face as an opaque
+  handle `O`, and the preceding `SmBrep::m_bEditingEnabled` stub, `topology.brep_p1`,
+  returns first). Both need a B-rep handle in those types. The
+  `MarkFaceContainment` dispatch note of `surface.trim_srf_cache` above still applies once
+  that call is wired.
+- **Wired elsewhere.** `topology.vertex` (`RefreshTolerance` -> `SmFace::SetTolerance`;
+  the vertex shim now exports each face's tolerance, which the cascade reads; 76 cases
+  that deferred now pass), `topology.trimming_tools` (`CreateUVTrimCurves`,
+  `ComputeLoopOrientation`; the 219 `topology.face_p3` deferrals now defer inside them),
+  `topology.loopuse` (`FlipLoopOrientation`'s `PRE_EDIT` / `POST_EDIT` notifications run
+  with an empty attribute store and topology records, which is all a B-rep face carries;
+  the 366 deferrals move to `GetUpwardEdgeuses`, `topology.face_p4`),
+  `heal.heal_data_p2` (`SetTolerance`, `IsDegenerate`; `Cache_DegenFaces` now takes the
+  B-rep mutably, since `IsDegenerate`'s quick check may build UV trim curves).
+- **Upstream defects.** UB-130 (`ComputeLoopOrientation` reads an uninitialised
+  `sVeryFirstUV`), UB-131 (`FaceIntersect` hands out deleted curves through
+  `pOptCC3DCrvs`).

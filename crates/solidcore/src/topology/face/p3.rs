@@ -803,7 +803,9 @@ pub fn create_uv_trim_curves(
     // queried before the surface owner is cleared, as upstream
     let pre = PreRescue {
         uv_domain: face2::uv_domain(b, f)?,
-        srf_poles: surface_of(b, f)?.get_singularities(k, false, false)?.singular,
+        srf_poles: surface_of(b, f)?
+            .get_singularities(k, false, false)?
+            .singular,
         srf_uv_domain: surface_of(b, f)?.natural_uv_domain(),
     };
     let surface = surface_of(b, f)?;
@@ -943,10 +945,15 @@ fn create_uv_trim_curves_body(
                 let uv0 = Point2::new(uv_pnt0.x, uv_pnt0.y);
                 let uv1 = Point2::new(uv_pnt1.x, uv_pnt1.y);
 
-                let (u0, v0) = srf_uv_domain.classify_point(uv0, u_scaled_zero, Some(v_scaled_zero));
-                let (u1, v1) = srf_uv_domain.classify_point(uv1, u_scaled_zero, Some(v_scaled_zero));
-                let start = |t: ExtentPointType| matches!(t, ExtentPointType::Start | ExtentPointType::Both);
-                let end = |t: ExtentPointType| matches!(t, ExtentPointType::End | ExtentPointType::Both);
+                let (u0, v0) =
+                    srf_uv_domain.classify_point(uv0, u_scaled_zero, Some(v_scaled_zero));
+                let (u1, v1) =
+                    srf_uv_domain.classify_point(uv1, u_scaled_zero, Some(v_scaled_zero));
+                let start = |t: ExtentPointType| {
+                    matches!(t, ExtentPointType::Start | ExtentPointType::Both)
+                };
+                let end =
+                    |t: ExtentPointType| matches!(t, ExtentPointType::End | ExtentPointType::Both);
                 gap_at_pole = (srf_poles & SS_UMIN != 0 && start(u0) && start(u1))
                     || (srf_poles & SS_UMAX != 0 && end(u0) && end(u1))
                     || (srf_poles & SS_VMIN != 0 && start(v0) && start(v1))
@@ -1176,7 +1183,10 @@ pub fn is_degenerate(
 
     // for every FaceEdge - check for coincidence with some other FaceEdge
     for ii in 0..edges.len() {
-        let e1 = edges.get(ii).copied().ok_or_else(|| null("IsDegenerate: edge index"))?;
+        let e1 = edges
+            .get(ii)
+            .copied()
+            .ok_or_else(|| null("IsDegenerate: edge index"))?;
         let zone_tol1 = opt_zone_tol_3d.unwrap_or(b.edge(e1)?.tolerance);
 
         // skip degenerate edges
@@ -1186,7 +1196,10 @@ pub fn is_degenerate(
 
         // compare Edge1 with all other nonDegenerate edges for coincidence
         for jj in ii + 1..edges.len() {
-            let e2 = edges.get(jj).copied().ok_or_else(|| null("IsDegenerate: edge index"))?;
+            let e2 = edges
+                .get(jj)
+                .copied()
+                .ok_or_else(|| null("IsDegenerate: edge index"))?;
             let zone_tol2 = opt_zone_tol_3d.unwrap_or(b.edge(e2)?.tolerance);
             let xsect_tol = xsect_tol_3d_from_zones(k, zone_tol1, zone_tol2);
 
@@ -1516,10 +1529,20 @@ pub fn face_intersect(
             let mut pc2 = PointClassification::<IntersectObject>::new(other_zone_tol);
             // statuses ignored upstream
             ignore_status(point_3d_classify(k, b, f, point, this_zone_tol, &mut pc1))?;
-            ignore_status(point_3d_classify(k, b, other, point, other_zone_tol, &mut pc2))?;
+            ignore_status(point_3d_classify(
+                k,
+                b,
+                other,
+                point,
+                other_zone_tol,
+                &mut pc2,
+            ))?;
             let (pct1, pct2) = (pc1.point_class(), pc2.point_class());
             let on = |t: PointClassType| {
-                matches!(t, PointClassType::Face | PointClassType::Edge | PointClassType::Vertex)
+                matches!(
+                    t,
+                    PointClassType::Face | PointClassType::Edge | PointClassType::Vertex
+                )
             };
             if on(pct1) && on(pct2) {
                 points.push(point);
@@ -1527,8 +1550,14 @@ pub fn face_intersect(
             continue;
         }
 
-        let uv1 = uv_curves1.get(ii).and_then(Option::as_ref).map(|_| IntersectObject::UvCurve(ii, false));
-        let uv2 = uv_curves2.get(ii).and_then(Option::as_ref).map(|_| IntersectObject::UvCurve(ii, true));
+        let uv1 = uv_curves1
+            .get(ii)
+            .and_then(Option::as_ref)
+            .map(|_| IntersectObject::UvCurve(ii, false));
+        let uv2 = uv_curves2
+            .get(ii)
+            .and_then(Option::as_ref)
+            .map(|_| IntersectObject::UvCurve(ii, true));
         let ivl = curve.natural_interval();
         let mut cc1 = curve_classification(k, IntersectObject::Curve(ii), &ivl, uv1, zone_tol)?;
         let mut cc2 = curve_classification(k, IntersectObject::Curve(ii), &ivl, uv2, zone_tol)?;

@@ -85,8 +85,8 @@ use std::collections::BTreeMap;
 
 use crate::curve::curve::Curve;
 use crate::error::{EntityRef, Result, SolidError};
-use crate::geom::extent1d::Extent1d;
 use crate::geom::attribute::{AttributeStore, ObjectKey};
+use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::{Extent2d, SS_NONE};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol;
